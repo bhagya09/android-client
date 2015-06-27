@@ -273,8 +273,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			@Override
 			public void run()
 			{
-				getListView().setPadding(0, 0, 0, footercontroller.getHeight());
-				
+				if(isAdded())
+				{
+					getListView().setPadding(0, 0, 0, footercontroller.getHeight());
+				}
 			}
 		});
 		Logger.d("footer","changeFooterState");
@@ -1320,7 +1322,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
          */
 		else
 		{
-			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+			if (!(conv instanceof OneToNConvInfo || BotUtils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 			{
 				optionsList.add(getString(R.string.add_to_contacts));
 				optionsList.add(getString(R.string.add_to_contacts_existing));
@@ -1349,7 +1351,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 			}
 
-			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+			if (!(conv instanceof OneToNConvInfo || BotUtils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 			{
 				optionsList.add(ContactManager.getInstance().isBlocked(conv.getMsisdn()) ? getString(R.string.unblock_title) : getString(R.string.block_title));
 			}
@@ -1853,9 +1855,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		
 		if (isTyping)
-		{	// If we were not already typing and we got isTyping as true, we set typing flag
-			if (convInfo.getTypingNotif() == null)
-			{
+		{	
 				convInfo.setTypingNotif(typingNotification);
 				View parentView = getParenViewForConversation(convInfo);
 				if (parentView == null)
@@ -1865,7 +1865,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 				
 				mAdapter.updateViewsRelatedToTypingNotif(parentView, convInfo);
-			}
+		
 		}
 		else
 		{	// If we were already typing and we got isTyping as false, we remove the typing flag

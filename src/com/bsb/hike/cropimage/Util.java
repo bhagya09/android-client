@@ -29,6 +29,7 @@ import android.os.ParcelFileDescriptor;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -86,7 +87,11 @@ public class Util
 			 * In this case the bitmap is smaller, at least in one dimension, than the target. Transform it by placing as much of the image as possible into the target and leaving
 			 * the top/bottom or left/right (or both) black.
 			 */
-			Bitmap b2 = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.RGB_565);
+			Bitmap b2 = HikeBitmapFactory.createBitmap(targetWidth, targetHeight, Bitmap.Config.RGB_565);
+			if(b2 == null)
+			{
+				return null;
+			}
 			Canvas c = new Canvas(b2);
 
 			int deltaXHalf = Math.max(0, deltaX / 2);
@@ -133,7 +138,7 @@ public class Util
 		if (scaler != null)
 		{
 			// this is used for minithumb and crop, so we want to filter here.
-			b1 = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), scaler, true);
+			b1 = HikeBitmapFactory.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), scaler, true);
 		}
 		else
 		{
@@ -143,9 +148,9 @@ public class Util
 		int dx1 = Math.max(0, b1.getWidth() - targetWidth);
 		int dy1 = Math.max(0, b1.getHeight() - targetHeight);
 
-		Bitmap b2 = Bitmap.createBitmap(b1, dx1 / 2, dy1 / 2, targetWidth, targetHeight);
+		Bitmap b2 = HikeBitmapFactory.createBitmap(b1, dx1 / 2, dy1 / 2, targetWidth, targetHeight);
 
-		if (b1 != source)
+		if (b1!=null && !b1.isRecycled() && b1 != source)
 		{
 			b1.recycle();
 		}

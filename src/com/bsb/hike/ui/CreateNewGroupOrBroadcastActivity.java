@@ -76,6 +76,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private ConvType convType;
 	
 	private String myMsisdn;
+	
+	private ImageView editImageIcon;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -183,6 +185,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (EditText) findViewById(R.id.group_name);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+			editImageIcon = (ImageView) findViewById(R.id.change_image);
 			convName.addTextChangedListener(new TextWatcher()
 			{
 
@@ -349,6 +352,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 		groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
 		convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
+		if (editImageIcon != null) {
+			editImageIcon.setImageResource(R.drawable.ic_edit_group);
+		}
 
 		/*
 		 * Saving the icon in the DB.

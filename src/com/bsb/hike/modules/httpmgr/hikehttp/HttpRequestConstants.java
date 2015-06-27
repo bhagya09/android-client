@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
@@ -12,7 +13,6 @@ public class HttpRequestConstants
 
 	private static final String HTTP = "http://";
 
-	// TODO change it to https
 	private static final String HTTPS = "https://";
 
 	private static final String PRODUCTION_API = "api.im.hike.in";
@@ -22,6 +22,8 @@ public class HttpRequestConstants
 	private static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
 	private static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
+	
+	private static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 		
 	public static final int PRODUCTION_PORT = 80;
 
@@ -36,6 +38,8 @@ public class HttpRequestConstants
 	private static String BASE_URL = HTTP + PRODUCTION_API;
 
 	private static String BASE_PLATFORM_URL = HTTP + PLATFORM_PRODUCTION_API;
+	
+	private static String BASE_STICKERS_URL = HTTP + STICKERS_PRODUCTION_API;
 
 	private static final String BASE_V1 = "/v1";
 
@@ -72,6 +76,7 @@ public class HttpRequestConstants
 		isProduction = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
 		changeBaseUrl();
 		changeBasePlatformUrl();
+		changeBaseStickersUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -79,17 +84,44 @@ public class HttpRequestConstants
 		isSSL = Utils.switchSSLOn(HikeMessengerApp.getInstance());
 		changeBaseUrl();
 		changeBasePlatformUrl();
+		changeBaseStickersUrl();
 	}
 
 	private static void changeBaseUrl()
 	{
 		BASE_URL = "";
 		BASE_URL += (isSSL) ? HTTPS : HTTP;
-		BASE_URL += (isProduction) ? PRODUCTION_API : STAGING_API;
+		
+		if(isProduction)
+		{
+			BASE_URL += PRODUCTION_API;
+		}
+		else
+		{
+			//get staging or custom staging url
+			setupStagingUrl();
+		}
 		
 		BASE_SDK = "";
 		BASE_SDK += (isSSL) ? HTTPS : HTTP;
 		BASE_SDK += (isProduction) ? BASE_SDK_PROD : BASE_SDK_STAGING;
+	}
+	
+	private static void setupStagingUrl()
+	{
+		int whichServer = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, AccountUtils._STAGING_HOST);
+		if (whichServer == AccountUtils._CUSTOM_HOST)
+		{
+			String host = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
+			int port = AccountUtils.port = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
+			// all custom ip request should point to http and not https
+			BASE_URL = HTTP + host + ":" + Integer.toString(port);
+
+		}
+		else
+		{
+			BASE_URL += STAGING_API; // staging host
+		}
 	}
 
 	private static void changeBasePlatformUrl()
@@ -99,16 +131,45 @@ public class HttpRequestConstants
 		BASE_PLATFORM_URL += (isProduction) ? PLATFORM_PRODUCTION_API : PLATFORM_STAGING_API;
 	}
 	
+	private static void changeBaseStickersUrl()
+	{
+		BASE_STICKERS_URL = "";
+		BASE_STICKERS_URL += (isSSL) ? HTTPS : HTTP;
+		BASE_STICKERS_URL += (isProduction) ? STICKERS_PRODUCTION_API : STAGING_API;
+	}
+	
+	
+	
 	/*********************************************************************************************************************************************/
 
 	public static String singleStickerDownloadBase()
 	{
-		return BASE_URL + BASE_V1 + BASE_STICKER;
+		return BASE_STICKERS_URL + BASE_V1 + "/stickers";
 	}
 
 	public static String multiStickerDownloadUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_STICKER;
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER;
+	}
+	
+	public static String stickerPalleteImageDownloadUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/enable_disable";
+	}
+	
+	public static String stickerPreviewImageDownloadUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/preview";
+	}
+	
+	public static String stickerShopDownloadUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
+	}
+	
+	public static String stickerSignupUpgradeUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
 	}
 
 	public static String lastSeenUrl()
@@ -234,5 +295,10 @@ public class HttpRequestConstants
 	public static String setProfileUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
+	}
+	
+	public static String signUpPinCallBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/pin-call";
 	}
 }
