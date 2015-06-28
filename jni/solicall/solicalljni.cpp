@@ -89,7 +89,7 @@ JNIEXPORT jint JNICALL Java_com_bsb_hike_voip_SolicallWrapper_AECInit
     mySoliCallInit.sOutputAMPIncrease = 0;
     mySoliCallInit.sDelaySize = 6;
     mySoliCallInit.sDetectAggressiveLevel = 2;
-    mySoliCallInit.sCleanAggressiveLevel = 11;
+    mySoliCallInit.sCleanAggressiveLevel = 9;
     mySoliCallInit.bCancelAcousticShock = false;
     mySoliCallInit.bDoNotChangeTheOutput = false;
     mySoliCallInit.bBypassVAD = false;
