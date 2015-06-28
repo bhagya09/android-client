@@ -115,8 +115,8 @@ public class VoIPClient  {
 	private final ConcurrentLinkedQueue<VoIPDataPacket> decodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> samplesToEncodeQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	
-	// Last decoded buffer cache
-	private VoIPDataPacket lastDecodedBuffer = null;
+	// Simulate packet loss
+	private int simulatedPacketLossPercentage = 0;
 	
 	public enum ConnectionMethods {
 		UNKNOWN,
@@ -937,6 +937,14 @@ public class VoIPClient  {
 		
 		if (packetData == null)
 			return;
+
+		// Simulated packet loss
+		if (simulatedPacketLossPercentage > 0 ) {
+			if (new Random().nextInt(100) < simulatedPacketLossPercentage) {
+				Logger.d(tag, "Oops. I'm going to lose a packet on purpose.");
+				return;
+			}
+		}	
 		
 		try {
 			DatagramPacket packet = null;
@@ -1729,18 +1737,20 @@ public class VoIPClient  {
 	}
 	
 	public VoIPDataPacket getDecodedBuffer() {
+		
 		VoIPDataPacket dp = decodedBuffersQueue.poll();
 		
-		if (dp != null)
-			lastDecodedBuffer = dp;
-		else {
-			// If the decoded buffers queue is empty, then we will return the
-			// last decoded sample (just once)
-			if (lastDecodedBuffer != null) {
-				// Logger.d(logTag, getPhoneNumber() + " returning cached decoded buffer.");
-				dp = lastDecodedBuffer;
+		if (dp == null) {
+			// We do not have audio data from the client. 
+			// Use packet loss concealment to extrapolate data.
+			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+			byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
+			try {
+				opusWrapper.plc(data);
+			} catch (Exception e) {
+				Logger.e(tag, "PLC Exception: " + e.toString());
 			}
-			lastDecodedBuffer = null;
+			dp.setData(data);
 		}
 		
 		return dp;
