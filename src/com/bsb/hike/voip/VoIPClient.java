@@ -41,6 +41,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
@@ -108,7 +109,14 @@ public class VoIPClient  {
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
 	public boolean isHostingConference;
-
+	
+	// Audio quality
+	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
+	private final int QUALITY_CALCULATION_FREQUENCY = 4;	// Quality is calculated every 'x' playback samples
+	private BitSet playbackTrackingBits = new BitSet(VoIPConstants.AUDIO_SAMPLE_RATE * QUALITY_BUFFER_SIZE/ OpusWrapper.OPUS_FRAME_SIZE);
+	private int playbackFeederCounter = 0;
+	public CallQuality currentCallQuality = CallQuality.UNKNOWN;
+	
 	private final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> samplesToDecodeQueue     = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> encodedBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -130,6 +138,7 @@ public class VoIPClient  {
 		this.context = context;
 		this.handler = handler;
 		encryptionStage = EncryptionStage.STAGE_INITIAL;
+		currentCallQuality = CallQuality.UNKNOWN;
 		setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 	}
 
@@ -1738,6 +1747,10 @@ public class VoIPClient  {
 	
 	public VoIPDataPacket getDecodedBuffer() {
 		
+		playbackFeederCounter++;
+		if (playbackFeederCounter == Integer.MAX_VALUE)
+			playbackFeederCounter = 0;
+
 		VoIPDataPacket dp = decodedBuffersQueue.poll();
 		
 		if (dp == null) {
@@ -1751,11 +1764,43 @@ public class VoIPClient  {
 				Logger.e(tag, "PLC Exception: " + e.toString());
 			}
 			dp.setData(data);
+			playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
+		} else {
+			playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
 		}
+		
+		if (playbackFeederCounter % QUALITY_CALCULATION_FREQUENCY == 0)
+			calculateQuality();
 		
 		return dp;
 	}
 	
+	private void calculateQuality() {
+		if (getCallDuration() < QUALITY_BUFFER_SIZE)
+			return;
+		
+		int cardinality = playbackTrackingBits.cardinality();
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
+		// Logger.d(logTag, "Loss: " + loss + ", cardinality: " + cardinality);
+		
+		CallQuality newQuality;
+		
+		if (loss < 10)
+			newQuality = CallQuality.EXCELLENT;
+		else if (loss < 20)
+			newQuality = CallQuality.GOOD;
+		else if (loss < 30)
+			newQuality = CallQuality.FAIR;
+		else 
+			newQuality = CallQuality.WEAK;
+
+		if (currentCallQuality != newQuality) {
+			currentCallQuality = newQuality;
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
+		}
+
+	}
+
 	public void addSampleToEncode(VoIPDataPacket dp) {
 		samplesToEncodeQueue.add(dp);
 	}

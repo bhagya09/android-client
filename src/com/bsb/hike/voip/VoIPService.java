@@ -125,13 +125,6 @@ public class VoIPService extends Service {
 	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
 	
-	// Playback quality
-	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
-	private final int QUALITY_CALCULATION_FREQUENCY = 4;	// Quality is calculated every 'x' playback samples
-	private BitSet playbackTrackingBits = new BitSet(VoIPConstants.AUDIO_SAMPLE_RATE * QUALITY_BUFFER_SIZE/ OpusWrapper.OPUS_FRAME_SIZE);
-	private int playbackFeederCounter = 0;
-	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
-	
 	// Buffer queues
 	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<>(VoIPConstants.MAX_SAMPLES_BUFFER);
 	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -286,7 +279,6 @@ public class VoIPService extends Service {
 		initAudioManager();
 		keepRunning = true;
 		isRingingIncoming = false;
-		currentCallQuality = CallQuality.UNKNOWN;
 		
 		if (!VoIPUtils.useAEC(getApplicationContext())) {
 			Logger.w(tag, "AEC disabled.");
@@ -1467,10 +1459,6 @@ public class VoIPService extends Service {
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-				playbackFeederCounter++;
-				if (playbackFeederCounter == Integer.MAX_VALUE)
-					playbackFeederCounter = 0;
-
 				if (keepRunning) {
 
 					// Retrieve decoded samples from all clients and combine into one
@@ -1499,11 +1487,8 @@ public class VoIPService extends Service {
 					try {
 						if (finalDecodedSample == null) {
 							// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
-							playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
 							finalDecodedSample = silentPacket;
-						} else {
-							playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
-						}
+						} 
 
 						// Add to our decoded samples queue for playback
 						if (!hold) {
@@ -1550,9 +1535,6 @@ public class VoIPService extends Service {
 							}
 						}
 					}
-
-					if (playbackFeederCounter % QUALITY_CALCULATION_FREQUENCY == 0)
-						calculateQuality();
 
 					if (hostingConference())
 						clientSample.clear();
@@ -1629,32 +1611,7 @@ public class VoIPService extends Service {
 		}, "CONFERENCE_BROADCAST_THREAD");
 		conferenceBroadcastThread.start();
 	}
-	private void calculateQuality() {
-		if (getCallDuration() < QUALITY_BUFFER_SIZE)
-			return;
-		
-		int cardinality = playbackTrackingBits.cardinality();
-		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
-		// Logger.d(logTag, "Loss: " + loss + ", cardinality: " + cardinality);
-		
-		CallQuality newQuality;
-		
-		if (loss < 10)
-			newQuality = CallQuality.EXCELLENT;
-		else if (loss < 20)
-			newQuality = CallQuality.GOOD;
-		else if (loss < 30)
-			newQuality = CallQuality.FAIR;
-		else 
-			newQuality = CallQuality.WEAK;
 
-		if (currentCallQuality != newQuality) {
-			currentCallQuality = newQuality;
-			sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
-		}
-
-	}
-	
 	public void setHold(boolean newHold) {
 		
 		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
@@ -1864,7 +1821,11 @@ public class VoIPService extends Service {
 	}
 	
 	public CallQuality getQuality() {
-		return currentCallQuality;
+		VoIPClient client = getClient();
+		if (client != null)
+			return client.currentCallQuality;
+		else
+			return CallQuality.UNKNOWN;
 	}
 
 	public boolean isAudioRunning() {
