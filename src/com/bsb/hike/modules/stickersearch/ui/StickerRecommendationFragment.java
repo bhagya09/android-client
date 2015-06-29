@@ -1,8 +1,6 @@
 package com.bsb.hike.modules.stickersearch.ui;
 
-import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.MIN_STICKER_LIST_SIZE_FOR_SCROLL;
 import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.SCROLL_SPEED_PER_DIP;
-import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.SCROLL_TO_POSITION;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +19,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 
 public class StickerRecommendationFragment extends SherlockFragment
 {
@@ -33,6 +32,8 @@ public class StickerRecommendationFragment extends SherlockFragment
 	private RecyclerView recyclerView;
 	
 	private RecyclerView.LayoutManager mLayoutManager;
+	
+	private int MIN_STICKER_LIST_SIZE_FOR_SCROLL, SCROLL_TO_POSITION;
 	
 	private StickerRecommendationFragment(IStickerRecommendFragmentListener listner)
 	{
@@ -54,6 +55,8 @@ public class StickerRecommendationFragment extends SherlockFragment
 		super.onCreate(savedInstanceState);
 		Bundle args = getArguments();
 		stickerList = args.getParcelableArrayList(HikeConstants.LIST);
+		MIN_STICKER_LIST_SIZE_FOR_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(getActivity()) + 1;
+		SCROLL_TO_POSITION = MIN_STICKER_LIST_SIZE_FOR_SCROLL - 1;
 	}
 
 	@Override
@@ -62,7 +65,7 @@ public class StickerRecommendationFragment extends SherlockFragment
 
 		View parent = inflater.inflate(R.layout.sticker_recommend, container, false);
 		
-		recyclerView = (RecyclerView) parent.findViewById(R.id.twoWayView);
+		recyclerView = (RecyclerView) parent.findViewById(R.id.recyclerView);
 		mLayoutManager = new  CustomLinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false, SCROLL_SPEED_PER_DIP);
 	    recyclerView.setLayoutManager(mLayoutManager);
 	    

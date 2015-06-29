@@ -75,6 +75,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -635,6 +636,7 @@ public class MqttMessagesManager
 
 		messageProcessVibrate(convMessage);
 		messageProcessFT(convMessage);
+		messageProcessStickerRecommendation(convMessage);
 
 		if (convMessage.isOneToNChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
@@ -770,6 +772,21 @@ public class MqttMessagesManager
 		return convMessage;
 	}
 
+	/**
+	 * This function gives data to sticker recommendation
+	 */
+	private void messageProcessStickerRecommendation(ConvMessage convMessage)
+	{
+		if(convMessage.isStickerMessage())
+		{
+			StickerSearchManager.getInstance().receivedMessage(null, convMessage.getMetadata().getSticker(), null);
+		}
+		else if(convMessage.isTextMsg())
+		{
+			StickerSearchManager.getInstance().receivedMessage(convMessage.getMessage(), null, null);
+		}
+	}
+	
 	/**
 	 * This function decides whether to vibrate or not for a given message
 	 */

@@ -1030,7 +1030,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		ConvMessage convMessage = createConvMessageFromCompose();
 		StickerSearchManager.getInstance().sentMessage(convMessage.getMessage(), null, null);
-		sendMessage(createConvMessageFromCompose());
+		sendMessage(convMessage);
 	}
 
 	protected ConvMessage createConvMessageFromCompose()
@@ -3252,15 +3252,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 			}
 			
-			if(message.isStickerMessage())
-			{
-				StickerSearchManager.getInstance().receivedMessage(null, message.getMetadata().getSticker(), null);
-			}
-			else if(message.isTextMsg())
-			{
-				StickerSearchManager.getInstance().receivedMessage(message.getMessage(), null, null);
-			}
-
 			sendUIMessage(MESSAGE_RECEIVED, message);
 
 		}
