@@ -451,7 +451,11 @@ public class Utils
 		// String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.SSS")
 		// .format(new Date());
 		String timeStamp = Long.toString(System.currentTimeMillis());
-		String orgFileName = null;
+		/*
+		 * We don't create files for type LOCATION and CONTACT.
+		 * So file name should be empty string instead of null to avoid NullPointerException on file creation.
+		 */
+		String orgFileName = "";
 		
 		switch (type)
 		{

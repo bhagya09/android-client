@@ -1547,4 +1547,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="now">Now</string>
 	<string name="sticker_share_description"><![CDATA[<font color="#57dcf9">www.hike.in</font>]]></string>
 	<string name="group_participant_info">You can add upto 500 members to a group</string>
+    <string name="cont_desc_photos_tab_filter">TabFilter</string>
+    <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
+
 </resources>

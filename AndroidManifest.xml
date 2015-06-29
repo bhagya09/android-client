@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1253"
+    android:versionCode="1255"
     android:versionName="3.9.8.311.chathead" >
     <uses-sdk
         android:minSdkVersion="9"
