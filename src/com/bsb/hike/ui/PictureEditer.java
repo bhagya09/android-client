@@ -628,7 +628,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				public void onComplete(File f)
 				{
 					finishProgress();
-					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true), HikeConstants.CROP_RESULT);
+					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, false), HikeConstants.CROP_RESULT);
 				}
 			});
 		}

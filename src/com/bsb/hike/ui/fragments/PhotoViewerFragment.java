@@ -76,7 +76,9 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private int sizeOfImage;
 
-	private int initialPosition = -1;
+	private final static int UNSPECIFIED_INIT_POS = -1;
+
+	private int initialPosition = UNSPECIFIED_INIT_POS;
 
 	private String msisdn;
 
@@ -121,7 +123,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 		if (savedInstanceState != null)
 		{
-			initialPosition = savedInstanceState.getInt(HikeConstants.Extras.CURRENT_POSITION, -1);
+			initialPosition = savedInstanceState.getInt(HikeConstants.Extras.CURRENT_POSITION, UNSPECIFIED_INIT_POS);
 		}
 
 		isEditEnabled = Utils.isPhotosEditEnabled();
@@ -140,7 +142,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	private void readArguments()
 	{
 		sharedMediaItems = getArguments().getParcelableArrayList(HikeConstants.Extras.SHARED_FILE_ITEMS);
-		initialPosition = getArguments().getInt(HikeConstants.MEDIA_POSITION, -1);
+		initialPosition = getArguments().getInt(HikeConstants.MEDIA_POSITION, UNSPECIFIED_INIT_POS);
 		msisdn = getArguments().getString(HikeConstants.Extras.MSISDN);
 		isGroup = getArguments().getBoolean(HikeConstants.Extras.IS_GROUP_CONVERSATION, false);
 		conversationName = getArguments().getString(HikeConstants.Extras.CONVERSATION_NAME);
@@ -237,7 +239,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private void setAdapterSelectedPos()
 	{
-		if (initialPosition != -1)
+		if (initialPosition != UNSPECIFIED_INIT_POS)
 		{
 			if (latestFirst)
 			{
@@ -450,7 +452,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	{
 		PhotoViewerFragment photoViewerFragment = new PhotoViewerFragment();
 		Bundle arguments = new Bundle();
-		arguments.putInt(HikeConstants.MEDIA_POSITION, hikeSharedFiles.size() == 1 ? -1 : mediaPosition);
+		arguments.putInt(HikeConstants.MEDIA_POSITION, hikeSharedFiles.size() == 1 ? UNSPECIFIED_INIT_POS : mediaPosition);
 		arguments.putBoolean(HikeConstants.FROM_CHAT_THREAD, fromChatThread);
 		arguments.putString(HikeConstants.Extras.MSISDN, fromMsisdn);
 		arguments.putString(HikeConstants.Extras.CONVERSATION_NAME, convName);
