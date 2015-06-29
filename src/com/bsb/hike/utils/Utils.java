@@ -3244,6 +3244,11 @@ public class Utils
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 	}
 	
+	public static boolean isLollipopOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+	}
+	
 	public static boolean isJELLY_BEAN_MR2OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
@@ -3492,11 +3497,18 @@ public class Utils
 
 	public static void onCallClicked(Context context, final String mContactNumber, VoIPUtils.CallSource source)
 	{
+		// Check if we have blocked this user. 
+		if (ContactManager.getInstance().isBlocked(mContactNumber)) {
+			Toast.makeText(context, context.getString(R.string.content_des_block_overlay_message), Toast.LENGTH_SHORT).show();
+			return;
+		}
+
 		if (!isUserOnline(context))
 		{
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;
 		}
+		
 		context.startService(IntentFactory.getVoipCallIntent(context, mContactNumber, source));
 	}
 
