@@ -189,6 +189,7 @@ public class ConversationsAdapter extends BaseAdapter
 		if (removeBotMsisdn != null && removeBotMsisdn.equals(convInfo.getMsisdn()))
 		{
 			animation = getSlideOutAnimation(convInfo);
+			animation.setDuration(500);
 			removeBotMsisdn = null;
 		}
 		else
@@ -197,11 +198,13 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 			case HikeConstants.BOT_SLIDE_IN_ANIMATION:
 				animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_from_left);
-				animation.setStartOffset(botAnimationStartTime*100);
+				animation.setStartOffset(botAnimationStartTime*250);
+				animation.setDuration(400);
 				botAnimationStartTime++;
 				break;
 			case HikeConstants.BOT_READ_SLIDE_OUT_ANIMATION:
 				animation = getSlideOutAnimation(convInfo);
+				animation.setDuration(500);
 				break;
 			}
 
