@@ -356,6 +356,8 @@
         <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="android:dropDownListViewStyle">@style/MyDropDownListView</item>
         <item name="actionBarPopupTheme">@style/ThemeOverlay.My</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
         
         
 	 </style>
