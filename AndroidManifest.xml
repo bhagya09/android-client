@@ -326,7 +326,8 @@
         </activity>
         <activity
             android:name=".ui.PinHistoryActivity"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@style/AppTheme.ChatThread" >
         </activity>
         <activity
             android:name=".voip.view.CallRateActivity"
