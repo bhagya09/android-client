@@ -347,7 +347,7 @@ public class VoIPClient  {
 	
 	public void retrieveExternalSocket() {
 
-		IceSocketTimeout = 2;
+		IceSocketTimeout = VoIPConstants.INITIAL_ICE_SOCKET_TIMEOUT;
 		keepRunning = true;
 		
 		iceThread = new Thread(new Runnable() {

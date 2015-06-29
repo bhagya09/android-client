@@ -28,6 +28,8 @@ public class VoIPConstants {
 	 */
 	public static final int MAXIMUM_GROUP_CHAT_SIZE = 10;
 	
+	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
+	
 	// Intent actions
 	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
 	public static final String PARTNER_INCOMPATIBLE = "pi";
