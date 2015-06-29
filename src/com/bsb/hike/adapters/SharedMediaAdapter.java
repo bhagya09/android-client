@@ -1,10 +1,9 @@
 package com.bsb.hike.adapters;
 
-import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -15,15 +14,16 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TouchImageView;
 
-public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
+public class SharedMediaAdapter extends PagerAdapter implements OnClickListener, SuccessfulImageLoadingListener
 {
 	private LayoutInflater layoutInflater;
 
@@ -35,15 +35,19 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 
 	private PhotoViewerFragment photoViewerFragment;
 	
-	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, ViewPager viewPager, PhotoViewerFragment photoViewerFragment)
+	private Handler mHandler;
+	
+	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, PhotoViewerFragment photoViewerFragment)
 	{
 		this.context = context;
 		this.layoutInflater = LayoutInflater.from(this.context);
 		this.sharedMediaLoader = new SharedFileImageLoader(context, size_image);
 		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
 		sharedMediaLoader.setImageToBeCached(false);
+		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
+		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 	}
 
 	@Override
@@ -135,4 +139,57 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 		return sharedMediaLoader;
 	}
 
+	/**
+	 * This is done via post runnable so that this "removing loader"
+	 * gets queued into loop and is performed after image is shown in view pager
+	 * 
+	 * Note:- Doing directly without post via Runnable, first loader is removed and
+	 * then image is shown to user, so there is no loader seen or there is black screen shown
+	 */
+	@Override
+	public void onSuccessfulImageLoaded(final ImageView imageView)
+	{
+		if(photoViewerFragment.isAdded())
+		{
+			RemoveLoaderRunnable removeLoaderRunnable = new RemoveLoaderRunnable(imageView);
+			mHandler.post(removeLoaderRunnable);
+		}
+		
+	}
+	
+	public static class RemoveLoaderRunnable implements Runnable
+	{
+		private ImageView imageView;
+		
+		public RemoveLoaderRunnable(ImageView imageView)
+		{
+			this.imageView = imageView;
+		}
+		
+		@Override
+		public void run()
+		{
+			if(imageView == null)
+			{
+				return;
+			}
+			
+			View parent = imageView.getRootView();
+			
+			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
+			{
+				parent.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+			}
+		}
+		
+	}
+
+	// To remove any Callbacks in Handler
+	public void onDestroy()
+	{
+		if(mHandler!=null)
+		{
+			mHandler.removeCallbacksAndMessages(null);
+		}
+	}
 }
