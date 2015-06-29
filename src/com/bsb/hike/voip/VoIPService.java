@@ -77,7 +77,7 @@ public class VoIPService extends Service {
 	private NotificationManager notificationManager;
 	private NotificationCompat.Builder builder;
 	private AudioManager audioManager;
-	private int initialAudioMode, initialRingerMode;
+	private int initialAudioMode;
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0, recordingSampleRate = 0;
@@ -845,13 +845,11 @@ public class VoIPService extends Service {
 	
 	private void saveCurrentAudioSettings() {
 		initialAudioMode = audioManager.getMode();
-		initialRingerMode = audioManager.getRingerMode();
 		initialSpeakerMode = audioManager.isSpeakerphoneOn();
 	}
 
 	private void restoreAudioSettings() {
 		audioManager.setMode(initialAudioMode);
-		audioManager.setRingerMode(initialRingerMode);
 		audioManager.setSpeakerphoneOn(initialSpeakerMode);
 		audioManager.stopBluetoothSco();
 		audioManager.setBluetoothScoOn(false);	
