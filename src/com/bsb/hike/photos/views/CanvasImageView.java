@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -111,7 +112,7 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 		{
 			if(mBitmap == null)
 			{
-				mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, height, false, false, false, true);
+				mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, height, false, false, false, true,Config.ARGB_8888);
 			}
 			else
 			{

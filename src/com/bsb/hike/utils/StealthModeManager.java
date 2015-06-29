@@ -1,6 +1,8 @@
 package com.bsb.hike.utils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -40,7 +42,7 @@ public class StealthModeManager
 
 	private static Set<String> stealthMsisdn;
 	
-	private int currentState;
+	private volatile int currentState;
 
 	private StealthModeManager()
 	{
@@ -62,8 +64,8 @@ public class StealthModeManager
 		activate(false);
 	}
 
-	public int getStealthMsisdnMapSize() {
-		return stealthMsisdn.size();
+	public List<String> getStealthMsisdns() {
+		return new ArrayList<String>(stealthMsisdn);
 	}
 
 	public void markStealthMsisdn(String msisdn, boolean markStealth, boolean publish)
@@ -79,6 +81,11 @@ public class StealthModeManager
 		if(publish)
 		{
 			HikeMessengerApp.getPubSub().publish(markStealth? HikePubSub.STEALTH_DATABASE_MARKED : HikePubSub.STEALTH_DATABASE_UNMARKED, msisdn);
+
+			// letting the server know if conversations are being marked/unmarked stealth via mqtt
+			List<String> stealthMsisdns = new ArrayList<String>(1);
+			stealthMsisdns.add(msisdn);
+			HikeAnalyticsEvent.sendStealthMsisdns(markStealth?stealthMsisdns:null, !markStealth?stealthMsisdns:null);
 		}
 	}
 

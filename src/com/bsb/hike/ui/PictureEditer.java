@@ -131,7 +131,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		Logger.d(TAG, "Checking file type");
 		
-		if (HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
+		//special handling for webp images since some devices cant extract their mime type
+		if (!Utils.getFileExtension(filename).equalsIgnoreCase("webp") && HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
 		{
 			onError();
 			return;
@@ -208,7 +209,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			{
 				dir.mkdirs();
 			}
-			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		}
 
 		editView.setDestinationPath(destinationFileHandle);
@@ -758,11 +759,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onBackPressed()
 	{
-		if(isWorking)
-		{
-			return;
-		}
-		
 		if (getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE))
 		{
 			getSupportActionBar().show();

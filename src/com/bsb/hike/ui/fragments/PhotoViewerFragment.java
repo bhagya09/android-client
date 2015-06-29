@@ -17,9 +17,6 @@ import android.os.Handler;
 import android.provider.BaseColumns;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.util.LruCache;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -700,5 +697,19 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				menu.findItem(R.id.edit_pic).setVisible(false);
 			}
 		}
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		// TODO Auto-generated method stub
+		
+		//To remove any callbacks, if present inside handler in adaptor
+		if(smAdapter != null)
+		{
+			smAdapter.onDestroy();
+		}
+		
+		super.onDestroy();
 	}
 }
