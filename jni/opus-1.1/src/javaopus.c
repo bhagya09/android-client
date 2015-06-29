@@ -104,6 +104,21 @@ JNIEXPORT jint JNICALL Java_com_bsb_hike_voip_OpusWrapper_opus_1decode
 	  return retVal;
 }
 
+JNIEXPORT jint JNICALL Java_com_bsb_hike_voip_OpusWrapper_opus_1plc
+  (JNIEnv * je, jobject jo, jlong decoder, jbyteArray output, jint frameSize) {
+
+	  opus_int32 retVal;
+	  jbyte *out;
+
+	  out = get_byte_array(je, output);
+	  retVal = opus_decode((OpusDecoder *)(intptr_t)decoder, NULL, 0, (opus_int16 *)out, frameSize, 0);
+	  release_byte_array(je, output, out, 0);
+
+	  return retVal;
+}
+
+
+
 jstring
 Java_com_bsb_hike_voip_OpusWrapper_stringFromJNI( JNIEnv* env,
                                                   jobject thiz )

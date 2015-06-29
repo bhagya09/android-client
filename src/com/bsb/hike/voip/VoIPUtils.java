@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.Enumeration;
 import java.util.Random;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +46,7 @@ import com.bsb.hike.voip.view.VoIPActivity;
 
 public class VoIPUtils {
 
+	private static String tag = VoIPConstants.TAG + " Utils";
 	public static String ndkLibPath = "lib/armeabi/";
 
 	public static enum ConnectionClass {
@@ -89,7 +91,7 @@ public class VoIPUtils {
     	    try {
     	        ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
     	    } catch (UnknownHostException ex) {
-    	        Logger.e(VoIPConstants.TAG, "Unable to get host address.");
+    	        Logger.e(tag, "Unable to get host address.");
     	        ipAddressString = null;
     	    }
 
@@ -125,11 +127,11 @@ public class VoIPUtils {
     {
 
     	if (TextUtils.isEmpty(clientPartner.getPhoneNumber())) {
-    		Logger.w(VoIPConstants.TAG, "Null phone number while adding message to chat thread. Message: " + messageType + ", Duration: " + duration + ", Phone: " + clientPartner.getPhoneNumber());
+    		Logger.w(tag, "Null phone number while adding message to chat thread. Message: " + messageType + ", Duration: " + duration + ", Phone: " + clientPartner.getPhoneNumber());
     		return;
     	}
     		
-    	Logger.d(VoIPConstants.TAG, "Adding message to chat thread. Message: " + messageType + ", Duration: " + duration + ", Phone: " + clientPartner.getPhoneNumber());
+    	Logger.d(tag, "Adding message to chat thread. Message: " + messageType + ", Duration: " + duration + ", Phone: " + clientPartner.getPhoneNumber());
     	HikeConversationsDatabase mConversationDb = HikeConversationsDatabase.getInstance();
     	Conversation mConversation = mConversationDb.getConversation(clientPartner.getPhoneNumber(), HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
     	long timestamp = System.currentTimeMillis() / 1000;
@@ -156,7 +158,7 @@ public class VoIPUtils {
 
 		try
 		{
-			Logger.d(VoIPConstants.TAG, "Adding message of type: " + messageType + " to chat thread.");
+			Logger.d(tag, "Adding message of type: " + messageType + " to chat thread.");
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(timestamp));
 			data.put(HikeConstants.VOIP_CALL_DURATION, duration);
 			data.put(HikeConstants.VOIP_CALL_INITIATOR, !clientPartner.isInitiator());
@@ -173,7 +175,7 @@ public class VoIPUtils {
 		}
 		catch (JSONException e)
 		{
-			Logger.w(VoIPConstants.TAG, "addMessageToChatThread() JSONException: " + e.toString());
+			Logger.w(tag, "addMessageToChatThread() JSONException: " + e.toString());
 		}    	
     }
 
@@ -195,7 +197,7 @@ public class VoIPUtils {
 			message.put(HikeConstants.DATA, data);
 			
 			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
-			Logger.d(VoIPConstants.TAG, "Sent missed call notifier to partner.");
+			Logger.d(tag, "Sent missed call notifier to partner.");
 			
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -248,7 +250,7 @@ public class VoIPUtils {
 		            break;
 		    }
 		}
-//		Logger.w(VoIPConstants.TAG, "Our connection class: " + connection.name());
+//		Logger.w(tag, "Our connection class: " + connection.name());
 		return connection;
 	}
 	
@@ -273,7 +275,7 @@ public class VoIPUtils {
 		if (android.os.Build.VERSION.SDK_INT >= 11)
 			source = MediaRecorder.AudioSource.MIC;
 		
-		Logger.d(VoIPConstants.TAG, "Phone model: " + model);
+		Logger.d(tag, "Phone model: " + model);
 		
 //		if (model.contains("Nexus 5") || 
 //				model.contains("Nexus 4"))
@@ -384,7 +386,7 @@ public class VoIPUtils {
 		if (Utils.isKitkatOrHigher())
 			bluetoothEnabled = true;
 		else
-			Logger.w(VoIPConstants.TAG, "Bluetooth disabled since phone does not support Kitkat.");
+			Logger.w(tag, "Bluetooth disabled since phone does not support Kitkat.");
 		
 		return bluetoothEnabled;
 	}
@@ -410,16 +412,16 @@ public class VoIPUtils {
 
 			JSONObject message = new JSONObject();
 			message.put(HikeConstants.TO, recipient);
-			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
 			message.put(HikeConstants.SUB_TYPE, callMessage);
 			message.put(HikeConstants.DATA, data);
 			
 			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
-			Logger.d(VoIPConstants.TAG, "Sent call request message of type: " + callMessage + " to: " + recipient);
+			Logger.d(tag, "Sent call request message of type: " + callMessage + " to: " + recipient);
 
 		} catch (JSONException e) {
 			e.printStackTrace();
-			Logger.w(VoIPConstants.TAG, "sendSocketInfoToPartner JSON error: " + e.toString());
+			Logger.w(tag, "sendSocketInfoToPartner JSON error: " + e.toString());
 		} 
 	}
 
@@ -429,14 +431,14 @@ public class VoIPUtils {
 		if (jsonObj.has(HikeConstants.SUB_TYPE)) 
 		{	
 			String subType = jsonObj.getString(HikeConstants.SUB_TYPE);
-			Logger.d(VoIPConstants.TAG, "Message subtype: " + subType);
+			Logger.d(tag, "Message subtype: " + subType);
 
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
 				// Check for call cancelled message
 				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 
 				if (metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId()) {
-					Logger.d(VoIPConstants.TAG, "Ignoring call cancelled message. local: " + VoIPService.getCallId() +
+					Logger.d(tag, "Ignoring call cancelled message. local: " + VoIPService.getCallId() +
 							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
 					return;
 				}
@@ -458,7 +460,7 @@ public class VoIPUtils {
 				// Check if the initiator (us) has already hung up
 				if (metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR) == false &&
 						metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId()) {
-					Logger.w(VoIPConstants.TAG, "Receiving a reply for a terminated call. local: " + VoIPService.getCallId() +
+					Logger.w(tag, "Receiving a reply for a terminated call. local: " + VoIPService.getCallId() +
 							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
 					return;		
 				}
@@ -466,7 +468,7 @@ public class VoIPUtils {
 				// Check for currently active call
 				if ((metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
 						VoIPUtils.isUserInCall(context)) {
-					Logger.w(VoIPConstants.TAG, "We are already in a call. local: " + VoIPService.getCallId() +
+					Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
 							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
 
 					if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO)) 
@@ -488,7 +490,7 @@ public class VoIPUtils {
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_RESPONSE_RESPONSE)) {
 
-//					Logger.w(VoIPConstants.TAG, "Received: " + subType);
+//					Logger.w(tag, "Received: " + subType);
 
 					Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
 					i.putExtra(VoIPConstants.Extras.ACTION, subType);
@@ -509,7 +511,7 @@ public class VoIPUtils {
 					 * the callee at that point should start its voip service (and not the 
 					 * activity) so it can reply with its own socket information. 
 					 */
-					Logger.d(VoIPConstants.TAG, "Receiving socket info..");
+					Logger.d(tag, "Receiving socket info..");
 					
 					Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
 					i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.SET_PARTNER_INFO);
@@ -530,7 +532,7 @@ public class VoIPUtils {
 			
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING)) 
 			{
-				Logger.d(VoIPConstants.TAG, "Adding a missed call to our chat history.");
+				Logger.d(tag, "Adding a missed call to our chat history.");
 				VoIPClient clientPartner = new VoIPClient(context, null);
 				clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
 				clientPartner.setInitiator(true);
@@ -586,7 +588,7 @@ public class VoIPUtils {
 	public static byte[] addPCMSamples(byte[] original, byte[] toadd) {
 		
 		if (original.length != toadd.length) {
-			Logger.w(VoIPConstants.TAG, "PCM samples length does not match (A). " +
+			Logger.w(tag, "PCM samples length does not match (A). " +
 					original.length + " vs " + toadd.length);
 			return original;
 		}
@@ -623,7 +625,7 @@ public class VoIPUtils {
 	public static byte[] subtractPCMSamples(byte[] from, byte[] tosubtract) {
 		
 		if (from.length != tosubtract.length) {
-			Logger.w(VoIPConstants.TAG, "PCM samples length does not match (S). " +
+			Logger.w(tag, "PCM samples length does not match (S). " +
 					from.length + " vs " + tosubtract.length);
 			return from;
 		}
@@ -655,6 +657,47 @@ public class VoIPUtils {
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer.asShortBuffer().put(finalShorts);
 		return buffer.array();
+	}
+
+	/**
+	 * If DNS lookup on relay servers fails, then this method will return a randomly selected
+	 * IP address of a relay server. The client has a hardcoded list, and this list can be altered by
+	 * sending a configuration packet. 
+	 * @return InetAddress 
+	 */
+	public static InetAddress getRelayIpFromHardcodedAddresses() {
+
+		Set<String> ipSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.VOIP_RELAY_IPS, null);
+		Random random = new Random();
+		int index = 0;
+		InetAddress address = null;
+		
+		try {
+			String ip = null;
+			if (ipSet != null && ipSet.size() > 0) {
+				// Pick an IP from the list sent by ac packet
+				index = random.nextInt(ipSet.size());
+				int i = 0;
+				for (String str : ipSet) {
+					if (i++ == index) {
+						ip = str;
+						break;
+					}
+				}
+			}
+			else {
+				// Pick an IP from hardcoded list
+				index = random.nextInt(VoIPConstants.ICEServerIpAddresses.length);
+				ip = VoIPConstants.ICEServerIpAddresses[index];
+			}
+
+			address = InetAddress.getByName(ip);
+		} catch (UnknownHostException e) {
+			Logger.w(tag, "Unable to retrieve hardcoded relay IP address.");
+		}
+		
+		Logger.d(tag, "Retrieved IP address for relay server: " + address.getHostAddress());
+		return address;
 	}
 	
 	

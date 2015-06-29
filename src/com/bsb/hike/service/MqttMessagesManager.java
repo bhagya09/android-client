@@ -1594,6 +1594,16 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_AEC_TAIL_TYPE);
 			editor.putInt(HikeConstants.VOIP_AEC_TAIL_TYPE, val);
 		}
+		if (data.has(HikeConstants.VOIP_RELAY_IPS))
+		{
+			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
+			Set<String> ips = new HashSet<>();
+			for (int i = 0; i < array.length(); i++) {
+				ips.add(array.getString(i));
+			}
+			editor.putStringSet(HikeConstants.VOIP_RELAY_IPS, ips);
+		}
+
 		if (data.has(HikeConstants.REWARDS_TOKEN))
 		{
 			String rewardToken = data.getString(HikeConstants.REWARDS_TOKEN);

@@ -1105,6 +1105,8 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 	
+	public static final String VOIP_RELAY_IPS = "vrip";
+	
 	
 	public static final class ResultCodes
 	{
@@ -2722,7 +2724,7 @@ public class HikeConstants
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 		
-		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 75;
+		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 77;
 	}
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
