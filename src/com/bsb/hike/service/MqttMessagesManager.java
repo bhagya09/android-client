@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -223,18 +224,6 @@ public class MqttMessagesManager
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
-		String from = jsonObj.getString(HikeConstants.FROM);
-		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-		
-		/*
-		 * Checking for if user who received display pic json actually changed the profile pic of group using the from field in json
-		 */
-		if (!TextUtils.isEmpty(msisdn) && msisdn.equals(from))
-		{
-			saveStatusMsg(jsonObj, groupId);
-			return;
-		}
-		
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
 		String newIconIdentifier = null;
 		ContactManager conMgr = ContactManager.getInstance();
@@ -264,7 +253,20 @@ public class MqttMessagesManager
 
 		// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
 		autoDownloadGroupImage(groupId);
-		saveStatusMsg(jsonObj, groupId);
+		boolean saveStatusMsg = true;
+		if (jsonObj.has(HikeConstants.METADATA)) {
+			JSONObject mdata = jsonObj.getJSONObject(HikeConstants.METADATA);
+			if (mdata.has(HikeConstants.MqttMessageTypes.SYNC)) {
+				int syncState = mdata.getInt(HikeConstants.MqttMessageTypes.SYNC);
+				if(syncState == 1){
+					saveStatusMsg = false;
+				}
+			}
+		}
+		if(saveStatusMsg){
+			saveStatusMsg(jsonObj, groupId);
+		}
+		
 	}
 
 	private void saveSMSCredits(JSONObject jsonObj) throws JSONException
@@ -432,7 +434,6 @@ public class MqttMessagesManager
 		oneToNConversation = OneToNConversation.createOneToNConversationFromJSON(jsonObj);
 		
 		boolean groupRevived = false;
-
 		if (!ContactManager.getInstance().isGroupAlive(oneToNConversation.getMsisdn()))
 		{
 
@@ -456,14 +457,18 @@ public class MqttMessagesManager
 
 		}
 		int gcjAdd = this.convDb.addRemoveGroupParticipants(oneToNConversation.getMsisdn(), oneToNConversation.getConversationParticipantList(), groupRevived);
+		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
 		if (!groupRevived && gcjAdd != HikeConstants.NEW_PARTICIPANT)
 		{
+			if(metadata!=null){
+				this.convDb.setGroupCreationTime(oneToNConversation.getMsisdn(),  oneToNConversation.getCreationDate());
+			}
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
 			return;
 		}
 		Logger.d(getClass().getSimpleName(), "GCJ Message is new");
 
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
+		
 
 		/*
 		 * 
@@ -488,7 +493,7 @@ public class MqttMessagesManager
 				groupName = metadata.optString(HikeConstants.NAME);
 			}
 			
-			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner());
+			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), groupName);
 
 			// Adding a key to the json signify that this was the GCJ
@@ -1839,6 +1844,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOGGLE_OK_HTTP, okhttp);
 		}
 		
+		if (data.has(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR))
+		{
+			boolean enAb = data.getBoolean(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, enAb);
+		}
+		
 		if(data.has(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME))
 		{
 			long maxMessageProcessTime = data.optLong(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME);
@@ -1851,7 +1862,6 @@ public class MqttMessagesManager
 		{
 			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
-			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.SHOW_PHOTOS_RED_DOT, true);
 		}if(data.has(HikeConstants.URL_WHITELIST))
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
@@ -1931,13 +1941,66 @@ public class MqttMessagesManager
 			boolean enable = data.getBoolean(HikeConstants.ENABLE_EXCEPTION_ANALYTIS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, enable);
 		}
-		
+		if (data.has(HikeConstants.CONTACT_UPDATE_WAIT_TIME))
+		{
+			long contactUpdateWaitTime = data.getLong(HikeConstants.CONTACT_UPDATE_WAIT_TIME);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONTACT_UPDATE_WAIT_TIME, contactUpdateWaitTime);
+		}
+		if (data.has(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE))
+		{
+			boolean deleteIc = data.getBoolean(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE, deleteIc);
+		}
+		if (data.has(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING))
+		{
+			boolean removeDuplicates = data.getBoolean(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING, removeDuplicates);
+		}
 		UserLogInfo.requestUserLogs(data);
 		
 		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))
 		{
 			int httpAnalyticsMaxNumber = data.getInt(HikeConstants.PROB_NUM_HTTP_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
+		}
+
+		if (data.has(HikeConstants.GROUP_NOTIFIACTION_DELAY))
+		{
+			int groupNotificationDelay = data.getInt(HikeConstants.GROUP_NOTIFIACTION_DELAY);
+			if (groupNotificationDelay>=0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.GROUP_NOTIFIACTION_DELAY, groupNotificationDelay);
+			}
+		}
+		
+		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
+		{
+			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SUPER_COMPRESSED_IMG_SIZE, superCompressedImgSize);
+		}
+		if (data.has(HikeConstants.NORMAL_IMG_SIZE))
+		{
+			int normalImgSize = data.getInt(HikeConstants.NORMAL_IMG_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NORMAL_IMG_SIZE, normalImgSize);
+		}
+		if (data.has(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO))
+		{
+			int defaultImgQuality = data.getInt(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, defaultImgQuality);
+		}
+		if (data.has(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY))
+		{
+			boolean toShowToastForDegradingQuality = data.getBoolean(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
+
+		}
+		if(data.has(HikeConstants.STEALTH))
+		{
+			String stealthValue = data.getString(HikeConstants.STEALTH);
+			if(stealthValue.equals(HikeConstants.ENABLED_STEALTH))
+			{
+				HikeAnalyticsEvent.sendStealthMsisdns(StealthModeManager.getInstance().getStealthMsisdns(), null);
+			}
 		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
@@ -1967,9 +2030,20 @@ public class MqttMessagesManager
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{
-				new PostAddressBookTask(contacts).execute();
+				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
+				{
+					new PostAddressBookTask(contacts).execute();
+				}
+				else
+				{
+					AccountUtils.postAddressBook(token, contacts);
+				}
 			}
 			catch (IllegalStateException e)
+			{
+				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
+			}
+			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
 			}

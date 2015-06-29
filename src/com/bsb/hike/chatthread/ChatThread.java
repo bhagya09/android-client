@@ -4678,9 +4678,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					|| ((view.getId() == R.id.msg_compose) && PreferenceManager
 							.getDefaultSharedPreferences(
 									activity.getApplicationContext())
-							.getBoolean(HikeConstants.SEND_ENTER_PREF, false))
-					)	{
-				
+							.getBoolean(HikeConstants.SEND_ENTER_PREF, false)))	{
 				if (!TextUtils.isEmpty(mComposeView.getText())) {
 					sendButtonClicked();
 				}
@@ -5044,5 +5042,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
+	}
+	
+	protected void onRestoreInstanceState(Bundle savedInstanceState) 
+	{
+		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
 	}
 }

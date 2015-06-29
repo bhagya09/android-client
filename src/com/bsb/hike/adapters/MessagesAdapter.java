@@ -115,6 +115,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
+import com.bsb.hike.view.TextDrawable;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -2035,7 +2036,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 				
-				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation);
+				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 				
 				String message = OneToNConversationUtils.getParticipantAddedMessage(convMessage, context, highlight);
 				
@@ -2696,9 +2697,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
-				else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
+				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 				{
-					holder.ftAction.setImageResource(playImage);
+					if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+					{
+						holder.ftAction.setImageResource(playImage);
+					}
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
@@ -2732,9 +2736,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;
 		case COMPLETED:
-			if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
+			if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 			{
-				holder.ftAction.setImageResource(playImage);
+				if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+				{
+					holder.ftAction.setImageResource(playImage);
+				}
+
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}
