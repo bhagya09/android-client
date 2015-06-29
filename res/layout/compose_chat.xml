@@ -24,6 +24,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="@dimen/compose_chat_content_margin"
         android:layout_marginRight="@dimen/compose_chat_content_margin"
+        android:layout_marginTop="@dimen/st__action_bar_default_height"
         android:background="@drawable/bg_country_search_bar"
         android:imeOptions="flagNoExtractUi"
         android:gravity="center_vertical"
