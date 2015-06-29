@@ -180,7 +180,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		
 		Collections.reverse(sharedMediaItems);
 		
-		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
+		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, this);
 		selectedPager.setAdapter(smAdapter);
 		selectedPager.setOnPageChangeListener(this);
 		
@@ -712,5 +712,19 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				menu.findItem(R.id.edit_pic).setVisible(false);
 			}
 		}
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		// TODO Auto-generated method stub
+		
+		//To remove any callbacks, if present inside handler in adaptor
+		if(smAdapter != null)
+		{
+			smAdapter.onDestroy();
+		}
+		
+		super.onDestroy();
 	}
 }
