@@ -73,7 +73,18 @@ public class MessagingBotConfiguration extends BotConfiguration
 	private static byte ATTACHMENT_PICKER = 21;
 
 	private static byte CALL = 22;
-
+	
+	private static final byte SLIDE_IN = 23;
+	
+	private static final byte READ_SLIDE_OUT = 24;
+	
+	private static final byte HIDE_UNREAD = 25;
+	
+	private static final byte SHOW_UNREAD_ONE = 26;
+	
+	private static final byte SHOW_UNREAD_COUNT = 27;
+	
+	
 	public boolean isLongTapEnabled()
 	{
 		return isBitSet(LONG_TAP);
@@ -189,4 +200,34 @@ public class MessagingBotConfiguration extends BotConfiguration
 		return isReceiveEnabled && isBitSet(CALL);
 	}
 
+
+	public boolean  isHideUnread()
+	{
+		return isBitSet(HIDE_UNREAD);
+	}
+	
+	public boolean  isShowUnreadOne()
+	{
+		return isBitSet(SHOW_UNREAD_ONE);
+	}
+	
+	public boolean  isShowUnreadCount()
+	{
+		return isBitSet(SHOW_UNREAD_COUNT);
+	}
+	
+	public boolean  isSlideInEnabled()
+	{
+		return isBitSet(SLIDE_IN);
+	}
+	
+	public void setSlideIn() {
+		setConfig(getConfig() & ~(1 << SLIDE_IN));
+	}
+	
+	public boolean isReadSlideOutEnabled()
+	{
+		return isBitSet(READ_SLIDE_OUT);
+	}
+	
 }

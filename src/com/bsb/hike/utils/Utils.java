@@ -172,6 +172,9 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.MessagingBotConfiguration;
+import com.bsb.hike.bots.MessagingBotMetadata;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -343,6 +346,54 @@ public class Utils
 		}
 
 		return mOutToLeft;
+	}
+	
+	private static void updateBotConfiguration(BotInfo botInfo, String msisdn, int config)
+	{
+		HikeConversationsDatabase.getInstance().updateBotConfiguration(msisdn, config);
+		botInfo.setConfiguration(config);
+	}
+
+	public static int getBotAnimaionType(ConvInfo convInfo)
+	{
+		if (BotUtils.isBot(convInfo.getMsisdn()))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
+
+			if (botInfo.isMessagingBot())
+			{
+				MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(botInfo.getMetadata());
+				MessagingBotConfiguration configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), messagingBotMetadata.isReceiveEnabled());
+
+				if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+				{
+					configuration.setSlideIn();
+					updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+					return HikeConstants.BOT_SLIDE_IN_ANIMATION;
+				}
+				else if (configuration.isReadSlideOutEnabled() && (convInfo.getUnreadCount() == 0))
+				{
+					return HikeConstants.BOT_READ_SLIDE_OUT_ANIMATION;
+				}
+
+			}
+			else
+			{
+				NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
+
+				if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+				{
+					configuration.setSlideIn();
+					updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+					return HikeConstants.BOT_SLIDE_IN_ANIMATION;
+				}
+				else if (configuration.isReadSlideOutEnabled() && (convInfo.getUnreadCount() == 0))
+				{
+					return HikeConstants.BOT_READ_SLIDE_OUT_ANIMATION;
+				}
+			}
+		}
+		return HikeConstants.NO_ANIMATION;
 	}
 
 	public static Animation outToRightAnimation(Context ctx)

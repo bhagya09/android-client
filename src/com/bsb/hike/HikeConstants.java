@@ -490,6 +490,13 @@ public class HikeConstants
 	
 	public static final String HTTP_STATUS_ID = "?status_id=";
 	
+	public static final int NO_ANIMATION = 0;
+	
+	public static final int BOT_SLIDE_IN_ANIMATION = 1;
+	
+	public static final int BOT_READ_SLIDE_OUT_ANIMATION = 2;
+	
+	
 	// @GM
 	// public static final String AUTO_DOWNLOAD_IMAGE_PREF =
 	// "autoDownloadImagePref"

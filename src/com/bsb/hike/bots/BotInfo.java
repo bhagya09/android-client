@@ -47,6 +47,8 @@ public class BotInfo extends ConvInfo
 
 	private String helperData;
 	
+	private static final String UNREAD_COUNT_ONE = "1";
+
 	private static final String DEFAULT_UNREAD_COUNT = "1+";
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
@@ -326,11 +328,35 @@ public class BotInfo extends ConvInfo
 	@Override
 	public String getUnreadCountString()
 	{
-		if (isNonMessagingBot())
+		if (isMessagingBot())
 		{
-			return DEFAULT_UNREAD_COUNT;
+			MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
+			MessagingBotConfiguration configuration = new MessagingBotConfiguration(getConfiguration(), messagingBotMetadata.isReceiveEnabled());
+			if (configuration.isHideUnread())
+			{
+				return null ; 
+			}
+			else if(configuration.isShowUnreadOne())
+			{
+				return UNREAD_COUNT_ONE ; 
+			}
 		}
-		
+		else if(isNonMessagingBot())
+		{
+			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
+			if (configuration.isHideUnread())
+			{
+				return null ; 
+			}
+			else if(configuration.isShowUnreadOne())
+			{
+				return UNREAD_COUNT_ONE ; 
+			}
+			else
+			{
+				return DEFAULT_UNREAD_COUNT;
+			}
+		}
 		return super.getUnreadCountString();
 	}
 	
