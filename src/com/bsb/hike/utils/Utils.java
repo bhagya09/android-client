@@ -5875,6 +5875,12 @@ public class Utils
 		}
 	}
 
+	public static boolean isSendLogsEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+	}
+	
+
 	public static boolean moveFile(File inputFile, File outputFile) {
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
 		Logger.d("Utils", "Output file path - " + outputFile.getPath());
