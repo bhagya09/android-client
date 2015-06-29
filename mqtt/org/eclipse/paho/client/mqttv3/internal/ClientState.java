@@ -115,7 +115,7 @@ public class ClientState
 
 	private boolean quiescing = false;
 
-	private long lastOutBoundQOS1 = 0;
+	private long fastReconnectCheckStartTime = 0;
 
 	private long lastOutboundActivity = 0;
 
@@ -654,7 +654,7 @@ public class ClientState
 					// A ping is outstanding but no packet has been received in KA so connection is deemed broken
 					// @TRACE 619=Timed out as no activity, keepAlive={0} lastOutboundActivity={1} lastInboundActivity={2} time={3} lastPing={4}
 					Logger.e(TAG, "timed out as no activity, already sent the ping but no response recieved,  lastoutboundactivity : " + lastOutboundActivity
-							+ " lastOutboundQOS1 : " + lastOutBoundQOS1 + " lastinboundactivity : " + lastInboundActivity);
+							+ " fastReconnectCheckStartTime : " + fastReconnectCheckStartTime + " lastinboundactivity : " + lastInboundActivity);
 
 					// A ping has already been sent. At this point, assume that the
 					// broker has hung and the TCP layer hasn't noticed.
@@ -673,18 +673,18 @@ public class ClientState
 	{
 		synchronized (pingOutstanding)
 		{	
-			if (lastOutBoundQOS1 > lastInboundActivity)
+			if (fastReconnectCheckStartTime > lastInboundActivity)
 			{
-				if(System.currentTimeMillis() - lastInboundActivity >= INACTIVITY_TIMEOUT)
-				{
+				if(System.currentTimeMillis() - fastReconnectCheckStartTime >= INACTIVITY_TIMEOUT)
 					
+				{
 					Logger.e(TAG, "not recieved ack for 1 min so disconnecting");
 					throw ExceptionHelper.createMqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT);
 				}
 			}
 		}
 	}
-
+	
 	/**
 	 * This returns the next piece of work, ie message, for the CommsSender to send over the network. Calls to this method block until either: - there is a message to be sent - the
 	 * keepAlive interval is exceeded, which triggers a ping message to be returned - {@link #disconnected(MqttException, boolean)} is called
@@ -854,18 +854,26 @@ public class ClientState
 			else
 			// this is QOS 1 or 2
 			{
-				lastOutBoundQOS1 = System.currentTimeMillis();
-				Logger.d(TAG, "Last out bound activity changed : " + lastOutBoundQOS1);
+				checkAndSetFastReconnectCheckStartTime();
 				notifySentCallback(token);
 			}
 		}
 		else if (message instanceof MqttPingReq || message instanceof MqttConnect)
 		{
-			lastOutBoundQOS1 = System.currentTimeMillis();
-			Logger.d(TAG, "Last out bound activity changed : " + lastOutBoundQOS1);
+			checkAndSetFastReconnectCheckStartTime();
+			
 		}
 	}
 	
+	private void checkAndSetFastReconnectCheckStartTime()
+	{
+		if(fastReconnectCheckStartTime <= lastInboundActivity)
+		{
+			fastReconnectCheckStartTime = System.currentTimeMillis();
+			Logger.d(TAG, "fastReconnect Check StartTime : " + fastReconnectCheckStartTime);
+		}
+	}
+
 	public void notifySentCallback(MqttToken token)
 	{
 		if (token != null)

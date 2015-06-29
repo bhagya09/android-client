@@ -63,10 +63,6 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
-		if ((Utils.getExternalStorageState() == Utils.ExternalStorageState.NONE))
-		{
-			return;
-		}
 
 		// Create temp folder
 		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
@@ -161,13 +157,25 @@ public class PlatformZipDownloader
 				{
 					// delete temp folder
 					deleteTemporaryFolder();
-					if (!isTemplatingEnabled)
+					if (!(data instanceof Boolean))
 					{
-						mRequest.getListener().onComplete(mRequest.getContentData());
+						return;
+					}
+					Boolean isSuccess = (Boolean) data;
+					if (isSuccess)
+					{
+						if (!isTemplatingEnabled)
+						{
+							mRequest.getListener().onComplete(mRequest.getContentData());
+						}
+						else
+						{
+							PlatformRequestManager.setReadyState(mRequest);
+						}
 					}
 					else
 					{
-						PlatformRequestManager.setReadyState(mRequest);
+						mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 					}
 				}
 			});

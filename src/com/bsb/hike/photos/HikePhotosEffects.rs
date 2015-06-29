@@ -357,13 +357,6 @@ uchar4 __attribute__((kernel)) filter_lomofi(uchar4 in,uint32_t x,uint32_t y) {
 
 	in = applyCurves(in,-1,0,0,0);
 	
-	if(!isThumbnail)
-	{
-		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
-	
-		in = applyBlendToRGB(in , v ,Multiply,0.72);
-	}
-	
 	return in;
 }
 

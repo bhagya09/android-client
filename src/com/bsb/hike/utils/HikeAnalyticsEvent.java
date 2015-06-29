@@ -2,6 +2,7 @@ package com.bsb.hike.utils;
 
 import java.util.List;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -19,6 +20,8 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 
 public class HikeAnalyticsEvent
 {
+	
+	private static String TAG = "HikeAnalyticsEvent";
 	/*
 	 * We send this event every time user mark some chats as stealth
 	 */
@@ -44,7 +47,7 @@ public class HikeAnalyticsEvent
 		}
 		catch (JSONException e)
 		{
-			Logger.e("HikeAnalyticsEvent", "Exception in sending analytics event", e);
+			Logger.e(TAG, "JSONException in stealth msisdn", e);
 		}
 
 	}
@@ -66,7 +69,7 @@ public class HikeAnalyticsEvent
 		}
 		catch (JSONException e)
 		{
-			Logger.e("HikeAnalyticsEvent", "Exception in sending analytics event", e);
+			Logger.e(TAG, "JSONException in stealth reset event", e);
 		}
 	}
 
@@ -168,5 +171,24 @@ public class HikeAnalyticsEvent
             npe.printStackTrace();
         }
     }
+
+	public static void analyticsForNonMessagingBots(String type, String subType, JSONObject json)
+	{
+		try
+		{
+			Logger.d("HikeAnalyticsEvent", json.toString());
+			json.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			json.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+			HAManager.getInstance().record(type, subType, HAManager.EventPriority.HIGH, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
+		}
+		catch (NullPointerException npe)
+		{
+			npe.printStackTrace();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 }

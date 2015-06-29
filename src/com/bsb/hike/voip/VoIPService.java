@@ -608,7 +608,7 @@ public class VoIPService extends Service {
 		Notification myNotification = builder
 		.setContentTitle(title)
 		.setContentText(text)
-		.setSmallIcon(HikeNotification.getInstance(this).returnSmallIcon())
+		.setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
 		.setContentIntent(pendingIntent)
 		.setOngoing(true)
 		.setAutoCancel(true)

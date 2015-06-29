@@ -3,6 +3,7 @@ package com.bsb.hike.view;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.preference.Preference;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,10 +24,13 @@ public class IconPreference extends Preference
 	private void setIcon(Context context, AttributeSet attrs)
 	{
 		String iconName = attrs.getAttributeValue(null, "icon");
-		iconName = iconName.split("/")[1];
-		int id = context.getResources().getIdentifier(iconName, "drawable", context.getPackageName());
+		if(!TextUtils.isEmpty(iconName))
+		{
+			iconName = iconName.split("/")[1];
+			int id = context.getResources().getIdentifier(iconName, "drawable", context.getPackageName());
 
-		this.mIcon = context.getResources().getDrawable(id);
+			this.mIcon = context.getResources().getDrawable(id);	
+		}
 	}
 
 	@Override
@@ -38,6 +42,10 @@ public class IconPreference extends Preference
 		{
 			imageView.setImageDrawable(this.mIcon);
 			imageView.setVisibility(View.VISIBLE);
+		}
+		else 
+		{
+			imageView.setVisibility(View.GONE);
 		}
 	}
 

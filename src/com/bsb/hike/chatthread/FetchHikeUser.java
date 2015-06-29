@@ -14,6 +14,11 @@ import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -33,11 +38,12 @@ public class FetchHikeUser
 	 */
 	public static void fetchHikeUser(final Context ctx, final String msisdn)
 	{
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/profile/" + msisdn, RequestType.HIKE_JOIN_TIME, new HikeHttpCallback()
+		RequestToken requestToken = HttpRequests.getHikeJoinTimeRequest(msisdn, new IRequestListener()
 		{
 			@Override
-			public void onSuccess(JSONObject response)
+			public void onRequestSuccess(Response result)
 			{
+				JSONObject response = (JSONObject) result.getBody().getContent();
 				Logger.d(TAG, "Response for account/profile request: " + response.toString());
 				try
 				{
@@ -55,13 +61,11 @@ public class FetchHikeUser
 							HikeMessengerApp.getPubSub().publish(HikePubSub.USER_JOINED, msisdn);
 						}
 					}
-
 					else
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.USER_LEFT, msisdn);
 					}
 				}
-
 				catch (JSONException e)
 				{
 					e.printStackTrace();
@@ -70,15 +74,17 @@ public class FetchHikeUser
 			}
 
 			@Override
-			public void onFailure()
+			public void onRequestProgressUpdate(float progress)
 			{
-				// TODO Handle failure of the call.
-				super.onFailure();
+			}
+
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Logger.e(TAG, " failure in fetchHike User with error code : " + httpException.getErrorCode());
 			}
 		});
-
-		HikeHTTPTask getHikeJoinTimeTask = new HikeHTTPTask(null, -1);
-		Utils.executeHttpTask(getHikeJoinTimeTask, hikeHttpRequest);
+		requestToken.execute();
 	}
 
 }

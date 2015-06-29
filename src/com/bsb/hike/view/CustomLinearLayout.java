@@ -26,7 +26,8 @@ public class CustomLinearLayout extends LinearLayout
 		{
 			final int newSpec = MeasureSpec.getSize(heightMeasureSpec);
 			final int oldSpec = getMeasuredHeight();
-			if ((int) (0.66 * oldSpec) > newSpec)
+			// here we considering that all key have at least 20% height of whole screen
+			if ((int) (0.8 * oldSpec) > newSpec)
 			{
 				onSoftKeyboardListener.onShown();
 			}

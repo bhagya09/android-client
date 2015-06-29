@@ -98,11 +98,16 @@ public class HikeUnzipTask extends Observable
 		@Override
 		protected void onPostExecute(Boolean result)
 		{
+			setChanged();
 			if (result)
 			{
 				Logger.d(TAG, "Unzip Complete");
-				setChanged();
-				notifyObservers();
+				notifyObservers(true);
+			}
+			else
+			{
+				Logger.wtf(TAG, "Unzip failed");
+				notifyObservers(false);
 			}
 		}
 

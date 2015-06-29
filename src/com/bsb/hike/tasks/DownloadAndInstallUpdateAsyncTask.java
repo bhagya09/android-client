@@ -24,6 +24,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, Boolean>
 {
@@ -66,6 +67,8 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 	@Override
 	protected Boolean doInBackground(Void... arg0)
 	{
+		FileOutputStream fos = null;
+		InputStream is = null;
 		try
 		{
 			URL url = new URL(downloadUrl);
@@ -74,14 +77,14 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 
 			int length = urlConnection.getContentLength();
 
-			InputStream is = new BufferedInputStream(urlConnection.getInputStream());
+			is = new BufferedInputStream(urlConnection.getInputStream());
 
 			filePath = Environment.getExternalStorageDirectory() + "/hike/";
 			File file = new File(filePath);
 			file.mkdirs();
 
 			File myApk = new File(file, "hike.apk");
-			FileOutputStream fos = new FileOutputStream(myApk);
+			fos = new FileOutputStream(myApk);
 
 			byte[] buffer = new byte[4096];
 			int len = 0;
@@ -100,8 +103,6 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 			}
 			fos.flush();
 			fos.getFD().sync();
-			fos.close();
-			is.close();
 
 			return true;
 		}
@@ -112,6 +113,10 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 		catch (IOException e)
 		{
 			e.printStackTrace();
+		}
+		finally
+		{
+			Utils.closeStreams(fos, is);
 		}
 		return false;
 	}

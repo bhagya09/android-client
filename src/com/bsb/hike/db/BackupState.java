@@ -6,6 +6,7 @@ import android.content.Context;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.StealthModeManager;
 
 public class BackupState implements Serializable
 {
@@ -47,7 +48,7 @@ public class BackupState implements Serializable
 	{
 		HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
 		stealthPattern = prefUtil.getData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, "");
-		stealthModeSetupDone = prefUtil.getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false);
+		stealthModeSetupDone = StealthModeManager.getInstance().isSetUp();
 		shownFirstUnmarkStealthToast = prefUtil.getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false);
 		showStealthInfoTip = prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false);
 		return true;
@@ -57,7 +58,7 @@ public class BackupState implements Serializable
 	{
 		HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
 		prefUtil.saveData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, stealthPattern);
-		prefUtil.saveData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, stealthModeSetupDone);
+		StealthModeManager.getInstance().setUp(stealthModeSetupDone) ;
 		prefUtil.saveData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, shownFirstUnmarkStealthToast);
 		prefUtil.saveData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, showStealthInfoTip);
 		return true;

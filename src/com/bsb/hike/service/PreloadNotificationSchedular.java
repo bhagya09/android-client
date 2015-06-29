@@ -140,7 +140,7 @@ public class PreloadNotificationSchedular
 	public static void run(Context context)
 	{
 		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
-		ToastListener mmListener = ToastListener.getInstance(context);
+		ToastListener mmListener = ToastListener.getInstance();
 
 		String title = mprefs.getData(NOTIFICATION_TEXT, null);
 		String text = mprefs.getData(NOTIFICATION_TITLE, null);

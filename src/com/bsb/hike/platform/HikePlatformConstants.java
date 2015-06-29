@@ -13,7 +13,7 @@ public interface HikePlatformConstants
 	String INTENT_URI = "intentUri";
 	String CONTENT_TYPE = "contentType";
 	String VERSION = "version";
-	String TAG = "tag";
+	String TAG = "platform";
 	String KEY = "key";
 	String SUBTYPE = "st";
 	String TEXT = "title";
@@ -37,23 +37,30 @@ public interface HikePlatformConstants
 	String CARD_OBJECT = "cardObj";
 	String NOTIF_TEXT_WC = "notifText";
 	String WC_PUSH_KEY = "push";
-	String CRICKET_BOT_MSISDN = "+hikecricket+";
-	String CRICKET_BOT_NAME = "Cricket 2015";
 	String CRICKET_CHAT_THEME_ID = "39";
-	String CRICKET_PREF_NAME = "cricket_pref_name";
 	String APP_NAME = "appName";
+	String APP_PACKAGE = "appPackage";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
 	String HIKE_MSISDN = "hikemsisdn";
 	String PLATFORM_USER_ID = "platformUid";
 	String PLATFORM_TOKEN = "platformToken";
 	String PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH = "platformUidForAddressBookFetch";
-	public int numberOfRetries = 3;  // number of retries
-	public int retryDelay = 1000; // 1 sec
-	public float backOffMultiplier = 2.0f; // exponential time delay multiplier
+	public int NUMBER_OF_RETRIES = 3;  // number of retries
+	public int RETRY_DELAY = 1000; // 1 sec
+	public float BACK_OFF_MULTIPLIER = 2.0f; // exponential time delay multiplier
 	public int HTTP_CALL_MADE = 2;
 	public int MAKE_HTTP_CALL = 1;
 	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
+	public static final String CONTENT_ID = "content_id";
+	public static final String NAMESPACE = "nameSpace";
+	public static final String PARAMS = "params";
+	public static final String STATUS = "status";
+	public static final String STATUS_CODE = "status_code";
+	public static final String RESPONSE = "response";
+	public static final String ERROR_MESSAGE = "error_message";
+	public static final String SUCCESS = "success";
+	public static final String FAILURE = "failure";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -73,6 +80,7 @@ public interface HikePlatformConstants
     public static final String BOT_VIEW_PROFILE = "bot_vp";
     public static final String BOT_ADD_SHORTCUT = "bot_as";
     public static final String BOT_DELETE_CHAT = "bot_del";
+    public static final String BOT_DELETE_BLOCK_CHAT = "bot_del_block";
     public static final String BOT_CLEAR_CONVERSATION = "bot_clc";
     public static final String BOT_EMAIL_CONVERSATION = "bot_emc";
     public static final String CONVERSATION_FRAGMENT = "cf";
@@ -93,6 +101,12 @@ public interface HikePlatformConstants
 	public static final String BLOCKED_MESSAGE = "blocked_msg";
 	public static final String CARD = "card";
 	public static final String NOTIF = "notif";
+	public static final String APP_VERSION = "appVersion";
+	public static final String OVERFLOW_MENU_CLICKED = "om_click";
+	public static final String BOT_CREATED = "cbot";
+	public static final String BOT_CREATION_FAILED = "cbot_err";
+	public static final String MICROAPP_DOWNLOADED = "mapp";
+	public static final String MICROAPP_DOWNLOAD_FAILED = "mapp_err";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
@@ -104,7 +118,7 @@ public interface HikePlatformConstants
 
 	public static final String NOTIFICATION_SOUND = "notification_sound";
 
-	public static final String INCREASE_UNREAD = "inc_unread";
+	public static final String INCREASE_UNREAD = "increase_unread";
 
 	public static final String MESSAGE_ID = "message_id";
 
@@ -113,10 +127,67 @@ public interface HikePlatformConstants
 	String ALARM_DATA = "alarm_data";
 	
 	String DELETE_CARD = "delete_card";
+	String ORIENTATION = "orientation";
 
 	public static final String SILENT_PUSH = "silent";
 
 	public static final String LOUD_PUSH = "loud";
 
 	public static final String  NO_PUSH = "none";
+	
+	public static final String TARGET_PLATFORM = "target_platform";
+	
+	public static final String MIN_PLATFORM = "min_platform";
+
+	public static final String IS_SENT = "isSent";
+
+	public static final String INFLATION_TIME = "inflationTime";
+
+	public static final String TEMPLATING_TIME = "templatingTime";
+
+	public static final String RENDERING_TIME = "renderingTime";
+
+	public static final String PROFILING_TIME = "time";
+
+	public static final String CONFIG_DATA = "cd";
+
+	public static final String ENABLE_BOT = "enable_bot";
+
+	public static final String BOT_TYPE = "bot_type";
+
+	public static final String NOTIF_DATA = "notifData";
+
+	/**
+	 * Overflow menu item constants :
+	 */
+	public static final String TITLE = "title";
+	
+	public static final String ID = "id";
+	
+	public static final String ENABLED = "en";
+	
+	public static final String IS_CHECKED = "is_checked";
+	
+	/**
+	 * Overflow menu item constants end
+	 */
+	
+	public static final int VERSION_0 = 0;
+	
+	public static final int VERSION_1 = 1;
+	
+	public static final int CURRENT_VERSION = VERSION_1;
+	
+	public static final String AB_COLOR = "color";
+	
+	final String BLOCK = "block";
+	
+	final String MUTE = "mute";
+	
+	final String NETWORK_TYPE = "networkType";
+	String PLATFORM_VERSION = "platform_version";
+	
+	final String HIKE_MESSAGE = "hm";
+	
+	final String JS_INJECT = "js_inject";
 }

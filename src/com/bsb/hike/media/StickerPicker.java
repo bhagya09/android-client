@@ -1,7 +1,6 @@
 package com.bsb.hike.media;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
@@ -53,7 +52,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private ViewPager mViewPager;
 	
-	private static boolean refreshStickers = false;
+	private boolean refreshStickers = false;
 
 	/**
 	 * Constructor
@@ -144,6 +143,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		
 		initView();
+		handleStickerIntro(viewToDisplay);
 		addAdaptersToViews();
 
 		popUpLayout.showKeyboardPopup(viewToDisplay);
@@ -192,8 +192,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		shopIcon.setOnClickListener(this);
 
-		handleStickerIntro(view);		
-
 		mViewPager.setVisibility(View.VISIBLE);
 	}
 
@@ -236,19 +234,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			initView();
 		}
 		
-		// Commenting it out. This is to be uncommented if we move to caching strategy later on. 
-		
-//		/**
-//		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
-//		 * settings page
-//		 */
-//		if (refreshStickers)
-//		{
-//			mIconPageIndicator.notifyDataSetChanged();
-//			stickerAdapter.notifyDataSetChanged();
-//		}
-
-//		refreshStickers = false;
+		handleStickerIntro(viewToDisplay);
 		
 		addAdaptersToViews();
 		
@@ -259,15 +245,17 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		mViewPager.setAdapter(stickerAdapter);
 
-		mViewPager.setCurrentItem(0, false);
-
 		mIconPageIndicator.setViewPager(mViewPager);
 
 		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 
 		mIconPageIndicator.setCurrentItem(0);
-
-		mIconPageIndicator.notifyDataSetChanged();
+		
+		if (refreshStickers)
+		{
+			mIconPageIndicator.notifyDataSetChanged();
+			refreshStickers = false;
+		}
 	}
 
 	public boolean isShowing()
@@ -435,7 +423,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_out_from_mid);
 			animatedBackground.startAnimation(anim);
 
-			view.findViewById(R.id.shop_icon).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
+			view.findViewById(R.id.shop_icon_image).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
 		}
 	}
 	
@@ -484,8 +472,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param refreshStickers
 	 *            the refreshStickers to set
 	 */
-	public static void setRefreshStickers(boolean refreshStickers)
+	public void setRefreshStickers(boolean refreshStickers)
 	{
-		StickerPicker.refreshStickers = refreshStickers;
+		this.refreshStickers = refreshStickers;
 	}
 }
