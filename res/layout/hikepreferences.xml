@@ -32,7 +32,8 @@
 	            android:layout_height="wrap_content"
 	            android:paddingLeft="8dp"
 	            android:paddingRight="8dp"
-	            android:src="@drawable/ic_back" />
+	            android:src="@drawable/ic_back"
+	            android:contentDescription="@string/content_des_settings_menu_preference_back_button" />
 	
 	
 	            <com.bsb.hike.view.CustomFontTextView

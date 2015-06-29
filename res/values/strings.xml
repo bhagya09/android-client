@@ -1495,6 +1495,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_round_group_image_chatthread_actionbar">Group image (rounded) chat-thread actionbar</string>
     <string name="content_des_typing_notification_chatting">Typing information to user while chatting</string>
     <string name="content_des_typing_notification_received">Typing notification received to user</string>
+    <string name="content_des_settings_menu_preference_back_button">Typing notification received to user</string>
     <string name="stealth_timeout_always_key">Always</string>
     <string name="stealth_timeout_never_key">Never</string>
     <string name="stealth_timeout_immediate_key">30 seconds</string>
