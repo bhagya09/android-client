@@ -50,6 +50,7 @@
             android:paddingLeft="15dp"
             android:layout_centerVertical="true"
             android:gravity="center"
+            android:contentDescription="@string/content_des_user_invitation_on_hike"
             android:src="@drawable/ic_invite" />
         
         <LinearLayout

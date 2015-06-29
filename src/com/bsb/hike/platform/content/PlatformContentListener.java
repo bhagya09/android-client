@@ -23,5 +23,5 @@ public abstract class PlatformContentListener<T>
 	 */
 	public abstract void onComplete(T content);
 
-	public abstract void onEventOccured(EventCode event);
+	public abstract void onEventOccured(int uniqueId,EventCode event);
 }

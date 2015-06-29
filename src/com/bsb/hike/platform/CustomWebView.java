@@ -1,8 +1,5 @@
 package com.bsb.hike.platform;
 
-import com.bsb.hike.R;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -11,6 +8,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.webkit.WebView;
 
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+
 /**
  * Created by shobhitmandloi on 27/01/15.
  */
@@ -18,6 +18,9 @@ public class CustomWebView extends WebView
 {
 	public boolean isLoaded = true;
 	
+	private String javaScriptInterface;
+	
+	private boolean isShowing = false;
 	//Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
@@ -49,13 +52,20 @@ public class CustomWebView extends WebView
 	public void onWindowVisibilityChanged(int visibility)
 	{
 		super.onWindowVisibilityChanged(visibility);
-		if (visibility == View.GONE)
+		if (visibility == View.INVISIBLE)
 		{
+			this.isShowing = false;
+		}
+		
+		else if (visibility == View.GONE)
+		{
+			this.isShowing = false;
 			onWebViewGone();
 		}
 		else if (visibility == View.VISIBLE)
 		{
 			onWebViewVisible();
+			this.isShowing = true;
 		}
 	}
 	
@@ -107,10 +117,15 @@ public class CustomWebView extends WebView
 
 	public void onActivityDestroyed()
 	{
+
 		stopLoading();
 		setWebChromeClient(null);
 		setWebViewClient(null);
 		removeAllViews();
+		if (Utils.isHoneycombOrHigher())
+		{
+			removeJavascriptInterface(javaScriptInterface);
+		}
 		destroy();
 	}
 
@@ -120,6 +135,23 @@ public class CustomWebView extends WebView
 		setVerticalScrollBarEnabled(false);
 		setHorizontalScrollBarEnabled(false);
 		getSettings().setJavaScriptEnabled(true);
+	}
+	
+	public void loadMicroAppData(String data)
+	{
+		this.loadDataWithBaseURL("", data, "text/html", "UTF-8", "");
+	}
+	
+	@Override
+	public void addJavascriptInterface(Object obj, String interfaceName)
+	{
+		this.javaScriptInterface = interfaceName;
+		super.addJavascriptInterface(obj, interfaceName);
+	}
+	
+	public boolean isWebViewShowing()
+	{
+		return this.isShowing;
 	}
 
 }

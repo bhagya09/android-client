@@ -20,7 +20,6 @@ import java.util.Properties;
 import javax.net.SocketFactory;
 
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
-import org.eclipse.paho.client.mqttv3.util.Debug;
 
 /**
  * Lightweight client for talking to an MQTT server using methods that block until an operation completes.
@@ -455,13 +454,4 @@ public class MqttClient implements IMqttClient
 	{
 		return MqttAsyncClient.generateClientId();
 	}
-
-	/**
-	 * Return a debug object that can be used to help solve problems.
-	 */
-	public Debug getDebug()
-	{
-		return (aClient.getDebug());
-	}
-
 }

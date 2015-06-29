@@ -264,7 +264,7 @@ public class RequestExecuter
 			}
 			else
 			{
-				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam());
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam(), ex.toString());
 				handleRetry(ex, REASON_CODE_NO_NETWORK);
 				return;
 			}
@@ -281,7 +281,7 @@ public class RequestExecuter
 		}
 		catch (Throwable ex)
 		{
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam());
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(), ex.toString());
 			handleException(ex, REASON_CODE_UNEXPECTED_ERROR);
 		}
 	}

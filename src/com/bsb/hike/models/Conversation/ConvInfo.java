@@ -229,6 +229,15 @@ public class ConvInfo implements Comparable<ConvInfo>
 	{
 		this.isOnHike = isOnHike;
 	}
+	
+	/**
+	 * Returns the unread counter string
+	 * @return
+	 */
+	public String getUnreadCountString()
+	{
+		return Integer.toString(unreadCount);
+	}
 
 	@Override
 	public String toString()
@@ -312,9 +321,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((mConversationName == null) ? 0 : mConversationName.hashCode());
-		result = prime * result + ((msisdn == null) ? 0 : msisdn.hashCode());
-		result = prime * result + (isOnHike ? 1231 : 1237);
+		result = prime * result + msisdn.hashCode();
 
 		return result;
 	}

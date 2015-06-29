@@ -88,10 +88,12 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 		if (!canSend)
 		{
 			mButton.setImageResource(R.drawable.walkie_talkie_btn_selector);
+			mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
 		}
 		else
 		{
 			mButton.setImageResource(R.drawable.send_btn_selector);
+			mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
 		}
 		if (mConversation instanceof OneToNConversation)
 		{

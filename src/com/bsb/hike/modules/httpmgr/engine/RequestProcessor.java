@@ -41,10 +41,11 @@ public class RequestProcessor
 	public void addRequest(final Request<?> request, ClientOptions options)
 	{
 		String requestId = request.getId();
-		if (requestMap.containsKey(requestId))
+		
+		Request<?> req = requestMap.get(requestId);
+		if (null != req)
 		{
 			LogFull.i(request.toString() + " already exists");
-			Request<?> req = requestMap.get(requestId);
 			req.addRequestListeners(request.getRequestListeners());
 		}
 		else

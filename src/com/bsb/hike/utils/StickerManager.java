@@ -78,6 +78,8 @@ public class StickerManager
 	public static final String STICKERS_FAILED = "st_failed";
 	
 	public static final String STICKERS_PROGRESS = "st_progress";
+	
+	public static final String STICKER_PREVIEW_DOWNLOADED = "st_prv_dl";
 
 	public static final String STICKER_DOWNLOAD_TYPE = "stDownloadType";
 
@@ -104,6 +106,8 @@ public class StickerManager
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKERS = "addNoMediaFileForStickers";
 	
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS = "addNoMediaFileForStickerOtherFolders";
+	
+	public static final String ADD_NO_MEDIA_FILE_FOR_SINGLE_STICKER_DOWNLOADS = "addNoMediaFileForSingleStickerDownloads";
 
 	public static final String DELETE_DEFAULT_DOWNLOADED_EXPRESSIONS_STICKER = "delDefaultDownloadedExpressionsStickers";
 	
@@ -279,6 +283,11 @@ public class StickerManager
 		{
 			addNoMediaFilesToStickerDirectories();
 		}
+		
+		if (!settings.getBoolean(StickerManager.ADD_NO_MEDIA_FILE_FOR_SINGLE_STICKER_DOWNLOADS, false))
+		{
+			addNoMediaFilesToStickerDirectories();
+		}
 
 		/*
 		 * this code path will be for users upgrading to the build where we make expressions a default loaded category
@@ -370,10 +379,9 @@ public class StickerManager
 		}
 		addNoMedia(root);
 
-		Editor editor = preferenceManager.edit();
-		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_STICKERS, true);
-		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS, true);
-		editor.commit();
+		HikeSharedPreferenceUtil.getInstance().saveData(ADD_NO_MEDIA_FILE_FOR_STICKERS, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(ADD_NO_MEDIA_FILE_FOR_SINGLE_STICKER_DOWNLOADS, true);
 	}
 
 	private void addNoMedia(File directory)
@@ -383,7 +391,7 @@ public class StickerManager
 			String path = directory.getPath();
 			if (path.endsWith(HikeConstants.LARGE_STICKER_ROOT) || path.endsWith(HikeConstants.SMALL_STICKER_ROOT) || path.endsWith(OTHER_STICKER_ASSET_ROOT))
 			{
-				Utils.makeNoMediaFile(directory);
+				Utils.makeNoMediaFile(directory, true);
 			}
 			else if (directory.isDirectory())
 			{
@@ -1136,7 +1144,7 @@ public class StickerManager
 			return;
 		}
 		category.updateDownloadedStickersCount();
-		if(downloadSource == DownloadSource.SHOP || downloadSource == DownloadSource.SETTINGS)
+		if(downloadSource == DownloadSource.SHOP || downloadSource == DownloadSource.SETTINGS|| downloadSource == DownloadSource.POPUP)
 		{
 			category.setState(StickerCategory.DONE_SHOP_SETTINGS);
 		}

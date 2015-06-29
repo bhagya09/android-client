@@ -16,6 +16,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -69,7 +70,7 @@ public class UpdateAddressBookTask
 		
 		requestToken = updateAddressBookRequest(postObject, getRequestListener());
 		requestToken.execute();
-		return AccountUtils.getContactList(resultObject, new_contacts_by_id);
+		return ContactUtils.getContactList(resultObject, new_contacts_by_id);
 	}
 
 	private IRequestListener getRequestListener()
@@ -115,7 +116,7 @@ public class UpdateAddressBookTask
 		{
 			data = new JSONObject();
 			data.put("remove", ids_json);
-			data.put("update", AccountUtils.getJsonContactList(new_contacts_by_id, false));
+			data.put("update", ContactUtils.getJsonContactList(new_contacts_by_id, false));
 		}
 		catch (JSONException e)
 		{

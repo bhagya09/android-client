@@ -30,45 +30,45 @@ public class HikeDialogFragment extends DialogFragment
 	CustomWebView mmWebView;
 
 	ProductJavaScriptBridge mmBridge;
-	
+
 	View loadingCard;
 
 	public static HikeDialogFragment getInstance(DialogPojo productContentModel)
 	{
 		HikeDialogFragment mmDiallog = new HikeDialogFragment();
-		Bundle args=new Bundle();
+		 Bundle args=new Bundle();
 		args.putParcelable(ProductPopupsConstants.BUNDLE_DATA, productContentModel);
 		mmDiallog.setArguments(args);
 		return mmDiallog;
 	}
-	
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d("ProductPopup", "Dialog Orientation changed");
-		
+
 		if (loadingCard != null)
 		{
 			loadingCard.setVisibility(View.VISIBLE);
 		}
 		mmWebView.post((new Runnable()
 		{
-			
+
 			@Override
 			public void run()
 			{
 				mmWebView.loadDataWithBaseURL("", mmModel.getFormedData(), "text/html", "UTF-8", "");
-				
+
 			}
 		}));
 		super.onConfigurationChanged(newConfig);
 	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		mmModel=getArguments().getParcelable(ProductPopupsConstants.BUNDLE_DATA);
+		mmModel = getArguments().getParcelable(ProductPopupsConstants.BUNDLE_DATA);
 		if (mmModel.isFullScreen())
 		{
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Holo_Light);
@@ -92,46 +92,56 @@ public class HikeDialogFragment extends DialogFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View view = inflater.inflate(R.layout.product_popup, container, false);
-		loadingCard=(View)view.findViewById(R.id.loading_data);
-		mmWebView =  (CustomWebView) view.findViewById(R.id.webView);
+		loadingCard = (View) view.findViewById(R.id.loading_data);
+		mmWebView = (CustomWebView) view.findViewById(R.id.webView);
 		if (!mmModel.isFullScreen())
 		{
 			int minHeight = (int) (mmModel.getHeight() * Utils.densityMultiplier);
 			LayoutParams lp = mmWebView.getLayoutParams();
 			lp.height = minHeight;
-			lp.width=LinearLayout.LayoutParams.MATCH_PARENT;
+			 lp.width=LinearLayout.LayoutParams.MATCH_PARENT;
 			Logger.i("HeightAnim", "set height given in card is =" + minHeight);
 			mmWebView.setLayoutParams(lp);
 		}
 		loadingCard.setVisibility(View.VISIBLE);
 		return view;
 	}
-	
+
 	/**
 	 * 
 	 * @param supportFragmentManager
 	 * 
-	 *           
 	 * 
-	 * This method is responsible for attaching the fragment with the activity 
-	 *	This is done as the fragment can perform commit after the onSaveInstance of the activity is being called. 
+	 * 
+	 *            This method is responsible for attaching the fragment with the activity This is done as the fragment can perform commit after the onSaveInstance of the activity
+	 *            is being called.
+	 *            
+	 * There is a developer option Dont keep Activites due which our onCreate and OnNewIntent was been fired(Ideally it shouldn't happen) So that is causing to add multiple
+	 * popups on screen and it was not reflecting as the below command happens async. So calling it explicitly to make it sync.
+	 * 
+	 * TODO:Need to figure out why HomeActivity onNewIntent and OnCreate is been called
 	 */
 	public void showDialog(FragmentManager supportFragmentManager)
 	{
-			FragmentTransaction transaction = supportFragmentManager.beginTransaction();
-			if(supportFragmentManager.findFragmentByTag(ProductPopupsConstants.DIALOG_TAG)!=null)
-			{
-				transaction.remove(supportFragmentManager.findFragmentByTag(ProductPopupsConstants.DIALOG_TAG)).commitAllowingStateLoss();
-				transaction=supportFragmentManager.beginTransaction();
-			}
+
+		FragmentTransaction transaction = supportFragmentManager.beginTransaction();
+		if (supportFragmentManager.findFragmentByTag(ProductPopupsConstants.DIALOG_TAG) != null)
+		{
+			 transaction.remove(supportFragmentManager.findFragmentByTag(ProductPopupsConstants.DIALOG_TAG)).commitAllowingStateLoss();
+			 supportFragmentManager.executePendingTransactions();
+			 transaction=supportFragmentManager.beginTransaction();
+		}
 			transaction.add(this, ProductPopupsConstants.DIALOG_TAG);
 			transaction.commitAllowingStateLoss();
+			
+			supportFragmentManager.executePendingTransactions();
 	}
 
 	@Override
 	public void onActivityCreated(Bundle arg0)
 	{
 		super.onActivityCreated(arg0);
+		Logger.d("ProductPopup", "onActivityCreated");
 		getDialog().setCanceledOnTouchOutside(false);
 		mmBridge = new ProductJavaScriptBridge(mmWebView, new WeakReference<HikeDialogFragment>(this), mmModel.getData());
 
@@ -139,36 +149,34 @@ public class HikeDialogFragment extends DialogFragment
 		mmWebView.setWebViewClient(new CustomWebClient());
 		mmWebView.post(new Runnable()
 		{
-			
+
 			@Override
 			public void run()
 			{
-				Logger.d("ProductPopup","in post runnable+ width is "+mmWebView.getWidth());
+				Logger.d("ProductPopup", "in post runnable+ width is " + mmWebView.getWidth());
 				mmWebView.loadDataWithBaseURL("", mmModel.getFormedData(), "text/html", "UTF-8", "");
 			}
 		});
-		
+
 	}
 
-	
 	class CustomWebClient extends HikeWebClient
 	{
 		@Override
 		public void onPageStarted(WebView view, String url, Bitmap favicon)
 		{
 			super.onPageStarted(view, url, favicon);
-			Logger.d("ProductPopup", "Web View HEight and Width  on Page Started>>>>" + mmWebView.getHeight()+">>>>>"+mmWebView.getWidth());
+			Logger.d("ProductPopup", "Web View HEight and Width  on Page Started>>>>" + mmWebView.getHeight() + ">>>>>" + mmWebView.getWidth());
 		}
 
 		@Override
 		public void onPageFinished(WebView view, String url)
 		{
 			super.onPageFinished(view, url);
-			Logger.d("ProductPopup","Widht after  onPageFinished " +mmWebView.getWidth());
+			Logger.d("ProductPopup", "Widht after  onPageFinished " + mmWebView.getWidth());
 			loadingCard.setVisibility(View.GONE);
-			
+
 		}
 	}
-	
 
 }

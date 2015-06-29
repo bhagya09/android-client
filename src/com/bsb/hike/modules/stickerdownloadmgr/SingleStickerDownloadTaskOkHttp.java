@@ -144,6 +144,9 @@ public class SingleStickerDownloadTaskOkHttp implements IHikeHTTPTask
 							return;
 						}
 					}
+					
+					Utils.makeNoMediaFile(smallDir);
+					Utils.makeNoMediaFile(largeDir);
 
 					Utils.saveBase64StringToFile(new File(largeStickerPath), stickerData);
 
@@ -160,7 +163,7 @@ public class SingleStickerDownloadTaskOkHttp implements IHikeHTTPTask
 						}
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
-					onSuccess(null);
+					onSuccess(categoryId);
 				}
 				catch (JSONException ex)
 				{

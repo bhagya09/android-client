@@ -19,8 +19,6 @@ import java.util.Properties;
 
 import javax.net.SocketFactory;
 
-import org.eclipse.paho.client.mqttv3.util.Debug;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -508,10 +506,5 @@ public class MqttConnectOptions
 			p.put("SSLProperties", getSSLProperties());
 		}
 		return p;
-	}
-
-	public String toString()
-	{
-		return Debug.dumpProperties(getDebug(), "Connection options");
 	}
 }

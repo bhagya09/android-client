@@ -29,7 +29,7 @@ public abstract class Conversation implements Comparable<Conversation>
 
 	protected Conversation(InitBuilder<?> builder)
 	{
-		this.convInfo = builder.convInfoBuilder.build();
+		this.convInfo = builder.convInfo;
 		this.messagesList = builder.messagesList;
 		this.metadata = builder.metadata;
 		this.chatTheme = builder.chatTheme;
@@ -287,7 +287,7 @@ public abstract class Conversation implements Comparable<Conversation>
 	 */
 	protected static abstract class InitBuilder<P extends InitBuilder<P>>
 	{
-		private ConvInfo.InitBuilder<?> convInfoBuilder;
+		protected ConvInfo convInfo;
 
 		private ChatTheme chatTheme;
 
@@ -295,26 +295,26 @@ public abstract class Conversation implements Comparable<Conversation>
 
 		protected ConversationMetadata metadata;
 
-		public InitBuilder(String msisdn, ConvInfo.InitBuilder<?> convInfo)
+		public InitBuilder(String msisdn)
 		{
-			convInfoBuilder = convInfo;
+			convInfo = getConvInfo(msisdn);
 		}
 
 		public P setConvName(String convName)
 		{
-			convInfoBuilder.setConvName(convName);
+			convInfo.setmConversationName(convName);
 			return getSelfObject();
 		}
 
 		public P setIsStealth(boolean isStealth)
 		{
-			convInfoBuilder.setIsStealth(isStealth);
+			convInfo.setStealth(isStealth);
 			return getSelfObject();
 		}
 
 		public P setSortingTimeStamp(long timeStamp)
 		{
-			convInfoBuilder.setSortingTimeStamp(timeStamp);
+			convInfo.setSortingTimeStamp(timeStamp);
 			return getSelfObject();
 		}
 
@@ -337,6 +337,8 @@ public abstract class Conversation implements Comparable<Conversation>
 		}
 
 		protected abstract P getSelfObject();
+		
+		protected abstract ConvInfo getConvInfo(String msisdn); 
 
 	}
 }

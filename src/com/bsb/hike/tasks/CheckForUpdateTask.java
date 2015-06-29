@@ -29,7 +29,7 @@ import com.bsb.hike.utils.Utils;
 
 public class CheckForUpdateTask extends AsyncTask<Void, Void, Boolean>
 {
-	public static final String STAGING_URL = "staging.get.hike.in/updates/android";
+	public static final String STAGING_URL_BASE = "/updates/android";
 
 	public static final String PRODUCTION_URL = "get.hike.in/updates/android";
 

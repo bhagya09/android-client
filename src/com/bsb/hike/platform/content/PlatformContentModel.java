@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -40,6 +41,7 @@ public class PlatformContentModel
 
 	private int mAppHash = -1;
 
+	private int uniqueId;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -83,6 +85,9 @@ public class PlatformContentModel
 		return mAppHash;
 	}
 
+	public static PlatformContentModel make(String contentData){
+		return make(0, contentData);
+	}
 	/**
 	 * Make.
 	 * 
@@ -90,7 +95,7 @@ public class PlatformContentModel
 	 *            the content data
 	 * @return the platform content model
 	 */
-	public static PlatformContentModel make(String contentData)
+	public static PlatformContentModel make(int unique,String contentData)
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
@@ -99,7 +104,13 @@ public class PlatformContentModel
 		try
 		{
 			object = new Gson().fromJson(jsonObj, PlatformContentModel.class);
-			object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
+			if (object.cardObj.getLd() != null)
+			{
+				object.cardObj.ld
+						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
+				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
+				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+			}
 		}
 		catch (JsonParseException e)
 		{
@@ -266,6 +277,16 @@ public class PlatformContentModel
 	{
 		// Cannot make objects directly
 	}
+	
+	public void setUniqueId(int uniqueId)
+	{
+		this.uniqueId = uniqueId;
+	}
+	
+	public int getUniqueId()
+	{
+		return uniqueId;
+	}
 
 	@Override
 	public String toString()
@@ -381,14 +402,14 @@ public class PlatformContentModel
 			this.h = h;
 		}
 
-		public String getnotifTitle()
+		public String getnotifText()
 		{
-			return notifTitle;
+			return notifText;
 		}
 
-		public void setnotifTitle(String notifTitle)
+		public void setnotifText(String notifText)
 		{
-			this.notifTitle = notifTitle;
+			this.notifText = notifText;
 		}
 		
 		@Expose
@@ -422,7 +443,7 @@ public class PlatformContentModel
 		public String h;
 		
 		@Expose
-		public String notifTitle;
+		public String notifText;
 
 	}
 

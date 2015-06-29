@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="authority">com.bsb.hike.black.providers.HikeProvider</string>
+
+</resources>

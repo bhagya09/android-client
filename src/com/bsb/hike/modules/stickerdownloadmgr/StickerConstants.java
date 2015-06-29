@@ -15,7 +15,20 @@ public class StickerConstants
 	
 	public enum DownloadSource
 	{
-		FIRST_TIME, X_MORE, SHOP, RETRY, SETTINGS
+		FIRST_TIME(0), X_MORE(1), SHOP(2), RETRY(3), SETTINGS(4), POPUP(6);
+
+		private int value;
+
+		DownloadSource(int value)
+		{
+			this.value = value;
+		}
+
+		public int getValue()
+		{
+			return value;
+		}
+
 	}
 	
 	public enum HttpRequestType

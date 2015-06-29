@@ -159,7 +159,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			switch (viewType)
 			{
 			case STICKER:
-				convertView = new ImageView(mContext);
+				convertView = new RecyclingImageView(mContext);
 				int padding = (int) (5 * Utils.scaledDensityMultiplier);
 				convertView.setLayoutParams(ll);
 				((ImageView) convertView).setScaleType(ScaleType.FIT_CENTER);

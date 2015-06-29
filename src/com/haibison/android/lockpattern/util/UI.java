@@ -156,8 +156,8 @@ public class UI {
      * @param dialog
      *            the dialog.
      */
-    public static void adjustDialogSizeForLargeScreens(Dialog dialog, boolean isActionCreatePattern) {
-        adjustDialogSizeForLargeScreens(dialog.getWindow(), isActionCreatePattern);
+    public static void adjustDialogSizeForLargeScreens(Dialog dialog) {
+        adjustDialogSizeForLargeScreens(dialog.getWindow());
     }// adjustDialogSizeForLargeScreens()
 
     /**
@@ -166,7 +166,7 @@ public class UI {
      * @param dialogWindow
      *            the window <i>of the dialog</i>.
      */
-    public static void adjustDialogSizeForLargeScreens(Window dialogWindow, boolean isActionCreatePattern) {
+    public static void adjustDialogSizeForLargeScreens(Window dialogWindow) {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, "adjustDialogSizeForLargeScreens()");
 
@@ -197,7 +197,7 @@ public class UI {
                 : screenSize.fixedWidthMajor));
         height = (int) (height * (isPortrait ? screenSize.fixedHeightMajor
     			: screenSize.fixedHeightMinor));
-        if(!isActionCreatePattern && isPortrait)
+        if(isPortrait)
         {
         	height = LayoutParams.WRAP_CONTENT;
         }

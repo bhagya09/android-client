@@ -5,7 +5,9 @@ import java.io.File;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.STResult;
@@ -83,7 +85,7 @@ public class StickerPreviewImageDownloadTask extends BaseStickerDownloadTask
 			
 			HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(catId, StickerManager.PREVIEW_IMAGE_TYPE));
 			Utils.saveBase64StringToFile(new File(previewImagePath), stickerData);
-			
+			sendSuccessBroadCast();
 		}
 		catch(StickerException e)
 		{
@@ -98,6 +100,12 @@ public class StickerPreviewImageDownloadTask extends BaseStickerDownloadTask
 			return STResult.DOWNLOAD_FAILED;
 		}
 		return STResult.SUCCESS;
+	}
+	
+	private void sendSuccessBroadCast()
+	{
+		Intent i = new Intent(StickerManager.STICKER_PREVIEW_DOWNLOADED);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(i);
 	}
 
 	@Override

@@ -34,6 +34,7 @@
                 android:padding="10dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_change_profile_pic"
+                android:contentDescription="@string/content_des_user_profile_detail_edit_profile_pic"
                 android:background="@drawable/bg_overflow_menu_selector" />
         </LinearLayout>
 
@@ -73,6 +74,7 @@
                 android:layout_marginTop="2dp"
                 android:textColor="@color/almost_white"
                 android:textSize="12sp"
+                android:contentDescription="@string/content_des_user_profile_detail_user_phone_number"
                 android:textStyle="bold|italic" />
         </LinearLayout>
 

@@ -1,6 +1,5 @@
 package com.bsb.hike.models;
 
-import android.app.PendingIntent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -25,8 +24,6 @@ public class GalleryItem implements Parcelable
 
 	private String layoutIDName;
 
-	private PendingIntent pIntent;
-
 	private byte type;
 
 	public GalleryItem(long id, String bucketId, String name, String filePath, int bucketCount)
@@ -39,13 +36,12 @@ public class GalleryItem implements Parcelable
 		type = DEFAULT_FILE;
 	}
 
-	public GalleryItem(long id, String name, String layoutIDName, int bucketCount, PendingIntent intent)
+	public GalleryItem(long id, String name, String layoutIDName, int bucketCount)
 	{
 		this.id = id;
 		this.name = name;
 		this.layoutIDName = layoutIDName;
 		this.bucketCount = bucketCount;
-		this.pIntent = intent;
 		type = CUSTOM;
 	}
 
@@ -57,7 +53,6 @@ public class GalleryItem implements Parcelable
 		this.name = source.readString();
 		this.filePath = source.readString();
 		this.layoutIDName = source.readString();
-		this.pIntent = source.readParcelable(PendingIntent.class.getClassLoader());
 	}
 
 	@Override
@@ -69,7 +64,6 @@ public class GalleryItem implements Parcelable
 		dest.writeString(name);
 		dest.writeString(filePath);
 		dest.writeString(layoutIDName);
-		dest.writeParcelable(pIntent, flags);
 	}
 
 	public long getId()
@@ -118,11 +112,6 @@ public class GalleryItem implements Parcelable
 		return type;
 	}
 
-	public PendingIntent getPendingIntent()
-	{
-		return pIntent;
-	}
-	
 	public static final Creator<GalleryItem> CREATOR = new Creator<GalleryItem>()
 	{
 		@Override

@@ -36,7 +36,6 @@ import org.eclipse.paho.client.mqttv3.internal.wire.MqttSubscribe;
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttUnsubscribe;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
-import org.eclipse.paho.client.mqttv3.util.Debug;
 
 import com.bsb.hike.utils.Logger;
 
@@ -1007,14 +1006,6 @@ public class MqttAsyncClient implements IMqttAsyncClient
 		Logger.d(TAG, "close completed");
 		// @TRACE 114=>
 
-	}
-
-	/**
-	 * Return a debug object that can be used to help solve problems.
-	 */
-	public Debug getDebug()
-	{
-		return new Debug(clientId, comms);
 	}
 
 	public int getInflightMessages()

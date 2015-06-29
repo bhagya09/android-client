@@ -958,10 +958,10 @@ public class NUXManager
 					switch (PushTypeEnum.getEnumValue(pushType))
 					{
 					case PUSH:
-						HikeNotification.getInstance(context).notifyUserAndOpenHomeActivity(pushText, pushTitle, false);
+						HikeNotification.getInstance().notifyUserAndOpenHomeActivity(pushText, pushTitle, false);
 						break;
 					case SILENT:
-						HikeNotification.getInstance(context).notifyUserAndOpenHomeActivity(pushText, pushTitle, true);
+						HikeNotification.getInstance().notifyUserAndOpenHomeActivity(pushText, pushTitle, true);
 						break;
 					case NONE:
 					case UNKNOWN:

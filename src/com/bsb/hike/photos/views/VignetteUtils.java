@@ -54,11 +54,10 @@ public class VignetteUtils
 		switch (filter)
 		{
 		case X_PRO_2:
-		case LO_FI:
 			// Vignette: Stop 1 = #000000 84%, Opacity = 0%; Stop 2 = #232443 120%, Opacity = 100%
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00232443, 0xFF232443 };
 			stops = new float[] { 0.0f, 0.75f-diff, 0.84f-diff, 1.0f };
-			radius = 1.65f * radius / 2;
+			radius = 2.15f * radius / 2;
 			break;
 		case E1977:
 		case BRANNAN:

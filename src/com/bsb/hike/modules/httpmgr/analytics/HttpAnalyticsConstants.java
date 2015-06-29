@@ -12,6 +12,8 @@ public class HttpAnalyticsConstants
 	
 	public static final String HTTP_REQUEST_ANALYTICS_PARAM = "param";
 	
+	public static final String HTTP_EXCEPTION_ANALYTICS = "ex";
+	
 	public static final int REQUEST_LOG_EVENT = 1;
 
 	public static final int RESPONSE_LOG_EVENT = 4;

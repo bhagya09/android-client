@@ -103,6 +103,9 @@ public class SingleStickerDownloadTask extends BaseStickerDownloadTask
 					return STResult.DOWNLOAD_FAILED;
 				}
 			}
+			
+			Utils.makeNoMediaFile(smallDir);
+			Utils.makeNoMediaFile(largeDir);
 
 			byte[] largeStickerByteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDirPath, stkId, stickerData);
 

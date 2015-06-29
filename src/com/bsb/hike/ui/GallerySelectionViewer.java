@@ -33,7 +33,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -125,13 +124,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		showTipIfRequired();
 	}
 
-	@Override
-	public void onBackPressed()
-	{
-		startAddMoreGalleryIntent();
-		super.onBackPressed();
-	}
-
 	private void startAddMoreGalleryIntent()
 	{
 
@@ -209,19 +201,18 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
-		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
+		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
+		actionBarView.setBackgroundResource(R.color.photos_action_bar_background);
 		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		View doneBtn = actionBarView.findViewById(R.id.done_container);
-		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
-		View imageSettingsBtn = actionBarView.findViewById(R.id.image_quality_settings_view);
-		
+		TextView postText = (TextView) actionBarView.findViewById(R.id.done_text);
+		title.setVisibility(View.VISIBLE);
 		doneBtn.setVisibility(View.VISIBLE);
 		postText.setText(R.string.send);
 		
 		title.setText(R.string.preview);
-		imageSettingsBtn.setVisibility(View.GONE);
 		backContainer.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -284,49 +275,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			}
 		});
 		
-		imageSettingsBtn.setOnClickListener(new OnClickListener()
-		{
-				@Override
-				public void onClick(View v)
-				{
-					// TODO Auto-generated method stub
-					final ArrayList<Pair<String, String>> fileDetails = new ArrayList<Pair<String, String>>(galleryItems.size());
-					long sizeOriginal = 0;
-					if (closeSMLtipView != null)
-					{
-						closeSMLtipView.performClick();
-					}
-					for (GalleryItem galleryItem : galleryItems)
-					{
-						fileDetails.add(new Pair<String, String> (galleryItem.getFilePath(), HikeFileType.toString(HikeFileType.IMAGE)));
-						File file = new File(galleryItem.getFilePath());
-						sizeOriginal += file.length();
-					}
-					
-					HikeDialogFactory.showDialog(GallerySelectionViewer.this, HikeDialogFactory.SHARE_IMAGE_QUALITY_DIALOG, new HikeDialogListener()
-					{
-						@Override
-						public void negativeClicked(HikeDialog hikeDialog)
-						{
-							hikeDialog.dismiss();
-						}
-
-						@Override
-						public void positiveClicked(HikeDialog hikeDialog)
-						{
-							hikeDialog.dismiss();
-						}
-
-						@Override
-						public void neutralClicked(HikeDialog hikeDialog)
-						{
-							
-						}
-					}, (Object[]) new Long[]{(long)fileDetails.size(), sizeOriginal});
-
-					smlDialogShown = true;
-				}
-		});
 		actionBar.setCustomView(actionBarView);
 	}
 

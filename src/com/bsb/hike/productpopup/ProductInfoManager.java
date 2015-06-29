@@ -1,8 +1,5 @@
 package com.bsb.hike.productpopup;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -16,19 +13,29 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupStateEnum;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -187,7 +194,7 @@ public class ProductInfoManager
 			ProductContentModel productContentModel = null;
 
 			@Override
-			public void onEventOccured(EventCode event)
+			public void onEventOccured(int uniqueId,EventCode event)
 			{
 				productContentModel = getProductContentModel();
 
@@ -227,6 +234,13 @@ public class ProductInfoManager
 				{
 					productContentModel.setFormedData(content.getFormedData());
 					getListener().onSuccess(productContentModel);
+					if (productContentModel.isCancellable())
+					{
+						ArrayList<ProductContentModel> list = new ArrayList<>(1);
+						list.add(productContentModel);
+						deletePopups(list);
+					}
+
 				}
 				else
 				{
@@ -311,12 +325,12 @@ public class ProductInfoManager
 
 		if (triggerpoint == PopupTriggerPoints.CHAT_SCR.ordinal())
 		{
-			HikeNotification.getInstance(context).notifyStringMessage(user, title, !shouldPlaySound);
+			HikeNotification.getInstance().sendNotificationToChatThread(user, title, !shouldPlaySound);
 
 		}
 		else
 		{
-			HikeNotification.getInstance(context).notifyUserAndOpenHomeActivity(user, title, !shouldPlaySound);
+			HikeNotification.getInstance().notifyUserAndOpenHomeActivity(user, title, !shouldPlaySound);
 		}
 	}
 
@@ -351,6 +365,7 @@ public class ProductInfoManager
 				url = url.replace("$msisdn", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.MSISDN_SETTING, ""));
 				url = url.replace("$uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.UID_SETTING, ""));
 				url = url.replace("$invite_token", mmHikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, ""));
+				url = url.replace("$resId", Utils.getResolutionId()+"");
 			}
 			return url;
 
@@ -369,44 +384,81 @@ public class ProductInfoManager
 	 */
 	public void callToServer(final String metaData)
 	{
-
-		handler.post(new Runnable()
-		{
-		
+		RequestToken requestToken = HttpRequests.productPopupRequest(getFormedUrl(metaData), new IRequestListener()
+		{	
 			@Override
-			public void run()
+			public void onRequestSuccess(Response result)
 			{
-				try
-				{
-					String host = getFormedUrl(metaData);
-					if (!TextUtils.isEmpty(host))
-					{
-						URL url = new URL(host);
-						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-						AccountUtils.setNoTransform(connection);
-						connection.connect();
-						Logger.d("ProductPopup",connection.getResponseCode()+"");
-					}
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-
+				Logger.d("ProductPopup", " response code " + result.getStatusCode());
 			}
-		});
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{	
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Logger.d("ProductPopup", " error code " + httpException.getErrorCode());
+			}
+		},getRequestType(metaData));
+		requestToken.execute();
+	}
+
+	private String getRequestType(String metaData) 
+	{
+		String request=HikeConstants.GET;
+		try
+		{
+			JSONObject object=new JSONObject(metaData);
+			request=object.optString(ProductPopupsConstants.REQUEST_TYPE,HikeConstants.GET);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return request;
 	}
 
 	public void deleteAllPopups()
 	{
 		HikeContentDatabase.getInstance().deleteAllPopupsFromDatabase();
 		clearPopupStack();
-		
 	}
 	
 	private void clearPopupStack()
 	{
 		mmSparseArray.clear();
+	}
+
+	public void downloadStkPk(String metaData)
+	{
+		try
+		{
+			JSONObject object=new JSONObject(metaData);
+			String categoryId=object.optString(StickerManager.CATEGORY_ID);
+			String categoryName=object.optString(StickerManager.CATEGORY_NAME);
+			int totalStickers = object.optInt(StickerManager.TOTAL_STICKERS);
+			int categorySize = object.optInt(StickerManager.CATEGORY_SIZE);
+
+			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
+			{
+				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				downloadStkPk(category);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void downloadStkPk(StickerCategory category)
+	{
+		StickerDownloadManager.getInstance().DownloadEnableDisableImage(category.getCategoryId(), null);
+		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, context);
+		
 	}
 
 }
