@@ -529,13 +529,16 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 					@Override
 					public void run()
 					{
-						if (smCursor.getCount() > 0)
+						if (isAdded())
 						{
-							smAdapter.changeCursor(smCursor);
-						}
-						else
-						{
-							finish();
+							if (smCursor.getCount() > 0)
+							{
+								smAdapter.changeCursor(smCursor);
+							}
+							else
+							{
+								finish();
+							}
 						}
 					}
 				});
