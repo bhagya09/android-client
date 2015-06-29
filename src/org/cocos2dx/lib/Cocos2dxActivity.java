@@ -29,6 +29,7 @@ import javax.microedition.khronos.egl.EGLDisplay;
 
 import org.cocos2dx.lib.Cocos2dxHelper.Cocos2dxHelperListener;
 
+import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 
 import android.app.Activity;
@@ -247,6 +248,13 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     //native method,call GLViewImpl::getGLContextAttrs() to get the OpenGL ES context attributions
     public static native int[] getGLContextAttrs();
     
+    //native method, call Init of game .so
+    private static native void appInitFromJava();
+    
+    protected void appInit() {
+    	appInitFromJava();
+    }
+    
     // ===========================================================
     // Getter & Setter
     // ===========================================================
@@ -357,6 +365,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     }
     
     public Cocos2dxGLSurfaceView onCreateView() {
+    	Logger.d(TAG, "onCreateView()");
         Cocos2dxGLSurfaceView glSurfaceView = new Cocos2dxGLSurfaceView(this);
         //this line is need on some device if we specify an alpha bits
         if(this.mGLContextAttrs[3] > 0) glSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
