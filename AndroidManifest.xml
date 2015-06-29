@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1255"
-    android:versionName="3.9.8.25" >
+    android:versionName="3.9.8.311.chathead" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
@@ -324,6 +324,20 @@
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity
+            android:name=".chatHead.ChatHeadActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.bsb.hike.chatHead"
+            android:launchMode="singleInstance">
+		</activity>
+		<activity
+            android:name=".chatHead.StickerShareSettings"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
+        </activity>
+        
+		<activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
@@ -433,6 +447,8 @@
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".chatHead.ChatHeadServiceManager" />
+        <service android:name=".chatHead.ChatHeadService" />
 
         <service android:name=".voip.VoIPService" />
 
@@ -453,6 +469,9 @@
         <service android:name=".service.SimpleWakefulService" >
         </service>
 
+		<receiver android:name=".service.ScreenOnOffReceiver" >
+        </receiver>
+        
         <receiver
             android:name=".service.ReferralReceiver"
             android:exported="true" >
