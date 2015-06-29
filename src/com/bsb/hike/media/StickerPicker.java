@@ -574,17 +574,15 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			chatHeadgetMoreStickersButton.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
 		}
 		initLayoutComponentsView();
-		chatHeadSideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
-				+ mContext.getString(R.string.total_sticker_sent_middle) + " " + ChatHeadActivity.noOfDays + " " + mContext.getString(R.string.total_sticker_sent_end));
-	    chatHeadSideText.setEnabled(false);
+		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadActivity.totalShareCount, ChatHeadActivity.noOfDays));
+		chatHeadSideText.setEnabled(false);
 	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
-	    
 	}
 
 	private void initLayoutComponentsView()
 	{
 		chatHeadMainLayout.setVisibility(View.VISIBLE);
-		chatHeadMainText.setText(ChatHeadActivity.shareCount + "/" + ChatHeadActivity.shareLimit + " " + mContext.getString(R.string.stickers_sent_today));
+		chatHeadMainText.setText(String.format(mContext.getString(R.string.stickers_sent_today), ChatHeadActivity.shareCount, ChatHeadActivity.shareLimit));
 		int progress;
 		if (ChatHeadActivity.shareLimit != 0)
 		{
@@ -611,11 +609,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		chatHeadMainLayout.setVisibility(View.VISIBLE);
 		chatHeadDisableLayout.setVisibility(View.GONE);
-		chatHeadSideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
-				+ mContext.getString(R.string.total_sticker_sent_middle) + " " + ChatHeadActivity.noOfDays + " " + mContext.getString(R.string.total_sticker_sent_end));
-	    chatHeadSideText.setEnabled(false);
-	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
-	    
+		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadActivity.totalShareCount, ChatHeadActivity.noOfDays));
+		chatHeadSideText.setEnabled(false);
+		chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
 	}
 
 	public void setOnClick()

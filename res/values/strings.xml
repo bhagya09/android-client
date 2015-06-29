@@ -1518,12 +1518,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
-	<string name="stickers_sent_today"> stickers sent today</string>
+	<string name="stickers_sent_today">%1$d/%2$d stickers sent today</string>
 	<string name="disable_from_hike_settings">Disable permanently from hike Settings</string>
-	<string name="total_sticker_sent_start">You sent</string>
-	<string name="total_sticker_sent_middle">stickers in the last</string>
-	<string name="total_sticker_sent_end">days</string>
-    <string name="disable_button">DISABLE</string>
+	<string name="total_sticker_sent">You sent %1$d stickers in the last %2$d days</string>
+	<string name="disable_button">DISABLE</string>
     <string name="get_more_stickers_button">GET MORE STICKERS</string>
     <string name="open_hike_button">OPEN HIKE</string>
     <string name="one_hour_button">1 HOUR</string>
