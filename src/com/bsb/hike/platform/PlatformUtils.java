@@ -67,17 +67,8 @@ public class PlatformUtils
 				JSONObject helperData = new JSONObject(helper);
 				JSONObject cardObj = metadataJSON.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 				JSONObject oldHelper = cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA);
-				if (oldHelper == null)
-				{
-					oldHelper = new JSONObject();
-				}
-				Iterator<String> i = helperData.keys();
-				while (i.hasNext())
-				{
-					String key = i.next();
-					oldHelper.put(key, helperData.get(key));
-				}
-				cardObj.put(HikePlatformConstants.HELPER_DATA, oldHelper);
+				JSONObject newHelperData = mergeJSONObjects(oldHelper, helperData);
+				cardObj.put(HikePlatformConstants.HELPER_DATA, newHelperData);
 				metadataJSON.put(HikePlatformConstants.CARD_OBJECT, cardObj);
 				originalMetadata = metadataJSON.toString();
 				return originalMetadata;
@@ -93,6 +84,35 @@ public class PlatformUtils
 			Logger.e(TAG, "Meta data is null in UpdateHelperData");
 		}
 		return null;
+	}
+
+	/**
+	 * Call this function to merge two JSONObjects. Will iterate for the keys present in the dataDiff. Will add the key in the oldData if not already
+	 * present or will update the value in oldData if the key is present.
+	 * @param oldData : the data that wants to be merged.
+	 * @param dataDiff : the diff that will be merged with the old data.
+	 * @return : the merged data.
+	 */
+	public static JSONObject mergeJSONObjects(JSONObject oldData, JSONObject dataDiff)
+	{
+		if (oldData == null)
+		{
+			oldData = new JSONObject();
+		}
+		Iterator<String> i = dataDiff.keys();
+		while (i.hasNext())
+		{
+			String key = i.next();
+			try
+			{
+				oldData.put(key, dataDiff.get(key));
+			}
+			catch (JSONException e)
+			{
+				Logger.e(TAG, "Caught a JSON Exception while merging helper data" + e.toString());
+			}
+		}
+		return oldData;
 	}
 	
 	public static void openActivity(Activity context, String data)
@@ -265,7 +285,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -275,7 +295,7 @@ public class PlatformUtils
 					public void onComplete(PlatformContentModel content)
 					{
 						Logger.d(TAG, "microapp download packet success.");
-						botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
+						botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 					}
 
 					@Override
@@ -289,7 +309,7 @@ public class PlatformUtils
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
 						{
 							Logger.d(TAG, "microapp already exists");
-							botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
+							botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 						}
 						else
 						{
@@ -313,10 +333,10 @@ public class PlatformUtils
 
 	}
 
-	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme)
+	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
 		enableBot(botInfo, enableBot);
-		BotUtils.updateBotParams(botChatTheme, botInfo);
+		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 	}
 
@@ -460,7 +480,8 @@ public class PlatformUtils
 	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
 	{
 
-		ConvMessage convMessage = new ConvMessage();
+
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(metadata);
