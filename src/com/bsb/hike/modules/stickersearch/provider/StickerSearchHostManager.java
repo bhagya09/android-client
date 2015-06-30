@@ -97,9 +97,9 @@ public class StickerSearchHostManager {
 		int [] [] result = null;
 		ArrayList<int []> tempResult = new ArrayList<int []>();
 		// if (!HikeSharedPreferenceUtil.getInstance().getData("isPopulated", false)) return null;
-		Object [] [] obj = StickerSearchUtility.splitAndDoIndexing(s.toString(), " ");
-		ArrayList<Object []> cobj = new ArrayList<Object[]>();
+		Object [] [] obj = StickerSearchUtility.splitAndDoIndexing(s.toString(), " |,|\\.|&|\\?|@");
 
+		ArrayList<Object []> cobj = new ArrayList<Object[]>();
 		String value;
 		for (int i = 0; i < obj.length; i++) {
 			if (!TextUtils.isEmpty((String) obj [i] [0]))  {

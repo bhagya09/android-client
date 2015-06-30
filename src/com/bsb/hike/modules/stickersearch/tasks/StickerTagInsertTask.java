@@ -2,7 +2,7 @@ package com.bsb.hike.modules.stickersearch.tasks;
 
 import org.json.JSONObject;
 
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchSetupManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
 
 public class StickerTagInsertTask implements Runnable
 {
@@ -19,6 +19,6 @@ public class StickerTagInsertTask implements Runnable
 	@Override
 	public void run()
 	{
-		StickerSearchSetupManager.getInstance().setupStickerSearchWizard(data, state);
+		StickerSearchDataController.getInstance().setupStickerSearchWizard(data, state);
 	}
 }

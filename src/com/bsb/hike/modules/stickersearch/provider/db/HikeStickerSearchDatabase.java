@@ -302,7 +302,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 			if (c != null) {
 				c.close();
 			}
-			mDb.releaseMemory();
+			SQLiteDatabase.releaseMemory();
 		}
 
 		Logger.d(TAG, "list: " + list);
@@ -323,7 +323,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 					cv.put(HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID, rows [j++]);
 					mDb.insert(table, null, cv);
 				}
-				mDb.releaseMemory();
+				SQLiteDatabase.releaseMemory();
 				try {
 					Thread.sleep(20);
 				} catch (InterruptedException e) {
@@ -416,7 +416,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 					mDb.beginTransaction();
 					for (i = 0; i < 27; i++) {
 						mDb.delete(tables [i], "WHERE " + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + " IN (" + sb.toString() + ")", groupIds);
-						mDb.releaseMemory();
+						SQLiteDatabase.releaseMemory();
 						try {
 							Thread.sleep(20);
 						} catch (InterruptedException e) {
@@ -431,7 +431,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 			if (c != null) {
 				c.close();
 			}
-			mDb.releaseMemory();
+			SQLiteDatabase.releaseMemory();
 		}
 	}
 }

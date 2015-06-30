@@ -1,3 +1,9 @@
+/**
+ * File   : StickerSearchDataController.java
+ * Content: It provides intermediate gateway to functions of Sticker_Search_Database.
+ * @author  Ved Prakash Singh [ved@hike.in]
+ */
+
 package com.bsb.hike.modules.stickersearch.provider;
 
 import java.util.ArrayList;
@@ -17,19 +23,22 @@ import com.google.gson.JsonObject;
 
 import android.text.TextUtils;
 
-public enum StickerSearchSetupManager {
+public enum StickerSearchDataController {
 
 	INSTANCE;
-	private static final String TAG = StickerSearchSetupManager.class.getSimpleName();
+	private static final String TAG = StickerSearchDataController.class.getSimpleName();
 
-	public static StickerSearchSetupManager getInstance() {
+	private static final Object sStickerSearckDataLock = new Object();
+
+	public static StickerSearchDataController getInstance() {
 		return INSTANCE;
 	}
 
 	public void init() {
-		HikeStickerSearchDatabase.init(HikeMessengerApp.getInstance());
+		Logger.d(TAG, "init()");
+		HikeStickerSearchDatabase.init();
 
-		synchronized (StickerSearchSetupManager.class) {
+		synchronized (sStickerSearckDataLock) {
 			if (!HikeSharedPreferenceUtil.getInstance().getData("isPopulated", false)) {
 				HikeStickerSearchDatabase.getInstance().markDataInsertionInitiation();
 				String [] tables = new String [27];
@@ -45,8 +54,9 @@ public enum StickerSearchSetupManager {
 	}
 
 	public void setupStickerSearchWizard(JSONObject json, int state) {
+		Logger.d(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
 
-		synchronized (StickerSearchSetupManager.class) {
+		synchronized (StickerSearchDataController.class) {
 			JSONArray tagData = json.optJSONArray("tagdata");
 			
 			if(tagData == null || tagData.length() == 0)
@@ -130,7 +140,7 @@ public enum StickerSearchSetupManager {
 
 	public void updateStickerList(HashSet<String> stickerInfo) {
 
-		synchronized (StickerSearchSetupManager.class) {
+		synchronized (StickerSearchDataController.class) {
 			HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfo);
 		}
 	}

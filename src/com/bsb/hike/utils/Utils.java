@@ -223,8 +223,8 @@ import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
 
-public class Utils
-{
+public class Utils {
+
 	public static Pattern shortCodeRegex;
 
 	public static Pattern msisdnRegex;
@@ -6047,5 +6047,28 @@ public class Utils
                 cursor.close();
         }
         return null;
+    }
+
+    /**
+     * Determine whether supplied String is actually empty or not.
+     * 
+     * @param String to be checked
+     * @author Ved Prakash Singh [ved@hike.in]
+     */
+    public static boolean isBlank(final CharSequence s) {
+
+    	boolean result = true;
+    	int length = ((s == null) ? 0 : s.length());
+
+    	if (length > 0) {
+        	for (int i = 0; i < length; i++) {
+        		if (!Character.isWhitespace(s.charAt(i))) {
+        			result = false;
+        			break;
+        		}
+        	}
+    	}
+
+    	return result;
     }
 }
