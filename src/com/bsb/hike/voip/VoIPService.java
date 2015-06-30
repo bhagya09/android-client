@@ -547,7 +547,7 @@ public class VoIPService extends Service {
 			startConferenceBroadcast();			
 		}
 		else {
-			setCallid(new Random().nextInt(2000000000));
+			setCallid(new Random().nextInt(Integer.MAX_VALUE));
 			startNotificationThread();
 		}
 			
