@@ -72,7 +72,7 @@ public class StickerSearchHostManager {
 
 	/* Call this method just after choosing any contact to chat (while opening chat-thread) 
 	   to load the history of that contact (either a person or a group) */
-	public void loadChatProfile(String contactId, boolean isGroupChat) {
+	public void loadChatProfile(String contactId, boolean isGroupChat, long lastMessageTimestamp) {
 		Logger.v(TAG, "loadChatProfile(" + contactId + ", " + isGroupChat + ")");
 
 		synchronized (sHostOperateLock) {

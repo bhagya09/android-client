@@ -1,4 +1,4 @@
-package com.bsb.hike.modules.stickersearch;
+package com.bsb.hike.modules.stickersearch.ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +16,22 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+
+import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.*;
 
 public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, OnTouchListener, IStickerRecommendFragmentListener
 {
@@ -44,6 +52,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private FrameLayout stickerRecommendView;
 	
 	private Fragment fragment ;
+	
+	private int count;
 
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
@@ -52,6 +62,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.color = color;
 		this.chatthread = chathread;
 		this.stickerPickerListener = (StickerPickerListener) chathread;
+		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
 
@@ -91,7 +102,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void showStickerSearchPopup(List<Sticker> stickerList)
 	{
-		if (stickerList == null || !chatthread.isKeyboardOpen())
+		if (stickerList == null || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
 		{
 			Logger.d(TAG, " no sticker list or keyboard not open");
 			return;
@@ -103,18 +114,47 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 		if (fragment == null)
 		{
-			Logger.d("anubhav", "sticker recommnd fragment is null");
+			Logger.d(StickerTagWatcher.TAG, "sticker recommnd fragment is null");
 			stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
 			android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
 			params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
 			stickerRecommendView.setLayoutParams(params);
+			stickerRecommendView.setOnTouchListener(onTouchListener);
 			fragment = StickerRecommendationFragment.newInstance(this, (ArrayList<Sticker>) stickerList);
 			activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
 					.commitAllowingStateLoss();
 		}
-		stickerRecommendView.setVisibility(View.VISIBLE);
 		((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
+		stickerRecommendView.setVisibility(View.VISIBLE);
+		showFtueAnimation();
 	}
+	
+	public void showFtueAnimation()
+	{
+		if(count > 0)
+		{
+			stickerRecommendView.removeCallbacks(scrollRunnable);
+			stickerRecommendView.postDelayed(scrollRunnable, SCROLL_DELAY);
+		}
+	}
+	
+	private Runnable scrollRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isStickerRecommnedPoupShowing() && fragment != null)
+			{
+				boolean shown = ((StickerRecommendationFragment) fragment).showFtueAnimation();
+				if(shown)
+				{
+					count--;
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, count);
+				}
+			}
+		}
+	};
 
 	@Override
 	public void dismissStickerSearchPopup()
@@ -131,7 +171,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.d(TAG, "ontouch called " + editText);
 
-		if (editText == null)
+		if (editText == null || (event.getAction() != MotionEvent.ACTION_DOWN))
 		{
 			return false;
 		}
@@ -147,6 +187,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			throw new IllegalStateException("sticker picker is null but sticker is selected");
 		}
+		StickerManager.getInstance().addRecentStickerToPallete(sticker);
 		stickerPickerListener.stickerSelected(sticker, StickerManager.FROM_RECOMMENDATION);
 		dismissStickerSearchPopup();
 	}
@@ -174,7 +215,25 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public void releaseResources()
 	{
+		if(activity != null && fragment != null)
+		{
+			activity.getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+		}
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
+		fragment = null;
 	}
+
+	/**
+	 * Consuming touch event on this view
+	 */
+	private OnTouchListener onTouchListener = new OnTouchListener()
+	{
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event)
+		{
+			return true;
+		}
+	};
 }

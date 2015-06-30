@@ -433,27 +433,6 @@ public class ChatThreadUtils
 		return lastMsg.getState() == ConvMessage.State.RECEIVED_UNREAD || lastMsg.getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE;
 	}
 	
-	protected static void publishMessagesRead(JSONArray ids, String msisdn)
-	{
-		if (ids != null)
-		{
-			JSONObject object = new JSONObject();
-
-			try
-			{
-				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
-				object.put(HikeConstants.TO, msisdn);
-				object.put(HikeConstants.DATA, ids);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
-			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-		}
-	}
-
 	protected static void decrementUnreadPInCount(Conversation mConversation, boolean isActivityVisible)
 	{
 		if (mConversation != null)
@@ -641,12 +620,6 @@ public class ChatThreadUtils
 				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 			Logger.d(TAG, "Unread Count event triggered");
-
-			/**
-			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
-			 * 
-			 */
-			ChatThreadUtils.publishMessagesRead(ids, msisdn);
 
 		}
 		catch (JSONException e)

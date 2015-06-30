@@ -178,7 +178,9 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(getArguments().containsKey(HikeConstants.FROM_CHAT_THREAD))
 			fromChatThread = getArguments().getBoolean(HikeConstants.FROM_CHAT_THREAD);
 		
-		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
+		Collections.reverse(sharedMediaItems);
+		
+		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, this);
 		selectedPager.setAdapter(smAdapter);
 		selectedPager.setOnPageChangeListener(this);
 		
@@ -231,7 +233,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		}
 		else
 		{
-			setSelection(initialPosition); // Opened from the gallery perhaps, hence set the view pager to the required position
+			setSelection(sharedMediaItems.size() - initialPosition - 1); // Opened from the gallery perhaps, hence set the view pager to the required position
 		}
 		
 		gallaryButton.setOnClickListener(new OnClickListener()
@@ -276,13 +278,11 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPageScrollStateChanged(int arg0)
 	{
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onPageScrolled(int arg0, float arg1, int arg2)
 	{
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -712,5 +712,19 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				menu.findItem(R.id.edit_pic).setVisible(false);
 			}
 		}
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		// TODO Auto-generated method stub
+		
+		//To remove any callbacks, if present inside handler in adaptor
+		if(smAdapter != null)
+		{
+			smAdapter.onDestroy();
+		}
+		
+		super.onDestroy();
 	}
 }

@@ -138,7 +138,7 @@ public enum StickerSearchDataController {
 		
 	}
 
-	public void updateStickerList(HashSet<String> stickerInfo) {
+	public void updateStickerList(Set<String> stickerInfo) {
 
 		synchronized (StickerSearchDataController.class) {
 			HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfo);

@@ -17,6 +17,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestTy
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.Logger;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategoriesRequest;
@@ -105,7 +106,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask
 			public void onRequestSuccess(Response result)
 			{
 				JSONObject json = (JSONObject) result.getBody().getContent();
-				Logger.d("anubhav", "response : " + json.toString());
+				Logger.d(StickerTagWatcher.TAG, "response : " + json.toString());
 				
 				StickerSearchManager.getInstance().insertStickerTags(json);
 			}

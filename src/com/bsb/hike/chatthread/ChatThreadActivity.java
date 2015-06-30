@@ -12,20 +12,20 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
 
 	private ChatThread chatThread;
+	
+	private long lastMessageTimeStamp;
 	
 	private static final String TAG = "ChatThreadActivity";
 
@@ -49,7 +49,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if (filter(getIntent()))
 		{
 			init(getIntent());
-			chatThread.onCreate();
+			chatThread.onCreate(savedInstanceState);
 			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.CHAT_SCR.ordinal());
 		}
 		else
@@ -111,6 +111,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	private void init(Intent intent)
 	{
 		String whichChatThread = intent.getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		lastMessageTimeStamp = intent.getLongExtra(HikeConstants.Extras.LAST_MESSAGE_TIMESTAMP, 0);
 		
 		if (HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD.equals(whichChatThread))
 		{
@@ -213,8 +214,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	
 	public void backPressed()
 	{
-		Intent intent = IntentFactory.getHomeActivityIntent(this);
-		startActivity(intent);
+		IntentFactory.openHomeActivity(ChatThreadActivity.this, true);
 		super.onBackPressed();
 	}
 	
@@ -328,4 +328,29 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return super.onKeyUp(keyCode, event);
 	}
 	
+	public long getLastMessageTimeStamp()
+	{
+		return this.lastMessageTimeStamp;
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		if (chatThread != null)
+		{
+			chatThread.onSaveInstanceState(outState);
+		}
+		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		if(chatThread != null) 
+		{
+			chatThread.onRestoreInstanceState(savedInstanceState);
+		}
+		super.onRestoreInstanceState(savedInstanceState);
+		
+	}
 }

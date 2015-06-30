@@ -29,6 +29,7 @@ import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -510,6 +511,10 @@ public class IntentFactory
 		{
 			intent.putExtra(HikeConstants.Extras.NAME, conversation.getConversationName());
 		}
+		if (conversation.getLastConversationMsg() != null)
+		{
+			intent.putExtra(HikeConstants.Extras.LAST_MESSAGE_TIMESTAMP, conversation.getLastConversationMsg().getTimestamp());
+		}
 		intent.putExtra(HikeConstants.Extras.MSISDN, conversation.getMsisdn());
 		String whichChatThread = ChatThreadUtils.getChatThreadType(conversation.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
@@ -544,6 +549,16 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
 		intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(argFile));
 		intent.setType("image");
+		return intent;
+	}
+	
+	public static Intent getMultipleFileForwardIntent(Context context, ArrayList<Uri> filePaths,HikeFileType type)
+	{
+		Intent intent = new Intent(context, ComposeChatActivity.class);
+		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filePaths);
+		intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+		intent.setType(HikeFileType.toString(type));
 		return intent;
 	}
 
