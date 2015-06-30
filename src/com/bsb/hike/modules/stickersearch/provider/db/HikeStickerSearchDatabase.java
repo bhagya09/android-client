@@ -9,7 +9,6 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -342,14 +341,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 		int [] rows = null;
 		Cursor c = null;
 		try {
+			word = word.replaceAll("\'", "");
 			char [] array = word.toUpperCase(Locale.ENGLISH).toCharArray();
 			String table = array [0] > 'Z' || array [0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH : HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + array [0];
+			Logger.d(TAG, "Searching \"" + word + "\" in " + table);
+
 			if (t) {
 				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + table + " MATCH '" + word + "'", null);
 			} else {
 				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + table + " MATCH '" + word + "*'", null);
 			}
-			Logger.d(TAG, "Searching \"" + word + "\" in " + table);
+
 			if (c != null) {
 				int i = 0;
 				rows = new int [c.getCount()];

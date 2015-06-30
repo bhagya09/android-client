@@ -9,9 +9,9 @@ package com.bsb.hike.modules.stickersearch.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -19,9 +19,8 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.google.gson.JsonObject;
 
-import android.text.TextUtils;
+import com.google.gson.JsonObject;
 
 public enum StickerSearchDataController {
 
@@ -57,80 +56,141 @@ public enum StickerSearchDataController {
 		Logger.d(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
 
 		synchronized (StickerSearchDataController.class) {
-			JSONArray tagData = json.optJSONArray("tagdata");
-			
-			if(tagData == null || tagData.length() == 0)
-			{
+			JSONObject packs = json.optJSONObject("packs");
+			if (packs == null || packs.length() == 0) {
 				return;
 			}
-			
-			ArrayList<String> tags = new ArrayList<String>();
-			ArrayList<String> stickers = new ArrayList<String>();
-			
-			
 
-			for (int i = 0; i < tagData.length(); i++) {
-				JSONObject obj = tagData.optJSONObject(i);
-				
-				if(obj == null)
-				{
+			Iterator<String> categories = packs.keys();
+			ArrayList<String> tagList = new ArrayList<String>();
+			ArrayList<String> stickerList = new ArrayList<String>();
+			Set<String> untaggedSet = new HashSet<String>();
+			Set<String> retrySet = new HashSet<String>();
+
+			while (categories.hasNext()) {
+				String categoryId = categories.next();
+				JSONObject packData = packs.optJSONObject(categoryId);
+				if (packData == null || packData.length() == 0) {
+					Logger.d(TAG, "Empty pack data: " + categoryId);
 					continue;
 				}
-				
-				String catId = obj.optString("catId");
-				String [] sIds = obj.optString("sIds").split(",");
-				JSONArray tagList = obj.optJSONArray("tags");
-				
-				if(tagList == null || tagList.length() == 0)
-				{
+
+				JSONObject stickerData = packData.optJSONObject("stkrs");
+				if (stickerData == null || stickerData.length() == 0) {
+					Logger.d(TAG, "No stickers for pack: " + categoryId);
 					continue;
 				}
-				
-				ArrayList<String> temp = new ArrayList<String>();
+				Iterator<String> stickers = stickerData.keys();
 
-				for (int j = 0; j < tagList.length(); j++) {
-					JSONObject cobj = tagList.optJSONObject(j);
+				if (packData.has("stories")) {
+					Object storiesData = packData.opt("stories");
+					if (storiesData != null && storiesData instanceof String []) {
+						String [] stories = (String []) storiesData;
+						Logger.d(TAG, categoryId + ": Stories = " + Arrays.toString(stories));
+					}
+				}
 
-					String [] s = new String [8];
-					s [0] = cobj.optString("*cbehaviour");
-					s [1] = cobj.optString("*ctheme");
-					s [2] = cobj.optString("*creaction");
-					s [3] = cobj.optString("*cresponse");
-					s [4] = cobj.optString("*cemotion");
-					s [5] = cobj.optString("*cfeeling");
-					s [6] = cobj.optString("*cgeneral");
-					s [7] = cobj.optString("*cother");
+				while (stickers.hasNext()) {
+					String stickerId = stickers.next();
+					JSONObject data = stickerData.optJSONObject(stickerId);
+					if (data == null || data.length() == 0) {
+						Logger.d(TAG, "Empty sticker data: " + categoryId + "_" + stickerId);
+						continue;
+					}
 
-					for (int m = 0; m <8; m++) {
-						if (!TextUtils.isEmpty(s [m])) {
-							temp.addAll(Arrays.asList(s [m].split(",")));
+					if (!data.has("img") || data.opt("img") == null) {
+						Logger.d(TAG, "Empty sticker image data: " + categoryId + "_" + stickerId);
+						continue;
+					}
+
+					JSONObject tagData = data.optJSONObject("tag_data");
+					boolean isTagDataEmpty = true;
+
+					if (tagData != null && tagData.length() > 0) {
+						JSONObject tags = tagData.optJSONObject("catgrs");
+
+						if (tags != null && tags.length() > 0) {
+							Iterator<String> languages = tags.keys();
+							ArrayList<String> tempElements = new ArrayList<String>();
+
+							while (languages.hasNext()) {
+								String languageId = languages.next();
+								JSONObject dictionaryData = tags.optJSONObject(languageId);
+
+								if (dictionaryData != null && dictionaryData.length() > 0) {
+									Object [] s = new String [8];
+									s [0] = dictionaryData.opt("*cbehaviour");
+									s [1] = dictionaryData.opt("*ctheme");
+									s [2] = dictionaryData.opt("*creaction");
+									s [3] = dictionaryData.opt("*cresponse");
+									s [4] = dictionaryData.opt("*cemotion");
+									s [5] = dictionaryData.opt("*cfeeling");
+									s [6] = dictionaryData.opt("*cgeneral");
+									s [7] = dictionaryData.opt("*cother");
+
+									boolean isCurruptedDictionary = false;
+									for (int m = 0; m < 8; m++) {
+										if (s [m] != null && s [m] instanceof String []) {
+											String [] dictionary = (String []) s [m]; 
+
+											for (String element : dictionary) {
+												tempElements.add(element);
+											}
+										} else {
+											isCurruptedDictionary = true;
+										}
+									}
+
+									if (isCurruptedDictionary) {
+										retrySet.add(stickerId + ":" + categoryId);
+										isTagDataEmpty = false;
+									}
+								}
+							}
+
+							int numberOfElements = tempElements.size();
+							if (numberOfElements > 0) {
+								isTagDataEmpty = false;
+								String stickerInfo = stickerId + ":" + categoryId;
+
+								tagList.addAll(tempElements);
+								for (int i = 0; i <numberOfElements; i++) {
+									stickerList.add(stickerInfo);
+								}
+							}
+						}
+
+						JSONObject attributes = tagData.optJSONObject("attrbs");
+						if (attributes != null) {
+							Logger.d(TAG, "No. of attributes attached with " + categoryId + "_" + stickerId + " = " + attributes.length());
+						} else {
+							Logger.d(TAG, "No attribute attached with " + categoryId + "_" + stickerId);
 						}
 					}
-				}
 
-				for (int k = 0; k < sIds.length; k++) {
-					tags.addAll(temp);
-					String s = sIds [k] + ":" + catId;
-					for (int l = 0; l < temp.size(); l++) {
-						stickers.add(s);
+					if (isTagDataEmpty) {
+						untaggedSet.add(stickerId + ":" + categoryId);
 					}
 				}
 			}
 
-			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tags, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tags, stickers));
-			Set<String> categorySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-			Set<String> updateSet = new HashSet<String>();
-			if (categorySet != null) {
-				updateSet.addAll(categorySet);
-				Logger.d(TAG, "initial list: " + updateSet);
-				for (String s : categorySet) {
-					if (stickers.contains(s)) {
-						updateSet.remove(s);
+			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tagList, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tagList, stickerList));
+
+			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+			Logger.d(TAG, "previous retry list: " + pendingRetrySet);
+
+			if (pendingRetrySet != null) {
+				for (String s : pendingRetrySet) {
+					if (!stickerList.contains(s)) {
+						retrySet.add(s);
 					}
 				}
-				Logger.d(TAG, "updated list: " + updateSet);
-				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateSet);
 			}
+
+			Logger.d(TAG, "updated retry list: " + retrySet);
+			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, retrySet);
+
+			Logger.d(TAG, "Untagged stickers: " + untaggedSet);
 		}
 	}
 

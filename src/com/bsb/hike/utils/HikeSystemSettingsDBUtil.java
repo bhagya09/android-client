@@ -43,7 +43,7 @@ public class HikeSystemSettingsDBUtil {
 
 	private static final String HIKE_PACKAGE_NAME_PREF = HikeMessengerApp.getInstance().getPackageName() + STRING_RELATER;
 	private static final String HIKE_SETTINGS_KEY_LIST = HIKE_PACKAGE_NAME_PREF + "keys";
-	private static final String SYSTEM_DATABASE_WHERE  = Settings.NameValueTable.NAME + " = ? ";
+	private static final String SYSTEM_DATABASE_WHERE  = Settings.NameValueTable.NAME + "=?";
 
 	private boolean mIsHikeSpecificData;
 
@@ -51,7 +51,6 @@ public class HikeSystemSettingsDBUtil {
 
 	private volatile String mHikeKeysListString;
 
-	private static final Object sInstanceInitLock    = new Object();
 	private static final Object sDatabaseOperateLock = new Object();
 	private static final Object sHikeKeyInfoEditLock = new Object();
 	private static final SystemSettingsUpdateException sSystemSettingsUpdateException = new SystemSettingsUpdateException();
@@ -75,20 +74,20 @@ public class HikeSystemSettingsDBUtil {
 	/* Generate and get instance of utility class from outside according to type i.e. whether using for Hike specific data or, common system-wide control data */
 	public static HikeSystemSettingsDBUtil getInstance(boolean isHikeSpecificData) {
 
-		HikeSystemSettingsDBUtil util = sInstanceContainer.get(isHikeSpecificData);
+		HikeSystemSettingsDBUtil hikeSystemSettingsDbUtil = sInstanceContainer.get(isHikeSpecificData);
 
-		if (util == null) {
-			synchronized (sInstanceInitLock) {
-				util = sInstanceContainer.get(isHikeSpecificData);
+		if (hikeSystemSettingsDbUtil == null) {
+			synchronized (HikeSharedPreferenceUtil.class) {
+				hikeSystemSettingsDbUtil = sInstanceContainer.get(isHikeSpecificData);
 
-				if (util == null) {
-					util = new HikeSystemSettingsDBUtil(isHikeSpecificData);
-					sInstanceContainer.put(isHikeSpecificData, util);
+				if (hikeSystemSettingsDbUtil == null) {
+					hikeSystemSettingsDbUtil = new HikeSystemSettingsDBUtil(isHikeSpecificData);
+					sInstanceContainer.put(isHikeSpecificData, hikeSystemSettingsDbUtil);
 				}
 			}
 		}
 		
-		return util;
+		return hikeSystemSettingsDbUtil;
 	}
 
 	/* Save key-value pair first time or, modify integer value for an existing key */

@@ -109,9 +109,10 @@ public class StickerSearchHostManager {
 
 		for (int i = 0; i < cobj.size(); i++) {
 			value = (String) cobj.get(i) [0];
-
+			Logger.d(TAG, "Ready to search \"" + value + "\"");
 			if (value.length() >= (i == 0 ? 1 : 2)) {
 				if (!history.containsKey(value)) {
+					Logger.d(TAG, "\"" + value + "\" was not found in local cache...");
 					ArrayList<String> results = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(value, (i == 0 && value.length() == 1));
 					if (results != null && results.size() > 0) {
 						LinkedHashSet<Sticker> stResules = new LinkedHashSet<Sticker>();
