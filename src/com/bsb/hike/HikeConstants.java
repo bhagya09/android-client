@@ -1579,6 +1579,8 @@ public class HikeConstants
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
+
+		public static final String ENABLE_SEND_LOGS = "ulogs_on";
 	}
 
 	public static final class LogEvent
@@ -2722,7 +2724,7 @@ public class HikeConstants
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 		
-		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 75;
+		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 77;
 	}
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";

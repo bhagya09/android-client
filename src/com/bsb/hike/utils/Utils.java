@@ -422,7 +422,11 @@ public class Utils
 		// String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.SSS")
 		// .format(new Date());
 		String timeStamp = Long.toString(System.currentTimeMillis());
-		String orgFileName = null;
+		/*
+		 * We don't create files for type LOCATION and CONTACT.
+		 * So file name should be empty string instead of null to avoid NullPointerException on file creation.
+		 */
+		String orgFileName = "";
 		
 		switch (type)
 		{
@@ -5879,6 +5883,12 @@ public class Utils
 			return false;
 		}
 	}
+
+	public static boolean isSendLogsEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+	}
+	
 
 	public static boolean moveFile(File inputFile, File outputFile) {
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());

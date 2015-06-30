@@ -113,6 +113,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		switch (density)
 		{
 		case DisplayMetrics.DENSITY_LOW:
+			return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_ldpi);
 		case DisplayMetrics.DENSITY_MEDIUM:
 		case DisplayMetrics.DENSITY_HIGH:
 			return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_hdpi);
