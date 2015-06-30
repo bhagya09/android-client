@@ -368,11 +368,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private void setSenderDetails()
 	{
-		senderName.setText(getSenderName());
-		long timeStamp = getCurrentSelectedItem().getTimeStamp();
-		String date = Utils.getFormattedDate(getSherlockActivity(), timeStamp);
-		String time = Utils.getFormattedTime(false, getSherlockActivity(), timeStamp);
-		itemTimeStamp.setText(date + ", " + time);
+		if (getCurrentSelectedItem() != null)
+		{
+			senderName.setText(getSenderName());
+			long timeStamp = getCurrentSelectedItem().getTimeStamp();
+			String date = Utils.getFormattedDate(getSherlockActivity(), timeStamp);
+			String time = Utils.getFormattedTime(false, getSherlockActivity(), timeStamp);
+			itemTimeStamp.setText(date + ", " + time);
+		}
 	}
 
 	private String getSenderName()
@@ -492,12 +495,18 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private HikeSharedFile getCurrentSelectedItem()
 	{
-		Logger.d("Atul", "getCurrentSelectedItem: "+mPageSelected);
 		HikeSharedFile currentFile = hsfLru.get(mPageSelected);
 		if (currentFile == null)
 		{
 			currentFile = smIterator.getFromCursor(smCursor, mPageSelected);
-			hsfLru.put(mPageSelected, currentFile);
+			if (currentFile == null)
+			{
+				return null;
+			}
+			else
+			{
+				hsfLru.put(mPageSelected, currentFile);
+			}
 		}
 		return currentFile;
 	}
