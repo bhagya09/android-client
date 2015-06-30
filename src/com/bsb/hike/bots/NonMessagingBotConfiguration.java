@@ -50,12 +50,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	public static final byte READ_SLIDE_OUT = 10;
 	
-	private static final byte HIDE_UNREAD = 11;
-	
-	private static final byte SHOW_UNREAD_ONE = 12;
-	
-	private static final byte SHOW_UNREAD_COUNT = 13;
-	
 	/**
 	 * Bit positions end here.
 	 */
@@ -388,21 +382,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public String getJSToInject()
 	{
 		return configData.optString(HikePlatformConstants.JS_INJECT, null);
-	}
-	
-	public boolean  isHideUnread()
-	{
-		return isBitSet(HIDE_UNREAD);
-	}
-	
-	public boolean  isShowUnreadOne()
-	{
-		return isBitSet(SHOW_UNREAD_ONE);
-	}
-	
-	public boolean  isShowUnreadCount()
-	{
-		return isBitSet(SHOW_UNREAD_COUNT);
 	}
 	
 	public boolean  isSlideInEnabled()
