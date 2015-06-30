@@ -130,7 +130,7 @@ public class HttpAnalyticsLogger
 	 */
 	public static void logResponseReceived(String trackId, String requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
 	{
-		if (true) // TODO
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_EXCEPTION_LOGGING, false))
 		{
 			logDevException(requestUrl, responseCode, methodType, analyticsParam, exception);
 		}
