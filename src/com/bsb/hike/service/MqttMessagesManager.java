@@ -2015,6 +2015,12 @@ public class MqttMessagesManager
 			boolean httpExceptionLogging = data.getBoolean(HikeConstants.HTTP_EXCEPTION_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_EXCEPTION_LOGGING, httpExceptionLogging);
 		}
+		if (data.has(HikeConstants.CONN_PROD_AREA_LOGGING))
+		{
+			boolean connLogging = data.getBoolean(HikeConstants.CONN_PROD_AREA_LOGGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CONN_PROD_AREA_LOGGING, connLogging);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
