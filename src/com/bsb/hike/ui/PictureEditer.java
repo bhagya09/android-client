@@ -21,9 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -67,8 +65,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private EditorClickListener clickHandler;
 	
-	private String[] notSupportedImageFormat= new String[]{"gif"};
-
 	private ImageView undoButton;
 
 	private PhotoActionsFragment mPhotosActionsFragment;
@@ -131,42 +127,22 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 		
-		String fileExtension = Utils.getFileExtension(filename);
-		
-		//Check file type
-		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-
 		Logger.d(TAG, "Checking file type");
-		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+		
+		//special handling for webp images since some devices cant extract their mime type
+		if (!Utils.getFileExtension(filename).equalsIgnoreCase("webp") && HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
 		{
 			onError();
 			return;
 		}
-		else if(isNotSupportedImageFormat(fileExtension))
-		{
-			Bundle bundle = new Bundle();
-			bundle.putString(HikeConstants.Extras.IMAGE_PATH, filename);
-			if(hasDelegateActivities())
-			{
-				launchNextDelegateActivity(bundle);
-				return;
-			}
-			else if(isStartedForResult())
-			{
-				Intent retIntent = new Intent();
-				retIntent.putExtras(bundle);
-				retIntent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
-				setResult(RESULT_OK, retIntent);
-				finish();
-				return;
-			}
-			else
-			{
-				onError();
-				return;
-			}
-		}
+		
+		SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+				.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+		ContactInfo userInfo = Utils.getUserContactInfo(preferences);
+		mLocalMSISDN = userInfo.getMsisdn();
+		
+		HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
+		HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
 		
 		beginProgress();
 
@@ -231,7 +207,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			{
 				dir.mkdirs();
 			}
-			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		}
 
 		editView.setDestinationPath(destinationFileHandle);
@@ -246,18 +222,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
 
-	}
-	
-	private boolean isNotSupportedImageFormat(String formatExtension)
-	{
-		for(int i = 0;i<notSupportedImageFormat.length;i++)
-		{
-			if(notSupportedImageFormat[i].equalsIgnoreCase(formatExtension))
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	private void onError()
@@ -322,6 +286,9 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void finish()
 	{
+		HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
+		HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
+		
 		HikeEffectsFactory.finish();
 		super.finish();
 	}
@@ -416,12 +383,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				break;
 			}
 		}
-		else if(resultCode == RESULT_CANCELED && requestCode == DELEGATION_REQUEST_CODE && isNotSupportedImageFormat(Utils.getFileExtension(filename)))
-		{
-			//The user returned from next delegate activity and picture editor does not support the file format
-			setResult(RESULT_CANCELED);
-			finish();
-		}
 	}
 
 	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
@@ -476,18 +437,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				{
 					doodleWidth += HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				doodlePreview.refresh();
-				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				break;
 			case R.id.minusWidth:
 				if (doodleWidth - HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH >= HikeConstants.HikePhotos.Min_BRUSH_WIDTH)
 				{
 					doodleWidth -= HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				doodlePreview.refresh();
-				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				break;
 			case R.id.undo:
 				editView.undoLastDoodleDraw();
@@ -639,10 +600,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			beginProgress();
 			sendAnalyticsSetAsDp();
 			// User info is saved in shared preferences
-			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-					.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
-			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
-			mLocalMSISDN = userInfo.getMsisdn();
 
 			editView.saveImage(HikeFileType.PROFILE, mLocalMSISDN, new HikePhotosListener()
 			{
@@ -794,11 +751,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onBackPressed()
 	{
-		if(isWorking)
-		{
-			return;
-		}
-		
 		if (getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE))
 		{
 			getSupportActionBar().show();
@@ -809,8 +761,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			// Tear down
 			super.onBackPressed();
-			HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
-			HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
 		}
 	}
 

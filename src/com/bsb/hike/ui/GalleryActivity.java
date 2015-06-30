@@ -545,15 +545,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 		intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, getIntent().getParcelableExtra(HikeConstants.Extras.SELECTED_BUCKET));
 
-		if (!sendResult)
-		{
-			startActivity(intent);
-		}
-		else
+		if (sendResult)
 		{
 			intent.putExtra(START_FOR_RESULT, sendResult);
-			startActivity(intent);
 		}
+		
+		startActivity(intent);
 	}
 
 	@Override
