@@ -3,7 +3,6 @@ package com.bsb.hike.voip;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;

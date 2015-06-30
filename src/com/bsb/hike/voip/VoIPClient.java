@@ -50,6 +50,7 @@ import com.bsb.hike.voip.protobuf.VoIPSerializer;
 public class VoIPClient  {		
 	
 	// Packet prefixes
+	@SuppressWarnings("unused")
 	private static final byte PP_RAW_VOICE_PACKET = 0x01;
 	private static final byte PP_ENCRYPTED_VOICE_PACKET = 0x02;
 	private static final byte PP_PROTOCOL_BUFFER = 0x03;
@@ -87,6 +88,7 @@ public class VoIPClient  {
 	private boolean establishingConnection = false;
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
+	@SuppressWarnings("unused")
 	private int audioPacketsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
