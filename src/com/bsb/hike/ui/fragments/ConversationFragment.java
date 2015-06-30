@@ -273,8 +273,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			@Override
 			public void run()
 			{
-				getListView().setPadding(0, 0, 0, footercontroller.getHeight());
-				
+				if(isAdded())
+				{
+					getListView().setPadding(0, 0, 0, footercontroller.getHeight());
+				}
 			}
 		});
 		Logger.d("footer","changeFooterState");
@@ -1311,7 +1313,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
          */
 		else
 		{
-			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+			if (!(conv instanceof OneToNConvInfo || BotUtils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 			{
 				optionsList.add(getString(R.string.add_to_contacts));
 				optionsList.add(getString(R.string.add_to_contacts_existing));
@@ -1340,7 +1342,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 			}
 
-			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+			if (!(conv instanceof OneToNConvInfo || BotUtils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 			{
 				optionsList.add(ContactManager.getInstance().isBlocked(conv.getMsisdn()) ? getString(R.string.unblock_title) : getString(R.string.block_title));
 			}
