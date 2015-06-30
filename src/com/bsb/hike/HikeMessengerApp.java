@@ -38,7 +38,6 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -481,6 +480,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String BULK_LAST_SEEN_PREF = "blsPref";
 	
 	public static final String TOGGLE_OK_HTTP = "toggleOkHttp";
+	
+	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
 
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
 
@@ -499,6 +500,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
 
 	public static final String SSL_ALLOWED = "sslAllowed";
+
+	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
 		
@@ -749,6 +752,8 @@ public void onTrimMemory(int level)
 		// succeeded by the
 		// onUpgrade() calls being triggered in the respective databases.
 		HikeConversationsDatabase.init(this);
+		HttpManager.init();
+		initHikeLruCache(getApplicationContext());
 
 		sm = StickerManager.getInstance();
 		sm.init(getApplicationContext());
@@ -762,10 +767,15 @@ public void onTrimMemory(int level)
 		{
 			startUpdgradeIntent();
 		}
+		else
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+		}
 
 		if(settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
 		{
 			sm.doInitialSetup();
+			sm.cachingStickersOnStart();
 		}
 		
 		HikeMqttPersistence.init(this);
@@ -855,7 +865,6 @@ public void onTrimMemory(int level)
 
 		hikeBotInfoMap = new ConcurrentHashMap<>();
 
-		initHikeLruCache(getApplicationContext());
 		initContactManager();
 		BotUtils.initBots();
 		/*
@@ -868,8 +877,6 @@ public void onTrimMemory(int level)
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
 
 		registerReceivers();
-
-		HttpManager.init();
 
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));

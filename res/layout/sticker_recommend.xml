@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/sticker_recommend_padding" >
 
     <android.support.v7.widget.RecyclerView
-       android:id="@+id/twoWayView"
+       android:id="@+id/recyclerView"
        android:layout_width="0dp"
        android:layout_height="match_parent"
        android:layout_gravity="center"
