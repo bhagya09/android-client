@@ -266,7 +266,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		voipService.setMessenger(mMessenger);
 		
 		VoIPClient clientPartner = voipService.getPartnerClient();
-		if (VoIPService.getCallId() == 0 || clientPartner.getPhoneNumber() == null) 
+		if (VoIPService.getCallId() == 0 ||
+				clientPartner == null ||
+				clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(tag, "There is no active call.");
 			getSherlockActivity().finish();	// Bugfix AND-354
@@ -852,6 +854,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	public void setAvatar()
 	{
 		VoIPClient clientPartner = voipService.getPartnerClient();
+		if (clientPartner == null) 
+			return;
+		
 		String msisdn = clientPartner.getPhoneNumber();
 
 		ImageView imageView = (ImageView) getView().findViewById(R.id.profile_image);
