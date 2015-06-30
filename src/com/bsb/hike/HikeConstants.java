@@ -2255,18 +2255,12 @@ public class HikeConstants
 		public static final String CREATE_MULTIPLE_BOTS = "cbot";
 		
 		public static final String REMOVE_MICRO_APP = "dmapp";
-
-		public static final String REMOVE_SUCCESS = "remsucss";
-
-		public static final String REPLACE_SUCCESS = "replsucss";
 		
 		public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
 		public static final String MICROAPP_DOWNLOAD = "mapp";
-
-		public static final String REPLACE_MICROAPP_VERSION = "replace";
 
 		public static final String PACKET_ECHO = "pecho";
 

@@ -59,9 +59,6 @@ public class PlatformUtils
 {
 	private static final String TAG = "PlatformUtils";
 	
-	private static boolean doReplace = false;
-
-	
 	/**
 	 * 
 	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
@@ -440,8 +437,8 @@ public class PlatformUtils
 						}
 					}
 				});
-				doReplace = downloadData.optBoolean(HikeConstants.MqttMessageTypes.REPLACE_MICROAPP_VERSION);
-				downloadAndUnzip(rqst, false);
+				boolean doReplace = downloadData.optBoolean(PlatformContentConstants.REPLACE_MICROAPP_VERSION);
+				downloadAndUnzip(rqst, false,doReplace);
 
 	}
 
@@ -470,10 +467,10 @@ public class PlatformUtils
 		}
 	}
 	
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader(doReplace);
-		downloader = new PlatformZipDownloader(request, isTemplatingEnabled);
+
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace);
 		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
@@ -482,6 +479,11 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
+		
+	}
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 
 	/**
@@ -542,19 +544,32 @@ public class PlatformUtils
 		JSONArray mArray = new JSONArray();
 		for (int i = 0; i < list.size(); i++)
 		{
-			String path;
-			if(doDeepLevelAccess)
-			{
-				path = HikePlatformConstants.FILE_DESCRIPTOR + list.get(i).getAbsolutePath();// adding the file descriptor
-			}
-			else
-			{
-				path = list.get(i).toString();
-				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
-			}
+			String path = HikePlatformConstants.FILE_DESCRIPTOR + list.get(i).getAbsolutePath();// adding the file descriptor
 			mArray.put(path);
 		}
 		return mArray;
+	}
+	
+	public static JSONArray trimFilePath(JSONArray mArray)
+	{
+		JSONArray trimmedArray = new JSONArray();
+		for (int i = 0; i < mArray.length(); i++)
+		{
+			String path;
+			try
+			{
+				path = mArray.get(i).toString();
+				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+				trimmedArray.put(path);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return trimmedArray;
 	}
 
 	// Method that returns the reads the list of files
@@ -590,7 +605,7 @@ public class PlatformUtils
 	 * @param sourceLocation : The folder which is about to be copied
 	 * @param targetLocation : The folder where the directory is about to be copied
 	 */
-	public static void copyDirectoryTo(File sourceLocation, File targetLocation) throws IOException
+	public static boolean copyDirectoryTo(File sourceLocation, File targetLocation) throws IOException
 	{
 		if (sourceLocation.isDirectory())
 		{
@@ -617,13 +632,14 @@ public class PlatformUtils
 			  in.close();
 			  out.close();
 		}
-
+		return true;
 	}
 
 	/*
 	 * This function is called to delete a particular file from the System
 	 * 
 	 * @param filePath : The complete file path of the file that is about to be deleted returns whether the file is deleted or not
+	 * Does not return a guaranteed call for a full delete
 	 */
 	public static boolean deleteDirectory(String filePath)
 	{
@@ -666,6 +682,7 @@ public class PlatformUtils
 						if (!b)
 						{
 							Logger.d("DeleteRecursive", "DELETE FAIL");
+							return false;
 						}
 					}
 				}

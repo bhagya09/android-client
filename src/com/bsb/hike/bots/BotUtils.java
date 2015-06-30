@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.util.Base64;
+
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Utils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,9 +22,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
@@ -220,25 +224,29 @@ public class BotUtils
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
 	public static void removeMicroApp(JSONObject jsonObj){
-		JSONArray appsToBeRemoved = jsonObj.optJSONArray(HikePlatformConstants.APP_NAME);
-		for (int i = 0; i< appsToBeRemoved.length(); i++){
-			try
-			{
+		try
+		{
+			JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
+			for (int i = 0; i< appsToBeRemoved.length(); i++){
 				String appName =  appsToBeRemoved.get(i).toString();
-				if(appName.equals(null))
-				{
-					return;
-				}
 				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
 				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
-				PlatformUtils.deleteDirectory(makePath);
-			}
-			catch (JSONException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(PlatformUtils.deleteDirectory(makePath)){
+					String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+					JSONObject json = new JSONObject();
+					json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.REMOVE_MICRO_APP);
+					json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+					json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+				}
 			}
 		}
+		catch (JSONException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 	}
 
 	public static void createBot(JSONObject jsonObj)

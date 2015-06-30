@@ -8,6 +8,7 @@ import java.util.Observer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.bool;
 import android.provider.MediaStore.Files;
 
 import com.bsb.hike.HikeConstants;
@@ -34,17 +35,7 @@ public class PlatformZipDownloader
 
 	private boolean isTemplatingEnabled;
 	
-	private boolean doReplace = false;
-
-	/**
-	 * Instantiates the doReplace boolean. Whether the microApp folder should be replaced or not.
-	 *
-	 * @param doReplace: Whether the microApp folder should be replaced or not.
-	 */
-	public PlatformZipDownloader(boolean doReplace)
-	{
-		this.doReplace = doReplace;
-	}
+	private boolean doReplace;
 	
 	/**
 	 * Instantiates a new platform template download task.
@@ -52,14 +43,22 @@ public class PlatformZipDownloader
 	 * @param argRequest: request
 	 * @param  isTemplatingEnabled: whether the app requires templating or not.
 	 */
+	
 	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled)
 	{
 		// Get ID from content and call http
 		mRequest = argRequest;
 		this.isTemplatingEnabled = isTemplatingEnabled;
-
 	}
-
+	
+	public PlatformZipDownloader(PlatformContentRequest argRequest, boolean isTemplatingEnabled,boolean doReplace)
+	{
+		// Get ID from content and call http
+		mRequest = argRequest;
+		this.isTemplatingEnabled = isTemplatingEnabled;
+		this.doReplace = doReplace;
+	}
+	
 	public  boolean isMicroAppExist()
 	{
 		try
@@ -156,6 +155,62 @@ public class PlatformZipDownloader
 		}
 
 	}
+	
+	private void replaceDirectories(String tempPath,String originalPath,boolean replaceSuccess,String unzipPath)
+	{
+		File originalDir = new File(originalPath);
+		File tempDir = new File(tempPath);
+		if(!tempDir.exists())
+		{
+			tempDir.mkdirs();
+		}
+		else
+		{
+			PlatformUtils.deleteDirectory(tempPath);
+			tempDir.mkdirs();
+		}
+		File src = new File(unzipPath + File.separator+ mRequest.getContentData().getId());
+		File dest = tempDir;
+		try
+		{
+			if(PlatformUtils.copyDirectoryTo(src,dest) && PlatformUtils.deleteDirectory(unzipPath) && PlatformUtils.deleteDirectory(originalPath))
+			{
+				dest.renameTo(originalDir);
+				replaceSuccess = true;
+			}
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		String sentData;
+		if(replaceSuccess)
+		{
+			sentData = AnalyticsConstants.REPLACE_SUCCESS;
+		}
+		else
+		{
+			sentData = AnalyticsConstants.REPLACE_FAILURE;
+		}
+		
+		
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_REPLACED);
+			json.putOpt(AnalyticsConstants.MICRO_APP_REPLACED, sentData);
+			json.putOpt(AnalyticsConstants.MICRO_APP_REPLACED, mRequest.getContentData().getId());
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	private void deleteTemporaryFolder()
 	{
@@ -193,38 +248,10 @@ public class PlatformZipDownloader
 						{
 							if(doReplace)
 							{
-								File originalDir = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId());
-								if(originalDir.exists())
-								{
-									PlatformUtils.deleteOp(originalDir);
-								}
-								originalDir.mkdirs();
-								File src = new File(unzipPath + File.separator+ mRequest.getContentData().getId());
-								File dest = originalDir;
-								try
-								{
-									PlatformUtils.copyDirectoryTo(src,dest);
-									PlatformUtils.deleteDirectory(unzipPath);
-								}
-								catch (IOException e)
-								{
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								String sentData = HikeConstants.MqttMessageTypes.REPLACE_SUCCESS;
-								JSONObject json;
-								try
-								{
-									json = new JSONObject();
-									json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_REPLACED);
-									json.putOpt(AnalyticsConstants.MICRO_APP_REPLACED, sentData);
-									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
-								}
-								catch (JSONException e)
-								{
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								boolean replaceSuccess = false;
+								String tempPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId() + "_temp";
+								String originalPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId();
+								replaceDirectories(tempPath, originalPath,replaceSuccess,unzipPath);
 							}
 							mRequest.getListener().onComplete(mRequest.getContentData());
 						}

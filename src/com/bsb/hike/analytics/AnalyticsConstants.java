@@ -54,7 +54,7 @@ public class AnalyticsConstants
 
 	public static String UI_EVENT = "uiEvent";
 	
-	public static String MICRO_APP_INFO = "microappInfo";
+	public static String MICRO_APP_INFO = "mappInfo";
 
 	public static String NON_UI_EVENT = "nonUiEvent";
 
@@ -111,6 +111,16 @@ public class AnalyticsConstants
 	public static final String SEND_WHEN_CONNECTED = "issendwhenconnected";
 
 	public static final String ANALYTICS_BACKUP = "backup";
+
+	public static final String REMOVE_SUCCESS = "remsucss";
+
+	public static final String REPLACE_SUCCESS = "replsucss";
+	
+	public static final String REPLACE_FAILURE = "replfail";
+	
+	public static final String REMOVE_MICRO_APP = "dmapp";
+	
+	public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
 	public static final String ANALYTICS_HOME_SEARCH = "search";
 
@@ -291,6 +301,8 @@ public class AnalyticsConstants
 	public static final String APP_VERSION_NAME = "app_ver";
 
 	public static final String MICRO_APP_REPLACED = "repl";
+	
+	public static final String MICRO_APP_ID = "rep_id";
 	
 	public static final class MsgRelEventType
 	{
