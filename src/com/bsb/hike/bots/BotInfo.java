@@ -342,13 +342,13 @@ public class BotInfo extends ConvInfo
 	
 	private void setNonMessagingBotUnreadCount(int unreadCount)
 	{
-		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
-		if (configuration.isHideUnread())
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(getMetadata());
+		if (metadata.getUnreadCountShowType() == BotUtils.SHOW_UNREAD_COUNT_ZERO)
 		{
 			super.setUnreadCount(0); 
 			return;
 		}
-		else if(configuration.isShowUnreadOne() && unreadCount > 0)
+		else if(metadata.getUnreadCountShowType() == BotUtils.SHOW_UNREAD_COUNT_ONE && unreadCount > 0)
 		{
 			super.setUnreadCount(1); 
 			return;
@@ -359,13 +359,12 @@ public class BotInfo extends ConvInfo
 	private void setMessagingBotUnreadCount(int unreadCount)
 	{
 		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
-		MessagingBotConfiguration configuration = new MessagingBotConfiguration(getConfiguration(), messagingBotMetadata.isReceiveEnabled());
-		if (configuration.isHideUnread())
+		if (messagingBotMetadata.getUnreadCountShowType() == BotUtils.SHOW_UNREAD_COUNT_ZERO)
 		{
 			super.setUnreadCount(0); 
 			return;
 		}
-		else if(configuration.isShowUnreadOne() && unreadCount > 0)
+		else if(messagingBotMetadata.getUnreadCountShowType() == BotUtils.SHOW_UNREAD_COUNT_ONE && unreadCount > 0)
 		{
 			super.setUnreadCount(1); 
 			return;
@@ -375,12 +374,10 @@ public class BotInfo extends ConvInfo
 
 	@Override
 	public String getUnreadCountString()
-	{
+	{   
 	   if(isNonMessagingBot())
 		{
-			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
-			
-			if(configuration.isShowUnreadCount() && getUnreadCount() > 1)
+			if(getUnreadCount() > 1)
 			{
 				return DEFAULT_UNREAD_COUNT ; 
 			}

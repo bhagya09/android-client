@@ -42,6 +42,14 @@ public class BotUtils
 	public static final int BOT_SLIDE_IN_ANIMATION = 1;
 	
 	public static final int BOT_READ_SLIDE_OUT_ANIMATION = 2;
+	
+	public static final String UNREAD_COUNT_SHOW_TYPE = "unrdCntShw";
+	
+	public static final int SHOW_UNREAD_COUNT_ZERO = 0;
+
+	public static final int SHOW_UNREAD_COUNT_ONE = 1;
+
+	public static final int SHOW_UNREAD_COUNT_ACTUAL = 2;
 
 	/**
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement

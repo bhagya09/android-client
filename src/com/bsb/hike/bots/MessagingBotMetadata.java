@@ -12,6 +12,8 @@ public class MessagingBotMetadata
 	JSONObject json;
 
 	boolean isReceiveEnabled;
+	
+	private int unReadCountShowType;
 
 	public MessagingBotMetadata(String metadata)
 	{
@@ -49,6 +51,8 @@ public class MessagingBotMetadata
 	{
 
 		this.isReceiveEnabled = json.optBoolean(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT, true);
+		
+		this.unReadCountShowType = json.optInt(BotUtils.UNREAD_COUNT_SHOW_TYPE, BotUtils.SHOW_UNREAD_COUNT_ACTUAL);
 	}
 
 	public boolean isReceiveEnabled()
@@ -66,5 +70,10 @@ public class MessagingBotMetadata
 	{
 		return json.toString();
 	}
-
+	
+	public int getUnreadCountShowType()
+	{
+		return unReadCountShowType;
+	}
+	
 }
