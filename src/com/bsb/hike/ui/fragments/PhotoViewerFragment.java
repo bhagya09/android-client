@@ -652,11 +652,27 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 			toggleViewsVisibility();
 		}
+		
 		if (smAdapter != null)
 		{
 			smAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
-			smAdapter.notifyDataSetChanged();
+			
+			/**
+				In onActivityCreated ---> intializeViewPager ----> smAdapter is already created
+				Which in turns call getView of Adaptor which does following 3 tasks
+				1) loads current image
+				2) loads all images to the left of current image ---> gives to adaptor---> notify
+				3) loads all images to the right of current image ---> gives to adaptor---> notify
+				Now here in resume, when notifDataSetChanged is called, then it is again loaded
+			
+				Earlier caching was there so could not find it, now here no caching, so can see it
+				this gives double loading for images on some device eg Samsung DUOS3
+			
+				after removing this, problem was solved with that device
+			 */
+			//smAdapter.notifyDataSetChanged();
 		}
+		
 		super.onResume();
 	}
 
