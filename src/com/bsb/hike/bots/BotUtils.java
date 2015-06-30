@@ -441,7 +441,7 @@ public class BotUtils
 
 		if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
 		{
-			configuration.setSlideIn(false);
+			configuration.setBit(NonMessagingBotConfiguration.SLIDE_IN, false);
 			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
 			return BOT_SLIDE_IN_ANIMATION;
 		}
@@ -461,7 +461,7 @@ public class BotUtils
 
 		if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
 		{
-			configuration.setSlideIn(false);
+			configuration.setBit(MessagingBotConfiguration.SLIDE_IN, false);
 			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
 			return BOT_SLIDE_IN_ANIMATION;
 		}

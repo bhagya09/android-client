@@ -74,7 +74,7 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 	private static byte CALL = 22;
 	
-	private static final byte SLIDE_IN = 23;
+	public static final byte SLIDE_IN = 23;
 	
 	private static final byte READ_SLIDE_OUT = 24;
 	
@@ -221,15 +221,15 @@ public class MessagingBotConfiguration extends BotConfiguration
 		return isBitSet(SLIDE_IN);
 	}
 	
-	public void setSlideIn(boolean toSet)
+	public void setBit(byte bit,boolean toSet)
 	{
 		if (toSet)
 		{
-			setConfig(getConfig() | (1 << SLIDE_IN));
+			setConfig(getConfig() | (1 << bit));
 		}
 		else
 		{
-			setConfig(getConfig() & ~(1 << SLIDE_IN));
+			setConfig(getConfig() & ~(1 << bit));
 		}
 	}
 	
