@@ -297,7 +297,7 @@ public class RequestExecuter
 		else
 		{
 			// positive response
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
+			HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 			listener.onResponse(response, null);
 		}	
 	}
