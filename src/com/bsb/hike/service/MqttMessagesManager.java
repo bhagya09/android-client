@@ -2010,6 +2010,13 @@ public class MqttMessagesManager
 				HikeAnalyticsEvent.sendStealthMsisdns(StealthModeManager.getInstance().getStealthMsisdns(), null);
 			}
 		}
+
+		if (data.has(HikeConstants.OTHER_EXCEPTION_LOGGING))
+		{
+			boolean otherExceptionLogging = data.getBoolean(HikeConstants.OTHER_EXCEPTION_LOGGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.OTHER_EXCEPTION_LOGGING, otherExceptionLogging);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
