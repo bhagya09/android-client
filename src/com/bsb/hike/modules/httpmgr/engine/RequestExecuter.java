@@ -34,6 +34,7 @@ import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
+import com.bsb.hike.utils.Utils;
 
 /**
  * This class is responsible for submitting the {@link Request} to the {@link HttpEngine} for engine and decides whether to execute the request asynchronously or synchronously
@@ -264,7 +265,7 @@ public class RequestExecuter
 			}
 			else
 			{
-				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam(), ex.toString());
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam(), Utils.getStackTrace(ex));
 				handleRetry(ex, REASON_CODE_NO_NETWORK);
 				return;
 			}
@@ -281,7 +282,7 @@ public class RequestExecuter
 		}
 		catch (Throwable ex)
 		{
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(), ex.toString());
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(), Utils.getStackTrace(ex));
 			handleException(ex, REASON_CODE_UNEXPECTED_ERROR);
 		}
 	}
@@ -297,7 +298,7 @@ public class RequestExecuter
 		else
 		{
 			// positive response
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
+			HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 			listener.onResponse(response, null);
 		}	
 	}
