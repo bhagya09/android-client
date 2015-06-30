@@ -719,7 +719,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 			if (Utils.isPhotosEditEnabled())
 			{
-				View takePhotoActionView = menu.findItem(R.id.take_pic).getActionView();
+				
+				View takePhotoActionView = (View)MenuItemCompat.getActionView(menu.findItem(R.id.take_pic));
 				((ImageView) takePhotoActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
 				takePhotoActionView.findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
 				takePhotoActionView.setOnClickListener(new OnClickListener()
