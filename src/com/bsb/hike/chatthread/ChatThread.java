@@ -3156,7 +3156,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (msisdn.equals(senderMsisdn))
 		{
-			if (activity.hasWindowFocus())
+			if (isActivityVisible)
 			{
 				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn);
 				
