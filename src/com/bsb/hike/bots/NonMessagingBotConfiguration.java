@@ -410,8 +410,16 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		return isBitSet(SLIDE_IN);
 	}
 	
-	public void setSlideIn() {
-		setConfig(getConfig() & ~(1 << SLIDE_IN));
+	public void setSlideIn(boolean toSet)
+	{
+		if (toSet)
+		{
+			setConfig(getConfig() | (1 << SLIDE_IN));
+		}
+		else
+		{
+			setConfig(getConfig() & ~(1 << SLIDE_IN));
+		}
 	}
 	
 	

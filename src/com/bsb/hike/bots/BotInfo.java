@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.integer;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -328,36 +329,50 @@ public class BotInfo extends ConvInfo
 	{		
 		if (isMessagingBot())
 		{
-			MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
-			MessagingBotConfiguration configuration = new MessagingBotConfiguration(getConfiguration(), messagingBotMetadata.isReceiveEnabled());
-			if (configuration.isHideUnread())
-			{
-				super.setUnreadCount(0); 
-				return;
-			}
-			else if(configuration.isShowUnreadOne() && unreadCount > 0)
-			{
-				super.setUnreadCount(1); 
-				return;
-			}
+			setMessagingBotUnreadCount(unreadCount);
+			return;
 		}
 		else if(isNonMessagingBot())
 		{
-			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
-			if (configuration.isHideUnread())
-			{
-				super.setUnreadCount(0); 
-				return;
-			}
-			else if(configuration.isShowUnreadOne() && unreadCount > 0)
-			{
-				super.setUnreadCount(1); 
-				return;
-			}
+			setNonMessagingBotUnreadCount(unreadCount);
+            return;			
 		}
 		super.setUnreadCount(unreadCount);
 	}
 	
+	private void setNonMessagingBotUnreadCount(int unreadCount)
+	{
+		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
+		if (configuration.isHideUnread())
+		{
+			super.setUnreadCount(0); 
+			return;
+		}
+		else if(configuration.isShowUnreadOne() && unreadCount > 0)
+		{
+			super.setUnreadCount(1); 
+			return;
+		}
+		super.setUnreadCount(unreadCount);
+	}
+
+	private void setMessagingBotUnreadCount(int unreadCount)
+	{
+		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
+		MessagingBotConfiguration configuration = new MessagingBotConfiguration(getConfiguration(), messagingBotMetadata.isReceiveEnabled());
+		if (configuration.isHideUnread())
+		{
+			super.setUnreadCount(0); 
+			return;
+		}
+		else if(configuration.isShowUnreadOne() && unreadCount > 0)
+		{
+			super.setUnreadCount(1); 
+			return;
+		}
+		super.setUnreadCount(unreadCount);
+	}
+
 	@Override
 	public String getUnreadCountString()
 	{

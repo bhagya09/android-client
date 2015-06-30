@@ -423,37 +423,53 @@ public class BotUtils
 
 			if (botInfo.isMessagingBot())
 			{
-				MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(botInfo.getMetadata());
-				MessagingBotConfiguration configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), messagingBotMetadata.isReceiveEnabled());
-
-				if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
-				{
-					configuration.setSlideIn();
-					updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
-					return BOT_SLIDE_IN_ANIMATION;
-				}
-				else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
-				{
-					return BOT_READ_SLIDE_OUT_ANIMATION;
-				}
-
+				return getMessagingBotAnimationType(convInfo);
 			}
 			else
 			{
-				NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
-
-				if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
-				{
-					configuration.setSlideIn();
-					updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
-					return BOT_SLIDE_IN_ANIMATION;
-				}
-				else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
-				{
-					return BOT_READ_SLIDE_OUT_ANIMATION;
-				}
+				return getNonMessagingBotAnimationType(convInfo);
 			}
 		}
+		return NO_ANIMATION;
+	}
+
+	private static int getNonMessagingBotAnimationType(ConvInfo convInfo)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
+
+		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
+
+		if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+		{
+			configuration.setSlideIn(false);
+			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+			return BOT_SLIDE_IN_ANIMATION;
+		}
+		else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
+		{
+			return BOT_READ_SLIDE_OUT_ANIMATION;
+		}
+
+		return NO_ANIMATION;
+	}
+
+	private static int getMessagingBotAnimationType(ConvInfo convInfo)
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
+		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(botInfo.getMetadata());
+		MessagingBotConfiguration configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), messagingBotMetadata.isReceiveEnabled());
+
+		if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+		{
+			configuration.setSlideIn(false);
+			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+			return BOT_SLIDE_IN_ANIMATION;
+		}
+		else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
+		{
+			return BOT_READ_SLIDE_OUT_ANIMATION;
+		}
+
 		return NO_ANIMATION;
 	}
 

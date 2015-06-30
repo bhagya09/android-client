@@ -183,7 +183,7 @@ public class ConversationsAdapter extends BaseAdapter
 		return completeList;
 	}
 	
-	private Animation getAnimation(final ConvInfo convInfo)
+	private Animation getAnimation(ConvInfo convInfo)
 	{  
 		Animation animation = null;
 		if (removeBotMsisdn != null && removeBotMsisdn.equals(convInfo.getMsisdn()))
