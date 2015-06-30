@@ -1268,6 +1268,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	
 	private void sendAnalyticsEvent(MqttException e)
 	{
+		//if server switch is off
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CONN_PROD_AREA_LOGGING, false))
+		{
+			return;
+		}
+		
 		JSONObject infoJson = new JSONObject();
 		try 
 		{
