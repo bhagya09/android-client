@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.integer;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -324,13 +325,66 @@ public class BotInfo extends ConvInfo
 	}
 	
 	@Override
+	public void setUnreadCount(int unreadCount)
+	{		
+		if (isMessagingBot())
+		{
+			setMessagingBotUnreadCount(unreadCount);
+			return;
+		}
+		else if(isNonMessagingBot())
+		{
+			setNonMessagingBotUnreadCount(unreadCount);
+            return;			
+		}
+		super.setUnreadCount(unreadCount);
+	}
+	
+	private void setNonMessagingBotUnreadCount(int unreadCount)
+	{
+		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
+		if (configuration.isHideUnread())
+		{
+			super.setUnreadCount(0); 
+			return;
+		}
+		else if(configuration.isShowUnreadOne() && unreadCount > 0)
+		{
+			super.setUnreadCount(1); 
+			return;
+		}
+		super.setUnreadCount(unreadCount);
+	}
+
+	private void setMessagingBotUnreadCount(int unreadCount)
+	{
+		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
+		MessagingBotConfiguration configuration = new MessagingBotConfiguration(getConfiguration(), messagingBotMetadata.isReceiveEnabled());
+		if (configuration.isHideUnread())
+		{
+			super.setUnreadCount(0); 
+			return;
+		}
+		else if(configuration.isShowUnreadOne() && unreadCount > 0)
+		{
+			super.setUnreadCount(1); 
+			return;
+		}
+		super.setUnreadCount(unreadCount);
+	}
+
+	@Override
 	public String getUnreadCountString()
 	{
-		if (isNonMessagingBot())
+	   if(isNonMessagingBot())
 		{
-			return DEFAULT_UNREAD_COUNT;
+			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
+			
+			if(configuration.isShowUnreadCount() && getUnreadCount() > 1)
+			{
+				return DEFAULT_UNREAD_COUNT ; 
+			}
 		}
-		
 		return super.getUnreadCountString();
 	}
 	
