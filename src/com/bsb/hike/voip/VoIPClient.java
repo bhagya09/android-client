@@ -320,7 +320,7 @@ public class VoIPClient  {
 		this.isSpeaking = isSpeaking;
 	}
 
-	public void removeExternalSocketInfo() {
+	public synchronized void removeExternalSocketInfo() {
 		setOurExternalIPAddress(null);
 		setOurExternalPort(0);
 		if (socket != null) {
@@ -335,7 +335,7 @@ public class VoIPClient  {
 	 * and we should retry quickly to reduce call patching time. <br/>
 	 * Hence, a compromise is to keep a short initial timeout, but increase it with every failure. 
 	 */
-	private void getNewSocket() {
+	private synchronized void getNewSocket() {
 		try {
 			socket = new DatagramSocket();
 			socket.setReuseAddress(true);
