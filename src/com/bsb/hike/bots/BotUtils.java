@@ -18,6 +18,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -34,6 +36,13 @@ import com.bsb.hike.utils.Utils;
  */
 public class BotUtils
 {
+	
+	public static final int NO_ANIMATION = 0;
+	
+	public static final int BOT_SLIDE_IN_ANIMATION = 1;
+	
+	public static final int BOT_READ_SLIDE_OUT_ANIMATION = 2;
+
 	/**
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
 	 * https://docs.google.com/spreadsheets/d/1hTrC9GdGRXrpAt9gnFnZACiTz2Th8aUIzVB5hrlD_4Y/edit#gid=0
@@ -399,4 +408,53 @@ public class BotUtils
 			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT), NotificationType.OTHER);
 		}
 	}
+	
+	private static void updateBotConfiguration(BotInfo botInfo, String msisdn, int config)
+	{
+		HikeConversationsDatabase.getInstance().updateBotConfiguration(msisdn, config);
+		botInfo.setConfiguration(config);
+	}
+
+	public static int getBotAnimaionType(ConvInfo convInfo)
+	{
+		if (BotUtils.isBot(convInfo.getMsisdn()))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
+
+			if (botInfo.isMessagingBot())
+			{
+				MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(botInfo.getMetadata());
+				MessagingBotConfiguration configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), messagingBotMetadata.isReceiveEnabled());
+
+				if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+				{
+					configuration.setSlideIn();
+					updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+					return BOT_SLIDE_IN_ANIMATION;
+				}
+				else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
+				{
+					return BOT_READ_SLIDE_OUT_ANIMATION;
+				}
+
+			}
+			else
+			{
+				NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
+
+				if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+				{
+					configuration.setSlideIn();
+					updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+					return BOT_SLIDE_IN_ANIMATION;
+				}
+				else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
+				{
+					return BOT_READ_SLIDE_OUT_ANIMATION;
+				}
+			}
+		}
+		return NO_ANIMATION;
+	}
+
 }

@@ -477,13 +477,12 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	@JavascriptInterface
-	public void deleteBotConversation()
+	public void botToBeDeleted()
 	{
 		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
 		Activity context = weakActivity.get();
 		ConversationsAdapter.removeBotMsisdn = message.getMsisdn();
-		Intent intent = IntentFactory.getHomeActivityIntent(context);
-		context.startActivity(intent);
+        context.finish();
 	}
 
 }

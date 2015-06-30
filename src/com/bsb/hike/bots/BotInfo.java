@@ -47,8 +47,6 @@ public class BotInfo extends ConvInfo
 
 	private String helperData;
 	
-	private static final String UNREAD_COUNT_ONE = "1";
-
 	private static final String DEFAULT_UNREAD_COUNT = "1+";
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
@@ -326,19 +324,21 @@ public class BotInfo extends ConvInfo
 	}
 	
 	@Override
-	public String getUnreadCountString()
-	{
+	public void setUnreadCount(int unreadCount)
+	{		
 		if (isMessagingBot())
 		{
 			MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
 			MessagingBotConfiguration configuration = new MessagingBotConfiguration(getConfiguration(), messagingBotMetadata.isReceiveEnabled());
 			if (configuration.isHideUnread())
 			{
-				return null ; 
+				super.setUnreadCount(0); 
+				return;
 			}
-			else if(configuration.isShowUnreadOne())
+			else if(configuration.isShowUnreadOne() && unreadCount > 0)
 			{
-				return UNREAD_COUNT_ONE ; 
+				super.setUnreadCount(1); 
+				return;
 			}
 		}
 		else if(isNonMessagingBot())
@@ -346,15 +346,28 @@ public class BotInfo extends ConvInfo
 			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
 			if (configuration.isHideUnread())
 			{
-				return null ; 
+				super.setUnreadCount(0); 
+				return;
 			}
-			else if(configuration.isShowUnreadOne())
+			else if(configuration.isShowUnreadOne() && unreadCount > 0)
 			{
-				return UNREAD_COUNT_ONE ; 
+				super.setUnreadCount(1); 
+				return;
 			}
-			else
+		}
+		super.setUnreadCount(unreadCount);
+	}
+	
+	@Override
+	public String getUnreadCountString()
+	{
+	   if(isNonMessagingBot())
+		{
+			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(getConfiguration());
+			
+			if(configuration.isShowUnreadCount() && getUnreadCount() > 1)
 			{
-				return DEFAULT_UNREAD_COUNT;
+				return DEFAULT_UNREAD_COUNT ; 
 			}
 		}
 		return super.getUnreadCountString();
