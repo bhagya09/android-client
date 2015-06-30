@@ -1731,12 +1731,12 @@ public class StickerManager
 	
 	public String getStickerSetString(Sticker sticker)
 	{
-		return sticker.getStickerId() + ":" + sticker.getCategoryId();
+		return sticker.getCategoryId() + ":" + sticker.getStickerId();
 	}
 	
 	public String getStickerSetString(String stkId, String catId)
 	{
-		return stkId + ":" + catId;
+		return catId + ":" + stkId;
 	}
 	
 	public void addRecentStickerToPallete(Sticker sticker)

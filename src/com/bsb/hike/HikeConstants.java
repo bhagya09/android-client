@@ -2855,4 +2855,10 @@ public class HikeConstants
 	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
 	
 	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
+	
+	public static final String PACKS = "packs";
+	
+	public static final String STICKERS = "stkrs";
+	
+	public static final String IMAGE = "img";
 }

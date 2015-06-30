@@ -11,6 +11,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
+import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
@@ -19,10 +20,11 @@ import com.bsb.hike.modules.stickersearch.provider.StickerSearchSetupManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategoriesRequest;
 
-public class StickerTagDownloadTask implements IHikeHTTPTask
+public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
 
 	private static String TAG = "StickerTagDownloadTask";
@@ -105,10 +107,16 @@ public class StickerTagDownloadTask implements IHikeHTTPTask
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-				JSONObject json = (JSONObject) result.getBody().getContent();
-				Logger.d(StickerTagWatcher.TAG, "response : " + json.toString());
+				JSONObject response = (JSONObject) result.getBody().getContent();
+				Logger.d(StickerTagWatcher.TAG, "response : " + response.toString());
 				
-				StickerSearchManager.getInstance().insertStickerTags(json);
+				if (!Utils.isResponseValid(response))
+				{
+					doOnFailure(null);
+					return;
+				}
+				
+				doOnSuccess(response);
 			}
 
 			@Override
@@ -120,7 +128,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				int x = 5;
+				
 			}
 		};
 	}
@@ -139,6 +147,19 @@ public class StickerTagDownloadTask implements IHikeHTTPTask
 	private String getRequestId()
 	{
 		return StickerRequestType.TAGS.getLabel() + "\\" + requestStep;
+	}
+
+	@Override
+	public void doOnSuccess(Object result)
+	{
+		JSONObject response = (JSONObject) result;
+		StickerSearchManager.getInstance().insertStickerTags(response);
+	}
+
+	@Override
+	public void doOnFailure(HttpException exception)
+	{
+		
 	}
 
 }
