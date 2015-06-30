@@ -194,15 +194,15 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else
 		{
-			switch (Utils.getBotAnimaionType(convInfo))
+			switch (BotUtils.getBotAnimaionType(convInfo))
 			{
-			case HikeConstants.BOT_SLIDE_IN_ANIMATION:
+			case BotUtils.BOT_SLIDE_IN_ANIMATION:
 				animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_from_left);
 				animation.setStartOffset(botAnimationStartTime*250);
 				animation.setDuration(400);
 				botAnimationStartTime++;
 				break;
-			case HikeConstants.BOT_READ_SLIDE_OUT_ANIMATION:
+			case BotUtils.BOT_READ_SLIDE_OUT_ANIMATION:
 				animation = getSlideOutAnimation(convInfo);
 				animation.setDuration(500);
 				break;
@@ -240,7 +240,7 @@ public class ConversationsAdapter extends BaseAdapter
 				notifyDataSetChanged();
 			}
 		});
-  return animation;
+        return animation;
 	}
 
 	@Override
@@ -850,13 +850,9 @@ public class ConversationsAdapter extends BaseAdapter
 			messageView.setText(messageText);
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
-				String unReadCount = convInfo.getUnreadCountString();
-				if (unReadCount != null)
-				{
 					unreadIndicator.setVisibility(View.VISIBLE);
 					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-					unreadIndicator.setText(unReadCount);
-				}
+					unreadIndicator.setText(convInfo.getUnreadCountString());
 			}
 
 			imgStatus.setImageResource(imageId);
@@ -880,16 +876,13 @@ public class ConversationsAdapter extends BaseAdapter
 
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
-				String unReadCount = convInfo.getUnreadCountString();
 				
-				if (unReadCount != null)
-				{
 					unreadIndicator.setVisibility(View.VISIBLE);
 
 					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
 
-					unreadIndicator.setText(unReadCount);
-				}
+					unreadIndicator.setText(convInfo.getUnreadCountString());
+				
 			}
 			if(isNuxLocked)
 			{ 
