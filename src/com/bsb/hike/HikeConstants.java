@@ -2396,9 +2396,13 @@ public class HikeConstants
 
 	public static final String PACKAGE_WATSAPP = "com.whatsapp";
 
-	public static final long IMAGE_SIZE_SMALL = 50 * 1024;
+	public static final long IMAGE_SIZE_SMALL = 80 * 1024;//Needs to be finalized after discussion
 
-	public static final long IMAGE_SIZE_MEDIUM = 80 * 1024;
+	public static final long IMAGE_SIZE_MEDIUM = 110 * 1024;//Needs to be finalized after discussion
+	
+	public static final String SERVER_CONFIG_IMAGE_SIZE_SMALL = "sc_img_sm";
+
+	public static final String SERVER_CONFIG_IMAGE_SIZE_MEDIUM = "sc_img_med";
 
 	public static final String WATSAPP_INVITE_MESSAGE_KEY = "wa_msg";
 

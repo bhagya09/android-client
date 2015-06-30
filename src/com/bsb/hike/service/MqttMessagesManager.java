@@ -1994,6 +1994,16 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
 
 		}
+		if (data.has(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL))
+		{
+			long image_size_small = data.getLong(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL, image_size_small);
+		}
+		if (data.has(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM))
+		{
+			long image_size_medium = data.getLong(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM, image_size_medium);
+		}
 		if(data.has(HikeConstants.STEALTH))
 		{
 			String stealthValue = data.getString(HikeConstants.STEALTH);
