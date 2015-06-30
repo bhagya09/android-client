@@ -921,7 +921,7 @@ public class HAManager
 	/**
 	 * Used for logging DevEvent related to error/invalid state of the app.
 	 */
-	public static void logDevEvent(String productArea, String devArea, JSONObject info)
+	public void logDevEvent(String productArea, String devArea, JSONObject info)
 	{
 		JSONObject metadata = new JSONObject();
 		try 
