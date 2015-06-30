@@ -641,8 +641,8 @@ public class HikeConstants
 	 */
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
-	/* quiet period of no changes before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 10 * 1000;
+	/* quiet period of no changes(in seconds) before actually updating the db */
+	public static final long CONTACT_UPDATE_TIMEOUT = 60 ;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -1577,6 +1577,8 @@ public class HikeConstants
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
+
+		public static final String ENABLE_SEND_LOGS = "ulogs_on";
 	}
 
 	public static final class LogEvent
@@ -2203,6 +2205,8 @@ public class HikeConstants
 		public static final String GAMES = "games";
 
 		public static final String DISPLAY_PIC = "dp";
+		
+		public static final String SYNC = "sync";
 
 		public static final String STATUS_UPDATE = "su";
 
@@ -2717,6 +2721,8 @@ public class HikeConstants
 		public static final int MAX_IMAGE_DIMEN = 1240;
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
+		
+		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 77;
 	}
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
@@ -2828,7 +2834,7 @@ public class HikeConstants
 	public static final String KEY = "key";
 	
 	public static final String VALUE = "val";
-
+	
 	public static final String SUPER_COMPRESSED_IMG_SIZE = "c_img_size";
 		
 	public static final String NORMAL_IMG_SIZE = "n_img_size";
@@ -2838,5 +2844,10 @@ public class HikeConstants
 	public static final String SHOW_TOAST_FOR_DEGRADING_QUALITY = "img_deg_toast";
 			
 	public static final String CONSUMED_FORWARDED_DATA = "consumed";
-}
+	
+	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 
+	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
+	
+	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
+}

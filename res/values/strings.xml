@@ -1142,9 +1142,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="image_settings_tip_subtext">Normal. Better. Uncompressed Size</string>
     <string name="settings_media">Media</string>
     <string name="media_settings_hinttext">Settings for photos, videos, audio</string>
-    <string name="image_quality_small">Normal</string>
-    <string name="image_quality_medium">Better</string>
-    <string name="image_quality_original">Uncompressed</string>
+    <string name="image_quality_small">Compressed</string>
+    <string name="image_quality_medium">Normal</string>
+    <string name="image_quality_original">Original</string>
     <string name="image_quality_send">Send</string>
     <string name="image_quality_files_as">files as</string>
     <string name="image_quality_popup_header">Choose image quality</string>
@@ -1528,6 +1528,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="profile_pic_failed">Profile picture upload failed. Please try again</string>
 	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
 	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
-	<string name="now">Now</string>
-	<string name="group_participant_info">You can add upto 500 members to a group</string>
+    <string name="now">Now</string>
+    <string name="group_participant_info">You can add upto 500 members to a group</string>
+    <string name="cont_desc_photos_tab_filter">TabFilter</string>
+    <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
+
 </resources>
