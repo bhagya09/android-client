@@ -144,12 +144,12 @@ public class HttpRequestConstants
 
 	public static String singleStickerDownloadBase()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + "/stickers";
+		return BASE_STICKERS_URL + BASE_V1 + "/stickers2";
 	}
 
 	public static String multiStickerDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER;
+		return BASE_STICKERS_URL + BASE_V1 + "/stickers2";
 	}
 	
 	public static String stickerPalleteImageDownloadUrl()
@@ -174,7 +174,7 @@ public class HttpRequestConstants
 	
 	public static String getStickerTagsUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_STICKER + "/tagdata";
+		return BASE_URL + BASE_V1 + "/stickers2" + "/tagdata";
 	}
 
 	public static String lastSeenUrl()
