@@ -4340,6 +4340,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						{
 							msg.setState(ConvMessage.State.SENT_DELIVERED_READ);
 							removeFromMessageMap(msg);
+							
+							//updating hike off-line messages set
+							if(mConversation.isOnHike())
+							{
+								removeFromUndeliverdMessages(msg);
+							}
 						}
 						else
 						{
@@ -4352,6 +4358,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_DELIVERED.ordinal()))
 						{
 							msg.setState(ConvMessage.State.SENT_DELIVERED);
+							
+							//updating hike off-line messages set
+							if(mConversation.isOnHike())
+							{
+								removeFromUndeliverdMessages(msg);
+							}
 						}
 					}
 				}
@@ -4360,6 +4372,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 		}
 	}
+
+	protected void removeFromUndeliverdMessages(ConvMessage msg)
+	{
+		return;
+	}
+
 
 	/**
 	 * This method will be overriden by respective classes
