@@ -6159,7 +6159,7 @@ public class Utils
 		return screenHeight * screenHeight;
 	}
 	
-	public static String getStackTrace(Exception ex)
+	public static String getStackTrace(Throwable ex)
 	{
 		StringWriter errorTrace = new StringWriter();
 		ex.printStackTrace(new PrintWriter(errorTrace));
