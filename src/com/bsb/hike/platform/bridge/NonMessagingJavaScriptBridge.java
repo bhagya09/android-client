@@ -1,16 +1,19 @@
 package com.bsb.hike.platform.bridge;
 
 import com.bsb.hike.utils.Utils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -28,6 +31,7 @@ import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -575,6 +579,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			Logger.e(tag, "error in JSON");
 			e.printStackTrace();
 		}
+	}
+	
+	@JavascriptInterface
+	public void botToBeDeleted()
+	{
+		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
+		Activity context = weakActivity.get();
+		ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
+	    context.finish();
 	}
 
 }

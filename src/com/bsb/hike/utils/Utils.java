@@ -340,6 +340,7 @@ public class Utils
 
 		return mOutToLeft;
 	}
+	
 
 	public static Animation outToRightAnimation(Context ctx)
 	{
