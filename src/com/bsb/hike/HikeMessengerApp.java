@@ -33,6 +33,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DbConversationListener;
@@ -884,6 +885,8 @@ public void onTrimMemory(int level)
 
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true));
+		
+		ChatHeadUtils.startOrStopService(false);
 	}
 
 	/**
