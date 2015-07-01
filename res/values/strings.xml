@@ -1538,4 +1538,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
 
+>>>>>>> origin/internal_release
 </resources>
