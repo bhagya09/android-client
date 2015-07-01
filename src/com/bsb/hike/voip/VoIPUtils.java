@@ -380,6 +380,7 @@ public class VoIPUtils {
 	{
 		boolean bluetoothEnabled = false;
 		
+		/*
 		// Below KitKat startBluetoothSco() requires BROADCAST_STICKY permission
 		// http://stackoverflow.com/questions/8678642/startbluetoothsco-throws-security-exception-broadcast-sticky-on-ics
 		// https://code.google.com/p/android/issues/detail?id=25136
@@ -387,7 +388,7 @@ public class VoIPUtils {
 			bluetoothEnabled = true;
 		else
 			Logger.w(tag, "Bluetooth disabled since phone does not support Kitkat.");
-		
+		*/
 		return bluetoothEnabled;
 	}
 	
@@ -412,7 +413,7 @@ public class VoIPUtils {
 
 			JSONObject message = new JSONObject();
 			message.put(HikeConstants.TO, recipient);
-			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0);
 			message.put(HikeConstants.SUB_TYPE, callMessage);
 			message.put(HikeConstants.DATA, data);
 			
