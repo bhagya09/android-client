@@ -1293,6 +1293,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_incoming">You missed a call</string>
     <string name="voip_call_chat">Hike Call</string>
     <string name="voip_call_notification_title">Hike Call with %1$s</string>
+    <string name="voip_conference_call_notification_title">Hike Conference Call</string>
     <string name="voip_call_notification_text">Call in progress %1$s</string>
     <string name="voip_call">call</string>
     <string name="voip_call_ended">CALL ENDED</string>
@@ -1306,9 +1307,11 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_signal_good">GOOD</string>
     <string name="voip_signal_weak">WEAK</string>
     <string name="voip_signal_excellent">EXCELLENT</string>
+    <string name="voip_conference_label">Conference Call</string>
     <string name="hike_calls">Hike Calls</string>
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>
+    <string name="voip_group_too_large">This group is too large for a conference call</string>
     <string name="led_color_none_key">None</string>
     <string name="led_color_blue_key">Blue</string>
     <string name="led_color_cyan_key">Cyan</string>
@@ -1378,6 +1381,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_call_failed_redial">Redial</string>
     <string name="voip_call_failed_native_call">Operator call</string>
     <string name="voip_not_reachable">%1$s is Not Reachable</string>
+    <string name="voip_callee_busy">%1$s is busy</string>
+    <string name="voip_callee_no_response">%1$s is not responding</string>
     <string name="voip_incompat_platform">Free hike calls are currently \navailable only on Android.</string>
     <string name="voip_older_app">%1$s is on an Older Version of hike</string>
     <string name="voip_caller_poor_network">You or %1$s is on a poor network</string>
@@ -1527,7 +1532,11 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="profile_pic_failed">Profile picture upload failed. Please try again</string>
 	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
 	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
-	<string name="now">Now</string>
-	<string name="group_participant_info">You can add upto 500 members to a group</string>
-	<string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
+    <string name="now">Now</string>
+    <string name="group_participant_info">You can add upto 500 members to a group</string>
+    <string name="cont_desc_photos_tab_filter">TabFilter</string>
+    <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
+    <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
+
+>>>>>>> origin/internal_release
 </resources>

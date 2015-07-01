@@ -583,7 +583,7 @@ public class IntentFactory
 		
 		if(croppedOutputDestination != null)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, false));
 		}
 		
 		if(destIntents.size()>0)
@@ -746,6 +746,15 @@ public class IntentFactory
 		Intent intent = new Intent(context, VoIPService.class);
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putExtra(VoIPConstants.Extras.MSISDN, msisdn);
+		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		return intent;
+	}
+
+	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, VoIPUtils.CallSource source)
+	{
+		Intent intent = new Intent(context, VoIPService.class);
+		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
+		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
 		return intent;
 	}
