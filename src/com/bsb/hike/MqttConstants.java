@@ -77,5 +77,7 @@ public class MqttConstants
 	
 	public static final String EXCEPTION_DEV_AREA = "exception";
 	
+	public static final String EXCEPTION_DEFAULT = "exception_default";
+	
 	public static final String CONNECTION_PROD_AREA = "conn";
 }
