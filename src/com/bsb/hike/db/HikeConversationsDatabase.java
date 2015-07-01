@@ -39,9 +39,11 @@ import android.util.SparseArray;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
@@ -1651,6 +1653,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					{
 						// duplicate message return false
 						Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+						
+						logDuplicateMessageEntry(conv, e);
 						return false;
 					}
 
@@ -1672,6 +1676,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						{
 							// duplicate message return false
 							Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+							logDuplicateMessageEntry(conv, e);
 							return false;
 						}
 
@@ -1749,6 +1754,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	private void logDuplicateMessageEntry(ConvMessage conv, Exception e)
+	{
+		JSONObject infoJson = new JSONObject();
+		try 
+		{
+			infoJson.put(AnalyticsConstants.ERROR_TRACE, e.toString());
+			infoJson.put(AnalyticsConstants.MESSAGE_DATA, conv.toString());
+		
+			HAManager.getInstance().logDevEvent(HikeConstants.MESSAGING, HikeConstants.DUPLICATE, infoJson);
+		} 
+		catch (JSONException jsonEx) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",jsonEx);
+		}
+		
+	}
+
 	/**
 	 *
 	 * @param convMessages
@@ -1779,6 +1801,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					// duplicate message . Skip further processing
 					Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+					logDuplicateMessageEntry(conv, e);
 					continue;
 				}
 				addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
@@ -1799,6 +1822,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					{
 						// duplicate message . Skip further processing
 						Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+						logDuplicateMessageEntry(conv, e);
 						continue;
 					}
 

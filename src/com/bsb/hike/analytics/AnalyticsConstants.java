@@ -295,6 +295,8 @@ public class AnalyticsConstants
 	public static final String APP_VERSION_NAME = "app_ver";
 
 	public static final String REASON_CODE = "rs";
+
+	public static final String MESSAGE_DATA = "msgData";
 	
 	public static final class MsgRelEventType
 	{
