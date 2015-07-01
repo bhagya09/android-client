@@ -3272,6 +3272,11 @@ public class Utils
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
 	
+	public static boolean isLollipopOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+	}
+	
 	public static boolean isIceCreamOrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;

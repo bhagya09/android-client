@@ -1,5 +1,6 @@
 package com.bsb.hike.chatHead;
 
+import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +23,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class ChatHeadUtils
@@ -64,13 +68,47 @@ public class ChatHeadUtils
 		}
 
 		ActivityManager mActivityManager = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
-		List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
-		for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+		
+		if(Utils.isLollipopOrHigher())
 		{
-			if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
+			Field field = null;
+			try
 			{
-				foregroundedPackages.add(processInfo.processName);
+				field = RunningAppProcessInfo.class.getDeclaredField("processState");
+			} catch (NoSuchFieldException e)
+			{
+				Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
 			}
+			List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
+			for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+			{
+				if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
+				{
+					Integer state = null;
+					try
+					{
+						state = field.getInt(processInfo);
+					}
+					catch (IllegalAccessException e)
+					{
+						Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
+					}
+					catch (IllegalArgumentException e)
+					{
+						Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
+					}
+					if (state != null && state == 2) 
+					{
+						foregroundedPackages.add(processInfo.processName);
+					}
+				}
+			}
+		}
+		else
+		{
+			List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(1);
+			foregroundedPackages.add(runningTasks.get(0).topActivity.getPackageName());
+			
 		}
 
 		return foregroundedPackages;
