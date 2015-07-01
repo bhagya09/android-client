@@ -3156,7 +3156,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (msisdn.equals(senderMsisdn))
 		{
-			if (activity.hasWindowFocus())
+			if (isActivityVisible)
 			{
 				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn);
 				
@@ -3266,7 +3266,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
-				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED};
+				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -4340,6 +4340,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						{
 							msg.setState(ConvMessage.State.SENT_DELIVERED_READ);
 							removeFromMessageMap(msg);
+							
+							//updating hike off-line messages set
+							if(mConversation.isOnHike())
+							{
+								removeFromUndeliverdMessages(msg);
+							}
 						}
 						else
 						{
@@ -4352,6 +4358,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_DELIVERED.ordinal()))
 						{
 							msg.setState(ConvMessage.State.SENT_DELIVERED);
+							
+							//updating hike off-line messages set
+							if(mConversation.isOnHike())
+							{
+								removeFromUndeliverdMessages(msg);
+							}
 						}
 					}
 				}
@@ -4360,6 +4372,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 		}
 	}
+
+	protected void removeFromUndeliverdMessages(ConvMessage msg)
+	{
+		return;
+	}
+
 
 	/**
 	 * This method will be overriden by respective classes
@@ -5035,6 +5053,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showThemePicker(int footerTextId)
 	{
+		/**
+		 * Hiding soft keyboard
+		 */
+		Utils.hideSoftKeyboard(activity, mComposeView);
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
@@ -5042,5 +5064,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
+	}
+	
+	protected void onRestoreInstanceState(Bundle savedInstanceState) 
+	{
+		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
 	}
 }

@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 
+import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
@@ -223,18 +225,6 @@ public class MqttMessagesManager
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
-		String from = jsonObj.getString(HikeConstants.FROM);
-		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-		
-		/*
-		 * Checking for if user who received display pic json actually changed the profile pic of group using the from field in json
-		 */
-		if (!TextUtils.isEmpty(msisdn) && msisdn.equals(from))
-		{
-			saveStatusMsg(jsonObj, groupId);
-			return;
-		}
-		
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
 		String newIconIdentifier = null;
 		ContactManager conMgr = ContactManager.getInstance();
@@ -264,7 +254,20 @@ public class MqttMessagesManager
 
 		// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
 		autoDownloadGroupImage(groupId);
-		saveStatusMsg(jsonObj, groupId);
+		boolean saveStatusMsg = true;
+		if (jsonObj.has(HikeConstants.METADATA)) {
+			JSONObject mdata = jsonObj.getJSONObject(HikeConstants.METADATA);
+			if (mdata.has(HikeConstants.MqttMessageTypes.SYNC)) {
+				int syncState = mdata.getInt(HikeConstants.MqttMessageTypes.SYNC);
+				if(syncState == 1){
+					saveStatusMsg = false;
+				}
+			}
+		}
+		if(saveStatusMsg){
+			saveStatusMsg(jsonObj, groupId);
+		}
+		
 	}
 
 	private void saveSMSCredits(JSONObject jsonObj) throws JSONException
@@ -1552,6 +1555,11 @@ public class MqttMessagesManager
 			boolean aecEnabled = data.getBoolean(HikeConstants.VOIP_AEC_ENABLED);
 			editor.putBoolean(HikeConstants.VOIP_AEC_ENABLED, aecEnabled);
 		}
+		if (data.has(HikeConstants.VOIP_CONFERENCING_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED);
+			editor.putBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED, enabled);
+		}
 		if (data.has(HikeConstants.VOIP_NETWORK_TEST_ENABLED))
 		{
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED);
@@ -1587,6 +1595,16 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_AEC_TAIL_TYPE);
 			editor.putInt(HikeConstants.VOIP_AEC_TAIL_TYPE, val);
 		}
+		if (data.has(HikeConstants.VOIP_RELAY_IPS))
+		{
+			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
+			Set<String> ips = new HashSet<>();
+			for (int i = 0; i < array.length(); i++) {
+				ips.add(array.getString(i));
+			}
+			editor.putStringSet(HikeConstants.VOIP_RELAY_IPS, ips);
+		}
+
 		if (data.has(HikeConstants.REWARDS_TOKEN))
 		{
 			String rewardToken = data.getString(HikeConstants.REWARDS_TOKEN);
@@ -1842,6 +1860,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOGGLE_OK_HTTP, okhttp);
 		}
 		
+		if (data.has(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR))
+		{
+			boolean enAb = data.getBoolean(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, enAb);
+		}
+		
 		if(data.has(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME))
 		{
 			long maxMessageProcessTime = data.optLong(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME);
@@ -1854,7 +1878,14 @@ public class MqttMessagesManager
 		{
 			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
-		}if(data.has(HikeConstants.URL_WHITELIST))
+		}
+		if(data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
+		{
+			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_SEND_LOGS, enablePhoto);
+			AppConfig.refresh();
+		}
+		if(data.has(HikeConstants.URL_WHITELIST))
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
 		}
@@ -1933,7 +1964,21 @@ public class MqttMessagesManager
 			boolean enable = data.getBoolean(HikeConstants.ENABLE_EXCEPTION_ANALYTIS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, enable);
 		}
-		
+		if (data.has(HikeConstants.CONTACT_UPDATE_WAIT_TIME))
+		{
+			long contactUpdateWaitTime = data.getLong(HikeConstants.CONTACT_UPDATE_WAIT_TIME);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONTACT_UPDATE_WAIT_TIME, contactUpdateWaitTime);
+		}
+		if (data.has(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE))
+		{
+			boolean deleteIc = data.getBoolean(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE, deleteIc);
+		}
+		if (data.has(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING))
+		{
+			boolean removeDuplicates = data.getBoolean(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING, removeDuplicates);
+		}
 		UserLogInfo.requestUserLogs(data);
 		
 		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))
@@ -1972,6 +2017,29 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
 
 		}
+		if (data.has(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL))
+		{
+			long image_size_small = data.getLong(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL, image_size_small);
+		}
+		if (data.has(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM))
+		{
+			long image_size_medium = data.getLong(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM, image_size_medium);
+		}
+		if (data.has(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY))
+		{
+			int image_quality = data.getInt(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM, image_quality);
+		}
+		if(data.has(HikeConstants.STEALTH))
+		{
+			String stealthValue = data.getString(HikeConstants.STEALTH);
+			if(stealthValue.equals(HikeConstants.ENABLED_STEALTH))
+			{
+				HikeAnalyticsEvent.sendStealthMsisdns(StealthModeManager.getInstance().getStealthMsisdns(), null);
+			}
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -2000,9 +2068,20 @@ public class MqttMessagesManager
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{
-				new PostAddressBookTask(contacts).execute();
+				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
+				{
+					new PostAddressBookTask(contacts).execute();
+				}
+				else
+				{
+					AccountUtils.postAddressBook(token, contacts);
+				}
 			}
 			catch (IllegalStateException e)
+			{
+				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
+			}
+			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
 			}

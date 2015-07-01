@@ -626,7 +626,7 @@ public class HikeConstants
 	/* Constant used to name the preference file which saves the drafts */
 	public static final String DRAFT_SETTING = "draftSetting";
 
-	public static final int CONNECT_TIMEOUT = 6 * 1000;
+	public static final int CONNECT_TIMEOUT = 30 * 1000;
 
 	public static final int SOCKET_TIMEOUT = 30 * 1000;
 
@@ -641,8 +641,8 @@ public class HikeConstants
 	 */
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
-	/* quiet period of no changes before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 10 * 1000;
+	/* quiet period of no changes(in seconds) before actually updating the db */
+	public static final long CONTACT_UPDATE_TIMEOUT = 60 ;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -1089,6 +1089,8 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_ENABLED = "aec";
 
+	public static final String VOIP_CONFERENCING_ENABLED = "conf";
+
 	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
@@ -1102,6 +1104,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_CNP = "cnp";
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
+	
+	public static final String VOIP_RELAY_IPS = "vrip";
 	
 	
 	public static final class ResultCodes
@@ -1168,8 +1172,6 @@ public class HikeConstants
 		public static final String CIRCLE_CROP = "circleCrop";
 		
 		public static final String CIRCLE_HIGHLIGHT = "circleHighlight";
-		
-		public static final String RETURN_BOUNDS = "returnBounds";
 
 		public static final String SCALE_UP = "scaleUpIfNeeded";
 
@@ -1579,6 +1581,8 @@ public class HikeConstants
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
+
+		public static final String ENABLE_SEND_LOGS = "ulogs_on";
 	}
 
 	public static final class LogEvent
@@ -2205,6 +2209,8 @@ public class HikeConstants
 		public static final String GAMES = "games";
 
 		public static final String DISPLAY_PIC = "dp";
+		
+		public static final String SYNC = "sync";
 
 		public static final String STATUS_UPDATE = "su";
 
@@ -2396,9 +2402,13 @@ public class HikeConstants
 
 	public static final String PACKAGE_WATSAPP = "com.whatsapp";
 
-	public static final long IMAGE_SIZE_SMALL = 50 * 1024;
+	public static final long IMAGE_SIZE_SMALL = 80 * 1024;//Needs to be finalized after discussion
 
-	public static final long IMAGE_SIZE_MEDIUM = 80 * 1024;
+	public static final long IMAGE_SIZE_MEDIUM = 110 * 1024;//Needs to be finalized after discussion
+	
+	public static final String SERVER_CONFIG_IMAGE_SIZE_SMALL = "sc_img_sm";
+
+	public static final String SERVER_CONFIG_IMAGE_SIZE_MEDIUM = "sc_img_med";
 
 	public static final String WATSAPP_INVITE_MESSAGE_KEY = "wa_msg";
 
@@ -2719,8 +2729,8 @@ public class HikeConstants
 		public static final int MAX_IMAGE_DIMEN = 1240;
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
-
-		public static final String DP_UPLOAD_CROP_BOUNDS = "Crop";
+		
+		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 80;
 	}
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
@@ -2832,7 +2842,7 @@ public class HikeConstants
 	public static final String KEY = "key";
 	
 	public static final String VALUE = "val";
-
+	
 	public static final String SUPER_COMPRESSED_IMG_SIZE = "c_img_size";
 		
 	public static final String NORMAL_IMG_SIZE = "n_img_size";
@@ -2842,5 +2852,12 @@ public class HikeConstants
 	public static final String SHOW_TOAST_FOR_DEGRADING_QUALITY = "img_deg_toast";
 			
 	public static final String CONSUMED_FORWARDED_DATA = "consumed";
-}
+	
+	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 
+	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
+	
+	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
+	
+	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+}

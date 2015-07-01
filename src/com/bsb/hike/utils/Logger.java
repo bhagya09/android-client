@@ -6,8 +6,6 @@ import com.bsb.hike.AppConfig;
 
 public class Logger
 {
-	public static boolean printLogs = AppConfig.SHOW_LOGS;
-
 	/**
 	 * Send a {@link #VERBOSE} log message.
 	 * 
@@ -18,7 +16,7 @@ public class Logger
 	 */
 	public static void v(String tag, String msg)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.v(tag, msg);
 		}
@@ -36,7 +34,7 @@ public class Logger
 	 */
 	public static void v(String tag, String msg, Throwable tr)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.v(tag, msg, tr);
 		}
@@ -52,7 +50,7 @@ public class Logger
 	 */
 	public static void d(String tag, String msg)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.d(tag, msg);
 		}
@@ -70,7 +68,7 @@ public class Logger
 	 */
 	public static void d(String tag, String msg, Throwable tr)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.d(tag, msg, tr);
 		}
@@ -86,7 +84,7 @@ public class Logger
 	 */
 	public static void i(String tag, String msg)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.i(tag, msg);
 		}
@@ -104,7 +102,7 @@ public class Logger
 	 */
 	public static void i(String tag, String msg, Throwable tr)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.i(tag, msg, tr);
 		}
@@ -120,7 +118,7 @@ public class Logger
 	 */
 	public static void w(String tag, String msg)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.w(tag, msg);
 		}
@@ -138,7 +136,7 @@ public class Logger
 	 */
 	public static void w(String tag, String msg, Throwable tr)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.w(tag, msg, tr);
 		}
@@ -153,7 +151,7 @@ public class Logger
 	 */
 	public static void w(String tag, Throwable tr)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.w(tag, tr);
 		}
@@ -169,7 +167,7 @@ public class Logger
 	 */
 	public static void e(String tag, String msg)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.e(tag, msg);
 		}
@@ -187,7 +185,7 @@ public class Logger
 	 */
 	public static void e(String tag, String msg, Throwable tr)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.w(tag, msg, tr);
 		}
@@ -195,7 +193,7 @@ public class Logger
 	
 	public static void wtf(String tag, String msg, Throwable tr)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.wtf(tag, msg, tr);
 		}
@@ -203,7 +201,7 @@ public class Logger
 	
 	public static void wtf(String tag, String msg)
 	{
-		if (printLogs)
+		if (AppConfig.SHOW_LOGS)
 		{
 			Log.wtf(tag, msg);
 		}

@@ -160,10 +160,13 @@ public class MessageMetadata
 
 		case PARTICIPANT_JOINED:
 			this.gcjParticipantInfo = metadata.getJSONArray(HikeConstants.DATA);
+			if(metadata.has(HikeConstants.METADATA))
+			{
 			JSONObject mdata = metadata.getJSONObject(HikeConstants.METADATA);
 			if (mdata.has(HikeConstants.FROM))
 			{
 				this.groupAdder = mdata.getString(HikeConstants.FROM);
+			}
 			}
 			this.newGroup = metadata.optBoolean(HikeConstants.NEW_GROUP);
 			this.newBroadcast = metadata.optBoolean(HikeConstants.NEW_BROADCAST);

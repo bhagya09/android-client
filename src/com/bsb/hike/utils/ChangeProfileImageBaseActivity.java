@@ -604,7 +604,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 					if (statusMessage != null)
 					{
-						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
+						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, true);
 
 						int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 						Editor editor = prefs.getPref().edit();
