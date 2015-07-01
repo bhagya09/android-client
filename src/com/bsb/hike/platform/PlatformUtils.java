@@ -1,9 +1,17 @@
 package com.bsb.hike.platform;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +32,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
@@ -49,7 +58,7 @@ import com.bsb.hike.utils.Utils;
 public class PlatformUtils
 {
 	private static final String TAG = "PlatformUtils";
-
+	
 	/**
 	 * 
 	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
@@ -428,8 +437,8 @@ public class PlatformUtils
 						}
 					}
 				});
-
-				downloadAndUnzip(rqst, false);
+				boolean doReplace = downloadData.optBoolean(PlatformContentConstants.REPLACE_MICROAPP_VERSION);
+				downloadAndUnzip(rqst, false,doReplace);
 
 	}
 
@@ -457,11 +466,12 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader(request, isTemplatingEnabled);
-		if (!downloader.isMicroAppExist())
+
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace);
+		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
 		}
@@ -469,6 +479,11 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
+		
+	}
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 
 	/**
@@ -504,6 +519,183 @@ public class PlatformUtils
 			return headers;
 		}
 		return new ArrayList<Header>();
+	}
+	
+	/*
+	 * This function is called to read the list of files from the System from a folder
+	 * 
+	 * @param filePath : The complete file path that is about to be read returns the JSON Array of the file paths of the all the files in a folder
+	 * @param doDeepLevelAccess : To specify if we want to read all the internal files and folders recursively
+	 */
+	public static JSONArray readFileList(String filePath,boolean doDeepLevelAccess)
+	{	
+		File directory = new File(filePath);
+		if (directory.exists() && !directory.isDirectory())
+		{
+			Logger.d("FileSystemAccess", "Cannot read a single file");
+			return null;
+		}
+		else if(!directory.exists())
+		{
+			Logger.d("FileSystemAccess", "Invalid file path!");
+			return null;
+		}
+		ArrayList<File> list = filesReader(directory,doDeepLevelAccess);
+		JSONArray mArray = new JSONArray();
+		for (int i = 0; i < list.size(); i++)
+		{
+			String path = HikePlatformConstants.FILE_DESCRIPTOR + list.get(i).getAbsolutePath();// adding the file descriptor
+			mArray.put(path);
+		}
+		return mArray;
+	}
+	
+	public static JSONArray trimFilePath(JSONArray mArray)
+	{
+		JSONArray trimmedArray = new JSONArray();
+		for (int i = 0; i < mArray.length(); i++)
+		{
+			String path;
+			try
+			{
+				path = mArray.get(i).toString();
+				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+				trimmedArray.put(path);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return trimmedArray;
+	}
+
+	// Method that returns the reads the list of files
+	public static ArrayList<File> filesReader(File root,boolean doDeepLevelAccess)
+	{
+		ArrayList<File> a = new ArrayList<>();
+
+		File[] files = root.listFiles();
+		for (int i = 0; i < files.length; i++)
+		{
+			if (doDeepLevelAccess)
+			{
+				if(files[i].isDirectory())
+				{
+					a.addAll(filesReader(files[i],doDeepLevelAccess));	
+				}
+				else
+				{
+					a.add(files[i]);
+				}
+
+			}
+			else
+			{
+				a.add(files[i]);
+			}
+		}
+		return a;
+	}
+
+	/*
+	 * This function is called to copy a directory from one location to another location 
+	 * @param sourceLocation : The folder which is about to be copied
+	 * @param targetLocation : The folder where the directory is about to be copied
+	 */
+	public static boolean copyDirectoryTo(File sourceLocation, File targetLocation) throws IOException
+	{
+		if (sourceLocation.isDirectory())
+		{
+			if (!targetLocation.exists())
+			{
+				targetLocation.mkdir();
+			}
+			String[] children = sourceLocation.list();
+			for (int i = 0; i < sourceLocation.listFiles().length; i++)
+			{
+				copyDirectoryTo(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
+			}
+		}
+		else
+		{
+			
+			  InputStream in = new FileInputStream(sourceLocation);
+			  OutputStream out = new FileOutputStream(targetLocation);
+			  byte[] buf = new byte[1024]; int len;
+			  while ((len = in.read(buf)) > 0) 
+			  { 
+				  out.write(buf, 0, len); 
+			  }
+			  in.close();
+			  out.close();
+		}
+		return true;
+	}
+
+	/*
+	 * This function is called to delete a particular file from the System
+	 * 
+	 * @param filePath : The complete file path of the file that is about to be deleted returns whether the file is deleted or not
+	 * Does not return a guaranteed call for a full delete
+	 */
+	public static boolean deleteDirectory(String filePath)
+	{
+		File deletedDir = new File(filePath);
+		if (deletedDir.exists())
+		{
+			boolean isDeleted = deleteOp(deletedDir);
+			Logger.d("FileSystemAccess", "Directory exists!");
+			Logger.d("FileSystemAccess", (isDeleted) ? "File is deleted" : " File not deleted");
+			return isDeleted;
+		}
+		else
+		{
+			Logger.d("FileSystemAccess", "Invalid file path!");
+			return false;
+		}
+	}
+
+	// This method performs the actual deletion of the file
+	public static boolean deleteOp(File dir)
+	{
+		Logger.d("FileSystemAccess", "In delete");
+		if (dir.exists())
+		{// This checks if the file/folder exits or not
+			if (dir.isDirectory())// This checks if the call is made to delete a particular file (eg. "index.html") or an entire sub-folder
+			{
+				String[] children = dir.list();
+				for (int i = 0; i < children.length; i++)
+				{
+					File temp = new File(dir, children[i]);
+					if (temp.isDirectory())
+					{
+						Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
+						deleteOp(temp);
+					}
+					else
+					{
+						Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
+						boolean b = temp.delete();
+						if (!b)
+						{
+							Logger.d("DeleteRecursive", "DELETE FAIL");
+							return false;
+						}
+					}
+				}
+				dir.delete();
+			}
+			else
+			{
+				dir.delete();
+			}
+			Logger.d("FileSystemAccess", "Delete done!");
+			return true;
+		}
+		return false;
 	}
 
 }

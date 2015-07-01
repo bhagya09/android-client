@@ -87,11 +87,11 @@ public class MessagingBridge_Nano extends JavascriptBridge
 			jsonObject.put(AnalyticsConstants.CONTENT_ID, message.getContentId());
 			if (Boolean.valueOf(isUI))
 			{
-				HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
 			}
 			else
 			{
-				HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
 			}
 		}
 		catch (JSONException e)
