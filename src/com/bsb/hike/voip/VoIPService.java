@@ -3,7 +3,6 @@ package com.bsb.hike.voip;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
@@ -77,7 +76,7 @@ public class VoIPService extends Service {
 	private NotificationManager notificationManager;
 	private NotificationCompat.Builder builder;
 	private AudioManager audioManager;
-	private int initialAudioMode, initialRingerMode;
+	private int initialAudioMode;
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0, recordingSampleRate = 0;
@@ -548,7 +547,7 @@ public class VoIPService extends Service {
 			startConferenceBroadcast();			
 		}
 		else {
-			setCallid(new Random().nextInt(2000000000));
+			setCallid(new Random().nextInt(Integer.MAX_VALUE));
 			startNotificationThread();
 		}
 			
@@ -845,13 +844,11 @@ public class VoIPService extends Service {
 	
 	private void saveCurrentAudioSettings() {
 		initialAudioMode = audioManager.getMode();
-		initialRingerMode = audioManager.getRingerMode();
 		initialSpeakerMode = audioManager.isSpeakerphoneOn();
 	}
 
 	private void restoreAudioSettings() {
 		audioManager.setMode(initialAudioMode);
-		audioManager.setRingerMode(initialRingerMode);
 		audioManager.setSpeakerphoneOn(initialSpeakerMode);
 		audioManager.stopBluetoothSco();
 		audioManager.setBluetoothScoOn(false);	

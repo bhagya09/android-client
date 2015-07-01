@@ -50,6 +50,7 @@ import com.bsb.hike.voip.protobuf.VoIPSerializer;
 public class VoIPClient  {		
 	
 	// Packet prefixes
+	@SuppressWarnings("unused")
 	private static final byte PP_RAW_VOICE_PACKET = 0x01;
 	private static final byte PP_ENCRYPTED_VOICE_PACKET = 0x02;
 	private static final byte PP_PROTOCOL_BUFFER = 0x03;
@@ -87,6 +88,7 @@ public class VoIPClient  {
 	private boolean establishingConnection = false;
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
+	@SuppressWarnings("unused")
 	private int audioPacketsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
@@ -320,7 +322,7 @@ public class VoIPClient  {
 		this.isSpeaking = isSpeaking;
 	}
 
-	public void removeExternalSocketInfo() {
+	public synchronized void removeExternalSocketInfo() {
 		setOurExternalIPAddress(null);
 		setOurExternalPort(0);
 		if (socket != null) {
@@ -335,7 +337,7 @@ public class VoIPClient  {
 	 * and we should retry quickly to reduce call patching time. <br/>
 	 * Hence, a compromise is to keep a short initial timeout, but increase it with every failure. 
 	 */
-	private void getNewSocket() {
+	private synchronized void getNewSocket() {
 		try {
 			socket = new DatagramSocket();
 			socket.setReuseAddress(true);
@@ -485,7 +487,7 @@ public class VoIPClient  {
 
 			JSONObject message = new JSONObject();
 			message.put(HikeConstants.TO, getPhoneNumber());
-			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0);
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO);
 			message.put(HikeConstants.DATA, data);
 			
