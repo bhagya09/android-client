@@ -168,20 +168,26 @@ public class HttpAnalyticsLogger
 	 */
 	private static void logDevException(String requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
 	{
-		JSONObject info = new JSONObject();
+		JSONObject info = null;
 		try
 		{
-			info.put(RESPONSE_CODE, responseCode);
-			info.put(HTTP_METHOD_TYPE, methodType);
 			if (!TextUtils.isEmpty(analyticsParam))
 			{
+				info = new JSONObject();
 				info.put(HTTP_REQUEST_ANALYTICS_PARAM, analyticsParam);
 			}
+
 			if (!TextUtils.isEmpty(exception))
 			{
+				if (null == info)
+				{
+					info = new JSONObject();
+				}
 				info.put(HTTP_EXCEPTION_ANALYTICS, exception);
 			}
-			HAManager.getInstance().logDevEvent(HTTP_PRODUCT_AREA, processRequestUrl(requestUrl), info);
+
+			String devArea = processRequestUrl(requestUrl) + "_" + methodType + "_" + responseCode;
+			HAManager.getInstance().logDevEvent(HTTP_PRODUCT_AREA, devArea, info);
 		}
 		catch (JSONException e)
 		{
