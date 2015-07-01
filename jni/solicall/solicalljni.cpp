@@ -10,7 +10,7 @@
 #define CHANNEL_ID 0
 #define FRAME_SIZE 1920
 
-#define  LOG_TAG    "VoIP NDK"
+#define  LOG_TAG    "VoIP NDK (Solicall)"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
