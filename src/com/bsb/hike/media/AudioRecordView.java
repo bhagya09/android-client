@@ -231,7 +231,7 @@ public class AudioRecordView
 				if (selectedFile == null)
 				{
 					recordingError(true);
-					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Audio recording error");
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Audio recording error");
 					return;
 				}
 				listener.audioRecordSuccess(selectedFile.getPath(), recordedTime);

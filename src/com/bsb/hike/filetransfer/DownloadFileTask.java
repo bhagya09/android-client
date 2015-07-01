@@ -84,11 +84,11 @@ public class DownloadFileTask extends FileTransferBase
 		}
 		catch(NullPointerException e)
 		{
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : " + e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
 			return FTResult.NO_SD_CARD;
 		}
 		catch (IOException e) {
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : " + e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
 			Logger.d("DownloadFileTask", "Failed to create File. " + e);
 			return FTResult.NO_SD_CARD;
 		}
@@ -139,19 +139,19 @@ public class DownloadFileTask extends FileTransferBase
 		catch (MalformedURLException e)
 		{
 			Logger.e(getClass().getSimpleName(), "Invalid URL", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "UrlCreation", "DOWNLOAD_FAILED : " + e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "UrlCreation", "DOWNLOAD_FAILED : " , e);
 			return FTResult.DOWNLOAD_FAILED;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.e(getClass().getSimpleName(), "No SD Card", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : " + e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
 			return FTResult.NO_SD_CARD;
 		}
 		catch (IOException e)
 		{
 			Logger.e(getClass().getSimpleName(), "Error while downloding file", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED : " + e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED : ", e);
 			return FTResult.DOWNLOAD_FAILED;
 		}
 		return FTResult.DOWNLOAD_FAILED;
@@ -173,7 +173,7 @@ public class DownloadFileTask extends FileTransferBase
 				if(!Utils.isUserOnline(context)){
 					Logger.d(getClass().getSimpleName(), "No Internet");
 					error();
-					FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_CONN_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
 					return FTResult.DOWNLOAD_FAILED;
 				}
 				conn = initConn();
@@ -196,7 +196,7 @@ public class DownloadFileTask extends FileTransferBase
 				{
 					Logger.d(getClass().getSimpleName(), "Server response code is not in 200 range: " + resCode + "; fk:" + fileKey);
 					error();
-					FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_CONN_INIT, resCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "FILE_EXPIRED");
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT, resCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "FILE_EXPIRED");
 					return FTResult.FILE_EXPIRED;
 				}
 				else if (resCode / 100 != 2)
@@ -204,7 +204,7 @@ public class DownloadFileTask extends FileTransferBase
 					Logger.d(getClass().getSimpleName(), "Server response code is not in 200 range: " + resCode + "; fk:" + fileKey);
 					error();
 					res = FTResult.SERVER_ERROR;
-					FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_CONN_INIT, resCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "SERVER_ERROR");
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT, resCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "SERVER_ERROR");
 				}
 				else
 				// everything is fine till this point
@@ -218,7 +218,7 @@ public class DownloadFileTask extends FileTransferBase
 					if ((contentLength - raf.length()) > Utils.getFreeSpace())
 					{
 						closeStreams(raf, in);
-						FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_MEM_CHECK, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "FILE_TOO_LARGE");
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_MEM_CHECK, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "FILE_TOO_LARGE");
 						return FTResult.FILE_TOO_LARGE;
 					}
 					Logger.d(getClass().getSimpleName(), "bytes=" + byteRange);
@@ -274,7 +274,7 @@ public class DownloadFileTask extends FileTransferBase
 						catch (IOException e)
 						{
 							Logger.e(getClass().getSimpleName(), "Exception", e);
-							FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_DATA_WRITE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "CARD_UNMOUNT : " + e);
+							FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_DATA_WRITE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "CARD_UNMOUNT : ", e);
 							return FTResult.CARD_UNMOUNT;
 						}
 						Logger.d(getClass().getSimpleName(), "ChunkSize : " + chunkSize + "Bytes");
@@ -320,7 +320,7 @@ public class DownloadFileTask extends FileTransferBase
 						deleteTempFile();
 						deleteStateFile();
 						closeStreams(raf, in);
-						FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
 						return FTResult.CANCELLED;
 					case IN_PROGRESS:
 						//When downloading file from cloudfront, then we are getting extra quotes at start and end of md5. So need to remove the quotes
@@ -354,7 +354,7 @@ public class DownloadFileTask extends FileTransferBase
 						 */
 						if(!isFileMoved)
 						{
-							FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "RENAME_FAILED");
+							FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "RENAME_FAILED");
 							isFileMoved = Utils.moveFile(tempDownloadedFile, mFile);
 						}
 						if (!isFileMoved) // if failed
@@ -362,7 +362,7 @@ public class DownloadFileTask extends FileTransferBase
 							Logger.d(getClass().getSimpleName(), "FT failed");
 							error();
 							closeStreams(raf, in);
-							FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
+							FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
 							return FTResult.READ_FAIL;
 						}
 						else
@@ -393,7 +393,7 @@ public class DownloadFileTask extends FileTransferBase
 			catch (Exception e)
 			{
 				Logger.e(getClass().getSimpleName(), "FT Download error : " + e.getMessage());
-				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_UNKNOWN_ERROR, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "all", "DOWNLOAD_FAILED ("+ retryAttempts + ")" + e);
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_UNKNOWN_ERROR, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "all", "DOWNLOAD_FAILED ("+ retryAttempts + ")", e);
 				// here we should retry
 				mStart = _bytesTransferred;
 				// Is case id the task quits after making MAX attempts
@@ -456,7 +456,7 @@ public class DownloadFileTask extends FileTransferBase
 				deleteTempFile();
 				deleteStateFile();
 				Logger.e(getClass().getSimpleName(), "Error while closing file", e);
-				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_CLOSING_STREAM, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED :" + e);
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_CLOSING_STREAM, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED :", e);
 				return FTResult.DOWNLOAD_FAILED;
 			}
 		}

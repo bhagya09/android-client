@@ -85,6 +85,8 @@ public class FTAnalyticEvents
 
 	private static final String FTR_EXCEPTION_ANALYTICS = "ex";
 
+	private static final String FTR_ERROR_ANALYTICS = "ex";
+
 	private static final String RESPONSE_CODE = "resCode";
 
 	private static final String FTR_TASK_TYPE = "taskType";
@@ -122,6 +124,8 @@ public class FTAnalyticEvents
 	public static final String UPLOAD_RETRY_COMPLETE = "upload_retry_complete";
 
 	public static final String UPLOAD_HTTP_OPERATION = "upload_http_operation";
+
+	public static final String UNABLE_TO_START_ACTIVITY = "unable_to_start_activity";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
@@ -288,7 +292,7 @@ public class FTAnalyticEvents
 	+	 * @param operation
 	+	 * @param exception
 	+	 */
-	public static void logDevException(String devArea, int responseCode, String taskType, String operation, String exception) 
+	public static void logDevException(String devArea, int responseCode, String taskType, String operation, String errorMsg, Throwable exception) 
 	{
 		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, true))
 			return;
@@ -300,8 +304,39 @@ public class FTAnalyticEvents
 			if (!TextUtils.isEmpty(operation)) {
 				info.put(FTR_OPERATION_TYPE, operation);
 			}
-			if (!TextUtils.isEmpty(exception)) {
-				info.put(FTR_EXCEPTION_ANALYTICS, exception);
+			String stackTrace = Utils.getStackTrace(exception);
+			if (!TextUtils.isEmpty(stackTrace)) {
+				info.put(FTR_EXCEPTION_ANALYTICS, errorMsg + stackTrace);
+			}
+			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, devArea, info);
+		} catch (JSONException e) {
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging dev exception log : "+ e);
+		}
+	}
+
+	/**
+	+	 * Logs the dev exception for every error/exception in FTR 
+	+	 * 
+	+	 * @param devArea
+	+	 * @param responseCode
+	+	 * @param taskType
+	+	 * @param operation
+	+	 * @param errorMsg
+	+	 */
+	public static void logDevError(String devArea, int responseCode, String taskType, String operation, String errorMsg) 
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, true))
+			return;
+
+		JSONObject info = new JSONObject();
+		try {
+			info.put(RESPONSE_CODE, responseCode);
+			info.put(FTR_TASK_TYPE, taskType);
+			if (!TextUtils.isEmpty(operation)) {
+				info.put(FTR_OPERATION_TYPE, operation);
+			}
+			if (!TextUtils.isEmpty(errorMsg)) {
+				info.put(FTR_ERROR_ANALYTICS, errorMsg);
 			}
 			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, devArea, info);
 		} catch (JSONException e) {
