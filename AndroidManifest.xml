@@ -4,7 +4,8 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1258"
-    android:versionName="3.9.8.28.botSlideAnimation" >
+    android:versionName="3.9.8.28" >
+
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
