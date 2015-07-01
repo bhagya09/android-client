@@ -1089,6 +1089,8 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_ENABLED = "aec";
 
+	public static final String VOIP_CONFERENCING_ENABLED = "conf";
+
 	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
@@ -1102,6 +1104,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_CNP = "cnp";
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
+	
+	public static final String VOIP_RELAY_IPS = "vrip";
 	
 	
 	public static final class ResultCodes
