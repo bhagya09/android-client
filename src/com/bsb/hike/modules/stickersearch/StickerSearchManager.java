@@ -207,9 +207,9 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
-	public void insertStickerTags(JSONObject json)
+	public void insertStickerTags(JSONObject json, int trialValue)
 	{
-		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, 1);
+		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, trialValue, 1);
 		searchEngine.runOnQueryThread(stickerInsertTask);
 	}
 

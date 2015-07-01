@@ -240,4 +240,9 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		dest.writeString(categoryId);
 		dest.writeSerializable(category);
 	}
+
+	@Override
+	public String toString() {
+		return categoryId + ":" + stickerId;
+	}
 }

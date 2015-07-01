@@ -36,6 +36,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -1731,14 +1732,37 @@ public class StickerManager
 	
 	public String getStickerSetString(Sticker sticker)
 	{
-		return sticker.getStickerId() + ":" + sticker.getCategoryId();
+		return sticker.getCategoryId() + ":" + sticker.getStickerId();
 	}
 	
 	public String getStickerSetString(String stkId, String catId)
 	{
-		return stkId + ":" + catId;
+		return catId + ":" + stkId;
 	}
-	
+
+	public Sticker getStickerFromSetString(String info)
+	{
+		Pair<String, String> pair = getStickerInfoFromSetString(info);
+		return new Sticker(pair.first, pair.second);
+	}
+
+	public Pair<String, String> getStickerInfoFromSetString(String info)
+	{
+		Pair<String, String> pair;
+		if (info != null) {
+			String [] infoString = info.split(":");
+			if (infoString.length >= 2) {
+				pair = new Pair<String, String>(infoString [0], infoString [1]);
+			} else {
+				pair = new Pair<String, String>("", "");
+			}
+		} else {
+			pair = new Pair<String, String>("", "");
+		}
+
+		return pair;
+	}
+
 	public void addRecentStickerToPallete(Sticker sticker)
 	{
 		StickerManager.getInstance().addRecentSticker(sticker);

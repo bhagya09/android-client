@@ -18,6 +18,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 
 import android.content.Context;
 import android.support.v4.util.Pair;
@@ -109,20 +110,23 @@ public class StickerSearchHostManager {
 
 		for (int i = 0; i < cobj.size(); i++) {
 			value = (String) cobj.get(i) [0];
-			Logger.d(TAG, "Ready to search \"" + value + "\"");
+
 			if (value.length() >= (i == 0 ? 1 : 2)) {
 				if (!history.containsKey(value)) {
 					Logger.d(TAG, "\"" + value + "\" was not found in local cache...");
 					ArrayList<String> results = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(value, (i == 0 && value.length() == 1));
+
 					if (results != null && results.size() > 0) {
 						LinkedHashSet<Sticker> stResules = new LinkedHashSet<Sticker>();
 						for (String stData : results) {
-							String [] ids = stData.split(":");
-							Sticker st = new Sticker(ids [1], ids [0]);
-							stResules.add(st);
+							stResules.add(StickerManager.getInstance().getStickerFromSetString(stData));
 						}
+						Logger.d(TAG, "Filtering stickers before saving in local cache: " + stResules);
+
 						ArrayList<Sticker> list = new ArrayList<Sticker>();
 						list.addAll(stResules);
+						Logger.d(TAG, "Saving stickers in local cache: " + stResules);
+
 						history.put(value, list);
 						tempResult.add(new int [] {(int) cobj.get(i) [1], (int) cobj.get(i) [1] + (int) cobj.get(i) [2]});
 					}
@@ -157,7 +161,7 @@ public class StickerSearchHostManager {
 		for (int i = 0; i < pwords.size(); i++) {
 			if ((where >= (int) pwords.get(i) [1]) && (where <= (int) pwords.get(i) [1] + (int) pwords.get(i) [2])) {
 				String value = (String) pwords.get(i) [0];
-				Logger.d("ved", "" + history.get(value));
+				Logger.d(TAG, "" + history.get(value));
 				return history.get(value);
 			}
 		}
