@@ -14,6 +14,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -32,6 +35,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatHead.ChatHeadActivity;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -93,6 +97,8 @@ public class UserLogInfo {
 	private static long MIN_SESSION_RECORD_TIME = 2000;
 
 	private static int flags;
+	
+	private static boolean hikeStickerActivityForegrounded = false;
 	
 	public static class SessionLogPojo{
 		final String packageName;
@@ -658,7 +664,7 @@ public class UserLogInfo {
 	{
 		long sessionTime = System.currentTimeMillis() - sesstionTime;
 		
-		if(sessionTime > MIN_SESSION_RECORD_TIME)
+		if (sessionTime > MIN_SESSION_RECORD_TIME && !hikeStickerActivityForegrounded)
 		{
 			HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(USER_LOG_SHARED_PREFS);
 			String[] loggedParams = userPrefs.getData(packageName, "0:0").split(":");
@@ -671,6 +677,20 @@ public class UserLogInfo {
 			userPrefs.saveData(packageName, duration + ":" + sessions);
 			Logger.d(TAG, "time : " + sessionTime + " of " + packageName);
 		}
+
+		ComponentName componentInfo = null;
+		ActivityManager am = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Activity.ACTIVITY_SERVICE);
+		if (Utils.isLollipopOrHigher())
+		{
+			List<ActivityManager.AppTask> appTask = am.getAppTasks();
+			componentInfo = appTask.get(0).getTaskInfo().origActivity;
+		}
+		else
+		{
+			List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+			componentInfo = taskInfo.get(0).topActivity;
+		}
+		hikeStickerActivityForegrounded = componentInfo.getClassName().equals(ChatHeadActivity.class.getName());
 	}
 	
 }
