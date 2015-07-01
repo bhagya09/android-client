@@ -9,10 +9,13 @@ import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -77,6 +80,48 @@ public class FTAnalyticEvents
 	public static final int DOWNLOAD_ATTACHEMENT = 5;
 
 	public static final int OTHER_ATTACHEMENT = 6;
+
+	private static final String FTR_PRODUCT_AREA = "ftr";
+
+	private static final String FTR_EXCEPTION_ANALYTICS = "ex";
+
+	private static final String RESPONSE_CODE = "resCode";
+
+	private static final String FTR_TASK_TYPE = "taskType";
+
+	private static final String FTR_OPERATION_TYPE = "opType";
+
+	public static final String DOWNLOAD_INIT = "download_init";
+
+	public static final String DOWNLOAD_CONN_INIT = "download_conn_init";
+
+	public static final String DOWNLOAD_MEM_CHECK = "download_mem_check";
+
+	public static final String DOWNLOAD_DATA_WRITE = "download_data_write";
+
+	public static final String DOWNLOAD_STATE_CHANGE = "download_state_change";
+
+	public static final String DOWNLOAD_RENAME_FILE = "download_rename_file";
+
+	public static final String DOWNLOAD_UNKNOWN_ERROR = "download_unknown_error";
+
+	public static final String DOWNLOAD_CLOSING_STREAM = "download_closing_streams";
+
+	public static final String UPLOAD_INIT = "upload_init";
+
+	public static final String UPLOAD_FTR_INIT = "upload_ftr_init";
+
+	public static final String UPLOAD_FK_VALIDATION = "upload_fk_validation";
+
+	public static final String UPLOAD_FILE_OPERATION = "upload_file_operation";
+
+	public static final String UPLOAD_CALLBACK_AREA = "upload_callback_area";
+
+	public static final String UPLOAD_FILE_READ = "upload_file_read";
+
+	public static final String UPLOAD_RETRY_COMPLETE = "upload_retry_complete";
+
+	public static final String UPLOAD_HTTP_OPERATION = "upload_http_operation";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
@@ -231,6 +276,36 @@ public class FTAnalyticEvents
 			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, error);
 		} catch (JSONException e) {
 			e.printStackTrace();
+		}
+	}
+
+	/**
+	+	 * Logs the dev exception for every error/exception in FTR 
+	+	 * 
+	+	 * @param devArea
+	+	 * @param responseCode
+	+	 * @param taskType
+	+	 * @param operation
+	+	 * @param exception
+	+	 */
+	public static void logDevException(String devArea, int responseCode, String taskType, String operation, String exception) 
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, true))
+			return;
+
+		JSONObject info = new JSONObject();
+		try {
+			info.put(RESPONSE_CODE, responseCode);
+			info.put(FTR_TASK_TYPE, taskType);
+			if (!TextUtils.isEmpty(operation)) {
+				info.put(FTR_OPERATION_TYPE, operation);
+			}
+			if (!TextUtils.isEmpty(exception)) {
+				info.put(FTR_EXCEPTION_ANALYTICS, exception);
+			}
+			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, devArea, info);
+		} catch (JSONException e) {
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging dev exception log : "+ e);
 		}
 	}
 

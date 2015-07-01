@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -230,6 +231,7 @@ public class AudioRecordView
 				if (selectedFile == null)
 				{
 					recordingError(true);
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Audio recording error");
 					return;
 				}
 				listener.audioRecordSuccess(selectedFile.getPath(), recordedTime);

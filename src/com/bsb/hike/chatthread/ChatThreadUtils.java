@@ -228,6 +228,7 @@ public class ChatThreadUtils
 		if (filePath == null)
 		{
 			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - File Path is null");
 			return;
 		}
 		File file = new File(filePath);
@@ -236,6 +237,7 @@ public class ChatThreadUtils
 		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
 			return;
 		}
 		FileTransferManager.getInstance(context).uploadFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, isForwardingFile, convOnHike, recordingDuration, attachmentType);
@@ -266,6 +268,7 @@ public class ChatThreadUtils
 		if (filePath == null)
 		{
 			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "OnShareFile - Unsupprted file");
 		}
 		else
 		{
