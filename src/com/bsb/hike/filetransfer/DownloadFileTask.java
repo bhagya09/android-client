@@ -84,11 +84,11 @@ public class DownloadFileTask extends FileTransferBase
 		}
 		catch(NullPointerException e)
 		{
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
 			return FTResult.NO_SD_CARD;
 		}
 		catch (IOException e) {
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_2, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
 			Logger.d("DownloadFileTask", "Failed to create File. " + e);
 			return FTResult.NO_SD_CARD;
 		}
@@ -139,19 +139,19 @@ public class DownloadFileTask extends FileTransferBase
 		catch (MalformedURLException e)
 		{
 			Logger.e(getClass().getSimpleName(), "Invalid URL", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "UrlCreation", "DOWNLOAD_FAILED : " , e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "UrlCreation", "DOWNLOAD_FAILED : " , e);
 			return FTResult.DOWNLOAD_FAILED;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.e(getClass().getSimpleName(), "No SD Card", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_3, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", e);
 			return FTResult.NO_SD_CARD;
 		}
 		catch (IOException e)
 		{
 			Logger.e(getClass().getSimpleName(), "Error while downloding file", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED : ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_2, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED : ", e);
 			return FTResult.DOWNLOAD_FAILED;
 		}
 		return FTResult.DOWNLOAD_FAILED;
@@ -173,7 +173,7 @@ public class DownloadFileTask extends FileTransferBase
 				if(!Utils.isUserOnline(context)){
 					Logger.d(getClass().getSimpleName(), "No Internet");
 					error();
-					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
 					return FTResult.DOWNLOAD_FAILED;
 				}
 				conn = initConn();
@@ -196,7 +196,7 @@ public class DownloadFileTask extends FileTransferBase
 				{
 					Logger.d(getClass().getSimpleName(), "Server response code is not in 200 range: " + resCode + "; fk:" + fileKey);
 					error();
-					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT, resCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "FILE_EXPIRED");
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_1, resCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "FILE_EXPIRED");
 					return FTResult.FILE_EXPIRED;
 				}
 				else if (resCode / 100 != 2)
@@ -204,7 +204,7 @@ public class DownloadFileTask extends FileTransferBase
 					Logger.d(getClass().getSimpleName(), "Server response code is not in 200 range: " + resCode + "; fk:" + fileKey);
 					error();
 					res = FTResult.SERVER_ERROR;
-					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT, resCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "SERVER_ERROR");
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_2, resCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "SERVER_ERROR");
 				}
 				else
 				// everything is fine till this point
