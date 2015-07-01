@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1249"
-    android:versionName="3.9.7.0.6.heads_up_notifications" >
+    android:versionCode="1258"
+    android:versionName="3.9.8.0.7.heads_up_notifications" >
 
     <uses-sdk
         android:minSdkVersion="9"
