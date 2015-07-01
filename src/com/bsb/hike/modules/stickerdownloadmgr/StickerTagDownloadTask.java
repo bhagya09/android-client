@@ -15,9 +15,8 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchSetupManager;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -108,15 +107,25 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 			public void onRequestSuccess(Response result)
 			{
 				JSONObject response = (JSONObject) result.getBody().getContent();
-				Logger.d(StickerTagWatcher.TAG, "response : " + response.toString());
-				
+
 				if (!Utils.isResponseValid(response))
 				{
+					Logger.e(TAG, "Sticker download failed null or invalid response");
+					doOnFailure(null);
+					return;
+				}
+				Logger.d(TAG, "Got response for download task " + response.toString());
+
+				JSONObject data = response.optJSONObject(HikeConstants.DATA_2);
+
+				if (null == data)
+				{
+					Logger.e(TAG, "Sticker download failed null data");
 					doOnFailure(null);
 					return;
 				}
 				
-				doOnSuccess(response);
+				doOnSuccess(data);
 			}
 
 			@Override
@@ -128,7 +137,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				
+				Logger.d(StickerTagWatcher.TAG, "response failed.");
 			}
 		};
 	}
@@ -153,13 +162,13 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		JSONObject response = (JSONObject) result;
-		StickerSearchManager.getInstance().insertStickerTags(response);
+		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL);
 	}
 
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
-		
+		Logger.d(TAG, "response failed.");
 	}
 
 }

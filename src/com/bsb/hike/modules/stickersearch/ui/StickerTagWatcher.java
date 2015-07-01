@@ -102,13 +102,13 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void showStickerSearchPopup(List<Sticker> stickerList)
 	{
-		if (stickerList == null || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
+		if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
 		{
 			Logger.d(TAG, " no sticker list or keyboard not open");
 			return;
 		}
 
-		Logger.d(TAG, " on show sticker popup is called");
+		Logger.d(TAG, " on show sticker popup is called " + stickerList);
 
 		fragment = activity.getSupportFragmentManager().findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
 

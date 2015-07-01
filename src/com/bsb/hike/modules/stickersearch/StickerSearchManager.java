@@ -133,8 +133,8 @@ public class StickerSearchManager
 		}
 
 		int localLength = highlightArray[0][1] - highlightArray[0][0];
-		//if (currentLength <= (localLength + currentString.substring(0, highlightArray[0][0]).length()))
-		if(currentLength == localLength)
+		String preString = currentString.substring(0, highlightArray[0][0]);
+		if (currentLength <= (localLength + preString.length()) && preString.trim().length() == 0)
 		{
 			if (localLength == 1)
 			{
@@ -207,9 +207,9 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
-	public void insertStickerTags(JSONObject json)
+	public void insertStickerTags(JSONObject json, int trialValue)
 	{
-		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, 1);
+		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, trialValue, 1);
 		searchEngine.runOnQueryThread(stickerInsertTask);
 	}
 

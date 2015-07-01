@@ -28,6 +28,7 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -177,7 +178,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						return;
 					}
 
-					StickerSearchManager.getInstance().insertStickerTags(data);
+					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STICKER_DATA_FIRST_SETUP);
 
 					if (!data.has(HikeConstants.PACKS))
 					{
