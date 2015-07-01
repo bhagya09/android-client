@@ -339,7 +339,7 @@ public class FTAnalyticEvents
 	+	 */
 	public static void logDevException(String devArea, int responseCode, String taskType, String operation, String errorMsg, Throwable exception) 
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
 			return;
 
 		JSONObject info = new JSONObject();
@@ -370,7 +370,7 @@ public class FTAnalyticEvents
 	+	 */
 	public static void logDevError(String devArea, int responseCode, String taskType, String operation, String errorMsg) 
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
 			return;
 
 		JSONObject info = new JSONObject();
