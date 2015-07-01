@@ -19,17 +19,17 @@
 -->
 <resources>
     <!-- Whether or not auto-correction should be enabled by default -->
-    <bool name="enable_autocorrect">true</bool>
+    <bool name="kpt_enable_autocorrect">true</bool>
     <!-- Whether this input method should be used as the default for a locale. Override it
          for latin languages. -->
-    <bool name="im_is_default">false</bool>
+    <bool name="kpt_im_is_default">false</bool>
     <!-- Whether or not voice input is enabled by default. -->
-    <bool name="voice_input_default">true</bool>
-    <bool name="V0_6">false</bool>
-    <bool name="V0_7">false</bool>
-    <bool name="V0_7_2">false</bool>
-    <bool name="V0_7_3">true</bool>
-    <bool name="V0_9">true</bool>
-    <bool name="V1_0">true</bool>
+    <bool name="kpt_voice_input_default">true</bool>
+    <bool name="kpt_V0_6">false</bool>
+    <bool name="kpt_V0_7">false</bool>
+    <bool name="kpt_V0_7_2">false</bool>
+    <bool name="kpt_V0_7_3">true</bool>
+    <bool name="kpt_V0_9">true</bool>
+    <bool name="kpt_V1_0">true</bool>
    
 </resources>

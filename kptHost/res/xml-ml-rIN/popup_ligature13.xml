@@ -20,15 +20,15 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-        <Key atx:keyLabel="ഖ" atx:keyOutputText="ഖ" atx:keyEdgeFlags="left" />
-        <Key atx:codes="-1073" atx:keyLabel="ത്ധ" atx:keyOutputText="ത്ധ" />
-        <Key atx:codes="-1073" atx:keyLabel="മ്മ" atx:keyOutputText="മ്മ" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_keyLabel="ഖ" atx:kpt_keyOutputText="ഖ" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="ത്ധ" atx:kpt_keyOutputText="ത്ധ" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="മ്മ" atx:kpt_keyOutputText="മ്മ" atx:kpt_keyEdgeFlags="right" />
     </Row>
 </Keyboard>

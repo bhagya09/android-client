@@ -53,5 +53,10 @@
 	<dimen name="kpt_keyLabel2TextSize">12sp</dimen>
 	    <dimen name="kpt_min_textpreview_size">10sp</dimen>
     <dimen name="kpt_max_textpreview_size">30sp</dimen>
+    
+    <item name="kpt_keyLabelXPos" format="float" type="dimen">0.50</item>
+	<item name="kpt_keyLabelYPos" format="float" type="dimen">0.64</item>
+	<item name="kpt_keyLabel2XPos" format="float" type="dimen">0.75</item>
+	<item name="kpt_keyLabel2YPos" format="float" type="dimen">0.30</item>
 	
 </resources>

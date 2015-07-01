@@ -14,7 +14,7 @@
         android:targetSdkVersion="17" />
 
     <application
-      
+        android:name="com.kpt.adaptxt.beta.AdaptxtApplication"
          >
         <activity
             android:name="com.kpt.adaptxt.beta.settings.KPTAdaptxtIMESettings"

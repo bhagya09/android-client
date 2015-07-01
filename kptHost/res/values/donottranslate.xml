@@ -36,5 +36,5 @@
     <string name="kpt_alternates_for_l"></string>
     <!-- Accented characters related to "g" -->
     <string name="kpt_alternates_for_g"></string>
-<string name="punctuations_list">!,\",#,%,&amp;,\',(,),*,+ ,±,÷,×,\\,,- ,.,/,\,:,;,?,@,[,],_,{,},,¡,ª,«,»,¬ ,º,•,¿,–,—,\‘,\’ ,“,”,„,…,\' ,❝,❞,|,؟,॰,।,॥,،,۔,؛,™,®,©,‰,‼,°,&lt;,&gt;,=,։,՞,\՝,․,\՜,֊,።,፣,፤,፥,₹,$,</string>
+<string name="kpt_punctuations_list">!,\",#,%,&amp;,\',(,),*,+ ,±,÷,×,\\,,- ,.,/,\,:,;,?,@,[,],_,{,},,¡,ª,«,»,¬ ,º,•,¿,–,—,\‘,\’ ,“,”,„,…,\' ,❝,❞,|,؟,॰,।,॥,،,۔,؛,™,®,©,‰,‼,°,&lt;,&gt;,=,։,՞,\՝,․,\՜,֊,።,፣,፤,፥,₹,$,</string>
 </resources>

@@ -66,6 +66,7 @@
 	
 	<item name="kpt_keyLabelXPos" format="float" type="dimen">0.50</item>
 	<item name="kpt_keyLabelYPos" format="float" type="dimen">0.72</item>
+	<item name="kpt_keyLabelYPos_atx" format="float" type="dimen">0.72</item>
 	<item name="kpt_keyLabelNumYPos" format="float" type="dimen">0.6</item>
 	<item name="kpt_keyLabel2XPos" format="float" type="dimen">0.70</item>
 	<item name="kpt_keyLabel2YPos" format="float" type="dimen">0.25</item>

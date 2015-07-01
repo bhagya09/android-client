@@ -21,7 +21,7 @@
 <resources>
     <!-- Vibration duration in milliseconds, for key presses in the IME. This can be hardware
         dependent and may require overriding with a device specific overlay. -->
-    <integer name="vibrate_generic">20</integer>
-    <integer name="vibrate_no_sugg">30</integer>
-    <integer name="vibrate_acc_sugg">110</integer>
+    <integer name="kpt_vibrate_generic">20</integer>
+    <integer name="kpt_vibrate_no_sugg">30</integer>
+    <integer name="kpt_vibrate_acc_sugg">110</integer>
 </resources>

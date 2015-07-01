@@ -17,25 +17,25 @@
 
 <resources>
 
-	<declare-styleable name="HardKeyboardMap">
+	<declare-styleable name="Kpt_HardKeyboardMap">
 	<!-- The script of this HKB keymap. -->
-        <attr name="version" format="float" />
+        <attr name="kpt_version" format="float" />
 	</declare-styleable>
 
-	<declare-styleable name="HardKeyboardMap_Keymap">
+	<declare-styleable name="Kpt_HardKeyboardMap_Keymap">
         <!-- The script of this HKB keymap. -->
-        <attr name="locale" format="string" />
+        <attr name="kpt_locale" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="HardKeyboardMap_Key">
+    <declare-styleable name="Kpt_HardKeyboardMap_Key">
         <!-- The Key code. -->
-        <attr name="code" format="integer" />
+        <attr name="kpt_code" format="integer" />
         
         <!-- The Key label -->
-        <attr name="label" format="string" />
+        <attr name="kpt_label" format="string" />
         
         <!-- The accented character values. -->
-        <attr name="values" format="string" />
+        <attr name="kpt_values" format="string" />
     </declare-styleable>
 
 </resources>

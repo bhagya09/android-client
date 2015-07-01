@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-	<style name="Theme"> 
-        <item name="backgroundDimAmount">0.6</item>     	
+	<style name="Kpt_Theme"> 
+        <item name="kpt_backgroundDimAmount">0.6</item>     	
     </style> 
     
 	<style name="kpt_myDialog" parent="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
@@ -11,7 +11,7 @@
 	     <item name="android:windowActionBar">true</item>
         <item name="android:windowNoTitle">true</item>
 	</style>
-    <style name="Theme.CustomDialog">
+    <style name="Kpt_Theme.CustomDialog">
 		<item name="android:windowBackground">@null</item>
 	</style>
 	
@@ -38,7 +38,7 @@
       <item name="android:addStatesFromChildren">false</item>
       
   </style>
- <style name="Holo.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
+ <style name="Kpt_Holo.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/kpt_progress_horizontal_holo_dark</item>
         <item name="android:indeterminateDrawable">@drawable/kpt_progress_indeterminate_horizontal_holo</item>
         <item name="android:minHeight">16dip</item>
