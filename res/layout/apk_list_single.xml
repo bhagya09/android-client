@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    >
+
+    <ImageView
+        android:id="@+id/apk_image"
+        android:layout_width="@dimen/larger_avatar"
+        android:layout_height="@dimen/larger_avatar"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp" >
+    </ImageView>
+
+    <LinearLayout
+        android:id="@+id/apk_detail_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@+id/apk_image"
+        android:orientation="vertical" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/apk_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Apk Name"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+        />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/apk_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Size"
+            android:textColor="@color/lightblack"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/apk_selection_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:focusable="false"
+        android:clickable="false" 
+     />
+    <View
+        style="@style/DividerLarger"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>
