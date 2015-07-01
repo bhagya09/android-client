@@ -267,6 +267,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData());
 			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
 			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
+			jsonObject.put(HikePlatformConstants.NAMESPACE, message.getNameSpace());
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
 		catch (JSONException e)
