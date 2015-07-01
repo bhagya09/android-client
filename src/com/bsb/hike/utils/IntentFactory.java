@@ -583,7 +583,7 @@ public class IntentFactory
 		
 		if(croppedOutputDestination != null)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true, false));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, false));
 		}
 		
 		if(destIntents.size()>0)
@@ -750,6 +750,15 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, VoIPUtils.CallSource source)
+	{
+		Intent intent = new Intent(context, VoIPService.class);
+		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
+		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
+		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		return intent;
+	}
+
 	public static Intent getVoipCallRateActivityIntent(Context context)
 	{
 		Intent intent = new Intent(context, CallRateActivity.class);
@@ -831,14 +840,13 @@ public class IntentFactory
 		startShareImageIntent(mimeType, imagePath, null);
 	}
 	
-	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight,boolean returnOnlyBounds)
+	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
 	{
 		/* Crop the image */
 		Intent intent = new Intent(context, CropImage.class);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
 		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.RETURN_BOUNDS, returnOnlyBounds);
 		intent.putExtra(HikeConstants.Extras.SCALE, false);
 		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);

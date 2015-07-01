@@ -479,6 +479,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String BULK_LAST_SEEN_PREF = "blsPref";
 	
 	public static final String TOGGLE_OK_HTTP = "toggleOkHttp";
+	
+	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
 
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
 
@@ -497,6 +499,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
 
 	public static final String SSL_ALLOWED = "sslAllowed";
+
+	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
 
@@ -735,15 +739,8 @@ public void onTrimMemory(int level)
 			editor.putString(CURRENT_APP_VERSION, actualAppVersion);
 			editor.commit();
 		}
-		// we're basically banking on the fact here that init() would be
-		// succeeded by the
-		// onUpgrade() calls being triggered in the respective databases.
-		HikeConversationsDatabase.init(this);
 		
-		initHikeLruCache(getApplicationContext());
-
-		sm = StickerManager.getInstance();
-		sm.init(getApplicationContext());
+		initImportantAppComponents(settings);
 		
 		// if the setting value is 1 , this means the DB onUpgrade was called
 		// successfully.
@@ -762,12 +759,8 @@ public void onTrimMemory(int level)
 		if(settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
 		{
 			sm.doInitialSetup();
-			sm.cachingStickersOnStart();
 		}
 		
-		HikeMqttPersistence.init(this);
-		SmileyParser.init(this);
-
 		//String twitterToken = settings.getString(HikeMessengerApp.TWITTER_TOKEN, "");
 		//String twitterTokenSecret = settings.getString(HikeMessengerApp.TWITTER_TOKEN_SECRET, "");
 		//makeTwitterInstance(twitterToken, twitterTokenSecret);
@@ -816,13 +809,7 @@ public void onTrimMemory(int level)
 			editor.remove(HikeConstants.RECEIVE_SMS_PREF);
 			editor.commit();
 		}
-		Utils.setupServerURL(settings.getBoolean(HikeMessengerApp.PRODUCTION, true), Utils.switchSSLOn(getApplicationContext()));
-		HttpRequestConstants.setUpBase();
 		
-		typingNotificationMap = new HashMap<String, TypingNotification>();
-
-		initialiseListeners();
-
 		if (token != null)
 		{
 			AccountUtils.setToken(token);
@@ -850,6 +837,38 @@ public void onTrimMemory(int level)
 
 		makeNoMediaFiles();
 
+		
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
+
+		if (Utils.isUserAuthenticated(this))
+		{
+			fetchPlatformIDIfNotPresent();
+		}
+	}
+	
+	private void initImportantAppComponents(SharedPreferences prefs)
+	{
+		// we're basically banking on the fact here that init() would be
+		// succeeded by the
+		// onUpgrade() calls being triggered in the respective databases.
+		HikeConversationsDatabase.init(this);
+
+		initHikeLruCache(getApplicationContext());
+		HttpManager.init();
+
+		sm = StickerManager.getInstance();
+		sm.init(getApplicationContext());
+		
+		HikeMqttPersistence.init(this);
+		SmileyParser.init(this);
+		
+		Utils.setupServerURL(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true), Utils.switchSSLOn(getApplicationContext()));
+		HttpRequestConstants.setUpBase();
+		
+		typingNotificationMap = new HashMap<String, TypingNotification>();
+
+		initialiseListeners();
+		
 		hikeBotInfoMap = new ConcurrentHashMap<>();
 
 		initContactManager();
@@ -860,20 +879,11 @@ public void onTrimMemory(int level)
 		StealthModeManager.getInstance().initiate();
 
 		appStateHandler = new Handler();
-
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
-
+		
 		registerReceivers();
 
-		HttpManager.init();
-
 		ProductInfoManager.getInstance().init();
-		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));
-
-		if (Utils.isUserAuthenticated(this))
-		{
-			fetchPlatformIDIfNotPresent();
-		}
+		PlatformContent.init(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true));
 	}
 
 	/**

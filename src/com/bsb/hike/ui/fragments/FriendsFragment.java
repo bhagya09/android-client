@@ -178,12 +178,14 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 	@Override
 	public void onEventReceived(final String type, final Object object)
 	{
+		//Returning if fragment is not added, so nned not to add in every pubsub event
+		if (!isAdded())
+		{
+			return;
+		}
+		
 		if (HikePubSub.ICON_CHANGED.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -199,10 +201,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 			final ContactInfo contactInfo = ContactManager.getInstance().getContact((String) object, true, true);
 
 			if (contactInfo == null)
-			{
-				return;
-			}
-			if (!isAdded())
 			{
 				return;
 			}
@@ -226,10 +224,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		else if (HikePubSub.FAVORITE_TOGGLED.equals(type) || HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || HikePubSub.REJECT_FRIEND_REQUEST.equals(type))
 		{
 			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
-			if (!isAdded())
-			{
-				return;
-			}
+			
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
@@ -262,10 +257,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 			final ContactInfo contactInfo = (ContactInfo) object;
 
 			if (contactInfo == null)
-			{
-				return;
-			}
-			if (!isAdded())
 			{
 				return;
 			}
@@ -303,10 +294,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 			final List<ContactInfo> favoriteList = ContactManager.getInstance().getContactsOfFavoriteType(new FavoriteType[] { FavoriteType.FRIEND, FavoriteType.REQUEST_RECEIVED,
 					FavoriteType.REQUEST_SENT, FavoriteType.REQUEST_SENT_REJECTED }, HikeConstants.BOTH_VALUE, myMsisdn, nativeSMSOn, false);
 			Collections.sort(favoriteList, ContactInfo.lastSeenTimeComparator);
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -323,10 +310,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 			final ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 			final boolean blocked = HikePubSub.BLOCK_USER.equals(type);
 			if (contactInfo == null)
-			{
-				return;
-			}
-			if (!isAdded())
 			{
 				return;
 			}
@@ -363,10 +346,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 				return;
 			}
 
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -386,10 +365,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 			Utils.updateLastSeenTimeInBulk(friendsList);
 			Utils.updateLastSeenTimeInBulk(friendsStealthList);
 
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
@@ -403,10 +378,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		else if (HikePubSub.FRIENDS_TAB_QUERY.equals(type))
 		{
 			final String query = (String) object;
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -419,10 +390,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.FREE_SMS_TOGGLED.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -436,10 +403,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -452,10 +415,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.INVITE_SENT.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -469,10 +428,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
 
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -504,10 +459,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.STEALTH_MODE_RESET_COMPLETE.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -521,10 +472,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.APP_FOREGROUNDED.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 
 			if (!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(HikeConstants.LAST_SEEN_PREF, true))
 			{
