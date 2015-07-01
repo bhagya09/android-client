@@ -108,6 +108,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			return;
 		}
 
+		chatthread.closeStickerRecommendTip();
+		
 		Logger.d(TAG, " on show sticker popup is called " + stickerList);
 
 		fragment = activity.getSupportFragmentManager().findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
@@ -236,4 +238,10 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			return true;
 		}
 	};
+
+	@Override
+	public void showStickerRecommendFtue()
+	{
+		chatthread.showStickerRecommendTip();
+	}
 }

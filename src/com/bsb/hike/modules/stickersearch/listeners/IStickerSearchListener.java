@@ -13,4 +13,6 @@ public interface IStickerSearchListener
 	public void showStickerSearchPopup(List<Sticker> stickerList);
 	
 	public void dismissStickerSearchPopup();
+	
+	public void showStickerRecommendFtue();
 }

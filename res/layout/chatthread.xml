@@ -228,6 +228,15 @@
                 android:background="#14292d2e"
                 android:layout_alignParentBottom="true" />
             
+           	<ViewStub 
+                android:id="@+id/sticker_recommendation_tip"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_alignParentBottom="true"
+                android:layout="@layout/sticker_recommend_tip_view" />
+            
             <FrameLayout
                     android:id="@+id/sticker_recommendation_parent"
                     android:layout_width="match_parent"

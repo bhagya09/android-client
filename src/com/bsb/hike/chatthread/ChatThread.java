@@ -238,6 +238,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     private static final int SHARING_FUNCTIONALITY = 34;
     
 	protected static final int UPDATE_STEALTH_BADGE = 35;
+	
+	protected static final int STICKER_RECOMMEND_FTUE_TIP = 36;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -442,6 +444,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case STICKER_FTUE_TIP:
 			mTips.showStickerFtueTip();
+			break;
+		case STICKER_RECOMMEND_FTUE_TIP:
+			mTips.showStickerRecommendFtueTip();
 			break;
 		case DISABLE_TRANSCRIPT_MODE:
 			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);		
@@ -1104,6 +1109,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
 			recordFirstTimeStickerClick();
+		}
+	}
+	
+	public void showStickerRecommendTip()
+	{
+		uiHandler.sendEmptyMessage(STICKER_RECOMMEND_FTUE_TIP);
+	}
+	
+	public void closeStickerRecommendTip()
+	{
+		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.STICKER_RECOMMEND_TIP)))
+		{
+			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
 	}
 
@@ -3374,6 +3392,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
+		closeStickerRecommendTip();
 		
 		removePubSubListeners();
 
