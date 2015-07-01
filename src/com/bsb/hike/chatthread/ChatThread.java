@@ -827,28 +827,22 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
-		int id = -1;
 		switch (item.id)
 		{
 		case R.string.clear_chat:
-			id = item.id;
 			showClearConversationDialog();
 			break;
 		case R.string.email_chat:
-			id = item.id;
 			emailChat();
 			break;
 		case AttachmentPicker.GALLERY:
-			id = R.string.gallery;
 			startHikeGallery(mConversation.isOnHike());
 			break;
 		case R.string.search:
-			id = item.id;
 			//recordSearchOptionClick();
 			//setupSearchMode();
 			break;
 		case R.string.hide_chat:
-			id = item.id;
 			StealthModeManager.getInstance().toggleConversation(msisdn, !mConversation.isStealth(), activity);
 			//exiting chat thread 
 			if(!StealthModeManager.getInstance().isActive())
@@ -860,19 +854,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		default:
 			break;
 		}
-		if (id != -1)
-		{
-			recordOverflowItemClicked(id);
-		}
+		recordOverflowItemClicked(item);
 	}
 	
-	private void recordOverflowItemClicked(int whichItem)
+	private void recordOverflowItemClicked(OverFlowMenuItem item)
 	{
 		String ITEM = "item";
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, getString(whichItem));
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, item.text);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
