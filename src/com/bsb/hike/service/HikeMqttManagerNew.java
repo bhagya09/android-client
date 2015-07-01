@@ -1260,13 +1260,18 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			Logger.e(TAG, "In Default : " + e.getMessage());
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			connectOnMqttThread(getConnRetryTime());
-			sendAnalyticsEvent(e);
+			sendAnalyticsEvent(e, MqttConstants.EXCEPTION_DEFAULT);
 			break;
 		}
 		e.printStackTrace();
 	}
 	
 	private void sendAnalyticsEvent(MqttException e)
+	{
+		sendAnalyticsEvent(e, null);
+	}
+	
+	private void sendAnalyticsEvent(MqttException e, String devArea)
 	{
 		//if server switch is off
 		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CONN_PROD_AREA_LOGGING, false))
@@ -1281,7 +1286,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			infoJson.put(AnalyticsConstants.REASON_CODE, e.getReasonCode());
 		
 			//eg. dev area for REASON_CODE_CLIENT_EXCEPTION is exception_0.
-			HAManager.getInstance().logDevEvent(MqttConstants.CONNECTION_PROD_AREA, MqttConstants.EXCEPTION_DEV_AREA + "_" + e.getReasonCode(), infoJson);
+			if(TextUtils.isEmpty(devArea))
+			{
+				devArea = MqttConstants.EXCEPTION_DEV_AREA + "_" + e.getReasonCode();
+			}
+			
+			HAManager.getInstance().logDevEvent(MqttConstants.CONNECTION_PROD_AREA, devArea, infoJson);
 		} 
 		catch (JSONException jsonEx) 
 		{
