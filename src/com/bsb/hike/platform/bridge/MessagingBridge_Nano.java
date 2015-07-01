@@ -106,6 +106,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	protected void updateMetadata(WebMetadata metadata, String notifyScreen)
 	{
+		message.webMetadata = metadata;
 		if (metadata!=null && notifyScreen != null && Boolean.valueOf(notifyScreen))
 		{
 			if (null == mHandler)

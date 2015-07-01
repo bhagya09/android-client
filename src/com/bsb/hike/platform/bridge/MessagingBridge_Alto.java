@@ -355,9 +355,9 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	/**
 	 * Platform Bridge Version 1
-	 * @param messageId
-	 * @param json
-	 * @param notifyScreen
+	 * @param messageId : the message id to validate whether updating helper data for proper message.
+	 * @param json : the json that you want to update the metadata with
+	 * @param notifyScreen: if true, the adapter will be notified of the change, else there will be only db update.
 	 */
 	@JavascriptInterface
 	public void updateMetadata(String messageId,String json, String notifyScreen)
@@ -365,7 +365,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		WebMetadata metadata = MessagingBotBridgeHelper.updateMetadata(Integer.parseInt(messageId), json);
 		if(metadata!=null)
 		{
-			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), metadata);
+			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), Boolean.valueOf(notifyScreen) ? 1 : 0,  metadata);
 		}
 	}
 	
@@ -489,7 +489,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		case UPDATE_METDATA:
 			if(msg.arg1 == message.getMsgID())
 			{
-				this.message.webMetadata = (WebMetadata) msg.obj;
+				updateMetadata((WebMetadata) msg.obj, msg.arg2 == 1 ? "true" : "");
 			}else{
 				metadataMap.put(msg.arg1, (WebMetadata) msg.obj);
 				Logger.e(tag, "update metadata called but message id is different, called with "+msg.arg1 + " and current is "+message.getMsgID());

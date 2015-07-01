@@ -159,10 +159,10 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	private void attachJSBridge(ConvMessage convMessage,WebViewHolder holder)
 	{
 		Logger.i(tag, "ataching bridge version "+convMessage.webMetadata.getPlatformJSCompatibleVersion());
+		holder.platformJavaScriptBridge.setListener(holder.webViewClient);
 		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_1)
 		{
 			holder.platformJavaScriptBridge = new MessagingBridge_Alto(mContext, holder.customWebView, convMessage, adapter);
-			holder.platformJavaScriptBridge.setListener(holder.webViewClient);
 		}
 		else
 		{
