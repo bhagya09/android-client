@@ -1105,6 +1105,8 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 	
+	public static final String VOIP_RELAY_IPS = "vrip";
+	
 	
 	public static final class ResultCodes
 	{
