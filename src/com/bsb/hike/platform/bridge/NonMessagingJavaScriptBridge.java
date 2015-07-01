@@ -42,8 +42,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	private static final int OPEN_FULL_PAGE_WITH_TITLE = 111;
 	
-	private static final int OPEN_FULL_PAGE = 111;
-	
 	private static final int SHOW_OVERFLOW_MENU = 112;
 	
 	private static final int OPEN_FULL_PAGE = 114;
@@ -479,12 +477,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
 	
-	@JavascriptInterface
-	public void openFullPage(String url)
-	{
-		sendMessageToUiThread(OPEN_FULL_PAGE, url);
-	}
-	
 	@Override
 	protected void handleUiMessage(Message msg)
 	{
@@ -516,14 +508,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
 			}
 			break;
-
-		case OPEN_FULL_PAGE:
-			if (mCallback != null)
-			{
-				mCallback.openFullPage((String) msg.obj);
-			}
-			break;
-
 		default:
 			super.handleUiMessage(msg);
 		}
