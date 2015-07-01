@@ -57,6 +57,10 @@ public class AnalyticsConstants
 	public static String NON_UI_EVENT = "nonUiEvent";
 
 	public static final String DEV_EVENT = "devEvent";
+	
+	public static final String DEV_AREA = "devArea";
+	
+	public static final String DEV_INFO = "info";
 
 	public static String CLICK_EVENT = "click";
 

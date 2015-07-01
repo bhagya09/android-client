@@ -368,11 +368,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private void setSenderDetails()
 	{
-		senderName.setText(getSenderName());
-		long timeStamp = getCurrentSelectedItem().getTimeStamp();
-		String date = Utils.getFormattedDate(getSherlockActivity(), timeStamp);
-		String time = Utils.getFormattedTime(false, getSherlockActivity(), timeStamp);
-		itemTimeStamp.setText(date + ", " + time);
+		if (getCurrentSelectedItem() != null)
+		{
+			senderName.setText(getSenderName());
+			long timeStamp = getCurrentSelectedItem().getTimeStamp();
+			String date = Utils.getFormattedDate(getSherlockActivity(), timeStamp);
+			String time = Utils.getFormattedTime(false, getSherlockActivity(), timeStamp);
+			itemTimeStamp.setText(date + ", " + time);
+		}
 	}
 
 	private String getSenderName()
@@ -492,12 +495,18 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private HikeSharedFile getCurrentSelectedItem()
 	{
-		Logger.d("Atul", "getCurrentSelectedItem: "+mPageSelected);
 		HikeSharedFile currentFile = hsfLru.get(mPageSelected);
 		if (currentFile == null)
 		{
 			currentFile = smIterator.getFromCursor(smCursor, mPageSelected);
-			hsfLru.put(mPageSelected, currentFile);
+			if (currentFile == null)
+			{
+				return null;
+			}
+			else
+			{
+				hsfLru.put(mPageSelected, currentFile);
+			}
 		}
 		return currentFile;
 	}
@@ -652,11 +661,27 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 			toggleViewsVisibility();
 		}
+		
 		if (smAdapter != null)
 		{
 			smAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
-			smAdapter.notifyDataSetChanged();
+			
+			/**
+				In onActivityCreated ---> intializeViewPager ----> smAdapter is already created
+				Which in turns call getView of Adaptor which does following 3 tasks
+				1) loads current image
+				2) loads all images to the left of current image ---> gives to adaptor---> notify
+				3) loads all images to the right of current image ---> gives to adaptor---> notify
+				Now here in resume, when notifDataSetChanged is called, then it is again loaded
+			
+				Earlier caching was there so could not find it, now here no caching, so can see it
+				this gives double loading for images on some device eg Samsung DUOS3
+			
+				after removing this, problem was solved with that device
+			 */
+			//smAdapter.notifyDataSetChanged();
 		}
+		
 		super.onResume();
 	}
 

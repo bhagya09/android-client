@@ -952,6 +952,30 @@ public class HAManager
 		}
 	}
 
+	
+	/**
+	 * Used for logging DevEvent related to error/invalid state of the app.
+	 */
+	public static void logDevEvent(String productArea, String devArea, JSONObject info)
+	{
+		JSONObject metadata = new JSONObject();
+		try 
+		{
+			metadata.put(AnalyticsConstants.DEV_AREA, devArea);
+		
+			if(info !=null)
+			{
+				metadata.put(AnalyticsConstants.DEV_INFO, info);
+			}
+			
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, productArea, EventPriority.HIGH, metadata);
+		} 
+		catch (JSONException e) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",e);
+		}
+
+	}
 	/**
 	 * Used for logging UI click event
 	 * @param eventKey
