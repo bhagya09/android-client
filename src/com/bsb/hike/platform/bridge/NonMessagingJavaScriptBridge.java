@@ -1,7 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.util.Iterator;
-
 import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +29,6 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.voip.VoIPUtils;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -43,8 +40,6 @@ import com.bsb.hike.voip.VoIPUtils;
  */
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
-	
-	private static final int OPEN_FULL_PAGE = 111;
 	
 	private static final int SHOW_OVERFLOW_MENU = 112;
 	
@@ -129,18 +124,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 		Logger.i(tag, "update helperData called " + json + " , MicroApp msisdn : " + mBotInfo.getMsisdn());
 		String oldHelper = mBotInfo.getHelperData();
+
 		try
 		{
 			JSONObject oldHelperDataJson = TextUtils.isEmpty(oldHelper) ? new JSONObject() : new JSONObject(oldHelper);
-			JSONObject newHelperData = new JSONObject(json);
-			Iterator<String> i = newHelperData.keys();
-			while (i.hasNext())
-			{
-				String key = i.next();
-				oldHelperDataJson.put(key, newHelperData.get(key));
-			}
+			JSONObject helperDataDiff = new JSONObject(json);
+			JSONObject newHelperData = PlatformUtils.mergeJSONObjects(oldHelperDataJson, helperDataDiff);
 
-			mBotInfo.setHelperData(oldHelperDataJson.toString());
+			mBotInfo.setHelperData(newHelperData.toString());
 			HikeConversationsDatabase.getInstance().updateHelperDataForNonMessagingBot(mBotInfo.getMsisdn(), mBotInfo.getHelperData());
 		}
 		catch (JSONException e)
@@ -483,29 +474,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
 	
-	@JavascriptInterface
-	public void openFullPage(String url)
-	{
-		sendMessageToUiThread(OPEN_FULL_PAGE, url);
-	}
-	
 	@Override
 	protected void handleUiMessage(Message msg)
 	{
 		switch (msg.what)
 		{
-		case OPEN_FULL_PAGE:
-			String url = (String) msg.obj;
-			if (mCallback != null)
-			{
-				mCallback.openFullPage(url);
-			}
-			else
-			{
-				super.openFullPage("", url);
-			}
-			break;
-
 		case SHOW_OVERFLOW_MENU:
 			if (mCallback != null)
 			{

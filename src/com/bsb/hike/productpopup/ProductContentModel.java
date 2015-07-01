@@ -139,7 +139,7 @@ public class ProductContentModel implements Parcelable
 
 	public String getNotifTitle()
 	{
-		return mmContentModel.cardObj.getnotifTitle();
+		return mmContentModel.cardObj.getnotifText();
 	}
 
 	/**

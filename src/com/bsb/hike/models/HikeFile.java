@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -67,6 +68,13 @@ public class HikeFile
 			return HikeFileType.OTHER;
 		}
 
+		public static HikeFileType fromFilePath(String filepath,boolean isRecording)
+		{
+			String fileExtension = Utils.getFileExtension(filepath);
+			String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+			return HikeFileType.fromString(fileType, isRecording);
+		}
+		
 		public static String toString(HikeFileType hikeFileType)
 		{
 			if (hikeFileType == PROFILE || hikeFileType == IMAGE)
@@ -673,13 +681,10 @@ public class HikeFile
 		Cursor cur = context.getContentResolver().query(uri, retCol, MediaStore.MediaColumns.DATA + "='" + filePath + "'", null, null);
 		try
 		{
-			if (cur.getCount() == 0)
+			if (cur.moveToFirst())
 			{
-				return -1;
+				id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
 			}
-			cur.moveToFirst();
-
-			id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
 		}
 
 		finally

@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 public class CustomStickerCategory extends StickerCategory
 {
@@ -139,24 +140,7 @@ public class CustomStickerCategory extends StickerCategory
 		}
 		finally
 		{
-			if (in != null)
-				try
-				{
-					in.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-			if (fileIn != null)
-				try
-				{
-					fileIn.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
+			Utils.closeStreams(in, fileIn);
 		}
 		return list;
 	}
