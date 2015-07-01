@@ -1331,7 +1331,7 @@ public class MqttMessagesManager
 			{
 				showNewGames = true;
 			}
-
+			
 			if (account.has(HikeConstants.REWARDS))
 			{
 				JSONObject rewards = account.getJSONObject(HikeConstants.REWARDS);
@@ -1387,6 +1387,33 @@ public class MqttMessagesManager
 				settingEditor.putBoolean(HikeConstants.PROFILE_PIC_PREF, defaultSetting);
 				settingEditor.commit();
 			}
+			/*
+			 * WebView names and their respective urls for Rewards and Hike Extras will be controlled by server  
+			 * 		 
+			 */
+			// Hike Extras
+			if (account.has(HikeConstants.HIKE_EXTRAS_NAME))
+			{
+				String hikeExtrasName = account.getString(HikeConstants.HIKE_EXTRAS_NAME);
+				editor.putString(HikeConstants.HIKE_EXTRAS_NAME, hikeExtrasName);
+			}
+			if (account.has(HikeConstants.HIKE_EXTRAS_URL))
+			{
+				String hikeExtrasUrl = account.getString(HikeConstants.HIKE_EXTRAS_URL);
+				editor.putString(HikeConstants.HIKE_EXTRAS_URL, hikeExtrasUrl);
+			}
+
+			// Hike Rewards
+			if (account.has(HikeConstants.REWARDS_NAME))
+			{
+				String rewards_name = account.getString(HikeConstants.REWARDS_NAME);
+				editor.putString(HikeConstants.REWARDS_NAME, rewards_name);
+			}
+			if (account.has(HikeConstants.REWARDS_URL))
+			{
+				String rewards_url = account.getString(HikeConstants.REWARDS_URL);
+				editor.putString(HikeConstants.REWARDS_URL, rewards_url);
+			}
 		}
 		// this logic requires the backup token which is being setup in the previous if case
 		UserLogInfo.requestUserLogs(data);
@@ -1414,6 +1441,7 @@ public class MqttMessagesManager
 			if (mmobObject.has(HikeConstants.NUX))
 				NUXManager.getInstance().parseNuxPacket(mmobObject.getJSONObject(HikeConstants.NUX).toString());
 		}
+		
 	}
 
 	private void saveUserOptIn(JSONObject jsonObj) throws JSONException
