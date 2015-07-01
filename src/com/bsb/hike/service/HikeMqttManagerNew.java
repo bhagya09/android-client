@@ -1156,11 +1156,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			{
 				Logger.e(TAG, "Exception : " + e.getCause().getMessage());
 				
-				sendAnalyticsEvent(e);
-				
+				String analyticsDevArea = MqttConstants.EXCEPTION_DEV_AREA + "_" + e.getReasonCode();;
 				if (e.getCause() instanceof UnknownHostException)
 				{
 					handleDNSException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
 				}
 				// we are getting this exception in one phone in which message is "Host is unresolved"
 				else if (e.getCause() instanceof SocketException)
@@ -1168,20 +1168,34 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					if (e.getCause().getMessage() != null && e.getCause().getMessage().indexOf(UNRESOLVED_EXCEPTION) != -1)
 					{
 						handleDNSException();
+						sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
+					}
+					else
+					{
+						sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
 					}
 				}
 				else if (e.getCause() instanceof SocketTimeoutException)
 				{
 					handleSocketTimeOutException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "1" );
 				}
 				// added this exception for safety , we might also get this exception in some phones
 				else if (e.getCause() instanceof UnresolvedAddressException)
 				{
 					handleDNSException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
 				}
 				// Till this point disconnect has already happened due to exception (This is as per lib)
 				else if (reConnect)
+				{
 					connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+				}
+				else
+				{
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+				}
 			}
 			else
 			{
