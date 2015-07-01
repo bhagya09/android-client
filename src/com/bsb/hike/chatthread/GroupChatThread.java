@@ -193,8 +193,6 @@ public class GroupChatThread extends OneToNChatThread
 
 		}
 
-		showTips();
-
 		toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
 		toggleGroupLife(oneToNConversation.isConversationAlive());
 		addUnreadCountMessage();
