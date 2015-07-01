@@ -2855,4 +2855,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String MESSAGING = "messaging";
+
+	public static final String DUPLICATE = "duplicate";
+
 }
