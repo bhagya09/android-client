@@ -182,14 +182,27 @@ public class ConversationsAdapter extends BaseAdapter
 	{
 		return completeList;
 	}
+	private void removeConversation(ConvInfo convInfo)
+	{
+		remove(convInfo);
+		BotUtils.deleteBotConversation(convInfo.getMsisdn(), false);
+		notifyDataSetChanged();
+	}
 	
 	private Animation getAnimation(ConvInfo convInfo)
 	{  
 		Animation animation = null;
 		if (removeBotMsisdn != null && removeBotMsisdn.equals(convInfo.getMsisdn()))
 		{
-			animation = getSlideOutAnimation(convInfo);
-			animation.setDuration(500);
+			if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
+			{   
+				animation = getSlideOutAnimation(convInfo);
+				animation.setDuration(500);
+			}
+			else
+			{
+				removeConversation(convInfo);
+			}
 			removeBotMsisdn = null;
 		}
 		else
@@ -235,9 +248,7 @@ public class ConversationsAdapter extends BaseAdapter
 			@Override
 			public void onAnimationEnd(Animation animation)
 			{
-				remove(convInfo);
-				BotUtils.deleteBotConversation(convInfo.getMsisdn(), true);
-				notifyDataSetChanged();
+				removeConversation(convInfo);
 			}
 		});
         return animation;
