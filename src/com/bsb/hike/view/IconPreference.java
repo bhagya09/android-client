@@ -43,7 +43,7 @@ public class IconPreference extends Preference
 			imageView.setImageDrawable(this.mIcon);
 			imageView.setVisibility(View.VISIBLE);
 		}
-		else 
+		else if(imageView != null)
 		{
 			imageView.setVisibility(View.GONE);
 		}
