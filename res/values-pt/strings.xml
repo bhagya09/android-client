@@ -1156,7 +1156,6 @@
     <string name="no_file">Arquivos e marcadores são mostrados aqui</string>
     <string name="no_file_broadcast">Arquivos são mostrados aqui</string>
     <string name="no_file_profile">Arquivos são mostrados aqui</string>
-    <string name="num_new_conversations">%1$s conversas</string>
     <string name="notifications_contact_join_title">Contato entrando no hike</string>
     <string name="share_with_names_numbers">Compartilhar com %1$s e %2$d outros?</string>
     <string name="forward_to_names_numbers">Enviar mensagem para %1$s e %2$d outros?</string>
