@@ -1923,6 +1923,19 @@ public class MqttMessagesManager
 		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && Utils.isIceCreamOrHigher())
 		{ 
 			JSONObject stickerWidgetJSONObj = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
+			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
+			{ 
+				JSONArray list =  stickerWidgetJSONObj.getJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
+				
+				for(int j=0; j<list.length() ; j++)
+				{
+					list.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, true);
+				}
+				
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, list.toString());
+				ChatHeadUtils.startOrStopService(true);
+			}
+			
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
 			{	
 				boolean chatHeadService = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
@@ -1933,7 +1946,7 @@ public class MqttMessagesManager
 			{	
 				boolean chatHeadServiceUserControl = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
-				setShareEnableForAllApps();
+				setShareEnableForAllApps(chatHeadServiceUserControl);
 				ChatHeadUtils.startOrStopService(false);
 			}
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
@@ -1952,19 +1965,6 @@ public class MqttMessagesManager
 			{	
 				int dismissCount = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.DISMISS_COUNT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
-			}
-			
-			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
-			{ 
-				JSONArray list =  stickerWidgetJSONObj.getJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
-				
-				for(int j=0; j<list.length() ; j++)
-				{
-					list.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, true);
-				}
-				
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, list.toString());
-				ChatHeadUtils.startOrStopService(true);
 			}
 			
 		}
@@ -2061,7 +2061,7 @@ public class MqttMessagesManager
 		
 	}
 
-	private void setShareEnableForAllApps()
+	private void setShareEnableForAllApps(boolean enable)
 	{
 		JSONArray jsonArray;
 		try
@@ -2072,7 +2072,7 @@ public class MqttMessagesManager
 		{
 			JSONObject obj = jsonArray.getJSONObject(i);
 			{
-				obj.put(HikeConstants.ChatHead.APP_ENABLE, true);
+				obj.put(HikeConstants.ChatHead.APP_ENABLE, enable);
 			}
 		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, jsonArray.toString());
