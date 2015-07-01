@@ -21,7 +21,6 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,7 +29,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -69,12 +67,12 @@ public class ChatHeadService extends Service
 	private int savedPosX = INITIAL_POS_X;
 
 	private int savedPosY = INITIAL_POS_Y;
+	
+	private static boolean chatHeadIconExist = false;
 
 	// boolean to show whether the chat head must be shown or not for a particular session
 	private static boolean toShow = true;
 	
-	private static boolean sessionTrackingEnabled = false;
-
 	private WindowManager.LayoutParams chatHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
 			WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
 
@@ -96,7 +94,8 @@ public class ChatHeadService extends Service
 
 		@Override
 		public void run()
-		{
+		{   
+			chatHeadIconExist = true;
 			Set<String> foregroundPackages = ChatHeadUtils.getForegroundedPackages();
 			UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
 			
@@ -118,9 +117,10 @@ public class ChatHeadService extends Service
 				if (whiteListAppForegrounded && toShow)
 				{
 					foregroundAppName = PackageNameHashMap.get(packName);
+					foregroundApp = packName;
 					break;
 				}
-
+        
 			}
 
 			if (!chatHead.isShown())
@@ -521,23 +521,23 @@ public class ChatHeadService extends Service
 		setCloseHeadParams();
 		  	
 		createListfromJson();
-		
-		try
+		if (!chatHeadIconExist)
 		{
-			windowManager.addView(chatHead, chatHeadParams);
-		}
-		catch(Exception e)
-		{
-		   e.printStackTrace();	
+			try
+			{
+				windowManager.addView(chatHead, chatHeadParams);
+				chatHeadIconExist = true;
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 		chatHead.setVisibility(View.INVISIBLE);
 		
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 		
 		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(), UserLogInfo.START);
-
-		sessionTrackingEnabled = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance()).getBoolean(HikeConstants.SESSION_LOG_TRACKING, false);
-
 
 	}
 
@@ -576,7 +576,7 @@ public class ChatHeadService extends Service
 		chatHeadHandler.removeCallbacks(chatHeadRunnable);
 
 		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(), UserLogInfo.STOP);
-
+		chatHeadIconExist = false;
 		if (chatHead.isShown())
 			windowManager.removeView(chatHead);
 		if (closeHead.isShown())
