@@ -2398,9 +2398,13 @@ public class HikeConstants
 
 	public static final String PACKAGE_WATSAPP = "com.whatsapp";
 
-	public static final long IMAGE_SIZE_SMALL = 50 * 1024;
+	public static final long IMAGE_SIZE_SMALL = 80 * 1024;//Needs to be finalized after discussion
 
-	public static final long IMAGE_SIZE_MEDIUM = 80 * 1024;
+	public static final long IMAGE_SIZE_MEDIUM = 110 * 1024;//Needs to be finalized after discussion
+	
+	public static final String SERVER_CONFIG_IMAGE_SIZE_SMALL = "sc_img_sm";
+
+	public static final String SERVER_CONFIG_IMAGE_SIZE_MEDIUM = "sc_img_med";
 
 	public static final String WATSAPP_INVITE_MESSAGE_KEY = "wa_msg";
 
@@ -2722,7 +2726,7 @@ public class HikeConstants
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 		
-		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 77;
+		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 80;
 	}
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
@@ -2850,4 +2854,6 @@ public class HikeConstants
 	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
 	
 	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
+	
+	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 }
