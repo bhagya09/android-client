@@ -1756,6 +1756,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void logDuplicateMessageEntry(ConvMessage conv, Exception e)
 	{
+		//if server switch is off
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, true))
+		{
+			return;
+		}
+				
 		JSONObject infoJson = new JSONObject();
 		try 
 		{

@@ -2020,6 +2020,11 @@ public class MqttMessagesManager
 			boolean connLogging = data.getBoolean(HikeConstants.CONN_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CONN_PROD_AREA_LOGGING, connLogging);
 		}
+		if (data.has(HikeConstants.MESSAGING_PROD_AREA_LOGGING))
+		{
+			boolean msgingLogging = data.getBoolean(HikeConstants.MESSAGING_PROD_AREA_LOGGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, msgingLogging);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
