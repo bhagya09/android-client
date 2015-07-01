@@ -118,6 +118,10 @@ public class HikeSharedPreferenceUtil
 	{
 		return hikeSharedPreferences.getString(key, defaultValue);
 	}
+	
+	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues) {
+		return hikeSharedPreferences.getStringSet(key, defaultValues);
+	}
 
 	public synchronized float getData(String key, float defaultValue)
 	{
