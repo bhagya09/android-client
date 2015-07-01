@@ -12,7 +12,6 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -22,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -48,6 +46,7 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
@@ -115,6 +114,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			name = (TextView) convertView.findViewById(R.id.name);
 			mainInfo = (TextView) convertView.findViewById(R.id.main_info);
 
+			//Grab view references
 			switch (viewType)
 			{
 			case OTHER_UPDATE:
@@ -142,6 +142,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			case FTUE_CARD:
 				break;
 			}
+			
 		}
 	}
 
@@ -232,7 +233,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				roundAvatar.setOval(true);
 				setAvatar(statusMessage.getMsisdn(), viewHolder.avatar);
 			}
-			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? "Me" : statusMessage.getNotNullName());
+			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getString(R.string.me) : statusMessage.getNotNullName());
 
 			viewHolder.mainInfo.setText(statusMessage.getText());
 
@@ -257,7 +258,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.extraInfo.setVisibility(View.VISIBLE);
 				viewHolder.yesBtn.setVisibility(View.VISIBLE);
 				viewHolder.noBtn.setVisibility(View.GONE);
-
 				viewHolder.yesBtn.setTag(statusMessage);
 				viewHolder.yesBtn.setOnClickListener(yesBtnClickListener);
 				break;
@@ -472,23 +472,23 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	}
 
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup arg0, int viewType)
+	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 	{
 		View convertView = null;
 
 		switch (viewType)
 		{
 		case OTHER_UPDATE:
-			convertView = mInflater.inflate(R.layout.timeline_item, null);
+			convertView = mInflater.inflate(R.layout.timeline_item, parent, false);
 			return new ViewHolder(convertView, viewType);
 		case FTUE_ITEM:
-			convertView = mInflater.inflate(R.layout.ftue_updates_item, null);
+			convertView = mInflater.inflate(R.layout.ftue_updates_item, parent, false);
 			return new ViewHolder(convertView, viewType);
 		case PROFILE_PIC_CHANGE:
-			convertView = mInflater.inflate(R.layout.profile_pic_timeline_item, null);
+			convertView = mInflater.inflate(R.layout.profile_pic_timeline_item, parent, false);
 			return new ViewHolder(convertView, viewType);
 		case FTUE_CARD:
-			convertView = mInflater.inflate(R.layout.ftue_status_update_card_content, null);
+			convertView = mInflater.inflate(R.layout.ftue_status_update_card_content, parent, false);
 			return new ViewHolder(convertView, viewType);
 		default:
 			return null;
@@ -538,7 +538,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (EMPTY_STATUS_NO_STATUS_ID == statusMessage.getId() || EMPTY_STATUS_NO_STATUS_RECENTLY_ID == statusMessage.getId())
 			{
 				Intent intent = new Intent(mContext, StatusUpdate.class);
-				mActivity.get().startActivity(intent);
+				startActivity(intent);
 
 				try
 				{
@@ -559,7 +559,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 				try
 				{
-					mActivity.get().startActivity(marketIntent);
+					startActivity(marketIntent);
 				}
 				catch (ActivityNotFoundException e)
 				{
@@ -586,10 +586,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				{
 					mStatusMessages.remove(getProtipIndex());
 					notifyDataSetChanged();
-
-					Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-					editor.putLong(HikeMessengerApp.CURRENT_PROTIP, -1);
-					editor.commit();
+					
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CURRENT_PROTIP, -1);
 
 					HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_PROTIP, statusMessage.getProtip().getMappedId());
 				}
@@ -627,7 +625,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			{
 				Intent intent = new Intent(mContext, ProfileActivity.class);
 				intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-				mActivity.get().startActivity(intent);
+				startActivity(intent);
 				return;
 			}
 
@@ -644,7 +642,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			// Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			mActivity.get().startActivity(intent);
+			startActivity(intent);
 			// TODO
 			// mContext.finish();
 		}
@@ -694,7 +692,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		public void onClick(View v)
 		{
 			Intent intent = new Intent(mContext, PeopleActivity.class);
-			mActivity.get().startActivity(intent);
+			startActivity(intent);
 
 			try
 			{
@@ -745,6 +743,14 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void setProtipIndex(int startIndex)
 	{
 		mProtipIndex = startIndex;
+	}
+	
+	private void startActivity(Intent argIntent)
+	{
+		if (mActivity.get() != null)
+		{
+			mActivity.get().startActivity(argIntent);
+		}
 	}
 
 }
