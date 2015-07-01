@@ -351,7 +351,7 @@ public class UploadFileTask extends FileTransferBase
 		catch (Exception e)
 		{
 			// TODO Auto-generated catch block
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "ConvMsgCreation", "On conv message creation : ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "ConvMsgCreation", "On conv message creation : ", e);
 			e.printStackTrace();
 			return;
 		}
@@ -404,7 +404,7 @@ public class UploadFileTask extends FileTransferBase
 		String fileName = selectedFile.getName();
 		if (hikeFile.getFilePath() == null)
 		{
-			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FTR_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing FileNotFoundException due to file path is null ");
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FTR_INIT_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing FileNotFoundException due to file path is null ");
 			throw new FileNotFoundException("File is not accessible. SDCard unmount");
 		}
 		if (picasaUri == null)
@@ -423,7 +423,7 @@ public class UploadFileTask extends FileTransferBase
 					selectedFile = Utils.getOutputMediaFile(hikeFileType, fileName, true);
 					if (selectedFile == null)
 					{
-						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FTR_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing READ_FAIL when selected file is null");
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FTR_INIT_2_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing READ_FAIL when selected file is null");
 						throw new Exception(FileTransferManager.READ_FAIL);
 					}
 					
@@ -443,7 +443,7 @@ public class UploadFileTask extends FileTransferBase
 					if (!Utils.compressAndCopyImage(mFile.getPath(), selectedFile.getPath(), context))
 					{
 						Logger.d(getClass().getSimpleName(), "throwing copy file exception");
-						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FTR_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing READ_FAIL on unsuccessful comression of image");
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FTR_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing READ_FAIL on unsuccessful comression of image");
 						throw new Exception(FileTransferManager.READ_FAIL);
 					}
 					hikeFile.setFile(selectedFile);
@@ -509,7 +509,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
-				FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", 
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT_3_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", 
 								"Throwing UNABLE_TO_DOWNLOAD- Unable to dowload file from picasa uri :", e);
 				throw new Exception(FileTransferManager.UNABLE_TO_DOWNLOAD);
 			}
@@ -552,7 +552,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 			else
 			{
-				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FTR_INIT, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing Network error");
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FTR_INIT_3_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing Network error");
 				throw new Exception("Network error");
 			}
 			
@@ -599,7 +599,7 @@ public class UploadFileTask extends FileTransferBase
 		if(!Utils.isUserOnline(context))
 		{
 			saveStateOnNoInternet();
-			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
 			return FTResult.UPLOAD_FAILED;
 		}
 		mThread = Thread.currentThread();
@@ -759,14 +759,14 @@ public class UploadFileTask extends FileTransferBase
 		catch (MalformedURLException e)
 		{
 			error();
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "URLCreation", "UPLOAD_FAILED - ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "URLCreation", "UPLOAD_FAILED - ", e);
 			Logger.e(getClass().getSimpleName(), "Exception", e);
 			return FTResult.UPLOAD_FAILED;
 		}
 		catch (FileNotFoundException e)
 		{
 			error();
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", e);
 			Logger.e(getClass().getSimpleName(), "Exception", e);
 			return FTResult.READ_FAIL;
 		}
@@ -774,28 +774,28 @@ public class UploadFileTask extends FileTransferBase
 		{
 			error();
 			Logger.e(getClass().getSimpleName(), "Exception", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "ClientProtocolException UPLOAD_FAILED - ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "ClientProtocolException UPLOAD_FAILED - ", e);
 			return FTResult.UPLOAD_FAILED;
 		}
 		catch (IOException e)
 		{
 			error();
 			Logger.e(getClass().getSimpleName(), "Exception", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "all", "IOException UPLOAD_FAILED - ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "all", "IOException UPLOAD_FAILED - ", e);
 			return FTResult.UPLOAD_FAILED;
 		}
 		catch (JSONException e)
 		{
 			error();
 			Logger.e(getClass().getSimpleName(), "Exception", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "json", "JSONException UPLOAD_FAILED - ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_5, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "json", "JSONException UPLOAD_FAILED - ", e);
 			return FTResult.UPLOAD_FAILED;
 		}
 		catch (Exception e)
 		{
 			error();
 			Logger.e(getClass().getSimpleName(), "Exception", e);
-			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Exception UPLOAD_FAILED - ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_6, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Exception UPLOAD_FAILED - ", e);
 			return FTResult.UPLOAD_FAILED;
 		}
 		return FTResult.SUCCESS;

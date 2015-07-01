@@ -93,9 +93,17 @@ public class FTAnalyticEvents
 
 	private static final String FTR_OPERATION_TYPE = "opType";
 
-	public static final String DOWNLOAD_INIT = "download_init";
+	public static final String DOWNLOAD_INIT_1_1 = "download_init_1_1";
+	public static final String DOWNLOAD_INIT_1_2 = "download_init_1_2";
+	public static final String DOWNLOAD_INIT_1_3 = "download_init_1_3";
 
-	public static final String DOWNLOAD_CONN_INIT = "download_conn_init";
+	public static final String DOWNLOAD_INIT_2_1 = "download_init_2_1";
+	public static final String DOWNLOAD_INIT_2_2 = "download_init_2_2";
+
+	public static final String DOWNLOAD_CONN_INIT_1 = "download_conn_init_1";
+
+	public static final String DOWNLOAD_CONN_INIT_2_1 = "download_conn_init_2_1";
+	public static final String DOWNLOAD_CONN_INIT_2_2 = "download_conn_init_2_2";
 
 	public static final String DOWNLOAD_MEM_CHECK = "download_mem_check";
 
@@ -109,15 +117,52 @@ public class FTAnalyticEvents
 
 	public static final String DOWNLOAD_CLOSING_STREAM = "download_closing_streams";
 
-	public static final String UPLOAD_INIT = "upload_init";
+	public static final String UPLOAD_INIT_1_1 = "upload_init_1_1";
+	public static final String UPLOAD_INIT_1_2 = "upload_init_1_2";
+	public static final String UPLOAD_INIT_1_3 = "upload_init_1_3";
+	public static final String UPLOAD_INIT_1_4 = "upload_init_1_4";
 
-	public static final String UPLOAD_FTR_INIT = "upload_ftr_init";
+	public static final String UPLOAD_INIT_2_1 = "upload_init_2_1";
+	public static final String UPLOAD_INIT_2_2 = "upload_init_2_2";
+	public static final String UPLOAD_INIT_2_3 = "upload_init_2_3";
+	public static final String UPLOAD_INIT_2_4 = "upload_init_2_4";
+	public static final String UPLOAD_INIT_2_5 = "upload_init_2_5";
+	public static final String UPLOAD_INIT_2_6 = "upload_init_2_6";
+
+	public static final String UPLOAD_INIT_3 = "upload_init_3";
+
+	public static final String UPLOAD_INIT_4_1 = "upload_init_4_1";
+	public static final String UPLOAD_INIT_4_2 = "upload_init_4_2";
+
+	public static final String UPLOAD_INIT_5 = "upload_init_5";
+
+	public static final String UPLOAD_INIT_6 = "upload_init_6";
+
+	public static final String UPLOAD_INIT_7_1 = "upload_init_7_1";
+	public static final String UPLOAD_INIT_7_2 = "upload_init_7_2";
+
+	public static final String UPLOAD_FTR_INIT_1 = "upload_ftr_init_1";
+
+	public static final String UPLOAD_FTR_INIT_2_1 = "upload_ftr_init_2_1";
+	public static final String UPLOAD_FTR_INIT_2_2 = "upload_ftr_init_2_2";
+
+	public static final String UPLOAD_FTR_INIT_3_1 = "upload_ftr_init_3_1";
+	public static final String UPLOAD_FTR_INIT_3_2 = "upload_ftr_init_3_2";
+
+	public static final String UPLOAD_FTR_INIT_4 = "upload_ftr_init_4";
 
 	public static final String UPLOAD_FK_VALIDATION = "upload_fk_validation";
 
 	public static final String UPLOAD_FILE_OPERATION = "upload_file_operation";
 
-	public static final String UPLOAD_CALLBACK_AREA = "upload_callback_area";
+	public static final String UPLOAD_CALLBACK_AREA_1_1 = "upload_callback_area_1_1";
+	public static final String UPLOAD_CALLBACK_AREA_1_2 = "upload_callback_area_1_2";
+	public static final String UPLOAD_CALLBACK_AREA_1_3 = "upload_callback_area_1_3";
+	public static final String UPLOAD_CALLBACK_AREA_1_4 = "upload_callback_area_1_4";
+	public static final String UPLOAD_CALLBACK_AREA_1_5 = "upload_callback_area_1_5";
+	public static final String UPLOAD_CALLBACK_AREA_1_6 = "upload_callback_area_1_6";
+
+	public static final String UPLOAD_CALLBACK_AREA_2 = "upload_callback_area_2";
 
 	public static final String UPLOAD_FILE_READ = "upload_file_read";
 
@@ -294,7 +339,7 @@ public class FTAnalyticEvents
 	+	 */
 	public static void logDevException(String devArea, int responseCode, String taskType, String operation, String errorMsg, Throwable exception) 
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
 			return;
 
 		JSONObject info = new JSONObject();
@@ -325,7 +370,7 @@ public class FTAnalyticEvents
 	+	 */
 	public static void logDevError(String devArea, int responseCode, String taskType, String operation, String errorMsg) 
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
 			return;
 
 		JSONObject info = new JSONObject();
