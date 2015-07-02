@@ -1866,8 +1866,8 @@ public class MqttMessagesManager
 		}
 		if(data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
 		{
-			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
-			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_SEND_LOGS, enablePhoto);
+			boolean enableSendLogs = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_SEND_LOGS, enableSendLogs);
 			AppConfig.refresh();
 		}
 		if(data.has(HikeConstants.URL_WHITELIST))

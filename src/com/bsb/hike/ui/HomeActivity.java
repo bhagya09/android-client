@@ -165,8 +165,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
-	private boolean photosEnabled;
-
 	private static MenuItem searchMenuItem;
 
 	private boolean showingSearchModeActionBar = false;
@@ -285,6 +283,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private void handleFileShareIntent(Intent intent)
 	{
+
+		if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0)
+		{
+			return;
+		}
+		
 		if (Intent.ACTION_SEND.equals(intent.getAction()) ) 
 		{
 			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
@@ -1075,7 +1079,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.clearJar(this);
 		t2 = System.currentTimeMillis();
 		Logger.d("clearJar", "time : " + (t2 - t1));
-		photosEnabled = Utils.isPhotosEditEnabled();
 	}
 
 	
