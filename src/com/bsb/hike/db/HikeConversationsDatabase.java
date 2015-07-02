@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.SQLException;
 import android.database.DatabaseUtils.InsertHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -776,19 +775,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(alter6);
 
 		}
-		
-		try
-		{
-			// Add creation time column
-			if (oldVersion < 40)
-			{
-				String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " + DBConstants.GROUP_CREATION_TIME + " LONG DEFAULT -1";
-				db.execSQL(alter);
-			}
-		}
-		catch (SQLException sqle)
-		{
-			sqle.printStackTrace();
+        //Add creation time column
+		if (oldVersion < 40) {
+			String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE
+					+ " ADD COLUMN " + DBConstants.GROUP_CREATION_TIME
+					+" LONG DEFAULT -1";
+			db.execSQL(alter);
 		}
 	}
 
