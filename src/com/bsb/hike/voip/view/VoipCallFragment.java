@@ -342,6 +342,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) 
 		{
 			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+			VoIPUtils.sendMissedCallNotificationToPartner(msisdn);
 			if (voipService != null)
 			{
 				voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);

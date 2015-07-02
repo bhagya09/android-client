@@ -897,7 +897,7 @@ public class VoIPClient  {
 
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
 				if (!isInitiator() && !reconnecting) {
-					VoIPUtils.sendMissedCallNotificationToPartner(VoIPClient.this);
+					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber());
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
 				stop();					

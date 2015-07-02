@@ -179,7 +179,11 @@ public class VoIPUtils {
 		}    	
     }
 
-	public static void sendMissedCallNotificationToPartner(VoIPClient clientPartner) {
+    /**
+     * Put a missed call notification on the other client's chat thread. 
+     * @param client
+     */
+	public static void sendMissedCallNotificationToPartner(String msisdn) {
 
 		try {
 			JSONObject socketData = new JSONObject();
@@ -191,7 +195,7 @@ public class VoIPUtils {
 			data.put(HikeConstants.METADATA, socketData);
 
 			JSONObject message = new JSONObject();
-			message.put(HikeConstants.TO, clientPartner.getPhoneNumber());
+			message.put(HikeConstants.TO, msisdn);
 			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING);
 			message.put(HikeConstants.DATA, data);
