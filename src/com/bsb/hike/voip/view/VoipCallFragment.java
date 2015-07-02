@@ -602,6 +602,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				speakerButton.setSelected(newSpeaker);
 				voipService.setSpeaker(newSpeaker);
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_SPEAKER, newSpeaker ? 1 : 0);
+				
+				if (newSpeaker == true)
+					releaseProximityWakelock();
+				else
+					initProximityWakelock();
 			}
 		});
 
