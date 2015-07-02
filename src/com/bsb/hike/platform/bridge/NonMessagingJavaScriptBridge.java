@@ -4,12 +4,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -27,6 +29,7 @@ import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -41,8 +44,6 @@ import com.bsb.hike.utils.Utils;
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	private static final int OPEN_FULL_PAGE_WITH_TITLE = 111;
-	
-	private static final int OPEN_FULL_PAGE = 111;
 	
 	private static final int SHOW_OVERFLOW_MENU = 112;
 	
@@ -479,29 +480,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
 	
-	@JavascriptInterface
-	public void openFullPage(String url)
-	{
-		sendMessageToUiThread(OPEN_FULL_PAGE, url);
-	}
-	
 	@Override
 	protected void handleUiMessage(Message msg)
 	{
 		switch (msg.what)
 		{
-		case OPEN_FULL_PAGE:
-			String url = (String) msg.obj;
-			if (mCallback != null)
-			{
-				mCallback.openFullPage(url);
-			}
-			else
-			{
-				super.openFullPage("", url);
-			}
-			break;
-
 		case SHOW_OVERFLOW_MENU:
 			if (mCallback != null)
 			{
@@ -647,6 +630,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void openFullPage(final String url)
 	{
 		sendMessageToUiThread(OPEN_FULL_PAGE, url);
+	}
+
+	@JavascriptInterface
+	public void botToBeDeleted()
+	{
+		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
+		Activity context = weakActivity.get();
+		ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
+	    context.finish();
 	}
 
 }

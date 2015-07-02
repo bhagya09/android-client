@@ -827,28 +827,22 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
-		int id = -1;
 		switch (item.id)
 		{
 		case R.string.clear_chat:
-			id = item.id;
 			showClearConversationDialog();
 			break;
 		case R.string.email_chat:
-			id = item.id;
 			emailChat();
 			break;
 		case AttachmentPicker.GALLERY:
-			id = R.string.gallery;
 			startHikeGallery(mConversation.isOnHike());
 			break;
 		case R.string.search:
-			id = item.id;
 			//recordSearchOptionClick();
 			//setupSearchMode();
 			break;
 		case R.string.hide_chat:
-			id = item.id;
 			StealthModeManager.getInstance().toggleConversation(msisdn, !mConversation.isStealth(), activity);
 			//exiting chat thread 
 			if(!StealthModeManager.getInstance().isActive())
@@ -860,19 +854,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		default:
 			break;
 		}
-		if (id != -1)
-		{
-			recordOverflowItemClicked(id);
-		}
+		recordOverflowItemClicked(item);
 	}
 	
-	private void recordOverflowItemClicked(int whichItem)
+	private void recordOverflowItemClicked(OverFlowMenuItem item)
 	{
 		String ITEM = "item";
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, getString(whichItem));
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, item.text);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -3156,7 +3147,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (msisdn.equals(senderMsisdn))
 		{
-			if (activity.hasWindowFocus())
+			if (isActivityVisible)
 			{
 				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn);
 				
@@ -3266,7 +3257,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
-				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED};
+				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -4340,6 +4331,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						{
 							msg.setState(ConvMessage.State.SENT_DELIVERED_READ);
 							removeFromMessageMap(msg);
+							
+							//updating hike off-line messages set
+							if(mConversation.isOnHike())
+							{
+								removeFromUndeliverdMessages(msg);
+							}
 						}
 						else
 						{
@@ -4352,6 +4349,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_DELIVERED.ordinal()))
 						{
 							msg.setState(ConvMessage.State.SENT_DELIVERED);
+							
+							//updating hike off-line messages set
+							if(mConversation.isOnHike())
+							{
+								removeFromUndeliverdMessages(msg);
+							}
 						}
 					}
 				}
@@ -4360,6 +4363,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 		}
 	}
+
+	protected void removeFromUndeliverdMessages(ConvMessage msg)
+	{
+		return;
+	}
+
 
 	/**
 	 * This method will be overriden by respective classes
@@ -4617,11 +4626,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			themePicker.onOrientationChange(newConfig.orientation);
 		}
 		
-		if (this.dialog != null)
-		{
-			dialog.dismiss();
-		}
-		
 		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
 			if (mShareablePopupLayout.isKeyboardOpen())
@@ -4683,9 +4687,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					|| ((view.getId() == R.id.msg_compose) && PreferenceManager
 							.getDefaultSharedPreferences(
 									activity.getApplicationContext())
-							.getBoolean(HikeConstants.SEND_ENTER_PREF, false))
-					)	{
-				
+							.getBoolean(HikeConstants.SEND_ENTER_PREF, false)))	{
 				if (!TextUtils.isEmpty(mComposeView.getText())) {
 					sendButtonClicked();
 				}
@@ -5042,6 +5044,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showThemePicker(int footerTextId)
 	{
+		/**
+		 * Hiding soft keyboard
+		 */
+		Utils.hideSoftKeyboard(activity, mComposeView);
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}

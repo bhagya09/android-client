@@ -4,17 +4,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
@@ -27,6 +35,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatHead.ChatHeadActivity;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -41,16 +50,23 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
-
 public class UserLogInfo {
+	
+	public static final int START = 0;
+	public static final int STOP = 2;
+	public static final int OPERATE = 1;
+	
+	private static Map<String, Long> foregroundAppsStartTimeMap;
 
 	private static final String HASH_SCHEME = "MD5";
 	private static final String TAG = "UserLogInfo";
+	public static final String USER_LOG_SHARED_PREFS = "user_log_info";
 	
 	public static final int CALL_ANALYTICS_FLAG = 1;
 	public static final int APP_ANALYTICS_FLAG = 2;	
 	public static final int LOCATION_ANALYTICS_FLAG = 4;
 	public static final int ADVERTISIND_ID_FLAG = 8;
+	public static final int FETCH_LOG_FLAG = 16;
 	
 	
 	private static final long milliSecInDay = 1000 * 60 * 60 * 24;
@@ -76,7 +92,36 @@ public class UserLogInfo {
 	private static final String SENT_SMS = "ss";
 	private static final String RECEIVED_SMS = "rs";
 	
+	private static final String SESSION_COUNT = "sn";
+	private static final String DURATION = "dr";
+	private static long MIN_SESSION_RECORD_TIME = 2000;
+
 	private static int flags;
+	
+	private static boolean hikeStickerActivityForegrounded = false;
+	
+	public static class SessionLogPojo{
+		final String packageName;
+		final String applicationName;
+		final long duration;
+		final int sessions;
+		
+		public SessionLogPojo(String packageName, String applicationName, long duration, int sessions) {
+			this.packageName = packageName;
+			this.applicationName = applicationName;
+			this.sessions = sessions;
+			this.duration = duration;
+		}
+		
+		public JSONObject toJSON() throws JSONException{
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.putOpt(PACKAGE_NAME, this.packageName);
+			jsonObj.putOpt(APPLICATION_NAME,this.applicationName);
+			jsonObj.putOpt(SESSION_COUNT, this.sessions);
+			jsonObj.putOpt(DURATION, this.duration);
+			return jsonObj;
+		}
+	}
 	
 	public static class LocLogPojo{
 		final double latitude;
@@ -183,6 +228,7 @@ public class UserLogInfo {
 			case (ADVERTISIND_ID_FLAG): jsonKey = HikeConstants.ADVERTSING_ID_ANALYTICS; break;
 			case (CALL_ANALYTICS_FLAG): jsonKey = HikeConstants.CALL_LOG_ANALYTICS; break;
 			case (LOCATION_ANALYTICS_FLAG): jsonKey = HikeConstants.LOCATION_LOG_ANALYTICS; break;
+			case (FETCH_LOG_FLAG): jsonKey = HikeConstants.SESSION_LOG_TRACKING; break;
 		}
 		return jsonKey;
 	}
@@ -224,8 +270,53 @@ public class UserLogInfo {
 			case CALL_ANALYTICS_FLAG : return getJSONCallArray(getCallLogs());
 			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs());
 			case ADVERTISIND_ID_FLAG : return getAdvertisingId();
+			case FETCH_LOG_FLAG : return getJSONLogArray(getLogsFor(HikeConstants.SESSION_LOG_TRACKING));
 			default : return null;
 		}
+	}
+	
+	private static JSONArray getJSONLogArray(List<SessionLogPojo> sessionLogPojo) throws JSONException 
+	{
+		if (sessionLogPojo == null || sessionLogPojo.isEmpty())
+			return null;
+		JSONArray sessionJsonArray = new JSONArray();
+		for (SessionLogPojo sessionLog : sessionLogPojo)
+		{
+			sessionJsonArray.put(sessionLog.toJSON());
+		}
+		Logger.d(TAG, sessionJsonArray.toString());
+		return sessionJsonArray;
+	}
+	
+	private static List<SessionLogPojo> getLogsFor(String logType)
+	{
+		List<SessionLogPojo> sessionLogs = new ArrayList<SessionLogPojo>();
+		PackageManager pm = HikeMessengerApp.getInstance().getPackageManager();
+		if(logType == HikeConstants.SESSION_LOG_TRACKING)
+		{
+			HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(USER_LOG_SHARED_PREFS);
+			for (Map.Entry<String, ?> entry : userPrefs.getPref().getAll().entrySet())
+			{
+				try
+				{
+					String[] sessionInfo = entry.getValue().toString().split(":");
+					ApplicationInfo ai = pm.getApplicationInfo(entry.getKey(), PackageManager.GET_UNINSTALLED_PACKAGES);
+					String applicationName = ai.loadLabel(HikeMessengerApp.getInstance().getPackageManager()).toString();
+					sessionLogs.add(new SessionLogPojo(entry.getKey(), applicationName, Long.parseLong(sessionInfo[0]), Integer.parseInt(sessionInfo[1])));
+					
+				} 
+				catch (NameNotFoundException e)
+				{
+					Logger.d(TAG, "Application uninstalled or not found : " + entry.getKey());
+				}
+				catch (Exception e)
+				{
+					Logger.d(TAG, "Exception : " + e);
+				}
+			}
+			userPrefs.deleteAllData();
+		}
+		return sessionLogs;
 	}
 	
 	private static JSONArray getJSONLocArray(List<LocLogPojo> locLogList) throws JSONException{
@@ -335,6 +426,11 @@ public class UserLogInfo {
 		if(data.optBoolean(HikeConstants.ADVERTSING_ID_ANALYTICS))
 		{
 			flags |= UserLogInfo.ADVERTISIND_ID_FLAG;
+		}
+		if(data.optBoolean(HikeConstants.FETCH_LOG_ANALYTICS))
+		{
+			//TODO possibly turn this into "gl":true to "gl":"stl"
+			flags |= UserLogInfo.FETCH_LOG_FLAG;
 		}
 		
 		if(flags == 0) 
@@ -513,6 +609,88 @@ public class UserLogInfo {
 		return callJsonArray;
 	}
 
+	public static void recordSessionInfo(Set<String> currentForegroundApps, int nextStep)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false))
+		{
+			return;
+		}
+		long currentTime = System.currentTimeMillis();
+		if(foregroundAppsStartTimeMap == null)
+		{
+			foregroundAppsStartTimeMap = new HashMap<String, Long>(5);
+		}
+		
+		Set<String> savedForegroundApps = new HashSet<String>(foregroundAppsStartTimeMap.keySet());
+		
+		//this if logic can also be called when the activity has already started
+		if(nextStep  == START || foregroundAppsStartTimeMap.isEmpty())
+		{
+			foregroundAppsStartTimeMap.clear();
+			for(String packageName : currentForegroundApps)
+			{
+				foregroundAppsStartTimeMap.put(packageName, currentTime);
+			}
+		}
+		else if (nextStep == STOP)
+		{
+			for(String app : foregroundAppsStartTimeMap.keySet())
+			{
+				recordASession(app, System.currentTimeMillis());
+			}
+			foregroundAppsStartTimeMap.clear();
+		}
+		else if(nextStep == OPERATE && !currentForegroundApps.isEmpty())
+		{
+			savedForegroundApps.addAll(currentForegroundApps);
+			for(String app : savedForegroundApps)
+			{
+				if(currentForegroundApps.contains(app) && !foregroundAppsStartTimeMap.containsKey(app))
+				{
+					// foregrounded app here
+					foregroundAppsStartTimeMap.put(app, System.currentTimeMillis());
+				}
+				else if(!currentForegroundApps.contains(app) && foregroundAppsStartTimeMap.containsKey(app))
+				{
+					// backgrounded apps here
+					recordASession(app, foregroundAppsStartTimeMap.get(app));
+					foregroundAppsStartTimeMap.remove(app);
+				}
+			}
+		}
+	}
 	
+	private static void recordASession(String packageName, long sesstionTime)
+	{
+		long sessionTime = System.currentTimeMillis() - sesstionTime;
+		
+		if (sessionTime > MIN_SESSION_RECORD_TIME && !hikeStickerActivityForegrounded)
+		{
+			HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(USER_LOG_SHARED_PREFS);
+			String[] loggedParams = userPrefs.getData(packageName, "0:0").split(":");
+			for (String s: loggedParams) {
+			    //Do your stuff here
+			   Logger.d(TAG, s);
+			}
+			long duration = Long.parseLong(loggedParams[0]) + sessionTime;
+			int sessions = Integer.parseInt(loggedParams[1]) + 1;
+			userPrefs.saveData(packageName, duration + ":" + sessions);
+			Logger.d(TAG, "time : " + sessionTime + " of " + packageName);
+		}
+
+		ComponentName componentInfo = null;
+		ActivityManager am = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Activity.ACTIVITY_SERVICE);
+		if (Utils.isLollipopOrHigher())
+		{
+			List<ActivityManager.AppTask> appTask = am.getAppTasks();
+			componentInfo = appTask.get(0).getTaskInfo().origActivity;
+		}
+		else
+		{
+			List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+			componentInfo = taskInfo.get(0).topActivity;
+		}
+		hikeStickerActivityForegrounded = componentInfo.getClassName().equals(ChatHeadActivity.class.getName());
+	}
 	
 }
