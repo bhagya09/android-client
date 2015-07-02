@@ -284,7 +284,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void handleFileShareIntent(Intent intent)
 	{
 
-		if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0)
+		//If launching from android history, do not process 
+		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0)
 		{
 			return;
 		}
