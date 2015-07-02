@@ -46,6 +46,10 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	public static final byte JS_INJECTOR = 8;
 	
+    public static final byte SLIDE_IN = 9;
+	
+	public static final byte READ_SLIDE_OUT = 10;
+	
 	/**
 	 * Bit positions end here.
 	 */
@@ -379,4 +383,28 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	{
 		return configData.optString(HikePlatformConstants.JS_INJECT, null);
 	}
+	
+	public boolean  isSlideInEnabled()
+	{
+		return isBitSet(SLIDE_IN);
+	}
+	
+	public void setBit(Byte bit, boolean toSet)
+	{
+		if (toSet)
+		{
+			setConfig(getConfig() | (1 << bit));
+		}
+		else
+		{
+			setConfig(getConfig() & ~(1 << bit));
+		}
+	}
+	
+	
+	public boolean isReadSlideOutEnabled()
+	{
+		return isBitSet(READ_SLIDE_OUT);
+	}
+	
 }
