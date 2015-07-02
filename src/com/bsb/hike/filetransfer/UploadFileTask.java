@@ -807,7 +807,13 @@ public class UploadFileTask extends FileTransferBase
 		JSONObject responseJson = null;
 		HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 		FileSavedState fst = FileTransferManager.getInstance(context).getUploadFileState(hikeFile.getFile(), msgId);
-		setFileTotalSize((int) sourceFile.length());
+		long length = sourceFile.length();
+		if (length < 1)
+		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing FileNotFoundException because File size less than 1 byte");
+			throw new FileNotFoundException("File size less than 1 byte");
+		}
+		setFileTotalSize((int) length);
 		// Bug Fix: 13029
 		setBytesTransferred(fst.getTransferredSize());
 		long temp = _bytesTransferred;
@@ -874,12 +880,6 @@ public class UploadFileTask extends FileTransferBase
 		_state = FTState.IN_PROGRESS;
 		LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
 		
-		long length = sourceFile.length();
-		if (length < 1)
-		{
-			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing FileNotFoundException because File size less than 1 byte");
-			throw new FileNotFoundException("File size less than 1 byte");
-		}
 		if (mStart >= length)
 		{
 			mStart = 0;
