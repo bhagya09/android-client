@@ -376,7 +376,7 @@ public class VoIPUtils {
 	
 	public static boolean isConferencingEnabled(Context context) 
 	{
-		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, true);
 		return conferenceEnabled;
 	}
 	
