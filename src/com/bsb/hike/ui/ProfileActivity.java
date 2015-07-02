@@ -2816,9 +2816,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 
 			if(this.profileType == ProfileType.GROUP_INFO || this.profileType == ProfileType.BROADCAST_INFO)
-				PhotoViewerFragment.openPhoto(R.id.parent_layout, ProfileActivity.this, hsf, true, oneToNConversation,true);
+				PhotoViewerFragment.openPhoto(R.id.parent_layout, ProfileActivity.this, hsf, true, oneToNConversation);
 			else
-				PhotoViewerFragment.openPhoto(R.id.parent_layout, ProfileActivity.this, hsf, true, 0, hsf.get(0).getMsisdn(), contactInfo.getFirstNameAndSurname(),true);
+				PhotoViewerFragment.openPhoto(R.id.parent_layout, ProfileActivity.this, hsf, true, 0, hsf.get(0).getMsisdn(), contactInfo.getFirstNameAndSurname());
 			
 			return;
 		}
