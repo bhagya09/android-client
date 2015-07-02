@@ -184,6 +184,8 @@ public class AnalyticsConstants
 	public static final String NETWORK_TYPE = "networkType";
 
 	public static final String APP_VERSION = "app_version";
+	
+	public static String ERROR_TRACE = "error";
 		
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -291,6 +293,10 @@ public class AnalyticsConstants
 	public static final String MSG_REL_CONST_STR = "ek";
 	
 	public static final String APP_VERSION_NAME = "app_ver";
+
+	public static final String REASON_CODE = "rs";
+
+	public static final String MESSAGE_DATA = "msgData";
 	
 	public static final class MsgRelEventType
 	{
