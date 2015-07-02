@@ -1729,27 +1729,28 @@ public class VoIPService extends Service {
 			Logger.d(tag, "Playing ringtone.");
 			Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 			
-			if (ringtone == null)
-				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
-			
 			if (ringtone == null) {
-				Logger.e(tag, "Unable to get ringtone object.");
-				return;
+				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+				
+				if (ringtone == null) {
+					Logger.e(tag, "Unable to get ringtone object.");
+					return;
+				}
+				
+				if (Utils.isLollipopOrHigher()) {
+					AudioAttributes.Builder attrs = new AudioAttributes.Builder();
+					attrs.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+					attrs.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
+					ringtone.setAudioAttributes(attrs.build());
+				} else
+					ringtone.setStreamType(AudioManager.STREAM_RING);
+				ringtone.play();		
 			}
 			
-			if (Utils.isLollipopOrHigher()) {
-				AudioAttributes.Builder attrs = new AudioAttributes.Builder();
-				attrs.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
-				attrs.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
-				ringtone.setAudioAttributes(attrs.build());
-			} else
-				ringtone.setStreamType(AudioManager.STREAM_RING);
-			ringtone.play();		
-
 			// Vibrator
 			if (vibratorEnabled == true) {
-				vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-				if (vibrator != null) {
+				if (vibrator == null) {
+					vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 					long[] pattern = {0, 500, 1000};
 					vibrator.vibrate(pattern, 0);
 				}
