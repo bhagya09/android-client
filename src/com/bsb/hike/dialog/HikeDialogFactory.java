@@ -319,6 +319,9 @@ public class HikeDialogFactory
 		CustomFontTextView originalSize = (CustomFontTextView) hikeDialog.findViewById(R.id.image_quality_original_cftv);
 		Button once = (Button) hikeDialog.findViewById(R.id.btn_just_once);
 
+		long image_small_size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL, HikeConstants.IMAGE_SIZE_SMALL);
+		long image_medium_size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM, HikeConstants.IMAGE_SIZE_MEDIUM);
+		
 		if (data != null)
 		{
 			Long[] dataBundle = (Long[]) data;
@@ -327,8 +330,8 @@ public class HikeDialogFactory
 			{
 
 				originalsz = dataBundle[1].intValue();
-				smallsz = (int) (dataBundle[0] * HikeConstants.IMAGE_SIZE_SMALL);
-				mediumsz = (int) (dataBundle[0] * HikeConstants.IMAGE_SIZE_MEDIUM);
+				smallsz = (int) (dataBundle[0] * image_small_size);
+				mediumsz = (int) (dataBundle[0] * image_medium_size);
 				if (smallsz >= originalsz)
 				{
 					smallsz = originalsz;

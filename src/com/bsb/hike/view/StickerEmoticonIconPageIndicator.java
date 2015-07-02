@@ -1,5 +1,6 @@
 package com.bsb.hike.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -10,6 +11,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.EmoticonAdapter;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatHead.ChatHeadActivity;
+import com.bsb.hike.chatHead.TabClickListener;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.StickerManager;
@@ -20,6 +23,12 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 {
 
 	StickerOtherIconLoader stickerOtherIconLoader;
+	
+	static TabClickListener tabClickListener;
+	
+	String selectedCatId;
+	
+	ImageView selectedImageView;
 
 	public StickerEmoticonIconPageIndicator(Context context)
 	{
@@ -34,6 +43,17 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
 	}
 
+	
+	public static void registerChatHeadTabClickListener(TabClickListener tabListener)
+	{
+		tabClickListener = tabListener;
+	}
+	
+	public static void unRegisterChatHeadTabClickListener()
+	{
+		tabClickListener = null;
+	}
+	
 	/*
 	 * TODO : This function is called twice, it should be handled properly so that it should run just once. Also inorder to remove the red icon once stickers gets downloaded, we
 	 * should handle it properly instead of calling "notifyDataSetChanged" this again and again.
@@ -102,6 +122,10 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 			Integer currentIndex = (Integer) view.getTag();
 			final int newSelected = currentIndex;
 			setCurrentItem(newSelected);
+			if (tabClickListener != null)
+			{
+				tabClickListener.onTabClick();
+			}
 		}
 	};
 	
@@ -155,6 +179,20 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 	{
 		int assetType = isSelected ? StickerManager.PALLATE_ICON_SELECTED_TYPE : StickerManager.PALLATE_ICON_TYPE;
         stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(catId, assetType), imageView, false, runOnUiThread);
+		if (isSelected)
+		{
+			selectedCatId = catId;
+			selectedImageView = imageView;
+		}
+	}
+	
+	public void unselectCurrent()
+	{
+		if (selectedCatId != null && selectedImageView != null)
+		{
+			loadImage(selectedCatId, false, selectedImageView, true);
+		}
+
 	}
 
 }
