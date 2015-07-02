@@ -495,7 +495,7 @@ public class HikeNotificationMsgStack implements Listener
 		}
 		else
 		{
-			return String.format(mContext.getString(R.string.num_new_conversations), getNewConversations());
+			return String.format(mContext.getString(R.string.num_notification_sub_text_for_multi_msisdn), getNewMessages(), getNewConversations());
 		}
 	}
 
@@ -642,7 +642,7 @@ public class HikeNotificationMsgStack implements Listener
 			return HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
 		}
 
-		return String.format(mContext.getString(R.string.num_new_messages), getNewMessages());
+		return mContext.getString(R.string.app_name);
 	}
 
 	public boolean forceBlockNotificationSound()

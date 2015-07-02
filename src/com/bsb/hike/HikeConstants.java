@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Environment;
 
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 public class HikeConstants
 {
@@ -1089,6 +1090,8 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_ENABLED = "aec";
 
+	public static final String VOIP_CONFERENCING_ENABLED = "conf";
+
 	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
@@ -1102,6 +1105,39 @@ public class HikeConstants
 	public static final String VOIP_AEC_CNP = "cnp";
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
+	
+	public static final class ChatHead
+	{
+		public static final String STICKER_WIDGET = "stkr_wdgt";
+
+		public static final String CHAT_HEAD_SERVICE = "enable";
+
+		public static final String CHAT_HEAD_USR_CONTROL = "usr_ctrl";
+
+		public static final String STICKERS_PER_DAY = "stkr_per_day";
+
+		public static final String EXTRA_STICKERS_PER_DAY = "extra_stkr_per_day";
+
+		public static final String TOTAL_STICKER_SHARE_COUNT = "ttl_stkr_shr_count";
+		
+		public static final String PACKAGE_LIST = "pkg_list";
+		
+		public static final String PACKAGE_NAME = "p";
+
+		public static final String APP_NAME = "a";
+
+		public static final String APP_ENABLE = "e";
+		
+		public static final int DEFAULT_NO_STICKERS_PER_DAY = 5;
+
+		public static final String DISMISS_COUNT = "dismiss_count";
+
+		public static final String SNOOZE = "snoozeChatHead";
+
+	}
+
+	
+	public static final String VOIP_RELAY_IPS = "vrip";
 	
 	
 	public static final class ResultCodes
@@ -1512,17 +1548,18 @@ public class HikeConstants
 			public static final int STICKER_SHARE = 2;
 
 		}
-
+		
+		
 		public static final String SHARE_CONTENT = "shareContent";
 
+		public static final String PACKAGE_NAME = "packageName";
+			
 		public static final String WHATSAPP_PACKAGE = "com.whatsapp";
 
 		public static final String SHARE_TYPE = "shareType";
 
 		public static final int NOT_SHAREABLE = -1;
 		
-		public static final String STICKER_HEADING = "shareStkrTtl";
-
 		public static final String STICKER_DESCRIPTION = "shareStkrTxt";
 
 		public static final String STICKER_CAPTION = "shareStkrCptn";
@@ -2600,6 +2637,10 @@ public class HikeConstants
 	public static final String APP_LOG_ANALYTICS = "al";
 
 	public static final String LOCATION_LOG_ANALYTICS = "ll";
+	
+	public static final String FETCH_LOG_ANALYTICS = "gl";
+	
+	public static final String SESSION_LOG_TRACKING = "stl";
 
 	public static final String SHOP = "shop";
 
@@ -2854,6 +2895,17 @@ public class HikeConstants
 	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
 	
 	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
-	
+
+	public static final String OTHER_EXCEPTION_LOGGING = "otherExLoging";
+	public static final String HTTP_EXCEPTION_LOGGING = "httpExc";
+
+	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
+
+	public static final String MESSAGING = "messaging";
+
+	public static final String DUPLICATE = "duplicate";
+
+	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
+
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 }

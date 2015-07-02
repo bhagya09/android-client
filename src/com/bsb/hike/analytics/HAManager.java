@@ -12,6 +12,7 @@ import java.util.Random;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -637,6 +638,40 @@ public class HAManager
 		fgSessionInstance.setConvType(convType);
 	}
 	
+	
+	public void chatHeadshareAnalytics(String eventKey, String... strings)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.ChatHeadEvents.STICKER_WDGT);
+			if (strings.length >= 1)
+			{
+				metadata.put(HikeConstants.ChatHead.APP_NAME, strings[0]);
+			}
+			if (strings.length >= 2)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.CAT_ID, strings[1]);
+			}
+			if (strings.length >= 3)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.STICKER_ID, strings[2]);
+			}
+			if (strings.length >= 4)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.SOURCE, strings[3]);
+			}
+			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+	
+	
 	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
 	{
 		JSONObject metadata = new JSONObject();
@@ -921,7 +956,7 @@ public class HAManager
 	/**
 	 * Used for logging DevEvent related to error/invalid state of the app.
 	 */
-	public static void logDevEvent(String productArea, String devArea, JSONObject info)
+	public void logDevEvent(String productArea, String devArea, JSONObject info)
 	{
 		JSONObject metadata = new JSONObject();
 		try 
