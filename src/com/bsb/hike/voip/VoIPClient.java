@@ -897,7 +897,7 @@ public class VoIPClient  {
 
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
 				if (!isInitiator() && !reconnecting) {
-					VoIPUtils.sendMissedCallNotificationToPartner(VoIPClient.this);
+					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber());
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
 				stop();					
@@ -1245,8 +1245,8 @@ public class VoIPClient  {
 						if (dataPacket.getData() != null) {
 							try {
 								remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
-//								if (remotePacketsReceivedPerSecond < 12)
-//									Logger.w(logTag, "Remote client is not receiving enough data. Packets/sec: " + remotePacketsReceivedPerSecond);
+								if (remotePacketsReceivedPerSecond < 12)
+									Logger.w(tag, "Remote client is not receiving enough data. Packets/sec: " + remotePacketsReceivedPerSecond);
 							} catch (BufferUnderflowException e) {
 								remotePacketsReceivedPerSecond = 0;
 							}
