@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
@@ -365,7 +366,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		WebMetadata metadata = MessagingBotBridgeHelper.updateMetadata(Integer.parseInt(messageId), json);
 		if(metadata!=null)
 		{
-			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), Boolean.valueOf(notifyScreen) ? 1 : 0,  metadata);
+			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), new Pair<WebMetadata, String>(metadata, notifyScreen));
 		}
 	}
 	
@@ -487,11 +488,12 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		switch (msg.what)
 		{
 		case UPDATE_METDATA:
+			Pair<WebMetadata, String> obj = (Pair<WebMetadata, String>) msg.obj;
 			if(msg.arg1 == message.getMsgID())
 			{
-				updateMetadata((WebMetadata) msg.obj, msg.arg2 == 1 ? "true" : "");
+				updateMetadata(obj.first, obj.second);
 			}else{
-				metadataMap.put(msg.arg1, (WebMetadata) msg.obj);
+				metadataMap.put(msg.arg1, obj.first);
 				Logger.e(tag, "update metadata called but message id is different, called with "+msg.arg1 + " and current is "+message.getMsgID());
 			}
 			break;

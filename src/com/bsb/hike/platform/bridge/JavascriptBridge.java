@@ -114,20 +114,14 @@ public abstract class JavascriptBridge
 	
 	protected void sendMessageToUiThread(int what,Object data)
 	{
-		sendMessageToUiThread(what, 0,0, data);
-	}
-
-	protected void sendMessageToUiThread(int what,int arg1, Object data)
-	{
-		sendMessageToUiThread(what, arg1, 0, data);
+		sendMessageToUiThread(what, 0, data);
 	}
 	
-	protected void sendMessageToUiThread(int what, int arg1, int arg2, Object data)
+	protected void sendMessageToUiThread(int what, int arg1, Object data)
 	{
 		Message msg = Message.obtain(); 
 		msg.what = what;
 		msg.arg1 = arg1;
-		msg.arg2 = arg2;
 		msg.obj = data;
 		mHandler.sendMessage(msg);
 	}
