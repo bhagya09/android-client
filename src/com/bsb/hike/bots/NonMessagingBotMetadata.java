@@ -18,6 +18,7 @@ public class NonMessagingBotMetadata
 	String appName;
 	JSONObject cardObj;
 	String appPackage;
+	private int unReadCountShowType;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -67,6 +68,7 @@ public class NonMessagingBotMetadata
 				setAppPackage(cardObj.optString(HikePlatformConstants.APP_PACKAGE));
 			}
 		}
+		this.unReadCountShowType = json.optInt(BotUtils.UNREAD_COUNT_SHOW_TYPE, BotUtils.SHOW_UNREAD_COUNT_ACTUAL);
 	}
 
 	public String getAppName()
@@ -113,6 +115,11 @@ public class NonMessagingBotMetadata
 	public List<OverFlowMenuItem> getOverflowItems()
 	{
 		return null;
+	}
+	
+	public int getUnreadCountShowType()
+	{
+		return unReadCountShowType;
 	}
 
 }

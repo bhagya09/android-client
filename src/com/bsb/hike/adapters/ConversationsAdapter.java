@@ -41,7 +41,7 @@ import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -95,7 +95,11 @@ public class ConversationsAdapter extends BaseAdapter
 	private boolean isSearchModeOn = false;
 	
 	private FilterListener searchFilterListener;
-
+	
+	public static String removeBotMsisdn = null;
+	
+	private static int botAnimationStartTime = 0;
+	
 	private enum ViewType
 	{
 		CONVERSATION
@@ -178,6 +182,77 @@ public class ConversationsAdapter extends BaseAdapter
 	{
 		return completeList;
 	}
+	private void removeConversation(ConvInfo convInfo)
+	{
+		remove(convInfo);
+		BotUtils.deleteBotConversation(convInfo.getMsisdn(), false);
+		notifyDataSetChanged();
+	}
+	
+	private Animation getAnimation(ConvInfo convInfo)
+	{  
+		Animation animation = null;
+		if (removeBotMsisdn != null && removeBotMsisdn.equals(convInfo.getMsisdn()))
+		{
+			if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
+			{   
+				animation = getSlideOutAnimation(convInfo);
+				animation.setDuration(500);
+			}
+			else
+			{
+				removeConversation(convInfo);
+			}
+			removeBotMsisdn = null;
+		}
+		else
+		{
+			switch (BotUtils.getBotAnimaionType(convInfo))
+			{
+			case BotUtils.BOT_SLIDE_IN_ANIMATION:
+				animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_from_left);
+				animation.setStartOffset(botAnimationStartTime*250);
+				animation.setDuration(400);
+				botAnimationStartTime++;
+				break;
+			case BotUtils.BOT_READ_SLIDE_OUT_ANIMATION:
+				animation = getSlideOutAnimation(convInfo);
+				animation.setDuration(500);
+				break;
+			}
+
+		}
+		return animation;
+	}
+
+	private Animation getSlideOutAnimation(final ConvInfo convInfo)
+	{
+		Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_out_left);
+		animation.setAnimationListener(new AnimationListener()
+		{
+
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				removeConversation(convInfo);
+			}
+		});
+        return animation;
+	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
@@ -216,7 +291,7 @@ public class ConversationsAdapter extends BaseAdapter
 		viewHolder.msisdn = convInfo.getMsisdn();
 
 		updateViewsRelatedToName(v, convInfo);
-
+		
 		if (itemToBeAnimated(convInfo))
 		{	
 			Animation animation = AnimationUtils.loadAnimation(context,
@@ -256,6 +331,16 @@ public class ConversationsAdapter extends BaseAdapter
 		updateViewsRelatedToAvatar(v, convInfo);
 
 		updateViewsRelatedToMute(v, convInfo);
+
+		Animation botAnimation = getAnimation(convInfo);
+		if ( botAnimation!= null)
+		{ 
+			v.startAnimation(botAnimation);
+		}
+		if (position == (completeList.size()-1))
+		{
+			botAnimationStartTime = 0;
+		}
 		
 		return v;
 	}
@@ -745,7 +830,7 @@ public class ConversationsAdapter extends BaseAdapter
 		if (!isNuxLocked && (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY ||
 				message.getParticipantInfoState() == ParticipantInfoState.VOIP_MISSED_CALL_INCOMING ||
 						message.getParticipantInfoState() == ParticipantInfoState.VOIP_MISSED_CALL_OUTGOING))
-		{
+		{ 
 			String messageText = null;
 			int imageId = R.drawable.ic_voip_conv_miss;
 			if (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY)
@@ -776,9 +861,9 @@ public class ConversationsAdapter extends BaseAdapter
 			messageView.setText(messageText);
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
-				unreadIndicator.setVisibility(View.VISIBLE);
-				unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-				unreadIndicator.setText(convInfo.getUnreadCountString());
+					unreadIndicator.setVisibility(View.VISIBLE);
+					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
+					unreadIndicator.setText(convInfo.getUnreadCountString());
 			}
 
 			imgStatus.setImageResource(imageId);
@@ -793,7 +878,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 */
 		else if (message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
 		{
-			
+
 			if (message.isSent())
 			{
 				imgStatus.setImageResource(message.getImageState());
@@ -802,17 +887,19 @@ public class ConversationsAdapter extends BaseAdapter
 
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
-				unreadIndicator.setVisibility(View.VISIBLE);
+				
+					unreadIndicator.setVisibility(View.VISIBLE);
 
-				unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
+					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
 
-				unreadIndicator.setText(convInfo.getUnreadCountString());
+					unreadIndicator.setText(convInfo.getUnreadCountString());
+				
 			}
 			if(isNuxLocked)
 			{ 
 				imgStatus.setVisibility(View.VISIBLE);
 				imgStatus.setImageBitmap(NUXManager.getInstance().getNuxChatRewardPojo().getPendingChatIcon());
-				messageView.setText(NUXManager.getInstance().getNuxChatRewardPojo().getChatWaitingText());		
+				messageView.setText(NUXManager.getInstance().getNuxChatRewardPojo().getChatWaitingText());	
 			}
 			
 			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
