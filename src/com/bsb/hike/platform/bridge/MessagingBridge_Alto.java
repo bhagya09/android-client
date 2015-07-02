@@ -2,17 +2,21 @@ package com.bsb.hike.platform.bridge;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * This class was introduced to cater platform bridge Platform Bridge Version 1 onwards. We have introduced message id and platform Platform Bridge Version concept here.
@@ -470,6 +474,15 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		default:
 			super.handleUiMessage(msg);
 		}
+	}
+	
+	@JavascriptInterface
+	public void botToBeDeleted()
+	{
+		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
+		Activity context = weakActivity.get();
+		ConversationsAdapter.removeBotMsisdn = message.getMsisdn();
+        context.finish();
 	}
 
 }

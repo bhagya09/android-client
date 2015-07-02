@@ -6887,6 +6887,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(IS_MUTE, newMuteState ? 1 : 0);
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}
+	
+	public void updateBotConfiguration(String botMsisdn, int configuration)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(BOT_CONFIGURATION, configuration);
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+	}
 
 	/**
 	 * Calling this function will update the notif data. The notif data is a JSON Object to enable the app to have
