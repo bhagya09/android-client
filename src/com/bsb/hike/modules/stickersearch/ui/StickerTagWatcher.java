@@ -112,20 +112,26 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		
 		Logger.d(TAG, " on show sticker popup is called " + stickerList);
 
-		fragment = activity.getSupportFragmentManager().findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
-
-		if (fragment == null)
+		if(stickerRecommendView == null)
 		{
-			Logger.d(StickerTagWatcher.TAG, "sticker recommnd fragment is null");
 			stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
 			android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
 			params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
 			stickerRecommendView.setLayoutParams(params);
 			stickerRecommendView.setOnTouchListener(onTouchListener);
-			fragment = StickerRecommendationFragment.newInstance(this, (ArrayList<Sticker>) stickerList);
-			activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
-					.commitAllowingStateLoss();
+			
+			fragment = activity.getSupportFragmentManager().findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
+			
+			if (fragment == null)
+			{
+				Logger.d(StickerTagWatcher.TAG, "sticker recommnd fragment is null");
+				
+				fragment = StickerRecommendationFragment.newInstance(this, (ArrayList<Sticker>) stickerList);
+				activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
+						.commitAllowingStateLoss();
+			}
 		}
+		
 		((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
 		stickerRecommendView.setVisibility(View.VISIBLE);
 		showFtueAnimation();
@@ -217,9 +223,10 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public void releaseResources()
 	{
-		if(activity != null && fragment != null)
+		if (activity != null && fragment != null)
 		{
 			activity.getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+			activity.getSupportFragmentManager().executePendingTransactions();
 		}
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
