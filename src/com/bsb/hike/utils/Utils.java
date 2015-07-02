@@ -6028,4 +6028,36 @@ public class Utils
         }
         return null;
     }
+    
+    /**
+     * Compares if two Sets are identical or not
+     * @param first Set
+     * @param second Set
+     * @return true if Sets are identical, false otherwise
+     */
+    public static boolean areIdenticalSets(Set<String> first, Set<String> second) 
+    {
+    	// if size of the Sets itself is not equal, return false 
+    	if ( first.size() != second.size()) 
+    	{
+    		return false;
+    	}
+    	Iterator<String> itr = first.iterator();
+
+    	// compare item by item over the Sets
+    	while (itr.hasNext())
+    	{
+    		String item = (String) itr.next();
+
+    		if (second.contains(item))
+    		{
+    			continue;
+    		} 
+    		else 
+    		{
+    			return false;
+    		}
+    	}
+    	return true;
+    }
 }
