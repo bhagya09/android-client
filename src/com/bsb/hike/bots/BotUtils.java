@@ -453,7 +453,7 @@ public class BotUtils
 			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
 			return BOT_SLIDE_IN_ANIMATION;
 		}
-		else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
+		else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() != ConvMessage.State.RECEIVED_UNREAD)
 		{
 			return BOT_READ_SLIDE_OUT_ANIMATION;
 		}
@@ -473,7 +473,7 @@ public class BotUtils
 			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
 			return BOT_SLIDE_IN_ANIMATION;
 		}
-		else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
+		else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() != ConvMessage.State.RECEIVED_UNREAD)
 		{
 			return BOT_READ_SLIDE_OUT_ANIMATION;
 		}
