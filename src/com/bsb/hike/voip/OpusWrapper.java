@@ -34,6 +34,7 @@ public class OpusWrapper {
 	private native long opus_decoder_create(int samplingRate, int channels, int errors);
 	private native void opus_decoder_destroy(long decoder);
 	private native int opus_decode(long decoder, byte[] stream, int length, byte[] output, int frameSize, int decodeFEC);
+	private native int opus_plc(long decoder, byte[] output, int frameSize);
 	
 	private Object encoderLock = new Object();
 	private Object decoderLock = new Object();
@@ -137,7 +138,7 @@ public class OpusWrapper {
 		}
 	}
 	
-	public int plc(byte[] input, byte[] output) throws Exception {
+	public int plc(byte[] output) throws Exception {
 		synchronized (decoderLock) {
 			if (decoder == 0)
 				throw new Exception("No decoder created.");
@@ -145,7 +146,7 @@ public class OpusWrapper {
 			if (output == null)
 				return 0;
 
-			return opus_decode(decoder, null, 0, output, output.length / 2, 1);
+			return opus_plc(decoder, output, output.length / 2);
 		}
 	}
 	

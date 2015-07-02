@@ -7,6 +7,7 @@ public class VoIPConstants {
 	// Relay and ICE server 
 	public static final String ICEServerName = "relay.hike.in";
 	public static final int ICEServerPort = 9999;
+	final static String[] ICEServerIpAddresses = {"52.74.88.97", "52.74.113.80"};
 
 	public static final int AUDIO_SAMPLE_RATE = 48000; 
 	public static final int MAX_SAMPLES_BUFFER = 3;
@@ -26,6 +27,8 @@ public class VoIPConstants {
 	 * Maximum size of a group to launch a conference call directly
 	 */
 	public static final int MAXIMUM_GROUP_CHAT_SIZE = 10;
+	
+	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions
 	public static final String PARTNER_REQUIRES_UPGRADE = "pru";

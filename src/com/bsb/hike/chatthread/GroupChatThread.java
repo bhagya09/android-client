@@ -264,6 +264,8 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
 		switch (item.id)
 		{
 		case R.string.voip_call_chat:
@@ -296,8 +298,6 @@ public class GroupChatThread extends OneToNChatThread
 			showThemePicker(R.string.chat_theme_tip_group);
 			break;
 		default:
-			Logger.d(TAG, "Calling super Class' itemClicked");
-			super.itemClicked(item);
 		}
 	}
 	
