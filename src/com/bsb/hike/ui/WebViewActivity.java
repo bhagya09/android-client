@@ -31,10 +31,12 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -118,7 +120,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState)
 	{
 
-		super.onCreate(savedInstanceState);
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */
@@ -147,6 +148,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				return;
 			}
 		}
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
@@ -269,7 +271,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 			if (botConfig.shouldOverlayActionBar())
 			{
+				//To remove the gap since action bar should overlay the view now 
+				RelativeLayout rl=(RelativeLayout)findViewById(R.id.webview_layout);
+				FrameLayout.LayoutParams fp=(FrameLayout.LayoutParams)rl.getLayoutParams();
+				fp.setMargins(0, 0, 0, 0);
+				rl.setLayoutParams(fp);
 				layoutParams.height = (int) getResources().getDimension(R.dimen.st__action_bar_default_height);
+				
 			}
 
 			else

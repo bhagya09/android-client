@@ -223,7 +223,9 @@
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:exported="true" >
+            android:exported="true" 
+            android:theme="@style/AppTheme.Overlay" 
+            >
         </activity>
         <activity
             android:name=".ui.ShareLocation"
