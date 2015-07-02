@@ -35,7 +35,6 @@ public class VoIPConstants {
 	public static final String PARTNER_INCOMPATIBLE = "pi";
 	public static final String PARTNER_IN_CALL = "incall";
 	public static final String PARTNER_HAS_BLOCKED_YOU = "blocked";
-	public static final String INCOMING_NATIVE_CALL_HOLD = "hold";
 	
 	// Default bitrates
 	public static final int BITRATE_2G = 12000;

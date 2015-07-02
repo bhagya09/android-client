@@ -351,27 +351,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				voipService.stop();
 			}
 		}
-		
-		if (action.equals(VoIPConstants.INCOMING_NATIVE_CALL_HOLD) && voipService != null) 
-		{
-			if (VoIPService.getCallId() > 0) 
-			{
-				if(voipService.isAudioRunning())
-				{
-					showMessage(getString(R.string.voip_call_on_hold));
-					voipService.setHold(true);
-					voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-				}
-				else
-				{
-					voipService.hangUp();
-				}
-			}
-			else
-			{
-				voipService.stop();
-			}
-		}
 	}
 
 	private void shutdown(final Bundle bundle) 

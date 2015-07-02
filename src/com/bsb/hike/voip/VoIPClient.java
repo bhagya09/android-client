@@ -1245,8 +1245,8 @@ public class VoIPClient  {
 						if (dataPacket.getData() != null) {
 							try {
 								remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
-//								if (remotePacketsReceivedPerSecond < 12)
-//									Logger.w(logTag, "Remote client is not receiving enough data. Packets/sec: " + remotePacketsReceivedPerSecond);
+								if (remotePacketsReceivedPerSecond < 12)
+									Logger.w(tag, "Remote client is not receiving enough data. Packets/sec: " + remotePacketsReceivedPerSecond);
 							} catch (BufferUnderflowException e) {
 								remotePacketsReceivedPerSecond = 0;
 							}

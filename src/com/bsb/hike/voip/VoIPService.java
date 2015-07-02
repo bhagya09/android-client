@@ -17,8 +17,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -40,6 +42,7 @@ import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
 
@@ -135,6 +138,9 @@ public class VoIPService extends Service {
 	// Runnable for sending clients list to all clients
 	private Runnable clientListRunnable = null;
 	private Handler clientListHandler;
+	
+	// Boradcast listener for phone calls
+	private BroadcastReceiver phoneStateReceiver = null;
 	
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
@@ -299,6 +305,8 @@ public class VoIPService extends Service {
 			bluetoothHelper = new BluetoothHelper(getApplicationContext());
 			bluetoothHelper.start();
 		}
+		
+		registerPhoneStateBroadcastReceiver();
 	}
 	
 	@Override
@@ -306,6 +314,7 @@ public class VoIPService extends Service {
 		super.onDestroy();
 		stop();
 		dismissNotification();
+		unregisterPhoneStateBroadcastReceiver();
 		
 		if (bluetoothHelper != null)
 			bluetoothHelper.stop();
@@ -1977,7 +1986,38 @@ public class VoIPService extends Service {
 		clientListHandler = new Handler();
 		clientListHandler.postDelayed(clientListRunnable, 250);
 	}
+
+	private void registerPhoneStateBroadcastReceiver() {
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("android.intent.action.PHONE_STATE");
+
+		phoneStateReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+				if (TelephonyManager.EXTRA_STATE_RINGING.equals(state)) {
+					// We have an incoming call
+					Logger.w(tag, "Incoming call detected.");
+					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
+					setHold(true);
+				}
+				
+				if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
+					// Coming off a call
+					Logger.w(tag, "Call over.");
+					setHold(false);
+				}
+			}
+		};
+		
+		registerReceiver(phoneStateReceiver, filter);
+	}
 	
+	private void unregisterPhoneStateBroadcastReceiver() {
+		if (phoneStateReceiver != null)
+			unregisterReceiver(phoneStateReceiver);
+	}
 	
 }
 
