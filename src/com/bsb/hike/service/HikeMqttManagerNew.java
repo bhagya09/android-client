@@ -54,6 +54,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HostInfo;
 import com.bsb.hike.HostInfo.ConnectExceptions;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -1127,7 +1128,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private void handleMqttException(MqttException e, boolean reConnect)
 	{
-		Logger.i(TAG, "entered handleMqttException method " );
+		Logger.i(TAG, "entered handleMqttException method "+ e.getReasonCode());
 		switch (e.getReasonCode())
 		{
 		case MqttException.REASON_CODE_BROKER_UNAVAILABLE:
@@ -1163,9 +1164,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if (e.getCause() != null)
 			{
 				Logger.e(TAG, "Exception : " + e.getCause().getMessage());
+				
+				String analyticsDevArea = MqttConstants.EXCEPTION_DEV_AREA + "_" + e.getReasonCode();;
 				if (e.getCause() instanceof UnknownHostException)
 				{
 					handleDNSException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
 				}
 				// we are getting this exception in one phone in which message is "Host is unresolved"
 				else if (e.getCause() instanceof SocketException)
@@ -1173,20 +1177,34 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					if (e.getCause().getMessage() != null && e.getCause().getMessage().indexOf(UNRESOLVED_EXCEPTION) != -1)
 					{
 						handleDNSException();
+						sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
+					}
+					else
+					{
+						sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
 					}
 				}
 				else if (e.getCause() instanceof SocketTimeoutException)
 				{
 					handleSocketTimeOutException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "1" );
 				}
 				// added this exception for safety , we might also get this exception in some phones
 				else if (e.getCause() instanceof UnresolvedAddressException)
 				{
 					handleDNSException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
 				}
 				// Till this point disconnect has already happened due to exception (This is as per lib)
 				else if (reConnect)
+				{
 					connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+				}
+				else
+				{
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+				}
 			}
 			else
 			{
@@ -1198,6 +1216,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			if (reConnect)
 				connectOnMqttThread();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_CLIENT_TIMEOUT:
 			// Till this point disconnect has already happened. This could happen in PING or other TIMEOUT happen such as CONNECT, DISCONNECT
@@ -1215,9 +1234,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		case MqttException.REASON_CODE_FAILED_AUTHENTICATION:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_INVALID_CLIENT_ID:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_INVALID_MESSAGE:
 			// simply ignore as message is invalid
@@ -1225,39 +1246,80 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		case MqttException.REASON_CODE_INVALID_PROTOCOL_VERSION:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_MAX_INFLIGHT:
 			Logger.e(TAG, "There are already to many messages in publish. Exception : " + e.getMessage());
 			break;
 		case MqttException.REASON_CODE_NO_MESSAGE_IDS_AVAILABLE:
 			// simply ignore as message is invalid due to no msgIds
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_NOT_AUTHORIZED:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_SERVER_CONNECT_ERROR:
 			scheduleNextConnectionCheck(getConnRetryTime());
 			break;
 		case MqttException.REASON_CODE_SOCKET_FACTORY_MISMATCH:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_SSL_CONFIG_ERROR:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_TOKEN_INUSE:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_UNEXPECTED_ERROR:
 			// This could happen while reading or writing error on a socket, hence disconnection happens
 			scheduleNextConnectionCheck(getConnRetryTime());
+			sendAnalyticsEvent(e);
 			break;
 		default:
 			Logger.e(TAG, "In Default : " + e.getMessage());
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			connectOnMqttThread(getConnRetryTime());
+			sendAnalyticsEvent(e, MqttConstants.EXCEPTION_DEFAULT);
 			break;
 		}
 		e.printStackTrace();
+	}
+	
+	private void sendAnalyticsEvent(MqttException e)
+	{
+		sendAnalyticsEvent(e, null);
+	}
+	
+	private void sendAnalyticsEvent(MqttException e, String devArea)
+	{
+		//if server switch is off
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CONN_PROD_AREA_LOGGING, false))
+		{
+			return;
+		}
+		
+		JSONObject infoJson = new JSONObject();
+		try 
+		{
+			infoJson.put(AnalyticsConstants.ERROR_TRACE, Utils.getStackTrace(e));
+			infoJson.put(AnalyticsConstants.REASON_CODE, e.getReasonCode());
+		
+			//eg. dev area for REASON_CODE_CLIENT_EXCEPTION is exception_0.
+			if(TextUtils.isEmpty(devArea))
+			{
+				devArea = MqttConstants.EXCEPTION_DEV_AREA + "_" + e.getReasonCode();
+			}
+			
+			HAManager.getInstance().logDevEvent(MqttConstants.CONNECTION_PROD_AREA, devArea, infoJson);
+		} 
+		catch (JSONException jsonEx) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",jsonEx);
+		}
 	}
 
 	private void handleSocketTimeOutException()
