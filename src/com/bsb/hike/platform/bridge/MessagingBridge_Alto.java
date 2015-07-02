@@ -476,13 +476,18 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		}
 	}
 	
+	
+	/**
+	 * Platform Version 2 called by the special packet sent in the bot to delete the conversation of the particular bot
+	 */
 	@JavascriptInterface
-	public void botToBeDeleted()
+	public void deleteBotConversation()
 	{
 		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
 		Activity context = weakActivity.get();
 		ConversationsAdapter.removeBotMsisdn = message.getMsisdn();
-        context.finish();
+		Intent intent = Utils.getHomeActivityIntent(context);
+		context.startActivity(intent);
 	}
 
 }
