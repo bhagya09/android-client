@@ -417,7 +417,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	/**
 	 * Platform Bridge Version 1
 	 * Call this function to delete partial notif data pertaining to a microApp. The key is the timestamp provided by Native
-	 * @param key
+	 * @param key: the key of the saved data. Will remain unique for a unique microApp.
 	 */
 	@JavascriptInterface
 	public void deletePartialNotifData(String key)
@@ -499,14 +499,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
 			}
 			break;
-
-		case OPEN_FULL_PAGE:
-			if (mCallback != null)
-			{
-				mCallback.openFullPage((String) msg.obj);
-			}
-			break;
-
 		default:
 			super.handleUiMessage(msg);
 		}
@@ -599,8 +591,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
-	 * Platform bridge Version 1 Call this function to open a full page webView within hike.
-	 * 
+	 * Platform bridge Version 2
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, and js injected to remove unwanted features from the full page.
 	 * @param title
 	 *            : the title on the action bar.
 	 * @param url
@@ -621,7 +614,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
-	 * Platform bridge Version 1 Call this function to open a full page webView within hike.
+	 * Platform bridge Version 1
+	 * Call this function to open a full page webView within hike.
 	 * 
 	 * @param url
 	 *            : the url that will be loaded.
@@ -638,7 +632,27 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
 		Activity context = weakActivity.get();
 		ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
-	    context.finish();
+		context.finish();
+	}
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to delete the entire caching related to the namespace of the bot.
+	 */
+	@JavascriptInterface
+	public void deleteAllCacheData()
+	{
+		HikeContentDatabase.getInstance().deleteAllMicroAppCacheData(mBotInfo.getNamespace());
+	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * Call this function to delete partial cached data pertaining to the namespace of the bot, The key is  provided by Javascript
+	 * @param key: the key of the saved data. Will remain unique for a unique microApp.
+	 */
+	@JavascriptInterface
+	public void deletePartialCacheData(String key)
+	{
+		HikeContentDatabase.getInstance().deletePartialMicroAppCacheData(key, mBotInfo.getNamespace());
 	}
 
 }

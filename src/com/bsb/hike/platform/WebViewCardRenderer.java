@@ -382,7 +382,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			platformJSON.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_LOADED);
 			platformJSON.put(HikePlatformConstants.CARD_STATE, state);
 			platformJSON.put(AnalyticsConstants.CONTENT_ID, message.getContentId());
-			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, platformJSON);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, platformJSON);
 		}
 		catch (JSONException e)
 		{

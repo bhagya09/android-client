@@ -132,6 +132,8 @@ public interface HikePlatformConstants
 	public static final String SILENT_PUSH = "silent";
 
 	public static final String LOUD_PUSH = "loud";
+	
+	public static final String FILE_DESCRIPTOR = "file:///";
 
 	public static final String  NO_PUSH = "none";
 	
