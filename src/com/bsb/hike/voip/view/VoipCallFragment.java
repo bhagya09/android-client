@@ -127,6 +127,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				isCallActive = true;
 				updateCallStatus();
 				activateActiveCallButtons();
+				initProximityWakelock();
 				break;
 			case VoIPConstants.MSG_CONNECTION_FAILURE:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
@@ -663,6 +664,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case INCOMING_CALL:
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_incoming));
+				releaseProximityWakelock();
 				break;
 
 			case PARTNER_BUSY:
