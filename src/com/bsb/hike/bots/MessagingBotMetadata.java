@@ -1,6 +1,7 @@
 package com.bsb.hike.bots;
 
 import com.bsb.hike.HikeConstants;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,8 +14,8 @@ public class MessagingBotMetadata
 
 	boolean isReceiveEnabled;
 	
-	private int unReadCountShowType;
-
+	private String unReadCountShowType;
+	
 	public MessagingBotMetadata(String metadata)
 	{
 		try
@@ -52,7 +53,26 @@ public class MessagingBotMetadata
 
 		this.isReceiveEnabled = json.optBoolean(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT, true);
 		
-		this.unReadCountShowType = json.optInt(BotUtils.UNREAD_COUNT_SHOW_TYPE, BotUtils.SHOW_UNREAD_COUNT_ACTUAL);
+		setUnreadCountShowType();
+		
+	}
+
+	private void setUnreadCountShowType()
+	{
+		try 
+		{
+			this.unReadCountShowType = json.optString(BotUtils.UNREAD_COUNT_SHOW_TYPE, BotUtils.SHOW_UNREAD_COUNT_ACTUAL);
+			int unReadCountType = Integer.parseInt(this.unReadCountShowType);
+			if (unReadCountType < 0)
+			{
+				this.unReadCountShowType = BotUtils.SHOW_UNREAD_COUNT_ACTUAL;
+			}
+			
+		}
+		catch(NumberFormatException e)
+		{
+		   e.printStackTrace();	
+		}
 	}
 
 	public boolean isReceiveEnabled()
@@ -71,7 +91,7 @@ public class MessagingBotMetadata
 		return json.toString();
 	}
 	
-	public int getUnreadCountShowType()
+	public String getUnreadCountShowType()
 	{
 		return unReadCountShowType;
 	}
