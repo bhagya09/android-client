@@ -257,6 +257,10 @@ public class ConversationsAdapter extends BaseAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
+		if(listView.getLastVisiblePosition() == -1)
+		{
+			botAnimationStartTime = 0;
+		}
 		final ConvInfo convInfo = getItem(position);
 
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
@@ -336,12 +340,7 @@ public class ConversationsAdapter extends BaseAdapter
 		if ( botAnimation!= null)
 		{ 
 			v.startAnimation(botAnimation);
-		}
-		if (position == (completeList.size()-1))
-		{
-			botAnimationStartTime = 0;
-		}
-		
+		}	
 		return v;
 	}
 
