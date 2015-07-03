@@ -25,7 +25,7 @@ public class StickerRecommendationFragment extends SherlockFragment
 {
 	private StickerRecomendationAdapter mAdapter;
 
-	private IStickerRecommendFragmentListener listener;
+	private static IStickerRecommendFragmentListener listener;
 
 	private List<Sticker> stickerList;
 
@@ -35,14 +35,10 @@ public class StickerRecommendationFragment extends SherlockFragment
 	
 	private int MIN_STICKER_LIST_SIZE_FOR_SCROLL, SCROLL_TO_POSITION;
 	
-	private StickerRecommendationFragment(IStickerRecommendFragmentListener listner)
+	public static StickerRecommendationFragment newInstance(IStickerRecommendFragmentListener lIStickerRecommendFragmentListener, ArrayList<Sticker> stickerList)
 	{
-		this.listener = listner;
-	}
-
-	public static StickerRecommendationFragment newInstance(IStickerRecommendFragmentListener listener, ArrayList<Sticker> stickerList)
-	{
-		StickerRecommendationFragment fragment = new StickerRecommendationFragment(listener);
+		StickerRecommendationFragment fragment = new StickerRecommendationFragment();
+		listener = lIStickerRecommendFragmentListener;
 		Bundle args = new Bundle();
 		args.putParcelableArrayList(HikeConstants.LIST, stickerList);
 		fragment.setArguments(args);

@@ -299,7 +299,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP }, sharedPreference);
 		mTips.showTip();
 	}
 
@@ -457,6 +457,20 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return true;
 		}
 		return false;
+	}
+	
+	protected void removeFromUndeliverdMessages(ConvMessage msg)
+	{
+		if(msg != null)
+		{
+			sendUIMessage(REMOVE_UNDELIVERED_MESSAGES, msg);
+		}
+		else
+		{
+			uiHandler.sendEmptyMessage(REMOVE_UNDELIVERED_MESSAGES);
+		}
+		
+		super.removeFromUndeliverdMessages(msg);
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip.TipType;
 
@@ -44,6 +45,8 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	public static final int PIN_TIP = 4;
 
 	public static final int STICKER_TIP = 5;
+	
+	public static final int STICKER_RECOMMEND_TIP = 6;
 
 	/**
 	 * Class members
@@ -155,6 +158,21 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			setupStickerFTUETip();
 		}
 	}
+	
+	/**
+	 * Utility method to show sticker recommend tip
+	 */
+	public void showStickerRecommendFtueTip()
+	{
+		/**
+		 * Proceed only if the calling class had passed in the StickerTip in the list
+		 */
+		if (filterTips(STICKER_RECOMMEND_TIP))
+		{
+			tipId = STICKER_RECOMMEND_TIP;
+			setupStickerRecommendFTUETip();
+		}
+	}
 
 	/**
 	 * Utility method to show the Pin FTUE tip. If any other tip is showing, pin tip takes priority over it.
@@ -223,6 +241,44 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 		};
 	}	
 	
+	/**
+	 * Used to set up sticker recommend ftue views
+	 */
+	private void setupStickerRecommendFTUETip()
+	{
+		ViewStub stickerRecommendFtue = (ViewStub) mainView.findViewById(R.id.sticker_recommendation_tip);
+		
+		if(stickerRecommendFtue != null)
+		{
+			stickerRecommendFtue.setOnInflateListener(new ViewStub.OnInflateListener()
+			{
+
+				@Override
+				public void onInflate(ViewStub stub, View inflated)
+				{
+					tipView = inflated;
+					bindStickerRecommentFtueTipView();
+				}
+			});
+			
+			stickerRecommendFtue.inflate();
+		}
+	}
+	
+	private void bindStickerRecommentFtueTipView()
+	{
+		ImageView close  = (RecyclingImageView) mainView.findViewById(R.id.sticker_recommend_ftue_close);
+		close.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				setTipSeen(STICKER_RECOMMEND_TIP);
+			}
+		});
+	}
+	
 	private boolean filterTips(int whichTip)
 	{
 		return isPresentInArray(whichTip) && !(seenTip(whichTip));
@@ -242,6 +298,8 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			return mPrefs.getData(HikeMessengerApp.SHOWN_PIN_TIP, false);
 		case STICKER_TIP:
 			return mPrefs.getData(HikeMessengerApp.SHOWN_EMOTICON_TIP, false);
+		case STICKER_RECOMMEND_TIP:
+			return mPrefs.getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
 		default:
 			return false;
 		}
@@ -376,6 +434,15 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			if (mainView.findViewById(R.id.pulsatingDot) != null)  // Safety null check.
 			{
 				mainView.findViewById(R.id.pulsatingDot).setVisibility(View.GONE);
+			}
+			break;
+			
+		case STICKER_RECOMMEND_TIP:
+			mPrefs.saveData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, true);
+			closeTip();
+			if (mainView.findViewById(R.id.sticker_recommendation_tip) != null)  // Safety null check.
+			{
+				mainView.findViewById(R.id.sticker_recommendation_tip).setVisibility(View.GONE);
 			}
 			break;
 

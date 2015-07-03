@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import android.support.v4.util.Pair;
 import android.text.Editable;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
@@ -20,6 +21,7 @@ import com.bsb.hike.modules.stickersearch.tasks.StickerSearchSetupTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 public class StickerSearchManager
@@ -33,10 +35,13 @@ public class StickerSearchManager
 	private String currentString;
 
 	private int currentLength = 0;
+	
+	private boolean shownFtue;
 
 	private StickerSearchManager()
 	{
 		searchEngine = new StickerSearchEngine();
+		shownFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
 	}
 
 	public static StickerSearchManager getInstance()
@@ -132,6 +137,7 @@ public class StickerSearchManager
 			return;
 		}
 
+		// First word is being searched
 		int localLength = highlightArray[0][1] - highlightArray[0][0];
 		String preString = currentString.substring(0, highlightArray[0][0]);
 		if (currentLength <= (localLength + preString.length()) && preString.trim().length() == 0)
@@ -149,13 +155,13 @@ public class StickerSearchManager
 			return;
 		}
 
+		// More than one word may be possible being searched
 		listener.dismissStickerSearchPopup();
-
 		if (highlightArray[0][0] > 0)
 		{
 			listener.unHighlightText(0, highlightArray[0][0]);
 		}
-
+	
 		for (int i = 0, start, end; i < highlightArray.length && highlightArray[i] != null; i++)
 		{
 			start = highlightArray[i][0];
@@ -179,6 +185,17 @@ public class StickerSearchManager
 				listener.highlightText(start, currentLength);
 				break;
 			}
+		}
+		showStickerRecommendFtue(preString, highlightArray);
+	}
+	
+	private void showStickerRecommendFtue(String preString, int[][] highlightArray)
+	{
+		if(shownFtue || highlightArray == null || highlightArray.length == 0) return;
+		
+		if(highlightArray.length > 1 || preString.trim().length() > 0) 
+		{
+			listener.showStickerRecommendFtue();
 		}
 	}
 

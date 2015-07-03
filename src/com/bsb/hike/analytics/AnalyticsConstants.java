@@ -57,6 +57,10 @@ public class AnalyticsConstants
 	public static String NON_UI_EVENT = "nonUiEvent";
 
 	public static final String DEV_EVENT = "devEvent";
+	
+	public static final String DEV_AREA = "devArea";
+	
+	public static final String DEV_INFO = "info";
 
 	public static String CLICK_EVENT = "click";
 
@@ -356,5 +360,67 @@ public class AnalyticsConstants
 		public static final String STEALTH_HI_CLICK = "hiClk";
 		
 		public static final String STEALTH_PREFERENCE_CHANGE = "prefChng";
+	}
+	
+	public static final class ChatHeadEvents
+	{
+		public static final String INFOICON_WITHOUT_CLICK = "iWoC";
+		
+		public static final String STICKER_HEAD_DISMISS = "stkrHdDs";
+		
+		public static final String STICKER_SHARE = "stkrShr";
+		
+		public static final String STICKER_SHOP = "stkrShp";
+		
+		public static final String INFOICON_CLICK = "iClk";
+		
+		public static final String STICKER_HEAD = "stkrHd";
+		
+		public static final String SETTING = "stg";
+		
+		public static final String HIKE_STICKER_SETTING = "hkStkrStg";
+		
+		public static final String TEXT_CLICK_SETTING = "txtStg";
+		
+		public static final String DISABLE_SETTING = "dsbl";
+		
+		public static final String MORE_STICKERS = "mrStkr";
+		
+		public static final String OPEN_HIKE = "openHk";
+		
+		public static final String SNOOZE_TIME = "snz";
+		
+		public static final String MAIN_LAYOUT_CLICKS = "mLClk";
+		
+		public static final String ONE_HOUR = "oneHr";
+		
+		public static final String EIGHT_HOURS = "eghtHr";
+		
+		public static final String ONE_DAY = "oneDay";
+		
+		public static final String BACK = "bck";
+		
+		public static final String STICKER_WDGT = "stkrWgt";
+		
+		public static final String DISMISS_LIMIT = "dsLmt";
+
+		public static final String SHARE_LIMIT = "shrLmt";
+		
+		public static final String CAT_ID = "catId";
+
+		public static final String STICKER_ID = "stkrId";
+		
+		public static final String SOURCE = "s";
+		
+		public static final String SELECT_ALL = "sAClk";
+		
+		public static final String APP_CLICK = "aClk";
+
+		public static final String APP_CHECKED = "t";
+
+		public static final String APP_UNCHECKED = "f";
+
+		public static final String DISABLE_TEXT = "dsblTxt";
+
 	}
 }

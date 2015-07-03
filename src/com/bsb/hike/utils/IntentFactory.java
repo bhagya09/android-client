@@ -23,6 +23,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.chatHead.StickerShareSettings;
+import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -32,6 +34,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
@@ -146,7 +149,7 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, boolean whatsapp)
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName)
 	{
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType(mimeType);
@@ -155,9 +158,9 @@ public class IntentFactory
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		if (whatsapp)
+		if (pkgName != null)
 		{
-			intent.setPackage(HikeConstants.Extras.WHATSAPP_PACKAGE);
+			intent.setPackage(pkgName);
 		}
 		if (type != HikeConstants.Extras.ShareTypes.TEXT_SHARE)
 		{
@@ -181,6 +184,13 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
+	
+	public static void openSettingStickerOnOtherApp(Context context)
+	{
+		Intent intent = new Intent(context, StickerShareSettings.class);
+		context.startActivity(intent);
+	}
+	
 	public static void openSettingHelp(Context context)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
@@ -296,6 +306,30 @@ public class IntentFactory
 
 		return intent;
 	}
+	
+	public static Intent getStickerShareWebViewActivityIntent(Context context)
+	{
+		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
+		/*
+		 * New task flag is needed as we are opening our activity in another task outside hike existing task and clear task to remove existing activities of hike task so that user
+		 * can return from where he came to this task
+		 */
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
+				HttpRequestConstants.getMorestickersUrl() + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+		intent.putExtra(HikeConstants.Extras.TITLE, context.getString(R.string.more_stickers));
+
+		return intent;
+	}
+
+	public static Intent getStickerShareSettingsIntent(Context context)
+	{
+		Intent intent = new Intent(context, StickerShareSettings.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		return intent;
+	}
+	
 
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
@@ -587,7 +621,7 @@ public class IntentFactory
 		
 		if(croppedOutputDestination != null)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, false));
 		}
 		
 		if(destIntents.size()>0)
@@ -636,6 +670,16 @@ public class IntentFactory
 		{
 			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
+		context.startActivity(in);
+	}
+	
+	public static void openHomeActivityInOtherTask(Context context, boolean flag)
+	{
+		Intent in = new Intent(context, HomeActivity.class);
+		if (flag)
+		{
+			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		}		
 		context.startActivity(in);
 	}
 
@@ -727,6 +771,18 @@ public class IntentFactory
 	public static Intent getStickerShopIntent(Context context)
 	{
 		Intent intent = new Intent(context, StickerShopActivity.class);
+		
+		return intent;
+	}
+	public static Intent getStickerShopIntent(Context context, boolean flags)
+	{
+		Intent intent = new Intent(context, StickerShopActivity.class);
+		
+		if(flags)
+		{  /*New task flag is needed as we are opening our activity in another task outside hike existing task and clear task 
+		 to remove existing activities of hike task so that user can return from where he came to this task*/  
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		}
 		return intent;
 	}
 
@@ -750,6 +806,15 @@ public class IntentFactory
 		Intent intent = new Intent(context, VoIPService.class);
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putExtra(VoIPConstants.Extras.MSISDN, msisdn);
+		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		return intent;
+	}
+
+	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, VoIPUtils.CallSource source)
+	{
+		Intent intent = new Intent(context, VoIPService.class);
+		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
+		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
 		return intent;
 	}
@@ -849,4 +914,6 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		return intent;
 	}
+
+	
 }
