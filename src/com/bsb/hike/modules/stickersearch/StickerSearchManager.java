@@ -36,6 +36,8 @@ public class StickerSearchManager
 
 	private int currentLength = 0;
 	
+	private boolean isFirstPhraseOrWord = false;
+	
 	private boolean shownFtue;
 
 	private StickerSearchManager()
@@ -100,6 +102,7 @@ public class StickerSearchManager
 
 		CharSequence charSequence = result.first;
 		int highlightArray[][] = result.second;
+		isFirstPhraseOrWord = false;
 
 		HighlightAndShowStickerPopupTask highlightAndShowtask = new HighlightAndShowStickerPopupTask(charSequence, highlightArray);
 		searchEngine.runOnUiThread(highlightAndShowtask, 0);
@@ -153,6 +156,7 @@ public class StickerSearchManager
 				listener.highlightText(highlightArray[0][0], currentLength);
 				onClickToSendSticker(highlightArray[0][0]);
 			}
+			isFirstPhraseOrWord = true;
 			return;
 		}
 
@@ -244,5 +248,10 @@ public class StickerSearchManager
 	{
 		NewMessageReceivedTask newMessageReceivedTask = new NewMessageReceivedTask(prevText, sticker, nextText);
 		searchEngine.runOnQueryThread(newMessageReceivedTask);
+	}
+
+	public boolean getFirstContinuousMatchFound()
+	{
+		return isFirstPhraseOrWord;
 	}
 }
