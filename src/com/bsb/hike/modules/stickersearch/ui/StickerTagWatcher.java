@@ -35,7 +35,7 @@ import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.*;
 
 public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, OnTouchListener, IStickerRecommendFragmentListener
 {
-	public static final String TAG = "stickerSearch";
+	public static final String TAG = "stickerSearchUi";
 
 	private HikeAppStateBaseFragmentActivity activity;
 

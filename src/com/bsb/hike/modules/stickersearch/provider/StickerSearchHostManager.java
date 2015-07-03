@@ -8,9 +8,11 @@ package com.bsb.hike.modules.stickersearch.provider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Set;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -21,8 +23,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 import android.content.Context;
-import android.support.v4.util.Pair;
-import android.text.TextUtils;
+import android.util.Pair;
 
 public class StickerSearchHostManager
 {
@@ -121,63 +122,181 @@ public class StickerSearchHostManager
 		int[][] result = null;
 		ArrayList<int[]> tempResult = new ArrayList<int[]>();
 		// if (!HikeSharedPreferenceUtil.getInstance().getData("isPopulated", false)) return null;
-		Object[][] obj = StickerSearchUtility.splitAndDoIndexing(s.toString(), " |,|\\.|&|\\?|@");
 
-		ArrayList<Object[]> cobj = new ArrayList<Object[]>();
-		String value;
-		for (int i = 0; i < obj.length; i++)
+		if (s.length() > 70)
 		{
-			if (!TextUtils.isEmpty((String) obj[i][0]))
+			int selection = 70;
+			while (!" ".equals(s.charAt(selection)) && selection < s.length())
 			{
-				cobj.add(obj[i]);
+				selection++;
 			}
+			s = s.subSequence(0, selection);
 		}
 
-		for (int i = 0; i < cobj.size(); i++)
+		Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> cobj = StickerSearchUtility.splitAndDoIndexing(s, " |,|\\.|&|\\?|@");
+		ArrayList<String> wordList = cobj.first;
+		ArrayList<Integer> startList = null;
+		ArrayList<Integer> endList = null;
+		int previousBoundary = 0;
+		int i = 0;
+
+		if (wordList != null && wordList.size() > 0)
 		{
-			value = (String) cobj.get(i)[0];
+			StringBuilder searchText = new StringBuilder();
+			String searchKey;
+			int size = wordList.size();
+			startList = cobj.second.first;
+			endList = cobj.second.second;
+			String value;
+			int wordCountInPhraseExcludingPivot = 0;
 
-			if (value.length() >= (i == 0 ? 1 : 2))
+			for (String word : wordList)
 			{
-				if (!history.containsKey(value))
-				{
-					Logger.d(TAG, "\"" + value + "\" was not found in local cache...");
-					ArrayList<String> results = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(value, (i == 0 && value.length() == 1));
+				value = word.toUpperCase(Locale.ENGLISH);
 
-					if (results != null && results.size() > 0)
+				if (value.length() > 0)
+				{
+					searchText.append(word);
+					String nextWord;
+					int maxPermutationSize = 3;
+					for (int j = 1; j <= maxPermutationSize && i + j < size; j++)
 					{
-						LinkedHashSet<Sticker> stResules = new LinkedHashSet<Sticker>();
-						for (String stData : results)
+						nextWord = wordList.get(i + j);
+						if (nextWord.length() == 0)
 						{
-							stResules.add(StickerManager.getInstance().getStickerFromSetString(stData));
+							maxPermutationSize++;
+							continue;
 						}
-						Logger.d(TAG, "Filtering stickers before saving in local cache: " + stResules);
-
-						ArrayList<Sticker> list = new ArrayList<Sticker>();
-						list.addAll(stResules);
-						Logger.d(TAG, "Saving stickers in local cache: " + stResules);
-
-						history.put(value, list);
-						tempResult.add(new int[] { (int) cobj.get(i)[1], (int) cobj.get(i)[1] + (int) cobj.get(i)[2] });
+						searchText.append("* ");
+						searchText.append(nextWord.length() > 3 ? nextWord.subSequence(0, 3) : nextWord);
+						wordCountInPhraseExcludingPivot++;
 					}
+					searchKey = searchText.toString().toUpperCase(Locale.ENGLISH);
+
+					if (!history.containsKey(searchKey))
+					{
+						ArrayList<Sticker> list = new ArrayList<Sticker>();
+						Logger.d(TAG, "Phrase\"" + value + "\" was not found in local cache...");
+						ArrayList<String> phraseResultList = null;
+						if (!searchKey.equals(value))
+						{
+							phraseResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(searchKey, (i == 0 && searchKey.length() == 1));
+						}
+						
+						// phrase stickers
+						if (phraseResultList != null && phraseResultList.size() > 0)
+						{
+							LinkedHashSet<Sticker> stResules = new LinkedHashSet<Sticker>();
+							for (String stData : phraseResultList)
+							{
+								stResules.add(StickerManager.getInstance().getStickerFromSetString(stData));
+							}
+							Logger.d(TAG, "Filtering phrase stickers before saving in local cache: " + stResules);
+
+							list.addAll(stResules);
+
+							if (previousBoundary < startList.get(i) || startList.get(i) == 0)
+							{
+								previousBoundary = endList.get(i + wordCountInPhraseExcludingPivot);
+								tempResult.add(new int[] { startList.get(i), previousBoundary });
+							}
+						}
+
+						// add separator between word stickers and phrase stickers
+						list.add(null);
+
+						// word stickers
+						ArrayList<Sticker> wordResult = null;
+						if (value.length() > 1)
+						{
+							wordResult = history.get(value);
+							if (wordResult == null)
+							{
+								ArrayList<String> wordResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(value, false);
+								if (wordResultList != null && wordResultList.size() > 0)
+								{
+									wordResult = new ArrayList<Sticker>();
+									LinkedHashSet<Sticker> stResules = new LinkedHashSet<Sticker>();
+									for (String stData : wordResultList)
+									{
+										stResules.add(StickerManager.getInstance().getStickerFromSetString(stData));
+									}
+									Logger.d(TAG, "Filtering stickers before saving in local cache: " + stResules);
+									wordResult.addAll(stResules);
+									history.put(value, wordResult);
+								}
+							}
+							else
+							{
+								Logger.d(TAG, "Filtering word stickers from local cache: " + wordResult);
+							}
+						}
+
+						if (wordResult != null && wordResult.size() > 0)
+						{
+							list.addAll(wordResult);
+							if ((phraseResultList == null || phraseResultList.size() == 0) && (previousBoundary < startList.get(i) || startList.get(i) == 0))
+							{
+								previousBoundary = endList.get(i);
+								tempResult.add(new int[] { startList.get(i), previousBoundary });
+							}
+						}
+						else
+						{
+							list.remove(null); // remove separator if only one stickers type is present either word or phrase
+						}
+
+						history.put(searchKey, list);
+					}
+					else
+					{
+						if (history.get(searchKey).size() > 0 && (previousBoundary < startList.get(i) || startList.get(i) == 0))
+						{
+							int marker = history.get(searchKey).indexOf(null);
+							if (marker != 0)
+							{
+								// word + phrase both searched successfully
+								previousBoundary = endList.get(i + wordCountInPhraseExcludingPivot);
+								tempResult.add(new int[] { startList.get(i), previousBoundary });
+							}
+							else
+							{
+								// only word searched successfully
+								previousBoundary = endList.get(i);
+								tempResult.add(new int[] { startList.get(i), previousBoundary });
+							}
+						}
+					}
+
+					searchText.setLength(0);
 				}
-				else
-				{
-					tempResult.add(new int[] { (int) cobj.get(i)[1], (int) cobj.get(i)[1] + (int) cobj.get(i)[2] });
-				}
+
+				i++;
 			}
 		}
 
-		result = new int[tempResult.size()][2];
-		for (int i = 0; i < tempResult.size(); i++)
+		int finalSuggestionsCount = tempResult.size();
+		if (finalSuggestionsCount > 0)
 		{
-			result[i][0] = tempResult.get(i)[0];
-			result[i][1] = tempResult.get(i)[1];
-		}
+			if (previousBoundary == endList.get(i - 1))
+			{
+				int[] lastSuccessBoundary = tempResult.get(finalSuggestionsCount - 1);
+				lastSuccessBoundary[1] = s.length();
+				tempResult.set(finalSuggestionsCount - 1, lastSuccessBoundary);
+			}
 
-		Logger.d(TAG, "" + Arrays.toString(result));
+			result = new int[finalSuggestionsCount][2];
+			for (i = 0; i < finalSuggestionsCount; i++)
+			{
+				result[i][0] = tempResult.get(i)[0];
+				result[i][1] = tempResult.get(i)[1];
+			}
+		}
+		Logger.d(TAG, "Results address: " + Arrays.toString(result));
 		pResult = result;
-		pwords = cobj;
+		pwords = wordList;
+		pstarts = startList;
+		pends = endList;
 
 		return new Pair<CharSequence, int[][]>(s, result);
 	}
@@ -185,24 +304,131 @@ public class StickerSearchHostManager
 	public void onSend(CharSequence s)
 	{
 
-		pwords.clear();
-		history.clear();
+		if (pwords != null)
+		{
+			pwords.clear();
+			pstarts.clear();
+			pends.clear();
+		}
+
 		pResult = null;
+		history.clear();
 	}
 
 	public ArrayList<Sticker> onClickToSendSticker(int where)
 	{
 
+		if (pwords == null)
+		{
+			return null;
+		}
+
+		ArrayList<Sticker> selectedStickers = null;
+		LinkedHashSet<Sticker> stickers = null;
+		StringBuilder searchText = new StringBuilder();
+
 		for (int i = 0; i < pwords.size(); i++)
 		{
-			if ((where >= (int) pwords.get(i)[1]) && (where <= (int) pwords.get(i)[1] + (int) pwords.get(i)[2]))
+			if ((where >= (int) pstarts.get(i)) && (where <= pends.get(i)))
 			{
-				String value = (String) pwords.get(i)[0];
-				Logger.d(TAG, "" + history.get(value));
-				return history.get(value);
+				// phrase part
+				String preWord = null;
+				int maxPermutationSize = 4;
+				int j = i - 1;
+				int count;
+				boolean eligibility = false;
+				ArrayList<String> selectedTextInPhrase = new ArrayList<String>();
+				if (pwords.get(i).length() == 0)
+				{
+					count = 0;
+				}
+				else
+				{
+					selectedTextInPhrase.add(pwords.get(i));
+					count = 1;
+				}
+				while (j >= 0 && count < maxPermutationSize)
+				{
+					if (pwords.get(j).length() > 0)
+					{
+						selectedTextInPhrase.add(pwords.get(j));
+						eligibility = true;
+						count++;
+					}
+
+					j--;
+				}
+
+				if (eligibility)
+				{
+					Collections.reverse(selectedTextInPhrase);
+					searchText.append(selectedTextInPhrase.get(0));
+					for (j = 1; j < selectedTextInPhrase.size(); j++)
+					{
+						searchText.append("* ");
+						preWord = selectedTextInPhrase.get(j);
+						searchText.append(preWord.length() > 3 ? preWord.subSequence(0, 3) : preWord);
+					}
+
+					selectedStickers = history.get(searchText.toString().toUpperCase(Locale.ENGLISH));
+					if (selectedStickers != null)
+					{
+						int marker = selectedStickers.indexOf(null);
+						if (marker > 0)
+						{
+							stickers = new LinkedHashSet<Sticker>();
+							marker = Math.min(marker, 5);
+							stickers.addAll(selectedStickers.subList(0, marker));
+						}
+						else if (selectedStickers.size() > 0 && marker < 0)
+						{
+							stickers = new LinkedHashSet<Sticker>();
+							marker = Math.min(selectedStickers.size(), 5);
+							stickers.addAll(selectedStickers.subList(0, marker));
+						}
+					}
+				}
+				searchText.setLength(0);
+
+				// word part
+				searchText.append(pwords.get(i));
+				String nextWord = null;
+				maxPermutationSize = 3;
+				for (j = 1; j <= maxPermutationSize && i + j < pwords.size(); j++)
+				{
+					nextWord = pwords.get(i + j);
+					if (nextWord.length() == 0)
+					{
+						maxPermutationSize++;
+						continue;
+					}
+					searchText.append("* ");
+					searchText.append(nextWord.length() > 3 ? nextWord.subSequence(0, 3) : nextWord);
+				}
+
+				selectedStickers = history.get(searchText.toString().toUpperCase(Locale.ENGLISH));
+				if (selectedStickers != null && (selectedStickers.contains(null) ? selectedStickers.size() > 1 : selectedStickers.size() > 0))
+				{
+					if (stickers == null)
+					{
+						stickers = new LinkedHashSet<Sticker>();
+					}
+					stickers.addAll(selectedStickers);
+					stickers.remove(null);
+				}
+
+				Logger.d(TAG, "Fetched stickers: " + stickers);
+				break;
 			}
 		}
-		return null;
+
+		if (stickers != null)
+		{
+			selectedStickers = new ArrayList<Sticker>();
+			selectedStickers.addAll(stickers);
+		}
+
+		return selectedStickers;
 	}
 
 	public void clear()
@@ -468,7 +694,11 @@ public class StickerSearchHostManager
 	}
 
 	// temp code to test
-	private static ArrayList<Object[]> pwords = new ArrayList<Object[]>();
+	private static ArrayList<String> pwords = null;
+
+	private static ArrayList<Integer> pstarts = null;
+
+	private static ArrayList<Integer> pends = null;
 
 	private static HashMap<String, ArrayList<Sticker>> history = new HashMap<String, ArrayList<Sticker>>();
 

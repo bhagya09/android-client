@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -23,6 +24,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Pair;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
@@ -315,14 +317,32 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					tempList = new ArrayList<String>(count);
 					matchRankList = new ArrayList<Float>(count);
 					ArrayList<String> temp = new ArrayList<String>();
-					while (c.moveToNext())
+					if (match.contains(" "))
 					{
-						temp.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
-						tempList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
-						Object[][] tagPhrases = StickerSearchUtility.splitAndDoIndexing(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)), " ");
-						float score = ((float) (match.length() * (tagPhrases.length > 1 ? 70 : 100))) / ((String) tagPhrases[0][0]).length();
-						Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
-						matchRankList.add(score);
+						int wordCountInPhrase = StickerSearchUtility.splitAndDoIndexing(match, " ").first.size();
+						while (c.moveToNext())
+						{
+							temp.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
+							tempList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
+							Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> tagPhrases = StickerSearchUtility.splitAndDoIndexing(
+									c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)), " ");
+							float score = ((float) (wordCountInPhrase * (tagPhrases.first.size() > 2 ? 70 : 100))) / (tagPhrases.first.size());
+							Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
+							matchRankList.add(score);
+						}
+					}
+					else
+					{
+						while (c.moveToNext())
+						{
+							temp.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
+							tempList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
+							Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> tagPhrases = StickerSearchUtility.splitAndDoIndexing(
+									c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)), " ");
+							float score = ((float) (match.length() * (tagPhrases.first.size() > 1 ? 70 : 100))) / (tagPhrases.first.get(0).length());
+							Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
+							matchRankList.add(score);
+						}
 					}
 
 					Float maxMatch;
@@ -389,26 +409,26 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public ArrayList<String> searchIntoFTSAndFindStickerList(String word, boolean t)
+	public ArrayList<String> searchIntoFTSAndFindStickerList(String phrase, boolean t)
 	{
 
 		int[] rows = null;
 		Cursor c = null;
 		try
 		{
-			word = word.replaceAll("\'", "");
-			char[] array = word.toUpperCase(Locale.ENGLISH).toCharArray();
+			phrase = phrase.replaceAll("\'", "");
+			char[] array = phrase.toUpperCase(Locale.ENGLISH).toCharArray();
 			String table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH : HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
 					+ array[0];
-			Logger.d(TAG, "Searching \"" + word + "\" in " + table);
+			Logger.d(TAG, "Searching \"" + phrase + "\" in " + table);
 
 			if (t)
 			{
-				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + table + " MATCH '" + word + "'", null);
+				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + table + " MATCH '" + phrase + "'", null);
 			}
 			else
-			{
-				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + table + " MATCH '" + word + "*'", null);
+			{				
+				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + table + " MATCH '" + phrase + "*'", null);
 			}
 
 			if (c != null)
@@ -429,7 +449,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 		}
 
-		return searchInPrimaryTable(word, rows);
+		return searchInPrimaryTable(phrase, rows);
 	}
 
 	public void disableTagsForDeletedStickers(Set<String> stickerInfo)
