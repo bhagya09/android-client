@@ -1613,12 +1613,12 @@ public class VoIPService extends Service {
 	public void setHold(boolean newHold) {
 		
 		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
+		final VoIPClient client = getClient();
 
-		if (this.hold == newHold)
+		if (this.hold == newHold || client == null)
 			return;
 		
 		this.hold = newHold;
-		final VoIPClient client = getClient();
 		
 		if (newHold == true) {
 			if (recordingThread != null)
