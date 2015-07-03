@@ -195,7 +195,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					
 					Utils.saveBase64StringToFile(new File(largeStickerPath), stickerImage);
 
-					boolean isDisabled = data.optBoolean(HikeConstants.DISABLED_ST);
+					boolean isDisabled = stickerData.optBoolean(HikeConstants.DISABLED_ST);
 					if (!isDisabled)
 					{
 						Bitmap thumbnail = HikeBitmapFactory.scaleDownBitmap(largeStickerPath, StickerManager.SIZE_IMAGE, StickerManager.SIZE_IMAGE, true, false);
