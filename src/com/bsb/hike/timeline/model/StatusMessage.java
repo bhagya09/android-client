@@ -1,4 +1,4 @@
-package com.bsb.hike.models;
+package com.bsb.hike.timeline.model;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -12,6 +12,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.Protip;
 import com.bsb.hike.utils.EmoticonConstants;
 
 public class StatusMessage

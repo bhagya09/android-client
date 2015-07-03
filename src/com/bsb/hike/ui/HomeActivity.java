@@ -80,6 +80,9 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
+import com.bsb.hike.timeline.ActionsDeserializer;
+import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.FestivePopup;
@@ -93,6 +96,8 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener
 {
@@ -253,6 +258,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	
+		
+		//TODO - REMOVE
+		GsonBuilder gsonBuilder = new GsonBuilder();
+	    gsonBuilder.registerTypeAdapter(ActionsDataModel.class, new ActionsDeserializer());
+	    Gson gson = gsonBuilder.create();
+	    
+	    String sampleJson = "{\"stat\":\"ok\",\"m\":[{\"su_id\":\"<suid1>\",\"l\":[{\"mdn\":\"<msisdn>\"},{\"mdn\":\"<msisdn>\"}],\"lc\":2},{\"su_id\":\"<msisdn>\",\"l\":[{\"mdn\":\"<msisdn>\"},{\"mdn\":\"<msisdn>\"}],\"lc\":2}]}";
+	    ActionsDataModel adm = gson.fromJson(sampleJson, ActionsDataModel.class);
+	    System.out.println("");
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package com.bsb.hike.adapters;
+package com.bsb.hike.timeline.adapter;
 
 import java.lang.ref.SoftReference;
 import java.util.List;
@@ -36,10 +36,10 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineImageLoader;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ImageViewerActivity;
 import com.bsb.hike.ui.PeopleActivity;
