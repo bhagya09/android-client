@@ -29,6 +29,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -271,14 +272,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		db.execSQL(sql);
 		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_BG_INDEX + " ON " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(sql);
-		// CONTENT LOVE TABLE
-		sql = CREATE_TABLE + LOVE_TABLE + "(" + _ID
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT, " + LOVE_ID
-				+ " INTEGER, " + COUNT + " INTEGER, " + USER_STATUS
-				+ " INTEGER, " + REF_COUNT + " INTEGER, "
-				+ HIKE_CONV_DB.TIMESTAMP + " INTEGER" + ")";
-		sql = getStickerShopTableCreateQuery();
-		db.execSQL(sql);
 
 		sql = CREATE_TABLE + DBConstants.BOT_TABLE
 				+ " ("
@@ -294,7 +287,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}'"  //helper data
 				+ ")";
 		db.execSQL(sql);
-
+		
+		sql = getActionsTableCreateQuery();
+		db.execSQL(sql);
+		
+		sql = getFeedTableCreateQuery();
+		db.execSQL(sql);
 	}
 	private void createIndexOverServerIdField(SQLiteDatabase db)
 	{
@@ -318,6 +316,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.FILE_THUMBNAIL_TABLE, null, null);
 		mDb.delete(DBConstants.CHAT_BG_TABLE, null, null);
 		mDb.delete(DBConstants.BOT_TABLE, null, null);
+		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
+		mDb.delete(DBConstants.FEED_TABLE, null, null);
 	}
 
 	@Override
@@ -774,7 +774,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(alter4);
 			db.execSQL(alter5);
 			db.execSQL(alter6);
+		}
 
+		if (oldVersion < 41)
+		{
+			String dropLoveTable = "DROP TABLE IF EXISTS " + LOVE_TABLE;
+			db.execSQL(dropLoveTable);
+			
+			String sql = getActionsTableCreateQuery();
+			db.execSQL(sql);
+			
+			sql = getFeedTableCreateQuery();
+			db.execSQL(sql);
 		}
 
 	}
@@ -1390,6 +1401,37 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			Logger.w(getClass().getSimpleName(), "Invalid json");
 			return null;
 		}
+	}
+
+
+	private String getActionsTableCreateQuery()
+	{
+
+		String sql = CREATE_TABLE + DBConstants.ACTIONS_TABLE + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY, " // auto increment _id
+				+ DBConstants.ACTION_OBJECT_TYPE + " TEXT NOT NULL, " // object type(su, card)
+				+ DBConstants.ACTION_OBJECT_ID + " TEXT, " // object id (suid, card id)
+				+ DBConstants.ACTION_ID + " INTEGER, " // action id (love, comment,view)
+				+ DBConstants.ACTION_COUNT + " INTEGER DEFAULT 0, " // action count
+				+ DBConstants.ACTORS + " TEXT DEFAULT '{}', " // actor msisdns
+				+ DBConstants.ACTION_METADATA + " TEXT DEFAULT '{}', " // md
+				+ DBConstants.ACTION_LAST_UPDATE + " LONG DEFAULT 0" // last updated
+				+ ")";
+
+		return sql;
+	}
+
+	private String getFeedTableCreateQuery()
+	{
+
+		String sql = CREATE_TABLE + DBConstants.FEED_TABLE + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY, " // auto increment _id
+				+ DBConstants.FEED_OBJECT_TYPE + " TEXT NOT NULL, " // object type(su, card)
+				+ DBConstants.FEED_OBJECT_ID + " TEXT, " // object id (suid, card id)
+				+ DBConstants.FEED_ACTION_ID + " INTEGER, " // action id (love, comment,view,fav)
+				+ DBConstants.FEED_ACTOR + " TEXT, " // actor
+				+ DBConstants.FEED_METADATA + " TEXT DEFAULT '{}', " // md
+				+ DBConstants.FEED_TS + " LONG DEFAULT 0" // timestamp
+				+ ")";
+		return sql;
 	}
 
 	private void addThumbnailStringToMetadata(MessageMetadata metadata, String thumbnailString)

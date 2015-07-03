@@ -145,7 +145,7 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		imageView.setOnClickListener(this);
 	}
 
-	private static final int ANIM_DURATION = 500;
+	private static final int ANIM_DURATION = 300;
 
 	public void runEnterAnimation()
 	{
