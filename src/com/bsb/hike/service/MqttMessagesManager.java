@@ -1910,6 +1910,11 @@ public class MqttMessagesManager
 		{
 			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
+			
+			/**
+			 * This Pubsub updates ActionBar on HomeActivity
+			 */
+			this.pubSub.publish(HikePubSub.UPDATE_OF_PHOTOS_ICON, null);
 		}
 		if(data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
 		{
