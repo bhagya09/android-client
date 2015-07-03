@@ -191,7 +191,6 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void stickerSelected(Sticker sticker)
 	{
-		highlightSearchText();
 		if (stickerPickerListener == null)
 		{
 			throw new IllegalStateException("sticker picker is null but sticker is selected");
@@ -199,6 +198,14 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		StickerManager.getInstance().addRecentStickerToPallete(sticker);
 		stickerPickerListener.stickerSelected(sticker, StickerManager.FROM_RECOMMENDATION);
 		dismissStickerSearchPopup();
+		if (StickerSearchManager.getInstance().getFirstContinuousMatchFound())
+		{
+			clearSearchText();
+		}
+		else
+		{
+			highlightSearchText();
+		}
 	}
 
 	@Override
