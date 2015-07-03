@@ -39,6 +39,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -1012,7 +1013,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
-			dismissStickerRecommendationPopup(mComposeView.getText().toString(), true);
+			dismissStickerRecommendationPopup();
 			sendMessage();
 		}
 	}
@@ -1296,7 +1297,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return true;
 		}
 		
-		if(dismissStickerRecommendationPopup(null, false))
+		if(dismissStickerRecommendationPopup())
 		{
 			return true;
 		}
@@ -1455,7 +1456,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView.setOnTouchListener(stickerTagWatcher);
 	}
 	
-	public boolean dismissStickerRecommendationPopup(String text, boolean sendButtonClicked)
+	public boolean dismissStickerRecommendationPopup()
 	{
 		if(stickerTagWatcher == null)
 		{
@@ -1465,13 +1466,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if(stickerTagWatcher.isStickerRecommnedPoupShowing())
 		{
 			stickerTagWatcher.dismissStickerSearchPopup();;
-			if(sendButtonClicked)
-			{
-				StickerSearchManager.getInstance().onSend(text);
-			}
 			return true;
 		}
-		
 		return false;
 	}
 	
@@ -3477,7 +3473,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		resumeImageLoaders(true);
 		
-		dismissStickerRecommendationPopup(null, false);
+		dismissStickerRecommendationPopup();
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 	}
@@ -5209,5 +5205,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onRestoreInstanceState(Bundle savedInstanceState) 
 	{
 		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
+	}
+	
+	public void clearComposeText()
+	{
+		if(mComposeView != null)
+		{
+			mComposeView.setText("");
+		}
+	}
+	
+	public void selectAllComposeText()
+	{
+			
 	}
 }

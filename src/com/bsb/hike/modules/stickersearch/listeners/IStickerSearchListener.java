@@ -15,4 +15,8 @@ public interface IStickerSearchListener
 	public void dismissStickerSearchPopup();
 	
 	public void showStickerRecommendFtue();
+	
+	public void clearSearchText();
+	
+	public void highlightSearchText();
 }

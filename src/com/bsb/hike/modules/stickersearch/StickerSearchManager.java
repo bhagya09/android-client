@@ -210,15 +210,6 @@ public class StickerSearchManager
 		}
 	}
 
-	public void onSend(String text)
-	{
-		if (listener != null)
-		{
-			listener.dismissStickerSearchPopup();
-		}
-		StickerSearchHostManager.getInstance().onSend(text);
-	}
-
 	public void downloadStickerTags(boolean firstTime)
 	{
 		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime);
