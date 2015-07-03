@@ -88,7 +88,6 @@ public class VoIPClient  {
 	private boolean establishingConnection = false;
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
-	@SuppressWarnings("unused")
 	private int audioPacketsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
@@ -1569,33 +1568,6 @@ public class VoIPClient  {
 					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived)
 						continue;	// We received an old packet again
 
-					/*
-					 * TODO: this code apparently freezes older clients if the other client is sending
-					 * packet numbers and there is packet loss detected. 
-					 * 
-					// Handle packet loss (unused as on Dec 16, 2014)
-					if (dpdecode.getVoicePacketNumber() > lastPacketReceived + 1) {
-						Logger.d(tag, "Packet loss! (" + (dpdecode.getVoicePacketNumber() - lastPacketReceived) + ")");
-						lastPacketReceived = dpdecode.getVoicePacketNumber();
-						try {
-							uncompressedLength = opusWrapper.plc(dpdecode.getData(), uncompressedData);
-							uncompressedLength *= 2;	
-							if (uncompressedLength > 0) {
-								VoIPDataPacket dp = new VoIPDataPacket(PacketType.VOICE_PACKET);
-								dp.write(uncompressedData);
-								dp.setLength(uncompressedLength);
-
-								synchronized (decodedBuffersQueue) {
-									decodedBuffersQueue.add(dp);
-									decodedBuffersQueue.notify();
-								}
-							}
-						} catch (Exception e) {
-							Logger.d(tag, "PLC exception: " + e.toString());
-						}
-					}
-					*/
-
 					// Regular decoding
 					try {
 						// Logger.d(VoIPActivity.logTag, "Decompressing data of length: " + dpdecode.getLength());
@@ -1761,6 +1733,7 @@ public class VoIPClient  {
 			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 			byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 			try {
+				Logger.d(tag, "PLC");
 				opusWrapper.plc(data);
 			} catch (Exception e) {
 				Logger.e(tag, "PLC Exception: " + e.toString());

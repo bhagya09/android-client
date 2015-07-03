@@ -45,6 +45,7 @@ import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
+import android.view.KeyEvent;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -139,8 +140,9 @@ public class VoIPService extends Service {
 	private Runnable clientListRunnable = null;
 	private Handler clientListHandler;
 	
-	// Boradcast listener for phone calls
+	// Boradcast listeners
 	private BroadcastReceiver phoneStateReceiver = null;
+	private BroadcastReceiver bluetoothButtonReceiver = null;
 	
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
@@ -299,13 +301,6 @@ public class VoIPService extends Service {
 			resampler = new Resampler();
 		
 		startConnectionTimeoutThread();
-		
-		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
-		if (isBluetoothEnabled) {
-			bluetoothHelper = new BluetoothHelper(getApplicationContext());
-			bluetoothHelper.start();
-		}
-		
 		registerPhoneStateBroadcastReceiver();
 	}
 	
@@ -316,8 +311,10 @@ public class VoIPService extends Service {
 		dismissNotification();
 		unregisterPhoneStateBroadcastReceiver();
 		
-		if (bluetoothHelper != null)
+		if (bluetoothHelper != null) {
+			unregisterBluetoothButtonsReceiver();
 			bluetoothHelper.stop();
+		}
 		
 		Logger.d(tag, "VoIP Service destroyed.");
 	}
@@ -532,6 +529,8 @@ public class VoIPService extends Service {
 			} else 
 				// One-to-one call
 				initiateOutgoingCall(client, callSource);
+			
+			startBluetooth();
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -1061,6 +1060,7 @@ public class VoIPService extends Service {
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
 		startRecordingAndPlayback(client.getPhoneNumber());
+		startBluetooth();
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 	
@@ -1289,12 +1289,12 @@ public class VoIPService extends Service {
 								// There is no voice signal, bitrate should be lowered
 								if (!voiceSignalAbsent) {
 									voiceSignalAbsent = true;
-									Logger.w(tag, "We stopped speaking.");
+//									Logger.w(tag, "We stopped speaking.");
 									getClient().setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
 								}
 							} else if (voiceSignalAbsent) {
 								// Mic signal is reverting to voice
-								Logger.w(tag, "We started speaking.");
+//								Logger.w(tag, "We started speaking.");
 								voiceSignalAbsent = false;
 								getClient().setEncoderBitrate(getClient().localBitrate);
 							}
@@ -2017,6 +2017,39 @@ public class VoIPService extends Service {
 	private void unregisterPhoneStateBroadcastReceiver() {
 		if (phoneStateReceiver != null)
 			unregisterReceiver(phoneStateReceiver);
+	}
+	
+	private void startBluetooth() {
+		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
+		if (isBluetoothEnabled) {
+			bluetoothHelper = new BluetoothHelper(getApplicationContext());
+			bluetoothHelper.start();
+			registerBluetoothButtonsReceiver();
+		}
+	}
+
+	private void registerBluetoothButtonsReceiver() {
+		IntentFilter filter = new IntentFilter();
+		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+		filter.addAction("android.intent.action.MEDIA_BUTTON");
+
+		bluetoothButtonReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				abortBroadcast();
+				KeyEvent key = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+				Logger.w(tag, "Bluetooth key: " + key.getKeyCode());
+			}
+		};
+		
+		Logger.w(tag, "Registering bluetooth key listener.");
+		registerReceiver(bluetoothButtonReceiver, filter);
+	}
+	
+	private void unregisterBluetoothButtonsReceiver() {
+		if (bluetoothButtonReceiver != null)
+			unregisterReceiver(bluetoothButtonReceiver);
 	}
 	
 }
