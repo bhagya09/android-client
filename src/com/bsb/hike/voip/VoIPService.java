@@ -1316,7 +1316,8 @@ public class VoIPService extends Service {
 						} else {
 							// If we are in a conference hosted by somebody else
 							// and we aren't talking, then stop transmitting
-							if (getClient().isHostingConference && !dp.isVoice())
+							if (getClient() == null || 
+									(getClient().isHostingConference && !dp.isVoice()))
 								continue;
 							buffersToSend.add(dp);
 						}
