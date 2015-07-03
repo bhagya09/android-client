@@ -37,46 +37,7 @@ public class OfflineMessagesManager
 
 		threadManager = OfflineThreadManager.getInstance();
 	}
-
-	public void handlePingPacket(JSONObject messageJSON)
-	{
-		// Start client thread.
-		offlineManager.setConnectedDevice(OfflineUtils.getMsisdnFromPingPacket(messageJSON));
-		//threadManager.startSendingThreads();
-	}
-
-	public void handleGhostPacket(JSONObject messageJSON)
-	{
-		Logger.d(TAG, "Ghost Packet received");
-		offlineManager.restartGhostTimeout(OfflineUtils.getScreenStatusFromGstPkt(messageJSON));
-	}
-
-	public void handleAckPacket(JSONObject messageJSON, IMessageSentOffline fileCallback, IMessageSentOffline textCallback) throws JSONException
-	{
-		messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
-		messageJSON.remove(HikeConstants.TO);
-		Logger.d(TAG, "ACK PAcket received for msgId: " + OfflineUtils.getMsgIdFromAckPacket(messageJSON));
-
-		if (OfflineUtils.isAckForFileMessage(messageJSON))
-		{
-			fileCallback.onSuccess(messageJSON);
-		}
-		else
-		{
-			textCallback.onSuccess(messageJSON);
-		}
-	}
-
-	public void handleSpaceCheckPacket(JSONObject messageJSON)
-	{
-		offlineManager.addToTextQueue(OfflineUtils.createSpaceAck(messageJSON));
-	}
-
-	public void handleSpaceAckPacket(JSONObject messageJSON)
-	{
-		offlineManager.canSendFile(messageJSON);
-	}
-
+	
 	public void handleStickerMessage(JSONObject messageJSON,File stickerImage,InputStream inputStream) throws OfflineException,IOException,JSONException
 	{
 		String stpath = OfflineUtils.getStickerPath(messageJSON);

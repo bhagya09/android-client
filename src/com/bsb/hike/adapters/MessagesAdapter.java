@@ -102,6 +102,7 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
+import com.bsb.hike.offline.HikeConverter;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.platform.CardRenderer;
@@ -1005,7 +1006,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (conversation instanceof OfflineConversation)
 			{
 				Logger.d("MessagesAdapter", "In Offline file Transfer");
-				fss = OfflineManager.getInstance().getFileState(convMessage, file);
+				fss = HikeConverter.getInstance().getFileState(convMessage, file);
 			}
 			else
 			{
@@ -1319,7 +1320,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				setBubbleColor(convMessage, videoHolder.messageContainer);
 				if (conversation instanceof OfflineConversation)
 				{	videoHolder.circularProgress.resetProgress();
-					OfflineManager.getInstance().setupFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
+					HikeConverter.getInstance().setupFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
 				}
 				else
 				{
@@ -1471,7 +1472,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (conversation instanceof OfflineConversation)
 				{
 					imageHolder.circularProgress.resetProgress();
-					OfflineManager.getInstance().setupFileState(imageHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
+					HikeConverter.getInstance().setupFileState(imageHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
 				}
 				else
 				{
@@ -1841,7 +1842,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (conversation instanceof OfflineConversation)
 				{
 					fileHolder.circularProgress.resetProgress();
-					OfflineManager.getInstance().setupFileState(fileHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), true);
+					HikeConverter.getInstance().setupFileState(fileHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), true);
 				}
 				else
 				{
@@ -3357,10 +3358,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				
 				if (conversation instanceof OfflineConversation)
 				{
-					FileSavedState offlineFss = OfflineManager.getInstance().getFileState(convMessage, hikeFile.getFile());
+					FileSavedState offlineFss = HikeConverter.getInstance().getFileState(convMessage, hikeFile.getFile());
 					if (offlineFss.getFTState() == FTState.ERROR)
 					{
-						OfflineManager.getInstance().handleRetryButton(convMessage);
+						HikeConverter.getInstance().handleRetryButton(convMessage);
 						return;
 					}	
 				}
@@ -3398,7 +3399,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				
 				if (conversation instanceof OfflineConversation)
 				{
-					FileSavedState offlineFss = OfflineManager.getInstance().getFileState(convMessage, hikeFile.getFile());
+					FileSavedState offlineFss = HikeConverter.getInstance().getFileState(convMessage, hikeFile.getFile());
 					if (offlineFss.getFTState() == FTState.ERROR)
 					{
 						Toast.makeText(mActivity, "Error in Opening File.Corrupt Due to incomplete Download", Toast.LENGTH_SHORT).show();

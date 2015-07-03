@@ -26,7 +26,7 @@ import com.bsb.hike.utils.Logger;
 
 /**
  * 
- * @author sahil This class forms the  deals with functions related to WifiManager and WifiP2pManager and other Hotspot functionalities
+ * @author sahil This class deals with functions related to WifiManager and WifiP2pManager and other Hotspot functionalities
  */
 public class ConnectionManager implements ChannelListener
 {
@@ -470,4 +470,19 @@ public class ConnectionManager implements ChannelListener
 		prevConfig = null;
 		connectedNetworkId = -1;
 	}
+	
+	public String getHostAddress()
+	{
+		String host = null;
+		if (isHotspotCreated())
+		{
+			host = OfflineUtils.getIPFromMac(null);
+		}
+		else
+		{
+			host = OfflineConstants.IP_SERVER;
+		}
+		return host;
+	}
+
 }

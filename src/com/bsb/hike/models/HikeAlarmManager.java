@@ -296,8 +296,6 @@ public class HikeAlarmManager
 			NotificationContentModel notificationContentModel = new NotificationContentModel(title, text, shouldPlaySound, triggerpoint);
 			ProductInfoManager.getInstance().notifyUser(notificationContentModel);
 			break;
-		case HikeAlarmManager.REQUESTCODE_OFFLINE:
-			OfflineManager.getInstance().sendGhostPacket();
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;

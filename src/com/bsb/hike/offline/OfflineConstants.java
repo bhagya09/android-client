@@ -127,4 +127,8 @@ public class OfflineConstants
 	
 	public static final String SPACE_ACK = "space_ack";
 
+	public static final String TEXT_TOPIC = "text";
+
+	public static final String FILE_TOPIC = "file";
+
 }

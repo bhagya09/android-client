@@ -13,6 +13,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.offline.HikeConverter;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.utils.Utils;
 
@@ -73,7 +74,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 			{
 				return;
 			}
-			OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, hikeFileType, fileType, false, -1, attachementType, msisdn, null);
+			HikeConverter.getInstance().sendFile(filePath, null, hikeFileType, fileType, false, -1, attachementType, msisdn, null);
 		}
 		else
 		{

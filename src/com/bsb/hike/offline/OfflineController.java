@@ -2,6 +2,7 @@ package com.bsb.hike.offline;
 
 
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 import android.content.Intent;
@@ -16,6 +17,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
+import com.hike.transporter.models.SenderConsignment;
 
 /**
  * 
@@ -32,13 +34,16 @@ public class OfflineController
 
 	OfflineManager offlineManager;
 	
+	HikeConverter  converter;
+	
 	OfflineThreadManager  offlineThreadManager;
 
 	public OfflineController(IOfflineCallbacks listener)
 	{
 		this.offlineListener = listener;
 		offlineManager = OfflineManager.getInstance();
-		offlineManager.addListener(listener);
+		converter =  HikeConverter.getInstance();
+		offlineManager.addListener(offlineListener);
 	}
 
 	public void startScan()
@@ -77,12 +82,13 @@ public class OfflineController
 		msg.what = OfflineConstants.HandlerConstants.SAVE_MSG_DB;
 		msg.obj = convMessage;
 		offlineManager.performWorkOnBackEndThread(msg);
+		converter.sendMessage(convMessage);
 		//offlineManager.addToTextQueue(convMessage.serialize());
 	}
 
 	public void sendAudioFile(String filePath, long duration, String msisdn)
 	{
-		offlineManager.initialiseOfflineFileTransfer(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true, duration,
+		converter.sendFile(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true, duration,
 				FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
 	}
 	
@@ -97,7 +103,7 @@ public class OfflineController
 				apkLabel = fileData.file.getName();
 			}
 			
-			offlineManager.initialiseOfflineFileTransfer(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType, fileData.isRecording,  
+			converter.sendFile(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType, fileData.isRecording,  
 															fileData.recordingDuration, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, apkLabel);
 		}
 	}
@@ -132,13 +138,13 @@ public class OfflineController
 		}
 		else
 		{
-			offlineManager.initialiseOfflineFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, null);
+			converter.sendFile(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, null);
 		}
 	}
 
 	public void sendApps(String filePath, String mime, String apkLabel, String msisdn)
 	{
-		offlineManager.initialiseOfflineFileTransfer(filePath, null, HikeFileType.APK, mime, false, (long) -1, FTAnalyticEvents.APK_ATTACHMENT, msisdn, apkLabel);
+		converter.sendFile(filePath, null, HikeFileType.APK, mime, false, (long) -1, FTAnalyticEvents.APK_ATTACHMENT, msisdn, apkLabel);
 	}
 
 	public boolean isConnected()
@@ -148,23 +154,23 @@ public class OfflineController
 
 	public void shutDown()
 	{
-		 offlineManager.addToTextQueue(OfflineUtils.createDisconnectPkt((getConnectedDevice())));
+		// offlineManager.addToTextQueue(OfflineUtils.createDisconnectPkt((getConnectedDevice())));
 	}
 
 	public void sendAudio(String filePath, String msisdn)
 	{
-		offlineManager.initialiseOfflineFileTransfer(filePath, null, HikeFileType.AUDIO, null, false, -1, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
+		converter.sendFile(filePath, null, HikeFileType.AUDIO, null, false, -1, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
 	}
 
 	public void sendVideo(String filePath, String msisdn)
 	{
-		offlineManager.initialiseOfflineFileTransfer(filePath, null, HikeFileType.VIDEO, null, false, -1, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn, null);
+		converter.sendFile(filePath, null, HikeFileType.VIDEO, null, false, -1, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn, null);
 	}
 
 	public void sendImage(String imagePath, String msisdn)
 	{
-		offlineManager.initialiseOfflineFileTransfer(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,null);
-	}
+		converter.sendFile(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,null);
+    }
 	
 	public void createHotspot(String msisdn)
 	{
