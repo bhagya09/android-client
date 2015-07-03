@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 
-import android.support.v4.util.Pair;
 import android.text.Editable;
+import android.util.Pair;
 
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
@@ -89,6 +89,7 @@ public class StickerSearchManager
 		if (result == null || result.first == null || result.second == null)
 		{
 			Logger.d(StickerTagWatcher.TAG, " null result ");
+			listener.dismissStickerSearchPopup();
 			return;
 		}
 

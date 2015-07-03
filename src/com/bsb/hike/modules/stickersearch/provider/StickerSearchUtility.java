@@ -6,9 +6,16 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
 
 import android.text.TextUtils;
+import android.util.Pair;
 
 public class StickerSearchUtility
 {
@@ -38,7 +45,6 @@ public class StickerSearchUtility
 	/* Eliminate special characters from the given word and form a new word without them */
 	public static String formGeneralizedWord(StringBuilder sb, String str)
 	{
-
 		if (sb == null)
 		{
 			sb = new StringBuilder();
@@ -60,38 +66,107 @@ public class StickerSearchUtility
 		return sb.toString();
 	}
 
-	/* Split charSequence in regular manner with indexing */
-	public static Object[][] splitAndDoIndexing(String parent, String regExpression)
+	/* Split charSequence in regular manner with boundary indexing */
+	public static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression)
 	{
-		Logger.d(TAG, "splitAndDoIndexing(" + parent + ", " + regExpression + ")");
+		Logger.d(TAG, "splitAndDoIndexing(" + input + ", " + regExpression + ")");
 
-		return splitAndDoIndexing(parent, regExpression, 0);
+		return splitAndDoIndexing(input, regExpression, 0);
 	}
 
-	/* Split charSequence in regular manner with indexing along with limit on splitting */
-	public static Object[][] splitAndDoIndexing(String parent, String regExpression, int limit)
+	/* Split charSequence in regular manner with boundary indexing along with limit on splitting */
+	private static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression, int limit)
 	{
-		Logger.d(TAG, "splitAndDoIndexing(" + parent + ", " + regExpression + "," + limit + ")");
+		Logger.d(TAG, "splitAndDoIndexing(" + input + ", " + regExpression + ", " + limit + ")");
 
-		Object[][] result = null;
-		if ((parent != null) && (regExpression != null))
+		ArrayList<String> matchList = null;
+		ArrayList<Integer> startList = null;
+		ArrayList<Integer> endList = null;
+
+		if ((input != null) && (regExpression != null))
 		{
-			String[] words = parent.split(regExpression, limit);
-			result = new Object[words.length][3]; // value, start, length
+			int index = 0;
 			int start = 0;
-			int len;
-			int i = 0;
+			int length = input.length();
+			boolean matchLimited = (limit > 0);
+			// All 3 lists are coupled w.r.t. order of insertion of elements in each list
+			matchList = new ArrayList<String>(); // words
+			startList = new ArrayList<Integer>(); // start indexes of words (inclusive)
+			endList = new ArrayList<Integer>(); // end indexes of words (exclusive)
 
-			for (String word : words)
+			Matcher m = TextMatchManager.getPattern(regExpression).matcher(input);
+
+			// Add segments before each match found
+			while (m.find())
 			{
-				result[i][0] = word;
-				result[i][1] = start;
-				len = word.length();
-				result[i++][2] = len;
-				start += len + 1;
+				if (!matchLimited || (matchList.size() < (limit - 1)))
+				{
+					start = m.start();
+					matchList.add(input.subSequence(index, start).toString());
+					startList.add(index);
+					endList.add(start);
+					index = m.end();
+				}
+				else if (matchList.size() == (limit - 1))
+				{
+					// Add last one
+					matchList.add(input.subSequence(index, length).toString());
+					startList.add(index);
+					endList.add(length);
+					index = m.end();
+				}
+			}
+
+			// If no match was found, return this
+			if (index == 0)
+			{
+				matchList.add(input.toString());
+				startList.add(index);
+				endList.add(length);
+			}
+			else
+			{
+				// Add remaining segment
+				if (!matchLimited || (matchList.size() < limit))
+				{
+					matchList.add(input.subSequence(index, length).toString());
+					startList.add(index);
+					endList.add(length);
+				}
+
+				// Construct result
+				if (limit == 0)
+				{
+					int i = matchList.size() - 1;
+
+					while ((i > -1) && matchList.get(i).equals(HikeStickerSearchBaseConstants.EMPTY))
+					{
+						matchList.remove(i);
+						startList.remove(i);
+						endList.remove(i--);
+					}
+				}
 			}
 		}
 
-		return result;
+		return new Pair<>(matchList, new Pair<>(startList, endList));
+	}
+
+	private static class TextMatchManager
+	{
+
+		private static final HashMap<String, Pattern> sPatternContainer = new HashMap<String, Pattern>();
+
+		private static Pattern getPattern(String regex)
+		{
+			Pattern pattern = sPatternContainer.get(regex);
+			if ((pattern == null) && (regex != null))
+			{
+				pattern = Pattern.compile(regex);
+				sPatternContainer.put(regex, pattern);
+			}
+
+			return pattern;
+		}
 	}
 }
