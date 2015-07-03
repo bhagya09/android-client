@@ -25,8 +25,6 @@ public class OfflineMessagesManager
 
 	private OfflineManager offlineManager;
 
-	private OfflineThreadManager threadManager;
-
 	private static final String TAG = "OfflineThreadManager";
 
 	public OfflineMessagesManager()
@@ -34,8 +32,6 @@ public class OfflineMessagesManager
 		context = HikeMessengerApp.getInstance().getApplicationContext();
 
 		offlineManager = OfflineManager.getInstance();
-
-		threadManager = OfflineThreadManager.getInstance();
 	}
 	
 	public void handleStickerMessage(JSONObject messageJSON,File stickerImage,InputStream inputStream) throws OfflineException,IOException,JSONException

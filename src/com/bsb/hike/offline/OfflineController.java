@@ -35,8 +35,6 @@ public class OfflineController
 	OfflineManager offlineManager;
 	
 	HikeConverter  converter;
-	
-	OfflineThreadManager  offlineThreadManager;
 
 	public OfflineController(IOfflineCallbacks listener)
 	{

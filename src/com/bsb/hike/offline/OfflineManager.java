@@ -74,8 +74,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private static final String TAG = OfflineManager.class.getName();
 
-	private OfflineThreadManager threadManager;
-
 	private boolean scanResultsAvailable = false;
 
 	private boolean isConnectedToHotspot = false;
@@ -404,7 +402,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	public void connectToHotspot(String msisdn)
 	{
 		//threadManager.startReceivingThreads();
-		threadManager.startSendingThreads();
 		connectionManager.connectToHotspot(msisdn);
 	}
 
@@ -590,7 +587,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 
-			threadManager.shutDown();
 			connectionManager.closeConnection(getConnectedDevice());
 
 			clearAllVariables();
