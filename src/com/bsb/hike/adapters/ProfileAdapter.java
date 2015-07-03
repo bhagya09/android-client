@@ -372,7 +372,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			String contname = TextUtils.isEmpty(mContactInfo.getName()) ? mContactInfo.getMsisdn() : mContactInfo.getName();
 			viewHolder.text.setText(contname);
 			String mapedId = contmsisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
-			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(contmsisdn,false));
+			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(contmsisdn));
 			viewHolder.image.setTag(imageViewerInf);
 			if (profilePreview == null)
 			{
@@ -928,7 +928,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		// basically for the case of unknown number contactInfo object doesn't have the hasIcon information
 		if(mContactInfo != null)
 		{
-			return this.mContactInfo.hasCustomPhoto() || ContactManager.getInstance().hasIcon(this.mContactInfo.getMsisdn(),false);	
+			return this.mContactInfo.hasCustomPhoto() || ContactManager.getInstance().hasIcon(this.mContactInfo.getMsisdn());	
 		}
 		else 
 		{

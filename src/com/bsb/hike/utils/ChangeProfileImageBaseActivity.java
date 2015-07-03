@@ -501,7 +501,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 
 		// check if msisdn is not a group id and if it already has an icon (force check to avoid stale state)
-		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn(),true))
+		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
 			// case when we need to show dialog for change dp and remove dp 
 			showProfileImageEditDialog(this, context, removeImagePath);
