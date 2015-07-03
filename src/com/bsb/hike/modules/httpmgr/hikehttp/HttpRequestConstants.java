@@ -66,6 +66,9 @@ public class HttpRequestConstants
 	private static final String BASE_READ = "/read";
 
 	private static final String BASE_ADDRESS_BOOK_READ = "/addressBook";
+	
+	private static final String STICKER_SHARE_PATH = "/stickershare/" ;
+
 
 	public static synchronized void setUpBase()
 	{
@@ -307,5 +310,9 @@ public class HttpRequestConstants
 	public static String signUpPinCallBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + "/pin-call";
+	}
+	public static String getMorestickersUrl()
+	{
+		return BASE_URL+STICKER_SHARE_PATH ;
 	}
 }
