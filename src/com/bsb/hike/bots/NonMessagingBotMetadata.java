@@ -77,7 +77,7 @@ public class NonMessagingBotMetadata
 
 	private void setUnreadCountShowType()
 	{
-		try 
+		try
 		{
 			this.unReadCountShowType = json.optString(BotUtils.UNREAD_COUNT_SHOW_TYPE, DEFAULT_UNREAD_COUNT);
 			int unReadCountType = Integer.parseInt(this.unReadCountShowType);
@@ -85,14 +85,14 @@ public class NonMessagingBotMetadata
 			{
 				this.unReadCountShowType = DEFAULT_UNREAD_COUNT;
 			}
+			this.unReadCountShowType = this.unReadCountShowType.substring(0, (this.unReadCountShowType.length() < 4) ? this.unReadCountShowType.length() : 4);
 		}
-		catch(NumberFormatException e)
+		catch (NumberFormatException e)
 		{
-		   e.printStackTrace();	
+			this.unReadCountShowType = this.unReadCountShowType.substring(0, (this.unReadCountShowType.length() < 4) ? this.unReadCountShowType.length() : 4);
+			e.printStackTrace();
 		}
-
 	}
-
 
 
 	public String getAppName()

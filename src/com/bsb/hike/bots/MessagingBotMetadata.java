@@ -59,7 +59,7 @@ public class MessagingBotMetadata
 
 	private void setUnreadCountShowType()
 	{
-		try 
+		try
 		{
 			this.unReadCountShowType = json.optString(BotUtils.UNREAD_COUNT_SHOW_TYPE, BotUtils.SHOW_UNREAD_COUNT_ACTUAL);
 			int unReadCountType = Integer.parseInt(this.unReadCountShowType);
@@ -67,11 +67,12 @@ public class MessagingBotMetadata
 			{
 				this.unReadCountShowType = BotUtils.SHOW_UNREAD_COUNT_ACTUAL;
 			}
-			
+			this.unReadCountShowType = this.unReadCountShowType.substring(0, (this.unReadCountShowType.length() < 4) ? this.unReadCountShowType.length() : 4);
 		}
-		catch(NumberFormatException e)
+		catch (NumberFormatException e)
 		{
-		   e.printStackTrace();	
+			this.unReadCountShowType = this.unReadCountShowType.substring(0, (this.unReadCountShowType.length() < 4) ? this.unReadCountShowType.length() : 4);
+			e.printStackTrace();
 		}
 	}
 
