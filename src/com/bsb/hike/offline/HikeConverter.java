@@ -79,7 +79,6 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 	
 	private void init() {
 		context  =  HikeMessengerApp.getInstance().getApplicationContext();
-		offlineManager = OfflineManager.getInstance();
 	}
 	
 	public void sendFile(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
@@ -91,7 +90,7 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 		SenderConsignment senderConsignment =  new SenderConsignment.Builder(convMessage.serialize().toString(),OfflineConstants.FILE_TOPIC).file(file).persistance(false).build();	
 		senderConsignment.setTag(convMessage);
 		addToCurrentSendingFile(convMessage.getMsgID(), fileTransferModel);
-		offlineManager.sendConsignment(senderConsignment);
+		OfflineManager.getInstance().sendConsignment(senderConsignment);
 	}
 	
 	public void sendFile(ConvMessage convMessage)
@@ -102,7 +101,7 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 		senderConsignment.setTag(convMessage);
 		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)file.length())), convMessage);
 		addToCurrentSendingFile(convMessage.getMsgID(), fileTransferModel);
-		offlineManager.sendConsignment(senderConsignment);
+		OfflineManager.getInstance().sendConsignment(senderConsignment);
 	}
 	
 	private ConvMessage getConvMessageForFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
@@ -206,7 +205,7 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 			String fileName) {
 
 		try {
-			messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+			messageJSON.put(HikeConstants.FROM, OfflineManager.getInstance().getConnectedDevice());
 			messageJSON.remove(HikeConstants.TO);
 			(messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(HikeConstants.FILE_PATH,
 					filePath);
@@ -273,7 +272,7 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 			tempFile.renameTo(new File(OfflineUtils.getFilePathFromJSON(message.serialize())));
 			FileTransferModel  fileTransferModel = currentReceivingFiles.get(message.getMsgID());
 			removeFromCurrentReceivingFile(message.getMsgID());
-			offlineManager.setInOfflineFileTransferInProgress(false);
+			OfflineManager.getInstance().setInOfflineFileTransferInProgress(false);
 			OfflineUtils.showSpinnerProgress(fileTransferModel);
 		}
 				// TODO:Disconnection handling:
@@ -300,7 +299,7 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 			senderConsignment =  new SenderConsignment.Builder(messageJSON.toString(),OfflineConstants.TEXT_TOPIC).build();	
 		}
 		senderConsignment.setTag(convMessage);
-		offlineManager.sendConsignment(senderConsignment);
+		OfflineManager.getInstance().sendConsignment(senderConsignment);
 	}
 	
 	public FileTransferModel getConvMessageFromCurrentSendingFiles(long msgId)
@@ -403,7 +402,7 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 
 	public void addToCurrentSendingFile(long msgId, FileTransferModel fileTransferModel)
 	{
-		if (OfflineUtils.isConnectedToSameMsisdn(fileTransferModel.getPacket(),offlineManager.getConnectedDevice()))
+		if (OfflineUtils.isConnectedToSameMsisdn(fileTransferModel.getPacket(),OfflineManager.getInstance().getConnectedDevice()))
 		{
 			currentSendingFiles.put(msgId, fileTransferModel);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
@@ -528,7 +527,8 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 	
 	public void handleRetryButton(ConvMessage convMessage)
 	{
-		if (offlineManager.getOfflineState() != OFFLINE_STATE.CONNECTED)
+		if (OfflineManager.getInstance()
+				.getOfflineState() != OFFLINE_STATE.CONNECTED)
 		{
 			HikeMessengerApp.getInstance().showToast("You are not connected..!! Kindly connect.");
 			return;
@@ -559,8 +559,8 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 				rMsgIds.add(itr.getKey());
 			}
 
-			ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), "o:" + offlineManager.getConnectedDevice());
-			final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + offlineManager.getConnectedDevice(), context.getString(R.string.files_not_received),
+			ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1),OfflineManager.getInstance().getConnectedDevice());
+			final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + OfflineManager.getInstance().getConnectedDevice(), context.getString(R.string.files_not_received),
 					OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE);
 			HikeConversationsDatabase.getInstance().addConversationMessages(deleteFilesConvMessage, true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED,deleteFilesConvMessage);
@@ -570,7 +570,7 @@ public class HikeConverter implements IMessageReceived , IMessageSent  {
 	private void toggleToAndFromField(JSONObject message)
 	{
 		try {
-			message.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+			message.put(HikeConstants.FROM, "o:" + OfflineManager.getInstance().getConnectedDevice());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

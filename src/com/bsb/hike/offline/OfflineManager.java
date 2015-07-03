@@ -202,6 +202,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		context = HikeMessengerApp.getInstance().getApplicationContext();
 		connectionManager = ConnectionManager.getInstance();
 		hikeConverter =  HikeConverter.getInstance();
+		transporter = Transporter.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
 		setDeviceNameAsMsisdn();
 		receiver = new OfflineBroadCastReceiver(this);
@@ -339,7 +340,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		transporterConfig =  new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING).sendoldPersistedMessages(true).ackTopic(OfflineConstants.TEXT_TOPIC).build();
+		transporterConfig =  new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING).sendoldPersistedMessages(false).ackTopic(OfflineConstants.TEXT_TOPIC).build();
 	}
 
 	public void removeMessage(int msg)
@@ -396,7 +397,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		transporterConfig = new Config.ConfigBuilder(topics, OfflineConstants.IP_SERVER, OfflineConstants.PORT_PING).sendoldPersistedMessages(true).ackTopic(OfflineConstants.TEXT_TOPIC).build();
+		transporterConfig = new Config.ConfigBuilder(topics, OfflineConstants.IP_SERVER, OfflineConstants.PORT_PING).sendoldPersistedMessages(false).ackTopic(OfflineConstants.TEXT_TOPIC).build();
 	}
 
 	public void connectToHotspot(String msisdn)
