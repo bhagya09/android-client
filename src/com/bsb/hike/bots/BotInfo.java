@@ -366,9 +366,9 @@ public class BotInfo extends ConvInfo
 	{
 		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
 		if (isMessagingBot())
-		{
-			if (!messagingBotMetadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ZERO)
-					&& !messagingBotMetadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ACTUAL))
+		{   
+			// it will show the hard coded unread count sent from the server  
+			if (!messagingBotMetadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ACTUAL))
 			{
 				return messagingBotMetadata.getUnreadCountShowType();
 			}

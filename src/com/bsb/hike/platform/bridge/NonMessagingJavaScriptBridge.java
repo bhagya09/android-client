@@ -639,10 +639,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void deleteBotConversation()
 	{
 		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
-		Activity context = weakActivity.get();
+		final Activity context = weakActivity.get();
 		ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
-		Intent intent = Utils.getHomeActivityIntent(context);
-		context.startActivity(intent);
+		final Intent intent = Utils.getHomeActivityIntent(context);
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				context.startActivity(intent);
+			}
+		});
+
 	}
 
 }

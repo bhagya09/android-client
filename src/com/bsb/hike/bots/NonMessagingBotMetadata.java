@@ -75,6 +75,9 @@ public class NonMessagingBotMetadata
 		setUnreadCountShowType();
 	}
 
+	// if unreadCountShowType is less than 0 then we need to set showType as default that is hardcoded one
+	// if unreadCountShowType is 0 then we will set 0 
+	// if number of digits is >4 it will set as max 4
 	private void setUnreadCountShowType()
 	{
 		try

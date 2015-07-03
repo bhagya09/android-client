@@ -257,6 +257,8 @@ public class ConversationsAdapter extends BaseAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
+		// getLastVisiblePosition is -1 only when the getview is called for the first time and when the notify data set change is called
+		// we need to set the gap between different animation to 0
 		if(listView.getLastVisiblePosition() == -1)
 		{
 			botAnimationStartTime = 0;
