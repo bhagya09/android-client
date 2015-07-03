@@ -692,7 +692,6 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			viewHolder.hiddenIndicator.setVisibility(View.GONE);
 		}
-		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
 	}
 
 	public void updateViewsRelatedToMute(View parentView, ConvInfo convInfo)
