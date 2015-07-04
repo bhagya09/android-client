@@ -852,6 +852,10 @@ public class ConversationsAdapter extends BaseAdapter
 			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
 		}
+		else if (message.getParticipantInfoState() == ParticipantInfoState.CHANGE_ADMIN)
+		{
+			markedUp = OneToNConversationUtils.getAdminUpdatedMessage(message,context);
+		}
 		
 		else if (message.getParticipantInfoState() == ParticipantInfoState.DND_USER)
 		{

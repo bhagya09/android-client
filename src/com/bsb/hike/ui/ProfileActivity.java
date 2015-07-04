@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,6 +45,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -88,6 +90,7 @@ import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -154,7 +157,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
-			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED };
+			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED };
 
 	private String[] contactInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 			HikePubSub.STATUS_MESSAGE_RECEIVED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST,
@@ -225,6 +228,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	int triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
 
 	private TextView creation;
+
+	private boolean isAdmin;
+
+	private TextView creator;
 	
 	private static final String TAG = "Profile_Activity";
 	
@@ -571,6 +578,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			if (!showingGroupEdit)
 			{
 				getSupportMenuInflater().inflate(R.menu.group_profile_menu, menu);
+				shouldDisplayAddParticipantOption(menu);
 			}
 			mMenu = menu;
 			return true;
@@ -588,6 +596,23 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		mMenu = menu;
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	private void shouldDisplayAddParticipantOption(Menu menu) {
+		try {
+			if (isAdmin
+					|| isGroupOwner
+					|| oneToNConversation.getMetadata().getAddMembersRight() == OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ALL_CAN_ADD)
+			{
+			   menu.findItem(R.id.add_people).setVisible(true);
+			}else{
+				 menu.findItem(R.id.add_people).setVisible(false);
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	@Override
@@ -887,6 +912,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			text = (TextView) headerView.findViewById(R.id.name);
 			profileImage = (ImageView) headerView.findViewById(R.id.group_profile_image);
 			creation = (TextView) headerView.findViewById(R.id.creation);
+			creator = (TextView) headerView.findViewById(R.id.creator);
 			smallIconFrame = (ImageView) headerView.findViewById(R.id.change_profile);
 			groupNameEditText.setText(oneToNConversation.getLabel());
 			msisdn = oneToNConversation.getMsisdn();
@@ -894,6 +920,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			text.setText(name);
 			if (profileType == ProfileType.BROADCAST_INFO) {
 				creation.setVisibility(View.GONE);
+				creator.setVisibility(View.GONE);
 
 			} else {
 				long groupCreation = oneToNConversation.getCreationDateInLong();
@@ -905,6 +932,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 									.getGroupCreationTimeAsString(
 											getApplicationContext(),
 											groupCreation));
+				if(oneToNConversation.getConversationCreator()!=null){
+					creator.setText(getResources().getString(
+							R.string.group_created_by)
+							+ " "
+							+ oneToNConversation.getConversationCreator());
+				}
 
 			}
 
@@ -1023,6 +1056,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		profileItems.add(sharedMediaItem);
 	}
+	
+	private void shouldAddGroupSettings()
+	{
+		if(isAdmin||isGroupOwner){
+			profileItems.add(new ProfileItem.ProfileGroupItem(ProfileItem.GROUP_SETTINGS, null));
+		}
+	}
 
 	private void addStatusMessagesAsMyProfileItems(List<StatusMessage> statusMessages)
 	{
@@ -1139,14 +1179,24 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupGroupProfileList()
 	{
 		GroupParticipant userInfo = new GroupParticipant(Utils.getUserContactInfo(preferences, true));
-
+		try {
+			if(oneToNConversation.getMetadata().amIAdmin()==1){
+			  userInfo.setAdmin(true);
+			}
+		} catch (JSONException e) {
+		
+		}
+		isGroupOwner = userInfo.getContactInfo().getMsisdn().equals(oneToNConversation.getConversationOwner());
+		isAdmin = userInfo.isAdmin();
 		profileItems.clear();
+		if (this.profileType == ProfileType.GROUP_INFO) {
+			shouldAddGroupSettings();
+		}
 		shouldAddSharedMedia();
 		sharedContentItem = new ProfileItem.ProfileSharedContent(ProfileItem.SHARED_CONTENT,getResources().getString(R.string.shared_cont_pa), sharedFileCount, sharedPinCount, unreadPinCount, null);
 		profileItems.add(sharedContentItem);
 		
 		List<PairModified<GroupParticipant, String>> participants = new ArrayList<PairModified<GroupParticipant, String>>();
-
 		for (Entry<String, PairModified<GroupParticipant, String>> mapEntry : participantMap.entrySet())
 		{
 			participants.add(mapEntry.getValue());
@@ -1167,9 +1217,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			profileItems.add(new ProfileItem.ProfileGroupItem(ProfileItem.GROUP_MEMBER, participants.get(i)));
 		}
-		isGroupOwner = userInfo.getContactInfo().getMsisdn().equals(oneToNConversation.getConversationOwner());
 		//Add -> Add member tab
-		profileItems.add(new ProfileItem.ProfileGroupItem(ProfileItem.ADD_MEMBERS, null));
+		try {
+			if (isAdmin
+					|| isGroupOwner
+					|| oneToNConversation.getMetadata().getAddMembersRight() == OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ALL_CAN_ADD)
+			{
+				profileItems.add(new ProfileItem.ProfileGroupItem(
+						ProfileItem.ADD_MEMBERS, null));
+			}else{
+				profileItems.add(new ProfileItem.ProfileGroupItem(
+						ProfileItem.GROUP_RIGHTS_INFO, null));
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -1255,8 +1318,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		profileItems = new ArrayList<ProfileItem>();
 
 		// Adding an item for the header
-		profileItems.add(new ProfileItem.ProfileStatusItem(ProfileItem.HEADER_ID));
-
+			profileItems.add(new ProfileItem.ProfileStatusItem(ProfileItem.HEADER_ID));
+	
 		addStatusMessagesAsMyProfileItems(HikeConversationsDatabase.getInstance().getStatusMessages(false, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, mLocalMSISDN));
 
 		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() > 0)
@@ -1280,6 +1343,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private int velocity;
 
 	private long previousEventTime;
+
+	private IRequestListener adminRequestListener;
+
+	private IRequestListener addMemSettingRequestListener;
 
 	@Override
 	public void onScroll(AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount)
@@ -1997,6 +2064,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				});
 			}
 		}
+		if (HikePubSub.CONV_META_DATA_UPDATED.equals(type))
+		{
+			Pair<String, OneToNConversationMetadata> pair = (Pair<String, OneToNConversationMetadata>) object;
+			if (mLocalMSISDN.equals(pair.first))
+			{
+				oneToNConversation.setMetadata(pair.second);
+				setupGroupProfileList();
+		
+			}
+		}
+	
 		else if (HikePubSub.ICON_CHANGED.equals(type))
 		{
 			if (mLocalMSISDN.equals((String) object))
@@ -2039,6 +2117,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				});
 			}
 		}
+		
+		if (HikePubSub.ONETONCONV_ADMIN_UPDATE.equals(type))
+		{
+			JSONObject json = (JSONObject) object;
+			if (mLocalMSISDN.equals((json).optString(HikeConstants.TO)))
+			{
+				JSONObject data = json.optJSONObject(HikeConstants.DATA);
+				String msisdn = data.optString(HikeConstants.ADMIN_MSISDN);
+				updateUIForAdminChange(msisdn);
+			}
+		}
 		else if (HikePubSub.PARTICIPANT_JOINED_ONETONCONV.equals(type))
 		{
 			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
@@ -2053,7 +2142,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					String contactName = participants.optJSONObject(i).optString(HikeConstants.NAME);
 					boolean onHike = participants.optJSONObject(i).optBoolean(HikeConstants.ON_HIKE);
 					boolean onDnd = participants.optJSONObject(i).optBoolean(HikeConstants.DND);
-					GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(msisdn, msisdn, contactName, msisdn, onHike), false, onDnd);
+					GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(msisdn, msisdn, contactName, msisdn, onHike), false, onDnd, false);
 					participantMap.put(msisdn, new PairModified<GroupParticipant, String>(groupParticipant, contactName));
 					msisdns.add(msisdn);
 				}
@@ -2546,10 +2635,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						optionsList.add(getString(R.string.remove_from_broadcast));
 					}
 				}
-				else
-				{
-					optionsList.add(getString(R.string.remove_from_group));
+				
+			}
+			if (isAdmin||isGroupOwner) {
+				if (!groupParticipant.isAdmin()) {
+					optionsList.add(getString(R.string.make_admin));
 				}
+				optionsList.add(getString(R.string.remove_from_group));
 			}
 
 			final String[] options = new String[optionsList.size()];
@@ -2584,6 +2676,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					else if (getString(R.string.remove_from_group).equals(option))
 					{
 						removeFromGroup(contactInfo);
+					}
+					else if (getString(R.string.make_admin).equals(option))
+					{
+						makeAdmin(oneToNConversation.getMsisdn(),contactInfo.getMsisdn());
 					}
 					else if (getString(R.string.remove_from_broadcast).equals(option))
 					{
@@ -2764,7 +2860,140 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mActivityState.deleteStatusToken.execute();
 		mDialog = ProgressDialog.show(this, null, getString(R.string.deleting_status));
 	}
+	
+	private void makeAdmin(String grpId, String msisdn)
+	{ 
+		RequestToken requestToken = HttpRequests.postAdminRequest(grpId,
+				getAdminPostData(msisdn), getAdminRequestListener(grpId, msisdn));
+		requestToken.execute();
+		ContactInfo contact = ContactManager.getInstance().getContact(
+				msisdn, true, false);
+		if (contact != null) {
+			msisdn = contact.getFirstNameAndSurname();
+		}
+		mDialog = ProgressDialog.show(this, null, getString(R.string.admin_updating, msisdn));
+	}
+	
+	private void changeAddMemberSettings(String grpId, int setting, CheckBox checkBox)
+	{ 
+		RequestToken requestToken = HttpRequests.postChangeAddMemSettingRequest(grpId,
+				getAddMemSettingsPostData(setting), getAddMemSettingListener(grpId, setting,checkBox));
+		requestToken.execute();
+		mDialog = ProgressDialog.show(this, null, getString(R.string.group_setting_updating));
+	}
+	
+	private IRequestListener getAdminRequestListener(final String grpId, final String msisdn)
+	{
+		adminRequestListener = new IRequestListener()
+		{
+			
+			@Override
+			public void onRequestSuccess(Response result)
+			{
 
+				JSONObject response = (JSONObject) result.getBody().getContent();
+				Logger.d(getClass().getSimpleName(), " post admin request succeeded : " + response);
+				
+			    dismissLoadingDialog();
+				HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+				if (convDb.setParticipantAdmin(oneToNConversation.getMsisdn(), msisdn) > 0)
+				{
+					updateUIForAdminChange(msisdn); 
+				}
+				
+			}
+			
+		
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+		//		onRequestSuccess(null);
+				dismissLoadingDialog();
+				showErrorToast(R.string.admin_task_error, Toast.LENGTH_LONG);
+			}
+		};
+		return adminRequestListener;
+	}
+	
+	protected void updateUIForAdminChange(String msisdn) {
+		GroupParticipant grpParticipant = participantMap.get(msisdn).getFirst();
+		grpParticipant.setAdmin(true);
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				setupGroupProfileList();
+				profileAdapter.notifyDataSetChanged();
+			}
+		});
+	}
+
+	private IRequestListener getAddMemSettingListener(final String grpId, final int setting, final CheckBox checkBox)
+	{
+		addMemSettingRequestListener = new IRequestListener()
+		{
+			
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				JSONObject response = (JSONObject) result.getBody().getContent();
+				Logger.d(getClass().getSimpleName(), " post group add memmber settings succeeded : " + response);
+				dismissLoadingDialog();
+				HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+				convDb.changeGroupSettings(grpId, setting,0, new ContentValues());
+			}
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				checkBox.setChecked(!checkBox.isChecked());
+				dismissLoadingDialog();
+				showErrorToast(R.string.admin_task_error, Toast.LENGTH_LONG);
+			}
+		};
+		return addMemSettingRequestListener;
+	}
+
+	public JSONObject getAdminPostData(String msisdn)
+	{
+		JSONObject data = new JSONObject();
+		try
+		{
+			data.put(HikeConstants.ADMIN, msisdn);
+		}
+		catch (JSONException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Invalid JSON", e);
+		}
+		return data;
+	}
+	
+	public JSONObject getAddMemSettingsPostData(int setting)
+	{
+		JSONObject data = new JSONObject();
+		try
+		{
+			data.put(HikeConstants.SETTING, setting);
+			
+		}
+		catch (JSONException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Invalid JSON", e);
+		}
+		return data;
+	}
+	
 	public void dismissLoadingDialog()
 	{
 		if (mDialog != null)
@@ -2880,12 +3109,61 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	}
 
+	public void onGSCheckboxClicked(final View view) {
+		final boolean checked =( (CheckBox) view.findViewById(R.id.checkBox)).isChecked();
+		final CheckBox checkBox = ( (CheckBox) view.findViewById(R.id.checkBox));
+		checkBox.setChecked(!checked);
+		String text = getResources().getString(
+				R.string.group_setting_confirmation1);
+		if (!checked) {
+			text = getResources().getString(
+					R.string.group_setting_confirmation2);
+		}
+
+		HikeDialogFactory.showDialog(ProfileActivity.this,
+				HikeDialogFactory.GROUP_ADD_MEMBER_SETTINGS,
+				new HikeDialogListener() {
+
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog) {
+						
+						int setting = 0;
+						if (checked) {
+							setting = 1;
+						}
+						hikeDialog.dismiss();
+						changeAddMemberSettings(oneToNConversation.getMsisdn(),
+								setting,checkBox);
+					}
+
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog) {
+					}
+
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog) {
+						( (CheckBox) view.findViewById(R.id.checkBox)).setChecked(checked);
+						hikeDialog.dismiss();
+					}
+				}, text);
+
+	}
+	
+
 	private void openAddToGroup()
 	{
 		// TODO Auto-generated method stub
 		Intent intent = new Intent(ProfileActivity.this, ComposeChatActivity.class);
 		if (this.profileType == ProfileType.GROUP_INFO)
 		{
+			if(oneToNConversation instanceof GroupConversation){
+				try {
+					intent.putExtra(HikeConstants.Extras.CREATE_GROUP_SETTINGS, oneToNConversation.getMetadata().getAddMembersRight());
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			intent.putExtra(HikeConstants.Extras.GROUP_CHAT, true);
 			intent.putExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT, mLocalMSISDN);
 		}
