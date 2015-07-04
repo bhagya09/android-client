@@ -20,5 +20,5 @@ project(':google-play').projectDir = new File('./google-play-services_lib')
 project(':facebook').projectDir = new File('./facebook-android-sdk/facebook')
 project(':actionbar-sherlock').projectDir = new File('./actionbarsherlock library')
 project(':viewpager-indicator-library').projectDir = new File('./Android ViewPagerIndicator library')
-project(':transporter-library').projectDir = new File('../transporter')
+project(':transporter-library').projectDir = new File('./transporter')
 rootProject.name = 'android-client'
