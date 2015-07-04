@@ -100,6 +100,7 @@ import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
+import com.bsb.hike.media.KeyboardPopupLayout21;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
@@ -317,6 +318,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private boolean ctSearchIndicatorShown, consumedForwardedData;
 	
 	protected HikeDialog dialog;
+	
+	private boolean shouldKeyboardPopupShow;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -565,6 +568,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mConversationDb = HikeConversationsDatabase.getInstance();
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
+		shouldKeyboardPopupShow=KeyboardPopupLayout21.shouldShow(activity);
 	}
 
 	/**
@@ -608,17 +612,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (mShareablePopupLayout == null)
 		{
-			int[] mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message };
-
-			List<ShareablePopup> sharedPopups = new ArrayList<ShareablePopup>();
+			int[] mEatOuterTouchIds =null;
+			if (shouldKeyboardPopupShow)
+			{
+				 mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message , R.id.msg_compose};	
+			}else{
+				 mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message };
+			}
 
 			initStickerPicker();
 			initEmoticonPicker();
 
-			sharedPopups.add(mEmoticonPicker);
-			sharedPopups.add(mStickerPicker);
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
-					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this);
+					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this,mComposeView,this);
 		}
 
 		else
@@ -1883,15 +1889,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		mComposeView.setOnEditorActionListener(this);
 
-		/**
-		 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
-		 * http://code.google.com/p/android/issues/detail?id=2516
-		 */
-		if (getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS)
-		{
-			mComposeView.setOnTouchListener(this);
-
-		}
+		mComposeView.setOnTouchListener(this);
 
 		mComposeView.setOnKeyListener(this);
 
@@ -2848,7 +2846,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (v.getId())
 		{
 		case R.id.msg_compose:
-			mComposeView.requestFocusFromTouch();
+			mShareablePopupLayout.onEditTextTouch(v, event);
+			/**
+			 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
+			 * http://code.google.com/p/android/issues/detail?id=2516
+			 */
+			if (getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS)
+			{
+				mComposeView.requestFocusFromTouch();
+
+			}
+			
 			return event == null;
 
 		default:
@@ -4816,7 +4824,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		if (mConversationsView != null && (mConversationsView.getLastVisiblePosition() == mConversationsView.getCount() - 1))
 		{
-			uiHandler.sendEmptyMessage(SCROLL_TO_END);
+			if (shouldKeyboardPopupShow)
+			{
+				sendUIMessage(SCROLL_TO_POSITION, mConversationsView.getLastVisiblePosition());
+			}
+			else
+			{
+				uiHandler.sendEmptyMessage(SCROLL_TO_END);
+			}
 		}
 	}
 	
@@ -5058,7 +5073,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 	
 	protected void onSaveInstanceState(Bundle outState)
-	{
+	{	
+		shouldKeyboardPopupShow=KeyboardPopupLayout21.shouldShow(activity);
 		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
 	}
 	

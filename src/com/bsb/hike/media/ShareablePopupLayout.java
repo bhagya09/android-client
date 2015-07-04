@@ -3,11 +3,14 @@ package com.bsb.hike.media;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import com.bsb.hike.R;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 /**
  * This class is used when we have to share KeyBoardPopup layout with other views. It's an aggregator class, and has the KeyBoard popup layout object, as well as a list of
@@ -34,10 +37,10 @@ public class ShareablePopupLayout
 	 * @param eatOuterTouchIds
 	 */
 
-	public ShareablePopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener)
+	public ShareablePopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener,EditText editText,OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		initViewToDisplay(context);
-		initPopupLayout(context, mainView, firstTimeHeight, eatOuterTouchIds, listener);
+		initPopupLayout(context, mainView, firstTimeHeight, eatOuterTouchIds, listener,editText,onSoftKeyboardListener);
 	}
 
 	private void initViewToDisplay(Context context)
@@ -52,14 +55,23 @@ public class ShareablePopupLayout
 	 * @param mainView
 	 * @param firstTimeHeight
 	 * @param eatOuterTouchIds
+	 * @param editText 
+	 * @param onSoftKeyboardListener 
 	 */
 
-	private void initPopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener)
+	private void initPopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener, EditText editText, OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		if (mKeyboardPopupLayout == null)
 		{
-			mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
+			if (KeyboardPopupLayout21.shouldShow(context))
+			{
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener,editText,onSoftKeyboardListener) : new KeyboardPopupLayout21(mainView, firstTimeHeight,
+						context, eatOuterTouchIds, listener,editText,onSoftKeyboardListener);
+			}else{
+				
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
 					context, eatOuterTouchIds, listener);
+			}
 		}
 	}
 
@@ -94,6 +106,10 @@ public class ShareablePopupLayout
 		{
 			if (mKeyboardPopupLayout.isShowing())
 			{
+				if (mKeyboardPopupLayout instanceof KeyboardPopupLayout21)
+				{
+					((KeyboardPopupLayout21) mKeyboardPopupLayout).showKeyboardAfterPopupDismiss();
+				}
 				dismiss();
 				return true;
 			}
@@ -223,6 +239,9 @@ public class ShareablePopupLayout
 		{
 			mKeyboardPopupLayout.onCloseKeyBoard();
 		}
+	}
+	public boolean onEditTextTouch(View v, MotionEvent event){
+		return mKeyboardPopupLayout.onTouch(v, event);
 	}
 
 }
