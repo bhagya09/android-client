@@ -127,7 +127,7 @@
     <dimen name="stealth_ftue_pu_img_margin_top">36dp</dimen>
     <dimen name="stealth_setup_des_margin_bottom">24dp</dimen>
     <dimen name="stealth_ftue_pu_msg_margin_bottom">28dp</dimen>
-    <dimen name="alp_42447968_lockpatternview_size">100dp</dimen>
+    <dimen name="alp_42447968_lockpatternview_size">150dp</dimen>
     <dimen name="alp_42447968_separator_size">1dp</dimen>
 	<dimen name="app_logo_margin_right">20dp</dimen>
 	<dimen name="app_logo_home_screen_right">13.3dp</dimen>

@@ -3,6 +3,7 @@ package com.bsb.hike.db;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
@@ -453,6 +454,11 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	 */
 	public void putInContentCache(String key, String namespace, String value)
 	{
+		if (TextUtils.isEmpty(key) || TextUtils.isEmpty(namespace))
+		{
+			Logger.e(HikePlatformConstants.TAG, "entries are incorrect. Send correct keys.");
+			return;
+		}
 		ContentValues values = new ContentValues();
 		values.put(KEY, key);
 		values.put(VALUE, value);
@@ -463,6 +469,11 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	public String getFromContentCache(String key, String namespace)
 	{
+		if (TextUtils.isEmpty(key) || TextUtils.isEmpty(namespace))
+		{
+			Logger.e(HikePlatformConstants.TAG, "entries are incorrect. Send correct keys to search for.");
+			return "";
+		}
 		Cursor c = null;
 		try
 		{

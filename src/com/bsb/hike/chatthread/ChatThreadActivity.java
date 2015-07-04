@@ -49,7 +49,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if (filter(getIntent()))
 		{
 			init(getIntent());
-			chatThread.onCreate();
+			chatThread.onCreate(savedInstanceState);
 			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.CHAT_SCR.ordinal());
 		}
 		else
@@ -328,4 +328,24 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return super.onKeyUp(keyCode, event);
 	}
 	
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		if (chatThread != null)
+		{
+			chatThread.onSaveInstanceState(outState);
+		}
+		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		if(chatThread != null) 
+		{
+			chatThread.onRestoreInstanceState(savedInstanceState);
+		}
+		super.onRestoreInstanceState(savedInstanceState);
+		
+	}
 }
