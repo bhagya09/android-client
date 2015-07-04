@@ -117,70 +117,6 @@ public class OfflineUtils
 		return false;
 	}
 
-	public static byte[] intToByteArray(int i)
-	{
-		byte[] result = new byte[4];
-
-		result[0] = (byte) (i >> 24);
-		result[1] = (byte) (i >> 16);
-		result[2] = (byte) (i >> 8);
-		result[3] = (byte) (i /* >> 0 */);
-		return result;
-	}
-
-	public static boolean isGhostPacket(JSONObject packet)
-	{
-		if (packet.optString(HikeConstants.SUB_TYPE).equals(OfflineConstants.GHOST))
-		{
-			return true;
-		}
-		return false;
-	}
-
-	public static JSONObject createGhostPacket(String msisdn)
-	{
-		return createGhostPacket(msisdn, OfflineUtils.isScreenOn());
-	}
-
-	public static boolean isScreenOn()
-	{
-		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
-		{
-			DisplayManager dm = (DisplayManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.DISPLAY_SERVICE);
-			boolean screenOn = false;
-			for (Display display : dm.getDisplays())
-			{
-				if (display.getState() != Display.STATE_OFF)
-				{
-					screenOn = true;
-				}
-			}
-			return screenOn;
-		}
-		else
-		{
-			PowerManager pm = (PowerManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.POWER_SERVICE);
-			// noinspection deprecation
-			return pm.isScreenOn();
-		}
-	}
-
-	public static JSONObject createGhostPacket(String msisdn, boolean screen)
-	{
-		JSONObject ghostJSON = new JSONObject();
-		try
-		{
-			ghostJSON.putOpt(HikeConstants.TO, msisdn);
-			ghostJSON.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.GHOST);
-			ghostJSON.put("screen", screen);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return ghostJSON;
-	}
-
 	public static int updateDB(long msgId, ConvMessage.State status, String msisdn)
 	{
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
@@ -189,11 +125,6 @@ public class OfflineUtils
 	public static int getTotalChunks(int fileSize)
 	{
 		return fileSize / OfflineConstants.CHUNK_SIZE + ((fileSize % OfflineConstants.CHUNK_SIZE != 0) ? 1 : 0);
-	}
-
-	public static int byteArrayToInt(byte[] bytes)
-	{
-		return (bytes[0] & 0xFF) << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
 	}
 
 	public static boolean isChatThemeMessage(JSONObject message) throws JSONException
@@ -230,30 +161,6 @@ public class OfflineUtils
 		}
 		storagePath.append(File.separator+fileName);
 		return storagePath.toString();
-	}
-
-	public static boolean isPingPacket(JSONObject object)
-	{
-		if (object.optString(HikeConstants.TYPE).equals(OfflineConstants.PING))
-		{
-			return true;
-		}
-		return false;
-	}
-
-	public static JSONObject createPingPacket()
-	{
-		JSONObject object = new JSONObject();
-		try
-		{
-			object.put(HikeConstants.TYPE, OfflineConstants.PING);
-			object.put(HikeConstants.FROM, getMyMsisdn());
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return object;
 	}
 
 	public static String createOfflineMsisdn(String msisdn)
@@ -398,27 +305,12 @@ public class OfflineUtils
 		return path;
 	}
 
-	public static void closeOutputStream(FileOutputStream outputStream) throws IOException
-	{
-		if (outputStream == null)
-			return;
-
-		outputStream.flush();
-		outputStream.getFD().sync();
-		outputStream.close();
-
-	}
-
 	public static boolean isConnectedToSameMsisdn(JSONObject message, String connectedMsisdn)
 	{
 
 		if (TextUtils.isEmpty(connectedMsisdn))
 		{
 			return false;
-		}
-		if (isPingPacket(message))
-		{
-			return true;
 		}
 		String sendingMsisdn = message.optString(HikeConstants.TO).replace("o:", "");
 		return sendingMsisdn.equals(connectedMsisdn);
@@ -509,90 +401,7 @@ public class OfflineUtils
 			if (!parent.exists())
 				parent.mkdirs();
 			stickerImage.createNewFile();
-
 		}
-	}
-
-	public static void closeSocket(final Socket socket) throws IOException
-	{
-		if (socket == null)
-		{
-			return;
-		}
-		final InputStream is = socket.getInputStream();
-		try
-		{
-			if (socket.isOutputShutdown())
-			{
-				Logger.d(TAG, "Output is already  shutdown");
-			}
-			else
-			{
-				socket.shutdownOutput();
-			}
-		}
-		catch (IOException e)
-		{
-			Logger.d(TAG, "exception in shutDownOutput");
-		}
-
-		try
-		{
-			if (socket.isInputShutdown())
-			{
-				Logger.d(TAG, "Input is already  shutdown");
-			}
-			else
-			{
-				socket.shutdownInput();
-			}
-		}
-		catch (IOException e)
-		{
-			Logger.d(TAG, "exception in shutDownOutput");
-		}
-
-		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-		{
-
-			@Override
-			public void run()
-			{
-				try
-				{
-					while (is.read() >= 0)
-					{
-
-						Logger.d(TAG, "in While Loop");
-					}
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				try
-				{
-					socket.close();
-				}
-				catch (IOException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}, 0);
-
-		// "read()" returns '-1' when the 'FIN' is reached
-
-	}
-
-	public static void closeSocket(ServerSocket serverSocket) throws IOException
-	{
-		if (serverSocket == null)
-		{
-			return;
-		}
-		serverSocket.close();
 	}
 
 	public static void putStkLenInPkt(JSONObject packet, long length)
@@ -610,23 +419,6 @@ public class OfflineUtils
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public static long getStkLenFrmPkt(JSONObject packet)
-	{
-		if (packet.optJSONObject(HikeConstants.DATA) != null)
-		{
-			try
-			{
-				JSONObject metaData = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-				return metaData.optLong(HikeConstants.FILE_SIZE, -1);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		return -1;
 	}
 	
 	public static  JSONObject getFileTransferMetadataForContact(JSONObject contactJson) throws JSONException
@@ -692,197 +484,6 @@ public class OfflineUtils
 		return isContactTransferMessage;
 	}
 	
-
-	public static JSONObject createAckPacket(String msisdn, long mappedMsgId, boolean ackForFileTransfer)
-	{
-		JSONObject ackJSON = new JSONObject();
-		try
-		{
-			ackJSON.putOpt(HikeConstants.TO, msisdn);
-			ackJSON.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.ACK);
-			ackJSON.put(OfflineConstants.MSG_ID, mappedMsgId);
-			ackJSON.put(OfflineConstants.FILE_TRANSFER_ACK, ackForFileTransfer);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return ackJSON;
-	}
-
-	public static boolean isAckForFileMessage(JSONObject ackJSON)
-	{
-		boolean ackForFileTransfer = false;
-		try
-		{
-			if (ackJSON.has(HikeConstants.SUB_TYPE) && ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK))
-			{
-
-				ackForFileTransfer = ackJSON.optBoolean(OfflineConstants.FILE_TRANSFER_ACK);
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return ackForFileTransfer;
-	}
-
-	public static long getMsgIdFromAckPacket(JSONObject ackJSON)
-	{
-		long msgId = -1;
-		try
-		{
-			if (ackJSON.has(HikeConstants.SUB_TYPE) && ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK))
-			{
-
-				msgId = ackJSON.optLong(OfflineConstants.MSG_ID, -1);
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return msgId;
-	}
-
-	public static boolean isAckPacket(JSONObject ackJSON)
-	{
-		if (ackJSON.has(HikeConstants.SUB_TYPE))
-		{
-			try
-			{
-				return ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
-		return false;
-	}
-
-	public static boolean isAvailable(Socket _socket_)
-	{
-		if (isConnected(_socket_))
-		{
-			try
-			{
-				if (_socket_.getInetAddress() == null)
-				{
-					return false;
-				}
-				if (_socket_.getPort() == 0)
-				{
-					return false;
-				}
-				if (_socket_.getRemoteSocketAddress() == null)
-				{
-					return false;
-				}
-				if (_socket_.isClosed())
-				{
-					return false;
-				}
-				/*
-				 * these aren't exact checks (a Socket can be half-open), but since we usually require two-way data transfer, we check these here too:
-				 */
-				if (_socket_.isInputShutdown())
-				{
-					return false;
-				}
-				if (_socket_.isOutputShutdown())
-				{
-					return false;
-				}
-				/* ignore the result, catch exceptions: */
-				_socket_.getInputStream();
-				_socket_.getOutputStream();
-			}
-			catch (IOException ioex)
-			{
-				return false;
-			}
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public static boolean isConnected(Socket _socket_)
-	{
-		if (_socket_ == null)
-		{
-			return false;
-		}
-
-		return _socket_.isConnected();
-	}
-
-	public static boolean getScreenStatusFromGstPkt(JSONObject messageJSON)
-	{
-		return messageJSON.optBoolean("screen", false);
-	}
-
-	public static boolean copyFile(InputStream inputStream, OutputStream outputStream, long fileSize) throws OfflineException
-	{
-		return copyFile(inputStream, outputStream, null, false, false, fileSize);
-	}
-
-	public static boolean copyFile(InputStream inputStream, OutputStream out, FileTransferModel fileTransferModel, boolean showProgress, boolean isSent, long fileSize)
-			throws OfflineException
-	{
-		byte buf[] = new byte[OfflineConstants.CHUNK_SIZE];
-		int len = 0;
-		boolean isCopied = false;
-
-		try
-		{
-
-			long prev = 0;
-			while (fileSize >= OfflineConstants.CHUNK_SIZE)
-			{
-				int readLen = 0;
-				readLen = inputStream.read(buf, 0, OfflineConstants.CHUNK_SIZE);
-				if (readLen < 0)
-					throw new OfflineException(OfflineException.EXCEPTION_IN_COPY_FILE);
-
-				out.write(buf, 0, readLen);
-				len += readLen;
-				fileSize -= readLen;
-				if (showProgress && ((len / OfflineConstants.CHUNK_SIZE) != prev))
-				{
-					prev = len / OfflineConstants.CHUNK_SIZE;
-					// Logger.d(TAG, "Chunk read " + prev + "");
-					showSpinnerProgress(fileTransferModel);
-				}
-			}
-
-			while (fileSize > 0)
-			{
-				buf = new byte[(int) fileSize];
-				len = inputStream.read(buf);
-				if(len<0)
-				{
-					throw new OfflineException(OfflineException.EXCEPTION_IN_COPY_FILE);
-				}
-				fileSize -= len;
-				out.write(buf, 0, len);
-
-			}
-			isCopied = true;
-		}
-		catch (IOException e)
-		{
-			Logger.e("Spinner", "Exception in copyFile: ", e);
-			throw new OfflineException(e, OfflineException.EXCEPTION_IN_COPY_FILE);
-		}
-		return isCopied;
-	}
-
 	public static void showSpinnerProgress(FileTransferModel fileTransferModel)
 	{
 		if (fileTransferModel == null)
@@ -913,96 +514,6 @@ public class OfflineUtils
 		return disconnect.optString(HikeConstants.TYPE, "").equals("d");
 	}
 
-	public static JSONObject createSpaceCheckPacket(FileTransferModel fileTransferModel) 
-	{
-		JSONObject spaceCheckPacket = new JSONObject();
-		try
-		{
-			String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
-			spaceCheckPacket.putOpt(HikeConstants.TO, msisdn);
-			spaceCheckPacket.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.SPACE_CHECK);
-			spaceCheckPacket.putOpt(OfflineConstants.MSG_ID, fileTransferModel.getMessageId());
-			spaceCheckPacket.putOpt(HikeConstants.FILE_SIZE, getFileSizeFromJSON(fileTransferModel.getPacket()));
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return spaceCheckPacket;
-	}
-	
-	public static JSONObject createSpaceAck(JSONObject spaceCheckPacket)
-	{
-		JSONObject spaceAck = new JSONObject();
-		try
-		{
-			spaceAck.putOpt(HikeConstants.TO, OfflineManager.getInstance().getConnectedDevice());
-			spaceAck.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.SPACE_ACK);
-			spaceAck.putOpt(OfflineConstants.MSG_ID, spaceCheckPacket.getLong(OfflineConstants.MSG_ID));
-			int fileSize = spaceCheckPacket.optInt(HikeConstants.FILE_SIZE);
-			Logger.d("OfflineManager", "file size is: " + fileSize + " My free space is: " + Utils.getFreeSpace());
-			if (fileSize < (int) Utils.getFreeSpace())
-				spaceAck.putOpt(OfflineConstants.SPACE_AVAILABLE, true);
-			else
-				spaceAck.putOpt(OfflineConstants.SPACE_AVAILABLE, false);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return spaceAck;
-	}
-	
-	public static boolean isSpaceCheckPacket(JSONObject ackJSON)
-	{
-		if (ackJSON.has(HikeConstants.SUB_TYPE))
-		{
-			try
-			{
-				return ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.SPACE_CHECK);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
-		return false;
-	}
-	
-	public static boolean isSpaceAckPacket(JSONObject ackJSON)
-	{
-		if (ackJSON.has(HikeConstants.SUB_TYPE))
-		{
-			try
-			{
-				return ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.SPACE_ACK);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
-		return false;
-	}
-
-	public static boolean canSendFile(JSONObject spaceAck)
-	{
-		return spaceAck.optBoolean(OfflineConstants.SPACE_AVAILABLE, false);
-	}
-
-	public static File createTempFile(String fileName) throws IOException
-	{
-		File tempFile= new File(FileTransferManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getHikeTempDir(),"tempImage_" + fileName );
-		File dirs = new File(tempFile.getParent());
-		if (!dirs.exists())
-			dirs.mkdirs();
-		// created a temporary file which on successful download will be renamed.
-		tempFile.createNewFile();
-		return tempFile;
-	}
-	
 	public static MessageMetadata getUpdatedMessageMetaData(ConvMessage msg) {
         
         JSONObject metaData = msg.getMetadata().getJSON();
