@@ -325,12 +325,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		{
 			connectedDevice = offlineNetworkMsisdn;
 			initClientConfig();
-			try {
-				transporter.initAsClient(transporterConfig, context,hikeConverter,hikeConverter,this,handler.getLooper());
-			} catch (TException e) {
-			
-				e.printStackTrace();
-			}
+			transporter.initAsClient(transporterConfig, context,hikeConverter,hikeConverter,this,handler.getLooper());
 		}
 	}
 
@@ -340,7 +335,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		transporterConfig =  new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING).sendoldPersistedMessages(false).ackTopic(OfflineConstants.TEXT_TOPIC).build();
+		transporterConfig =  new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(false).build();
 	}
 
 	public void removeMessage(int msg)
@@ -383,12 +378,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		msg.obj = msisdn;
 		performWorkOnBackEndThread(msg);
 		initServerConfig();
-		try {
-			transporter.initAsServer(transporterConfig,context,hikeConverter,hikeConverter,this,handler.getLooper());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			
-		}
+		transporter.initAsServer(transporterConfig,context,hikeConverter,hikeConverter,this,handler.getLooper());
 	}
 
 	private void initServerConfig() {
@@ -397,7 +387,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		transporterConfig = new Config.ConfigBuilder(topics, OfflineConstants.IP_SERVER, OfflineConstants.PORT_PING).sendoldPersistedMessages(false).ackTopic(OfflineConstants.TEXT_TOPIC).build();
+		transporterConfig = new Config.ConfigBuilder(topics, OfflineConstants.IP_SERVER, OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(false).build();
 	}
 
 	public void connectToHotspot(String msisdn)
@@ -619,7 +609,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	}
 
-	private void clearAllVariables()
+	public void clearAllVariables()
 	{
 		connectedDevice = null;
 		connectinMsisdn = null;
@@ -651,8 +641,22 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 	@Override
-	public void onDisconnect(TException e) {
-		
+	public void onDisconnect(TException tException) {
+		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
+		{
+			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + tException.getReasonCode());
+			sendDisconnectToListeners();
+			
+			setOfflineState(OFFLINE_STATE.DISCONNECTED);
+			
+			hikeConverter.shutDown(tException);
+			
+			// if a sending file didn't go change from spinner to retry button
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			
+			connectionManager.closeConnection(getConnectedDevice());
+			clearAllVariables();
+		}
 	}
 
 	public void sendConsignment(SenderConsignment senderConsignment) {

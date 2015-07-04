@@ -34,31 +34,6 @@ public class OfflineMessagesManager
 		offlineManager = OfflineManager.getInstance();
 	}
 	
-	public void handleStickerMessage(JSONObject messageJSON,File stickerImage,InputStream inputStream) throws OfflineException,IOException,JSONException
-	{
-		String stpath = OfflineUtils.getStickerPath(messageJSON);
-		stickerImage = new File(stpath);
-		if (!stickerImage.exists())
-		{
-			OfflineUtils.createStkDirectory(messageJSON);
-			FileOutputStream outputStream = new FileOutputStream(stickerImage);
-			OfflineUtils.copyFile(inputStream, outputStream, OfflineUtils.getStkLenFrmPkt(messageJSON));
-			OfflineUtils.closeOutputStream(outputStream);
-		}
-		// remove data from stream
-		else
-		{
-			long fileSize = OfflineUtils.getStkLenFrmPkt(messageJSON);
-			while (fileSize > 0)
-			{
-				long len = inputStream.skip(fileSize);
-				fileSize -= len;
-			}
-		}
-		// set stickerImage to null, to avoid deleting it if download is complete
-		stickerImage = null;  
-	}
-
 	public void handleChatThemeMessage(JSONObject messageJSON) throws JSONException
 	{
 		messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000);
