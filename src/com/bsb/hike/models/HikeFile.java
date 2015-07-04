@@ -681,10 +681,13 @@ public class HikeFile
 		Cursor cur = context.getContentResolver().query(uri, retCol, MediaStore.MediaColumns.DATA + "='" + filePath + "'", null, null);
 		try
 		{
-			if (cur.moveToFirst())
+			if (cur.getCount() == 0)
 			{
-				id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
+				return -1;
 			}
+			cur.moveToFirst();
+
+			id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
 		}
 
 		finally
