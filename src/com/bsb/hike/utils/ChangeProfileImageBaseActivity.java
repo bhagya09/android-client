@@ -499,7 +499,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
-		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn(),false))
+
+		// check if msisdn is not a group id and if it already has an icon (force check to avoid stale state)
+		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
 			// case when we need to show dialog for change dp and remove dp 
 			showProfileImageEditDialog(this, context, removeImagePath);
@@ -604,7 +606,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 					if (statusMessage != null)
 					{
-						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
+						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, true);
 
 						int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 						Editor editor = prefs.getPref().edit();

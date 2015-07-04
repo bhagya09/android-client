@@ -416,7 +416,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			}
 
 			adapter.getView(position, view, adapterView);
-			//invalidateOptionsMenu();
+			invalidateOptionsMenu();
 			//adapter.notifyDataSetChanged();
 		}
 		else

@@ -46,15 +46,15 @@ public class ImageParser
 			// this key was saved when we started camera activity
 			
 			String capturedFilepath = null;
-			
-			if(data == null) 
-			{
-				//result coming from camera
-				capturedFilepath = Utils.getCameraResultFile();
-			}
-			else if(data.getAction() == HikeConstants.HikePhotos.PHOTOS_ACTION_CODE)
+
+			if (data != null && data.getAction() == HikeConstants.HikePhotos.PHOTOS_ACTION_CODE)
 			{
 				capturedFilepath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
+			}
+			else
+			{
+				// After checking for custom action codes, we try to fetch result from camera
+				capturedFilepath = Utils.getCameraResultFile();
 			}
 
 			if (capturedFilepath != null)
