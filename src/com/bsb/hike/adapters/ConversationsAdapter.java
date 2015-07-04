@@ -189,15 +189,29 @@ public class ConversationsAdapter extends BaseAdapter
 		notifyDataSetChanged();
 	}
 	
-	private Animation getAnimation(ConvInfo convInfo)
-	{  
+	private void startSlideOutAnimation(final Animation botAnimation,final View v)
+	{       
+		botAnimation.setDuration(500);
+		v.postDelayed(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				v.startAnimation(botAnimation);
+			}
+		}, 50);
+
+	}
+	private void performAnimation(ConvInfo convInfo,final View v)
+	{  	
 		Animation animation = null;
 		if (removeBotMsisdn != null && removeBotMsisdn.equals(convInfo.getMsisdn()))
 		{
 			if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
 			{   
 				animation = getSlideOutAnimation(convInfo);
-				animation.setDuration(500);
+				startSlideOutAnimation(animation, v);
 			}
 			else
 			{
@@ -213,16 +227,16 @@ public class ConversationsAdapter extends BaseAdapter
 				animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_from_left);
 				animation.setStartOffset(botAnimationStartTime*250);
 				animation.setDuration(400);
-				botAnimationStartTime++;
-				break;
+                botAnimationStartTime++;
+                v.startAnimation(animation);
+                break;
 			case BotUtils.BOT_READ_SLIDE_OUT_ANIMATION:
 				animation = getSlideOutAnimation(convInfo);
-				animation.setDuration(500);
+				startSlideOutAnimation(animation, v);
 				break;
 			}
 
 		}
-		return animation;
 	}
 
 	private Animation getSlideOutAnimation(final ConvInfo convInfo)
@@ -338,11 +352,8 @@ public class ConversationsAdapter extends BaseAdapter
 
 		updateViewsRelatedToMute(v, convInfo);
 
-		Animation botAnimation = getAnimation(convInfo);
-		if ( botAnimation!= null)
-		{ 
-			v.startAnimation(botAnimation);
-		}	
+		performAnimation(convInfo,v);
+			
 		return v;
 	}
 
