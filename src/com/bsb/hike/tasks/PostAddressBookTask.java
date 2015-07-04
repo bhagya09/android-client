@@ -104,6 +104,7 @@ public class PostAddressBookTask
 				}
 				catch (DbException e)
 				{
+					resultObject = null;
 					e.printStackTrace();
 				}
 			}

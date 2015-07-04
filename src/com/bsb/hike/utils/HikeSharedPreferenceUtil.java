@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
@@ -111,6 +112,10 @@ public class HikeSharedPreferenceUtil
 	public synchronized String getData(String key, String defaultValue)
 	{
 		return hikeSharedPreferences.getString(key, defaultValue);
+	}
+	
+	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues) {
+		return hikeSharedPreferences.getStringSet(key, defaultValues);
 	}
 
 	public synchronized float getData(String key, float defaultValue)

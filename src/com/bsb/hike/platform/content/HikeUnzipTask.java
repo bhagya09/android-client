@@ -54,10 +54,7 @@ public class HikeUnzipTask extends Observable
 	{
 		Logger.d(TAG, "unzipping " + mFilePath + " to " + mDestinationPath);
 		UnZipTask unzipTask = new UnZipTask();
-		if (unzipTask.doInBackground(mFilePath, mDestinationPath))
-		{
-			unzipTask.onPostExecute(true);
-		}
+		unzipTask.onPostExecute(unzipTask.doInBackground(mFilePath, mDestinationPath) );
 	}
 
 	private class UnZipTask extends AsyncTask<String, Void, Boolean>
