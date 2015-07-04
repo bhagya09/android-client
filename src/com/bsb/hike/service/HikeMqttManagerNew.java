@@ -1262,6 +1262,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		case MqttException.REASON_CODE_SERVER_CONNECT_ERROR:
 			handleOtherException();
 			scheduleNextConnectionCheck(getConnRetryTime());
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_SOCKET_FACTORY_MISMATCH:
 			clearSettings();
