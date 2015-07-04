@@ -138,7 +138,7 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.Home"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" >
+            android:windowSoftInputMode="adjustPan|stateAlwaysHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
