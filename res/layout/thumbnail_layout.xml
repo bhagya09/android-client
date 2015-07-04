@@ -53,7 +53,7 @@
         android:id="@+id/file_missing_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/missing_thumbnail"
+        android:background="@color/mid_gray"
         android:layout_alignLeft="@id/thumbnail_view"
 		android:layout_alignTop="@id/thumbnail_view"
 		android:layout_alignRight="@id/thumbnail_view"

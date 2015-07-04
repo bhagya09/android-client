@@ -187,6 +187,8 @@ public class HikePubSub implements Runnable
 	public static final String PROFILE_IMAGE_NOT_DOWNLOADED = "profileImageNotDownloaded";
 
 	public static final String UPDATE_OF_MENU_NOTIFICATION = "updateOfMenuNotification";
+	
+	public static final String UPDATE_OF_PHOTOS_ICON = "updateOfPhotosIcon";
 
 	public static final String TALK_TIME_CHANGED = "talkTimeChanged";
 

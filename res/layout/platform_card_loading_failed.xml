@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#aaaaaa"
+            android:textColor="@color/mid_gray"
             android:text="@string/platform_error_text" />
         
          <com.bsb.hike.view.CustomFontTextView 
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#aaaaaa"
+            android:textColor="@color/mid_gray"
             android:layout_marginTop="5dp"
             android:text="@string/platform_error_subtext"
             android:visibility="visible" />

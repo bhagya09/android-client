@@ -211,6 +211,15 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	
 	public void backPressed()
 	{
+		try
+		{
+			// In some phones keyboard is not closing on press of Action bar back button
+			// try catch just for safe side
+			Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView());
+		}
+		catch (Exception e)
+		{
+		}
 		IntentFactory.openHomeActivity(ChatThreadActivity.this, true);
 		super.onBackPressed();
 	}
