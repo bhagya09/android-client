@@ -251,6 +251,11 @@ public class Utils
 
 	private static final String defaultCountryName = "India";
 
+	/**
+	 * copied from {@link android.telephony.TelephonyManager}
+	 */
+	private static final int NETWORK_TYPE_GSM = 16;
+
 	static
 	{
 		shortCodeRegex = Pattern.compile("\\*\\d{3,10}#");
@@ -5302,6 +5307,7 @@ public class Utils
 		case TelephonyManager.NETWORK_TYPE_EDGE: // ~ 50-100 kbps
 		case TelephonyManager.NETWORK_TYPE_GPRS: // ~ 100 kbps
 		case TelephonyManager.NETWORK_TYPE_IDEN: // ~25 kbps // API level 8
+		case NETWORK_TYPE_GSM:
 			return 2;
 		case TelephonyManager.NETWORK_TYPE_UNKNOWN:
 		default:
