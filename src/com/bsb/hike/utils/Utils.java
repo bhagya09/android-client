@@ -1374,10 +1374,9 @@ public class Utils
 	{
 		String result = null;
 		Cursor cursor = null;
-		String[] projection = { MediaStore.Images.Media.DATA };
 		try
 		{
-			cursor = mContext.getContentResolver().query(uri, projection, null, null, null);
+			cursor = mContext.getContentResolver().query(uri, null, null, null, null);
 			if (cursor == null)
 			{
 				result = uri.getPath();
