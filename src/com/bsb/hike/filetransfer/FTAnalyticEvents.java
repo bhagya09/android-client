@@ -162,6 +162,8 @@ public class FTAnalyticEvents
 	public static final String UPLOAD_CALLBACK_AREA_1_5 = "upload_callback_area_1_5";
 	public static final String UPLOAD_CALLBACK_AREA_1_6 = "upload_callback_area_1_6";
 
+	public static final String UPLOAD_QUICK_AREA = "upload_quick_area";
+
 	public static final String UPLOAD_CALLBACK_AREA_2 = "upload_callback_area_2";
 
 	public static final String UPLOAD_FILE_READ = "upload_file_read";
