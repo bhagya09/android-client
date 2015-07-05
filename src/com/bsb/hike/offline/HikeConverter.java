@@ -178,9 +178,9 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		{
 			messageJSON = new JSONObject(receiverConsignment.message);
 			toggleToAndFromField(messageJSON);
-			
 			if(!OfflineUtils.isContactTransferMessage(messageJSON) && OfflineUtils.isFileTransferMessage(messageJSON)) 
 			{
+				
 				setFileVariablesAndUpdateJSON(messageJSON);
 				int totalChunks = getTotalChunks(messageJSON);
 				
@@ -196,6 +196,10 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			{
 				if (OfflineUtils.isChatThemeMessage(messageJSON)) 
 				{
+					if(messagesManager==null)
+					{
+						messagesManager  =new OfflineMessagesManager();
+					}
 					messagesManager.handleChatThemeMessage(messageJSON);
 					return;
 				} 
