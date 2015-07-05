@@ -563,7 +563,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 		
 
-		if(!TextUtils.isEmpty(OfflineManager.getInstance().getConnectedDevice()) && !("o:"+OfflineManager.getInstance().getConnectedDevice()).equals(sendingMsisdn))
+		if(!TextUtils.isEmpty(OfflineManager.getInstance().getConnectedDevice()) && !(("o:"+OfflineManager.getInstance().getConnectedDevice()).compareTo(sendingMsisdn)==0))
 		{
 			ContactInfo contactInfo66 = ContactManager.getInstance().getContact("o:"+OfflineManager.getInstance().getConnectedDevice());
 			offlineFilteredList.add(contactInfo66);
