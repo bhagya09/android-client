@@ -158,7 +158,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			Logger.d(getClass().getSimpleName(), "No rows updated");
 		}
 		
-		if (convMessage.isFileTransferMessage()) 
+		if (!OfflineUtils.isContactTransferMessage(convMessage.serialize()) && convMessage.isFileTransferMessage()) 
 		{
 			HikeConversationsDatabase.getInstance().updateMessageMetadata(msgId, OfflineUtils.getUpdatedMessageMetaData(convMessage));
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
@@ -179,7 +179,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			messageJSON = new JSONObject(receiverConsignment.message);
 			toggleToAndFromField(messageJSON);
 			
-			if (OfflineUtils.isFileTransferMessage(messageJSON)) 
+			if(!OfflineUtils.isContactTransferMessage(messageJSON) && OfflineUtils.isFileTransferMessage(messageJSON)) 
 			{
 				setFileVariablesAndUpdateJSON(messageJSON);
 				int totalChunks = getTotalChunks(messageJSON);
