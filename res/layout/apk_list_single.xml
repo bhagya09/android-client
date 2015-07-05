@@ -54,7 +54,5 @@
         android:focusable="false"
         android:clickable="false" 
      />
-    <View
-        style="@style/DividerLarger"
-        android:layout_alignParentBottom="true" />
+   
 </RelativeLayout>

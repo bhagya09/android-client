@@ -134,5 +134,7 @@ public class OfflineConstants
 	public static final String TEXT_TOPIC = "text";
 
 	public static final String FILE_TOPIC = "file";
+
+	public static final String APK_SELECTION_RESULTS = "apk_selection_results";
 	
 }
