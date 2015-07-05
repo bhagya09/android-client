@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.util.Pair;
 import android.view.View;
+import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 
 import com.bsb.hike.HikeConstants;
@@ -627,9 +628,9 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	}
 
 	@Override
-	public void onError(SenderConsignment senderConsignment,
-			ERRORCODES errorCode) {
-		
+	public void onError(SenderConsignment senderConsignment, ERRORCODES errorCode) 
+	{
+		Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), OfflineUtils.getErrorString(errorCode), Toast.LENGTH_SHORT).show();
 	}
 
 }

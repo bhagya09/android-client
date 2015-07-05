@@ -42,6 +42,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.hike.transporter.utils.TConstants.ERRORCODES;
 
 /**
  * 
@@ -542,5 +543,22 @@ public class OfflineUtils
         }
         return null;
     }
+	
+
+	public static String getErrorString(ERRORCODES e)
+	{
+		if (e.compareTo(ERRORCODES.FILE_NOT_EXISTS)==0)
+			return "File not found";
+		else if (e.compareTo(ERRORCODES.NOT_CONNECTED)==0)
+			return "You are not connected. Kindly connect and re-try.";
+		else if (e.compareTo(ERRORCODES.NOT_ENOUGH_MEMORY)==0)
+			return "The recepient does not have enough memory to receive the file";
+		else if (e.compareTo(ERRORCODES.SD_CARD_NOT_PRESENT)==0)
+			return "The recepient does not have SD card to store the file";
+		else if (e.compareTo(ERRORCODES.SD_CARD_NOT_WRITABLE)==0)
+			return "External storage on recepient is READ_ONLY";
+		else
+			return "An unknown error occured";
+	}
 	
 }
