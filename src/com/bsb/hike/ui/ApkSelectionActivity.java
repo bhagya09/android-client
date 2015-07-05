@@ -164,15 +164,8 @@ public class ApkSelectionActivity extends SherlockActivity implements OnItemClic
 			@Override
 			public void onClick(View v)
 			{
-				SparseBooleanArray checked = list.getCheckedItemPositions(); 
-				int numChecked = checked.size();
-				ArrayList<ApplicationInfo> results  =  new ArrayList<ApplicationInfo>();
-				for (int i = 0; numChecked > 0; i++){
-				    if (checked.get(i)){  
-				    	results.add(apkInfo.get(i).appInfo);
-				        numChecked--; 
-				    }      
-				} 
+				
+				ArrayList<ApplicationInfo> results  =  apkAdapter.getSelectedItems();
 				Intent intent =  getIntent();
 				intent.putParcelableArrayListExtra(OfflineConstants.APK_SELECTION_RESULTS, results);
 				setResult(RESULT_OK, intent);
