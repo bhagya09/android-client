@@ -152,7 +152,8 @@ public class OfflineController
 
 	public void shutDown()
 	{
-		converter.sendMessage(OfflineUtils.createDisconnectPkt(getConnectedDevice()));
+		converter.sendMessage(OfflineUtils.createDisconnectPkt(getConnectedDevice()));		
+		offlineManager.disconnectAfterTimeout();
 	}
 
 	public void sendAudio(String filePath, String msisdn)

@@ -20,6 +20,8 @@ public class OfflineConstants
 
 	public static final int pingTimeout = 60 * 1000;
 	
+	public static final long WAITING_TIME_TO_DISCONNECT = 100;
+	
 	public static final String SUBNET = "192.168.43.";
 
 	public static final String IP_SERVER = "192.168.43.1";
@@ -89,6 +91,8 @@ public class OfflineConstants
 		public static final int SEND_PERSISTANCE_MSGS = -111;
 		
 		public static final int SHUTDOWN = -112;
+
+		public static final int DISCONNECT_BY_USER = -113;
 	}
 	
 	public static enum ERRORCODE

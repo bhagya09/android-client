@@ -173,6 +173,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		case OfflineConstants.HandlerConstants.SHUTDOWN:
 			shutDownProcess((OfflineException) msg.obj);
 			break;
+		case OfflineConstants.HandlerConstants.DISCONNECT_BY_USER:
+			onDisconnect(new OfflineException(OfflineException.USER_DISCONNECTED));
+			break;
 		}
 	};
 
@@ -661,6 +664,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void sendConsignment(SenderConsignment senderConsignment) {
 		transporter.publish(senderConsignment);
+	}
+
+	public void disconnectAfterTimeout() {
+		Message msg = Message.obtain();
+		msg.what = OfflineConstants.HandlerConstants.DISCONNECT_BY_USER;
+		msg.obj = null;
+		handler.sendMessageDelayed(msg,OfflineConstants.WAITING_TIME_TO_DISCONNECT);
 	}
 
 }
