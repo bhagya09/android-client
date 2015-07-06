@@ -76,6 +76,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -131,6 +132,7 @@ import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -143,6 +145,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -1373,10 +1376,9 @@ public class Utils
 	{
 		String result = null;
 		Cursor cursor = null;
-		String[] projection = { MediaStore.Images.Media.DATA };
 		try
 		{
-			cursor = mContext.getContentResolver().query(uri, projection, null, null, null);
+			cursor = mContext.getContentResolver().query(uri, null, null, null, null);
 			if (cursor == null)
 			{
 				result = uri.getPath();
@@ -4435,6 +4437,24 @@ public class Utils
 		return false;
 	}
 	
+	public static List<String> getPackagesMatchingIntent(String action, String category,String mimeType)
+	{
+		Intent shareIntent = new Intent(action);
+		shareIntent.addCategory(category);
+		shareIntent.setType(mimeType);
+		List<ResolveInfo> resolveInfoList =  HikeMessengerApp.getInstance().getPackageManager().queryIntentActivities(shareIntent, 0);
+		
+		List<String> matchedPackages = new ArrayList<String>(resolveInfoList.size());
+		if(!resolveInfoList.isEmpty())
+		{
+			for(ResolveInfo ri : resolveInfoList)
+			{
+				matchedPackages.add(ri.activityInfo.packageName);
+			}
+		}
+		return matchedPackages;
+	}
+	
 	public static void clearJar(Context c)
 	{
 		HashMap<URL, JarFile> jarCache = null;
@@ -6238,5 +6258,21 @@ public class Utils
 		StringWriter errorTrace = new StringWriter();
 		ex.printStackTrace(new PrintWriter(errorTrace));
 		return errorTrace.toString();
+	}
+	
+	public static Uri getFormedUri(Context context, String unformedUrl, String token)
+	{
+		//this RE checks for starting characters followed by :// to match http:// or https://
+		if (!unformedUrl.toLowerCase().matches("^\\w+://.*")) {
+			//making it a valid http URL
+		    unformedUrl = AccountUtils.HTTP_STRING + unformedUrl;
+		}
+		Uri formedUri= Uri.parse(unformedUrl)
+				.buildUpon()
+				.scheme((Utils.switchSSLOn(context) || URLUtil.isHttpsUrl(unformedUrl)) ? "https" : "http")
+				.appendPath(HikeConstants.ANDROID)
+				.appendPath(token)
+				.build();
+		return formedUri;
 	}
 }

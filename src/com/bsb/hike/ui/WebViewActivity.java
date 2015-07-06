@@ -751,7 +751,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 		}
 		
-		if (mode == WEB_URL_MODE || mode == WEB_URL_WITH_BRIDGE_MODE && webView.canGoBack())
+		if ((mode == WEB_URL_MODE || mode == WEB_URL_WITH_BRIDGE_MODE) && webView.canGoBack())
 		{
 			webView.goBack();
 		}
