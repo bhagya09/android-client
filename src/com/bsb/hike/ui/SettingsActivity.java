@@ -106,7 +106,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(getString(R.string.manage_account));
 		items.add(getString(R.string.privacy));
-    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
 		{
 			items.add(getString(R.string.settings_share_stickers));
 		}
@@ -124,7 +124,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		itemsSummary.add(getString(R.string.account_hintttext));
 		itemsSummary.add(getString(R.string.privacy_setting_hinttext));
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
 		{
 			itemsSummary.add(getString(R.string.settings_share_stickers_hintext));
 		}
@@ -142,7 +142,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		itemIcons.add(R.drawable.ic_account_settings);
 		itemIcons.add(R.drawable.ic_privacy_settings);
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
 		{
 			itemIcons.add(R.drawable.settings_icon_sticker_widget);
 		}
@@ -315,7 +315,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	{
 		if (isConnectedAppsPresent)
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
 			{
 				switch (position)
 				{
@@ -384,7 +384,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		else
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
 			{
 				switch (position)
 				{
