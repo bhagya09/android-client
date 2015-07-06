@@ -254,7 +254,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPause()
 	{
-		// TODO Auto-generated method stub
 		super.onPause();
 		if(smAdapter != null)
 		{
@@ -674,8 +673,18 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				after removing this, problem was solved with that device
 			 */
 			//smAdapter.notifyDataSetChanged();
+
+			ImageView galleryImageView = (ImageView) mParent.findViewById(R.id.album_image);
+			if (galleryImageView != null)
+			{
+				if (galleryImageView.getDrawable() == null)
+				{
+					//Update if image is not set
+					smAdapter.notifyDataSetChanged();
+				}
+			}
 		}
-		
+
 		super.onResume();
 	}
 
