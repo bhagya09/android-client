@@ -282,7 +282,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return rows;
 	}
 
-	private ArrayList<String> searchInPrimaryTable(String match, int[] primaryKeys, boolean t)
+	private ArrayList<String> searchInPrimaryTable(String match, int[] primaryKeys, boolean isExactMatchNeeded)
 	{
 
 		ArrayList<String> list = null;
@@ -333,7 +333,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					}
 					else
 					{
-						if (t)
+						if (isExactMatchNeeded)
 						{
 							String actualTag;
 							int matchLength = match.length();
@@ -463,7 +463,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public ArrayList<String> searchIntoFTSAndFindStickerList(String phrase, boolean t)
+	public ArrayList<String> searchIntoFTSAndFindStickerList(String phrase, boolean isExactMatchNeeded)
 	{
 
 		int[] rows = null;
@@ -475,7 +475,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					+ array[0];
 			Logger.d(TAG, "Searching \"" + phrase + "\" in " + table);
 
-			if (t)
+			if (isExactMatchNeeded)
 			{
 				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + table + " MATCH '" + phrase + "'", null);
 			}
@@ -496,7 +496,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 		catch (SQLiteException e)
 		{
-			Logger.d(TAG, "Exception while searching \"" + phrase + "\": " + (e == null ? e : e.getMessage()));
+			Logger.e(TAG, "Exception while searching \"" + phrase + "\": " + (e == null ? e : e.getMessage()));
 		}
 		finally
 		{
@@ -506,7 +506,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 		}
 
-		return searchInPrimaryTable(phrase, rows, t);
+		return searchInPrimaryTable(phrase, rows, isExactMatchNeeded);
 	}
 
 	public void disableTagsForDeletedStickers(Set<String> stickerInfo)
