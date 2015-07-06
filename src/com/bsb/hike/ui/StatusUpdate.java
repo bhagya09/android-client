@@ -880,6 +880,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				mEmoticonPicker.onOrientationChange(newConfig.orientation);
 				mActivityTask.emojiShowing = true;
 			}
+			else if (mActivityTask.moodShowing)
+			{
+				moodParent.setVisibility(View.GONE);
+				showMoodSelector();
+			}
 			else
 			{
 				mEmoticonPicker.dismiss();
