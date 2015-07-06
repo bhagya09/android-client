@@ -157,7 +157,7 @@ public class IntentFactory
 		{
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		if (pkgName != null)
 		{
 			intent.setPackage(pkgName);
