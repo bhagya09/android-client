@@ -126,6 +126,8 @@ public class StickerSearchHostManager
 		try
 		{
 			int end = ((count > 0) ? (start + count - 1) : start);
+			mStart = start;
+			mEnd = end;
 			return searchAndGetStickerResult(s, start, end, before, count);
 		}
 		catch (Exception e)
@@ -163,6 +165,10 @@ public class StickerSearchHostManager
 		{
 			startList = cobj.second.first;
 			endList = cobj.second.second;
+			pwords = wordList;
+			pstarts = startList;
+			pends = endList;
+
 			int previousBoundary = 0;
 			String value;
 			String nextWord;
@@ -388,6 +394,12 @@ public class StickerSearchHostManager
 				}
 			}
 		}
+		else
+		{
+			pwords = wordList;
+			pstarts = null;
+			pends = null;
+		}
 
 		int finalSuggestionsCount = tempResult.size();
 		if (finalSuggestionsCount > 0)
@@ -401,12 +413,6 @@ public class StickerSearchHostManager
 		}
 
 		Logger.d(TAG, "Results address: " + Arrays.toString(result));
-		pResult = result;
-		pwords = wordList;
-		pstarts = startList;
-		pends = endList;
-		mStart = start;
-		mEnd = end;
 
 		return new Pair<CharSequence, int[][]>(s, result);
 	}
