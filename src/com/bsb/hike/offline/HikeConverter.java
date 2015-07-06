@@ -668,11 +668,29 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	@Override
 	public void onError(SenderConsignment senderConsignment, ERRORCODES errorCode) 
 	{
-		Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), OfflineUtils.getErrorString(errorCode), Toast.LENGTH_SHORT).show();
+		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorString(errorCode));
 		
-		if (errorCode == ERRORCODES.NOT_CONNECTED)
+		switch(errorCode)
 		{
+		case NOT_CONNECTED:
 			Transporter.getInstance().publishWhenConnected(senderConsignment);
+			break;
+		case NOT_ENOUGH_MEMORY:
+		case SD_CARD_NOT_PRESENT:
+		case SD_CARD_NOT_WRITABLE:
+			try 
+			{
+				removeFromCurrentSendingFile(OfflineUtils.getMsgId(new JSONObject(senderConsignment.getMessage())));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			} 
+			catch (JSONException e) 
+			{
+				HikeMessengerApp.getInstance().showToast("JSONException dude... Ask the other guy to send proper message");
+				e.printStackTrace();
+			}
+			break;
+		default:
+			
 		}
 	}
 
