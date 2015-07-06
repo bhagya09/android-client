@@ -236,12 +236,18 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		recentlyJoinedTaskList = new ArrayList<ContactInfo>();
 		nuxRecommendedTaskList = new ArrayList<ContactInfo>();
 		nuxHideTaskList = new ArrayList<ContactInfo>();
-		
+
+		ContactManager cm = ContactManager.getInstance();
+
+		for (String stealthMsisdn : StealthModeManager.getInstance().getStealthMsisdns())
+		{
+			nuxHideTaskList.add(cm.getContact(stealthMsisdn));
+		}
+
 		boolean separateOrHideNuxContacts = nm.getCurrentState() != NUXConstants.COMPLETED && nm.getCurrentState() != NUXConstants.NUX_KILLED && (filterHideList || fetchRecommendedContacts);
 
 		if (separateOrHideNuxContacts)
 		{
-			ContactManager cm = ContactManager.getInstance();
 			
 			Set<String> mmSet = nm.getNuxSelectFriendsPojo().getRecoList();
 			

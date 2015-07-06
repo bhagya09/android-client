@@ -867,38 +867,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
-	 * This method checks whether a contact has a icon or not. First we check if contact is loaded or not and if it is loaded then {@link ContactInfo#hasCustomPhoto()} is used
-	 * otherwise check in database is made.
+	 * This method checks whether a contact has a icon or not. 
 	 * 
 	 * @param msisdn
 	 * @return
 	 */
-	public boolean hasIcon(String msisdn, boolean forceRefresh)
+	public boolean hasIcon(String msisdn)
 	{
-		boolean hasIcon = false;
-
-		ContactInfo contactInfo = getContactInfoFromPhoneNoOrMsisdn(msisdn);
-		if (contactInfo != null && !forceRefresh)
-		{
-			if (contactInfo.hasCustomPhoto() || getIcon(msisdn) != null)
-			{
-				hasIcon = true;
-			}
-			else
-			{
-				hasIcon = false;
-			}
-		}
-		else
-		{
-			hasIcon = hDb.hasIcon(msisdn);
-			if (contactInfo != null)
-			{
-				contactInfo.setHasCustomPhoto(hasIcon);
-			}
-		}
-
-		return hasIcon;
+		return hDb.hasIcon(msisdn);
 	}
 
 	/**
