@@ -3,6 +3,9 @@ package com.bsb.hike.utils;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -701,11 +704,20 @@ public class IntentFactory
 	
 	public static Intent getNonMessagingBotIntent(String msisdn, String url, String title, Context context)
 	{
-		Intent intent = getWebViewActivityIntent(context, url, title);
-		intent.putExtra(WebViewActivity.WEBVIEW_MODE, WebViewActivity.MICRO_APP_MODE);
-		intent.putExtra(HikeConstants.MSISDN, msisdn);
-		
-		return intent;
+		if (BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if (botInfo.isNonMessagingBot())
+			{
+				Intent intent = getWebViewActivityIntent(context, url, title);
+				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
+				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+				intent.putExtra(HikeConstants.MSISDN, msisdn);
+				return intent;
+			}
+		}
+
+		return new Intent();
 	}
 
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata)
