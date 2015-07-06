@@ -587,7 +587,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		audioRecordView = new AudioRecordView(activity, this);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-		
+		mComposeView.setOnClickListener(this);
 		initShareablePopup();
 
 		initActionMode();
@@ -623,7 +623,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (mShareablePopupLayout == null)
 		{
-			int[] mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message };
+			int[] mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.sticker_recommendation_parent, R.id.msg_compose };
 
 			List<ShareablePopup> sharedPopups = new ArrayList<ShareablePopup>();
 
@@ -998,6 +998,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
 			break;
+		case R.id.msg_compose:
+			if (mShareablePopupLayout.isShowing())
+			{
+				mShareablePopupLayout.dismiss();
+			}
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
