@@ -120,7 +120,9 @@ public class StickerSearchHostManager
 	}
 
 	public Pair<CharSequence, int[][]> onTextChange(CharSequence s, int start, int before, int count)
-	{Logger.d("FFFFFF", "onTextChanged searching start: " + System.currentTimeMillis());
+	{
+		Logger.d(TAG, "onTextChanged searching start: " + System.currentTimeMillis());
+
 		int end = ((count > 0) ? (start + count - 1) : start);
 		Logger.d(TAG, "onTextChange(" + s + ", [" + start + " - " + end + "], " + before + ", " + count + ")");
 
@@ -358,7 +360,7 @@ public class StickerSearchHostManager
 								savedStickers = history.get(searchKey + "*");
 							}
 
-							if (savedStickers.contains(null) ? savedStickers.size() > 1 : savedStickers.size() > 0)
+							if (savedStickers != null && (savedStickers.contains(null) ? savedStickers.size() > 1 : savedStickers.size() > 0))
 							{
 								if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
 								{
@@ -392,7 +394,8 @@ public class StickerSearchHostManager
 		pends = endList;
 		mStart = start;
 		mEnd = end;
-		Logger.d("FFFFFF", "onTextChanged searching over: " + System.currentTimeMillis());
+
+		Logger.d(TAG, "onTextChanged searching over: " + System.currentTimeMillis());
 		return new Pair<CharSequence, int[][]>(s, result);
 	}
 

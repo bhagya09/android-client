@@ -1,9 +1,12 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.utils.Logger;
 
 public class StickerSearchTask implements Runnable
 {
+	private static final String TAG = StickerSearchTask.class.getSimpleName();
+
 	private CharSequence s;
 	
 	private int start, before, count;
@@ -19,7 +22,12 @@ public class StickerSearchTask implements Runnable
 	@Override
 	public void run()
 	{
-		StickerSearchManager.getInstance().textChanged(s, start, before, count);
+		try {
+			StickerSearchManager.getInstance().textChanged(s, start, before, count);
+		}
+		catch (Exception e) {
+			Logger.d(TAG, "Exception in searching..." + (e == null ? e : e.getMessage()));
+		}
 	}
 
 }
