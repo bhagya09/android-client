@@ -82,9 +82,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	public static final int WEB_URL_MODE = 1; // DEFAULT MODE OF THIS ACTIVITY
 
-	public static final int WEB_URL_WITH_BRIDGE_MODE = 2;
+	public static final int SERVER_CONTROLLED_WEB_URL_MODE = 2;
 
 	public static final int MICRO_APP_MODE = 3;
+
+	public static final int WEB_URL_BOT_MODE = 4;
 	
 	public static final String FULL_SCREEN_AB_COLOR = "abColor";
 	
@@ -131,7 +133,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			initMsisdn();
 			if (filterNonMessagingBot(msisdn))
@@ -249,10 +251,15 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			setMicroAppMode();
 		}
-		
-		else if (mode == WEB_URL_WITH_BRIDGE_MODE)
+
+		else if (mode == WEB_URL_BOT_MODE)
 		{
-			setWebURLWithBridgeMode();
+			setWebUrlBotMode();
+		}
+		
+		else if (mode == SERVER_CONTROLLED_WEB_URL_MODE)
+		{
+			setServerControlledWebUrlMode();
 		}
 		
 		else
@@ -261,7 +268,22 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
-	private void setWebURLWithBridgeMode()
+	private void setWebUrlBotMode()
+	{
+		findViewById(R.id.progress).setVisibility(View.GONE);
+		attachBridge();
+		setupMicroAppActionBar();
+		handleURLBotMode();
+		checkAndBlockOrientation();
+	}
+
+	private void handleURLBotMode()
+	{
+		webView.loadUrl(botMetaData.getUrl());
+		webView.setWebViewClient(new HikeWebClient());
+	}
+
+	private void setServerControlledWebUrlMode()
 	{
 		String url = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
@@ -316,7 +338,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
 		bar = (ProgressBar) findViewById(R.id.progress);
 
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			View view = findViewById(R.id.overflow_anchor);
 			LayoutParams layoutParams = view.getLayoutParams();
@@ -630,7 +652,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setupActionBar(String titleString)
 	{
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			inflateMicroAppActionBar(titleString);
 		}
@@ -742,7 +764,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onBackPressed()
 	{
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			if (botConfig != null && botInfo.getIsBackPressAllowed())
 			{
@@ -750,8 +772,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				return;
 			}
 		}
-		
-		if ((mode == WEB_URL_MODE || mode == WEB_URL_WITH_BRIDGE_MODE) && webView.canGoBack())
+
+		if ((mode == WEB_URL_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE) && webView.canGoBack())
 		{
 			webView.goBack();
 		}
@@ -892,7 +914,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			title = botConfig.getFullScreenTitle();
 		}
 		Intent intent = IntentFactory.getWebViewActivityIntent(getApplicationContext(), url, title);
-		intent.putExtra(WEBVIEW_MODE, WEB_URL_WITH_BRIDGE_MODE);
+		intent.putExtra(WEBVIEW_MODE, SERVER_CONTROLLED_WEB_URL_MODE);
 		int color = botConfig.getFullScreenActionBarColor();
 		intent.putExtra(FULL_SCREEN_AB_COLOR, color == -1 ? botConfig.getActionBarColor() : color);
 		if (botConfig.isJSInjectorEnabled())
