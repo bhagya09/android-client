@@ -82,29 +82,21 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	public void sendFile(String filePath, String fileKey,
 			HikeFileType hikeFileType, String fileType, boolean isRecording,
 			long recordingDuration, int attachmentType, String msisdn,
-			String apkLabel) {
+			String apkLabel) 
+	{
 		ConvMessage convMessage = getConvMessageForFileTransfer(filePath,
 				fileKey, hikeFileType, fileType, isRecording,
 				recordingDuration, attachmentType, msisdn, apkLabel);
-		File file = new File(filePath);
-		FileTransferModel fileTransferModel = new FileTransferModel(
-				new TransferProgress(0, OfflineUtils.getTotalChunks((int) file
-						.length())), convMessage);
-		SenderConsignment senderConsignment = new SenderConsignment.Builder(
-				convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC)
-				.file(file).persistance(false).build();
-		senderConsignment.setTag(convMessage);
-		addToCurrentSendingFile(convMessage.getMsgID(), fileTransferModel);
-		OfflineManager.getInstance().sendConsignment(senderConsignment);
+		sendFile(convMessage);
 	}
 
-	public void sendFile(ConvMessage convMessage) {
-		String filePath = OfflineUtils.getFilePathFromJSON(convMessage
-				.serialize());
+	public void sendFile(ConvMessage convMessage) 
+	{
+		String filePath = OfflineUtils.getFilePathFromJSON(convMessage.serialize());
 		File file = new File(filePath);
 		SenderConsignment senderConsignment = new SenderConsignment.Builder(
 				convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC)
-				.file(file).persistance(false).build();
+				.file(file).persistance(false).ackRequired(true).build();
 		senderConsignment.setTag(convMessage);
 		FileTransferModel fileTransferModel = new FileTransferModel(
 				new TransferProgress(0, OfflineUtils.getTotalChunks((int) file
