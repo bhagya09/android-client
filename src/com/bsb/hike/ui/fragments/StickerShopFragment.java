@@ -142,7 +142,11 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 		protected void onPostExecute(Pair<Cursor,Drawable> pair)
 		{
 			super.onPostExecute(pair);
-			getView().findViewById(R.id.loading_data).setVisibility(View.GONE);
+			View parent = getView();
+			if (parent != null && parent.findViewById(R.id.loading_data) != null)
+			{
+				parent.findViewById(R.id.loading_data).setVisibility(View.GONE);
+			}
 			initAdapterAndList(pair.first, pair.second);
 			HikeMessengerApp.getPubSub().addListeners(StickerShopFragment.this, pubSubListeners);
 			registerListener();

@@ -1758,12 +1758,10 @@ public class VoIPClient  {
 	}
 	
 	private void calculateQuality() {
-		if (getCallDuration() < QUALITY_BUFFER_SIZE)
-			return;
-		
+
 		int cardinality = playbackTrackingBits.cardinality();
-		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
-		// Logger.d(logTag, "Loss: " + loss + ", cardinality: " + cardinality);
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.size()));
+//		Logger.d(tag, "Loss: " + loss + ", cardinality: " + cardinality);
 		
 		CallQuality newQuality;
 		
@@ -1776,7 +1774,7 @@ public class VoIPClient  {
 		else 
 			newQuality = CallQuality.WEAK;
 
-		if (currentCallQuality != newQuality) {
+		if (currentCallQuality != newQuality && getCallDuration() > QUALITY_BUFFER_SIZE) {
 			currentCallQuality = newQuality;
 			sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
 		}

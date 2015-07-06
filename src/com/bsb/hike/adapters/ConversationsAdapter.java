@@ -257,6 +257,12 @@ public class ConversationsAdapter extends BaseAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
+		// getLastVisiblePosition is -1 only when the getview is called for the first time and when the notify data set change is called
+		// we need to set the gap between different animation to 0
+		if(listView.getLastVisiblePosition() == -1)
+		{
+			botAnimationStartTime = 0;
+		}
 		final ConvInfo convInfo = getItem(position);
 
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
@@ -336,12 +342,7 @@ public class ConversationsAdapter extends BaseAdapter
 		if ( botAnimation!= null)
 		{ 
 			v.startAnimation(botAnimation);
-		}
-		if (position == (completeList.size()-1))
-		{
-			botAnimationStartTime = 0;
-		}
-		
+		}	
 		return v;
 	}
 
@@ -692,7 +693,6 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			viewHolder.hiddenIndicator.setVisibility(View.GONE);
 		}
-		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
 	}
 
 	public void updateViewsRelatedToMute(View parentView, ConvInfo convInfo)

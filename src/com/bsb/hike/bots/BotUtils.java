@@ -45,11 +45,9 @@ public class BotUtils
 	
 	public static final String UNREAD_COUNT_SHOW_TYPE = "unrdCntShw";
 	
-	public static final int SHOW_UNREAD_COUNT_ZERO = 0;
+	public static final String SHOW_UNREAD_COUNT_ZERO = "0";
 
-	public static final int SHOW_UNREAD_COUNT_ONE = 1;
-
-	public static final int SHOW_UNREAD_COUNT_ACTUAL = 2;
+	public static final String SHOW_UNREAD_COUNT_ACTUAL = "-1";
 
 	/**
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
@@ -447,13 +445,13 @@ public class BotUtils
 
 		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
 
-		if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+		if (convInfo.getLastConversationMsg() != null && configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
 		{
 			configuration.setBit(NonMessagingBotConfiguration.SLIDE_IN, false);
 			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
 			return BOT_SLIDE_IN_ANIMATION;
 		}
-		else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
+		else if (convInfo.getLastConversationMsg() != null && configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() != ConvMessage.State.RECEIVED_UNREAD)
 		{
 			return BOT_READ_SLIDE_OUT_ANIMATION;
 		}
@@ -467,13 +465,13 @@ public class BotUtils
 		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(botInfo.getMetadata());
 		MessagingBotConfiguration configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), messagingBotMetadata.isReceiveEnabled());
 
-		if (configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+		if (convInfo.getLastConversationMsg() != null && configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
 		{
 			configuration.setBit(MessagingBotConfiguration.SLIDE_IN, false);
 			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
 			return BOT_SLIDE_IN_ANIMATION;
 		}
-		else if (configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_READ)
+		else if (convInfo.getLastConversationMsg() != null && configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() != ConvMessage.State.RECEIVED_UNREAD)
 		{
 			return BOT_READ_SLIDE_OUT_ANIMATION;
 		}
