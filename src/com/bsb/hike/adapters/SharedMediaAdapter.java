@@ -81,14 +81,26 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	public Object instantiateItem(ViewGroup container, int position)
 	{
 		View page = layoutInflater.inflate(R.layout.gallery_layout_item, container, false);
+		bindView(page, position);
+		((ViewPager) container).addView(page);
+		return page;
+	}
+
+	public View bindView(View argView, int position)
+	{
 		final HikeSharedFile sharedMediaItem = sharedMediaItems.get(position);
 
-		TouchImageView galleryImageView = (TouchImageView) page.findViewById(R.id.album_image);
-		ImageView videPlayButton = (ImageView)  page.findViewById(R.id.play_media);
-		ProgressBar progressBar = (ProgressBar)  page.findViewById(R.id.progress_bar);
+		TouchImageView galleryImageView = (TouchImageView) argView.findViewById(R.id.album_image);
+		ImageView videPlayButton = (ImageView) argView.findViewById(R.id.play_media);
+		ProgressBar progressBar = (ProgressBar) argView.findViewById(R.id.progress_bar);
 		galleryImageView.setZoom(1.0f);
 		galleryImageView.setScaleType(ScaleType.FIT_CENTER);
 		
+		progressBar.setVisibility(View.VISIBLE);
+		videPlayButton.setVisibility(View.VISIBLE);
+		galleryImageView.setVisibility(View.VISIBLE);
+		argView.findViewById(R.id.file_missing_layout).setVisibility(View.GONE);
+
 		if (sharedMediaItem.getHikeFileType() == HikeFileType.VIDEO)
 		{
 			progressBar.setVisibility(View.GONE);
@@ -108,15 +120,14 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 			progressBar.setVisibility(View.GONE);
 			videPlayButton.setVisibility(View.GONE);
 			galleryImageView.setVisibility(View.GONE);
-			page.findViewById(R.id.file_missing_layout).setVisibility(View.VISIBLE);
+			argView.findViewById(R.id.file_missing_layout).setVisibility(View.VISIBLE);
 		}
 
 		galleryImageView.setTag(sharedMediaItem);
-		galleryImageView.setOnClickListener(this);
-		((ViewPager) container).addView(page);
-		return page;
+		galleryImageView.setOnClickListener(SharedMediaAdapter.this);
+		return argView;
 	}
-
+	
 	@Override
 	public void onClick(View v)
 	{
