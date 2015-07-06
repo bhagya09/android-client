@@ -499,7 +499,7 @@ public class VoIPService extends Service {
 			}
 
 			// Edge case: call button was hit for someone we are already speaking with. 
-			if (getCallId() > 0 && client != null && client.getPhoneNumber()!=null && client.getPhoneNumber().equals(msisdn)) 
+			if (getCallId() > 0 && getClient() != null && getClient().getPhoneNumber() != null && getClient().getPhoneNumber().equals(msisdn)) 
 			{
 				// Show activity
 				Logger.d(tag, "Restoring activity..");

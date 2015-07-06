@@ -1176,38 +1176,32 @@ public class VoIPClient  {
 						break;
 						
 					case COMM_UDP_SYNACK_PRIVATE:
-					case COMM_UDP_ACK_PRIVATE:
-						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
+							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							if (senderThread != null)
 								senderThread.interrupt();
-							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
-							if (connected) break;
-
-							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PRIVATE);
-							sendPacket(dp, true);
 						}
+					case COMM_UDP_ACK_PRIVATE:
+						Logger.d(tag, "Received " + dataPacket.getType());
+						if (connected) break;
+						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_PRIVATE), true);
 						connected = true;
 						break;
 						
 					case COMM_UDP_SYNACK_PUBLIC:
-					case COMM_UDP_ACK_PUBLIC:
-						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
+							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
 							if (senderThread != null)
 								senderThread.interrupt();
-							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
-							if (connected) break;
-							
-							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC);
-							sendPacket(dp, true);
 						}
+					case COMM_UDP_ACK_PUBLIC:
+						Logger.d(tag, "Received " + dataPacket.getType());
+						if (connected) break;
+						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC), true);
 						connected = true;
 						break;
 						
 					case COMM_UDP_SYNACK_RELAY:
-					case COMM_UDP_ACK_RELAY:
-						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
 							if (getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
 									getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
@@ -1215,14 +1209,15 @@ public class VoIPClient  {
 										getPreferredConnectionMethod() + " connection.");
 								break;
 							}
+
+							setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							if (senderThread != null)
 								senderThread.interrupt();
-							setPreferredConnectionMethod(ConnectionMethods.RELAY);
-							if (connected) break;
-
-							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_RELAY);
-							sendPacket(dp, true);
 						}
+					case COMM_UDP_ACK_RELAY:
+						Logger.d(tag, "Received " + dataPacket.getType());
+						if (connected) break;
+						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_RELAY), true);
 						connected = true;
 						break;
 						
