@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/standerd_background" >
@@ -11,18 +12,41 @@
         android:layout_gravity="center"
         android:scrollbars="none" />
 
-    <LinearLayout
+    <android.support.v7.widget.CardView
         android:id="@+id/new_update_tab"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/transparent" >
+        android:layout_height="60dp"
+        android:layout_margin="3dp"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="2dp"
+        card_view:cardUseCompatPadding="true"
+        card_view:contentPadding="6dp" >
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@color/red_color_span"
-            android:text="ASDASD" />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:drawablePadding="0dp"
+                android:drawableStart="@drawable/ic_newstatus"
+                android:drawableLeft="@drawable/ic_newstatus"
+                android:text="Photo" />
+            
+            <TextView
+                android:layout_width="0dp"
+                android:drawableLeft="@drawable/ic_newstatus"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Status" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 
     <ProgressBar
         android:id="@android:id/empty"
