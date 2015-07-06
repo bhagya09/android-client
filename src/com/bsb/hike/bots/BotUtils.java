@@ -417,7 +417,7 @@ public class BotUtils
 		}
 	}
 	
-	private static void updateBotConfiguration(BotInfo botInfo, String msisdn, int config)
+	public static void updateBotConfiguration(BotInfo botInfo, String msisdn, int config)
 	{
 		HikeConversationsDatabase.getInstance().updateBotConfiguration(msisdn, config);
 		botInfo.setConfiguration(config);
