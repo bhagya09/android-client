@@ -950,7 +950,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			return;
 		}
 		
-		if (existingGroupOrBroadcastId != null && adapter.getOnHikeContactsCount() == 0)
+		if (adapter.getOnHikeContactsCount() == 0)
 		{
 			return;
 		}
