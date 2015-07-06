@@ -574,4 +574,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		HikeContentDatabase.getInstance().deletePartialMicroAppCacheData(key, mBotInfo.getNamespace());
 	}
 
+	@JavascriptInterface
+	@Override
+	public void onResize(String height)
+	{
+		//do nothing
+	}
+
 }
