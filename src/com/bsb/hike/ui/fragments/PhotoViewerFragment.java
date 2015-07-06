@@ -254,6 +254,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPause()
 	{
+		// TODO Auto-generated method stub
 		super.onPause();
 		if(smAdapter != null)
 		{
@@ -679,7 +680,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			 */
 			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
 		}
-
+		
 		super.onResume();
 	}
 
