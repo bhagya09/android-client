@@ -79,6 +79,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private boolean isDeleting;
 
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
+	
+	private boolean mIsRunning = false;
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -411,6 +413,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		outState.putInt(HikeConstants.Extras.BLOKING_TASK_TYPE, blockingTaskType.ordinal());
 		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mIsRunning = true;
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mIsRunning = false;
 	}
 
 	@Override
@@ -1458,7 +1472,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		mTask = null;
 		dismissProgressDialog();
 		Preference notificationPreference = getPreferenceScreen().findPreference(HikeConstants.NOTIF_SOUND_PREF);
-		if(notificationPreference != null)
+		if(notificationPreference != null && mIsRunning && !isFinishing())
 		{
 			NotificationToneListPreference notifToneListPref = (NotificationToneListPreference) notificationPreference;
 			notifToneListPref.createAndShowDialog(ringtonesNameURIMap);
