@@ -566,15 +566,15 @@ public class OfflineUtils
 
 	public static String getErrorString(ERRORCODES e)
 	{
-		if (e.compareTo(ERRORCODES.FILE_NOT_EXISTS)==0)
+		if (e == ERRORCODES.FILE_NOT_EXISTS)
 			return "File not found";
-		else if (e.compareTo(ERRORCODES.NOT_CONNECTED)==0)
+		else if (e == ERRORCODES.NOT_CONNECTED)
 			return "You are not connected. Kindly connect and re-try.";
-		else if (e.compareTo(ERRORCODES.NOT_ENOUGH_MEMORY)==0)
+		else if (e == ERRORCODES.NOT_ENOUGH_MEMORY)
 			return "The recepient does not have enough memory to receive the file";
-		else if (e.compareTo(ERRORCODES.SD_CARD_NOT_PRESENT)==0)
+		else if (e == ERRORCODES.SD_CARD_NOT_PRESENT)
 			return "The recepient does not have SD card to store the file";
-		else if (e.compareTo(ERRORCODES.SD_CARD_NOT_WRITABLE)==0)
+		else if (e == ERRORCODES.SD_CARD_NOT_WRITABLE)
 			return "External storage on recepient is READ_ONLY";
 		else
 			return "An unknown error occured";
