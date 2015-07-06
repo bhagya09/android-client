@@ -25,12 +25,15 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
+import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
 
 public class UpdatesFragment extends SherlockFragment implements Listener
 {
@@ -64,6 +67,19 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 		// TODO
 		// mUpdatesList.setEmptyView(parent.findViewById(android.R.id.empty));
 		return parent;
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState)
+	{
+		super.onViewCreated(view, savedInstanceState);
+		
+		View v = view.findViewById(R.id.new_update_tab);
+		
+		QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(v)
+				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 60)).isSnappable(false).build();
+
+		mUpdatesList.setOnScrollListener(scrollListener);
 	}
 
 	@Override

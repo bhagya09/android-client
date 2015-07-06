@@ -21,8 +21,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
@@ -36,6 +39,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.Protip;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineImageLoader;
 import com.bsb.hike.timeline.model.StatusMessage;
@@ -449,18 +453,23 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			break;
 		}
-		
+
 		if (position >= mLastPosition)
 		{
 			Animator[] anims = getAnimators(viewHolder.itemView);
 			int length = anims.length;
 			for (int i = length; i > 0; i--)
 			{
-				Animator anim = anims[i-1];
+				Animator anim = anims[i - 1];
 				anim.setInterpolator(cardInterp);
 				anim.setDuration(500).start();
 			}
 			mLastPosition = position;
+		}
+
+		if (position == 0)
+		{
+			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 60), 0, 0);
 		}
 	}
 

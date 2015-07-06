@@ -27,11 +27,12 @@ public class ActionsDataModel
 
 	private ActionsDataModel()
 	{
-
+		// Set default params
 	}
 
 	public ActionsDataModel(ActionsDataModel.DataTypes argType)
 	{
+		this();
 		type = argType;
 	}
 
