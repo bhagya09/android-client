@@ -96,9 +96,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
 
-	private static final boolean TEST = false; // TODO: Test flag only, turn off
-												// for Production
-
 	private OverflowAdapter overflowAdapter;
 	
 	private boolean extrasClearedOut = false;
