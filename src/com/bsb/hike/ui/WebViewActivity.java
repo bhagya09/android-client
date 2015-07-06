@@ -4,6 +4,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.platform.content.HikeWebClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -289,11 +290,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		int color = getIntent().getIntExtra(FULL_SCREEN_AB_COLOR, R.color.blue_hike);
 		final String js = getIntent().getStringExtra(JS_TO_INJECT);
-		
 		setupWebURLWithBridgeActionBar(title, color);
 		
 		
-		WebViewClient mClient = new WebViewClient()
+		WebViewClient mClient = new HikeWebClient()
 		{
 			@Override
 			public void onPageFinished(WebView view, String url)
