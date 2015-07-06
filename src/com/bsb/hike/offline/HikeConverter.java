@@ -575,7 +575,6 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 		Logger.d(TAG, "Hike File type is: "
 				+ hikeFile.getHikeFileType().ordinal());
-		int length = hikeFile.getFileSize();
 
 		File f = hikeFile.getFile();
 		if (f.exists()) {
@@ -622,7 +621,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		}
 	}
 
-	private void clearData() {
+	private void clearData() 
+	{
 		currentReceivingFiles.clear();
 		currentSendingFiles.clear();
 	}

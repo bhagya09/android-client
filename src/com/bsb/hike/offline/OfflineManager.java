@@ -76,8 +76,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private boolean scanResultsAvailable = false;
 
-	private boolean isConnectedToHotspot = false;
-
 	private int tryGetScanResults = 0;
 
 	OfflineBroadCastReceiver receiver;
@@ -190,6 +188,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	private void saveToDb(ConvMessage convMessage)
 	{
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+		hikeConverter.sendMessage(convMessage);
 	}
 
 	public void performWorkOnBackEndThread(Message msg)
@@ -643,25 +642,44 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 	@Override
-	public void onDisconnect(TException tException) {
+	public void onDisconnect(TException tException) 
+	{
+		shutDownProcess(tException);
+	}
+	
+
+	public synchronized void shutDownProcess(TException exception)
+	{
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
-			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + tException.getReasonCode());
+			Logger.d(TAG, "going to disconnect");
+			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
 			sendDisconnectToListeners();
-			
+
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
-			
-			hikeConverter.shutDown(tException);
-			
+
+			hikeConverter.shutDown(exception);
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-			
+
 			connectionManager.closeConnection(getConnectedDevice());
+
 			clearAllVariables();
 		}
 	}
 
-	public void sendConsignment(SenderConsignment senderConsignment) {
+	public synchronized void shutDown(OfflineException exception)
+	{
+		Logger.d(TAG, "ShudDown called Due to reason " + exception.getReasonCode());
+		Message msg=Message.obtain();
+		msg.what=HandlerConstants.SHUTDOWN;
+		msg.obj=exception;
+		performWorkOnBackEndThread(msg);
+	}
+
+	public void sendConsignment(SenderConsignment senderConsignment) 
+	{
+		Logger.d(TAG, "Going to publish sender consigment " + senderConsignment.toJSONString());
 		transporter.publish(senderConsignment);
 	}
 
