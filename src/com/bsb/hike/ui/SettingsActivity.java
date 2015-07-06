@@ -606,8 +606,6 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	public String profileImageCropped()
 	{
 		String path = super.profileImageCropped();
-		int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
-		Utils.compressAndCopyImage(path, path, SettingsActivity.this, Bitmap.Config.RGB_565, imageCompressQuality, ImageQuality.QUALITY_MEDIUM, false);
 		uploadProfilePicture(AccountUtils.USER_DP_UPDATE_URL);
 		return path;
 	}
