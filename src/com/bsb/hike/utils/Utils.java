@@ -4445,8 +4445,14 @@ public class Utils
 	public static List<String> getPackagesMatchingIntent(String action, String category,String mimeType)
 	{
 		Intent shareIntent = new Intent(action);
-		shareIntent.addCategory(category);
-		shareIntent.setType(mimeType);
+		if(!TextUtils.isEmpty(category))
+		{
+			shareIntent.addCategory(category);
+		}
+		if(!TextUtils.isEmpty(mimeType))
+		{
+			shareIntent.setType(mimeType);
+		}
 		List<ResolveInfo> resolveInfoList =  HikeMessengerApp.getInstance().getPackageManager().queryIntentActivities(shareIntent, 0);
 		
 		List<String> matchedPackages = new ArrayList<String>(resolveInfoList.size());
