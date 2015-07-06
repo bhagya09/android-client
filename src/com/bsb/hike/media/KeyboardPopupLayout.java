@@ -15,22 +15,22 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
 {
-	private View mainView;
+	protected View mainView;
 
-	private int possibleKeyboardHeightLand, possibleKeyboardHeight, originalBottomPadding;
+	protected int possibleKeyboardHeightLand, possibleKeyboardHeight, originalBottomPadding;
 
-	private boolean isKeyboardOpen;
+	protected boolean isKeyboardOpen;
 
-	private int firstTimeHeight;
+	protected int firstTimeHeight;
 
-	private int[] mEatTouchEventViewIds;
+	protected int[] mEatTouchEventViewIds;
 	
-	private PopupListener mListener;
+	protected PopupListener mListener;
 
 	/**
 	 * 
