@@ -2123,7 +2123,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
 				String name="Connection Established with " + ((OfflineConversation)conversation).getLabel();
-				setTextAndIconForSystemMessages(mainMessage,name, R.drawable.ic_joined_chat_custom);
+				setTextAndIconForSystemMessages(mainMessage,name, isDefaultTheme ? R.drawable.offline_inline_message : R.drawable.offline_inline_message_white);
 
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 				
@@ -2132,7 +2132,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
 				String name="Connection Disconnected with " + ((OfflineConversation)conversation).getLabel();
-				setTextAndIconForSystemMessages(mainMessage,name, R.drawable.ic_joined_chat_custom);
+				setTextAndIconForSystemMessages(mainMessage,name,isDefaultTheme ? R.drawable.offline_inline_message : R.drawable.offline_inline_message_white);
 
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 				
@@ -2141,7 +2141,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
 				String name= convMessage.getMessage();
-				setTextAndIconForSystemMessages(mainMessage,name, R.drawable.ic_joined_chat_custom);
+				setTextAndIconForSystemMessages(mainMessage,name,isDefaultTheme ? R.drawable.offline_inline_message : R.drawable.offline_inline_message_white);
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 			}
 			else if (infoState == ParticipantInfoState.PARTICIPANT_JOINED)

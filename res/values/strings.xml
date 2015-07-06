@@ -1528,4 +1528,12 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="connection_deestablished">Connection Disconnected</string>
 	<string name= "files_not_received">Some files could not be received due to disconnection</string>
 	<string name = "share_application">Share Applications</string>
+	<string name="free_hike">FREE HIKE</string>
+	<string name="free_hike_detail_para_1">Now message,share videos,photos or apps for free.</string>
+	<string name= "free_hike_detail_para_2">Free hike is available with contacts within 80 meters.</string>
+	<string name= "share_application">Select Application</string>
+	<string name= "free_hike_connection">Free Hike Connection</string>
+	<string name= "free_hike_disconnect">Disconnect with %1$s ?</string>
+	<string name= "free_hike_disconnect_message">Your connection will end</string>
+	<string name= "scan_free_hike_connection">Scan %1$s for free hike connection</string>
 </resources>

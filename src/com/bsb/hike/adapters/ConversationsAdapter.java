@@ -793,8 +793,8 @@ public class ConversationsAdapter extends BaseAdapter
 			if(convInfo instanceof OfflineConvInfo)
 			{
 				imgStatus.setVisibility(View.VISIBLE);
-				//imgStatus.setImageBitmap(NUXManager.getInstance().getNuxChatRewardPojo().getPendingChatIcon());
-				messageView.setText(context.getResources().getString(R.string.connection_established));	
+				imgStatus.setImageResource(R.drawable.freehike_logo);
+				messageView.setText(context.getResources().getString(R.string.free_hike_connection));	
 			}
 			if(isNuxLocked)
 			{ 
@@ -819,7 +819,10 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
 		}
-		
+		if(convInfo instanceof OfflineConvInfo)
+		{
+			messageView.setTextColor(context.getResources().getColor(R.color.welcome_blue));
+		}
 	}
 
 	private CharSequence getConversationText(ConvInfo convInfo, ConvMessage message)
