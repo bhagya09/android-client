@@ -1334,6 +1334,18 @@ public class HikeBitmapFactory
 		MemmoryScreenShot screenShot = new MemmoryScreenShot(filename, imageSize);
 		Logger.d("image_config", screenShot.toString());
 
+		/**
+		 * If by any reasons 
+		 * options.outWidth = -1
+		 * options.outHeight = -1
+		 * 
+		 * go to 3rd case
+		 */
+		if(screenShot.options.outWidth == -1 || screenShot.options.outHeight == -1)
+		{
+			state = AlgoState.STATE_3;
+		}
+		
 		AlgoDimensionResult bestDimen = getBestDimensions(state, screenShot);
 
 		Bitmap thumbnail = null;
