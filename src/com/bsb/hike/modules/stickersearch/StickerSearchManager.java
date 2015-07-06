@@ -12,6 +12,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.modules.stickersearch.tasks.DismissStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
@@ -79,18 +80,16 @@ public class StickerSearchManager
 
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
-		Logger.d("FFFFFF", "onTextChanged called: " + System.currentTimeMillis());
 		this.currentString = s.toString();
 		this.currentLength = this.currentString.length();
 		StickerSearchTask textChangedTask = new StickerSearchTask(s, start, before, count);
 		searchEngine.runOnSearchThread(textChangedTask, 0);
-		Logger.d("FFFFFF", "onTextChanged over: " + System.currentTimeMillis());
 	}
 
 	public void afterTextChanged(Editable editable)
 	{
-		Logger.d(StickerTagWatcher.TAG, "XXXXXXX, currentTextString = " + this.currentString);
-		Logger.d(StickerTagWatcher.TAG, "XXXXXXX, currentTextLength = " + this.currentLength);
+		Logger.d(StickerTagWatcher.TAG, "afterTextChanged(), currentTextString = " + this.currentString);
+		Logger.d(StickerTagWatcher.TAG, "afterTextChanged(), currentTextLength = " + this.currentLength);
 	}
 
 	public void textChanged(CharSequence s, int start, int before, int count)
@@ -106,21 +105,25 @@ public class StickerSearchManager
 			{
 				listener.unHighlightText(0, this.currentLength);
 			}
-			listener.dismissStickerSearchPopup();
+
+			DismissStickerPopupTask dismissStickerPopupTask = new DismissStickerPopupTask();
+			searchEngine.runOnUiThread(dismissStickerPopupTask, 0);
 			return;
 		}
 
 		CharSequence charSequence = result.first;
 		int highlightArray[][] = result.second;
 
-		if (charSequence == null || Utils.isBlank(charSequence) || highlightArray == null)
+		if (Utils.isBlank(charSequence) || highlightArray == null)
 		{
 			Logger.d(StickerTagWatcher.TAG, "no recommendation result, currentTextLength = " + this.currentLength);
 			if (this.currentLength > 0)
 			{
 				listener.unHighlightText(0, this.currentLength);
 			}
-			listener.dismissStickerSearchPopup();
+
+			DismissStickerPopupTask dismissStickerPopupTask = new DismissStickerPopupTask();
+			searchEngine.runOnUiThread(dismissStickerPopupTask, 0);
 			return;
 		}
 
@@ -248,6 +251,15 @@ public class StickerSearchManager
 			listener.dismissStickerSearchPopup();
 			listener.showStickerSearchPopup(stickerList);
 		}
+	}
+	
+	public void dismissStickerSearchPopup()
+	{
+		if (listener != null)
+		{
+			listener.dismissStickerSearchPopup();
+		}
+		
 	}
 
 	public void downloadStickerTags(boolean firstTime)

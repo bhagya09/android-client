@@ -101,41 +101,55 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void showStickerSearchPopup(List<Sticker> stickerList)
+	public void showStickerSearchPopup(final List<Sticker> stickerList)
 	{
-		if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
+		if(activity == null)
 		{
-			Logger.d(TAG, " no sticker list or keyboard not open");
-			return;
+			return ;
 		}
-
-		chatthread.closeStickerRecommendTip();
-		
-		Logger.d(TAG, " on show sticker popup is called " + stickerList);
-
-		if(stickerRecommendView == null)
+		activity.runOnUiThread(new Runnable()
 		{
-			stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
-			android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
-			params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
-			stickerRecommendView.setLayoutParams(params);
-			stickerRecommendView.setOnTouchListener(onTouchListener);
 			
-			fragment = activity.getSupportFragmentManager().findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
-			
-			if (fragment == null)
+			@Override
+			public void run()
 			{
-				Logger.d(StickerTagWatcher.TAG, "sticker recommnd fragment is null");
+				if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
+				{
+					Logger.d(TAG, " no sticker list or keyboard not open");
+					return;
+				}
+
+				chatthread.closeStickerRecommendTip();
 				
-				fragment = StickerRecommendationFragment.newInstance(this, (ArrayList<Sticker>) stickerList);
-				activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
-						.commitAllowingStateLoss();
+				Logger.d(TAG, " on show sticker popup is called " + stickerList);
+
+				if(stickerRecommendView == null)
+				{
+					stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
+					android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
+					params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
+					stickerRecommendView.setLayoutParams(params);
+					stickerRecommendView.setOnTouchListener(onTouchListener);
+					
+					fragment = activity.getSupportFragmentManager().findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
+					
+					if (fragment == null)
+					{
+						Logger.d(StickerTagWatcher.TAG, "sticker recommnd fragment is null");
+						
+						fragment = StickerRecommendationFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
+						activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
+								.commitAllowingStateLoss();
+					}
+				}
+				
+				((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
+				stickerRecommendView.setVisibility(View.VISIBLE);
+				showFtueAnimation();
+				
 			}
-		}
+		});
 		
-		((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
-		stickerRecommendView.setVisibility(View.VISIBLE);
-		showFtueAnimation();
 	}
 	
 	public void showFtueAnimation()
