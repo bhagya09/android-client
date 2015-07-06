@@ -403,19 +403,12 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			} 
 			else 
 			{
-				if (file.exists()) 
+				if (file.exists() || (hikeFile.getHikeFileType() == HikeFileType.CONTACT))
 				{
 					fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 				}
 				else 
 				{
-					File f = new File(FileTransferManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getHikeTempDir(),
-																		"tempImage_" + file.getName());
-					if (f.exists()) 
-					{
-						Logger.d(TAG, "tempFile Delete" + f.getName());
-						f.delete();
-					}
 					fss = new FileSavedState(FTState.ERROR, hikeFile.getFileKey());
 				}
 			}
