@@ -655,7 +655,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 			toggleViewsVisibility();
 		}
-		if(smAdapter != null)
+		if(smAdapter != null && smAdapter.getSharedFileImageLoader().getIsExitTasksEarly())
 		{
 			smAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
 			
@@ -673,16 +673,11 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				after removing this, problem was solved with that device
 			 */
 			//smAdapter.notifyDataSetChanged();
-
-			ImageView galleryImageView = (ImageView) mParent.findViewById(R.id.album_image);
-			if (galleryImageView != null)
-			{
-				if (galleryImageView.getDrawable() == null)
-				{
-					//Update if image is not set
-					smAdapter.notifyDataSetChanged();
-				}
-			}
+			
+			/**
+			 * Instead refresh current visible view only
+			 */
+			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
 		}
 
 		super.onResume();
