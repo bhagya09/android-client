@@ -38,6 +38,7 @@ import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
@@ -320,7 +321,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				v = inflater.inflate(R.layout.group_settings_item, null);
 				CheckBox box = (CheckBox) v.findViewById(R.id.checkBox);
 				try {
-					if(groupConversation!=null && groupConversation.getMetadata().getAddMembersRight()==1){
+					if(groupConversation!=null && groupConversation.getMetadata().getAddMembersRight()==OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ADMIN_CAN_ADD){
 						box.setChecked(true);
 					}
 				} catch (JSONException e) {
