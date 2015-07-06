@@ -174,11 +174,11 @@ public interface HikePlatformConstants
 	 * Overflow menu item constants end
 	 */
 	
-	public static final int VERSION_0 = 0;
+	public static final int VERSION_NANO = 0;
 	
-	public static final int VERSION_1 = 1;
+	public static final int VERSION_ALTO_START = 1;
 	
-	public static final int CURRENT_VERSION = VERSION_1;
+	public static final int CURRENT_VERSION = 2;
 	
 	public static final String AB_COLOR = "color";
 	

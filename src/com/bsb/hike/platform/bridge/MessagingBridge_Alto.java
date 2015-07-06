@@ -148,7 +148,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		if(isCorrectMessage(messageId, "onLoadFinished")){
 			super.onLoadFinished(height);
-			if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_1)
+			if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO_START)
 			{
 				mHandler.post(new Runnable()
 				{

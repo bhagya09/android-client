@@ -159,8 +159,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	private void attachJSBridge(ConvMessage convMessage,WebViewHolder holder)
 	{
 		Logger.i(tag, "ataching bridge version "+convMessage.webMetadata.getPlatformJSCompatibleVersion());
-		holder.platformJavaScriptBridge.setListener(holder.webViewClient);
-		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_1)
+
+		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO_START)
 		{
 			holder.platformJavaScriptBridge = new MessagingBridge_Alto(mContext, holder.customWebView, convMessage, adapter);
 		}
@@ -168,6 +168,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		{
 			holder.platformJavaScriptBridge = new MessagingBridge_Nano(mContext, holder.customWebView, convMessage, adapter);
 		}
+		holder.platformJavaScriptBridge.setListener(holder.webViewClient);
 	}
 
 	@SuppressLint("NewApi")
@@ -471,7 +472,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				try
 				{
 					showCard(holder);
-					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_0)
+					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_NANO)
 					{
 						holder.platformJavaScriptBridge.setData();
 						String alarmData = convMessage.webMetadata.getAlarmData();
