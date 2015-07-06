@@ -69,15 +69,12 @@ public class StickerSearchUtility
 	/* Split charSequence in regular manner with boundary indexing */
 	public static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression)
 	{
-		Logger.d(TAG, "splitAndDoIndexing(" + input + ", " + regExpression + ")");
-
 		return splitAndDoIndexing(input, regExpression, 0);
 	}
 
 	/* Split charSequence in regular manner with boundary indexing along with limit on splitting */
 	private static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression, int limit)
 	{
-		Logger.d(TAG, "splitAndDoIndexing(" + input + ", " + regExpression + ", " + limit + ")");
 
 		ArrayList<String> matchList = null;
 		ArrayList<Integer> startList = null;

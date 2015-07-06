@@ -89,13 +89,14 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void highlightText(int start, int end)
 	{
-		Logger.d(TAG, "unhighlight called  : " + " start : " + start + " end : " + end);
+		Logger.d(TAG, "highlight called: [" + " start : " + start + " end : " + end + "]");
 		editable.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
 
 	@Override
 	public void unHighlightText(int start, int end)
 	{
+		Logger.d(TAG, "unhighlight called: [" + " start : " + start + " end : " + end + "]");
 		editable.setSpan(new ForegroundColorSpan(Color.BLACK), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
 
@@ -184,7 +185,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		if (stickerRecommendView != null)
 		{
 			Logger.d(TAG, "on dismiss is called");
-			stickerRecommendView.setVisibility(View.INVISIBLE);
+			stickerRecommendView.setVisibility(View.GONE);
 		}
 	}
 
