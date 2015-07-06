@@ -524,6 +524,7 @@ public class VoIPService extends Service {
 				for (String phoneNumber : msisdns) {
 					client = new VoIPClient(getApplicationContext(), handler);
 					client.setPhoneNumber(phoneNumber);
+					client.isInAHostedConference = true;
 					initiateOutgoingCall(client, callSource);
 				}
 			} else 
@@ -1461,7 +1462,6 @@ public class VoIPService extends Service {
 
 				if (keepRunning) {
 
-					Logger.d(tag, "Processor running.");
 					// Retrieve decoded samples from all clients and combine into one
 					VoIPDataPacket finalDecodedSample = null;
 					for (VoIPClient client : clients.values()) {

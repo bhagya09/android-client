@@ -110,6 +110,7 @@ public class VoIPClient  {
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
 	public boolean isHostingConference;
+	public boolean isInAHostedConference;
 	
 	// Audio quality
 	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
@@ -635,12 +636,17 @@ public class VoIPClient  {
 						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
 							
-							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
-							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
-							sendPacket(dp, false);
-							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
-							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PUBLIC);
-							sendPacket(dp, false);
+							// If we are setting up a conference, then force all connections
+							// through the relay since it will handle the broadcasting for us.
+							if (!isInAHostedConference) {
+								setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
+								dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
+								sendPacket(dp, false);
+								setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
+								dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PUBLIC);
+								sendPacket(dp, false);
+							}
+							
 							setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_RELAY);
 							sendPacket(dp, false);
