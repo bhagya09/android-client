@@ -304,13 +304,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		if (offlineNetworkMsisdn != null && connectedDevice == null && offlineState == OFFLINE_STATE.CONNECTING)
 		{
 			connectedDevice = offlineNetworkMsisdn;
-			initClientConfig();
+			initClientConfig("o:"+connectedDevice);
 			Logger.d(TAG, "Starting as Client");
 			transporter.initAsClient(transporterConfig, context,hikeConverter,hikeConverter,this,handler.getLooper());
 		}
 	}
 
-	private void initClientConfig() 
+	private void initClientConfig(String namespace) 
 	{
 		Logger.d(TAG, "Initialising client config!");
 		topics  =  new ArrayList<Topic>();
@@ -318,7 +318,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		transporterConfig =  new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(false).build();
+		transporterConfig = new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(true).nameSpace(namespace).build();
 	}
 
 	public void removeMessage(int msg)
@@ -360,19 +360,19 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		msg.what = OfflineConstants.HandlerConstants.CREATE_HOTSPOT;
 		msg.obj = msisdn;
 		performWorkOnBackEndThread(msg);
-		initServerConfig();
+		initServerConfig("o:"+msisdn);
 		Logger.d(TAG, "Starting server!");
 		transporter.initAsServer(transporterConfig,context,hikeConverter,hikeConverter,this,handler.getLooper());
 	}
 
-	private void initServerConfig() 
+	private void initServerConfig(String namespace) 
 	{
 		topics  =  new ArrayList<Topic>();
 		Topic textTopic = new Topic(OfflineConstants.TEXT_TOPIC);
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		transporterConfig = new Config.ConfigBuilder(topics, OfflineConstants.IP_SERVER, OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(false).build();
+		transporterConfig = new Config.ConfigBuilder(topics, OfflineConstants.IP_SERVER, OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(true).nameSpace(namespace).build();
 	}
 
 	public void connectToHotspot(String msisdn)

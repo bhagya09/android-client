@@ -13,8 +13,8 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.util.Pair;
 import android.view.View;
-import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -34,6 +34,7 @@ import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.TException;
+import com.hike.transporter.Transporter;
 import com.hike.transporter.interfaces.IMessageReceived;
 import com.hike.transporter.interfaces.IMessageSent;
 import com.hike.transporter.models.ReceiverConsignment;
@@ -97,6 +98,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC)
 				.file(file).persistance(false).ackRequired(true).build();
 		senderConsignment.setTag(convMessage);
+		
 		FileTransferModel fileTransferModel = new FileTransferModel(
 				new TransferProgress(0, OfflineUtils.getTotalChunks((int) file
 						.length())), convMessage);
@@ -138,24 +140,70 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				.getMsgID()));
 	}
 
+	/**
+	 * This function is called when message gets Delivered.
+	 * @param senderConsignment
+	 */
 	@Override
 	public void onMessageDelivered(SenderConsignment senderConsignment) 
 	{
-		ConvMessage convMessage = (ConvMessage) senderConsignment.getTag();
-		String msisdn = convMessage.getMsisdn();
-		long msgId = convMessage.getMsgID();
+		ConvMessage convMessage = null;
+		JSONObject message = null;
+		
+		/*
+		 * senderConsignment.getTag() is null when it is made from the 
+		 * persistence db of the library. Tag is never stored in the persistence db, hence it is null
+		 * 
+		 */
+		if (senderConsignment.getTag() != null)
+		{
+			convMessage = (ConvMessage) senderConsignment.getTag();
+			message = convMessage.serialize();
+		}
+		else
+		{
+			try 
+			{
+				message = new JSONObject(senderConsignment.getMessage());
+			} 
+			catch (JSONException e) 
+			{
+				message = null;
+				e.printStackTrace();
+			}
+		}
+		
+		ConvMessage tempConvMessage = null;
+		try {
+			tempConvMessage = (convMessage != null) ? convMessage : new ConvMessage(message, context);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		/*
+		 * We take msgId from JSON but not ConvMessage as the constructor
+		 * of ConvMessage(JSONObject, Context) is used for receiver end only
+		 * Thus it does not contain convMessage.getMsgId() but convMessage.getMappedMsgId()
+		 * Hence to avoid this confusion we serialise convMessage to JSONObject 
+		 * from where msgId is obtained.
+		 * 
+		 * 
+		 * We need tempConvMessage for getting MessageMetadata to update 
+		 * ConvMessage for double tick
+		 */
+		String msisdn = tempConvMessage.getMsisdn();
+		long msgId = OfflineUtils.getMsgId(message);
 		
 		int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
 		if (rowsUpdated == 0) 
 		{
 			Logger.d(getClass().getSimpleName(), "No rows updated");
 		}
-		
-		if (!OfflineUtils.isContactTransferMessage(convMessage.serialize()) && convMessage.isFileTransferMessage()) 
-		{
-			HikeConversationsDatabase.getInstance().updateMessageMetadata(msgId, OfflineUtils.getUpdatedMessageMetaData(convMessage));
+		if (!OfflineUtils.isContactTransferMessage(message) && OfflineUtils.isFileTransferMessage(message)) 
+		{ 
+			HikeConversationsDatabase.getInstance().updateMessageMetadata(msgId, OfflineUtils.getUpdatedMessageMetaData(tempConvMessage));
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
-			removeFromCurrentSendingFile(convMessage.getMsgID());
+			removeFromCurrentSendingFile(msgId);
 		}
 		
 		Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
@@ -327,7 +375,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			OfflineUtils.putStkLenInPkt(messageJSON, stickerFile.length());
 			senderConsignment = new SenderConsignment.Builder(
 					messageJSON.toString(), OfflineConstants.TEXT_TOPIC).file(
-					stickerFile).ackRequired(true).build();
+					stickerFile).ackRequired(true).persistance(true).build();
 		} 
 		else 
 		{
@@ -621,6 +669,11 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	public void onError(SenderConsignment senderConsignment, ERRORCODES errorCode) 
 	{
 		Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), OfflineUtils.getErrorString(errorCode), Toast.LENGTH_SHORT).show();
+		
+		if (errorCode == ERRORCODES.NOT_CONNECTED)
+		{
+			Transporter.getInstance().publishWhenConnected(senderConsignment);
+		}
 	}
 
 }
