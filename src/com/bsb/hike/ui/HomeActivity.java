@@ -213,7 +213,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		if(isShareIntent(getIntent()))
+		//Make sure we are not launching share intent if our activity is restarted by OS
+		if(isShareIntent(getIntent()) && savedInstanceState == null)
 		{
 			handleFileShareIntent(getIntent());
 		}
