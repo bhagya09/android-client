@@ -443,21 +443,24 @@ public class BotUtils
 
 	private static int getNonMessagingBotAnimationType(ConvInfo convInfo)
 	{
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
-
-		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
-
-		if (convInfo.getLastConversationMsg() != null && configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+		if (HikeMessengerApp.currentState != CurrentState.BACKGROUNDED && HikeMessengerApp.currentState != CurrentState.CLOSED)
 		{
-			configuration.setBit(NonMessagingBotConfiguration.SLIDE_IN, false);
-			updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
-			return BOT_SLIDE_IN_ANIMATION;
-		}
-		else if (convInfo.getLastConversationMsg() != null && configuration.isReadSlideOutEnabled() && convInfo.getLastConversationMsg().getState() != ConvMessage.State.RECEIVED_UNREAD)
-		{
-			return BOT_READ_SLIDE_OUT_ANIMATION;
-		}
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
 
+			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
+
+			if (convInfo.getLastConversationMsg() != null && configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+			{
+				configuration.setBit(NonMessagingBotConfiguration.SLIDE_IN, false);
+				updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+				return BOT_SLIDE_IN_ANIMATION;
+			}
+			else if (convInfo.getLastConversationMsg() != null && configuration.isReadSlideOutEnabled()
+					&& convInfo.getLastConversationMsg().getState() != ConvMessage.State.RECEIVED_UNREAD)
+			{
+				return BOT_READ_SLIDE_OUT_ANIMATION;
+			}
+		}
 		return NO_ANIMATION;
 	}
 
