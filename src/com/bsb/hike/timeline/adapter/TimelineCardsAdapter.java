@@ -471,6 +471,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 60), 0, 0);
 		}
+		else
+		{
+			viewHolder.parent.setPadding(0, 0, 0, 0);
+		}
 	}
 
 	private DecelerateInterpolator cardInterp = new DecelerateInterpolator();
