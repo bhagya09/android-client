@@ -61,6 +61,9 @@ public interface HikePlatformConstants
 	public static final String ERROR_MESSAGE = "error_message";
 	public static final String SUCCESS = "success";
 	public static final String FAILURE = "failure";
+	public static final String NON_MESSAGING_BOT_TYPE = "nm_type";
+	public static final String MICROAPP_MODE = "nm_app";
+	public static final String URL_MODE = "url_app";
 
 	public static final class PlatformUIDFetchType
 	{
