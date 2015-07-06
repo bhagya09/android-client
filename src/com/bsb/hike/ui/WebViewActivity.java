@@ -751,7 +751,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 		}
 		
-		if (mode == WEB_URL_MODE || mode == WEB_URL_WITH_BRIDGE_MODE && webView.canGoBack())
+		if ((mode == WEB_URL_MODE || mode == WEB_URL_WITH_BRIDGE_MODE) && webView.canGoBack())
 		{
 			webView.goBack();
 		}
@@ -887,6 +887,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void startWebViewWithBridge(String url, String title)
 	{
+		if (TextUtils.isEmpty(title))
+		{
+			title = botConfig.getFullScreenTitle();
+		}
 		Intent intent = IntentFactory.getWebViewActivityIntent(getApplicationContext(), url, title);
 		intent.putExtra(WEBVIEW_MODE, WEB_URL_WITH_BRIDGE_MODE);
 		int color = botConfig.getFullScreenActionBarColor();

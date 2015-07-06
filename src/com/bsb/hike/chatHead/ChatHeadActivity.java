@@ -75,7 +75,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		setContentView(R.layout.chat_head);
 		ChatHeadUtils.settingDailySharedPref();
 		initVariables();
-		getWindow().getDecorView().setBackgroundColor(R.color.transparent);
 		picker = new StickerPicker(R.layout.chat_head_sticker_layout, this, this, null);
 		LinearLayout layout = (LinearLayout) findViewById(R.id.sticker_pallete_other_app);
 		picker.onCreatingChatHeadActivity(this, layout);
