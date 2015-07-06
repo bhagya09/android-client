@@ -138,6 +138,18 @@ public class OpusWrapper {
 		}
 	}
 	
+	public int fec(byte[] input, byte[] output) throws Exception {
+		synchronized (decoderLock) {
+			if (decoder == 0)
+				throw new Exception("No decoder created.");
+			
+			if (input == null || output == null)
+				return 0;
+
+			return opus_decode(decoder, input, input.length, output, output.length / 2, 1);
+		}
+	}
+	
 	public int plc(byte[] output) throws Exception {
 		synchronized (decoderLock) {
 			if (decoder == 0)

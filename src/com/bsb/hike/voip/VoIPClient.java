@@ -1565,7 +1565,7 @@ public class VoIPClient  {
 						break;
 					}
 					
-					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 10];	// Just to be safe, we make a big buffer
+					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];	// Just to be safe, we make a big buffer
 					
 					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived) {
 						Logger.w(tag, "Old packet received.");
@@ -1573,7 +1573,31 @@ public class VoIPClient  {
 					}
 
 					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() > lastPacketReceived + 1) {
-						Logger.w(tag, "Could use FEC.");
+						Logger.w(tag, "Packet loss. Current: " + dpdecode.getVoicePacketNumber() +
+								", Expected: " + (lastPacketReceived + 1));
+						try {
+							uncompressedLength = opusWrapper.fec(dpdecode.getData(), uncompressedData);
+							uncompressedLength = uncompressedLength * 2;
+							Logger.d(tag, "Uncompressed length: " + uncompressedLength);
+							if (uncompressedLength > 0) {
+								// We have a decoded packet
+								lastPacketReceived = dpdecode.getVoicePacketNumber();
+
+								VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+								byte[] packetData = new byte[uncompressedLength];
+								System.arraycopy(uncompressedData, 0, packetData, 0, uncompressedLength);
+								dp.write(packetData);
+
+								synchronized (decodedBuffersQueue) {
+									decodedBuffersQueue.add(dp);
+									decodedBuffersQueue.notify();
+								}
+
+							}
+						} catch (Exception e) {
+							Logger.d(tag, "Opus decode exception: " + e.toString());
+						}
+						
 					}
 					
 					// Regular decoding
