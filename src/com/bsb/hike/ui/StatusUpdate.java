@@ -858,6 +858,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 	
 	@Override
+	protected void onStart()
+	{
+		initEmoticonPicker();
+		super.onStart();
+	}
+	
+	@Override
 	public void onConfigurationChanged(Configuration newConfig) 
 	{
 		super.onConfigurationChanged(newConfig);
@@ -866,10 +873,17 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			
 			if (mEmoticonPicker.isShowing())
 			{
+				int currentEmoticonPage = mEmoticonPicker.getCurrentItem();
 				mEmoticonPicker.dismiss();
 				initEmoticonPicker();
+				mEmoticonPicker.setCurrentItem(currentEmoticonPage);
 				mEmoticonPicker.onOrientationChange(newConfig.orientation);
 				mActivityTask.emojiShowing = true;
+			}
+			else if (mActivityTask.moodShowing)
+			{
+				moodParent.setVisibility(View.GONE);
+				showMoodSelector();
 			}
 			else
 			{

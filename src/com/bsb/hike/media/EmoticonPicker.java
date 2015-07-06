@@ -3,6 +3,7 @@ package com.bsb.hike.media;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,18 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	private StickerEmoticonIconPageIndicator mIconPageIndicator;
 	
 	private EmoticonAdapter mEmoticonAdapter;
+
+	private int currentItem;
+	
+	public int getCurrentItem()
+	{
+		return currentItem;
+	}
+
+	public void setCurrentItem(int currentItem)
+	{
+		this.currentItem = currentItem;
+	}
 
 	/**
 	 * Constructor
@@ -213,7 +226,12 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		/**
 		 * If there aren't sufficient recent emoticons, we do not show the recent emoticons tab.
 		 */
-		int firstCategoryToShow = (mRecentEmoticons.length < recentEmoticonsSizeReq) ? 1 : 0;
+		if (currentItem == 0)
+		{
+			currentItem = (mRecentEmoticons.length < recentEmoticonsSizeReq) ? 1 : 0;
+		}
+
+		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 
 		mEmoticonAdapter = new EmoticonAdapter(mActivity, this, isPortrait, tabDrawables);
 
@@ -223,7 +241,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 
 		mIconPageIndicator.setViewPager(mPager);
 
-		mPager.setCurrentItem(firstCategoryToShow, false);
+		mPager.setCurrentItem(currentItem, false);
 		
 		mEmoticonAdapter.notifyDataSetChanged();
 
@@ -370,4 +388,23 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		showEmoticonPicker(orientation);
 	}
 
+	OnPageChangeListener onPageChangeListener = new OnPageChangeListener()
+	{
+
+		@Override
+		public void onPageSelected(int pageNum)
+		{
+			currentItem = pageNum;
+		}
+
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2)
+		{
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int arg0)
+		{
+		}
+	};
 }
