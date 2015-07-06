@@ -86,12 +86,6 @@ public class StickerSearchManager
 		searchEngine.runOnSearchThread(textChangedTask, 0);
 	}
 
-	public void afterTextChanged(Editable editable)
-	{
-		Logger.d(StickerTagWatcher.TAG, "afterTextChanged(), currentTextString = " + this.currentString);
-		Logger.d(StickerTagWatcher.TAG, "afterTextChanged(), currentTextLength = " + this.currentLength);
-	}
-
 	public void textChanged(CharSequence s, int start, int before, int count)
 	{
 		Logger.d(StickerTagWatcher.TAG, "calling to search for string: " + s);

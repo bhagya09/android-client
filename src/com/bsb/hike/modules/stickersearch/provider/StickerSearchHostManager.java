@@ -121,15 +121,30 @@ public class StickerSearchHostManager
 
 	public Pair<CharSequence, int[][]> onTextChange(CharSequence s, int start, int before, int count)
 	{
-		Logger.d(TAG, "onTextChanged searching start: " + System.currentTimeMillis());
+		Logger.i(TAG, "onTextChanged searching start: " + System.currentTimeMillis());
 
-		int end = ((count > 0) ? (start + count - 1) : start);
-		Logger.d(TAG, "onTextChange(" + s + ", [" + start + " - " + end + "], " + before + ", " + count + ")");
+		try
+		{
+			int end = ((count > 0) ? (start + count - 1) : start);
+			mStart = start;
+			mEnd = end;
+			return searchAndGetStickerResult(s, start, end, before, count);
+		}
+		catch (Exception e)
+		{
+			Logger.e(TAG, "Exception in searching..." + (e == null ? e : e.getMessage()));
+		}
+		Logger.i(TAG, "onTextChanged searching over: " + System.currentTimeMillis());
+
+		return null;
+	}
+
+	private Pair<CharSequence, int[][]> searchAndGetStickerResult(CharSequence s, int start, int end, int before, int count)
+	{
+		Logger.v(TAG, "searchAndGetStickerResult(" + s + ", [" + start + " - " + end + "], " + before + ", " + count + ")");
 
 		int[][] result = null;
 		ArrayList<int[]> tempResult = new ArrayList<int[]>();
-		// if (!HikeSharedPreferenceUtil.getInstance().getData("isPopulated", false)) return null;
-
 		if (s.length() > 70)
 		{
 			int selection = 70;
@@ -150,6 +165,10 @@ public class StickerSearchHostManager
 		{
 			startList = cobj.second.first;
 			endList = cobj.second.second;
+			pwords = wordList;
+			pstarts = startList;
+			pends = endList;
+
 			int previousBoundary = 0;
 			String value;
 			String nextWord;
@@ -300,12 +319,12 @@ public class StickerSearchHostManager
 						if (suggestionFoundOnLastValidPhrase)
 						{
 							history.put(searchKey, list);
-							Logger.d(TAG, "XXXXXXXX: searchKey::" + searchKey + " ==> " + list);
+							Logger.i(TAG, "Phrase searchKey::" + searchKey + " ==> " + list);
 						}
 						else if (lastIndexInPhraseStartedWithPivot > i)
 						{
 							history.put(searchKey, new LinkedHashSet<Sticker>());
-							Logger.d(TAG, "XXXXXXXX: searchKey::" + searchKey + " ==> []");
+							Logger.i(TAG, "Phrase searchKey::" + searchKey + " ==> []");
 						}
 					}
 					else if (searchKey.length() > 0)
@@ -375,6 +394,12 @@ public class StickerSearchHostManager
 				}
 			}
 		}
+		else
+		{
+			pwords = wordList;
+			pstarts = null;
+			pends = null;
+		}
 
 		int finalSuggestionsCount = tempResult.size();
 		if (finalSuggestionsCount > 0)
@@ -388,14 +413,7 @@ public class StickerSearchHostManager
 		}
 
 		Logger.d(TAG, "Results address: " + Arrays.toString(result));
-		pResult = result;
-		pwords = wordList;
-		pstarts = startList;
-		pends = endList;
-		mStart = start;
-		mEnd = end;
 
-		Logger.d(TAG, "onTextChanged searching over: " + System.currentTimeMillis());
 		return new Pair<CharSequence, int[][]>(s, result);
 	}
 
@@ -467,7 +485,8 @@ public class StickerSearchHostManager
 		int actualStartOfWord = pstarts.get(wordIndexInText);
 		int actualEndOfWord = pends.get(wordIndexInText) - 1;
 		// determine if exact match is needed
-		boolean exactSearch = !((actualStartOfWord > mStart) ? ((actualStartOfWord <= mEnd) && (actualEndOfWord == mEnd)) : (actualEndOfWord >= mEnd)) || ((wordIndexInText == 0) && (word.length() == 1));
+		boolean exactSearch = !((actualStartOfWord > mStart) ? ((actualStartOfWord <= mEnd) && (actualEndOfWord == mEnd)) : (actualEndOfWord >= mEnd))
+				|| ((wordIndexInText == 0) && (word.length() == 1));
 
 		// phrase part
 		int j = wordIndexInText - 1;
