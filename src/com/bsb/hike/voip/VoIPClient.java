@@ -940,7 +940,7 @@ public class VoIPClient  {
 			addPacketToAckWaitQueue(dp);
 
 //		if (dp.getType() == PacketType.AUDIO_PACKET)
-//			Logger.d(tag, "sending isVoice: " + dp.isVoice());
+//			Logger.d(tag, "Sending audio: " + dp.isVoice());
 		
 		// Serialize everything except for P2P voice data packets
 		byte[] packetData = getUDPDataFromPacket(dp);
@@ -1565,9 +1565,16 @@ public class VoIPClient  {
 					}
 					
 					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 10];	// Just to be safe, we make a big buffer
-					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived)
+					
+					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived) {
+						Logger.w(tag, "Old packet received.");
 						continue;	// We received an old packet again
+					}
 
+					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() > lastPacketReceived + 1) {
+						Logger.w(tag, "Could use FEC.");
+					}
+					
 					// Regular decoding
 					try {
 						// Logger.d(VoIPActivity.logTag, "Decompressing data of length: " + dpdecode.getLength());
@@ -1727,13 +1734,13 @@ public class VoIPClient  {
 
 		VoIPDataPacket dp = decodedBuffersQueue.poll();
 		
-		if (dp == null) {
+		if (dp == null && opusWrapper != null) {
 			// We do not have audio data from the client. 
 			// Use packet loss concealment to extrapolate data.
 			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 			byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 			try {
-				Logger.d(tag, "PLC");
+//				Logger.d(tag, "PLC");
 				opusWrapper.plc(data);
 			} catch (Exception e) {
 				Logger.e(tag, "PLC Exception: " + e.toString());

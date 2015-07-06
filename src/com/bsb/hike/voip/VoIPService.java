@@ -499,7 +499,7 @@ public class VoIPService extends Service {
 			}
 
 			// Edge case: call button was hit for someone we are already speaking with. 
-			if (getCallId() > 0 && client.getPhoneNumber()!=null && client.getPhoneNumber().equals(msisdn)) 
+			if (getCallId() > 0 && client != null && client.getPhoneNumber()!=null && client.getPhoneNumber().equals(msisdn)) 
 			{
 				// Show activity
 				Logger.d(tag, "Restoring activity..");
@@ -1350,18 +1350,11 @@ public class VoIPService extends Service {
 				setAudioModeInCall();
 				int index = 0, size = 0;
 
-				if (android.os.Build.VERSION.SDK_INT >= 17) {
-					String rate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
-					String framesPerBuffer = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
-					Logger.d(tag, "Device frames/buffer:" + framesPerBuffer + ", sample rate: " + rate);
-				}
-				
-				Logger.d(tag, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
-				if (resamplerEnabled) {
+				if (resamplerEnabled) 
 					playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
-				}
 				else
 					playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
+				
 				minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				Logger.d(tag, "AUDIOTRACK - minBufSizePlayback: " + minBufSizePlayback + ", playbackSampleRate: " + playbackSampleRate);
 			
@@ -1467,6 +1460,7 @@ public class VoIPService extends Service {
 
 				if (keepRunning) {
 
+					Logger.d(tag, "Processor running.");
 					// Retrieve decoded samples from all clients and combine into one
 					VoIPDataPacket finalDecodedSample = null;
 					for (VoIPClient client : clients.values()) {
