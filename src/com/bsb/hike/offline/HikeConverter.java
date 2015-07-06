@@ -108,7 +108,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	private ConvMessage getConvMessageForFileTransfer(String filePath,
 			String fileKey, HikeFileType hikeFileType, String fileType,
 			boolean isRecording, long recordingDuration, int attachmentType,
-			String msisdn, String apkLabel) {
+			String msisdn, String apkLabel) 
+	{
 		int type = hikeFileType.ordinal();
 		File file = new File(filePath);
 		String fileName = file.getName();
@@ -315,17 +316,22 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		}
 	}
 
-	public void sendMessage(ConvMessage convMessage) {
+	public void sendMessage(ConvMessage convMessage) 
+	{
 		JSONObject messageJSON = convMessage.serialize();
 		SenderConsignment senderConsignment = null;
-		if (OfflineUtils.isStickerMessage(messageJSON)) {
+		Logger.d(TAG, "Going to send to text topic");
+		if (OfflineUtils.isStickerMessage(messageJSON)) 
+		{
 			String fileUri = OfflineUtils.getStickerPath(messageJSON);
 			File stickerFile = new File(fileUri);
 			OfflineUtils.putStkLenInPkt(messageJSON, stickerFile.length());
 			senderConsignment = new SenderConsignment.Builder(
 					messageJSON.toString(), OfflineConstants.TEXT_TOPIC).file(
-					stickerFile).build();
-		} else {
+					stickerFile).ackRequired(true).build();
+		} 
+		else 
+		{
 			senderConsignment = new SenderConsignment.Builder(
 					messageJSON.toString(), OfflineConstants.TEXT_TOPIC)
 					.build();
@@ -334,37 +340,42 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		OfflineManager.getInstance().sendConsignment(senderConsignment);
 	}
 
-	public void sendMessage(JSONObject disconnectPkt) {
+	public void sendDisconnectMessage() 
+	{
+		JSONObject disconnectPkt = OfflineUtils.createDisconnectPkt(OfflineManager.getInstance().getConnectedDevice());
+		Logger.d(TAG, "Going to send disconnect packet");
 		SenderConsignment senderConsignment;
-		senderConsignment = new SenderConsignment.Builder(
-				disconnectPkt.toString(), OfflineConstants.TEXT_TOPIC).build();
+		senderConsignment = new SenderConsignment.Builder(disconnectPkt.toString(), 
+							OfflineConstants.TEXT_TOPIC).ackRequired(false).persistance(false).build();
 		OfflineManager.getInstance().sendConsignment(senderConsignment);
 	}
 
-	public FileTransferModel getConvMessageFromCurrentSendingFiles(long msgId) {
+	public FileTransferModel getConvMessageFromCurrentSendingFiles(long msgId) 
+	{
 		if (currentSendingFiles.containsKey(msgId)) {
 			return currentSendingFiles.get(msgId);
 		}
 		return null;
 	}
 
-	private FileSavedState getUploadFileState(ConvMessage convMessage, File file) {
+	private FileSavedState getUploadFileState(ConvMessage convMessage, File file) 
+	{
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 		synchronized (currentSendingFiles) {
-			if (currentSendingFiles.containsKey(msgId)) {
-				// Logger.d("Spinner", "Current Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.IN_PROGRESS,
-						(int) file.length(),
-						currentSendingFiles.get(msgId).getTransferProgress()
-								.getCurrentChunks() * 1024);
-			} else if (convMessage.getState().equals(State.SENT_UNCONFIRMED)) {
+			if (currentSendingFiles.containsKey(msgId)) 
+			{
+				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), 
+						currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+			} 
+			else if (convMessage.getState().equals(State.SENT_UNCONFIRMED)) 
+			{
 				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0);
-			} else {
-				// Logger.d("Spinner", "Completed Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.COMPLETED,
-						hikeFile.getFileKey());
+			} 
+			else 
+			{
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 			}
 			return fss;
 		}
@@ -377,74 +388,78 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	 * @return TODO:Removing the try catch for the app to crash. So that we can
 	 *         debug, what the issue was.
 	 */
-	private FileSavedState getDownloadFileState(ConvMessage convMessage,
-			File file) {
+	private FileSavedState getDownloadFileState(ConvMessage convMessage, File file) 
+	{
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 
-		synchronized (currentReceivingFiles) {
+		synchronized (currentReceivingFiles) 
+		{
 
-			if (currentReceivingFiles.containsKey(msgId)) {
-				fss = new FileSavedState(FTState.IN_PROGRESS,
-						(int) file.length(),
-						currentReceivingFiles.get(msgId).getTransferProgress()
-								.getCurrentChunks() * 1024);
-
-			} else {
-				if (file.exists()) {
-					fss = new FileSavedState(FTState.COMPLETED,
-							hikeFile.getFileKey());
-
-				} else {
-					File f = new File(FileTransferManager.getInstance(
-							HikeMessengerApp.getInstance()
-									.getApplicationContext()).getHikeTempDir(),
-							"tempImage_" + file.getName());
-					if (f.exists()) {
+			if (currentReceivingFiles.containsKey(msgId)) 
+			{
+				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(),
+						currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+			} 
+			else 
+			{
+				if (file.exists()) 
+				{
+					fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+				}
+				else 
+				{
+					File f = new File(FileTransferManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getHikeTempDir(),
+																		"tempImage_" + file.getName());
+					if (f.exists()) 
+					{
 						Logger.d(TAG, "tempFile Delete" + f.getName());
 						f.delete();
 					}
-					fss = new FileSavedState(FTState.ERROR,
-							hikeFile.getFileKey());
+					fss = new FileSavedState(FTState.ERROR, hikeFile.getFileKey());
 				}
 			}
 		}
 		return fss;
 	}
 
-	public FileSavedState getFileState(ConvMessage convMessage, File file) {
-		return convMessage.isSent() ? getUploadFileState(convMessage, file)
-				: getDownloadFileState(convMessage, file);
+	public FileSavedState getFileState(ConvMessage convMessage, File file) 
+	{
+		return convMessage.isSent() ? getUploadFileState(convMessage, file) : getDownloadFileState(convMessage, file);
 	}
 
-	public void addToCurrentReceivingFile(long msgId,
-			FileTransferModel fileTransferModel) {
+	public void addToCurrentReceivingFile(long msgId, FileTransferModel fileTransferModel) 
+	{
 		currentReceivingFiles.put(msgId, fileTransferModel);
 	}
 
-	public void removeFromCurrentReceivingFile(long msgId) {
-		synchronized (currentReceivingFiles) {
-
-			if (currentReceivingFiles.containsKey(msgId)) {
+	public void removeFromCurrentReceivingFile(long msgId) 
+	{
+		synchronized (currentReceivingFiles) 
+		{
+			if (currentReceivingFiles.containsKey(msgId)) 
+			{
 				currentReceivingFiles.remove(msgId);
 			}
 		}
 	}
 
-	public void addToCurrentSendingFile(long msgId,
-			FileTransferModel fileTransferModel) {
-		if (OfflineUtils.isConnectedToSameMsisdn(fileTransferModel.getPacket(),
-				OfflineManager.getInstance().getConnectedDevice())) {
+	public void addToCurrentSendingFile(long msgId, FileTransferModel fileTransferModel) 
+	{
+		if (OfflineUtils.isConnectedToSameMsisdn(fileTransferModel.getPacket(), OfflineManager.getInstance().getConnectedDevice())) 
+		{
 			currentSendingFiles.put(msgId, fileTransferModel);
-			HikeMessengerApp.getPubSub().publish(
-					HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
 	}
 
-	public void removeFromCurrentSendingFile(long msgId) {
-		synchronized (currentSendingFiles) {
-			if (currentSendingFiles.containsKey(msgId)) {
+	public void removeFromCurrentSendingFile(long msgId) 
+	{
+		synchronized (currentSendingFiles) 
+		{
+			if (currentSendingFiles.containsKey(msgId)) 
+			{
 				currentSendingFiles.remove(msgId);
 			}
 		}
@@ -452,62 +467,57 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	}
 
 	private void showTransferProgress(FTViewHolder holder, FileSavedState fss,
-			long msgId, HikeFile hikeFile, boolean isSent) {
+			long msgId, HikeFile hikeFile, boolean isSent) 
+	{
 		Logger.d(TAG, "in showTransferProgress");
 		int num = 0;
-		if (isSent) {
+		if (isSent) 
+		{
 			if (!currentSendingFiles.containsKey(msgId))
 				return;
 			else
-				num = currentSendingFiles.get(msgId).getTransferProgress()
-						.getCurrentChunks();
-		} else {
-			// Logger.d(TAG, "showTransferProgress trying to get msg id is " +
-			// msgId);
+				num = currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks();
+		} 
+		else 
+		{
 			if (!currentReceivingFiles.containsKey(msgId))
 				return;
 			else
-				num = currentReceivingFiles.get(msgId).getTransferProgress()
-						.getCurrentChunks();
+				num = currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks();
 		}
 
-		long progress = (((long) num * OfflineConstants.CHUNK_SIZE * 100) / hikeFile
-				.getFileSize());
-		Logger.d(
-				TAG,
-				"CurrentSizeReceived: " + num + " FileSize: "
-						+ hikeFile.getFileSize() + " Progress -> " + progress
-						+ "  msgId  --->" + msgId);
+		long progress = (((long) num * OfflineConstants.CHUNK_SIZE * 100) / hikeFile.getFileSize());
+		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: "+ hikeFile.getFileSize() + 
+				" Progress -> " + progress + "  msgId  --->" + msgId);
 
-		if (fss.getFTState() == FTState.IN_PROGRESS && progress == 0 && isSent) {
+		if (fss.getFTState() == FTState.IN_PROGRESS && progress == 0 && isSent) 
+		{
 			holder.initializing.setVisibility(View.VISIBLE);
-		} else if (fss.getFTState() == FTState.IN_PROGRESS) {
+		} 
+		else if (fss.getFTState() == FTState.IN_PROGRESS) 
+		{
 			if (progress < 100)
 				holder.circularProgress.setProgress(progress * 0.01f);
 			if (Utils.isHoneycombOrHigher())
 				holder.circularProgress.stopAnimation();
 
-			Logger.d("Spinner", "Msg Id is......... " + msgId
-					+ ".........holder.circularProgress="
-					+ holder.circularProgress.getCurrentProgress() * 100
-					+ " Progress=" + progress);
+			Logger.d("Spinner", "Msg Id is......... " + msgId + ".........holder.circularProgress="
+					+ holder.circularProgress.getCurrentProgress() * 100 + " Progress=" + progress);
 
 			float animatedProgress = 0 * 0.01f;
-			if (fss.getTotalSize() > 0) {
+			if (fss.getTotalSize() > 0) 
+			{
 				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
 				animatedProgress = animatedProgress / fss.getTotalSize();
 			}
-			if (Utils.isHoneycombOrHigher()) {
-				if (holder.circularProgress.getCurrentProgress() < (0.95f)
-						&& progress == 100) {
-					holder.circularProgress
-							.setAnimatedProgress((int) (holder.circularProgress
-									.getCurrentProgress() * 100),
-									(int) progress, 300);
-				} else
-					holder.circularProgress.setAnimatedProgress((int) progress,
-							(int) progress + (int) (animatedProgress * 100),
-							6 * 1000);
+			if (Utils.isHoneycombOrHigher()) 
+			{
+				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100) 
+				{
+					holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
+				}
+				else
+					holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
 			}
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
@@ -515,7 +525,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	}
 
 	public void setupFileState(FTViewHolder holder, FileSavedState fss,
-			long msgId, HikeFile hikeFile, boolean isSent, boolean ext) {
+			long msgId, HikeFile hikeFile, boolean isSent, boolean ext) 
+	{
 		int playImage = -1;
 		int retryImage = R.drawable.ic_retry_image_video;
 		if (!ext) {
@@ -558,8 +569,10 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		holder.ftAction.setScaleType(ScaleType.CENTER);
 	}
 
-	public void handleRetryButton(ConvMessage convMessage) {
-		if (OfflineManager.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED) {
+	public void handleRetryButton(ConvMessage convMessage) 
+	{
+		if (OfflineManager.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED) 
+		{
 			HikeMessengerApp.getInstance().showToast(
 					"You are not connected..!! Kindly connect.");
 			return;
