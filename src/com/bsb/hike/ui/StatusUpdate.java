@@ -858,6 +858,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 	
 	@Override
+	protected void onStart()
+	{
+		initEmoticonPicker();
+		super.onStart();
+	}
+	
+	@Override
 	public void onConfigurationChanged(Configuration newConfig) 
 	{
 		super.onConfigurationChanged(newConfig);
