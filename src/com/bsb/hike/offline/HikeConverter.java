@@ -56,7 +56,6 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 
 	private static HikeConverter _instance = null;
 	private Context context;
-	private OfflineManager offlineManager = null;
 	private OfflineMessagesManager messagesManager = null;
 
 	private HikeConverter() {
@@ -192,7 +191,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				{
 					if(messagesManager==null)
 					{
-						messagesManager  =new OfflineMessagesManager();
+						messagesManager = new OfflineMessagesManager();
 					}
 					messagesManager.handleChatThemeMessage(messageJSON);
 					return;
@@ -602,13 +601,14 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			}
 
 			ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), 
-												OfflineManager.getInstance().getConnectedDevice());
+												"o:"+OfflineManager.getInstance().getConnectedDevice());
+			
 			final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage(
 					"o:"+ OfflineManager.getInstance().getConnectedDevice(),context.getString(R.string.files_not_received),
 					OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE);
 			
 			HikeConversationsDatabase.getInstance().addConversationMessages(deleteFilesConvMessage, true);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED,deleteFilesConvMessage);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, deleteFilesConvMessage);
 		}
 	}
 
@@ -619,14 +619,6 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	}
 
 	public void shutDown(TException tException) 
-	{
-		if (OfflineManager.getInstance().getOfflineState() != OFFLINE_STATE.DISCONNECTED) 
-		{
-			clearData();
-		}
-	}
-
-	private void clearData() 
 	{
 		currentReceivingFiles.clear();
 		currentSendingFiles.clear();

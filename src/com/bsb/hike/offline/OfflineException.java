@@ -9,6 +9,11 @@ import com.hike.transporter.TException;
 public class OfflineException extends TException
 {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4437517770214959888L;
+
 	public static byte WIFI_CLOSED = 20;
 	
 	public static byte HOTSPOT_CLOSED = 21;
