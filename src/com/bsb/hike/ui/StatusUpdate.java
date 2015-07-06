@@ -866,8 +866,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			
 			if (mEmoticonPicker.isShowing())
 			{
+				int currentEmoticonPage = mEmoticonPicker.getCurrentItem();
 				mEmoticonPicker.dismiss();
 				initEmoticonPicker();
+				mEmoticonPicker.setCurrentItem(currentEmoticonPage);
 				mEmoticonPicker.onOrientationChange(newConfig.orientation);
 				mActivityTask.emojiShowing = true;
 			}
