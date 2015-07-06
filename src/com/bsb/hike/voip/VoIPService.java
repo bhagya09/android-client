@@ -1316,7 +1316,8 @@ public class VoIPService extends Service {
 						} else {
 							// If we are in a conference hosted by somebody else
 							// and we aren't talking, then stop transmitting
-							if (getClient().isHostingConference && !dp.isVoice())
+							if (getClient() == null || 
+									(getClient().isHostingConference && !dp.isVoice()))
 								continue;
 							buffersToSend.add(dp);
 						}
@@ -1612,12 +1613,12 @@ public class VoIPService extends Service {
 	public void setHold(boolean newHold) {
 		
 		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
+		final VoIPClient client = getClient();
 
-		if (this.hold == newHold)
+		if (this.hold == newHold || client == null)
 			return;
 		
 		this.hold = newHold;
-		final VoIPClient client = getClient();
 		
 		if (newHold == true) {
 			if (recordingThread != null)
