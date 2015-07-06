@@ -311,13 +311,22 @@ public class BotUtils
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
 			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn);
-			updateBotParamsInDb(botChatTheme, botInfo, false, notifType);
+			PlatformUtils.botCreationSuccessHandling(botInfo, false, botChatTheme, notifType);
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
-			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+			if (botMetadata.isMicroAppMode())
+			{
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+			}
+			else if (botMetadata.isWebUrlMode())
+			{
+				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+			}
+
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
@@ -364,9 +373,8 @@ public class BotUtils
 
 		if (jsonObj.has(HikeConstants.METADATA))
 		{
-			JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
-			botInfo.setMetadata(botMetadata.toString());
+			String metadata = jsonObj.optString(HikeConstants.METADATA);
+			botInfo.setMetadata(metadata);
 		}
 
 		if (jsonObj.has(HikePlatformConstants.HELPER_DATA))

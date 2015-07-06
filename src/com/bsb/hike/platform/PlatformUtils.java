@@ -326,7 +326,7 @@ public class PlatformUtils
 						}
 						else
 						{
-							Logger.wtf(TAG, "microapp download packet failed.");
+							Logger.wtf(TAG, "microapp download packet failed." + event.toString());
 							JSONObject json = new JSONObject();
 							try
 							{
@@ -346,7 +346,7 @@ public class PlatformUtils
 
 	}
 
-	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
+	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
 		enableBot(botInfo, enableBot);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
@@ -380,7 +380,7 @@ public class PlatformUtils
 
 	private static void enableBot(BotInfo botInfo, boolean enableBot)
 	{
-		if (enableBot)
+		if (enableBot && botInfo.isNonMessagingBot())
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(botInfo);
 		}
