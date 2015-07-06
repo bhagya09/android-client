@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -70,18 +68,17 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.timeline.ActionsDeserializer;
 import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
@@ -91,10 +88,10 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip;
 import com.bsb.hike.utils.HikeTip.TipType;
-import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -265,7 +262,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	    Gson gson = gsonBuilder.create();
 	    
 	    String sampleJson = "{\"stat\":\"ok\",\"m\":[{\"su_id\":\"<suid1>\",\"l\":[{\"mdn\":\"<msisdn>\"},{\"mdn\":\"<msisdn>\"}],\"lc\":2},{\"su_id\":\"<msisdn>\",\"l\":[{\"mdn\":\"<msisdn>\"},{\"mdn\":\"<msisdn>\"}],\"lc\":2}]}";
-	    ActionsDataModel adm = gson.fromJson(sampleJson, ActionsDataModel.class);
+	    TimelineActions adm = gson.fromJson(sampleJson, TimelineActions.class);
 	    System.out.println("");
 	}
 	

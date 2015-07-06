@@ -24,8 +24,7 @@ public class ActionsDeserializer implements JsonDeserializer<TimelineActions>
 	{
 		if (type instanceof Class)
 		{
-			Class clazz = ((Class) type).getClass();
-			if (clazz == TimelineActions.class)
+			if (((Class) type).getName().equals(TimelineActions.class.getName()))
 			{
 
 				final TimelineActions timelineActions = new TimelineActions();
