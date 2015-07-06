@@ -372,7 +372,7 @@ public class OfflineUtils
 		JSONObject metadata;
 		try
 		{
-			metadata = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+			metadata = getMetadata(packet);
 			if(metadata!=null)
 			{
 				MessageMetadata md = new MessageMetadata(metadata, true);
@@ -468,7 +468,7 @@ public class OfflineUtils
 		JSONObject fileJSON;
 		try
 		{
-			metadata = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+			metadata = getMetadata(packet);
 			if(metadata!=null)
 			{
 				files = metadata.getJSONArray(HikeConstants.FILES);
@@ -485,6 +485,25 @@ public class OfflineUtils
 			e.printStackTrace();
 		}
 		return isContactTransferMessage;
+	}
+	
+	public static JSONObject getMetadata(JSONObject packet)
+	{
+		try
+		{
+			if (packet.has(HikeConstants.DATA))
+			{
+				if (packet.optJSONObject(HikeConstants.DATA).has(HikeConstants.METADATA))
+				{
+					return packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static void showSpinnerProgress(FileTransferModel fileTransferModel)
