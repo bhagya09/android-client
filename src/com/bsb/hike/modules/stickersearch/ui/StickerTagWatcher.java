@@ -182,10 +182,21 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void dismissStickerSearchPopup()
 	{
-		if (stickerRecommendView != null)
+		if (activity != null)
 		{
-			Logger.d(TAG, "on dismiss is called");
-			stickerRecommendView.setVisibility(View.GONE);
+			activity.runOnUiThread(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					if(stickerRecommendView != null)
+					{
+					Logger.d(TAG, "on dismiss is called");
+					stickerRecommendView.setVisibility(View.GONE);	
+					}
+				}
+			});
 		}
 	}
 

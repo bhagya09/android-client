@@ -12,7 +12,6 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
-import com.bsb.hike.modules.stickersearch.tasks.DismissStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
@@ -100,8 +99,7 @@ public class StickerSearchManager
 				listener.unHighlightText(0, this.currentLength);
 			}
 
-			DismissStickerPopupTask dismissStickerPopupTask = new DismissStickerPopupTask();
-			searchEngine.runOnUiThread(dismissStickerPopupTask, 0);
+			listener.dismissStickerSearchPopup();
 			return;
 		}
 
@@ -116,8 +114,7 @@ public class StickerSearchManager
 				listener.unHighlightText(0, this.currentLength);
 			}
 
-			DismissStickerPopupTask dismissStickerPopupTask = new DismissStickerPopupTask();
-			searchEngine.runOnUiThread(dismissStickerPopupTask, 0);
+			listener.dismissStickerSearchPopup();
 			return;
 		}
 
@@ -247,14 +244,6 @@ public class StickerSearchManager
 		}
 	}
 	
-	public void dismissStickerSearchPopup()
-	{
-		if (listener != null)
-		{
-			listener.dismissStickerSearchPopup();
-		}
-		
-	}
 
 	public void downloadStickerTags(boolean firstTime)
 	{
