@@ -6,9 +6,13 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,9 +42,11 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.IFileUploadListener;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -70,6 +76,7 @@ public abstract class JavascriptBridge
 	
 	private static final int PICK_CONTACT_REQUEST = 1;
 
+	public static final int FILE_SELECT_REQUEST = 2;
 
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -635,6 +642,70 @@ public abstract class JavascriptBridge
 			callbackToJS(id, "Failure");
 		}
 
+	}
+	
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to open file chooser and select the file
+	 * @param id	:	The function id
+	 * returns the absolute path of the selected file in onActivityResult() of WebViewActivity
+	 */
+	@JavascriptInterface
+	public void chooseFile(final String id)
+	{
+		if (null == mHandler)
+		{
+			Logger.e("FileUpload", "mHandler is null");
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (weakActivity.get() != null)
+				{
+					Intent fileChooserIntent = new Intent(IntentFactory.getFileSelectActivityIntent(weakActivity.get(), "123123123"));
+					fileChooserIntent.setType("*/*");
+					((WebViewActivity) weakActivity.get()).setId(id);
+					weakActivity.get().startActivityForResult(Intent.createChooser(fileChooserIntent, "Upload File"),FILE_SELECT_REQUEST);
+				}
+			}
+		});
+	}
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to upload multiple files to the server
+	 * @param id			:	the function id
+	 * @param filePathArray	:	the comma separated string containing the list of file paths
+	 * @param url			:	the URL of the server where the files have to be uploaded
+	 * returns the response on each file upload success
+	 */
+	@JavascriptInterface
+	public void uploadFile(final String id,String filePathArray,String url)
+	{
+		if(filePathArray == null)
+		{
+			callbackToJS(id, "Field Null");
+			return;
+		}
+		List<String> list = new ArrayList<String>(Arrays.asList(filePathArray.split(",")));
+		for(int i = 0; i < list.size();i++)
+		{
+			String filePath = list.get(i);
+			
+			IFileUploadListener fileListener = new IFileUploadListener()
+			{
+				
+				@Override
+				public void onRequestResponse(String response)
+				{
+					callbackToJS(id, response);
+				}
+			};
+			PlatformUtils.uploadFile(filePath, url, fileListener);
+		}
+		
 	}
 
 	public void getInitJson(JSONObject jsonObj, String msisdn)
