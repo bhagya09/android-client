@@ -132,7 +132,7 @@ public class StickerSearchHostManager
 		}
 		catch (Exception e)
 		{
-			Logger.e(TAG, "Exception in searching..." + (e == null ? e : e.getMessage()));
+			Logger.e(TAG, "Exception in searching...", e);
 		}
 		Logger.i(TAG, "onTextChanged searching over: " + System.currentTimeMillis());
 

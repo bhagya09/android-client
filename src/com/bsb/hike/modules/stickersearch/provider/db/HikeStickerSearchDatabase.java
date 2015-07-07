@@ -496,7 +496,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 		catch (SQLiteException e)
 		{
-			Logger.e(TAG, "Exception while searching \"" + phrase + "\": " + (e == null ? e : e.getMessage()));
+			Logger.e(TAG, "Exception while searching \"" + phrase + "\"", e);
 		}
 		finally
 		{
