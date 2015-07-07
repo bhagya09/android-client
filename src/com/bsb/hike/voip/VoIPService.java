@@ -1314,11 +1314,6 @@ public class VoIPService extends Service {
 							if (processedRecordedSamples.size() < 2)
 								processedRecordedSamples.add(dp);
 						} else {
-							// If we are in a conference hosted by somebody else
-							// and we aren't talking, then stop transmitting
-							if (getClient() == null || 
-									(getClient().isHostingConference && !dp.isVoice()))
-								continue;
 							buffersToSend.add(dp);
 						}
 					}
