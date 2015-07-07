@@ -1778,34 +1778,35 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			Uri simUri = Uri.parse("content://icc/adn");
 			cursorSim = ctx.getContentResolver().query(simUri, null, null, null, null);
-
-			while (cursorSim.moveToNext())
-			{
-				try
+			if(cursorSim != null){
+				while (cursorSim.moveToNext())
 				{
-					String id = cursorSim.getString(cursorSim.getColumnIndex("_id"));
-					String name = cursorSim.getString(cursorSim.getColumnIndex("name"));
-					String number = cursorSim.getString(cursorSim.getColumnIndex("number"));
-					if ((name != null) && (number != null))
+					try
 					{
-						if (contactsToStore.add("_" + name + "_" + number)) // if
-																			// this
-																			// element
-																			// is
-																			// added
-																			// successfully
-																			// ,
-																			// it
-																			// returns
-																			// true
+						String id = cursorSim.getString(cursorSim.getColumnIndex("_id"));
+						String name = cursorSim.getString(cursorSim.getColumnIndex("name"));
+						String number = cursorSim.getString(cursorSim.getColumnIndex("number"));
+						if ((name != null) && (number != null))
 						{
-							contactinfos.add(new ContactInfo(id, null, name, number));
+							if (contactsToStore.add("_" + name + "_" + number)) // if
+																				// this
+																				// element
+																				// is
+																				// added
+																				// successfully
+																				// ,
+																				// it
+																				// returns
+																				// true
+							{
+								contactinfos.add(new ContactInfo(id, null, name, number));
+							}
 						}
 					}
-				}
-				catch (Exception e)
-				{
-					Logger.w("ContactUtils", "Expection while adding sim contacts", e);
+					catch (Exception e)
+					{
+						Logger.w("ContactUtils", "Expection while adding sim contacts", e);
+					}
 				}
 			}
 		}
@@ -2182,7 +2183,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 				phoneContactsCursor = context.getContentResolver().query(Phone.CONTENT_URI, newProjection, newSelection, null, Phone.NUMBER + " DESC");
 
-				if (phoneContactsCursor.getCount() > 0)
+				if ((phoneContactsCursor != null) && (phoneContactsCursor.getCount() > 0))
 				{
 					setGreenBlueContacs(phoneContactsCursor, contactinfos);
 				}
