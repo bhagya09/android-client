@@ -4116,7 +4116,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * 
 	 * @param isNetworkError
 	 */
-	private void showNetworkError(boolean isNetworkError)
+	protected void showNetworkError(boolean isNetworkError)
 	{
 		activity.findViewById(R.id.network_error_chat).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
 	}

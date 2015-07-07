@@ -1259,13 +1259,18 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			addFavorite();
 			break;
 		case R.string.scan_free_hike:
-			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(activity, OfflineUtils.createOfflineMsisdn(msisdn), false);
-			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
-			activity.startActivity(intent);
-			activity.overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+			startFreeHikeConversation();
 			break;
 		default:
 		}
+	}
+	
+	private void startFreeHikeConversation()
+	{
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(activity, OfflineUtils.createOfflineMsisdn(msisdn), false);
+		intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+		activity.startActivity(intent);
+		activity.overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
 	}
 
 	@Override
@@ -1344,6 +1349,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		t.start();
 	}
+	
+	/**
+	 * Overrides {@link ChatThread#showNetworkError(boolean)}
+	 */
+	@Override
+	protected void showNetworkError(boolean isNetworkError) 
+	{
+		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+	};
 
 	/**
 	 * Overrides {@link ChatThread#onDestroy()}
@@ -2095,7 +2109,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case R.id.info_layout:
 			updateChatMetadata();
 			break;
-			
+		case R.id.free_hike_no_netwrok_btn:
+			startFreeHikeConversation();
+			break;
 		default:
 			super.onClick(v);
 		}

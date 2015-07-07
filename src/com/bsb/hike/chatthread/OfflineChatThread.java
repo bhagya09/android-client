@@ -225,6 +225,14 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	@Override
+	protected void showNetworkError(boolean isNetworkError) 
+	{
+		// We do not show no internet connection tip in offline tip
+		activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
+		activity.findViewById(R.id.network_error_chat).setVisibility(View.GONE);
+	};
+	
+	@Override
 	protected void fetchConversationFinished(Conversation conversation)
 	{
 		super.fetchConversationFinished(conversation);
