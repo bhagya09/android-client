@@ -24,6 +24,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleS
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
@@ -471,6 +473,39 @@ public class HttpRequests
 				.setUrl(getHikeJoinTimeBaseUrl() + msisdn)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken createLoveLink(JSONObject json, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(updateLoveLinkUrl())
+				.setRequestListener(requestListener)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken removeLoveLink(JSONObject json, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(updateLoveLinkUrl())
+				.setRequestListener(requestListener)
+				.delete(body)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken getActionUpdates(JSONObject json, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getActionsUpdateUrl())
+				.setRequestListener(requestListener)
+				.post(body)
 				.build();
 		return requestToken;
 	}

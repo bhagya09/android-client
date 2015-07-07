@@ -235,4 +235,14 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
 	}
+	
+	public static String updateLoveLinkUrl()
+	{
+		return BASE_URL + BASE_V1 + "/love/status";
+	}
+	
+	public static String getActionsUpdateUrl()
+	{
+		return BASE_URL + BASE_V1 + "/love/get_counts_with_msisdn";
+	}
 }
