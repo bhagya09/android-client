@@ -62,6 +62,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	PhotosEditerFrameLayoutView editView;
 
 	private int menuIcons[] = { R.drawable.photos_tabs_filter_selector, R.drawable.photos_tabs_doodle_selector };
+	
+	private int menuIconsDesc[] = { R.string.cont_desc_photos_tab_filter, R.string.cont_desc_photos_tab_doodle };
 
 	private EditorClickListener clickHandler;
 	
@@ -129,7 +131,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		Logger.d(TAG, "Checking file type");
 		
-		if (HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
+		//special handling for webp images since some devices cant extract their mime type
+		if (!Utils.getFileExtension(filename).equalsIgnoreCase("webp") && HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
 		{
 			onError();
 			return;
@@ -206,7 +209,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			{
 				dir.mkdirs();
 			}
-			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		}
 
 		editView.setDestinationPath(destinationFileHandle);
@@ -285,6 +288,9 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void finish()
 	{
+		HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
+		HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
+		
 		HikeEffectsFactory.finish();
 		super.finish();
 	}
@@ -353,6 +359,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			return menuIcons.length;
 		}
+
+		@Override
+		public String getIconContentDescription(int index)
+		{
+			return PictureEditer.this.getString(menuIconsDesc[index]);
+		}
+
 	}
 
 	@Override
@@ -433,18 +446,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				{
 					doodleWidth += HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				doodlePreview.refresh();
-				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				break;
 			case R.id.minusWidth:
 				if (doodleWidth - HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH >= HikeConstants.HikePhotos.Min_BRUSH_WIDTH)
 				{
 					doodleWidth -= HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				doodlePreview.refresh();
-				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				break;
 			case R.id.undo:
 				editView.undoLastDoodleDraw();
@@ -477,8 +490,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						@Override
 						public void onComplete(Bitmap bmp)
 						{
-							// TODO Auto-generated method stub
-
+							// Do nothing
 						}
 
 						@Override
@@ -616,7 +628,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				public void onComplete(File f)
 				{
 					finishProgress();
-					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true), HikeConstants.CROP_RESULT);
+					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, false), HikeConstants.CROP_RESULT);
 				}
 			});
 		}
@@ -747,11 +759,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onBackPressed()
 	{
-		if(isWorking)
-		{
-			return;
-		}
-		
 		if (getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE))
 		{
 			getSupportActionBar().show();
