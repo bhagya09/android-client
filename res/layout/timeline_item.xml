@@ -158,12 +158,24 @@
                     android:orientation="horizontal" />
 
                 <LinearLayout
-                    android:id="@+id/container2"
+                    android:id="@+id/container2" 
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="horizontal" />
             </LinearLayout>
+            
+             <ToggleButton
+                android:id="@+id/btn_love"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:layout_alignRight="@+id/side_content"
+                android:layout_below="@+id/details_content"
+                android:background="@drawable/btn_love_selector"
+                android:text=""
+                android:textOff=""
+                android:textOn="" />
+             
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 
