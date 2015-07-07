@@ -136,7 +136,7 @@ public class StickerSearchHostManager
 			if (mIndexLimit > 65)
 			{
 				mIndexLimit = 65;
-				while (!" ".equals(s.charAt(mIndexLimit)) && mIndexLimit < s.length())
+				while ((mIndexLimit < s.length()) && !" ".equals(s.charAt(mIndexLimit)))
 				{
 					mIndexLimit++;
 					if (mIndexLimit > brokerLimit)
