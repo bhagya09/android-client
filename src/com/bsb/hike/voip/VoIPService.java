@@ -501,6 +501,11 @@ public class VoIPService extends Service {
 			// Edge case: call button was hit for someone we are already speaking with. 
 			if (getCallId() > 0 && getClient() != null && getClient().getPhoneNumber() != null && getClient().getPhoneNumber().equals(msisdn)) 
 			{
+				if (!getClient().connected) {
+					Logger.e(tag, "Still trying to connect.");
+					return returnInt;
+				}
+				
 				// Show activity
 				Logger.d(tag, "Restoring activity..");
 				Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
@@ -1324,8 +1329,6 @@ public class VoIPService extends Service {
 							if (processedRecordedSamples.size() < 2)
 								processedRecordedSamples.add(dp);
 						} else {
-							// If we are in a conference hosted by somebody else
-							// and we aren't talking, then stop transmitting
 							buffersToSend.add(dp);
 						}
 					}
@@ -1611,7 +1614,7 @@ public class VoIPService extends Service {
 		conferenceBroadcastThread.start();
 	}
 
-	public void setHold(boolean newHold) {
+	synchronized public void setHold(boolean newHold) {
 		
 		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
 		final VoIPClient client = getClient();
