@@ -388,26 +388,43 @@ public class OfflineUtils
 		return isFileTransferMessage;
 	}
 
-	public static void createStkDirectory(JSONObject messageJSON) throws JSONException, IOException
-	{
-		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
-		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
-		Sticker sticker = new Sticker(ctgId, stkId);
+	public static String createStkDirectory(JSONObject messageJSON) throws JSONException, IOException
+    {
+        String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
+        String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+        Sticker sticker = new Sticker(ctgId, stkId);
 
-		File stickerImage;
-		String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
-		stickerImage = new File(stickerPath);
+        File stickerImage;
+        String tempPath = getOfflineStkPath(ctgId, stkId);
+        
+        //String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+        stickerImage = new File(tempPath);
 
-		// sticker is not present
-		if (stickerImage == null || (stickerImage.exists() == false))
-		{
-			File parent = new File(stickerImage.getParent());
-			if (!parent.exists())
-				parent.mkdirs();
-			stickerImage.createNewFile();
-		}
-	}
+        // sticker is not present
+        if (stickerImage == null || (stickerImage.exists() == false))
+        {
+            File parent = new File(stickerImage.getParent());
+            if (!parent.exists())
+                parent.mkdirs();
+            // stickerImage.createNewFile();
+        }
+        return tempPath;
+    }
 
+	public static String getOfflineStkPath(String ctgId, String stkId)
+    {
+        String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(ctgId);
+        String[] pathTokens = rootPath.split("/");
+        String tempPath = "";
+        for(int i=0;i<(pathTokens.length-1);i++)
+        {
+            tempPath += pathTokens[i] + "/"; 
+        }
+        tempPath += "SO/" + ctgId + "/" + stkId;
+        Logger.d(TAG, tempPath);
+        return tempPath;
+    }
+	
 	public static void putStkLenInPkt(JSONObject packet, long length)
 	{
 

@@ -336,7 +336,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			{
 				try 
 				{
-					OfflineUtils.createStkDirectory(messageJSON);
+					stickerImage = new File(OfflineUtils.createStkDirectory(messageJSON));
 				} 
 				catch (JSONException e) 
 				{
