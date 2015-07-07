@@ -16,7 +16,6 @@ import android.widget.RelativeLayout;
 
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
 {
@@ -56,7 +55,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		this.mEatTouchEventViewIds = eatTouchEventViewIds;
 	}
 
-	private void registerOnGlobalLayoutListener()
+	protected void registerOnGlobalLayoutListener()
 	{
 		mainView.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener);
 	}

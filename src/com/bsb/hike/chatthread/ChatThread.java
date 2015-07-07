@@ -108,7 +108,6 @@ import com.bsb.hike.media.PickContactParser;
 import com.bsb.hike.media.PickFileParser;
 import com.bsb.hike.media.PickFileParser.PickFileListener;
 import com.bsb.hike.media.PopupListener;
-import com.bsb.hike.media.ShareablePopup;
 import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.media.StickerPickerListener;
@@ -4826,7 +4825,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (shouldKeyboardPopupShow)
 			{
-				sendUIMessage(SCROLL_TO_POSITION, mConversationsView.getLastVisiblePosition());
+				scrollToPosition(mConversationsView.getLastVisiblePosition());
 			}
 			else
 			{
@@ -5043,7 +5042,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			 */
 			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 			mConversationsView.setSelection(position);
-
 			/*
 			 * Resetting the transcript mode once the list has scrolled to the bottom.
 			 */

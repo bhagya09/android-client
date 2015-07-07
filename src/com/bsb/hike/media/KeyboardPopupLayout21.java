@@ -92,6 +92,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 	{
 		super(mainView, firstTimeHeight, context, listener);
 		registerOnPreDrawListener();
+		registerOnGlobalLayoutListener();
 		this.mEditText = editText;
 		setOnSoftKeyboardListener(onSoftKeyboardListener);
 	}
@@ -106,6 +107,14 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 	private void registerOnPreDrawListener()
 	{
 		mainView.getViewTreeObserver().addOnPreDrawListener(mOnPreDrawListener);
+	}
+	@Override
+	protected void registerOnGlobalLayoutListener()
+	{
+		if (mGlobalLayoutListener21!=null)
+		{
+			mainView.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener21);	
+		}
 	}
 
 	private void updatePadding(int bottomPadding)
@@ -166,8 +175,9 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 			{
 				popup.setTouchInterceptor(this);
 			}
+		}else{
+			updateInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
-
 		view.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
 		popup.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED);
 		popup.setHeight(height);
@@ -262,7 +272,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 		 */
 		if (mainView != null)
 		{
-			this.mainView.getViewTreeObserver().removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			this.mainView.getViewTreeObserver().removeGlobalOnLayoutListener(mGlobalLayoutListener21);
 			this.mainView.getViewTreeObserver().removeOnPreDrawListener(mOnPreDrawListener);
 			this.mainView = null;
 		}
@@ -283,16 +293,11 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 				}
 				if (state == STATE_KEYBOARD_STICKER)
 				{
-					if (isKeyboardOpen)
-					{
-						// to update content position
-						onSoftKeyboardListener.onShown();
-					}
-					else
+					if (!isKeyboardOpen)
 					{
 						// update height when it is confirm that keyboard is not present
 						onSoftKeyboardListener.onShown();
-						updatePadding(getHeight());
+						updatePadding((popup != null && popup.isShowing())?popup.getHeight():getHeight());	
 						preDrawTaskFlag = false;
 					}
 					return false;
@@ -318,7 +323,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 		}
 	};
 
-	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener()
+	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener21 = new ViewTreeObserver.OnGlobalLayoutListener()
 	{
 
 		@Override
@@ -385,7 +390,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 		{
 			if (popup != null && popup.isShowing())
 			{
-				updateInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
+				updateInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
 				setState(STATE_STICKER_KEYBOARD);
 				setOnPreDrawTaskFlagOn();
 			}
@@ -402,6 +407,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 	{
 		boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
+		
 		if (height == 0)
 		{
 			if (islandScape)
