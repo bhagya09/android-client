@@ -2149,6 +2149,11 @@ public class MqttMessagesManager
 			boolean msgingLogging = data.getBoolean(HikeConstants.MESSAGING_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, msgingLogging);
 		}
+		if (data.has(HikeConstants.SPECIAL_DAY_TRIGGER))
+		{
+			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

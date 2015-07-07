@@ -12,10 +12,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 //public static int[] BasicMenuIcons={R.drawable.effects_effect,R.drawable.effects_color,R.drawable.effects_frame,R.drawable.effects_text,R.drawable.effects_options};
 
@@ -290,7 +292,12 @@ public class HikePhotosUtils
 				{
 					effectfilters = new FilterList();
 					effectfilters.addFilter("ORIGINAL", FilterType.ORIGINAL);
-					effectfilters.addFilter("TIRANGAA", FilterType.TIRANGAA);
+					
+					if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
+					{
+						effectfilters.addFilter("TIRANGAA", FilterType.TIRANGAA);
+					}
+					
 					effectfilters.addFilter("MELLOW", FilterType.SOLOMON);
 					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
 					effectfilters.addFilter("AZURE", FilterType.NASHVILLE);
@@ -312,6 +319,7 @@ public class HikePhotosUtils
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
 				}
+				
 				return effectfilters;
 
 			}
