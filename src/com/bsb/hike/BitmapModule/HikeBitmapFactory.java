@@ -49,7 +49,7 @@ public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
-	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+	public static final int DEFAULT_BITMAP_COMPRESSION = 80;
 
 	private static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
 	
