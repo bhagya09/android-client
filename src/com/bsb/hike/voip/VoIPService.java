@@ -45,6 +45,7 @@ import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
+import android.view.KeyEvent;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -139,8 +140,9 @@ public class VoIPService extends Service {
 	private Runnable clientListRunnable = null;
 	private Handler clientListHandler;
 	
-	// Boradcast listener for phone calls
+	// Boradcast listeners
 	private BroadcastReceiver phoneStateReceiver = null;
+	private BroadcastReceiver bluetoothButtonReceiver = null;
 	
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
@@ -299,13 +301,6 @@ public class VoIPService extends Service {
 			resampler = new Resampler();
 		
 		startConnectionTimeoutThread();
-		
-		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
-		if (isBluetoothEnabled) {
-			bluetoothHelper = new BluetoothHelper(getApplicationContext());
-			bluetoothHelper.start();
-		}
-		
 		registerPhoneStateBroadcastReceiver();
 	}
 	
@@ -316,8 +311,10 @@ public class VoIPService extends Service {
 		dismissNotification();
 		unregisterPhoneStateBroadcastReceiver();
 		
-		if (bluetoothHelper != null)
+		if (bluetoothHelper != null) {
+			unregisterBluetoothButtonsReceiver();
 			bluetoothHelper.stop();
+		}
 		
 		Logger.d(tag, "VoIP Service destroyed.");
 	}
@@ -502,8 +499,13 @@ public class VoIPService extends Service {
 			}
 
 			// Edge case: call button was hit for someone we are already speaking with. 
-			if (getCallId() > 0 && client.getPhoneNumber()!=null && client.getPhoneNumber().equals(msisdn)) 
+			if (getCallId() > 0 && getClient() != null && getClient().getPhoneNumber() != null && getClient().getPhoneNumber().equals(msisdn)) 
 			{
+				if (!getClient().connected) {
+					Logger.e(tag, "Still trying to connect.");
+					return returnInt;
+				}
+				
 				// Show activity
 				Logger.d(tag, "Restoring activity..");
 				Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
@@ -527,11 +529,14 @@ public class VoIPService extends Service {
 				for (String phoneNumber : msisdns) {
 					client = new VoIPClient(getApplicationContext(), handler);
 					client.setPhoneNumber(phoneNumber);
+					client.isInAHostedConference = true;
 					initiateOutgoingCall(client, callSource);
 				}
 			} else 
 				// One-to-one call
 				initiateOutgoingCall(client, callSource);
+			
+			startBluetooth();
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -1061,6 +1066,7 @@ public class VoIPService extends Service {
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
 		startRecordingAndPlayback(client.getPhoneNumber());
+		startBluetooth();
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 	
@@ -1289,12 +1295,12 @@ public class VoIPService extends Service {
 								// There is no voice signal, bitrate should be lowered
 								if (!voiceSignalAbsent) {
 									voiceSignalAbsent = true;
-									Logger.w(tag, "We stopped speaking.");
+//									Logger.w(tag, "We stopped speaking.");
 									getClient().setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
 								}
 							} else if (voiceSignalAbsent) {
 								// Mic signal is reverting to voice
-								Logger.w(tag, "We started speaking.");
+//								Logger.w(tag, "We started speaking.");
 								voiceSignalAbsent = false;
 								getClient().setEncoderBitrate(getClient().localBitrate);
 							}
@@ -1323,10 +1329,6 @@ public class VoIPService extends Service {
 							if (processedRecordedSamples.size() < 2)
 								processedRecordedSamples.add(dp);
 						} else {
-							// If we are in a conference hosted by somebody else
-							// and we aren't talking, then stop transmitting
-							if (getClient().isHostingConference && !dp.isVoice())
-								continue;
 							buffersToSend.add(dp);
 						}
 					}
@@ -1350,18 +1352,11 @@ public class VoIPService extends Service {
 				setAudioModeInCall();
 				int index = 0, size = 0;
 
-				if (android.os.Build.VERSION.SDK_INT >= 17) {
-					String rate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
-					String framesPerBuffer = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
-					Logger.d(tag, "Device frames/buffer:" + framesPerBuffer + ", sample rate: " + rate);
-				}
-				
-				Logger.d(tag, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
-				if (resamplerEnabled) {
+				if (resamplerEnabled) 
 					playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
-				}
 				else
 					playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
+				
 				minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				Logger.d(tag, "AUDIOTRACK - minBufSizePlayback: " + minBufSizePlayback + ", playbackSampleRate: " + playbackSampleRate);
 			
@@ -1514,31 +1509,32 @@ public class VoIPService extends Service {
 					
 					if (hostingConference()) {
 						VoIPDataPacket dp = processedRecordedSamples.poll();
-						if (dp != null) {
-							byte[] conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
-							dp.setData(conferencePCM);
-							
-							// This is the broadcast
-							conferenceBroadcastSamples.add(conferencePCM);
+						byte[] conferencePCM = null;
+						if (dp != null) 
+							conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
+						else
+							conferencePCM = finalDecodedSample.getData();	// Host is probably on mute
 
-							for (VoIPClient client : clients.values()) {
-								if (!client.isSpeaking() || !client.connected)
-									continue;
-								
-								// Custom streams
-								VoIPDataPacket clientDp = new VoIPDataPacket();
-								byte[] origPCM = clientSample.get(client.getPhoneNumber());
-								byte[] newPCM = null;
-								if (origPCM == null) {
-									newPCM = conferencePCM;
-								} else {
-									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
-								}
-								clientDp.setData(newPCM);
-								clientDp.setVoice(true);
-								client.addSampleToEncode(clientDp); 
-//								Logger.d(tag, "Custom to: " + client.getPhoneNumber());
+						// This is the broadcast
+						conferenceBroadcastSamples.add(conferencePCM);
+
+						for (VoIPClient client : clients.values()) {
+							if (!client.isSpeaking() || !client.connected)
+								continue;
+
+							// Custom streams
+							VoIPDataPacket clientDp = new VoIPDataPacket();
+							byte[] origPCM = clientSample.get(client.getPhoneNumber());
+							byte[] newPCM = null;
+							if (origPCM == null) {
+								newPCM = conferencePCM;
+							} else {
+								newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
 							}
+							clientDp.setData(newPCM);
+							clientDp.setVoice(true);
+							client.addSampleToEncode(clientDp); 
+							//								Logger.d(tag, "Custom to: " + client.getPhoneNumber());
 						}
 					}
 
@@ -1618,15 +1614,15 @@ public class VoIPService extends Service {
 		conferenceBroadcastThread.start();
 	}
 
-	public void setHold(boolean newHold) {
+	synchronized public void setHold(boolean newHold) {
 		
 		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
+		final VoIPClient client = getClient();
 
-		if (this.hold == newHold)
+		if (this.hold == newHold || client == null)
 			return;
 		
 		this.hold = newHold;
-		final VoIPClient client = getClient();
 		
 		if (newHold == true) {
 			if (recordingThread != null)
@@ -2017,6 +2013,39 @@ public class VoIPService extends Service {
 	private void unregisterPhoneStateBroadcastReceiver() {
 		if (phoneStateReceiver != null)
 			unregisterReceiver(phoneStateReceiver);
+	}
+	
+	private void startBluetooth() {
+		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
+		if (isBluetoothEnabled) {
+			bluetoothHelper = new BluetoothHelper(getApplicationContext());
+			bluetoothHelper.start();
+			registerBluetoothButtonsReceiver();
+		}
+	}
+
+	private void registerBluetoothButtonsReceiver() {
+		IntentFilter filter = new IntentFilter();
+		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+		filter.addAction("android.intent.action.MEDIA_BUTTON");
+
+		bluetoothButtonReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				abortBroadcast();
+				KeyEvent key = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+				Logger.w(tag, "Bluetooth key: " + key.getKeyCode());
+			}
+		};
+		
+		Logger.w(tag, "Registering bluetooth key listener.");
+		registerReceiver(bluetoothButtonReceiver, filter);
+	}
+	
+	private void unregisterBluetoothButtonsReceiver() {
+		if (bluetoothButtonReceiver != null)
+			unregisterReceiver(bluetoothButtonReceiver);
 	}
 	
 }

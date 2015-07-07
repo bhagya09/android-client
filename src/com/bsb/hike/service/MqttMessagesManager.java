@@ -800,6 +800,10 @@ public class MqttMessagesManager
 								vibrate = true;
 							}
 						}
+						else
+						{
+							vibrate  = true;
+						}
 					}
 					else
 					{
@@ -1910,11 +1914,16 @@ public class MqttMessagesManager
 		{
 			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
+			
+			/**
+			 * This Pubsub updates ActionBar on HomeActivity
+			 */
+			this.pubSub.publish(HikePubSub.UPDATE_OF_PHOTOS_ICON, null);
 		}
 		if(data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
 		{
-			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
-			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_SEND_LOGS, enablePhoto);
+			boolean enableSendLogs = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_SEND_LOGS, enableSendLogs);
 			AppConfig.refresh();
 		}
 		if(data.has(HikeConstants.URL_WHITELIST))
@@ -2113,7 +2122,7 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY))
 		{
 			int image_quality = data.getInt(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM, image_quality);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, image_quality);
 		}
 		if(data.has(HikeConstants.STEALTH))
 		{

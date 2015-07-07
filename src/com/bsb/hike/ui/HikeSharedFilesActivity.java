@@ -436,7 +436,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			sharedMediaItems.addAll(sharedFilesList);
 			Collections.reverse(sharedMediaItems);
 			PhotoViewerFragment.openPhoto(R.id.parent_layout, HikeSharedFilesActivity.this, sharedMediaItems, 
-					false, sharedMediaItems.size()-position-1, msisdn, conversationName, isGroup, msisdnArray, nameArray,true);
+					false, sharedMediaItems.size()-position-1, msisdn, conversationName, isGroup, msisdnArray, nameArray);
 		}
 	}
 
@@ -574,7 +574,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		if (HikePubSub.HIKE_SHARED_FILE_DELETED.equals(type))
 		{
-			if (!(object instanceof HikeSharedFile) || null == sharedFilesList || null == adapter)
+			if (!(object instanceof HikeSharedFile))
 			{
 				return;
 			}

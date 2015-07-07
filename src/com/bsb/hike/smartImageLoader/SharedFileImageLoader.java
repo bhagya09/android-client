@@ -66,7 +66,7 @@ public class SharedFileImageLoader extends ImageWorker
 			Log.d("image_config", "========================== \n Inside API  getSharedMediaThumbnailFromCache");
 			if(Utils.isHoneycombOrHigher())
 			{
-				thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.INIT_STATE);
+				thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.STATE_3);
 			}
 			else
 			{

@@ -88,7 +88,6 @@ public class VoIPClient  {
 	private boolean establishingConnection = false;
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
-	@SuppressWarnings("unused")
 	private int audioPacketsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
@@ -111,6 +110,7 @@ public class VoIPClient  {
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
 	public boolean isHostingConference;
+	public boolean isInAHostedConference;
 	
 	// Audio quality
 	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
@@ -317,7 +317,7 @@ public class VoIPClient  {
 
 	public synchronized void setSpeaking(boolean isSpeaking) {
 		if (this.isSpeaking != isSpeaking)
-			Logger.w(tag, "Speaking: " + isSpeaking);
+			Logger.d(tag, "Speaking: " + isSpeaking);
 		
 		this.isSpeaking = isSpeaking;
 	}
@@ -636,12 +636,17 @@ public class VoIPClient  {
 						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
 							
-							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
-							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
-							sendPacket(dp, false);
-							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
-							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PUBLIC);
-							sendPacket(dp, false);
+							// If we are setting up a conference, then force all connections
+							// through the relay since it will handle the broadcasting for us.
+							if (!isInAHostedConference) {
+								setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
+								dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
+								sendPacket(dp, false);
+								setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
+								dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PUBLIC);
+								sendPacket(dp, false);
+							}
+							
 							setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_RELAY);
 							sendPacket(dp, false);
@@ -941,7 +946,7 @@ public class VoIPClient  {
 			addPacketToAckWaitQueue(dp);
 
 //		if (dp.getType() == PacketType.AUDIO_PACKET)
-//			Logger.d(tag, "sending isVoice: " + dp.isVoice());
+//			Logger.d(tag, "Sending audio: " + dp.isVoice());
 		
 		// Serialize everything except for P2P voice data packets
 		byte[] packetData = getUDPDataFromPacket(dp);
@@ -1171,38 +1176,32 @@ public class VoIPClient  {
 						break;
 						
 					case COMM_UDP_SYNACK_PRIVATE:
-					case COMM_UDP_ACK_PRIVATE:
-						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
+							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							if (senderThread != null)
 								senderThread.interrupt();
-							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
-							if (connected) break;
-
-							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PRIVATE);
-							sendPacket(dp, true);
 						}
+					case COMM_UDP_ACK_PRIVATE:
+						Logger.d(tag, "Received " + dataPacket.getType());
+						if (connected) break;
+						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_PRIVATE), true);
 						connected = true;
 						break;
 						
 					case COMM_UDP_SYNACK_PUBLIC:
-					case COMM_UDP_ACK_PUBLIC:
-						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
+							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
 							if (senderThread != null)
 								senderThread.interrupt();
-							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
-							if (connected) break;
-							
-							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC);
-							sendPacket(dp, true);
 						}
+					case COMM_UDP_ACK_PUBLIC:
+						Logger.d(tag, "Received " + dataPacket.getType());
+						if (connected) break;
+						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC), true);
 						connected = true;
 						break;
 						
 					case COMM_UDP_SYNACK_RELAY:
-					case COMM_UDP_ACK_RELAY:
-						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
 							if (getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
 									getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
@@ -1210,14 +1209,15 @@ public class VoIPClient  {
 										getPreferredConnectionMethod() + " connection.");
 								break;
 							}
+
+							setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							if (senderThread != null)
 								senderThread.interrupt();
-							setPreferredConnectionMethod(ConnectionMethods.RELAY);
-							if (connected) break;
-
-							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_RELAY);
-							sendPacket(dp, true);
 						}
+					case COMM_UDP_ACK_RELAY:
+						Logger.d(tag, "Received " + dataPacket.getType());
+						if (connected) break;
+						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_RELAY), true);
 						connected = true;
 						break;
 						
@@ -1565,37 +1565,41 @@ public class VoIPClient  {
 						break;
 					}
 					
-					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 10];	// Just to be safe, we make a big buffer
-					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived)
+					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];	// Just to be safe, we make a big buffer
+					
+					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived) {
+						Logger.w(tag, "Old packet received.");
 						continue;	// We received an old packet again
+					}
 
-					/*
-					 * TODO: this code apparently freezes older clients if the other client is sending
-					 * packet numbers and there is packet loss detected. 
-					 * 
-					// Handle packet loss (unused as on Dec 16, 2014)
-					if (dpdecode.getVoicePacketNumber() > lastPacketReceived + 1) {
-						Logger.d(tag, "Packet loss! (" + (dpdecode.getVoicePacketNumber() - lastPacketReceived) + ")");
-						lastPacketReceived = dpdecode.getVoicePacketNumber();
+					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() > lastPacketReceived + 1) {
+						Logger.w(tag, "Packet loss. Current: " + dpdecode.getVoicePacketNumber() +
+								", Expected: " + (lastPacketReceived + 1));
 						try {
-							uncompressedLength = opusWrapper.plc(dpdecode.getData(), uncompressedData);
-							uncompressedLength *= 2;	
+							uncompressedLength = opusWrapper.fec(dpdecode.getData(), uncompressedData);
+							uncompressedLength = uncompressedLength * 2;
+							Logger.d(tag, "Uncompressed length: " + uncompressedLength);
 							if (uncompressedLength > 0) {
-								VoIPDataPacket dp = new VoIPDataPacket(PacketType.VOICE_PACKET);
-								dp.write(uncompressedData);
-								dp.setLength(uncompressedLength);
+								// We have a decoded packet
+								lastPacketReceived = dpdecode.getVoicePacketNumber();
+
+								VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+								byte[] packetData = new byte[uncompressedLength];
+								System.arraycopy(uncompressedData, 0, packetData, 0, uncompressedLength);
+								dp.write(packetData);
 
 								synchronized (decodedBuffersQueue) {
 									decodedBuffersQueue.add(dp);
 									decodedBuffersQueue.notify();
 								}
+
 							}
 						} catch (Exception e) {
-							Logger.d(tag, "PLC exception: " + e.toString());
+							Logger.d(tag, "Opus decode exception: " + e.toString());
 						}
+						
 					}
-					*/
-
+					
 					// Regular decoding
 					try {
 						// Logger.d(VoIPActivity.logTag, "Decompressing data of length: " + dpdecode.getLength());
@@ -1755,12 +1759,13 @@ public class VoIPClient  {
 
 		VoIPDataPacket dp = decodedBuffersQueue.poll();
 		
-		if (dp == null) {
+		if (dp == null && opusWrapper != null) {
 			// We do not have audio data from the client. 
 			// Use packet loss concealment to extrapolate data.
 			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 			byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 			try {
+//				Logger.d(tag, "PLC");
 				opusWrapper.plc(data);
 			} catch (Exception e) {
 				Logger.e(tag, "PLC Exception: " + e.toString());
@@ -1778,12 +1783,10 @@ public class VoIPClient  {
 	}
 	
 	private void calculateQuality() {
-		if (getCallDuration() < QUALITY_BUFFER_SIZE)
-			return;
-		
+
 		int cardinality = playbackTrackingBits.cardinality();
-		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
-		// Logger.d(logTag, "Loss: " + loss + ", cardinality: " + cardinality);
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.size()));
+//		Logger.d(tag, "Loss: " + loss + ", cardinality: " + cardinality);
 		
 		CallQuality newQuality;
 		
@@ -1796,7 +1799,7 @@ public class VoIPClient  {
 		else 
 			newQuality = CallQuality.WEAK;
 
-		if (currentCallQuality != newQuality) {
+		if (currentCallQuality != newQuality && getCallDuration() > QUALITY_BUFFER_SIZE) {
 			currentCallQuality = newQuality;
 			sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
 		}
