@@ -800,6 +800,10 @@ public class MqttMessagesManager
 								vibrate = true;
 							}
 						}
+						else
+						{
+							vibrate  = true;
+						}
 					}
 					else
 					{

@@ -245,13 +245,17 @@ public class ChatHeadService extends Service
 				switch (flag)
 				{
 				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
+					if(!ChatHeadUtils.getForegroundedPackages().contains(foregroundApp))
+					{
+						break;
+					}
 					intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
 					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp);
-					if (intent != null)
+					if (intent != null && ChatHeadUtils.getForegroundedPackages().contains(foregroundApp))
 					{
 						startActivity(intent);
 					}
