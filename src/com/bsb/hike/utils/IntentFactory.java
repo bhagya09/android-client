@@ -601,7 +601,7 @@ public class IntentFactory
 		
 		if(croppedOutputDestination != null)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, false));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true,80, false));
 		}
 		
 		if(destIntents.size()>0)
