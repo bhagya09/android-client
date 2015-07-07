@@ -83,7 +83,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void afterTextChanged(Editable s)
 	{
 		this.editable = s;
-		StickerSearchManager.getInstance().afterTextChanged(s);
+		Logger.d(TAG, "afterTextChanged " + "string: " + editable);
 	}
 
 	@Override
