@@ -29,6 +29,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
@@ -162,7 +163,7 @@ public class OfflineUtils
 		{
 			storagePath.append(HikeConstants.OTHER_ROOT);
 		}
-		storagePath.append(File.separator+fileName);
+		storagePath.append(File.separator + fileName);
 		return storagePath.toString();
 	}
 
@@ -334,7 +335,7 @@ public class OfflineUtils
 			return null;
 		}
 	}
-	
+
 	public static int getFileSizeFromJSON(JSONObject packet)
 	{
 		try
@@ -373,12 +374,12 @@ public class OfflineUtils
 		try
 		{
 			metadata = getMetadata(packet);
-			if(metadata!=null)
+			if (metadata != null)
 			{
 				MessageMetadata md = new MessageMetadata(metadata, true);
 				isFileTransferMessage = md.getHikeFiles() != null && md.getHikeFiles().size() > 0;
 			}
-			
+
 		}
 		catch (JSONException e)
 		{
@@ -387,26 +388,43 @@ public class OfflineUtils
 		return isFileTransferMessage;
 	}
 
-	public static void createStkDirectory(JSONObject messageJSON) throws JSONException, IOException
-	{
-		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
-		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
-		Sticker sticker = new Sticker(ctgId, stkId);
+	public static String createStkDirectory(JSONObject messageJSON) throws JSONException, IOException
+    {
+        String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
+        String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+        Sticker sticker = new Sticker(ctgId, stkId);
 
-		File stickerImage;
-		String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
-		stickerImage = new File(stickerPath);
+        File stickerImage;
+        String tempPath = getOfflineStkPath(ctgId, stkId);
+        
+        //String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+        stickerImage = new File(tempPath);
 
-		// sticker is not present
-		if (stickerImage == null || (stickerImage.exists() == false))
-		{
-			File parent = new File(stickerImage.getParent());
-			if (!parent.exists())
-				parent.mkdirs();
-			stickerImage.createNewFile();
-		}
-	}
+        // sticker is not present
+        if (stickerImage == null || (stickerImage.exists() == false))
+        {
+            File parent = new File(stickerImage.getParent());
+            if (!parent.exists())
+                parent.mkdirs();
+            // stickerImage.createNewFile();
+        }
+        return tempPath;
+    }
 
+	public static String getOfflineStkPath(String ctgId, String stkId)
+    {
+        String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(ctgId);
+        String[] pathTokens = rootPath.split("/");
+        String tempPath = "";
+        for(int i=0;i<(pathTokens.length-1);i++)
+        {
+            tempPath += pathTokens[i] + "/"; 
+        }
+        tempPath += "SO/" + ctgId + "/" + stkId;
+        Logger.d(TAG, tempPath);
+        return tempPath;
+    }
+	
 	public static void putStkLenInPkt(JSONObject packet, long length)
 	{
 
@@ -423,12 +441,12 @@ public class OfflineUtils
 			}
 		}
 	}
-	
-	public static  JSONObject getFileTransferMetadataForContact(JSONObject contactJson) throws JSONException
+
+	public static JSONObject getFileTransferMetadataForContact(JSONObject contactJson) throws JSONException
 	{
 		contactJson.put(HikeConstants.FILE_NAME, contactJson.optString(HikeConstants.NAME, HikeConstants.CONTACT_FILE_NAME));
 		contactJson.put(HikeConstants.CONTENT_TYPE, HikeConstants.CONTACT_CONTENT_TYPE);
-		contactJson.put(HikeConstants.FILE_KEY,"OfflineMessageFileKey"+System.currentTimeMillis());
+		contactJson.put(HikeConstants.FILE_KEY, "OfflineMessageFileKey" + System.currentTimeMillis());
 		JSONArray files = new JSONArray();
 		files.put(contactJson);
 		JSONObject metadata = new JSONObject();
@@ -436,32 +454,39 @@ public class OfflineUtils
 
 		return metadata;
 	}
-	
-	private static ConvMessage createConvMessage(String msisdn, JSONObject metadata,boolean isRecipientOnhike)
+
+	private static ConvMessage createConvMessage(String msisdn, JSONObject metadata, boolean isRecipientOnhike)
 	{
 		long time = System.currentTimeMillis() / 1000;
 		ConvMessage convMessage = new ConvMessage(HikeConstants.CONTACT_FILE_NAME, msisdn, time, ConvMessage.State.SENT_UNCONFIRMED);
-		try {
+		try
+		{
 			convMessage.setMetadata(metadata);
-		} catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 		return convMessage;
 	}
 
-	public static ConvMessage createOfflineContactConvMessage(String msisdn,
-			JSONObject jsonData, boolean onHike){
+	public static ConvMessage createOfflineContactConvMessage(String msisdn, JSONObject jsonData, boolean onHike)
+	{
 		ConvMessage convMessage = null;
-		try {
-			convMessage = createConvMessage(msisdn, getFileTransferMetadataForContact(jsonData),onHike);
-		} catch (JSONException e) {
+		try
+		{
+			convMessage = createConvMessage(msisdn, getFileTransferMetadataForContact(jsonData), onHike);
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 		return convMessage;
 	}
 
-	public static boolean isContactTransferMessage(JSONObject packet) {
-		
+	public static boolean isContactTransferMessage(JSONObject packet)
+	{
+
 		boolean isContactTransferMessage = false;
 		JSONObject metadata;
 		JSONArray files;
@@ -469,16 +494,16 @@ public class OfflineUtils
 		try
 		{
 			metadata = getMetadata(packet);
-			if(metadata!=null)
+			if (metadata != null)
 			{
 				files = metadata.getJSONArray(HikeConstants.FILES);
-				if(files!=null)
+				if (files != null)
 				{
 					fileJSON = files.getJSONObject(0);
 					isContactTransferMessage = fileJSON.getString(HikeConstants.CONTENT_TYPE).equals(HikeConstants.CONTACT_CONTENT_TYPE);
 				}
 			}
-				
+
 		}
 		catch (JSONException e)
 		{
@@ -486,7 +511,7 @@ public class OfflineUtils
 		}
 		return isContactTransferMessage;
 	}
-	
+
 	public static JSONObject getMetadata(JSONObject packet)
 	{
 		try
@@ -505,7 +530,7 @@ public class OfflineUtils
 		}
 		return null;
 	}
-	
+
 	public static void showSpinnerProgress(FileTransferModel fileTransferModel)
 	{
 		if (fileTransferModel == null)
@@ -530,39 +555,41 @@ public class OfflineUtils
 		}
 		return disconnect;
 	}
-	
+
 	public static boolean isDisconnectPkt(JSONObject disconnect)
 	{
 		return disconnect.optString(HikeConstants.TYPE, "").equals("d");
 	}
 
-	public static MessageMetadata getUpdatedMessageMetaData(ConvMessage msg) {
-        
-        JSONObject metaData = msg.getMetadata().getJSON();
-        JSONArray filesArray = new JSONArray();
-        JSONObject fileJSON = null;
-        HikeFile hikeFile = msg.getMetadata().getHikeFiles().get(0);
-        try
-        {
-            fileJSON = metaData.getJSONArray(HikeConstants.FILES).getJSONObject(0);
-            String fileName = fileJSON.getString(HikeConstants.FILE_NAME);
-            File sourceFile  =  new File(fileJSON.getString(HikeConstants.FILE_PATH));
-            hikeFile.setFileKey("OfflineKey"+System.currentTimeMillis()/1000);
-            hikeFile.setFile(sourceFile);
-            hikeFile.setFileSize((int)sourceFile.length());
-            hikeFile.setFileName(fileName);
-            hikeFile.setSent(true);    
-            fileJSON =  hikeFile.serialize();
-            filesArray.put(fileJSON);
-            metaData.put(HikeConstants.FILES, filesArray);
-            MessageMetadata messageMetadata = new MessageMetadata(metaData, true);
-            return messageMetadata;
-        }catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-	
+	public static MessageMetadata getUpdatedMessageMetaData(ConvMessage msg)
+	{
+
+		JSONObject metaData = msg.getMetadata().getJSON();
+		JSONArray filesArray = new JSONArray();
+		JSONObject fileJSON = null;
+		HikeFile hikeFile = msg.getMetadata().getHikeFiles().get(0);
+		try
+		{
+			fileJSON = metaData.getJSONArray(HikeConstants.FILES).getJSONObject(0);
+			String fileName = fileJSON.getString(HikeConstants.FILE_NAME);
+			File sourceFile = new File(fileJSON.getString(HikeConstants.FILE_PATH));
+			hikeFile.setFileKey("OfflineKey" + System.currentTimeMillis() / 1000);
+			hikeFile.setFile(sourceFile);
+			hikeFile.setFileSize((int) sourceFile.length());
+			hikeFile.setFileName(fileName);
+			hikeFile.setSent(true);
+			fileJSON = hikeFile.serialize();
+			filesArray.put(fileJSON);
+			metaData.put(HikeConstants.FILES, filesArray);
+			MessageMetadata messageMetadata = new MessageMetadata(metaData, true);
+			return messageMetadata;
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public static String getErrorString(ERRORCODES e)
 	{
@@ -579,5 +606,26 @@ public class OfflineUtils
 		else
 			return "An unknown error occured";
 	}
-	
+
+	public static JSONObject createInfoPkt()
+	{
+		JSONObject object = new JSONObject();
+		try
+		{
+			object.put(HikeConstants.TYPE, OfflineConstants.INFO_PKT);
+			object.put(HikeConstants.VERSION, Utils.getAppVersion());
+			object.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return object;
+	}
+
+	public static boolean isInfoPkt(JSONObject packet)
+	{
+		return packet.optString(HikeConstants.TYPE).equals(OfflineConstants.INFO_PKT);
+	}
+
 }

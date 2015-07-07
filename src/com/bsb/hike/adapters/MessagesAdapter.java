@@ -105,6 +105,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
 import com.bsb.hike.offline.HikeConverter;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
@@ -840,7 +841,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				stickerImage = new File(categoryDirPath, stickerId);
 			}
-
+			if (conversation instanceof OfflineConversation)
+			{
+				if (stickerImage == null || !(stickerImage.exists()))
+				{
+					stickerImage = new File(OfflineUtils.getOfflineStkPath(categoryId, stickerId));
+				}
+			}
 			if (stickerImage != null && stickerImage.exists())
 			{
 				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(stickerImage.getPath());

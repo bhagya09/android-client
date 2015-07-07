@@ -6023,4 +6023,19 @@ public class Utils
         }
         return null;
     }
+    
+    public static String getAppVersion()
+	{
+		String appVersion = "";
+		try
+		{
+			appVersion = HikeMessengerApp.getInstance().getApplicationContext().getPackageManager()
+					.getPackageInfo(HikeMessengerApp.getInstance().getApplicationContext().getPackageName(), 0).versionName;
+		}
+		catch (NameNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		return appVersion;
+	}
 }

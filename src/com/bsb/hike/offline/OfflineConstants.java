@@ -66,6 +66,8 @@ public class OfflineConstants
 	
 	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*1000;
 	
+	public static final String INFO_PKT = "info";
+	
 	public final class HandlerConstants
 	{
 		public static final int SAVE_MSG_DB = -101;

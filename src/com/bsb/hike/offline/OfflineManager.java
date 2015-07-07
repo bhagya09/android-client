@@ -582,6 +582,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 		Logger.d(TAG, "In onConnect");
 		this.connectedDevice=connectinMsisdn;
+		Logger.d(TAG,"Connecting Device is "+connectinMsisdn);
 		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
 		removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
 		offlineState = OFFLINE_STATE.CONNECTED;
@@ -593,6 +594,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		{
 			offlineListener.connectedToMsisdn(connectedDevice);
 		}
+		sendInfoPacket();
+	}
+
+	private void sendInfoPacket()
+	{
+		SenderConsignment senderConsignment = new SenderConsignment.Builder(OfflineUtils.createInfoPkt().toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false)
+				.persistance(false).build();
+		sendConsignment(senderConsignment);
 	}
 
 	@Override
@@ -606,10 +615,11 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
+			Transporter.getInstance().shutDown();
 			Logger.d(TAG, "going to disconnect");
 			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
 			sendDisconnectToListeners();
-
+			
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
 
 			hikeConverter.shutDown(exception);

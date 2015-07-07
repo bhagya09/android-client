@@ -233,6 +233,10 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				addToCurrentReceivingFile(convMessage.getMsgID(),
 						fileTransferModel);
 			} 
+			else if(OfflineUtils.isInfoPkt(messageJSON))
+			{
+				Logger.d(TAG, "Info Packet received ...>>" + messageJSON.toString());
+			}
 			else 
 			{
 				if (OfflineUtils.isChatThemeMessage(messageJSON)) 
@@ -332,7 +336,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			{
 				try 
 				{
-					OfflineUtils.createStkDirectory(messageJSON);
+					stickerImage = new File(OfflineUtils.createStkDirectory(messageJSON));
 				} 
 				catch (JSONException e) 
 				{
