@@ -514,6 +514,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
+		toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
 			switch (item.getItemId())
@@ -530,19 +531,25 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private boolean checkForDeadOrBlocked()
 	{
+		return checkForBlocked() ||checkForDead();
+	}
+	
+	private boolean checkForDead()
+	{
 		if (!oneToNConversation.isConversationAlive())
 		{
-			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
 			return true;
 		}
-
+		return false;
+	}
+	
+	private boolean checkForBlocked()
+	{
 		if (oneToNConversation.isBlocked())
 		{
 			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
 			return true;
 		}
-
 		return false;
 	}
 
@@ -947,6 +954,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		
 		super.onPrepareOverflowOptionsMenu(overflowItems);
+		toastForGroupEnd();
 		
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
@@ -962,6 +970,15 @@ public class GroupChatThread extends OneToNChatThread
 				overFlowMenuItem.text = oneToNConversation.isMuted() ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group);
 				break;
 			}
+		}
+	}
+
+	private void toastForGroupEnd() {
+		if(checkForDead()){
+			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
+		}else if(checkForBlocked()){
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
 		}
 	}
 	
