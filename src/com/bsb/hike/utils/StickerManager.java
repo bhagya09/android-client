@@ -1815,6 +1815,10 @@ public class StickerManager
 	private void cacheStickersForGivenCategory(String categoryId)
 	{
 		StickerCategory category = getCategoryForId(categoryId);
+		if (category == null)
+		{
+			return;
+		}
 		Logger.d("StickerCaching", "Category cached : " + categoryId);
 		//loading two rows, hence *2
 		int stickersToLoad = (getNumColumnsForStickerGrid(context) * 2);

@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_weight="1"
+            android:paddingRight="20dp"
             android:orientation="vertical" >
 
             <com.bsb.hike.view.CustomFontTextView

@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Environment;
 
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 public class HikeConstants
 {
@@ -2907,6 +2908,20 @@ public class HikeConstants
 	public static final String STICKERS = "stkrs";
 	
 	public static final String IMAGE = "img";
+
+	public static final String OTHER_EXCEPTION_LOGGING = "otherExLoging";
 	
+	public static final String HTTP_EXCEPTION_LOGGING = "httpExc";
+
+	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
+
+	public static final String MESSAGING = "messaging";
+
+	public static final String DUPLICATE = "duplicate";
+
+	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
+
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	
+	public static final String  STICKER_SEARCH = "stickersearch";
 }
