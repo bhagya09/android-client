@@ -133,21 +133,22 @@ public class StickerSearchHostManager
 			mIndexLimit = s.length();
 
 			int brokerLimit = 70;
+			boolean isNeedToRemoveLastWord = false;
 			if (mIndexLimit > 65)
 			{
 				mIndexLimit = 65;
 				while ((mIndexLimit < s.length()) && !" ".equals(s.charAt(mIndexLimit)))
 				{
 					mIndexLimit++;
-					if (mIndexLimit > brokerLimit)
+					if (mIndexLimit >= brokerLimit)
 					{
-						mIndexLimit = 65;
+						isNeedToRemoveLastWord = true;
 						break;
 					}
 				}
 			}
 
-			return searchAndGetStickerResult(s, start, end, before, count, (mIndexLimit > brokerLimit));
+			return searchAndGetStickerResult(s, start, end, before, count, isNeedToRemoveLastWord);
 		}
 		catch (Exception e)
 		{
@@ -166,9 +167,9 @@ public class StickerSearchHostManager
 		ArrayList<int[]> tempResult = new ArrayList<int[]>();
 
 		CharSequence wholeString = s;
-		if (isNeedToRemoveLastWord)
+		if ((mIndexLimit != wholeString.length()) && (mIndexLimit < wholeString.length()))
 		{
-			s = s.subSequence(0, mIndexLimit);
+			s = wholeString.subSequence(0, mIndexLimit);
 		}
 
 		Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> cobj = StickerSearchUtility.splitAndDoIndexing(s, " |\n|\t|,|\\.|@");
@@ -192,7 +193,7 @@ public class StickerSearchHostManager
 				if (lastPossibleConsiderableIndex < wholeString.length())
 				{
 					char c = wholeString.charAt(lastPossibleConsiderableIndex);
-					if ((c == ' ') || (c == '\n') || (c == '\t') || (c == ',')  ||(c == '.') || (c == '@'))
+					if ((c == ' ') || (c == '\n') || (c == '\t') || (c == ',') || (c == '.') || (c == '@'))
 					{
 						mIndexLimit = lastPossibleConsiderableIndex;
 					}
@@ -202,6 +203,14 @@ public class StickerSearchHostManager
 						pstarts.remove(size - 1);
 						pends.remove(size - 1);
 						size = pwords.size();
+						if (size > 0)
+						{
+							mIndexLimit = pends.get(size - 1);
+						}
+						else
+						{
+							mIndexLimit = 0;
+						}
 					}
 				}
 			}
@@ -367,7 +376,7 @@ public class StickerSearchHostManager
 					else if (searchKey.length() > 0)
 					{
 						LinkedHashSet<Sticker> savedStickers = history.get(searchKey);
-						if (savedStickers.size() > 0)
+						if ((savedStickers != null) && (savedStickers.size() > 0))
 						{
 							if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
 							{
@@ -401,7 +410,7 @@ public class StickerSearchHostManager
 						}
 						else
 						{
-							
+
 							String currentPhrase;
 							int currentMaxPermutationSize;
 							maxPermutationSize = 3;
@@ -437,7 +446,7 @@ public class StickerSearchHostManager
 									}
 
 									savedStickers = history.get(searchKey);
-									if (savedStickers.size() > 0)
+									if ((savedStickers != null) && (savedStickers.size() > 0))
 									{
 										if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
 										{
