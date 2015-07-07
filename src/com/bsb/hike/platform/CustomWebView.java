@@ -68,12 +68,6 @@ public class CustomWebView extends WebView
 			this.isShowing = true;
 		}
 	}
-	@Override
-	protected void onDetachedFromWindow() {
-		Logger.d("customWebView","Detached card is destroyed");
-		this.destroy();
-		super.onDetachedFromWindow();
-	}
 	
 	@SuppressLint("NewApi")
 	public void onWebViewGone()
