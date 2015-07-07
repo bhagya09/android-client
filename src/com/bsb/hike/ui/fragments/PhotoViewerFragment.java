@@ -671,12 +671,12 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			
 				after removing this, problem was solved with that device
 			 */
-//			smAdapter.notifyDataSetChanged();
+			smAdapter.notifyDataSetChanged();
 			
 			/**
 			 * Instead refresh current visible view only
 			 */
-			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
+//			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
 		}
 		
 		super.onResume();
