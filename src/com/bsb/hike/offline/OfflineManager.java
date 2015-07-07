@@ -593,6 +593,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		{
 			offlineListener.connectedToMsisdn(connectedDevice);
 		}
+		sendInfoPacket();
+	}
+
+	private void sendInfoPacket()
+	{
+		SenderConsignment senderConsignment = new SenderConsignment.Builder(OfflineUtils.createInfoPkt().toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false)
+				.persistance(false).build();
+		sendConsignment(senderConsignment);
 	}
 
 	@Override
