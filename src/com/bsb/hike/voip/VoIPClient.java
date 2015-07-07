@@ -109,7 +109,6 @@ public class VoIPClient  {
 	private boolean isSpeaking = true;
 	private int lastPacketReceived = 0;
 	private int voicePacketCount = 1;
-
 	
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
