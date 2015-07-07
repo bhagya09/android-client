@@ -107,6 +107,9 @@ public class VoIPClient  {
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
 	private boolean isSpeaking = true;
+	private int lastPacketReceived = 0;
+	private int voicePacketCount = 1;
+
 	
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
@@ -757,7 +760,6 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				int voicePacketCount = 1;
 				while (keepRunning == true) {
 
 					if (Thread.interrupted()) {
@@ -1555,7 +1557,6 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				int lastPacketReceived = 0;
 				int uncompressedLength = 0;
 				while (keepRunning == true) {
 					VoIPDataPacket dpdecode;
