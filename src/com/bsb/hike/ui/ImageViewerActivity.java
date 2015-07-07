@@ -9,6 +9,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -116,6 +118,7 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 
 				// Scale factors to make the large version the same size as the thumbnail
 				mWidthScale = (float) thumbnailWidth / imageView.getWidth();
+				
 				mHeightScale = (float) thumbnailHeight / imageView.getHeight();
 
 				Logger.d(TAG, "imageViewPos x,y - " + screenLocation[0] + " , " + screenLocation[1]);
@@ -154,15 +157,28 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		// Set starting values for properties we're going to animate. These
 		// values scale and position the full size version down to the thumbnail
 		// size/location, from which we'll animate it back up
-		imageView.setPivotX(0);
-		imageView.setPivotY(0);
-		imageView.setScaleX(mWidthScale);
-		imageView.setScaleY(mHeightScale < 0.6f ? 0.6f : mHeightScale);
-		imageView.setTranslationX(mLeftDelta);
-		imageView.setTranslationY(mTopDelta);
-
+//		imageView.setPivotX(0);
+//		imageView.setPivotY(0);
+//		imageView.setScaleX(mWidthScale);
+//		imageView.setScaleY(mHeightScale < 0.6f ? 0.6f : mHeightScale);
+//		imageView.setTranslationX(mLeftDelta);
+//		imageView.setTranslationY(mTopDelta);
+		imageView.setTranslationY(20);
+		imageView.setAlpha(0f);
+		
 		// Animate scale and translation to go from thumbnail to full size
-		imageView.animate().setDuration(duration).scaleX(1).scaleY(1).translationX(0).translationY(0).withEndAction(new Runnable()
+//		imageView.animate().setDuration(duration).scaleX(1).scaleY(1).translationX(0).translationY(0).withEndAction(new Runnable()
+//		{
+//			public void run()
+//			{
+//				// Animate the description in after the image animation
+//				// is done. Slide and fade the text in from underneath
+//				// the picture.
+//
+//			}
+//		});
+		
+		imageView.animate().setDuration(duration).translationY(0).alpha(1f).withEndAction(new Runnable()
 		{
 			public void run()
 			{
@@ -173,8 +189,8 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 			}
 		});
 
-		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, 1f);
-		bgAnim.setDuration(700);
+		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, 0.95f);
+		bgAnim.setDuration(600);
 		bgAnim.start();
 	}
 
@@ -187,9 +203,41 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	public void runExitAnimation(final Runnable endAction)
 	{
 		// Animate image back to thumbnail size/location
-		imageView.animate().setDuration(300).scaleX(mWidthScale).scaleY(mHeightScale).translationX(mLeftDelta).translationY(mTopDelta).withEndAction(endAction);
+//		imageView.animate().setDuration(300).scaleX(mWidthScale).scaleY(mHeightScale).translationX(mLeftDelta).translationY(mTopDelta).withEndAction(endAction);
+		imageView.animate().setDuration(300).translationY(20).alpha(0f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
-		bgAnim.setDuration(300);
+		bgAnim.setDuration(600);
+		bgAnim.addListener(new AnimatorListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animator animation)
+			{
+				endAction.run();
+				
+			}
+			
+			@Override
+			public void onAnimationCancel(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		bgAnim.start();
 	}
 
@@ -269,7 +317,7 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	@Override
 	public void onClick(View v)
 	{
-		// TODO
+		onBackPressed();
 	}
 
 	public interface DisplayPictureEditListener
