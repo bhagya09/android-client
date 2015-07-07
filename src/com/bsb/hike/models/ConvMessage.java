@@ -214,7 +214,7 @@ public class ConvMessage implements Searchable
 		PARTICIPANT_JOINED, // The participant has joined
 		GROUP_END, // Group chat has ended
 		USER_OPT_IN, DND_USER, USER_JOIN, CHANGED_GROUP_NAME, CHANGED_GROUP_IMAGE, BLOCK_INTERNATIONAL_SMS, INTRO_MESSAGE, STATUS_MESSAGE, CHAT_BACKGROUND,
-		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING;
+		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN;
 
 		public static ParticipantInfoState fromJSON(JSONObject obj)
 		{
@@ -226,6 +226,10 @@ public class ConvMessage implements Searchable
 			else if (HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE.equals(type))
 			{
 				return ParticipantInfoState.PARTICIPANT_LEFT;
+			}
+			else if (HikeConstants.MqttMessageTypes.GROUP_ADMIN_UPDATE.equals(type))
+			{
+				return ParticipantInfoState.CHANGE_ADMIN;
 			}
 			else if (HikeConstants.MqttMessageTypes.GROUP_CHAT_END.equals(type))
 			{
@@ -505,6 +509,17 @@ public class ConvMessage implements Searchable
 			break;
 		case PARTICIPANT_LEFT:
 			this.mMessage = OneToNConversationUtils.getParticipantRemovedMessage(conversation.getMsisdn(), context, ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn()));
+			break;
+		case CHANGE_ADMIN:
+			String myMsidn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+
+			JSONObject dataO = obj.optJSONObject(HikeConstants.DATA);
+			String msisdns = dataO.optString(HikeConstants.ADMIN_MSISDN);
+			if (msisdns.equalsIgnoreCase(myMsidn))
+			{
+				this.shouldShowPush = true;
+			}
+			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
 			break;
 		case GROUP_END:
 			this.mMessage = OneToNConversationUtils.getConversationEndedMessage(conversation.getMsisdn(), context);

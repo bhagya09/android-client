@@ -113,6 +113,8 @@ public class HikeDialogFactory
 	public static final int DELETE_BLOCK = 35;
 	
 	public static final int DELETE_NON_MESSAGING_BOT = 36;
+	
+	public static final int GROUP_ADD_MEMBER_SETTINGS = 37;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -187,7 +189,9 @@ public class HikeDialogFactory
 			return showHikeUpgradeDialog(dialogId, context, data);
 			
 		case VOIP_INTRO_DIALOG:
-			return showVoipFtuePopUp(dialogId, context, listener, data);			
+			return showVoipFtuePopUp(dialogId, context, listener, data);
+		case GROUP_ADD_MEMBER_SETTINGS:
+			return showGroupSettingsDialog(dialogId, context, listener, data);
 		}
 		return null;
 	}
@@ -385,6 +389,38 @@ public class HikeDialogFactory
 
 		hikeDialog.show();
 		return hikeDialog;
+	}
+
+	private static HikeDialog showGroupSettingsDialog(int dialogId,final Context context, final HikeDialogListener listener,Object... data) {
+		
+		final CustomAlertDialog confirmDialog = new CustomAlertDialog(
+				context, dialogId);
+	
+			String text = (String) data[0];
+		
+			confirmDialog.setHeader("");
+			confirmDialog.setBody(text);
+
+		confirmDialog.setOkButton(R.string.ok,
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						listener.positiveClicked(confirmDialog);
+					}
+				});
+
+		confirmDialog.setCancelButton(R.string.cancel,
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						listener.negativeClicked(confirmDialog);
+					}
+				});
+
+		confirmDialog.show();
+		return confirmDialog;
 	}
 
 	private static void showImageQualityOption(int quality, CheckBox small, CheckBox medium, CheckBox original)

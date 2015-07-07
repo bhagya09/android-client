@@ -4,8 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-
-	public static final int CONVERSATIONS_DATABASE_VERSION = 40;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 41;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -34,7 +33,9 @@ public interface DBConstants
 	public static final String TIMESTAMP = "timestamp";
 
 	public static final String MESSAGE_ID = "msgid";
-
+	
+	public static final String GROUP_CREATOR = "grpCreator";
+	
 	public static final String MAPPED_MSG_ID = "mappedMsgId";
 	
 	public static final String MESSAGE_HASH = "msgHash";
@@ -84,6 +85,8 @@ public interface DBConstants
 	public static final String GROUP_ALIVE = "groupAlive";
 
 	public static final String HAS_LEFT = "hasLeft";
+	
+	public static final String IS_ADMIN = "isAdmin";
 
 	public static final String LAST_MESSAGED = "lastMessaged";
 

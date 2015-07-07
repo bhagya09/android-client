@@ -131,7 +131,9 @@ public class HikePubSub implements Runnable
 	public static final String GROUP_END = "groupEnd";
 
 	public static final String ONETONCONV_NAME_CHANGED = "groupNameChanged";
-
+	
+	public static final String ONETONCONV_ADMIN_UPDATE = "groupAdminUpdate";
+	
 	public static final String PARTICIPANT_JOINED_ONETONCONV = "participantJoinedGroup";
 
 	public static final String PARTICIPANT_LEFT_ONETONCONV = "participantLeftGroup";
