@@ -1535,5 +1535,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name= "free_hike_connection">Free Hike Connection</string>
 	<string name= "free_hike_disconnect">Disconnect with %1$s ?</string>
 	<string name= "free_hike_disconnect_message">Your connection will end</string>
-	<string name= "scan_free_hike_connection">Scan %1$s for free hike connection</string>
+	<string name= "scan_free_hike_connection">Scan <![CDATA[<b>%1$s</b>]]> for free hike connection</string>
 </resources>

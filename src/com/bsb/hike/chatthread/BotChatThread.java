@@ -6,8 +6,11 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.text.Html;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
+import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.bsb.hike.HikeConstants;
@@ -22,8 +25,10 @@ import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontButton;
@@ -158,7 +163,14 @@ public class BotChatThread extends OneToOneChatThread
 		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, isMuted);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
 	}
-
+	
+	@Override
+	protected void showNetworkError(boolean isNetworkError) 
+	{
+		activity.findViewById(R.id.network_error_chat).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+		activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
+	};
+	
 	@Override
 	protected void sendPoke()
 	{

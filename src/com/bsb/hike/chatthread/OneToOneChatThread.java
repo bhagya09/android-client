@@ -17,6 +17,7 @@ import android.media.AudioManager;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -60,6 +61,7 @@ import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -1356,7 +1358,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void showNetworkError(boolean isNetworkError) 
 	{
-		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+		TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
+		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+		String contactFirstName = msisdn;
+		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+		{
+			contactFirstName = contactInfo.getFirstName();
+		}
+		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
+		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);	
 	};
 
 	/**
