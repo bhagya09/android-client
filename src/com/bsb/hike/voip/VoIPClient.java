@@ -106,7 +106,8 @@ public class VoIPClient  {
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
 	private boolean isSpeaking = true;
-	
+	private int voicePacketCount = 1;
+
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
 	public boolean isHostingConference;
@@ -638,7 +639,7 @@ public class VoIPClient  {
 							
 							// If we are setting up a conference, then force all connections
 							// through the relay since it will handle the broadcasting for us.
-							if (!isInAHostedConference) {
+							if (isInAHostedConference) { // TODO! Add a "!"
 								setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 								dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
 								sendPacket(dp, false);
@@ -762,7 +763,6 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				int voicePacketCount = 1;
 				while (keepRunning == true) {
 
 					if (Thread.interrupted()) {
@@ -1565,7 +1565,7 @@ public class VoIPClient  {
 						break;
 					}
 					
-					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];	// Just to be safe, we make a big buffer
+					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];	
 					
 					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived) {
 						Logger.w(tag, "Old packet received.");
@@ -1578,7 +1578,6 @@ public class VoIPClient  {
 						try {
 							uncompressedLength = opusWrapper.fec(dpdecode.getData(), uncompressedData);
 							uncompressedLength = uncompressedLength * 2;
-							Logger.d(tag, "Uncompressed length: " + uncompressedLength);
 							if (uncompressedLength > 0) {
 								// We have a decoded packet
 								lastPacketReceived = dpdecode.getVoicePacketNumber();
@@ -1674,6 +1673,10 @@ public class VoIPClient  {
 			localBitrate = wifiBitrate;
 		else 
 			localBitrate = wifiBitrate;
+		
+		// TODO!! Remove me!
+		localBitrate = threeGBitrate;
+
 		
 		if (remoteBitrate > 0 && remoteBitrate < localBitrate)
 			localBitrate = remoteBitrate;
