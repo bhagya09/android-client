@@ -42,6 +42,8 @@ public class StickerSearchHostManager
 
 	private int mEnd;
 
+	private int mIndexLimit;
+
 	private ArrayList<String> mPreviousWords;
 
 	private IndividualChatProfile mCurrentIndividualChatProfile;
@@ -128,7 +130,25 @@ public class StickerSearchHostManager
 			int end = ((count > 0) ? (start + count - 1) : start);
 			mStart = start;
 			mEnd = end;
-			return searchAndGetStickerResult(s, start, end, before, count);
+			mIndexLimit = s.length();
+
+			int brokerLimit = 70;
+			boolean isNeedToRemoveLastWord = false;
+			if (mIndexLimit > 65)
+			{
+				mIndexLimit = 65;
+				while ((mIndexLimit < s.length()) && !" ".equals(s.charAt(mIndexLimit)))
+				{
+					mIndexLimit++;
+					if (mIndexLimit >= brokerLimit)
+					{
+						isNeedToRemoveLastWord = true;
+						break;
+					}
+				}
+			}
+
+			return searchAndGetStickerResult(s, start, end, before, count, isNeedToRemoveLastWord);
 		}
 		catch (Exception e)
 		{
@@ -139,20 +159,17 @@ public class StickerSearchHostManager
 		return null;
 	}
 
-	private Pair<CharSequence, int[][]> searchAndGetStickerResult(CharSequence s, int start, int end, int before, int count)
+	private Pair<CharSequence, int[][]> searchAndGetStickerResult(CharSequence s, int start, int end, int before, int count, boolean isNeedToRemoveLastWord)
 	{
-		Logger.v(TAG, "searchAndGetStickerResult(" + s + ", [" + start + " - " + end + "], " + before + ", " + count + ")");
+		Logger.v(TAG, "searchAndGetStickerResult(" + s + ", [" + start + " - " + end + "], " + before + ", " + count + ", " + isNeedToRemoveLastWord + ")");
 
 		int[][] result = null;
 		ArrayList<int[]> tempResult = new ArrayList<int[]>();
-		if (s.length() > 70)
+
+		CharSequence wholeString = s;
+		if ((mIndexLimit != wholeString.length()) && (mIndexLimit < wholeString.length()))
 		{
-			int selection = 70;
-			while (!" ".equals(s.charAt(selection)) && selection < s.length())
-			{
-				selection++;
-			}
-			s = s.subSequence(0, selection);
+			s = wholeString.subSequence(0, mIndexLimit);
 		}
 
 		Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> cobj = StickerSearchUtility.splitAndDoIndexing(s, " |\n|\t|,|\\.|@");
@@ -161,7 +178,7 @@ public class StickerSearchHostManager
 		ArrayList<Integer> endList = null;
 		int size = (wordList == null ? 0 : wordList.size());
 
-		if (wordList != null && wordList.size() > 0)
+		if (wordList != null && size > 0)
 		{
 			startList = cobj.second.first;
 			endList = cobj.second.second;
@@ -169,13 +186,42 @@ public class StickerSearchHostManager
 			pstarts = startList;
 			pends = endList;
 
-			int previousBoundary = 0;
+			// remove last word, if needed
+			if (isNeedToRemoveLastWord)
+			{
+				int lastPossibleConsiderableIndex = pends.get(size - 1);
+				if (lastPossibleConsiderableIndex < wholeString.length())
+				{
+					char c = wholeString.charAt(lastPossibleConsiderableIndex);
+					if ((c == ' ') || (c == '\n') || (c == '\t') || (c == ',') || (c == '.') || (c == '@'))
+					{
+						mIndexLimit = lastPossibleConsiderableIndex;
+					}
+					else
+					{
+						pwords.remove(size - 1);
+						pstarts.remove(size - 1);
+						pends.remove(size - 1);
+						size = pwords.size();
+						if (size > 0)
+						{
+							mIndexLimit = pends.get(size - 1);
+						}
+						else
+						{
+							mIndexLimit = 0;
+						}
+					}
+				}
+			}
+
 			String value;
 			String nextWord;
-			StringBuilder searchText = new StringBuilder();
 			int lastIndexInPhraseStartedWithPivot;
 			int maxPermutationSize;
+			StringBuilder searchText = new StringBuilder();
 			boolean suggestionFoundOnLastValidPhrase = false;
+			int previousBoundary = 0;
 
 			for (int i = 0; i < size; i++)
 			{
@@ -330,7 +376,7 @@ public class StickerSearchHostManager
 					else if (searchKey.length() > 0)
 					{
 						LinkedHashSet<Sticker> savedStickers = history.get(searchKey);
-						if (savedStickers.size() > 0)
+						if ((savedStickers != null) && (savedStickers.size() > 0))
 						{
 							if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
 							{
@@ -364,29 +410,110 @@ public class StickerSearchHostManager
 						}
 						else
 						{
-							// handle individual word
-							searchKey = value.toUpperCase(Locale.ENGLISH);
-							int actualStartOfWord = startList.get(i);
-							int actualEndOfWord = endList.get(i) - 1;
-							// determine if exact match is needed
-							boolean exactSearch = !((actualStartOfWord > start) ? ((actualStartOfWord <= end) && (actualEndOfWord == end)) : (actualEndOfWord >= end));
-							if (exactSearch)
+
+							String currentPhrase;
+							int currentMaxPermutationSize;
+							maxPermutationSize = 3;
+							nextWord = null;
+
+							// build partial phrase of remaining words
+							for (String previousPhrase = null; maxPermutationSize > 1; maxPermutationSize--)
 							{
-								savedStickers = history.get(searchKey);
-							}
-							else
-							{
-								savedStickers = history.get(searchKey + "*");
+								searchText.setLength(0);
+								searchText.append(value);
+								currentMaxPermutationSize = maxPermutationSize;
+
+								for (lastIndexInPhraseStartedWithPivot = i + 1; currentMaxPermutationSize > 1 && lastIndexInPhraseStartedWithPivot < size; lastIndexInPhraseStartedWithPivot++)
+								{
+									nextWord = wordList.get(lastIndexInPhraseStartedWithPivot).replaceAll("\'|\\*", HikeStickerSearchBaseConstants.EMPTY);
+									if (nextWord.length() == 0)
+									{
+										continue;
+									}
+									searchText.append("* ");
+									searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * 0.7 + 0.5)) : nextWord));
+									currentMaxPermutationSize--;
+								}
+								lastIndexInPhraseStartedWithPivot--;
+								searchKey = searchText.toString().toUpperCase(Locale.ENGLISH);
+
+								if (lastIndexInPhraseStartedWithPivot > i)
+								{
+									currentPhrase = searchKey;
+									if (currentPhrase.equals(previousPhrase))
+									{
+										continue;
+									}
+
+									savedStickers = history.get(searchKey);
+									if ((savedStickers != null) && (savedStickers.size() > 0))
+									{
+										if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
+										{
+											int marker = -1;
+											int k = 0;
+											for (Sticker sticker : savedStickers)
+											{
+												if (sticker == null)
+												{
+													marker = k;
+													break;
+												}
+												k++;
+											}
+
+											if (marker != 0 && lastIndexInPhraseStartedWithPivot > i)
+											{
+												// word + phrase both searched successfully
+												previousBoundary = endList.get(lastIndexInPhraseStartedWithPivot);
+												tempResult.add(new int[] { startList.get(i), previousBoundary });
+												Logger.d(TAG, "Making blue due to partial phrase \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+											}
+											else
+											{
+												// only word searched successfully
+												previousBoundary = endList.get(i);
+												tempResult.add(new int[] { startList.get(i), previousBoundary });
+												Logger.d(TAG, "Making blue due to individual word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+											}
+
+											break;
+										}
+									}
+								}
+								else
+								{
+									break;
+								}
+
+								previousPhrase = currentPhrase;
 							}
 
-							if (savedStickers != null && (savedStickers.contains(null) ? savedStickers.size() > 1 : savedStickers.size() > 0))
+							// handle individual word
+							if (((previousBoundary < startList.get(i)) || (startList.get(i) == 0)) && (((i > 0) && (value.length() > 1)) || (i == 0)))
 							{
-								if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
+								searchKey = value.toUpperCase(Locale.ENGLISH);
+								int actualStartOfWord = startList.get(i);
+								int actualEndOfWord = endList.get(i) - 1;
+								// determine if exact match is needed
+								boolean exactSearch = !((actualStartOfWord > start) ? ((actualStartOfWord <= end) && (actualEndOfWord == end)) : (actualEndOfWord >= end));
+								if (exactSearch)
 								{
-									// only word searched successfully, may be part of earlier phrase search successfully
-									previousBoundary = endList.get(i);
-									tempResult.add(new int[] { startList.get(i), previousBoundary });
-									Logger.d(TAG, "Making blue due to word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+									savedStickers = history.get(searchKey);
+								}
+								else
+								{
+									savedStickers = history.get(searchKey + "*");
+								}
+
+								if (savedStickers != null && (savedStickers.contains(null) ? savedStickers.size() > 1 : savedStickers.size() > 0))
+								{
+									{
+										// only word searched successfully, may be part of earlier phrase search successfully
+										previousBoundary = endList.get(i);
+										tempResult.add(new int[] { startList.get(i), previousBoundary });
+										Logger.d(TAG, "Making blue due to individual  word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+									}
 								}
 							}
 						}
@@ -399,6 +526,7 @@ public class StickerSearchHostManager
 			pwords = wordList;
 			pstarts = null;
 			pends = null;
+			mIndexLimit = 0;
 		}
 
 		int finalSuggestionsCount = tempResult.size();
@@ -457,7 +585,45 @@ public class StickerSearchHostManager
 				}
 				else
 				{
-					// TO DO
+					// check pre-words, if valid
+					int preIndex = i;
+					int preInvalidCount = 0;
+					while (--preIndex >= 0)
+					{
+						if (pwords.get(preIndex).length() > 0)
+						{
+							preInvalidCount = i - preIndex;
+							break;
+						}
+					}
+
+					// check post-words, if valid
+					int postIndex = i;
+					int postInvalidCount = 0;
+					while (++postIndex < pwords.size())
+					{
+						if (pwords.get(postIndex).length() > 0)
+						{
+							postInvalidCount = postInvalidCount - i;
+							break;
+						}
+					}
+
+					if ((preInvalidCount <= 0) && (postInvalidCount <= 0))
+					{
+						Logger.d(TAG, "onClickToSendSticker(), No valid combination of words is present in current sentence.");
+					}
+					else
+					{
+						if (((preInvalidCount <= postInvalidCount) && (preInvalidCount > 0)) || (postInvalidCount <= 0))
+						{
+							stickers = computeProbableStickers(word, preIndex);
+						}
+						else
+						{
+							stickers = computeProbableStickers(word, postIndex);
+						}
+					}
 				}
 				Logger.d(TAG, "Fetched stickers: " + stickers);
 				break;
@@ -489,7 +655,8 @@ public class StickerSearchHostManager
 				|| ((wordIndexInText == 0) && (word.length() == 1));
 
 		// phrase part
-		int j = wordIndexInText - 1;
+		int j;
+		int count;
 		ArrayList<Sticker> retainList = new ArrayList<Sticker>(8);
 		int prePhraseStickersCount = 0;
 		ArrayList<String> selectedTextInPhrase = new ArrayList<String>();
@@ -498,8 +665,9 @@ public class StickerSearchHostManager
 
 		for (String previousPhrase = null; maxPermutationSize > 1;)
 		{
+			j = wordIndexInText - 1;
+			count = 1;
 			selectedTextInPhrase.add(word);
-			int count = 1;
 			currentMaxPermutationSize = maxPermutationSize;
 
 			while (j >= 0 && count < currentMaxPermutationSize)
@@ -582,7 +750,6 @@ public class StickerSearchHostManager
 			}
 
 			previousPhrase = currentPhrase;
-			j = wordIndexInText - 1;
 			selectedTextInPhrase.clear();
 			searchText.setLength(0);
 			maxPermutationSize--;
