@@ -1326,9 +1326,6 @@ public class VoIPService extends Service {
 						} else {
 							// If we are in a conference hosted by somebody else
 							// and we aren't talking, then stop transmitting
-							if (getClient() == null || 
-									(getClient().isHostingConference && !dp.isVoice()))
-								continue;
 							buffersToSend.add(dp);
 						}
 					}
@@ -1509,31 +1506,32 @@ public class VoIPService extends Service {
 					
 					if (hostingConference()) {
 						VoIPDataPacket dp = processedRecordedSamples.poll();
-						if (dp != null) {
-							byte[] conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
-							dp.setData(conferencePCM);
-							
-							// This is the broadcast
-							conferenceBroadcastSamples.add(conferencePCM);
+						byte[] conferencePCM = null;
+						if (dp != null) 
+							conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
+						else
+							conferencePCM = finalDecodedSample.getData();	// Host is probably on mute
 
-							for (VoIPClient client : clients.values()) {
-								if (!client.isSpeaking() || !client.connected)
-									continue;
-								
-								// Custom streams
-								VoIPDataPacket clientDp = new VoIPDataPacket();
-								byte[] origPCM = clientSample.get(client.getPhoneNumber());
-								byte[] newPCM = null;
-								if (origPCM == null) {
-									newPCM = conferencePCM;
-								} else {
-									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
-								}
-								clientDp.setData(newPCM);
-								clientDp.setVoice(true);
-								client.addSampleToEncode(clientDp); 
-//								Logger.d(tag, "Custom to: " + client.getPhoneNumber());
+						// This is the broadcast
+						conferenceBroadcastSamples.add(conferencePCM);
+
+						for (VoIPClient client : clients.values()) {
+							if (!client.isSpeaking() || !client.connected)
+								continue;
+
+							// Custom streams
+							VoIPDataPacket clientDp = new VoIPDataPacket();
+							byte[] origPCM = clientSample.get(client.getPhoneNumber());
+							byte[] newPCM = null;
+							if (origPCM == null) {
+								newPCM = conferencePCM;
+							} else {
+								newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
 							}
+							clientDp.setData(newPCM);
+							clientDp.setVoice(true);
+							client.addSampleToEncode(clientDp); 
+							//								Logger.d(tag, "Custom to: " + client.getPhoneNumber());
 						}
 					}
 

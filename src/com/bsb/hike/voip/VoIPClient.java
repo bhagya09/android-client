@@ -317,7 +317,7 @@ public class VoIPClient  {
 
 	public synchronized void setSpeaking(boolean isSpeaking) {
 		if (this.isSpeaking != isSpeaking)
-			Logger.w(tag, "Speaking: " + isSpeaking);
+			Logger.d(tag, "Speaking: " + isSpeaking);
 		
 		this.isSpeaking = isSpeaking;
 	}
