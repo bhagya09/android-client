@@ -320,14 +320,19 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				v = inflater.inflate(R.layout.group_settings_item, null);
 				CheckBox box = (CheckBox) v.findViewById(R.id.checkBox);
 				try {
+<<<<<<< HEAD
 					if(groupConversation!=null && groupConversation.getMetadata().getAddMembersRight()==1){
+=======
+					if (groupConversation != null
+							&& groupConversation.getMetadata()
+									.getAddMembersRight() == OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ADMIN_CAN_ADD) {
+>>>>>>> 2e01831... fixup! Merge pull request #3525 from suyash123/internal_release_crash_fix
 						box.setChecked(true);
 					}
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 				break;
 
 			case GROUP_PARTICIPANT:
