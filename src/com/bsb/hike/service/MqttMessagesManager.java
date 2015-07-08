@@ -15,9 +15,10 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import android.content.ContentValues;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -499,7 +500,7 @@ public class MqttMessagesManager
 				groupName = metadata.optString(HikeConstants.NAME);
 			}
 			
-			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
+			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate(), oneToNConversation.getConversationCreator());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), groupName);
 
 			// Adding a key to the json signify that this was the GCJ
@@ -541,6 +542,9 @@ public class MqttMessagesManager
 					 */
 				}
 			}
+			if(metadata.has(HikeConstants.GROUP_SETTING)){
+				this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(), metadata.optInt(HikeConstants.GROUP_SETTING),0, new ContentValues());
+			}
 		}
 
 		saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
@@ -554,6 +558,36 @@ public class MqttMessagesManager
 		{
 			ContactManager.getInstance().removeGroupParticipant(groupId, msisdn);
 			saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
+		}
+	}
+	
+	private void saveAdminUpdate(JSONObject jsonObj) throws JSONException {
+		String groupId = jsonObj.optString(HikeConstants.TO);
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		String msisdn = data.optString(HikeConstants.ADMIN_MSISDN);
+		if (msisdn.equalsIgnoreCase(userMsisdn)) {
+			int setting = data.optInt(HikeConstants.SETTING);
+			this.convDb.changeGroupSettings(groupId, setting, 1,
+					new ContentValues());
+			saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
+		} else {
+
+			if (this.convDb.setParticipantAdmin(groupId, msisdn) > 0) {
+				saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
+			}
+			changeGroupSettings(jsonObj, false);
+		}
+	}
+	
+	private void changeGroupSettings(JSONObject jsonObj, boolean directSettingChange) throws JSONException
+	{
+		String groupId = jsonObj.optString(HikeConstants.TO);
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		int setting = data.optInt(HikeConstants.SETTING);
+		boolean admin =this.convDb.changeGroupSettings(groupId, setting,0, new ContentValues());
+		if(directSettingChange   && admin)
+		{
+	     	saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
 		}
 	}
 
@@ -3124,6 +3158,19 @@ public class MqttMessagesManager
 		{
 			saveGCJoin(jsonObj);
 		}
+        else if (HikeConstants.MqttMessageTypes.GROUP_ADMIN_UPDATE.equals(type)) // Group
+		// chat
+		// join
+		{
+			saveAdminUpdate(jsonObj);
+		}
+        else if (HikeConstants.MqttMessageTypes.GROUP_SETTINGS_CHANGE
+				.equals(type)) // Group
+		// chat
+		// join
+		{
+        	changeGroupSettings(jsonObj, true);
+		}
 		else if (HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE.equals(type)) // Group
 		// chat
 		// leave
@@ -3578,11 +3625,11 @@ public class MqttMessagesManager
 	private void statusMessagePostProcess(ConvMessage convMessage, JSONObject jsonObj) throws JSONException
 	{
 		if (convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED || convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_LEFT
-				|| convMessage.getParticipantInfoState() == ParticipantInfoState.GROUP_END)
+				|| convMessage.getParticipantInfoState() == ParticipantInfoState.GROUP_END|| convMessage.getParticipantInfoState() == ParticipantInfoState.CHANGE_ADMIN|| convMessage.getParticipantInfoState() == ParticipantInfoState.GC_SETTING_CHANGE)
 		{
 			this.pubSub.publish(
 					convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED ? HikePubSub.PARTICIPANT_JOINED_ONETONCONV
-							: convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_LEFT ? HikePubSub.PARTICIPANT_LEFT_ONETONCONV : HikePubSub.GROUP_END, jsonObj);
+							: convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_LEFT ? HikePubSub.PARTICIPANT_LEFT_ONETONCONV : convMessage.getParticipantInfoState() == ParticipantInfoState.CHANGE_ADMIN ? HikePubSub.ONETONCONV_ADMIN_UPDATE: convMessage.getParticipantInfoState() == ParticipantInfoState.GC_SETTING_CHANGE ? HikePubSub.ONETONCONV_SETTING_UPDATE: HikePubSub.GROUP_END, jsonObj);
 		}
 	}
 

@@ -2272,6 +2272,27 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					((ViewGroup) participantInfoHolder.container).addView(dndMessage);
 				}
 			}
+
+			else if (infoState == ParticipantInfoState.CHANGE_ADMIN)
+			{
+				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
+			
+				String message = OneToNConversationUtils.getAdminUpdatedMessage(convMessage, context);
+				
+				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_joined_chat
+						: R.drawable.ic_joined_chat_custom);
+				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
+			}
+			else if (infoState == ParticipantInfoState.GC_SETTING_CHANGE)
+			{
+				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
+			
+				String message = OneToNConversationUtils.getSettingUpdatedMessage(convMessage, context);
+				
+				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_joined_chat
+						: R.drawable.ic_joined_chat_custom);
+				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
+			}
 			else if (infoState == ParticipantInfoState.CHAT_BACKGROUND)
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
