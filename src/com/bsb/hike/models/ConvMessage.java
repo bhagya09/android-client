@@ -214,7 +214,7 @@ public class ConvMessage implements Searchable
 		PARTICIPANT_JOINED, // The participant has joined
 		GROUP_END, // Group chat has ended
 		USER_OPT_IN, DND_USER, USER_JOIN, CHANGED_GROUP_NAME, CHANGED_GROUP_IMAGE, BLOCK_INTERNATIONAL_SMS, INTRO_MESSAGE, STATUS_MESSAGE, CHAT_BACKGROUND,
-		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN;
+		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN, GC_SETTING_CHANGE;
 
 		public static ParticipantInfoState fromJSON(JSONObject obj)
 		{
@@ -230,6 +230,10 @@ public class ConvMessage implements Searchable
 			else if (HikeConstants.MqttMessageTypes.GROUP_ADMIN_UPDATE.equals(type))
 			{
 				return ParticipantInfoState.CHANGE_ADMIN;
+			}
+			else if (HikeConstants.MqttMessageTypes.GROUP_SETTINGS_CHANGE.equals(type))
+			{
+				return ParticipantInfoState.GC_SETTING_CHANGE;
 			}
 			else if (HikeConstants.MqttMessageTypes.GROUP_CHAT_END.equals(type))
 			{
@@ -519,6 +523,9 @@ public class ConvMessage implements Searchable
 			{
 				this.shouldShowPush = true;
 			}
+			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
+			break;
+		case GC_SETTING_CHANGE:
 			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
 			break;
 		case GROUP_END:

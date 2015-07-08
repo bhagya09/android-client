@@ -943,6 +943,11 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			markedUp = OneToNConversationUtils.getAdminUpdatedMessage(message,context);
 		}
+		else if (message.getParticipantInfoState() == ParticipantInfoState.GC_SETTING_CHANGE)
+		{
+			
+			markedUp = OneToNConversationUtils.getSettingUpdatedMessage(message,context);
+		}
 		
 		else if (message.getParticipantInfoState() == ParticipantInfoState.DND_USER)
 		{

@@ -158,6 +158,52 @@ public class OneToNConversationUtils
 		return participantAddedMessage;
 	}
 
+	public static String getSettingUpdatedMessage(ConvMessage convMessage,
+			Context context) {
+		String participantAddedMessage = null;
+		if (!convMessage.isBroadcastMessage()) {
+			String groupAdder = convMessage.getGroupParticipantMsisdn();
+			String highlight = convMessage.getMetadata().getMsisdn();
+			SharedPreferences preferences = context.getSharedPreferences(
+					HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE);
+
+			if (highlight != null) {
+				if (highlight.equalsIgnoreCase(preferences.getString(
+						HikeMessengerApp.MSISDN_SETTING, ""))) {
+					highlight = context.getString(R.string.you).toLowerCase();
+				}else{
+				ContactInfo contact = ContactManager.getInstance().getContact(
+						highlight, true, false);
+				if (contact != null) {
+					highlight = contact.getFirstNameAndSurname();
+				}
+				}
+			}
+		
+			String adder = "";
+			if (groupAdder.equalsIgnoreCase(preferences.getString(
+					HikeMessengerApp.MSISDN_SETTING, ""))) {
+				adder = context.getString(R.string.you);
+				participantAddedMessage =  context
+								.getString(R.string.you_group_settings_updated, highlight);
+			} else {
+				if (groupAdder != null && groupAdder.trim().length() > 0) {
+					ContactInfo contact = ContactManager.getInstance()
+							.getContact(groupAdder, true, false);
+					if (contact != null) {
+						adder = contact.getFirstNameAndSurname();
+						participantAddedMessage = adder
+								+ " "
+								+ context
+										.getString(R.string.group_settings_updated);
+					}
+				}
+			}
+			
+		}
+
+		return participantAddedMessage;
+	}
 	public static String getParticipantRemovedMessage(String msisdn, Context context, String participantName)
 	{
 		String participantRemovedMessage = String.format(context.getString(isBroadcastConversation(msisdn) ? R.string.removed_from_broadcast : R.string.left_conversation),

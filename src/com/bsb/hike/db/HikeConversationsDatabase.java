@@ -2020,9 +2020,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 	
-	public void changeGroupSettings(String grpId, int setting,
+	public boolean changeGroupSettings(String grpId, int setting,
 			int setMyselfAdmin, ContentValues contentValues) {
 		Cursor c = null;
+		boolean isAmAdmin = false;
 		try {
 
 			c = mDb.query(DBConstants.CONVERSATIONS_TABLE,
@@ -2042,8 +2043,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 
 					convMetadata.setAddMembersRights(setting);
+					
 					if (setMyselfAdmin == 1) {
 						convMetadata.setMyselfAsAdmin(setMyselfAdmin);
+						isAmAdmin = true;
+					}else{
+						isAmAdmin =convMetadata.amIAdmin()==1?true:false;
 					}
 					contentValues.put(DBConstants.CONVERSATION_METADATA,
 							convMetadata.toString());
@@ -2054,6 +2059,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues,
 							DBConstants.MSISDN + "=?", new String[] { grpId });
+					return isAmAdmin;
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -2064,6 +2070,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				c.close();
 			}
 		}
+		return isAmAdmin;
 
 	}
 
