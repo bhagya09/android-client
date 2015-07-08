@@ -231,7 +231,7 @@ public class StickerSearchManager
 			return;
 		}
 		
-		if((highlightArray.length > 0) || !Utils.isBlank(preString)) 
+		if((highlightArray.length > 1) || ((highlightArray.length > 0) && !Utils.isBlank(preString))) 
 		{
 			listener.showStickerRecommendFtue();
 		}
