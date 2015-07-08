@@ -647,6 +647,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			@Override
 			public void run()
 			{
+				context.finish();
 				context.startActivity(intent);
 			}
 		});

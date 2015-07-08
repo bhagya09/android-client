@@ -49,7 +49,7 @@ public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
-	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+	public static final int DEFAULT_BITMAP_COMPRESSION = 80;
 
 	private static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
 	
@@ -1334,6 +1334,18 @@ public class HikeBitmapFactory
 		MemmoryScreenShot screenShot = new MemmoryScreenShot(filename, imageSize);
 		Logger.d("image_config", screenShot.toString());
 
+		/**
+		 * If by any reasons 
+		 * options.outWidth = -1
+		 * options.outHeight = -1
+		 * 
+		 * go to 3rd case
+		 */
+		if(screenShot.options.outWidth == -1 || screenShot.options.outHeight == -1)
+		{
+			state = AlgoState.STATE_3;
+		}
+		
 		AlgoDimensionResult bestDimen = getBestDimensions(state, screenShot);
 
 		Bitmap thumbnail = null;
