@@ -46,7 +46,7 @@ public class ChatHeadService extends Service
 
 	private static final int RECT_CONST = 10;
 
-	private static final int DRAG_CONST = 3;
+	private static final int DRAG_CONST = 20;
 
 	private static final int INITIAL_POS_X = 0;
 
@@ -266,11 +266,11 @@ public class ChatHeadService extends Service
 				case ChatHeadConstants.GET_MORE_STICKERS_ANIMATION:
 					intent = IntentFactory.getStickerShareWebViewActivityIntent(getApplicationContext());
 					startActivity(intent);
-					ChatHeadService.getInstance().setChatHeadInvisible();
+					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.OPEN_HIKE_ANIMATION:
 					IntentFactory.openHomeActivityInOtherTask(getApplicationContext(), true);
-					ChatHeadService.getInstance().setChatHeadInvisible();
+					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.STICKER_SHOP_ANIMATION:
 					intent = IntentFactory.getStickerShopIntent(getApplicationContext(), true);
@@ -279,7 +279,7 @@ public class ChatHeadService extends Service
 				case ChatHeadConstants.OPEN_SETTINGS_ANIMATION:
 					intent = IntentFactory.getStickerShareSettingsIntent(getApplicationContext());
 					startActivity(intent);
-					ChatHeadService.getInstance().setChatHeadInvisible();
+					setChatHeadInvisible();
 					break;
 				}
 			}
@@ -495,7 +495,7 @@ public class ChatHeadService extends Service
 
 	public void resetPosition(int flag, String path)
 	{
-		int halfWidthDiff = getResources().getDisplayMetrics().widthPixels - chatHead.getWidth() / 2;
+		int halfWidthDiff = (getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2;
 		overlayAnimation(chatHead, chatHeadParams.x, savedPosX <= halfWidthDiff ? 0 : halfWidthDiff * 2, chatHeadParams.y, savedPosY, flag, path);
 	}
 
