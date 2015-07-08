@@ -106,7 +106,7 @@ public class VoIPClient  {
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
 	private boolean isSpeaking = true;
-	private int voicePacketCount = 1;
+	private int voicePacketCount = 0;
 
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
@@ -639,7 +639,7 @@ public class VoIPClient  {
 							
 							// If we are setting up a conference, then force all connections
 							// through the relay since it will handle the broadcasting for us.
-							if (isInAHostedConference) { // TODO! Add a "!"
+							if (!isInAHostedConference) { 
 								setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 								dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
 								sendPacket(dp, false);
@@ -1174,34 +1174,40 @@ public class VoIPClient  {
 							setPreferredConnectionMethod(currentMethod);
 						}
 						break;
-						
+
 					case COMM_UDP_SYNACK_PRIVATE:
-						synchronized (VoIPClient.this) {
-							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
-							if (senderThread != null)
-								senderThread.interrupt();
-						}
 					case COMM_UDP_ACK_PRIVATE:
 						Logger.d(tag, "Received " + dataPacket.getType());
-						if (connected) break;
-						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_PRIVATE), true);
+						synchronized (VoIPClient.this) {
+							if (senderThread != null)
+								senderThread.interrupt();
+							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
+							if (connected) break;
+
+							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PRIVATE);
+							sendPacket(dp, true);
+						}
 						connected = true;
 						break;
 						
 					case COMM_UDP_SYNACK_PUBLIC:
-						synchronized (VoIPClient.this) {
-							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
-							if (senderThread != null)
-								senderThread.interrupt();
-						}
 					case COMM_UDP_ACK_PUBLIC:
 						Logger.d(tag, "Received " + dataPacket.getType());
-						if (connected) break;
-						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC), true);
+						synchronized (VoIPClient.this) {
+							if (senderThread != null)
+								senderThread.interrupt();
+							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
+							if (connected) break;
+							
+							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC);
+							sendPacket(dp, true);
+						}
 						connected = true;
 						break;
 						
 					case COMM_UDP_SYNACK_RELAY:
+					case COMM_UDP_ACK_RELAY:
+						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
 							if (getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
 									getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
@@ -1209,15 +1215,14 @@ public class VoIPClient  {
 										getPreferredConnectionMethod() + " connection.");
 								break;
 							}
-
-							setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							if (senderThread != null)
 								senderThread.interrupt();
+							setPreferredConnectionMethod(ConnectionMethods.RELAY);
+							if (connected) break;
+
+							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_RELAY);
+							sendPacket(dp, true);
 						}
-					case COMM_UDP_ACK_RELAY:
-						Logger.d(tag, "Received " + dataPacket.getType());
-						if (connected) break;
-						sendPacket(new VoIPDataPacket(PacketType.COMM_UDP_ACK_RELAY), true);
 						connected = true;
 						break;
 						
@@ -1235,6 +1240,7 @@ public class VoIPClient  {
 							setSpeaking(false);
 						}
 						
+//						Logger.d(tag, "Received audio.");
 //						Logger.d(tag, "isSpeaking: " + isSpeaking + ", wasVoice: " + dataPacket.isVoice());
 						
 						samplesToDecodeQueue.add(dataPacket);
@@ -1567,7 +1573,11 @@ public class VoIPClient  {
 					
 					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];	
 					
-					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived) {
+//					Logger.w(tag, "Decompressing.");
+
+					if (dpdecode.getVoicePacketNumber() > 0 && 
+							lastPacketReceived > 0 &&
+							dpdecode.getVoicePacketNumber() <= lastPacketReceived) {
 						Logger.w(tag, "Old packet received.");
 						continue;	// We received an old packet again
 					}
@@ -1768,7 +1778,7 @@ public class VoIPClient  {
 			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 			byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 			try {
-//				Logger.d(tag, "PLC");
+				Logger.d(tag, "PLC");
 				opusWrapper.plc(data);
 			} catch (Exception e) {
 				Logger.e(tag, "PLC Exception: " + e.toString());
