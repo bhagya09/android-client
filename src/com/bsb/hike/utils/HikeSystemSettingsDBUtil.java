@@ -87,7 +87,6 @@ public class HikeSystemSettingsDBUtil
 	/* Generate and get instance of utility class from outside according to type i.e. whether using for Hike specific data or, common system-wide control data */
 	public static HikeSystemSettingsDBUtil getInstance(boolean isHikeSpecificData)
 	{
-
 		HikeSystemSettingsDBUtil hikeSystemSettingsDbUtil = sInstanceContainer.get(isHikeSpecificData);
 
 		if (hikeSystemSettingsDbUtil == null)
