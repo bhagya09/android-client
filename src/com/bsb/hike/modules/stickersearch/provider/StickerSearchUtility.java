@@ -12,16 +12,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
-import com.bsb.hike.utils.Logger;
 
 import android.text.TextUtils;
 import android.util.Pair;
 
 public class StickerSearchUtility
 {
-
-	private static final String TAG = StickerSearchUtility.class.getSimpleName();
-
 	/* Determine if given character is special character */
 	public static boolean isSpecialCharacter(char c)
 	{

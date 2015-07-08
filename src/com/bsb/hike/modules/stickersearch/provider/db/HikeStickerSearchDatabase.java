@@ -339,15 +339,23 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							int matchLength = match.length();
 							if (matchLength > 1)
 							{
+								count = 0;
 								while (c.moveToNext())
 								{
 									actualTag = c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE));
 									Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> tagPhrases = StickerSearchUtility.splitAndDoIndexing(actualTag, " ");
-									temp.add(actualTag);
-									tempList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
-									float score = ((float) (matchLength * (tagPhrases.first.size() > 1 ? 60 : 100))) / (tagPhrases.first.get(0).length());
-									Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
-									matchRankList.add(score);
+									if (match.equalsIgnoreCase(tagPhrases.first.get(0)))
+									{
+										temp.add(actualTag);
+										tempList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
+										float score = ((float) (matchLength * (tagPhrases.first.size() > 1 ? 60 : 100))) / (tagPhrases.first.get(0).length());
+										Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
+										matchRankList.add(score);
+									}
+									else
+									{
+										Logger.d(TAG, "Rejected phrase: " + actualTag);
+									}
 								}
 							}
 							else
@@ -411,6 +419,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 					list.addAll(tempList);
 					Logger.d(TAG, "Search findings count = " + temp.size());
+					Logger.i(TAG, "Search findings:  " + temp);
 				}
 			}
 		}
@@ -473,7 +482,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			char[] array = phrase.toCharArray();
 			String table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH : HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
 					+ array[0];
-			Logger.d(TAG, "Searching \"" + phrase + "\" in " + table);
+			Logger.d(TAG, "Searching \"" + phrase + "\" in " + table + ", exact search: " + isExactMatchNeeded);
 
 			if (isExactMatchNeeded)
 			{
