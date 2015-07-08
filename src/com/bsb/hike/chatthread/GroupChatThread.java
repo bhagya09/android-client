@@ -102,7 +102,7 @@ public class GroupChatThread extends OneToNChatThread
 //		{
 		showMultiAdminTip(activity);
 			try {
-				if(oneToNConversation.getMetadata().amIAdmin()==1){
+				if(oneToNConversation.getMetadata().amIAdmin()){
 					showMultiAdminTip(activity);
 				}
 			} catch (JSONException e) {

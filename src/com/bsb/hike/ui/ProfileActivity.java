@@ -1180,7 +1180,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		GroupParticipant userInfo = new GroupParticipant(Utils.getUserContactInfo(preferences, true), oneToNConversation.getMsisdn());
 		try {
-			if(oneToNConversation.getMetadata().amIAdmin()==1){
+			if(oneToNConversation.getMetadata().amIAdmin()){
 			  userInfo.setType(GroupParticipant.Participant_Type.ADMIN);
 			}
 		} catch (JSONException e) {

@@ -2050,9 +2050,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}else{
 						
 						try {
-							if(convMetadata.amIAdmin()!=-1)
+							if(convMetadata.amIAdmin())
 							{
-							  isAmAdmin =convMetadata.amIAdmin()==1?true:false;
+							  isAmAdmin =convMetadata.amIAdmin();
 							}
 						} catch (Exception e) {
 							isAmAdmin = false;

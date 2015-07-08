@@ -146,9 +146,15 @@ public class OneToNConversationMetadata extends ConversationMetadata {
 		rightsJson.put(HikeConstants.ADD_MEMBERS, canAdd);
 	}
 	
-	public int amIAdmin() throws JSONException
+	public boolean amIAdmin() throws JSONException
 	{
-		return jsonObject.getInt(HikeConstants.ADMIN);
+		if(jsonObject.has(HikeConstants.ADMIN)){
+			if(jsonObject.getInt(HikeConstants.ADMIN)==1){
+				return true;
+			}
+			return false;
+		}
+		return false;
 	}
 	
 	public void setMyselfAsAdmin(int admin) throws JSONException

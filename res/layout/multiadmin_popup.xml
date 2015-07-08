@@ -29,7 +29,8 @@
             android:gravity="center"
             android:padding="14dp"
             android:text="@string/got_it"
-            android:textColor="#33312e"
+            android:textStyle="bold|italic" 
+            android:textColor="@color/blue_hike"
             android:textSize="16sp" />
     </LinearLayout>
 
