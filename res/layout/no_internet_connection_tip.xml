@@ -48,8 +48,10 @@
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
         android:src="@drawable/back_icon"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft= "10dp" >
+        android:minWidth="40dp"
+  		android:minHeight="40dp"
+  		android:scaleType="center" 
+  	>
 
     </ImageView>
     

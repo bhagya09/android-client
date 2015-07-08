@@ -1366,7 +1366,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			contactFirstName = contactInfo.getFirstName();
 		}
 		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
-		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);	
+		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+		activity.findViewById(R.id.free_hike_no_netwrok_btn).setOnClickListener(this);
 	};
 
 	/**
