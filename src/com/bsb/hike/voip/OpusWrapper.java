@@ -74,6 +74,7 @@ public class OpusWrapper {
 		int errors = 0;
 		encoder = opus_encoder_create(samplingRate, channels, errors);
 		setEncoderBitrate(bitrate);
+		setEncoderComplexity(0);
 		return errors;
 	}
 	

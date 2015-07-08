@@ -1542,6 +1542,11 @@ public class MqttMessagesManager
 			int bitrate = data.getInt(HikeConstants.VOIP_BITRATE_WIFI);
 			editor.putInt(HikeMessengerApp.VOIP_BITRATE_WIFI, bitrate);
 		}
+		if (data.has(HikeConstants.VOIP_BITRATE_CONFERENCE))
+		{
+			int bitrate = data.getInt(HikeConstants.VOIP_BITRATE_CONFERENCE);
+			editor.putInt(HikeConstants.VOIP_BITRATE_CONFERENCE, bitrate);
+		}
 		if(data.has(HikeConstants.VOIP_ACTIVATED))
 		{
 			int activateVoip = data.getInt(HikeConstants.VOIP_ACTIVATED);
