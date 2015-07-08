@@ -1778,34 +1778,35 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			Uri simUri = Uri.parse("content://icc/adn");
 			cursorSim = ctx.getContentResolver().query(simUri, null, null, null, null);
-
-			while (cursorSim.moveToNext())
-			{
-				try
+			if(cursorSim != null){
+				while (cursorSim.moveToNext())
 				{
-					String id = cursorSim.getString(cursorSim.getColumnIndex("_id"));
-					String name = cursorSim.getString(cursorSim.getColumnIndex("name"));
-					String number = cursorSim.getString(cursorSim.getColumnIndex("number"));
-					if ((name != null) && (number != null))
+					try
 					{
-						if (contactsToStore.add("_" + name + "_" + number)) // if
-																			// this
-																			// element
-																			// is
-																			// added
-																			// successfully
-																			// ,
-																			// it
-																			// returns
-																			// true
+						String id = cursorSim.getString(cursorSim.getColumnIndex("_id"));
+						String name = cursorSim.getString(cursorSim.getColumnIndex("name"));
+						String number = cursorSim.getString(cursorSim.getColumnIndex("number"));
+						if ((name != null) && (number != null))
 						{
-							contactinfos.add(new ContactInfo(id, null, name, number));
+							if (contactsToStore.add("_" + name + "_" + number)) // if
+																				// this
+																				// element
+																				// is
+																				// added
+																				// successfully
+																				// ,
+																				// it
+																				// returns
+																				// true
+							{
+								contactinfos.add(new ContactInfo(id, null, name, number));
+							}
 						}
 					}
-				}
-				catch (Exception e)
-				{
-					Logger.w("ContactUtils", "Expection while adding sim contacts", e);
+					catch (Exception e)
+					{
+						Logger.w("ContactUtils", "Expection while adding sim contacts", e);
+					}
 				}
 			}
 		}
@@ -1924,25 +1925,26 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 			String selection = ContactsContract.RawContacts.ACCOUNT_TYPE + "= 'com.whatsapp'";
 			greenblueContactsCursor = context.getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI, projection, selection, null, null);
-
-			int id = greenblueContactsCursor.getColumnIndex(ContactsContract.RawContacts.CONTACT_ID);
-
+			
 			StringBuilder greenblueContactIds = null;
-
-			if (greenblueContactsCursor.getCount() > 0)
+			if(greenblueContactsCursor != null)
 			{
-				greenblueContactIds = new StringBuilder("(");
-
-				while (greenblueContactsCursor.moveToNext())
+				int id = greenblueContactsCursor.getColumnIndex(ContactsContract.RawContacts.CONTACT_ID);
+				if (greenblueContactsCursor.getCount() > 0)
 				{
-					greenblueContactIds.append(greenblueContactsCursor.getInt(id) + ",");
-					String msisdn = greenblueContactsCursor.getInt(id) + "";
-					if (isIndianMobileNumber(msisdn))
+					greenblueContactIds = new StringBuilder("(");
+	
+					while (greenblueContactsCursor.moveToNext())
 					{
-						greenblueContactIds.append(msisdn + ",");
+						greenblueContactIds.append(greenblueContactsCursor.getInt(id) + ",");
+						String msisdn = greenblueContactsCursor.getInt(id) + "";
+						if (isIndianMobileNumber(msisdn))
+						{
+							greenblueContactIds.append(msisdn + ",");
+						}
 					}
+					greenblueContactIds.replace(greenblueContactIds.lastIndexOf(","), greenblueContactIds.length(), ")");
 				}
-				greenblueContactIds.replace(greenblueContactIds.lastIndexOf(","), greenblueContactIds.length(), ")");
 			}
 
 			String[] newProjection = new String[] { Phone.NUMBER, Phone.TIMES_CONTACTED };
@@ -1953,7 +1955,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			Map<String, Integer> mostContactedNumbers = new HashMap<String, Integer>();
 			StringBuilder sb = null;
 
-			if (phoneContactsCursor.getCount() > 0)
+			if ((phoneContactsCursor != null) && (phoneContactsCursor.getCount() > 0))
 			{
 				sb = new StringBuilder("(");
 
@@ -1979,7 +1981,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				otherContactsCursor = context.getContentResolver().query(Phone.CONTENT_URI, newProjection, newSelection, null,
 						Phone.TIMES_CONTACTED + " DESC LIMIT " + otherContactsRequired);
 
-				if (otherContactsCursor.getCount() > 0)
+				if ((otherContactsCursor != null) && (otherContactsCursor.getCount() > 0))
 				{
 					if (sb == null)
 					{
@@ -2181,7 +2183,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 				phoneContactsCursor = context.getContentResolver().query(Phone.CONTENT_URI, newProjection, newSelection, null, Phone.NUMBER + " DESC");
 
-				if (phoneContactsCursor.getCount() > 0)
+				if ((phoneContactsCursor != null) && (phoneContactsCursor.getCount() > 0))
 				{
 					setGreenBlueContacs(phoneContactsCursor, contactinfos);
 				}
