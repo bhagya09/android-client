@@ -493,6 +493,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 			@Override
 			public void run()
 			{
+				context.finish();
 				context.startActivity(intent);
 			}
 		});
