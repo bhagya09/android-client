@@ -495,7 +495,7 @@ public class ChatHeadService extends Service
 
 	public void resetPosition(int flag, String path)
 	{
-		int halfWidthDiff = getResources().getDisplayMetrics().widthPixels - chatHead.getWidth() / 2;
+		int halfWidthDiff = (getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2;
 		overlayAnimation(chatHead, chatHeadParams.x, savedPosX <= halfWidthDiff ? 0 : halfWidthDiff * 2, chatHeadParams.y, savedPosY, flag, path);
 	}
 
