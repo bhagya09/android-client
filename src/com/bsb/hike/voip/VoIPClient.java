@@ -23,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +39,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -1666,23 +1666,23 @@ public class VoIPClient  {
 		
 		ConnectionClass connection = VoIPUtils.getConnectionClass(context);
 
-		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		int twoGBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_2G, VoIPConstants.BITRATE_2G);
-		int threeGBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_3G, VoIPConstants.BITRATE_3G);
-		int wifiBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_WIFI, VoIPConstants.BITRATE_WIFI);
+		int twoGBitrate = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VOIP_BITRATE_2G, VoIPConstants.BITRATE_2G);
+		int threeGBitrate = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VOIP_BITRATE_3G, VoIPConstants.BITRATE_3G);
+		int wifiBitrate = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VOIP_BITRATE_WIFI, VoIPConstants.BITRATE_WIFI);
+		int conferenceBitrate = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_BITRATE_CONFERENCE, VoIPConstants.BITRATE_CONFERENCE);
 		
 		if (connection == ConnectionClass.TwoG)
 			localBitrate = twoGBitrate;
 		else if (connection == ConnectionClass.ThreeG)
 			localBitrate = threeGBitrate;
-		else if (connection == ConnectionClass.WiFi)
+		else if (connection == ConnectionClass.WiFi || connection == ConnectionClass.FourG)
 			localBitrate = wifiBitrate;
 		else 
 			localBitrate = wifiBitrate;
 
 		// Conference override
-		if (isInAHostedConference)
-			localBitrate = VoIPConstants.BITRATE_CONFERENCE;
+		if (isInAHostedConference || isHostingConference)
+			localBitrate = conferenceBitrate;
 		
 		if (remoteBitrate > 0 && remoteBitrate < localBitrate)
 			localBitrate = remoteBitrate;
@@ -1761,6 +1761,9 @@ public class VoIPClient  {
 	}
 	
 	public VoIPDataPacket getDecodedBuffer() {
+		
+		if (!connected)
+			return null;
 		
 		playbackFeederCounter++;
 		if (playbackFeederCounter == Integer.MAX_VALUE)
