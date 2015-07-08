@@ -2894,7 +2894,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-
 				JSONObject response = (JSONObject) result.getBody().getContent();
 				Logger.d(getClass().getSimpleName(), " post admin request succeeded : " + response);
 				
@@ -2936,6 +2935,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		});
 	}
+
 
 	private IRequestListener getAddMemSettingListener(final String grpId, final int setting, final CheckBox checkBox)
 	{

@@ -1563,5 +1563,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="group_created_by">Created by </string>
 	<string name="group_rights_info">Only Admins can add members in this group</string>
 	<string name="sms_admin_toast">You cannot share your admin rights with SMS users</string>
-	
- </resources>
+
+</resources>
