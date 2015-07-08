@@ -59,7 +59,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	private Context context;
 	private OfflineMessagesManager messagesManager = null;
 
-	private HikeConverter() {
+	private HikeConverter() 
+	{
 		init();
 	}
 

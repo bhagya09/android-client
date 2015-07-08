@@ -51,6 +51,7 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebView.FindListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
@@ -130,7 +131,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private enum ViewType
 	{
 		STICKER_SENT, STICKER_RECEIVE, NUDGE_SENT, NUDGE_RECEIVE, WALKIE_TALKIE_SENT, WALKIE_TALKIE_RECEIVE, VIDEO_SENT, VIDEO_RECEIVE, IMAGE_SENT, IMAGE_RECEIVE, FILE_SENT, FILE_RECEIVE, LOCATION_SENT, LOCATION_RECEIVE, CONTACT_SENT, CONTACT_RECEIVE, RECEIVE, SEND_SMS, SEND_HIKE, PARTICIPANT_INFO, FILE_TRANSFER_SEND, FILE_TRANSFER_RECEIVE, STATUS_MESSAGE, UNREAD_COUNT, TYPING_NOTIFICATION, UNKNOWN_BLOCK_ADD, PIN_TEXT_SENT, PIN_TEXT_RECEIVE,
-		VOIP_CALL;
+		VOIP_CALL,OFFLINE_FTUE_CARD;
 		
 	};
 
@@ -613,6 +614,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			Logger.i("chatthread", "getview type unknown header");
 			type = ViewType.UNKNOWN_BLOCK_ADD;
+		}
+		else if(convMessage.isOfflineFtueHeader())
+		{
+			type = ViewType.OFFLINE_FTUE_CARD;
 		}
 		else if (convMessage.getTypingNotification() != null)
 		{
@@ -2471,6 +2476,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			return convertView;
 
+		}
+		else if (viewType == ViewType.OFFLINE_FTUE_CARD)
+		{
+			Logger.i("chatthread", "getview of unknown header");
+			if (convertView == null)
+			{
+				convertView = inflater.inflate(R.layout.offline_ftue_card, parent, false);
+				ImageView crossImageView = (ImageView)convertView.findViewById(R.id.free_hike_cancel);
+				crossImageView.setOnClickListener(mOnClickListener);
+			}
+			return convertView;
 		}
 		if (showDayIndicator(position))
 		{

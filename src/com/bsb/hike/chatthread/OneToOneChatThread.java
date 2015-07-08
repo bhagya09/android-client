@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Dialog;
 import android.content.ContentValues;
@@ -2123,11 +2125,53 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case R.id.free_hike_no_netwrok_btn:
 			startFreeHikeConversation();
 			break;
+		case R.id.free_hike_cancel:
+			setOfflineFtueCardCancelled();
+			break;
 		default:
 			super.onClick(v);
 		}
 	}
 	
+	private void setOfflineFtueCardCancelled() 
+	{
+		try
+		{
+			JSONObject offlineFtueInfo  = new  JSONObject(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_FTUE_INFO,null));
+			offlineFtueInfo.put(OfflineConstants.OFFLINE_FTUE_SHOWN_AND_CANCELLED,true);
+			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_FTUE_INFO,offlineFtueInfo.toString());
+			if(messages!=null)
+			{
+				if(messages.size()>0)
+				{
+					ConvMessage firstConvMessage = messages.get(0);
+					if(firstConvMessage.isBlockAddHeader())
+					{
+						if(messages.size()>1)
+						{
+							ConvMessage secondConvMessage = messages.get(1);
+							if(secondConvMessage.isOfflineFtueHeader())
+							{
+								messages.remove(1);
+								mAdapter.notifyDataSetChanged();
+							}
+						}
+					}
+					else if(firstConvMessage.isOfflineFtueHeader())
+					{
+						messages.remove(0);
+						mAdapter.notifyDataSetChanged();
+					}
+					
+				}
+			}
+		}
+		catch (JSONException e) 
+		{
+			Logger.e(TAG, "Problems with JSON");
+		}
+	}
+
 	private void h20NextClick()
 	{
 		HAManager.getInstance().record(HikeConstants.LogEvent.FIRST_OFFLINE_TIP_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);

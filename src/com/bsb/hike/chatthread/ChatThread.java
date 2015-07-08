@@ -4104,7 +4104,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			EmailConversationsAsyncTask emailTask = new EmailConversationsAsyncTask(activity, null);
 			Utils.executeConvAsyncTask(emailTask, mConversation.getConvInfo());
 		}
-		
 		else
 		{
 			Toast.makeText(activity, R.string.empty_email, Toast.LENGTH_SHORT).show();

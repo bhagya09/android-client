@@ -138,5 +138,12 @@ public class OfflineConstants
 	public static final String FILE_TOPIC = "file";
 
 	public static final String APK_SELECTION_RESULTS = "apk_selection_results";
+
+	public static final String OFFLINE_FTUE_INFO = "offline_ftue_info";
+
+	public static final String OFFLINE_FTUE_SHOWN_AND_CANCELLED = "offline_ftue_shown";
+
+	public static final String FIRST_OFFLINE_MSISDN = "first_offline_msisdn";
+	
 	
 }

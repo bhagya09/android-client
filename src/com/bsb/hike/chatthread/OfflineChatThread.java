@@ -148,6 +148,105 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 	}
 
+	
+	private boolean checkAndMarkIfFirstOfflineChat() 
+	{
+		boolean  isFirstOfflineUser = HikeSharedPreferenceUtil.getInstance().contains(OfflineConstants.OFFLINE_FTUE_INFO);
+		if(!isFirstOfflineUser)
+		{
+			JSONObject offlineFtueInfo  =  new JSONObject();
+			try {
+				offlineFtueInfo.put(OfflineConstants.OFFLINE_FTUE_SHOWN_AND_CANCELLED,false);
+				offlineFtueInfo.put(OfflineConstants.FIRST_OFFLINE_MSISDN,msisdn);
+			} catch (JSONException e) {
+				Logger.e(TAG, "Problems with JSON");
+			}
+			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_FTUE_INFO,offlineFtueInfo.toString());
+			isFirstOfflineUser = true;
+		}
+		return isFirstOfflineUser;
+	}
+
+	private void checkAndAddOfflineHeaderMessage() 
+	{
+		try 
+		{
+			Boolean offlineFtueInfoAvailable = HikeSharedPreferenceUtil.getInstance().contains(OfflineConstants.OFFLINE_FTUE_INFO);
+			if(offlineFtueInfoAvailable)
+			{
+				//status -  true means Ftue card has been cancelled
+				//			false means Ftue card has not been cancelled
+				JSONObject offlineFtueInfo  = new  JSONObject(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_FTUE_INFO,null));
+				boolean status = offlineFtueInfo.getBoolean(OfflineConstants.OFFLINE_FTUE_SHOWN_AND_CANCELLED);
+				if(!status)
+				{
+					String firstOfflineMsisdn = offlineFtueInfo.getString(OfflineConstants.FIRST_OFFLINE_MSISDN);
+					if(firstOfflineMsisdn.compareTo(msisdn)==0)
+					{
+						if (mContactInfo != null  && messages != null)
+						{
+							if(messages.size()>0)
+							{
+								ConvMessage firstConvMessage = messages.get(0);
+								/**
+								 * Check if the conv message was previously a block header or offline Ftue header
+								 */
+								if (!firstConvMessage.isBlockAddHeader() && !firstConvMessage.isOfflineFtueHeader())
+								{
+									/**
+									 * Creating a new conv message to be appended at the 0th position.
+									 */
+									firstConvMessage = new ConvMessage(0, 0l, 0l);
+									firstConvMessage.setOfflineFtueHeader(true);
+									messages.add(0, firstConvMessage);
+									Logger.d(TAG, "Adding unknownContact Header to the chatThread");
+									if (mAdapter != null)
+									{
+										mAdapter.notifyDataSetChanged();
+									}
+								}
+								else if(firstConvMessage.isBlockAddHeader())
+								{	
+									ConvMessage  secondConvMessage = new ConvMessage(0, 0l, 0l);
+									secondConvMessage.setOfflineFtueHeader(true);
+									if(messages.size()>1)
+									{
+										if(!messages.get(1).isOfflineFtueHeader())
+										{
+											messages.add(1,secondConvMessage);
+										}
+									}
+									else
+									{
+										messages.add(1, firstConvMessage);
+									}
+									if (mAdapter != null)
+									{
+										mAdapter.notifyDataSetChanged();
+									}
+								}
+							}
+							else
+							{
+								ConvMessage  secondConvMessage = new ConvMessage(0, 0l, 0l);
+								secondConvMessage.setOfflineFtueHeader(true);
+								messages.add(0,secondConvMessage);	
+								if (mAdapter != null)
+								{
+									mAdapter.notifyDataSetChanged();
+								}
+							}
+						}
+					}
+				}
+			}
+		} 
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "Problem with JSON");
+		}
+	}
+
 	private void checkIfWeNeedToConnect(Intent intent)
 	{
 		if (intent.hasExtra(OfflineConstants.START_CONNECT_FUNCTION))
@@ -239,6 +338,11 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		if (TextUtils.isEmpty(controller.getConnectedDevice()) || (!controller.getConnectedDevice().equals(mConversation.getDisplayMsisdn())))
 		{
 			toggleComposeView(false);
+		}
+		boolean isFirstOfflineUser = checkAndMarkIfFirstOfflineChat();
+		if(isFirstOfflineUser)
+		{
+			checkAndAddOfflineHeaderMessage();
 		}
 	}
 

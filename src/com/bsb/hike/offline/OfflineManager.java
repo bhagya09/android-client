@@ -617,6 +617,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		{
 			Transporter.getInstance().shutDown();
 			Logger.d(TAG, "going to disconnect");
+			Transporter.getInstance().shutDown();
 			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
 			sendDisconnectToListeners();
 			

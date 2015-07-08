@@ -85,6 +85,8 @@ public class ConvMessage implements Searchable
 	
 	private boolean isOfflineMessage;
 	
+	private boolean isOfflineFtueHeader;
+	
 	private int notificationType;
 
 	public String getNameSpace()
@@ -1326,4 +1328,13 @@ public class ConvMessage implements Searchable
 	public void setIsOfflineMessage(boolean  isOfflineMessage) {
 		this.isOfflineMessage = isOfflineMessage;
   	}
+
+	public boolean isOfflineFtueHeader() {
+		return isOfflineFtueHeader;
+	}
+	
+	public void setOfflineFtueHeader(Boolean isOfflineFtueHeader)
+	{
+		this.isOfflineFtueHeader = isOfflineFtueHeader;
+	}
 }
