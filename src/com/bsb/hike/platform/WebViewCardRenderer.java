@@ -47,7 +47,6 @@ import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.MessagingBridge_Alto;
 import com.bsb.hike.platform.bridge.MessagingBridge_Nano;
 import com.bsb.hike.platform.bridge.MessagingBridge_Nano.WebviewEventsListener;
-import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -160,7 +159,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		Logger.i(tag, "ataching bridge version "+convMessage.webMetadata.getPlatformJSCompatibleVersion());
 
-		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO_START)
+		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO)
 		{
 			holder.platformJavaScriptBridge = new MessagingBridge_Alto(mContext, holder.customWebView, convMessage, adapter);
 		}

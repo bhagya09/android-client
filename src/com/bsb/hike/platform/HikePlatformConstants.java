@@ -179,7 +179,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_NANO = 0;
 	
-	public static final int VERSION_ALTO_START = 1;
+	public static final int VERSION_ALTO = 1;
 	
 	public static final int CURRENT_VERSION = 2;
 	

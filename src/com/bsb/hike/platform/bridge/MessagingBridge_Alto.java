@@ -14,7 +14,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -147,7 +146,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		if(isCorrectMessage(messageId, "onLoadFinished")){
 			super.onLoadFinished(height);
-			if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO_START)
+			if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO)
 			{
 				mHandler.post(new Runnable()
 				{
@@ -365,7 +364,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		WebMetadata metadata = MessagingBotBridgeHelper.updateMetadata(Integer.parseInt(messageId), json);
 		if(metadata!=null)
 		{
-			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), Boolean.valueOf(notifyScreen) ? 1 : 0,  metadata);
+			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), Boolean.valueOf(notifyScreen) ? 1 : 0, metadata);
 		}
 	}
 	
