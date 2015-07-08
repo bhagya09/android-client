@@ -1020,6 +1020,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			dismissStickerRecommendationPopup();
 			closeStickerRecommendTip();
+			sendMessageForStickerRecommendLearning();
 			sendMessage();
 		}
 	}
@@ -1032,7 +1033,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void sendMessage()
 	{
 		ConvMessage convMessage = createConvMessageFromCompose();
-		StickerSearchManager.getInstance().sentMessage(convMessage.getMessage(), null, null);
 		sendMessage(convMessage);
 	}
 
@@ -1066,6 +1066,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			addMessage(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 		}
+	}
+	
+	private void sendMessageForStickerRecommendLearning()
+	{
+		String message = mComposeView.getText().toString();
+		if (TextUtils.isEmpty(message))
+		{
+			return;
+		}
+		StickerSearchManager.getInstance().sentMessage(message, null, null);
 	}
 	
 	protected void audioRecordClicked()
