@@ -1178,10 +1178,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void setupGroupProfileList()
 	{
-		GroupParticipant userInfo = new GroupParticipant(Utils.getUserContactInfo(preferences, true));
+		GroupParticipant userInfo = new GroupParticipant(Utils.getUserContactInfo(preferences, true), oneToNConversation.getMsisdn());
 		try {
 			if(oneToNConversation.getMetadata().amIAdmin()==1){
-			  userInfo.setAdmin(true);
+			  userInfo.setType(GroupParticipant.Participant_Type.ADMIN);
 			}
 		} catch (JSONException e) {
 		
@@ -2142,7 +2142,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					String contactName = participants.optJSONObject(i).optString(HikeConstants.NAME);
 					boolean onHike = participants.optJSONObject(i).optBoolean(HikeConstants.ON_HIKE);
 					boolean onDnd = participants.optJSONObject(i).optBoolean(HikeConstants.DND);
-					GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(msisdn, msisdn, contactName, msisdn, onHike), false, onDnd, false);
+					int admin = participants.optJSONObject(i).optInt(HikeConstants.ROLE);
+					GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(msisdn, msisdn, contactName, msisdn, onHike), false, onDnd, admin, mLocalMSISDN);
 					participantMap.put(msisdn, new PairModified<GroupParticipant, String>(groupParticipant, contactName));
 					msisdns.add(msisdn);
 				}
@@ -2680,7 +2681,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					else if (getString(R.string.make_admin).equals(option))
 					{
 						if(!contactInfo.isOnhike()){
-							Toast.makeText(ProfileActivity.this, getResources().getString(R.string.pinHistoryTutorialText), Toast.LENGTH_SHORT).show();
+							Toast.makeText(ProfileActivity.this, getResources().getString(R.string.sms_admin_toast), Toast.LENGTH_SHORT).show();
 						}else{
 					    	makeAdmin(oneToNConversation.getMsisdn(),contactInfo.getMsisdn());
 						}
@@ -2926,7 +2927,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	protected void updateUIForAdminChange(String msisdn) {
 		GroupParticipant grpParticipant = participantMap.get(msisdn).getFirst();
-		grpParticipant.setAdmin(true);
+		grpParticipant.setType(GroupParticipant.Participant_Type.ADMIN);
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {

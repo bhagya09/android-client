@@ -146,7 +146,7 @@ public abstract class OneToNConversation extends Conversation
 		else
 		{
 			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
-			return new PairModified<GroupParticipant, String>(new GroupParticipant(contactInfo), contactInfo.getNameOrMsisdn());
+			return new PairModified<GroupParticipant, String>(new GroupParticipant(contactInfo, ((OneToNConvInfo) convInfo).getMsisdn()), contactInfo.getNameOrMsisdn());
 		}
 	}
 
@@ -592,12 +592,9 @@ public abstract class OneToNConversation extends Conversation
 			String contactName = nameMsisdn.getString(HikeConstants.NAME);
 			boolean onHike = nameMsisdn.optBoolean(HikeConstants.ON_HIKE);
 			boolean onDnd = nameMsisdn.optBoolean(HikeConstants.DND);
-			int admin = nameMsisdn.optInt(HikeConstants.ROLE);
-			boolean isAdmin = false;
-			if(admin==1){
-				isAdmin = true;
-			}
-			GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(contactNum, contactNum, contactName, contactNum, onHike), false, onDnd, isAdmin);
+			int type = nameMsisdn.optInt(HikeConstants.ROLE);
+			
+			GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(contactNum, contactNum, contactName, contactNum, onHike), false, onDnd, type, msisdn);
 			Logger.d("OneToNConversation", "Parsing JSON and adding contact to conversation: " + contactNum);
 			participants.put(contactNum, new PairModified<GroupParticipant, String>(groupParticipant, contactName));
 		}

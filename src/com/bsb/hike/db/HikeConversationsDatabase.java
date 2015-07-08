@@ -207,7 +207,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.HAS_LEFT + " INTEGER, " // Whether the participant has left the group or not.
 				+ DBConstants.ON_DND + " INTEGER, " // Whether the participant is on DND or not
 				+ DBConstants.SHOWN_STATUS + " INTEGER, " // Whether we have shown a DND status for this participant or not. 
-				+ DBConstants.IS_ADMIN + " INTEGER  DEFAULT 0" // Whether the participant is an admin or not.
+				+ DBConstants.TYPE + " INTEGER  DEFAULT 0" // Whether the participant is an admin or not.
 				+ " )";
 		db.execSQL(sql);
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.GROUP_INDEX + " ON " + DBConstants.GROUP_MEMBERS_TABLE + " ( " + DBConstants.GROUP_ID + ", " + DBConstants.MSISDN
@@ -223,7 +223,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.READ_BY + " TEXT, " // An array of the msisdns that have read the message.
 				+ DBConstants.MESSAGE_ID + " INTEGER, " // The message id of the message we are showing the read by for.
 				+ DBConstants.GROUP_CREATION_TIME + " LONG DEFAULT -1, "  //Group creation time
-				+ DBConstants.GROUP_CREATOR + " TEXT" // Group creator's msisdn
+				+ DBConstants.GROUP_CREATOR + " TEXT DEFAULT NULL" // Group creator's msisdn
 				+ " )";
 		db.execSQL(sql);
 		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.EMOTICON_TABLE
@@ -789,10 +789,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		
 		if (oldVersion < 41)
 		{
-			String alter1 = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " +  DBConstants.GROUP_CREATOR + " TEXT";
+			String alter1 = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " +  DBConstants.GROUP_CREATOR + " TEXT DEFAULT NULL";
 			db.execSQL(alter1);
 			
-			String alter3 = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.IS_ADMIN + " INTEGER  DEFAULT 0";
+			String alter3 = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.TYPE + " INTEGER  DEFAULT 0";
 			db.execSQL(alter3);
 		}
 	}
@@ -2286,9 +2286,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public Conversation addConversation(String msisdn, boolean onhike, String groupName, String groupOwner, String grpCreator, String grpMetadata)
+	public Conversation addConversation(String msisdn, boolean onhike, String groupName, String groupOwner, String grpCreator)
 	{
-		return addConversation(msisdn, onhike, groupName, groupOwner, null, -1l, null);
+		return addConversation(msisdn, onhike, groupName, groupOwner, null, -1l, grpCreator);
 	}
 
 	/**
@@ -3051,31 +3051,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 	
-	public int setGroupCreator(String groupId, String msisdn)
-	{
-		Cursor c = null;
-
-		try
-		{
-			c = mDb.query(DBConstants.GROUP_INFO_TABLE, new String[] { DBConstants.GROUP_CREATOR }, DBConstants.GROUP_ID + "=?", new String[] { groupId }, null, null, null);
-
-			if (!c.moveToFirst())
-			{
-				return 0;
-			}
-
-			ContentValues values = new ContentValues(1);
-			values.put(DBConstants.GROUP_CREATOR, msisdn);
-			return mDb.update(DBConstants.GROUP_INFO_TABLE, values, DBConstants.GROUP_ID + " = ?", new String[] { groupId });
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
+	
 	/**
 	 * Returns a list of convInfo objects to be displayed on the home screen
 	 * 
@@ -3726,7 +3702,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				ih = new InsertHelper(mDb, DBConstants.GROUP_MEMBERS_TABLE);
 				insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.GROUP_MEMBERS_TABLE + " ( " + DBConstants.GROUP_ID + ", " + DBConstants.MSISDN
-						+ ", " + DBConstants.NAME + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_LEFT + ", " + DBConstants.ON_DND + ", " + DBConstants.SHOWN_STATUS + ", " + DBConstants.IS_ADMIN 
+						+ ", " + DBConstants.NAME + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_LEFT + ", " + DBConstants.ON_DND + ", " + DBConstants.SHOWN_STATUS + ", " + DBConstants.TYPE 
 						+" ) "
 						+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 				for (Entry<String, PairModified<GroupParticipant, String>> participant : participantList.entrySet())
@@ -3739,7 +3715,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.HAS_LEFT), 0);
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.ON_DND), groupParticipant.onDnd() ? 1 : 0);
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.SHOWN_STATUS), groupParticipant.getContactInfo().isOnhike() ? 1 : 0);
-					insertStatement.bindLong(ih.getColumnIndex(DBConstants.IS_ADMIN), groupParticipant.isAdmin() ? 1 : 0);
+					insertStatement.bindLong(ih.getColumnIndex(DBConstants.TYPE), groupParticipant.isAdmin() ? 1 : 0);
 					insertStatement.executeInsert();
 
 					newParticipants.put(participant.getKey(), new PairModified<GroupParticipant, String>(groupParticipant, participant.getValue().getSecond()));
@@ -3771,13 +3747,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return mDb.update(DBConstants.GROUP_MEMBERS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
 	}
 	
-	public int updateToAdmin(String msisdn)
-	{
-		ContentValues contentValues = new ContentValues(1);
-		contentValues.put(DBConstants.IS_ADMIN, 1);
-		return mDb.update(DBConstants.GROUP_MEMBERS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
-	}
-
+	
 	public int updateShownStatus(String groupId)
 	{
 		ContentValues contentValues = new ContentValues(1);
@@ -3848,7 +3818,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String selection = DBConstants.GROUP_ID + "=? AND " + DBConstants.MSISDN + "=?";
 			String[] selectionArgs = new String[] { groupId, msisdn };
 
-			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.IS_ADMIN }, selection, selectionArgs, null, null, null);
+			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.TYPE }, selection, selectionArgs, null, null, null);
 
 			if (!c.moveToFirst())
 			{
@@ -3856,7 +3826,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 
 			ContentValues contentValues = new ContentValues(1);
-			contentValues.put(DBConstants.IS_ADMIN, 1);
+			contentValues.put(DBConstants.TYPE, 1);
 
 			return mDb.update(DBConstants.GROUP_MEMBERS_TABLE, contentValues, selection, selectionArgs);
 
@@ -3918,8 +3888,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.HAS_LEFT, DBConstants.ONHIKE, DBConstants.NAME, DBConstants.ON_DND, DBConstants.IS_ADMIN },
-					selection, new String[] { groupId }, null, null, null, null);
+			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.HAS_LEFT, DBConstants.ONHIKE, DBConstants.NAME, DBConstants.ON_DND, DBConstants.TYPE },
+					selection, new String[] { groupId }, null, null, null);
 
 			Map<String, PairModified<GroupParticipant, String>> participantList = new HashMap<String, PairModified<GroupParticipant, String>>();
 			List<String> allMsisdns = new ArrayList<String>();
@@ -3929,7 +3899,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				allMsisdns.add(msisdn);
 				String name = c.getString(c.getColumnIndex(DBConstants.NAME));
 				GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(msisdn, msisdn, name, msisdn, c.getInt(c.getColumnIndex(DBConstants.ONHIKE)) != 0),
-						c.getInt(c.getColumnIndex(DBConstants.HAS_LEFT)) != 0, c.getInt(c.getColumnIndex(DBConstants.ON_DND)) != 0, c.getInt(c.getColumnIndex(DBConstants.IS_ADMIN)) != 0);
+						c.getInt(c.getColumnIndex(DBConstants.HAS_LEFT)) != 0, c.getInt(c.getColumnIndex(DBConstants.ON_DND)) != 0, c.getInt(c.getColumnIndex(DBConstants.TYPE)), groupId);
 				participantList.put(msisdn, new PairModified<GroupParticipant, String>(groupParticipant, name));
 			}
 
@@ -4095,7 +4065,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.HAS_LEFT, DBConstants.ONHIKE, DBConstants.NAME, DBConstants.ON_DND , DBConstants.IS_ADMIN},
+			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.HAS_LEFT, DBConstants.ONHIKE, DBConstants.NAME, DBConstants.ON_DND , DBConstants.TYPE},
 					DBConstants.GROUP_ID + "=? AND " + DBConstants.MSISDN + "=?", new String[] { groupId, participantMsisdn }, null, null, null, null);
 
 			GroupParticipant groupParticipant = null;
@@ -4105,7 +4075,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
 				String name = c.getString(c.getColumnIndex(DBConstants.NAME));
 				groupParticipant = new GroupParticipant(new ContactInfo(msisdn, msisdn, name, msisdn, c.getInt(c.getColumnIndex(DBConstants.ONHIKE)) != 0), c.getInt(c
-						.getColumnIndex(DBConstants.HAS_LEFT)) != 0, c.getInt(c.getColumnIndex(DBConstants.ON_DND)) != 0, c.getInt(c.getColumnIndex(DBConstants.IS_ADMIN)) != 0);
+						.getColumnIndex(DBConstants.HAS_LEFT)) != 0, c.getInt(c.getColumnIndex(DBConstants.ON_DND)) != 0, c.getInt(c.getColumnIndex(DBConstants.TYPE)), groupId);
 			}
 
 			if (groupParticipant != null)

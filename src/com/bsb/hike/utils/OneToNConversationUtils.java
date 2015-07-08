@@ -215,7 +215,7 @@ public class OneToNConversationUtils
 
 		for (ContactInfo particpant : selectedContactList)
 		{
-			GroupParticipant convParticipant = new GroupParticipant(particpant);
+			GroupParticipant convParticipant = new GroupParticipant(particpant, convId);
 			participantList.put(particpant.getMsisdn(), new PairModified<GroupParticipant, String>(convParticipant, convParticipant.getContactInfo().getNameOrMsisdn()));
 		}
 		ContactInfo userContactInfo = Utils.getUserContactInfo(activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));

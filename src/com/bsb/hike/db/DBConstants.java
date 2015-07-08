@@ -86,7 +86,7 @@ public interface DBConstants
 
 	public static final String HAS_LEFT = "hasLeft";
 	
-	public static final String IS_ADMIN = "isAdmin";
+	public static final String TYPE = "type";
 
 	public static final String LAST_MESSAGED = "lastMessaged";
 
