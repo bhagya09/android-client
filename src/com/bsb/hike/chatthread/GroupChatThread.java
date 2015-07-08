@@ -98,9 +98,8 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	private void shouldShowMultiAdminPopup() {
-//		if( HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false))
-//		{
-		showMultiAdminTip(activity);
+		if( HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false))
+		{
 			try {
 				if(oneToNConversation.getMetadata().amIAdmin()){
 					showMultiAdminTip(activity);
@@ -109,7 +108,7 @@ public class GroupChatThread extends OneToNChatThread
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-//		}
+    	}
 		
 	}
 	public static void showMultiAdminTip(final Context context)
