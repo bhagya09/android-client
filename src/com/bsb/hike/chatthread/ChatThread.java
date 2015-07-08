@@ -1019,6 +1019,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		else
 		{
 			dismissStickerRecommendationPopup();
+			closeStickerRecommendTip();
 			sendMessage();
 		}
 	}
@@ -1116,7 +1117,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public void closeStickerRecommendTip()
 	{
-		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.STICKER_RECOMMEND_TIP)))
+		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_RECOMMEND_TIP))
 		{
 			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
