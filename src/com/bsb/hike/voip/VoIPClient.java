@@ -1492,10 +1492,6 @@ public class VoIPClient  {
 			opusWrapper = new OpusWrapper();
 			opusWrapper.getDecoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1);
 			opusWrapper.getEncoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1, localBitrate);
-
-			// Set encoder complexity which directly affects CPU usage
-			opusWrapper.setEncoderComplexity(0);
-
 		}
 		catch (UnsatisfiedLinkError e)
 		{
@@ -1683,10 +1679,10 @@ public class VoIPClient  {
 			localBitrate = wifiBitrate;
 		else 
 			localBitrate = wifiBitrate;
-		
-		// TODO!! Remove me!
-		localBitrate = threeGBitrate;
 
+		// Conference override
+		if (isInAHostedConference)
+			localBitrate = VoIPConstants.BITRATE_CONFERENCE;
 		
 		if (remoteBitrate > 0 && remoteBitrate < localBitrate)
 			localBitrate = remoteBitrate;
