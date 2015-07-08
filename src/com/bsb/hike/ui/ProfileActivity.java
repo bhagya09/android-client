@@ -3133,7 +3133,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					public void positiveClicked(HikeDialog hikeDialog) {
 						
 						int setting = 0;
-						if (checked) {
+						if (checkBox.isChecked()) {
 							setting = 1;
 						}
 						hikeDialog.dismiss();

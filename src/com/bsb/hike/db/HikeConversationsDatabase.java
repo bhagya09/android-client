@@ -2048,7 +2048,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						convMetadata.setMyselfAsAdmin(setMyselfAdmin);
 						isAmAdmin = true;
 					}else{
-						isAmAdmin =convMetadata.amIAdmin()==1?true:false;
+						
+						try {
+							if(convMetadata.amIAdmin()!=-1)
+							{
+							  isAmAdmin =convMetadata.amIAdmin()==1?true:false;
+							}
+						} catch (Exception e) {
+							isAmAdmin = false;
+							
+						}
 					}
 					contentValues.put(DBConstants.CONVERSATION_METADATA,
 							convMetadata.toString());

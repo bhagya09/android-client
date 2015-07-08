@@ -1565,5 +1565,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="sms_admin_toast">You cannot share your admin rights with SMS users</string>
 	<string name="group_settings_updated">has changed the group settings</string>
 	<string name="you_group_settings_updated">You have changed the group settings</string>
+	<string name="ftue_multiadmin_header">Multi Admins</string>
+	<string name="ftue_multiadmin_description">Now share your admin rights with multiple members of this group</string>
 
 </resources>

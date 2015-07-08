@@ -288,7 +288,7 @@ public class OneToNConversationUtils
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
 			if (oneToNConversation instanceof GroupConversation)
 			{
-		    	mConversationDb.changeGroupSettings(oneToNConvId, setting,0, new ContentValues());
+		    	mConversationDb.changeGroupSettings(oneToNConvId, setting,1, new ContentValues());
 			}
 		}
 
