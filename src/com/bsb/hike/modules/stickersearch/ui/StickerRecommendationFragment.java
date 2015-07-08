@@ -15,14 +15,21 @@ import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
+import com.bsb.hike.ui.fragments.StickerShopFragment;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
-public class StickerRecommendationFragment extends SherlockFragment
+public class StickerRecommendationFragment extends SherlockFragment implements Listener
 {
+	
+	private String[] pubSubListeners = {HikePubSub.STICKER_DOWNLOADED};
+	
 	private StickerRecomendationAdapter mAdapter;
 
 	private static IStickerRecommendFragmentListener listener;
@@ -92,6 +99,7 @@ public class StickerRecommendationFragment extends SherlockFragment
 	public void onDestroy()
 	{
 		Logger.d(StickerTagWatcher.TAG, "recommend fragment on destroy called");
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		super.onDestroy();
 	}
 
@@ -125,6 +133,7 @@ public class StickerRecommendationFragment extends SherlockFragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
+		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFragment.this, pubSubListeners);
 	}
 
 	public void onClick(View view) 
@@ -168,5 +177,39 @@ public class StickerRecommendationFragment extends SherlockFragment
 		}
 		Sticker sticker = stickerList.get(position);
 		listener.stickerSelected(sticker);
+	}
+	
+	private void refreshStickerList()
+	{
+		if(!isAdded())
+		{
+			return;
+		}
+		getSherlockActivity().runOnUiThread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				if(mAdapter == null)
+				{
+					return;
+				}
+				mAdapter.notifyDataSetChanged();
+			}
+		});
+	}
+	
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		switch (type)
+		{
+		case HikePubSub.STICKER_DOWNLOADED:
+			refreshStickerList();
+			break;
+		default:
+			break;
+		}
 	}
 }
