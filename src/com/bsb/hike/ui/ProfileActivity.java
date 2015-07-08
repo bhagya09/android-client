@@ -2679,7 +2679,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					}
 					else if (getString(R.string.make_admin).equals(option))
 					{
-						makeAdmin(oneToNConversation.getMsisdn(),contactInfo.getMsisdn());
+						if(!contactInfo.isOnhike()){
+							Toast.makeText(ProfileActivity.this, getResources().getString(R.string.pinHistoryTutorialText), Toast.LENGTH_SHORT).show();
+						}else{
+					    	makeAdmin(oneToNConversation.getMsisdn(),contactInfo.getMsisdn());
+						}
 					}
 					else if (getString(R.string.remove_from_broadcast).equals(option))
 					{
