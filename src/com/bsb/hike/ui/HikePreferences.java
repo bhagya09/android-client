@@ -61,6 +61,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.IconListPreference;
+import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
@@ -179,6 +180,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (stickerRecommendPreference != null)
 		{
 			stickerRecommendPreference.setOnPreferenceChangeListener(this);
+		}
+		
+		final IconPreference stickerReOrderPreference = (IconPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_REORDER_PREF);
+		if (stickerReOrderPreference != null)
+		{
+			stickerReOrderPreference.setOnPreferenceClickListener(this);
 		}
 		
 		final IconCheckBoxPreference freeSmsPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.FREE_SMS_PREF);
@@ -836,6 +844,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if(HikeConstants.STEALTH_MODE_PREF.equals(preference.getKey()))
 		{
 			startActivity(Utils.getIntentForHiddenSettings(HikePreferences.this));
+		}
+		else if(HikeConstants.STICKER_REORDER_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			startActivity(i);
 		}
 		return true;
 	}

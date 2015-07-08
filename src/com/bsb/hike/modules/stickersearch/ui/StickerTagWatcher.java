@@ -191,7 +191,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 					if(stickerRecommendView != null)
 					{
 						Logger.i(TAG, "dismissStickerSearchPopup()");
-						stickerRecommendView.setVisibility(View.GONE);	
+						stickerRecommendView.setVisibility(View.INVISIBLE);	
 					}
 				}
 			});
