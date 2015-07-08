@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 
 public class NewMessageSentTask implements Runnable
 {
@@ -20,7 +21,6 @@ public class NewMessageSentTask implements Runnable
 	@Override
 	public void run()
 	{
-		// TODO
-		// StickerSearchHostManager.getInstance().sentMessage(prevText, sticker, nextText);
+		StickerSearchHostManager.getInstance().onMessageSent(prevText, sticker, nextText);
 	}
 }

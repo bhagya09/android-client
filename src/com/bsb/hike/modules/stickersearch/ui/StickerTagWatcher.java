@@ -35,7 +35,7 @@ import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.*;
 
 public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, OnTouchListener, IStickerRecommendFragmentListener
 {
-	public static final String TAG = "stickerSearchUi";
+	public static final String TAG = StickerTagWatcher.class.getSimpleName();
 
 	private HikeAppStateBaseFragmentActivity activity;
 
@@ -69,13 +69,13 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after)
 	{
-		Logger.d(TAG, "before text changed " + "string: " + s + " start: " + start + " count : " + count + " after : " + after);
+		Logger.i(TAG, "beforeTextChanged(), " + "CharSequence: " + s + ", [start: " + start + ", count : " + count + ", after : " + after + "]");
 	}
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
-		Logger.d(TAG, "on text changed " + "string: " + s + " start: " + start + " before : " + before + " count : " + count);
+		Logger.i(TAG, "onTextChanged(), " + "CharSequence: " + s + ", [start: " + start + ", before : " + before + ", count : " + count + "]");
 		StickerSearchManager.getInstance().onTextChanged(s, start, before, count);
 	}
 
@@ -83,20 +83,20 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void afterTextChanged(Editable s)
 	{
 		this.editable = s;
-		Logger.d(TAG, "afterTextChanged " + "string: " + editable);
+		Logger.i(TAG, "afterTextChanged(), " + "string: " + editable);
 	}
 
 	@Override
 	public void highlightText(int start, int end)
 	{
-		Logger.d(TAG, "highlight called: [" + " start : " + start + " end : " + end + "]");
+		Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
 		editable.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
 
 	@Override
 	public void unHighlightText(int start, int end)
 	{
-		Logger.d(TAG, "unhighlight called: [" + " start : " + start + " end : " + end + "]");
+		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 		editable.setSpan(new ForegroundColorSpan(Color.BLACK), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
 
@@ -146,10 +146,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 				showFtueAnimation();
-				
 			}
-		});
-		
+		});	
 	}
 	
 	public void showFtueAnimation()
@@ -186,29 +184,34 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			activity.runOnUiThread(new Runnable()
 			{
-				
+
 				@Override
 				public void run()
 				{
 					if(stickerRecommendView != null)
 					{
-						Logger.d(TAG, "on dismiss is called");
+						Logger.i(TAG, "dismissStickerSearchPopup()");
 						stickerRecommendView.setVisibility(View.INVISIBLE);	
 					}
 				}
 			});
+		}
+		else
+		{
+			Logger.e(TAG, "dismissStickerSearchPopup(), activity is null.");
 		}
 	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
 	{
-		Logger.d(TAG, "ontouch called " + editText);
+		Logger.i(TAG, "onTouch() called " + editText);
 
 		if (editText == null || (event.getAction() != MotionEvent.ACTION_DOWN))
 		{
 			return false;
 		}
+
 		int clickPosition = StickerSearchUtils.getOffsetForPosition(editText, event.getX(), event.getY());
 		StickerSearchManager.getInstance().onClickToSendSticker(clickPosition);
 		return false;
