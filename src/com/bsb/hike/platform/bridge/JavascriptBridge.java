@@ -590,13 +590,7 @@ public abstract class JavascriptBridge {
 			File file = new File(CocosGamingActivity.getFileBasePath(weakActivity.get()) + gameName);
 			if (file.exists()) {
 				Logger.d("CocosGamingActivity", "Deleting file : " + file.getAbsolutePath());
-				file.delete();
-				if (file.isDirectory()) {
-			        String[] children = file.list();
-			        for (int i = 0; i < children.length; i++) {
-			            new File(file, children[i]).delete();
-			        }
-			    }
+				deleteRecursive(file);
 			} else {
 				return false;
 			}
@@ -616,6 +610,14 @@ public abstract class JavascriptBridge {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	private void deleteRecursive(File fileOrDirectory) {
+	    if (fileOrDirectory.isDirectory())
+	        for (File child : fileOrDirectory.listFiles())
+	            deleteRecursive(child);
+
+	    fileOrDirectory.delete();
 	}
 
 	public void getInitJson(JSONObject jsonObj, String msisdn) {
