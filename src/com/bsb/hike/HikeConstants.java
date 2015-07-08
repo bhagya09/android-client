@@ -456,6 +456,8 @@ public class HikeConstants
 	public static final String DOUBLE_TAP_PREF = "doubleTapPref";
 	
 	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
+	
+	public static final String STICKER_REORDER_PREF = "stickerReOrderPref";
 
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
 
