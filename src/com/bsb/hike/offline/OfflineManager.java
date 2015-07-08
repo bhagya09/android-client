@@ -618,12 +618,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
+			// this function uses offline state == connected.
+			// so changing OfflineState after calling this.
+			sendDisconnectToListeners();
+			setOfflineState(OFFLINE_STATE.DISCONNECTED);
+			
 			Transporter.getInstance().shutDown();
 			Logger.d(TAG, "going to disconnect");
 			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
-			sendDisconnectToListeners();
-			
-			setOfflineState(OFFLINE_STATE.DISCONNECTED);
 
 			hikeConverter.shutDown(exception);
 			// if a sending file didn't go change from spinner to retry button
