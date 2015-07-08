@@ -163,11 +163,13 @@ public class ChatHeadService extends Service
 		{
 			whitelistedPackageList.clear();
 			JSONArray packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
+			List<String> sharablePackages = Utils.getPackagesMatchingIntent(Intent.ACTION_SEND, null,"image/jpeg");
 			for (int i = 0; i < packagesJSONArray.length(); i++)
 			{
 				JSONObject obj = packagesJSONArray.getJSONObject(i);
 				{
-					if (obj.optBoolean(HikeConstants.ChatHead.APP_ENABLE, false) && obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, null) != null)
+					String packageName = obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, null);
+					if (obj.optBoolean(HikeConstants.ChatHead.APP_ENABLE, false) && packageName != null && sharablePackages.contains(packageName))
 					{
 						whitelistedPackageList.add(obj.getString(HikeConstants.ChatHead.PACKAGE_NAME));
 						PackageNameHashMap.put(obj.getString(HikeConstants.ChatHead.PACKAGE_NAME), obj.optString(HikeConstants.ChatHead.APP_NAME, ""));
