@@ -168,6 +168,7 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 		{
 			String errorMsg = "Inside method : Select Child.  View is null. Index value specified : " + index ;
 			HAManager.sendStickerCrashDevEvent(errorMsg);
+			return ;
 		}
 		ImageView icon = (ImageView) child.findViewById(R.id.category_btn);
 		child.setSelected(isSelected);

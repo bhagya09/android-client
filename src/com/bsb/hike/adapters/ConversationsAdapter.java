@@ -956,7 +956,7 @@ public class ConversationsAdapter extends BaseAdapter
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
 		 */
-		else if (message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
+		else if (isNuxLocked || message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
 		{
 
 			if (message.isSent())

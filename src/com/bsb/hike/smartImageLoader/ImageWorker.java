@@ -276,6 +276,11 @@ public abstract class ImageWorker
 	{
 		mExitTasksEarly.set(exitTasksEarly);
 	}
+	
+	public boolean getIsExitTasksEarly()
+	{
+		return mExitTasksEarly.get();
+	}
 
 	public void setDefaultAvatarIfNoCustomIcon(boolean b)
 	{
