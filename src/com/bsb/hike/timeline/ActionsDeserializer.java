@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.ActionsDataModel;
-import com.bsb.hike.timeline.model.ActionsDataModel.DataTypes;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -60,12 +60,12 @@ public class ActionsDeserializer implements JsonDeserializer<TimelineActions>
 
 						int count = 0;
 
-						DataTypes actionType = null;
+						ActionTypes actionType = null;
 
 						if (msgObj.has("l"))
 						{
 							// Has likes
-							actionType = ActionsDataModel.DataTypes.LIKE;
+							actionType = ActionsDataModel.ActionTypes.LIKE;
 
 							JsonArray likesArray = msgObj.get("l").getAsJsonArray();
 

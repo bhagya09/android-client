@@ -16,17 +16,17 @@ public class TimelineActions
 		timelineActionsMap = new HashMap<String, ActionsDataModel>();
 	}
 
-	public ActionsDataModel getActionsForSU(String uuid)
+	public ActionsDataModel getActionsForSU(String uuid, ActionsDataModel.ActionTypes actionType)
 	{
 		if (TextUtils.isEmpty(uuid) || timelineActionsMap == null || timelineActionsMap.isEmpty())
 		{
 			return null;
 		}
 
-		return timelineActionsMap.get(uuid);
+		return timelineActionsMap.get(uuid+actionType);
 	}
 
-	public void addActionDetails(String uuid, ArrayList<ContactInfo> contactInfo, ActionsDataModel.DataTypes type, int totalCount)
+	public void addActionDetails(String uuid, ArrayList<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount)
 	{
 		ActionsDataModel actionDM = timelineActionsMap.get(uuid);
 
@@ -42,7 +42,7 @@ public class TimelineActions
 
 		if (newInstance)
 		{
-			timelineActionsMap.put(uuid, actionDM);
+			timelineActionsMap.put(uuid+type, actionDM);
 		}
 	}
 }

@@ -18,9 +18,9 @@ public class ActionsDataModel
 
 	private LinkedHashSet<ContactInfo> contactInfoList;
 
-	private ActionsDataModel.DataTypes type;
+	private ActionsDataModel.ActionTypes type;
 
-	public enum DataTypes
+	public enum ActionTypes
 	{
 		LIKE, COMMENT, VIEWS
 	}
@@ -30,7 +30,7 @@ public class ActionsDataModel
 		// Set default params
 	}
 
-	public ActionsDataModel(ActionsDataModel.DataTypes argType)
+	public ActionsDataModel(ActionsDataModel.ActionTypes argType)
 	{
 		this();
 		type = argType;
@@ -41,12 +41,12 @@ public class ActionsDataModel
 		return count;
 	}
 
-	public ActionsDataModel.DataTypes getType()
+	public ActionsDataModel.ActionTypes getType()
 	{
 		return type;
 	}
 
-	public void setType(ActionsDataModel.DataTypes type)
+	public void setType(ActionsDataModel.ActionTypes type)
 	{
 		this.type = type;
 	}
