@@ -1023,7 +1023,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 			else
 			{
-				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), "", "", getActivity());
+				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
 				startActivity(web);
 				
 				resetNotificationCounter(convInfo);

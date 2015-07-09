@@ -1357,7 +1357,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(id);
 						if (botInfo.isNonMessagingBot())
 						{
-							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);
+							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), this);
 						}
 						else
 						{

@@ -630,7 +630,7 @@ public abstract class JavascriptBridge
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 			if (botInfo.isNonMessagingBot())
 			{
-				Intent intent = IntentFactory.getNonMessagingBotIntent(msisdn, "", "", weakActivity.get());
+				Intent intent = IntentFactory.getNonMessagingBotIntent(msisdn, weakActivity.get());
 				weakActivity.get().startActivity(intent);
 				callbackToJS(id, "Success");
 			}

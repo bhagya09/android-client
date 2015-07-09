@@ -701,15 +701,16 @@ public class IntentFactory
 		return intent;
 
 	}
-	
-	public static Intent getNonMessagingBotIntent(String msisdn, String url, String title, Context context)
+
+
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
 		if (BotUtils.isBot(msisdn))
 		{
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 			if (botInfo.isNonMessagingBot())
 			{
-				Intent intent = getWebViewActivityIntent(context, url, title);
+				Intent intent = getWebViewActivityIntent(context, "", "");
 				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
 				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
 				intent.putExtra(HikeConstants.MSISDN, msisdn);
