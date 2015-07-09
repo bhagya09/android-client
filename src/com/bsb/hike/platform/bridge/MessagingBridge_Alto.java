@@ -508,17 +508,20 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
 		final Activity context = weakActivity.get();
-		ConversationsAdapter.removeBotMsisdn = message.getMsisdn();
-		final Intent intent = Utils.getHomeActivityIntent(context);
-		mHandler.post(new Runnable()
+		if (context != null)
 		{
-
-			@Override
-			public void run()
+			ConversationsAdapter.removeBotMsisdn = message.getMsisdn();
+			final Intent intent = Utils.getHomeActivityIntent(context);
+			mHandler.post(new Runnable()
 			{
-				context.startActivity(intent);
-			}
-		});
+
+				@Override
+				public void run()
+				{
+					context.startActivity(intent);
+				}
+			});
+		}
 	}
 
 }

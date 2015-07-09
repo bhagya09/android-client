@@ -215,7 +215,10 @@ public class IntentFactory
 			intent = getSettingHelpIntent(context);
 		}
 
-		context.startActivity(intent);
+		if (intent != null)
+		{
+			context.startActivity(intent);
+		}
 	}
 
 	private static Intent getSettingHelpIntent(Context context)
