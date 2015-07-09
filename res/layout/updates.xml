@@ -30,19 +30,20 @@
 
             <TextView
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:id="@+id/new_photo_tab"
                 android:gravity="center"
                 android:drawablePadding="0dp"
-                android:drawableStart="@drawable/ic_newstatus"
                 android:drawableLeft="@drawable/ic_newstatus"
                 android:text="Photo" />
             
             <TextView
                 android:layout_width="0dp"
                 android:drawableLeft="@drawable/ic_newstatus"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:id="@+id/new_status_tab"
                 android:gravity="center"
                 android:text="Status" />
         </LinearLayout>

@@ -165,16 +165,14 @@
                     android:orientation="horizontal" />
             </LinearLayout>
             
-             <ToggleButton
+             <CheckBox
                 android:id="@+id/btn_love"
                 android:layout_width="40dp"
                 android:layout_height="30dp"
                 android:layout_alignRight="@+id/side_content"
                 android:layout_below="@+id/details_content"
-                android:background="@drawable/btn_love_selector"
-                android:text=""
-                android:textOff=""
-                android:textOn="" />
+                android:button="@drawable/btn_love_selector"
+                />
              
         </RelativeLayout>
     </android.support.v7.widget.CardView>

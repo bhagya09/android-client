@@ -3,7 +3,10 @@ package com.bsb.hike.timeline.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,7 +15,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
@@ -21,21 +26,27 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.photos.HikePhotosUtils;
+import com.bsb.hike.timeline.TimelineConstants;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
 import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
 
-public class UpdatesFragment extends SherlockFragment implements Listener
+public class UpdatesFragment extends SherlockFragment implements Listener, OnClickListener
 {
 
 	private StatusMessage noStatusMessage;
@@ -57,11 +68,14 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 
 	private RecyclerView.LayoutManager mLayoutManager;
 
+	private View actionsView;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.updates, null);
 		mUpdatesList = (RecyclerView) parent.findViewById(R.id.updatesRecycleView);
+		actionsView = parent.findViewById(R.id.new_update_tab); 
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mUpdatesList.setLayoutManager(mLayoutManager);
 		// TODO
@@ -73,19 +87,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
 		super.onViewCreated(view, savedInstanceState);
-		
-		View v = view.findViewById(R.id.new_update_tab);
-		
-		QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(v)
-				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 60)).isSnappable(false).build();
-
-		mUpdatesList.setOnScrollListener(scrollListener);
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState)
-	{
-		super.onActivityCreated(savedInstanceState);
 
 		prefs = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
@@ -93,12 +94,18 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 
 		statusMessages = new ArrayList<StatusMessage>();
 
-		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(),statusMessages, userMsisdn);
+		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn);
 
 		mUpdatesList.setAdapter(timelineCardsAdapter);
 
-		// TODO
-		// mUpdatesList.setOnScrollListener(this);
+		QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
+				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 60)).isSnappable(false).build();
+
+		mUpdatesList.setOnScrollListener(scrollListener);
+		
+		actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
+		
+		actionsView.findViewById(R.id.new_status_tab).setOnClickListener(this);
 
 		FetchUpdates fetchUpdates = new FetchUpdates();
 
@@ -369,6 +376,85 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 			final int startIndex = getStartIndex();
 			statusMessages.add(getStartIndex(), new StatusMessage(protip));
 			timelineCardsAdapter.setProtipIndex(startIndex);
+		}
+	}
+
+	@Override
+	public void onClick(View arg0)
+	{
+		switch (arg0.getId())
+		{
+		case R.id.new_photo_tab:
+			Toast.makeText(getActivity().getApplicationContext(), "Clicked new photo", Toast.LENGTH_SHORT).show();
+			boolean editPic = Utils.isPhotosEditEnabled();
+			int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT | GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
+			if (editPic)
+			{
+				galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
+			}
+			Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity().getApplicationContext(), galleryFlags, null);
+			imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+			startActivityForResult(imageIntent, TimelineConstants.TIMELINE_NEW_PHOTO_REQUEST);
+			break;
+
+		case R.id.new_status_tab:
+			Toast.makeText(getActivity().getApplicationContext(), "Clicked new status", Toast.LENGTH_SHORT).show();
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		Toast.makeText(getActivity().getApplicationContext(), "Got result in fragment", Toast.LENGTH_SHORT).show();
+		if (resultCode == Activity.RESULT_CANCELED)
+		{
+			return;
+		}
+		
+		switch (requestCode)
+		{
+		case AttachmentPicker.EDITOR:
+			if(resultCode == Activity.RESULT_OK)
+			{
+				ImageParserListener listener = new ImageParser.ImageParserListener()
+				{
+					
+					@Override
+					public void imageParsed(String imagePath)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void imageParsed(Uri uri)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void imageParseFailed()
+					{
+						// TODO Auto-generated method stub
+						
+					}
+				};
+				ImageParser.parseResult(getActivity().getApplicationContext(), resultCode, data, listener, false);
+			}
+			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
+			{
+				// This would be executed if photos is not enabled on the device
+			}
+			break;
+
+		default:
+			break;
 		}
 	}
 
