@@ -769,7 +769,7 @@ public class VoIPClient  {
 					VoIPDataPacket dp;
 					try {
 						dp = encodedBuffersQueue.take();
-						dp.setVoicePacketNumber(voicePacketCount++);
+						dp.setVoicePacketNumber(0);
 
 						// Encrypt packet
 						if (encryptionStage == EncryptionStage.STAGE_READY) {
