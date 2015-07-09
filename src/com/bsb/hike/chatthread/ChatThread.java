@@ -3036,7 +3036,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			Logger.d(TAG, "Calling load more messages : ");
 			loadMessage(true);
 		}
-		else if (!loadingMoreMessages)
+		else if (!loadingMoreMessages && messages != null && !messages.isEmpty())
 		{
 			int lastVisibleItem = firstVisibleItem + visibleItemCount - 1;
 			if (messages.getRaw(Math.min(lastVisibleItem + HikeConstants.MIN_INDEX_TO_LOAD_MORE_MESSAGES, messages.size()-1)) == null)
