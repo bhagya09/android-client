@@ -42,6 +42,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	private static final int SHOW_OVERFLOW_MENU = 112;
 	
 	private static final int OPEN_FULL_PAGE = 114;
+
+	private static final int CHANGE_ACTION_BAR_TITLE = 115;
 	
 	private BotInfo mBotInfo;
 	
@@ -493,6 +495,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
 			}
 			break;
+		case CHANGE_ACTION_BAR_TITLE:
+			if (mCallback != null)
+			{
+				String title = (String) msg.obj;
+				mCallback.changeActionBarTitle(title);
+			}
 		default:
 			super.handleUiMessage(msg);
 		}
@@ -579,6 +587,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void onResize(String height)
 	{
 		//do nothing
+	}
+
+	/**
+	 * call this method to change the title of the action bar for the bot.
+	 * @param title : the title on the action bar.
+	 */
+	@JavascriptInterface
+	public void changeBotTitle(final String title)
+	{
+		if (!TextUtils.isEmpty(title))
+		{
+			sendMessageToUiThread(CHANGE_ACTION_BAR_TITLE, title);
+		}
 	}
 
 }

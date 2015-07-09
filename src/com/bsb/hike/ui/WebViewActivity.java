@@ -983,5 +983,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		return super.onKeyUp(keyCode, event);
 	}
+
+	@Override
+	public void changeActionBarTitle(String title)
+	{
+		TextView actionBarTitle = (TextView) actionBarView.findViewById(R.id.contact_name);
+		actionBarTitle.setText(title);
+	}
 	
 }
