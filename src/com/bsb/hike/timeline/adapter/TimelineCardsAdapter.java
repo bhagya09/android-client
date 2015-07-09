@@ -375,7 +375,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		case PROFILE_PIC_CHANGE:
 			setAvatar(statusMessage.getMsisdn(), viewHolder.avatar);
-			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? "Me" : statusMessage.getNotNullName());
+			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : statusMessage
+					.getNotNullName());
 			viewHolder.mainInfo.setText(R.string.status_profile_pic_notification);
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
