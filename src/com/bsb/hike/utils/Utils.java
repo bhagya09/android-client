@@ -2442,6 +2442,20 @@ public class Utils
 		(new File(path, fileName)).delete();
 	}
 
+	public static boolean renameUniqueTempProfileImage(String newFileName, String tmpFilePath)
+	{
+		Logger.d("dp_download", "inside renameUniqueTempProfileImage "+ newFileName + ", "+ tmpFilePath);
+		File tempFile = new File(tmpFilePath);
+		File newFile = new File(newFileName);
+		return tempFile.renameTo(newFile);
+	}
+
+	public static boolean removeUniqueTempProfileImage(String tmpFilePath)
+	{
+		Logger.d("dp_download", "inside removeUniqueTempProfileImage "+ tmpFilePath);
+		return (new File(tmpFilePath)).delete();
+	}
+	
 	public static void vibrateNudgeReceived(Context context)
 	{
 		String VIB_OFF = context.getResources().getString(R.string.vib_off);
