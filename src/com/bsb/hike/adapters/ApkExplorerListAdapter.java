@@ -1,6 +1,7 @@
 package com.bsb.hike.adapters;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
@@ -27,7 +28,6 @@ public class ApkExplorerListAdapter extends BaseAdapter{
     
 	private Context mContext;
     private ArrayList<ApplicationSelectionStatus> appInfo;
-    public ArrayList<ApplicationInfo> selectedItems;
     private LayoutInflater mInflater ;
 	
     public ApkExplorerListAdapter(Context mContext,
@@ -158,17 +158,4 @@ public class ApkExplorerListAdapter extends BaseAdapter{
           
       return convertView;
     }
-
-
-	public ArrayList<ApplicationInfo> getSelectedItems() {
-		ArrayList<ApplicationInfo>  arrayList  =  new ArrayList<ApplicationInfo>();
-		for(ApplicationSelectionStatus applicationSelectionStatus : appInfo)
-		{
-			if(applicationSelectionStatus.getApplicationSelectionStatus())
-			{
-				arrayList.add(applicationSelectionStatus.getApplicationInfo());
-			}
-		}
-		return  arrayList; 	
-	}
 }

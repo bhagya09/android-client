@@ -49,6 +49,7 @@ import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.utils.OneToNConversationUtils;
 public class ApkSelectionActivity extends SherlockActivity implements OnItemClickListener  {
 	ArrayList<ApplicationSelectionStatus>  apkInfo ;
+	Map<ApplicationInfo,Boolean> selectedApplications;
     ListView list;
     CheckBox  checkBox;
     ApkExplorerListAdapter apkAdapter ;
@@ -67,6 +68,7 @@ public class ApkSelectionActivity extends SherlockActivity implements OnItemClic
 	private void init() {
 		
 		apkInfo =  new ArrayList<ApplicationSelectionStatus>();
+		selectedApplications = new HashMap<ApplicationInfo,Boolean>();
 		List<PackageInfo> packageInfos =  getPackageManager().getInstalledPackages(0);
   		
 		for(int i=0;i<packageInfos.size();i++)
@@ -164,10 +166,12 @@ public class ApkSelectionActivity extends SherlockActivity implements OnItemClic
 			@Override
 			public void onClick(View v)
 			{
-				
-				ArrayList<ApplicationInfo> results  =  apkAdapter.getSelectedItems();
+				ArrayList<ApplicationInfo> apkList = new ArrayList<ApplicationInfo>();
+				for(Map.Entry<ApplicationInfo,Boolean> map : selectedApplications.entrySet()){
+				     apkList.add(map.getKey());
+				} 
 				Intent intent =  getIntent();
-				intent.putParcelableArrayListExtra(OfflineConstants.APK_SELECTION_RESULTS, results);
+				intent.putParcelableArrayListExtra(OfflineConstants.APK_SELECTION_RESULTS,apkList);
 				setResult(RESULT_OK, intent);
 			    finish();
 			}
@@ -205,14 +209,18 @@ public class ApkSelectionActivity extends SherlockActivity implements OnItemClic
     		setupMultiSelectActionBar();
     }
     public void toggleSelection(int position) {
-		if(apkInfo.get(position).getApplicationSelectionStatus())
+    	
+    	ApplicationSelectionStatus applicationStatus = apkInfo.get(position);
+		if(applicationStatus.getApplicationSelectionStatus())
 		{
-			apkInfo.get(position).setApplicationSelectionStatus(false);
+			applicationStatus.setApplicationSelectionStatus(false);
+			selectedApplications.remove(applicationStatus.appInfo);
      		decrementSelectedItems();
 		}
 		else
 		{
-			apkInfo.get(position).setApplicationSelectionStatus(true);
+			applicationStatus.setApplicationSelectionStatus(true);
+			selectedApplications.put(applicationStatus.appInfo,true);
     		incrementSelectedItems();
 		}
 		apkAdapter.notifyDataSetChanged();
