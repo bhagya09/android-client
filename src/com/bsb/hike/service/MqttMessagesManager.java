@@ -16,8 +16,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -89,9 +87,9 @@ import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.tasks.DownloadProfileImageTask;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.fragments.HeadLessImageDownLoaderFragment;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChatTheme;
@@ -3422,9 +3420,9 @@ public class MqttMessagesManager
 		}
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName());
-		downloadProfileImageTask.execute();
+		HeadLessImageDownLoaderFragment downLoaderFragment = HeadLessImageDownLoaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true);
+		downLoaderFragment.startLoadingTask();
 	}
 
 	private void autoDownloadGroupImage(String id)
@@ -3434,17 +3432,18 @@ public class MqttMessagesManager
 		{
 			return;
 		}
+		
 		String fileName = Utils.getProfileImageFileName(id);
-		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, id, fileName, true, false, null, null);
-		downloadProfileImageTask.execute();
+		HeadLessImageDownLoaderFragment downLoaderFragment = HeadLessImageDownLoaderFragment.newInstance(id, fileName, false, true, null, null, null, true);
+		downLoaderFragment.startLoadingTask();
 	}
 
 	private void autoDownloadProtipImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL());
-		downloadProfileImageTask.execute();
+		HeadLessImageDownLoaderFragment downLoaderFragment = HeadLessImageDownLoaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL(), true);
+		downLoaderFragment.startLoadingTask();
 	}
 
 	private void setDefaultSMSClientTutorialSetting()
