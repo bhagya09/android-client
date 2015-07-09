@@ -27,7 +27,11 @@ public class BotInfo extends ConvInfo
 	public static final int MESSAGING_BOT = 1;
 	public static final int NON_MESSAGING_BOT = 2;
 
-	private int type, configuration;
+	// messaging bot by default because all the earlier bots were messaging by default and all the earlier builds had only messaging bots.
+	private int type = MESSAGING_BOT;
+
+	//by default all the configured items are on.
+	private int configuration = Integer.MAX_VALUE;
 
 	private String namespace;
 
@@ -79,12 +83,6 @@ public class BotInfo extends ConvInfo
 		public P type(int type)
 		{
 			this.type = type;
-			return getSelfObject();
-		}
-
-		public P configuration(int configuration)
-		{
-			this.config = configuration;
 			return getSelfObject();
 		}
 
@@ -158,6 +156,11 @@ public class BotInfo extends ConvInfo
 	public String getNamespace()
 	{
 		return namespace;
+	}
+
+	public void setNamespace(String namespace)
+	{
+		this.namespace = namespace;
 	}
 
 	public String getNotifData()

@@ -1201,7 +1201,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				mUrl = new URL(AccountUtils.fileTransferBaseDownloadUrl + fileKey);
 				HttpClient client = new DefaultHttpClient();
-				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
+				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
 				head.addHeader("Cookie", "user=" + token + ";uid=" + uId);
@@ -1264,7 +1264,7 @@ public class UploadFileTask extends FileTransferBase
 		{
 			client = new DefaultHttpClient();
 			client.getParams().setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, bufferSize);
-			client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
+			client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 			long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
 			Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
 			client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
@@ -1420,7 +1420,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				mUrl = new URL(AccountUtils.fastFileUploadUrl + fileMD5);
 				HttpClient client = new DefaultHttpClient();
-				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
+				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
 				AccountUtils.setNoTransform(head);
