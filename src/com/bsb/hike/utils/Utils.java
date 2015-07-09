@@ -6304,4 +6304,12 @@ public class Utils
 				.build();
 		return formedUri;
 	}
+
+	public static void preFillArrayList(List<?> list, int capacity)
+	{
+		for(int i = 0; i < capacity; i++)
+		{
+			list.add(null);
+		}
+	}
 }
