@@ -78,7 +78,7 @@ public class MessagingBotConfiguration extends BotConfiguration
 	
 	public static final byte SLIDE_IN = 23;
 	
-	private static final byte READ_SLIDE_OUT = 24;
+	public static final byte READ_SLIDE_OUT = 24;
 	
 	public boolean isLongTapEnabled()
 	{

@@ -29,8 +29,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.provider.BaseColumns;
-import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -47,7 +45,6 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
-import com.bsb.hike.media.SharedMediaCursorIterator;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
@@ -118,10 +115,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 		mDb = getWritableDatabase();
 	}
-
+	
 	public SQLiteDatabase getWriteDatabase()
 	{
-		if (mDb == null || !mDb.isOpen())
+		if(mDb == null || !mDb.isOpen())
 		{
 			mDb = super.getWritableDatabase();
 		}
@@ -135,7 +132,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			db = mDb;
 		}
-		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MESSAGE + " STRING, " // The message text
+		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.MESSAGES_TABLE
+				+ " ( "
+				+ DBConstants.MESSAGE + " STRING, " // The message text
 				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
 				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp
 				+ DBConstants.MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " // The message id (Unique)
@@ -151,8 +150,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.MESSAGE_TYPE + " INTEGER" + " INTEGER DEFAULT -1, " // The type of the message.
 				+ DBConstants.HIKE_CONV_DB.LOVE_ID_REL + " INTEGER DEFAULT -1, " // love id applicable to few messages like content
 				+ DBConstants.HIKE_CONTENT.CONTENT_ID + " INTEGER DEFAULT -1, " // content id applicable to few messages like content
-				+ DBConstants.HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message'," // namespace for uniqueness of content
-				+ DBConstants.SERVER_ID + " INTEGER, " + DBConstants.MESSAGE_ORIGIN_TYPE + " INTEGER DEFAULT 0" // normal/broadcast/multi-forward
+				+ DBConstants.HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message',"  //namespace for uniqueness of content
+				+ DBConstants.SERVER_ID + " INTEGER, "
+				+ DBConstants.MESSAGE_ORIGIN_TYPE + " INTEGER DEFAULT 0" //normal/broadcast/multi-forward
 				+ " ) ";
 
 		db.execSQL(sql);
@@ -3384,6 +3384,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public void deleteMessages(ArrayList<Long> msgIds, String msisdn, Boolean containsLastMessage)
 	{
+
+		if (msgIds == null || msgIds.isEmpty())
+		{
+			Logger.e(HikeConversationsDatabase.class.getSimpleName(), "deleteMessages :: msgIds not present");
+			return;
+		}
+		
 		StringBuilder inSelection = new StringBuilder("(" + msgIds.get(0));
 		for (int i = 0; i < msgIds.size(); i++)
 		{
@@ -5962,17 +5969,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String msgIdSelection = DBConstants.MESSAGE_ID + (itemsToRight ? ">" : "<") + givenMsgId;
 		String hfTypeSelection = getSharedMediaSelection(onlyMedia);
 
-		String selection = DBConstants.MSISDN + " = ?" + (givenMsgId == -1 ? "" : " AND " + msgIdSelection) + " AND " + (DBConstants.HIKE_FILE_TYPE + " IN " + hfTypeSelection);
+		String selection =  DBConstants.MSISDN + " = ?" + (givenMsgId == -1 ? "" : " AND " + msgIdSelection) + " AND "
+				+ (DBConstants.HIKE_FILE_TYPE + " IN " + hfTypeSelection);
 
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.SHARED_MEDIA_TABLE, new String[] { DBConstants.MESSAGE_ID + " AS " + BaseColumns._ID, DBConstants.GROUP_PARTICIPANT, DBConstants.TIMESTAMP,
-					DBConstants.IS_SENT, DBConstants.MESSAGE_METADATA }, selection, new String[] { msisdn }, null, null,
-					DBConstants.MESSAGE_ID + (itemsToRight ? " ASC" : " DESC"), null);
+			c = mDb.query(DBConstants.SHARED_MEDIA_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.GROUP_PARTICIPANT, DBConstants.TIMESTAMP, DBConstants.IS_SENT,
+					DBConstants.MESSAGE_METADATA }, selection, new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + (itemsToRight ? " ASC" : " DESC"), null);
 
 			List<?> sharedFilesList;
-			if (onlyMedia)
+			if(onlyMedia)
 			{
 				sharedFilesList = new ArrayList<HikeSharedFile>(limit);
 			}
@@ -6011,18 +6018,67 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public Cursor getSharedMedia(String msisdn, boolean onlyMedia, boolean latestFirst)
+	private class SharedMediaCursorIterator implements Iterator<HikeSharedFile>
 	{
-		String hfTypeSelection = getSharedMediaSelection(onlyMedia);
 
-		String selection = DBConstants.MSISDN + " = ? AND " + (DBConstants.HIKE_FILE_TYPE + " IN " + hfTypeSelection);
+		Cursor cursor;
+		String msisdn;
+		int msgIdIndex;
+		int groupParticipantColumn;
+		int tsIndex;
+		int isSentIndex;
+		int metadataIndex;
 
-		Cursor c = mDb.query(DBConstants.SHARED_MEDIA_TABLE, new String[] { DBConstants.MESSAGE_ID + " AS " + BaseColumns._ID, DBConstants.GROUP_PARTICIPANT,
-				DBConstants.TIMESTAMP, DBConstants.IS_SENT, DBConstants.MESSAGE_METADATA }, selection, new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID
-				+ (latestFirst ? " DESC" : " ASC"), null);
-		
-		return c;
-	}
+		public SharedMediaCursorIterator(Cursor c, String msisdn)
+		{
+			this.cursor = c;
+			msgIdIndex = cursor.getColumnIndex(DBConstants.MESSAGE_ID);
+			groupParticipantColumn = cursor.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+			tsIndex = cursor.getColumnIndex(DBConstants.TIMESTAMP);
+			isSentIndex = cursor.getColumnIndex(DBConstants.IS_SENT);
+			metadataIndex = cursor.getColumnIndex(DBConstants.MESSAGE_METADATA);
+
+			this.msisdn = msisdn;
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return cursor.getPosition() != cursor.getCount()-1;
+		}
+
+		@Override
+		public HikeSharedFile next()
+		{
+			if (cursor.moveToNext())
+			{
+				long msgId = cursor.getLong(msgIdIndex);
+				long ts = cursor.getLong(tsIndex);
+				boolean isSent = cursor.getInt(isSentIndex) != 0;
+				String messageMetadata = cursor.getString(metadataIndex);
+				String groupParticipantMsisdn = cursor.getString(groupParticipantColumn);
+
+				HikeSharedFile hikeSharedFile;
+				try
+				{
+					hikeSharedFile = new HikeSharedFile(new JSONObject(messageMetadata), isSent, msgId, msisdn, ts, groupParticipantMsisdn);
+					return hikeSharedFile;
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+					return null;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public void remove()
+		{
+
+		}
+	};
 
 	public int getSharedMediaCount(String msisdn, boolean onlyMedia)
 	{
@@ -6031,18 +6087,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		Cursor c = null;
 
-		String selection = DBConstants.MSISDN + " = ?" + " AND " + (DBConstants.HIKE_FILE_TYPE + " IN " + hfTypeSelection);
+		String selection =  DBConstants.MSISDN + " = ?"  + " AND "
+				+ (DBConstants.HIKE_FILE_TYPE + " IN " + hfTypeSelection);
 
 		try
 		{
-			c = mDb.query(DBConstants.SHARED_MEDIA_TABLE, new String[] { DBConstants.MESSAGE_ID + " AS " + BaseColumns._ID, DBConstants.GROUP_PARTICIPANT, DBConstants.TIMESTAMP,
-					DBConstants.IS_SENT, DBConstants.MESSAGE_METADATA }, selection, new String[] { msisdn }, null, null, null, null);
+			c = mDb.query(DBConstants.SHARED_MEDIA_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.GROUP_PARTICIPANT, DBConstants.TIMESTAMP, DBConstants.IS_SENT,
+					DBConstants.MESSAGE_METADATA }, selection, new String[] { msisdn }, null, null, null, null);
 
 			SharedMediaCursorIterator cursorIterator = new SharedMediaCursorIterator(c, msisdn);
 			while (cursorIterator.hasNext())
 			{
 				HikeSharedFile hikeSharedFile = cursorIterator.next();
-				if (hikeSharedFile.exactFilePathFileExists())
+				if(hikeSharedFile.exactFilePathFileExists())
 				{
 					count++;
 				}

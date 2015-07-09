@@ -28,6 +28,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
@@ -48,6 +49,7 @@ import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -310,9 +312,21 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
 				return;
 			}
+			
+			applyCompression();
+			
 			profileImageCropped();
 			break;
 		
+		}
+	}
+
+	protected void applyCompression()
+	{
+		if(!Utils.isPhotosEditEnabled())
+		{
+			int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
+			Utils.compressAndCopyImage(mActivityState.destFilePath, mActivityState.destFilePath, ChangeProfileImageBaseActivity.this, Bitmap.Config.RGB_565, imageCompressQuality, ImageQuality.QUALITY_MEDIUM, false);
 		}
 	}
 
@@ -499,7 +513,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
-		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn(),false))
+
+		// check if msisdn is not a group id and if it already has an icon (force check to avoid stale state)
+		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
 			// case when we need to show dialog for change dp and remove dp 
 			showProfileImageEditDialog(this, context, removeImagePath);
