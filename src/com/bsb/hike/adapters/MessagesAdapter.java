@@ -93,6 +93,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MessageMetadata.NudgeAnimationType;
+import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
@@ -279,7 +280,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private Conversation conversation;
 
-	private ArrayList<ConvMessage> convMessages;
+	private MovingList<ConvMessage> convMessages;
 
 	private Context context;
 	
@@ -338,7 +339,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private HashMap<Long, CharSequence> messageTextMap;
 
-	public MessagesAdapter(Context context, ArrayList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
+	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		// this.largeStickerLoader = new StickerLoader(context);
@@ -366,6 +367,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
 
+	}
+
+	public void updateMessageList(MovingList<ConvMessage> objects)
+	{
+		this.convMessages = objects;
+		mWebViewCardRenderer.updateMessageList(convMessages);
+		notifyDataSetChanged();
+		setLastSentMessagePosition();
 	}
 
 	public void setChatTheme(ChatTheme theme)
@@ -494,6 +503,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	@Override
 	public int getItemViewType(int position)
 	{
+		Logger.d("gaurav","getItemViewType: " + position);
 		ConvMessage convMessage = getItem(position);
 		ViewType type;
 		

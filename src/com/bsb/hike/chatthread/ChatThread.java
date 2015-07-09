@@ -27,6 +27,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.hardware.Camera.Size;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -121,9 +122,12 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -227,8 +231,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
     protected static final int BLOCK_UNBLOCK_USER = 30;
 
-    protected static final int ADD_MORE_MSG = 31;
-    
     protected static final int ACTION_MODE_CONFIG_CHANGE = 32;
     
     private static final int MUTE_CONVERSATION_TOGGLED = 33;
@@ -236,6 +238,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     private static final int SHARING_FUNCTIONALITY = 34;
     
 	protected static final int UPDATE_STEALTH_BADGE = 35;
+	
+	protected static final int INITIALIZE_MORE_MESSAGES = 36;
+	
+	protected static final int UPDATE_MESSAGE_LIST = 37;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -267,7 +273,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected MessagesAdapter mAdapter;
 
-	protected ArrayList<ConvMessage> messages;
+	protected MovingList<ConvMessage> messages;
 
 	protected static HashMap<Long, ConvMessage> mMessageMap;
 
@@ -389,6 +395,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case NOTIFY_DATASET_CHANGED:
 			Logger.i(TAG, "notifying data set changed on UI Handler");
+			Logger.i("gaurav", "notifying data set changed on UI Handler");
 			mAdapter.notifyDataSetChanged();
 			break;
 		case END_TYPING_CONVERSATION:
@@ -436,7 +443,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mConversationsView.setSelection(messages.size() - 1);
 			break;
 		case SCROLL_TO_POSITION:
-			scrollToPosition((int)msg.obj);
+			Logger.i("gaurav", "scrolling to pos: " + (int)msg.obj);
+			scrollToPosition((int)msg.obj,0);
 			break;
 		case STICKER_FTUE_TIP:
 			mTips.showStickerFtueTip();
@@ -453,14 +461,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case BLOCK_UNBLOCK_USER:
 			blockUnBlockUser((boolean) msg.obj);
 			break;
-		case ADD_MORE_MSG:
-			addAndSetMessages((List<ConvMessage>) msg.obj);
-			break;
 		case ACTION_MODE_CONFIG_CHANGE:
 			handleActionModeOrientationChange(mActionMode.whichActionModeIsOn());
 			break;
 		case MUTE_CONVERSATION_TOGGLED:
 			muteConvToggledUIChange((boolean) msg.obj);
+			break;
+		case UPDATE_MESSAGE_LIST:
+			Pair<MovingList<ConvMessage>, Integer> pair = (Pair<MovingList<ConvMessage>, Integer>)(msg.obj);
+			updateMessageList(pair.first,pair.second);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -1462,7 +1471,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		// Creating new instance every time.
 		// No need to modify existing instance. It might still be in the process of exiting.
 		messageSearchManager = new SearchManager();
-		messageSearchManager.init(messages);
 		/**
 		 * Hiding any open tip
 		 */
@@ -1532,7 +1540,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 			}
 			searchText = s.toString().toLowerCase();
-			messageSearchManager.makeNewSearch(searchText);
 			mAdapter.setSearchText(searchText);
 			mAdapter.notifyDataSetChanged();
 		}
@@ -1547,7 +1554,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
 			// updating the dataset in case any new messages were received
-			messageSearchManager.updateDataSet(messages);
 			if (loop)
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_LOOP, null, this);
@@ -1565,16 +1571,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void updateUIforSearchResult(final int position)
 	{
+		Logger.d("gaurav","updateUIforSearchResult");
 		searchDialog.dismiss();
 		if (position >= 0)
 		{
-			sendUIMessage(SCROLL_TO_POSITION, position);
+			scrollToPosition(position, 0);
 		}
 		else
 		{
 			showToast(R.string.no_results);
 		}
 		setMessagesRead();
+		loadingMoreMessages = false;
 	}
 
 	protected void destroySearchMode()
@@ -1592,7 +1600,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			View mBottomView = activity.findViewById(R.id.bottom_panel);
 			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 			mBottomView.setVisibility(View.VISIBLE);
-			messageSearchManager.clearSearch();
 			messageSearchManager.deactivate();
 			mAdapter.setSearchText(null);
 			searchText = null;
@@ -1828,6 +1835,73 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			loadMoreMessages();
 		}
 	}
+	
+	protected final void initializeMessages(boolean async, boolean initializeMessagesAboveCurrentPosition)
+	{
+		Logger.i("gaurav", "initialize messages called from onScroll  : Async Call ? " + async);
+		int startIndex = -1, endIndex = -1;
+
+		if (initializeMessagesAboveCurrentPosition)
+		{
+			int current = mConversationsView.getFirstVisiblePosition();
+			while (current > 0)
+			{
+				current--;
+				if (messages.getRaw(current) == null)
+				{
+					endIndex = current;
+					break;
+				}
+			}
+			if (endIndex < 0)
+				return;
+			startIndex = Math.max(0, endIndex - 20);
+		}
+		else
+		{
+			int current = mConversationsView.getLastVisiblePosition();
+			while (current < messages.size()-1)
+			{
+				current++;
+				if (messages.getRaw(current) == null)
+				{
+					startIndex = current;
+					break;
+				}
+			}
+			if (startIndex < 0)
+				return;
+			endIndex = Math.min(startIndex + 20, messages.size() - 1);
+		}
+		if (async)
+		{
+			/**
+			 * Calling restart loader here since if we use initLoader, for subsequent calls, loaderManager would deliver the same result instead of calling load in background
+			 * again.
+			 */
+			Bundle arguments = new Bundle();
+			arguments.putInt(MessageInitializer.START_INDX, startIndex);
+			arguments.putInt(MessageInitializer.END_INDX, endIndex);
+			activity.getSupportLoaderManager().restartLoader(INITIALIZE_MORE_MESSAGES, arguments, this);
+		}
+		else
+		{
+			getMessagesFromDB(messages, startIndex, endIndex);
+		}
+	}
+	
+	private void getMessagesFromDB(MovingList<ConvMessage> movingList, int startIndex, int endIndex)
+	{
+		Logger.d("gaurav","loading more items: " + startIndex + " to " + endIndex);
+		Logger.d("gaurav","loading more msgs: " + movingList.getUniqueId(startIndex) + " to " + movingList.getUniqueId(endIndex));
+		List<ConvMessage> msgList = loadMoreMessages(-1, movingList.getUniqueId(endIndex) + 1, movingList.getUniqueId(startIndex) - 1);
+		for (int i = 0; i < msgList.size(); i++)
+		{
+			movingList.set(i + endIndex - msgList.size() + 1, msgList.get(i));
+		}
+		uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+		loadingMoreMessages = false;
+	}
 
 	/**
 	 * This method is either called in either UI thread or non UI, check {@link #fetchConversation(boolean, String)}
@@ -1844,14 +1918,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		return loadMoreMessages(HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME);
 	}
-	protected List<ConvMessage> loadMoreMessages(int oldMessagesToLoad)
+	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad)
 	{
 		int startIndex = getMessagesStartIndex();
 
 		long firstMsgId = messages.get(startIndex).getMsgID();
 		Logger.i(TAG, "inside background thread: loading more messages " + firstMsgId);
-
-		return mConversationDb.getConversationThread(msisdn, oldMessagesToLoad, mConversation, firstMsgId);
+		
+		return loadMoreMessages(messageCountToLoad, firstMsgId, -1);
+	}
+	
+	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxId, long minId)
+	{
+		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxId, minId);
 	}
 
 	protected abstract int getContentView();
@@ -1876,7 +1955,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 * 
 		 * Adapter has to show UI elements like tips, day/date of messages, unknown contact headers etc.
 		 */
-		messages = new ArrayList<ConvMessage>(mConversation.getMessagesList());
+		messages = new MovingList<ConvMessage>(mConversation.getMessagesList(),mOnItemsFinishedListener);
+		messages.setLoadBufferSize(20);
 
 		mMessageMap = new HashMap<Long, ConvMessage>();
 		addtoMessageMap(0, messages.size());
@@ -1918,6 +1998,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 	}
+	
+	private OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
+	{
+		@Override
+		public void getMoreItems(MovingList<? extends Unique> movingList, int startIndex, int endIndex)
+		{
+			loadingMoreMessages = true;
+			Logger.d("gaurav","mOnItemsFinishedListener.getMoreItems");
+			getMessagesFromDB((MovingList<ConvMessage>)movingList, startIndex, endIndex);
+		}
+	};
 	
 	protected boolean shouldShowKeyboard()
 	{
@@ -2361,8 +2452,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void addAndSetMessages(List<ConvMessage> list)
 	{
-		int scrollOffset = 0;
 		int firstVisibleItem = mConversationsView.getFirstVisiblePosition();
+		int scrollOffset = 0;
 		if (mConversationsView.getChildAt(0) != null)
 		{
 			scrollOffset = mConversationsView.getChildAt(0).getTop();
@@ -2372,27 +2463,36 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		mConversationsView.setSelectionFromTop(firstVisibleItem + list.size(), scrollOffset);
 	}
-	
+
+	private void updateMessageList(MovingList<ConvMessage> newList, int oldIndex)
+	{
+		Logger.d("gaurav","updating MessageList");
+		Logger.d("gaurav","new size:" + newList.size());
+		Logger.d("gaurav","old size:" + messages.size());
+		Logger.d("gaurav","oldIndex : "  + oldIndex);
+		int newListSize = newList.size();
+		int scrollOffset = 0;
+		if (mConversationsView.getChildAt(0) != null)
+		{
+			scrollOffset = mConversationsView.getChildAt(0).getTop();
+		}
+		for(int i = oldIndex; i<messages.size(); i++)
+		{
+			newList.add(newList.size(), messages.get(i), messages.getUniqueId(i));
+		}
+		messages = newList;
+		mAdapter.updateMessageList(messages);
+		Logger.d("gaurav","final size:" + messages.size());
+		Logger.d("gaurav","setting selection back");
+		mConversationsView.setSelectionFromTop(newListSize, scrollOffset);
+	}
+
 	private void addMoreMessages(List<ConvMessage> list)
 	{
 		int startIndex = getMessagesStartIndex();
 		mAdapter.addMessages(list, startIndex);
 		addtoMessageMap(startIndex, startIndex + list.size());
-		updateNNotifySearchParams(list);
 		mAdapter.notifyDataSetChanged();
-	}
-	
-	private void updateNNotifySearchParams(List<ConvMessage> list)
-	{
-		if (messageSearchManager != null && messageSearchManager.isActive())
-		{
-			messageSearchManager.updateIndex(list.size());
-			messageSearchManager.updateDataSet(messages);
-			synchronized (MessageFinder.class)
-			{
-				MessageFinder.class.notify();
-			}
-		}
 	}
 	
 	private int getMessagesStartIndex()
@@ -2415,6 +2515,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		else if (arg0 == LOAD_MORE_MESSAGES)
 		{
 			return new ConversationLoader(activity.getApplicationContext(), LOAD_MORE_MESSAGES, this);
+		}
+		else if (arg0 == INITIALIZE_MORE_MESSAGES)
+		{
+			return new MessageInitializer(activity.getApplicationContext(), this, arg1);
 		}
 		else if (arg0 == SEARCH_NEXT || arg0 == SEARCH_PREVIOUS || arg0 == SEARCH_LOOP)
 		{
@@ -2451,6 +2555,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				updateUIforSearchResult((int) arg1);
 				recordSearchInputWithResult(id, searchText, (int) arg1);
 			}
+		}
+		else if (arg0 instanceof MessageInitializer)
+		{
 		}
 		else
 		{
@@ -2532,11 +2639,63 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 
 	}
-	
+
+	private static class MessageInitializer extends AsyncTaskLoader<Object>
+	{
+		static final String START_INDX = "startIndex";
+		static final String END_INDX = "endIndex";
+		private List<ConvMessage> list;
+
+		WeakReference<ChatThread> chatThread;
+
+		int startIndex;
+
+		int endIndex;
+		
+		boolean taskComplete = false;
+
+		public MessageInitializer(Context context, ChatThread chatThread, Bundle bundle)
+		{
+			super(context);
+			Logger.i("gaurav", "MessageInitializer loader object");
+			this.chatThread = new WeakReference<ChatThread>(chatThread);
+			this.startIndex = bundle.getInt(START_INDX);
+			this.endIndex = bundle.getInt(END_INDX);
+		}
+
+		@Override
+		public Object loadInBackground()
+		{
+			Logger.i(TAG, "load in background of conversation loader");
+
+			if (chatThread.get() != null)
+			{
+				chatThread.get().getMessagesFromDB(chatThread.get().messages, startIndex, endIndex);
+			}
+			taskComplete = true;
+			return null;
+		}
+
+		/**
+		 * This has to be done due to some bug in compat library -- http://stackoverflow.com/questions/10524667/android-asynctaskloader-doesnt-start-loadinbackground
+		 */
+		protected void onStartLoading()
+		{
+			Logger.i(TAG, "conversation loader onStartLoading");
+			if (taskComplete)
+			{
+				deliverResult(null);
+			}
+			else
+			{
+				forceLoad();
+			}
+		}
+
+	}
+
 	private static class MessageFinder extends AsyncTaskLoader<Object>
 	{
-		static long ADD_MSG_TIME = 3000;
-
 		int loaderId;
 	
 		int position = -2;
@@ -2558,54 +2717,101 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		@Override
 		public Object loadInBackground()
 		{
-			Logger.i(TAG, "search in background");
+			Logger.i("gaurav", "search in background: " + loaderId);
 
 			if (chatThread.get() != null)
 			{
-				if (loaderId == SEARCH_NEXT)
+				chatThread.get().loadingMoreMessages = true;
+				int firstVisisbleItem = chatThread.get().mConversationsView.getFirstVisiblePosition();
+				Logger.d("gaurav","firstVisisbleItem : "  + firstVisisbleItem);
+				ArrayList<ConvMessage> msgList;
+				if (loaderId == SEARCH_PREVIOUS || loaderId == SEARCH_LOOP)
 				{
-					position = messageSearchManager.getNextItem(chatThread.get().mConversationsView.getFirstVisiblePosition(), chatThread.get().mConversationsView.getLastVisiblePosition());
-				}
-				else if (loaderId == SEARCH_PREVIOUS || loaderId == SEARCH_LOOP)
-				{
-					position = messageSearchManager.getPrevItem(chatThread.get().mConversationsView.getFirstVisiblePosition());
+					long maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
+					long minId = -1;
+					ArrayList<Long> ids = new ArrayList<Long>();
+					//position = messageSearchManager.searchFirstItem(chatThread.get().messages, firstVisisbleItem - 1, 0, chatThread.get().searchText);
 					while (position < 0)
 					{
-						Logger.d("search","fetching messgaes: " + loadMessageCount);
-						List<ConvMessage> msgList = chatThread.get().loadMoreMessages(loadMessageCount);
-						if (msgList == null || msgList.isEmpty())
+						Logger.d("gaurav", "loadmoremessages for search: " + loadMessageCount + " " + maxId + " " + minId);
+						msgList = new ArrayList<>(chatThread.get().loadMoreMessages(loadMessageCount, maxId, minId));
+						if (msgList == null || msgList.isEmpty() || !messageSearchManager.isActive())
 						{
 							break;
 						}
-						
-						// Messages are to be added on UI thread.
-						chatThread.get().sendUIMessage(ADD_MORE_MSG, msgList);
-						try
+						position = messageSearchManager.searchFirstItem(msgList, msgList.size(), 0, chatThread.get().searchText);
+						ids.addAll(0, MovingList.getIds(msgList));
+						if (position > 0)
 						{
-							// Waiting till the time messages are added. Maximum wait time is 2 seconds.
-							synchronized (MessageFinder.class)
+							int start = Math.max(position - 20, 0);
+							int end = Math.min(position + 20, msgList.size()-1);
+							ArrayList<ConvMessage> toBeAddedList = new ArrayList<ConvMessage>(ids.size());
+							Utils.preFillArrayList(toBeAddedList, ids.size());
+							for (int i = start; i <= end; i++)
 							{
-								MessageFinder.class.wait(ADD_MSG_TIME);
+								toBeAddedList.set(i, msgList.get(i));
 							}
+							MovingList<ConvMessage> movingList = new MovingList<ConvMessage>(toBeAddedList, ids, chatThread.get().mOnItemsFinishedListener);
+							movingList.setLoadBufferSize(20);
+							chatThread.get().sendUIMessage(chatThread.get().UPDATE_MESSAGE_LIST,new Pair<>(movingList, firstVisisbleItem));
 						}
-						catch (InterruptedException e)
+						else
 						{
-							e.printStackTrace();
+							//No need to load more than 3200 messaging in one go.
+							if (loadMessageCount < 3200)
+							{
+								loadMessageCount *= 2;
+							}
+							maxId = msgList.get(0).getMsgID();
 						}
-						//No need to load more than 3200 messaging in one go.
-						if (loadMessageCount < 3200)
-						{
-							loadMessageCount *= 2;
-						}
-						position = messageSearchManager.getPrevItem(msgList.size());
 					}
 					if (loaderId == SEARCH_LOOP && position < 0)
 					{
-						position = messageSearchManager.getNextItem(chatThread.get().mConversationsView.getFirstVisiblePosition(), chatThread.get().mConversationsView.getLastVisiblePosition());
+						Logger.d("gaurav","shifting to next");
+						loaderId = SEARCH_NEXT;
 					}
 				}
+				if (loaderId == SEARCH_NEXT)
+				{
+					long minId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
+					if (firstVisisbleItem + loadMessageCount >= chatThread.get().messages.size())
+						loadMessageCount = chatThread.get().messages.size() - firstVisisbleItem - 1;
+					long maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem + loadMessageCount);
+					int count = 0;
+					int msgSize = chatThread.get().messages.size();
+					while (position < 0)
+					{
+						Logger.d("gaurav", "loadmoremessages for search: " + loadMessageCount + " " + maxId + " " + minId);
+						msgList = new ArrayList<>(chatThread.get().loadMoreMessages(loadMessageCount, maxId, minId));
+						if (msgList == null || msgList.isEmpty() || !messageSearchManager.isActive())
+						{
+							break;
+						}
+						position = messageSearchManager.searchFirstItem(msgList, 0, msgList.size(), chatThread.get().searchText);
+						if (position > 0)
+						{
+							count += position;
+							position = count;
+						}
+						else
+						{
+							count += msgList.size(); 
+							//No need to load more than 3200 messaging in one go.
+							if (loadMessageCount < 3200)
+							{
+								loadMessageCount *= 2;
+							}
+							minId = msgList.get(msgList.size() - 1).getMsgID();
+							if (firstVisisbleItem + loadMessageCount >= msgSize)
+								loadMessageCount = msgSize - firstVisisbleItem - 1;
+							maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem + loadMessageCount);
+						}
+					}
+				}
+				msgList = null;
 			}
 			taskComplete = true;
+			Logger.d("gaurav","found at position: " + position);
 			return position;
 		}
 
@@ -2829,6 +3035,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			loadingMoreMessages = true;
 			Logger.d(TAG, "Calling load more messages : ");
 			loadMessage(true);
+		}
+		else if (!loadingMoreMessages)
+		{
+			int lastVisibleItem = firstVisibleItem + visibleItemCount - 1;
+			if (messages.getRaw(Math.min(lastVisibleItem + HikeConstants.MIN_INDEX_TO_LOAD_MORE_MESSAGES, messages.size()-1)) == null)
+			{
+				loadingMoreMessages = true;
+				initializeMessages(true, false);
+			}
+			else if (messages.getRaw(Math.max(firstVisibleItem - HikeConstants.MIN_INDEX_TO_LOAD_MORE_MESSAGES, 0)) == null)
+			{
+				loadingMoreMessages = true;
+				initializeMessages(true, true);
+			}
 		}
 
 		showOverflowIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
@@ -5122,7 +5342,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		uiHandler.sendEmptyMessage(SCROLL_TO_END);
 	}
 	
-	private void scrollToPosition(int position)
+	private void scrollToPosition(int position, int offSet)
 	{
 		int LAST_FEW_MESSAGES = 4;
 		// SetSelection doesnt work for last few items.
@@ -5133,7 +5353,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			 * Scrolling to bottom.
 			 */
 			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-			mConversationsView.setSelection(position);
+			mConversationsView.setSelectionFromTop(position, offSet);
 
 			/*
 			 * Resetting the transcript mode once the list has scrolled to the bottom.
@@ -5142,7 +5362,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
-			mConversationsView.setSelection(position);
+			mConversationsView.setSelectionFromTop(position,offSet);
 		}
 	}
 	
