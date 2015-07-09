@@ -652,6 +652,7 @@ public abstract class JavascriptBridge
 		{
 			jsonObj.put(HikeConstants.MSISDN, msisdn);
 			jsonObj.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			jsonObj.put(HikePlatformConstants.PLATFORM_TOKEN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null));
 			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
 		}
 		catch (JSONException e)
