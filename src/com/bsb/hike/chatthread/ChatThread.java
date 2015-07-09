@@ -771,7 +771,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.CAMERA:
 			if(!Utils.isPhotosEditEnabled())
 			{
-				ImageParser.parseResult(activity, resultCode, data, this);
+				ImageParser.parseResult(activity, resultCode, data, this,true);
 			}
 			else
 			{
@@ -809,7 +809,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.EDITOR:
 			if(resultCode == Activity.RESULT_OK)
 			{
-				ImageParser.parseResult(activity, resultCode, data, this);
+				ImageParser.parseResult(activity, resultCode, data, this,true);
 			}
 			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
 			{
