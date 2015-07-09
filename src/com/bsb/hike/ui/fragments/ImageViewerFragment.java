@@ -1,8 +1,14 @@
 package com.bsb.hike.ui.fragments;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Message;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,13 +25,19 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
+import com.bsb.hike.utils.HikeUiHandler;
+import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
-public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener
+public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener, IHandlerCallback, HeadLessImageWorkerFragment.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -50,6 +62,58 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	private String[] profilePicPubSubListeners = { HikePubSub.ICON_CHANGED};
 	
 	private boolean isViewEditable = false;
+	
+	private HeadLessImageWorkerFragment mImageWorkerFragment;
+	
+	private boolean hasCustomImage;
+	
+	private HikeUiHandler hikeUiHandler;
+	
+	private Runnable failedRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d("dp_download", "inside ImageViewerFragment, onFailed Recv");
+				dismissProgressDialog();
+				removeHeadLessFragment();
+			}
+		}
+	};
+	
+	private Runnable cancelledRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d("dp_download", "inside ImageViewerFragment, onCancelled Recv");
+				dismissProgressDialog();
+				removeHeadLessFragment();
+			}
+		}
+	};
+	
+	private Runnable successRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d("dp_download", "inside ImageViewerFragment, onSucecess Recv");
+				dismissProgressDialog();
+				loadFromFile();
+				removeHeadLessFragment();
+			}
+		}
+	};
 
 	/**
 	 * Default constructor
@@ -85,6 +149,8 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
 		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
+		
+		hikeUiHandler = new HikeUiHandler(this);
 						
 		showImage();
 	}
@@ -102,7 +168,10 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 				key = new String(key.substring(0, idx));
 			}
 		}
-		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize, isStatusImage);
+		
+		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(key);
+		
+		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize, isStatusImage, true);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
 
 			@Override
@@ -121,9 +190,15 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 
 			@Override
 			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
-				mDialog = ProgressDialog.show(getActivity(), null, getResources().getString(R.string.downloading_image));
-				mDialog.setCancelable(true);
+				showProgressDialog();
 				return null;
+			}
+
+			@Override
+			public void startDownloading()
+			{
+				showProgressDialog();
+				loadHeadLessImageDownloadingFragment();
 			}
 		});
 		profileImageLoader.loadProfileImage(getLoaderManager());
@@ -202,6 +277,12 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		}
 	}
 
+	private void showProgressDialog()
+	{
+		mDialog = ProgressDialog.show(getActivity(), null, getResources().getString(R.string.downloading_image));
+		mDialog.setCancelable(true);
+	}
+	
 	@Override
 	public void onClick(View v)
 	{
@@ -249,4 +330,95 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			}
 		}		
 	}	
+	
+	public void onProgressUpdate(float percent)
+	{
+		
+	}
+
+	public void onCancelled()
+	{
+		hikeUiHandler.post(cancelledRunnable);
+	}
+
+	public void onSuccess(Response result)
+	{
+		hikeUiHandler.post(successRunnable);
+	}
+
+	public void onFailed()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, key);
+		hikeUiHandler.post(failedRunnable);
+	}
+
+	//TODO API Duplicated, As currently used in loader as well will be removed
+	//When loader will be removed from Voip as well
+	private void loadFromFile() 
+	{
+		Logger.d("dp_download", "inside ImageViewerFragment, loadFromFile Recv, "+ Thread.currentThread().getName());
+		Logger.e("dp_test", "============ loadFromFile ============");
+		String fileName = Utils.getProfileImageFileName(key);
+
+		String basePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		
+		File file = new File(basePath, fileName);
+
+		BitmapDrawable drawable = null;
+		if (file.exists() && isAdded())
+		{
+			Logger.d(getClass().getSimpleName(),"setting final downloaded image...");
+			drawable = HikeBitmapFactory.getBitmapDrawable(getActivity().getResources(),
+					HikeBitmapFactory.scaleDownBitmap(basePath + "/" + fileName, imageSize, imageSize, Bitmap.Config.RGB_565,true,false));
+			imageView.setImageDrawable(drawable);
+			
+			Logger.d(getClass().getSimpleName(), "Putting in cache mappedId : " + mappedId);
+			/*
+			 * Putting downloaded image bitmap in cache.
+			 */
+			if (drawable != null)
+			{
+				HikeMessengerApp.getLruCache().putInCache(mappedId, drawable);
+			}
+		}
+	}
+	
+	public void loadHeadLessImageDownloadingFragment()
+	{
+		Logger.d("dp_download", "isnide API loadHeadLessImageDownloadingFragment");
+		FragmentManager fm = getFragmentManager();
+		mImageWorkerFragment = (HeadLessImageDownLoaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESSIMAGE_FRAGMENT);
+
+	    // If the Fragment is non-null, then it is currently being
+	    // retained across a configuration change.
+	    if (mImageWorkerFragment == null) 
+	    {
+	    	Logger.d("dp_download", "starting new mImageLoaderFragment");
+	    	String fileName = Utils.getProfileImageFileName(key);
+	    	mImageWorkerFragment = HeadLessImageDownLoaderFragment.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
+	    	mImageWorkerFragment.setTaskCallbacks(this);
+	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESSIMAGE_FRAGMENT).commit();
+	    }
+	    else
+	    {
+	    	Logger.d("dp_download", "As mImageLoaderFragment already there, so not starting new one");
+	    }
+
+	}
+	
+	private void removeHeadLessFragment()
+	{
+		Logger.d("dp_download", "inside ImageViewerFragment, removing UILessFragment");
+		if(getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESSIMAGE_FRAGMENT) != null)
+		{
+			mImageWorkerFragment = (HeadLessImageDownLoaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESSIMAGE_FRAGMENT);
+			getFragmentManager().beginTransaction().remove(mImageWorkerFragment).commit();
+		}
+	}
+
+	@Override
+	public void handleUIMessage(Message msg)
+	{
+		
+	}
 }
