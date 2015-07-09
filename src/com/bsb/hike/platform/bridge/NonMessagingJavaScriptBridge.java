@@ -543,7 +543,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-	 * Platform Version 2 called by the special packet sent in the bot to delete the conversation of the particular bot
+	 * Platform Version 2
+	 * called by the special packet sent in the bot to delete the conversation of the particular bot
 	 */
 	@JavascriptInterface
 	public void deleteBotConversation()
@@ -593,6 +594,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Version 3
 	 * call this method to change the title of the action bar for the bot.
 	 * @param title : the title on the action bar.
 	 */
@@ -602,6 +604,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (!TextUtils.isEmpty(title))
 		{
 			sendMessageToUiThread(CHANGE_ACTION_BAR_TITLE, title);
+		}
+	}
+
+	/**
+	 * Platform Version 3
+	 * call this method to reset the title of the action bar for the bot to the original title sent by server.
+	 */
+	@JavascriptInterface
+	public void resetBotTitle()
+	{
+		if (!TextUtils.isEmpty(mBotInfo.getConversationName()))
+		{
+			sendMessageToUiThread(CHANGE_ACTION_BAR_TITLE, mBotInfo.getConversationName());
 		}
 	}
 
