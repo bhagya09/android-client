@@ -25,6 +25,7 @@ import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
+import com.hike.transporter.DefaultRetryPolicy;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.interfaces.IConnectionListener;
@@ -318,7 +319,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		transporterConfig = new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(true).nameSpace(namespace).build();
+		DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(4, 500, 1);
+		transporterConfig = new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).
+							sendoldPersistedMessages(true).nameSpace(namespace).setRetryPolicy(retryPolicy).build();
 	}
 
 	public void removeMessage(int msg)
@@ -615,13 +618,15 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
+			// this function uses offline state == connected.
+			// so changing OfflineState after calling this.
+			sendDisconnectToListeners();
+			setOfflineState(OFFLINE_STATE.DISCONNECTED);
+			
 			Transporter.getInstance().shutDown();
 			Logger.d(TAG, "going to disconnect");
 			Transporter.getInstance().shutDown();
 			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
-			sendDisconnectToListeners();
-			
-			setOfflineState(OFFLINE_STATE.DISCONNECTED);
 
 			hikeConverter.shutDown(exception);
 			// if a sending file didn't go change from spinner to retry button

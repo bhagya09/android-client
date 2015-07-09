@@ -496,7 +496,7 @@ public class OfflineUtils
 			metadata = getMetadata(packet);
 			if (metadata != null)
 			{
-				files = metadata.getJSONArray(HikeConstants.FILES);
+				files = metadata.optJSONArray(HikeConstants.FILES);
 				if (files != null)
 				{
 					fileJSON = files.getJSONObject(0);
