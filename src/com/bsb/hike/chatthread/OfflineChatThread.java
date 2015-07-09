@@ -19,6 +19,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -140,9 +141,9 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		super.init();
 	}
 	@Override
-	public void onCreate()
+	public void onCreate(Bundle bundle)
 	{
-		super.onCreate();
+		super.onCreate(bundle);
 		checkIfSharingFiles(activity.getIntent());
 		checkIfWeNeedToConnect(activity.getIntent());
 		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
