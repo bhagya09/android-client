@@ -634,7 +634,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		audioRecordView = new AudioRecordView(activity, this);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-		mComposeView.setOnClickListener(this);
+//		mComposeView.setOnClickListener(this);
 		initShareablePopup();
 
 		initActionMode();
@@ -5867,6 +5867,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				@Override
 				public void onClick(View v)
 				{
+					if (mShareablePopupLayout.isShowing())
+					{
+						mShareablePopupLayout.dismiss();
+					}
 					InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 					imm.showSoftInput(mComposeView, InputMethodManager.SHOW_IMPLICIT);
 
@@ -5875,7 +5879,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
-
 			mCustomKeyboard.swtichToKPTKeyboard(editText, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
 		}
 
