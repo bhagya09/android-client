@@ -1134,15 +1134,26 @@ public class VoIPService extends Service {
 	}
 	
 	private void startRecording() {
+		
+		if (recordingThread != null)
+			recordingThread.interrupt();
+		
 		recordingThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
+				try {
+					// Sleep for a little bit in case the AudioRecord is being initialized
+					// again. Doing it immediately will cause the AudioRecord to fail. 
+					Thread.sleep(500);
+				} catch (InterruptedException e1) {
+					return;
+				}
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				AudioRecord recorder = null;
 				
-				int audioSource = VoIPUtils.getAudioSource();
+				int audioSource = VoIPUtils.getAudioSource(speaker);
 
 				// Start recording audio from the mic
 				// Try different sample rates
@@ -1673,11 +1684,19 @@ public class VoIPService extends Service {
 
 	public void setSpeaker(boolean speaker)
 	{
+		if (this.speaker == speaker)
+			return;
+		
 		this.speaker = speaker;
 		if(audioManager!=null)
 		{
 			audioManager.setSpeakerphoneOn(speaker);
 			// Logger.d(logTag, "Speaker set to: " + speaker);
+			
+			// Restart recording because the audio source will change 
+			// depending on whether we're on speakerphone or not. 
+			// Fixes Anirban's Nexus 5 bug where his mic works only on speakerphone.
+			startRecording();
 		}
 	}
 
