@@ -1616,6 +1616,11 @@ public class HikeConstants
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 
 		public static final String ENABLE_SEND_LOGS = "ulogs_on";
+		
+		public static final String HAS_CUSTOM_ICON = "h_cus_icon";
+		
+		public static final String IS_PROFILE_PIC_DOWNLOAD = "is_profile_pic_download";
+		
 	}
 
 	public static final class LogEvent
@@ -2908,4 +2913,6 @@ public class HikeConstants
 	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
 
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	
+	public static final String TAG_HEADLESSIMAGE_FRAGMENT = "headlessimage_fragment";
 }
