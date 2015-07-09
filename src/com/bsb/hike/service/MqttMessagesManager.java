@@ -1632,7 +1632,7 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_AEC_TAIL_TYPE);
 			editor.putInt(HikeConstants.VOIP_AEC_TAIL_TYPE, val);
 		}
-		if (data.has(HikeConstants.VOIP_RELAY_IPS))
+		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
 		{
 			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
 			Set<String> ips = new HashSet<>();
@@ -2101,12 +2101,21 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
 		}
 
-		if (data.has(HikeConstants.GROUP_NOTIFIACTION_DELAY))
+		if (data.has(HikeConstants.NOTIFIACTION_DELAY_GROUP))
 		{
-			int groupNotificationDelay = data.getInt(HikeConstants.GROUP_NOTIFIACTION_DELAY);
+			int groupNotificationDelay = data.getInt(HikeConstants.NOTIFIACTION_DELAY_GROUP);
 			if (groupNotificationDelay>=0)
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.GROUP_NOTIFIACTION_DELAY, groupNotificationDelay);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFIACTION_DELAY_GROUP, groupNotificationDelay);
+			}
+		}
+
+		if (data.has(HikeConstants.NOTIFIACTION_DELAY_ONE_TO_ONE))
+		{
+			int oneToOneNotificationDelay = data.getInt(HikeConstants.NOTIFIACTION_DELAY_ONE_TO_ONE);
+			if (oneToOneNotificationDelay>=0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFIACTION_DELAY_ONE_TO_ONE, oneToOneNotificationDelay);
 			}
 		}
 		

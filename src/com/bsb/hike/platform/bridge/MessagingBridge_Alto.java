@@ -514,10 +514,10 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 			final Intent intent = Utils.getHomeActivityIntent(context);
 			mHandler.post(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
+					context.finish();
 					context.startActivity(intent);
 				}
 			});
