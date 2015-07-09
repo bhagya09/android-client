@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -270,5 +269,4 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		intent.putExtras(arguments);
 		startActivity(intent);
 	}
-
 }

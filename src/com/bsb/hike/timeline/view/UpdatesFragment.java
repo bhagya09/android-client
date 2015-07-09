@@ -126,7 +126,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		super.onDestroy();
 	}
 
-
 	@Override
 	public void onEventReceived(String type, final Object object)
 	{
