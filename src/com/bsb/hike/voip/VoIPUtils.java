@@ -272,18 +272,11 @@ public class VoIPUtils {
 		return callActive;
 	}
 	
-	public static int getAudioSource() {
+	public static int getAudioSource(boolean speakerPhone) {
 		int source = MediaRecorder.AudioSource.MIC;
-		String model = android.os.Build.MODEL;
 		
-		if (android.os.Build.VERSION.SDK_INT >= 11)
-			source = MediaRecorder.AudioSource.MIC;
-		
-		Logger.d(tag, "Phone model: " + model);
-		
-//		if (model.contains("Nexus 5") || 
-//				model.contains("Nexus 4"))
-//			source = MediaRecorder.AudioSource.VOICE_RECOGNITION;
+		if (speakerPhone == true)
+			source = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
 		
 		return source;
 	}
