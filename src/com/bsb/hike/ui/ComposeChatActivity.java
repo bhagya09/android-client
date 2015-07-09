@@ -1357,7 +1357,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(id);
 						if (botInfo.isNonMessagingBot())
 						{
-							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);
+							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), this);
 						}
 						else
 						{
@@ -1369,12 +1369,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
 					}
 
-				}else{
+				}
+				else
+				{
 					//home activity
 					intent = Utils.getHomeActivityIntent(this);
 				}
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				forwardMessageAsPerType(presentIntent, intent,arrayList);
+				if (intent != null)
+				{
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					forwardMessageAsPerType(presentIntent, intent, arrayList);
+				}
 			}
 		}
 	}

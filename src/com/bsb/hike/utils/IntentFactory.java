@@ -3,6 +3,10 @@ package com.bsb.hike.utils;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -193,10 +197,36 @@ public class IntentFactory
 	
 	public static void openSettingHelp(Context context)
 	{
+		Intent intent = null;
+		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN);
+			if (botInfo.isNonMessagingBot())
+			{
+				intent = getNonMessagingBotIntent(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN, context);
+			}
+			else
+			{
+				intent = getSettingHelpIntent(context);
+			}
+		}
+		else
+		{
+			intent = getSettingHelpIntent(context);
+		}
+
+		if (intent != null)
+		{
+			context.startActivity(intent);
+		}
+	}
+
+	private static Intent getSettingHelpIntent(Context context)
+	{
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.help_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.help);
-		context.startActivity(intent);
+		return intent;
 	}
 
 	public static void openSettingChat(Context context)
@@ -698,14 +728,24 @@ public class IntentFactory
 		return intent;
 
 	}
-	
-	public static Intent getNonMessagingBotIntent(String msisdn, String url, String title, Context context)
+
+
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
-		Intent intent = getWebViewActivityIntent(context, url, title);
-		intent.putExtra(WebViewActivity.WEBVIEW_MODE, WebViewActivity.MICRO_APP_MODE);
-		intent.putExtra(HikeConstants.MSISDN, msisdn);
-		
-		return intent;
+		if (BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if (botInfo.isNonMessagingBot())
+			{
+				Intent intent = getWebViewActivityIntent(context, "", "");
+				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
+				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+				intent.putExtra(HikeConstants.MSISDN, msisdn);
+				return intent;
+			}
+		}
+
+		return new Intent();
 	}
 
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata)

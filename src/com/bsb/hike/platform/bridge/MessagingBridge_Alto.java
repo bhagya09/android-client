@@ -14,7 +14,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -147,7 +146,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		if(isCorrectMessage(messageId, "onLoadFinished")){
 			super.onLoadFinished(height);
-			if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_1)
+			if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO)
 			{
 				mHandler.post(new Runnable()
 				{
@@ -355,9 +354,9 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	/**
 	 * Platform Bridge Version 1
-	 * @param messageId
-	 * @param json
-	 * @param notifyScreen
+	 * @param messageId : the message id to validate whether updating helper data for proper message.
+	 * @param json : the json that you want to update the metadata with
+	 * @param notifyScreen: if true, the adapter will be notified of the change, else there will be only db update.
 	 */
 	@JavascriptInterface
 	public void updateMetadata(String messageId,String json, String notifyScreen)
@@ -365,7 +364,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		WebMetadata metadata = MessagingBotBridgeHelper.updateMetadata(Integer.parseInt(messageId), json);
 		if(metadata!=null)
 		{
-			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), metadata);
+			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), Boolean.valueOf(notifyScreen) ? 1 : 0, metadata);
 		}
 	}
 	
@@ -489,7 +488,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		case UPDATE_METDATA:
 			if(msg.arg1 == message.getMsgID())
 			{
-				this.message.webMetadata = (WebMetadata) msg.obj;
+				updateMetadata((WebMetadata) msg.obj, msg.arg2 == 1 ? "true" : "");
 			}else{
 				metadataMap.put(msg.arg1, (WebMetadata) msg.obj);
 				Logger.e(tag, "update metadata called but message id is different, called with "+msg.arg1 + " and current is "+message.getMsgID());
@@ -509,17 +508,20 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
 		final Activity context = weakActivity.get();
-		ConversationsAdapter.removeBotMsisdn = message.getMsisdn();
-		final Intent intent = Utils.getHomeActivityIntent(context);
-		mHandler.post(new Runnable()
+		if (context != null)
 		{
-
-			@Override
-			public void run()
+			ConversationsAdapter.removeBotMsisdn = message.getMsisdn();
+			final Intent intent = Utils.getHomeActivityIntent(context);
+			mHandler.post(new Runnable()
 			{
-				context.startActivity(intent);
-			}
-		});
+
+				@Override
+				public void run()
+				{
+					context.startActivity(intent);
+				}
+			});
+		}
 	}
 
 }
