@@ -29,6 +29,8 @@ import com.bsb.hike.utils.Utils;
 public class ChatHeadUtils
 {
     private static final String SERVICE_LAST_USED = "lastUsed";
+    
+    private static final String TAG = "ChatHeadUtils";
 
 	private static Set<String> foregroundedPackages;
 
@@ -103,9 +105,22 @@ public class ChatHeadUtils
 		}
 		else
 		{
-			List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(1);
-			foregroundedPackages.add(runningTasks.get(0).topActivity.getPackageName());
-			
+			try
+			{
+				List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(1);
+				if(runningTasks != null && !runningTasks.isEmpty())
+				{
+					foregroundedPackages.add(runningTasks.get(0).topActivity.getPackageName());
+				}
+			}
+			catch (SecurityException se)
+			{
+				Logger.d(TAG, "SecurityException in fetching Tasks");
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG,"Exception in fetching tasks");
+			}
 		}
 
 		return foregroundedPackages;
