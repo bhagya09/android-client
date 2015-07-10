@@ -2,7 +2,6 @@ package com.bsb.hike.tasks;
 
 import java.io.File;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -14,7 +13,7 @@ import com.bsb.hike.utils.Utils;
 /**
  * This class Downloads Image from url into file with 
  * FileName :- {@value fileName} 
- * Directory:- HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+ * Directory:- {@value filePath}
  * 
  * Note: if url is null --> creates URL on basis of hasCustomIcon, statusImage
  *
@@ -35,16 +34,16 @@ public class DownloadProfileImageTask
 	
 	private DownloadProfileImageTaskCallbacks downloadProfileImageTaskCallbacks;
 
-	public DownloadProfileImageTask(String id, String fileName, boolean hasCustomIcon, boolean statusImage)
+	public DownloadProfileImageTask(String id, String filePath, String fileName, boolean hasCustomIcon, boolean statusImage)
 	{
-		this(id, fileName, hasCustomIcon, statusImage, null);
+		this(id, filePath, fileName, hasCustomIcon, statusImage, null);
 	}
 
-	public DownloadProfileImageTask(String id, String fileName, boolean hasCustomIcon, boolean statusImage, String url)
+	public DownloadProfileImageTask(String id, String filePath, String fileName, boolean hasCustomIcon, boolean statusImage, String url)
 	{
 		this.id = id;
 		this.statusImage = statusImage;
-		this.filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		this.filePath = filePath;
 		this.fileName = fileName;
 		this.hasCustomIcon = hasCustomIcon;
 		this.urlString = url;
@@ -58,6 +57,11 @@ public class DownloadProfileImageTask
 			if (!dir.mkdirs())
 			{
 				doOnFailure();
+				
+				if (downloadProfileImageTaskCallbacks != null)
+				{
+					downloadProfileImageTaskCallbacks.onRequestCancelled();
+				}
 				return;
 			}
 		}

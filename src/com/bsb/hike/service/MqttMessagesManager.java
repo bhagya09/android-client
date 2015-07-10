@@ -84,7 +84,7 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.fragments.HeadLessImageDownLoaderFragment;
+import com.bsb.hike.ui.fragments.HeadLessImageDownloaderFragment;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChatTheme;
@@ -3415,7 +3415,7 @@ public class MqttMessagesManager
 		}
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		HeadLessImageDownLoaderFragment downLoaderFragment = HeadLessImageDownLoaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+		HeadLessImageDownloaderFragment downLoaderFragment = HeadLessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
 				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true);
 		downLoaderFragment.startLoadingTask();
 	}
@@ -3429,14 +3429,14 @@ public class MqttMessagesManager
 		}
 		
 		String fileName = Utils.getProfileImageFileName(id);
-		HeadLessImageDownLoaderFragment downLoaderFragment = HeadLessImageDownLoaderFragment.newInstance(id, fileName, false, true, null, null, null, true);
+		HeadLessImageDownloaderFragment downLoaderFragment = HeadLessImageDownloaderFragment.newInstance(id, fileName, false, true, null, null, null, true);
 		downLoaderFragment.startLoadingTask();
 	}
 
 	private void autoDownloadProtipImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		HeadLessImageDownLoaderFragment downLoaderFragment = HeadLessImageDownLoaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+		HeadLessImageDownloaderFragment downLoaderFragment = HeadLessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
 				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL(), true);
 		downLoaderFragment.startLoadingTask();
 	}

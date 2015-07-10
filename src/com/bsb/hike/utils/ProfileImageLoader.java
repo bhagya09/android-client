@@ -164,7 +164,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		return hasCustomImage;
 	}
 
-	private void loadFromFile() 
+	public void loadFromFile() 
 	{
 		String fileName = Utils.getProfileImageFileName(msisdn);
 
