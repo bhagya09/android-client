@@ -515,6 +515,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 	
 	public static final String STICKER_RECOMMEND_SCROLL_FTUE_COUNT = "stickerRecommendScrollFtueCount";
+	
+	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
+	
+	public static final String REBALANCING_TIME = "rebalancingTime";
 
 	//private static Twitter twitter;
 

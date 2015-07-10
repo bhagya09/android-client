@@ -25,6 +25,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
+import com.bsb.hike.modules.stickersearch.ui.colorspan.ColorSpanPool;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -54,7 +55,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private Fragment fragment ;
 	
 	private int count;
-
+	
+	private ColorSpanPool colorSpanPool;
+	
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
 		this.activity = activity;
@@ -62,10 +65,11 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.color = color;
 		this.chatthread = chathread;
 		this.stickerPickerListener = (StickerPickerListener) chathread;
+		colorSpanPool = new ColorSpanPool(color, Color.BLACK);
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
-
+	
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after)
 	{
@@ -77,6 +81,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.i(TAG, "onTextChanged(), " + "CharSequence: " + s + ", [start: " + start + ", before : " + before + ", count : " + count + "]");
 		StickerSearchManager.getInstance().onTextChanged(s, start, before, count);
+		colorSpanPool.unMarkAll();
 	}
 
 	@Override
@@ -90,14 +95,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void highlightText(int start, int end)
 	{
 		Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
-		editable.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			
 	}
 
 	@Override
 	public void unHighlightText(int start, int end)
 	{
 		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
-		editable.setSpan(new ForegroundColorSpan(Color.BLACK), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
 
 	@Override
@@ -267,6 +273,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
 		fragment = null;
+		
+		colorSpanPool.releaseResources();
+		colorSpanPool = null;
 	}
 
 	/**

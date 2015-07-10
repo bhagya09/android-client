@@ -3493,8 +3493,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);
-		
-		dismissStickerRecommendationPopup();
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
 	}
@@ -3560,6 +3558,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onStop()
 	{
 		dismissShareablePopup();
+		dismissStickerRecommendationPopup();
 		saveDraft();
 	}
 	
