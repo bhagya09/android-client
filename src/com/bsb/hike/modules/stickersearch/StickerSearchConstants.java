@@ -11,4 +11,6 @@ public class StickerSearchConstants
 	public static final int STICKER_DATA_FIRST_SETUP = 0;
 
 	public static final int STICKER_DATA_UPDATE_TRIAL = 1;
+	
+	public static final int REBALACING_DEFAULT_TIME = 4; //4 am
 }
