@@ -378,8 +378,8 @@ public enum StickerSearchDataController
 								}
 							}
 
-							int numberOfElements = tempElements.size();
-							if (numberOfElements > 0)
+							stickerDataCount = tempElements.size();
+							if (stickerDataCount > 0)
 							{
 								isTagDataEmpty = false;
 
