@@ -3,16 +3,22 @@ package com.bsb.hike.platform;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxHandler;
@@ -25,11 +31,16 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.util.Base64;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -69,6 +80,25 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
 		super.onPostCreate(savedInstanceState, persistentState);
 		Logger.d(TAG, "onPostCreate()");
+	}
+
+	private String getAppSignature() {
+		try {
+			Logger.d(TAG, "Getting keyHash");
+			PackageInfo info = getPackageManager().getPackageInfo("com.bsb.hike", PackageManager.GET_SIGNATURES);
+			for (Signature signature : info.signatures) {
+				MessageDigest md = MessageDigest.getInstance("SHA");
+				md.update(signature.toByteArray());
+				// Logger.d(TAG, "KeyHash : " +
+				// Base64.encodeToString(md.digest(), Base64.DEFAULT));
+				return Base64.encodeToString(md.digest(), Base64.DEFAULT);
+			}
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override
@@ -189,7 +219,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 		protected void onPreExecute() {
 			super.onPreExecute();
 			pdia = new ProgressDialog(CocosGamingActivity.this);
-			if(!new File(getFileBasePath(context)+"libcocos2d.so").exists()) {
+			if (!new File(getFileBasePath(context) + "libcocos2d.so").exists()) {
 				isEngineDownload = true;
 			}
 			if (!new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so").exists()) {
@@ -230,8 +260,9 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 			try {
 				Logger.d(TAG, "DownloadGameTask::doInBackground()");
 				// Check if app is stored locally or not
-				if(isEngineDownload) {
-					if (!downloadFromUrl("https://s3-ap-southeast-1.amazonaws.com/games-assets/MicroApps/cocosHike/cocos_3_6.zip", getFileBasePath(CocosGamingActivity.this) + "libcocosengine" + ".zip")) {
+				if (isEngineDownload) {
+					if (!downloadFromUrl("https://s3-ap-southeast-1.amazonaws.com/games-assets/MicroApps/cocosHike/cocos_3_6.zip",
+							getFileBasePath(CocosGamingActivity.this) + "libcocosengine" + ".zip")) {
 						Logger.d(TAG, "Download failed");
 						return false;
 					}
@@ -239,7 +270,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 						Logger.d(TAG, "Unpacking Zip file failed");
 						return false;
 					}
-					File zipFile = new File(getFileBasePath(context)+"libcocosengine"+".zip");
+					File zipFile = new File(getFileBasePath(context) + "libcocosengine" + ".zip");
 					zipFile.delete();
 				}
 				if (isDownload) {
@@ -251,8 +282,14 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 						Logger.d(TAG, "Unpacking Zip file failed");
 						return false;
 					}
-					File zipFile = new File(getFileBasePath(context)+appName+".zip");
+					if (!decryptSoFile(getFileBasePath(CocosGamingActivity.this) + appName + "/libcocos2dcpp.so.aes")) {
+						Logger.d(TAG, "Decrypting file failed");
+						return false;
+					}
+					File zipFile = new File(getFileBasePath(context) + appName + ".zip");
 					zipFile.delete();
+					File encryptedFile = new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so.aes");
+					encryptedFile.delete();
 				}
 				return true;
 			} catch (Exception e) {
@@ -276,10 +313,11 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 			try {
 				CocosPlayClient.init(CocosGamingActivity.this, false);
 				Logger.d(TAG, "onPostExecute() 1");
-				
-				System.load(getFileBasePath(context) + "/libcocos2d.so"); // loading cocos engine
-				System.load(getFileBasePath(context) + appName + "/libcocos2dcpp.so"); // loading game 
-				
+				// loading cocos engine
+				System.load(getFileBasePath(context) + "/libcocos2d.so");
+				// loading game
+				System.load(getFileBasePath(context) + appName + "/libcocos2dcpp.so");
+
 				CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
 				Logger.d(TAG, "onPostExecute() 2");
 				Cocos2dxHelper.init(CocosGamingActivity.this);
@@ -362,7 +400,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				// closing streams
 				output.close();
 				input.close();
-				Logger.d(TAG, "Time taken to download" + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
+				Logger.d(TAG, "Time to decrypt file : " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
 				return true;
 			} catch (IOException e) {
 				Logger.d(TAG, "Error: " + e);
@@ -374,9 +412,50 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 			return new File(context.getFilesDir().getAbsolutePath()).getFreeSpace();
 		}
 
+		public byte[] readFile(File file) {
+			byte[] contents = null;
+			int size = (int) file.length();
+			contents = new byte[size];
+			try {
+				BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+				try {
+					buf.read(contents);
+					buf.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			return contents;
+		}
+
+		private boolean decryptSoFile(String path) {
+			try {
+				long startTime = System.currentTimeMillis();
+				Cipher cipher = Cipher.getInstance("AES");
+				Logger.d(TAG, "appSignature : " + getAppSignature().substring(0, 16));
+				SecretKeySpec sks = new SecretKeySpec(getAppSignature().substring(0, 16).getBytes(), "AES");
+				cipher.init(Cipher.DECRYPT_MODE, sks);
+				byte[] encrypted = readFile(new File(path));
+				Logger.d(TAG, "encrypted byte size : " + encrypted.length);
+				byte[] decrypted = cipher.doFinal(encrypted);
+				Logger.d(TAG, "decrypted byte size : " + decrypted.length);
+				FileOutputStream fos = new FileOutputStream(getFileBasePath(CocosGamingActivity.this) + appName + "/libcocos2dcpp.so");
+				fos.write(decrypted);
+				fos.close();
+				Logger.d(TAG, "Time to decrypt file : " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
+				return true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return false;
+		}
+
 		private boolean unpackZip(String path, String zipname) {
 			InputStream is;
 			ZipInputStream zis;
+			long startTime = System.currentTimeMillis();
 			try {
 				String filename;
 				is = new FileInputStream(path + zipname);
@@ -386,8 +465,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				int count;
 				while ((ze = zis.getNextEntry()) != null) {
 					filename = ze.getName();
-					// Need to create directories if not exists, or
-					// it will generate an Exception...
+					// Need to create directories if not exists, or it will
+					// generate an Exception...
 					if (ze.isDirectory()) {
 						File fmd = new File(path + "/" + filename);
 						fmd.mkdirs();
@@ -405,6 +484,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				e.printStackTrace();
 				return false;
 			}
+			Logger.d(TAG, "Time to unpack zip file : " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
 			return true;
 		}
 
