@@ -6,7 +6,6 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
-import java.io.ObjectInputStream.GetField;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -78,23 +77,23 @@ public class StickerSearchUtility
 
 		float time = hourOfDay + (((float) minuteOfHour) / 100) + (((float) secondOfMinute) / 10000) + (((float) milliSecondOfMinute) / 10000000);
 
-		if (time >= 4.3000000 && time < 12.0000000)
+		if (time >= 4.3000000f && time < 12.0000000f)
 		{
 			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.MORNING;
 		}
-		else if (time >= 12.0000000 && time < 12.3000000)
+		else if (time >= 12.0000000f && time < 12.3000000f)
 		{
 			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NOON;
 		}
-		else if (time >= 12.3000000 && time < 16.3000000)
+		else if (time >= 12.3000000f && time < 16.3000000f)
 		{
 			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.AFTER_NOON;
 		}
-		else if (time >= 16.3000000 && time < 20.0000000)
+		else if (time >= 16.3000000f && time < 20.0000000f)
 		{
 			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.EVENING;
 		}
-		else if (time >= 20.0000000 && time < 4.3000000)
+		else if (time >= 20.0000000f || time < 4.3000000f)
 		{
 			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NIGHT;
 		}
