@@ -20,16 +20,10 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -48,6 +42,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	private static final int SHOW_OVERFLOW_MENU = 112;
 	
 	private static final int OPEN_FULL_PAGE = 114;
+
+	private static final int CHANGE_ACTION_BAR_TITLE = 115;
 	
 	private BotInfo mBotInfo;
 	
@@ -499,97 +495,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
 			}
 			break;
+		case CHANGE_ACTION_BAR_TITLE:
+			if (mCallback != null)
+			{
+				String title = (String) msg.obj;
+				mCallback.changeActionBarTitle(title);
+			}
 		default:
 			super.handleUiMessage(msg);
 		}
 	}
-	
-	/**
-	 * Platform Bridge Version 1
-	 * call this function for any post call.
-	 * @param functionId : function id to call back to the js.
-	 * @param data : the stringified data that contains:
-	 *     "url": the url that will be called.
-	 *     "params": the push params to be included in the body.
-	 * Response to the js will be sent as follows:
-	 * callbackFromNative(functionId, responseJson)
-	 *    responseJson will be like this:
-	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
-	 *          Failure: "{ "status": "failure", "error_message" : error message}"
-	 *
-	 */
-	@JavascriptInterface
-	public void doPostRequest(final String functionId, String data)
-	{
-		try
-		{
-			IRequestListener requestListener = new IRequestListener()
-			{
-				@Override
-				public int hashCode()
-				{
-					return super.hashCode();
-				}
 
-				@Override
-				public void onRequestFailure(HttpException httpException)
-				{
-					Logger.e(tag, "microApp post request failed with exception " + httpException.getMessage());
-					JSONObject failure = new JSONObject();
-					try
-					{
-						failure.put(HikePlatformConstants.STATUS, HikePlatformConstants.FAILURE);
-						failure.put(HikePlatformConstants.ERROR_MESSAGE, httpException.getMessage());
-					}
-					catch (JSONException e)
-					{
-						Logger.e(tag, "Error while parsing failure request");
-						e.printStackTrace();
-					}
-					callbackToJS(functionId, String.valueOf(failure));
-				}
-
-				@Override
-				public void onRequestSuccess(Response result)
-				{
-					Logger.d(tag, "microapp post request success with code " + result.getStatusCode());
-					JSONObject success = new JSONObject();
-					try
-					{
-						success.put(HikePlatformConstants.STATUS, HikePlatformConstants.SUCCESS);
-						success.put(HikePlatformConstants.STATUS_CODE, result.getStatusCode());
-						success.put(HikePlatformConstants.RESPONSE, result.getBody().getContent());
-					}
-					catch (JSONException e)
-					{
-						Logger.e(tag, "Error while parsing success request");
-						e.printStackTrace();
-					}
-					callbackToJS(functionId, String.valueOf(success));
-				}
-
-				@Override
-				public void onRequestProgressUpdate(float progress)
-				{
-
-				}
-			};
-			JSONObject jsonObject = new JSONObject(data);
-			String url = jsonObject.optString(HikePlatformConstants.URL);
-			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
-			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), requestListener);
-			if (!token.isRequestRunning())
-			{
-				token.execute();
-			}
-		}
-		catch (JSONException e)
-		{
-			Logger.e(tag, "error in JSON");
-			e.printStackTrace();
-		}
-	}
-	
 	/**
 	 * Platform bridge Version 2
 	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
@@ -626,13 +542,29 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		sendMessageToUiThread(OPEN_FULL_PAGE, url);
 	}
 
+	/**
+	 * Platform Version 2
+	 * called by the special packet sent in the bot to delete the conversation of the particular bot
+	 */
 	@JavascriptInterface
-	public void botToBeDeleted()
+	public void deleteBotConversation()
 	{
 		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
-		Activity context = weakActivity.get();
-		ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
-		context.finish();
+		final Activity context = weakActivity.get();
+		if (context != null)
+		{
+			ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
+			final Intent intent = Utils.getHomeActivityIntent(context);
+			mHandler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					context.finish();
+					context.startActivity(intent);
+				}
+			});
+		}
 	}
 	/**
 	 * Platform Bridge Version 3
@@ -653,6 +585,40 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void deletePartialCacheData(String key)
 	{
 		HikeContentDatabase.getInstance().deletePartialMicroAppCacheData(key, mBotInfo.getNamespace());
+	}
+
+	@JavascriptInterface
+	@Override
+	public void onResize(String height)
+	{
+		//do nothing
+	}
+
+	/**
+	 * Platform Version 3
+	 * call this method to change the title of the action bar for the bot.
+	 * @param title : the title on the action bar.
+	 */
+	@JavascriptInterface
+	public void changeBotTitle(final String title)
+	{
+		if (!TextUtils.isEmpty(title))
+		{
+			sendMessageToUiThread(CHANGE_ACTION_BAR_TITLE, title);
+		}
+	}
+
+	/**
+	 * Platform Version 3
+	 * call this method to reset the title of the action bar for the bot to the original title sent by server.
+	 */
+	@JavascriptInterface
+	public void resetBotTitle()
+	{
+		if (!TextUtils.isEmpty(mBotInfo.getConversationName()))
+		{
+			sendMessageToUiThread(CHANGE_ACTION_BAR_TITLE, mBotInfo.getConversationName());
+		}
 	}
 
 }

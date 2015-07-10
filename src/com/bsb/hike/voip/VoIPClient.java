@@ -107,6 +107,8 @@ public class VoIPClient  {
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
 	private boolean isSpeaking = true;
+	private int lastPacketReceived = 0;
+	private int voicePacketCount = 1;
 	
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
@@ -757,7 +759,6 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				int voicePacketCount = 1;
 				while (keepRunning == true) {
 
 					if (Thread.interrupted()) {
@@ -1555,7 +1556,6 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				int lastPacketReceived = 0;
 				int uncompressedLength = 0;
 				while (keepRunning == true) {
 					VoIPDataPacket dpdecode;
@@ -1778,12 +1778,10 @@ public class VoIPClient  {
 	}
 	
 	private void calculateQuality() {
-		if (getCallDuration() < QUALITY_BUFFER_SIZE)
-			return;
-		
+
 		int cardinality = playbackTrackingBits.cardinality();
-		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
-		// Logger.d(logTag, "Loss: " + loss + ", cardinality: " + cardinality);
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.size()));
+//		Logger.d(tag, "Loss: " + loss + ", cardinality: " + cardinality);
 		
 		CallQuality newQuality;
 		
@@ -1796,7 +1794,7 @@ public class VoIPClient  {
 		else 
 			newQuality = CallQuality.WEAK;
 
-		if (currentCallQuality != newQuality) {
+		if (currentCallQuality != newQuality && getCallDuration() > QUALITY_BUFFER_SIZE) {
 			currentCallQuality = newQuality;
 			sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
 		}

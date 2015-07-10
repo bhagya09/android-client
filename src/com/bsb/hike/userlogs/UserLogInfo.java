@@ -690,7 +690,10 @@ public class UserLogInfo {
 			List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
 			componentInfo = taskInfo.get(0).topActivity;
 		}
-		hikeStickerActivityForegrounded = componentInfo.getClassName().equals(ChatHeadActivity.class.getName());
+		if(componentInfo != null)
+		{
+			hikeStickerActivityForegrounded = componentInfo.getClassName().equals(ChatHeadActivity.class.getName());
+		}
 	}
 	
 }

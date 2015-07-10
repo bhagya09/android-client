@@ -41,7 +41,11 @@ import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.MessagingBotConfiguration;
+import com.bsb.hike.bots.MessagingBotMetadata;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -189,40 +193,119 @@ public class ConversationsAdapter extends BaseAdapter
 		notifyDataSetChanged();
 	}
 	
-	private Animation getAnimation(ConvInfo convInfo)
-	{  
+	private void startSlideOutAnimation(final Animation botAnimation,final View v)
+	{       
+		botAnimation.setDuration(500);
+		v.postDelayed(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				v.startAnimation(botAnimation);
+			}
+		}, 50);
+
+	}
+
+	private void performAnimation(ConvInfo convInfo, final View v)
+	{
 		Animation animation = null;
 		if (removeBotMsisdn != null && removeBotMsisdn.equals(convInfo.getMsisdn()))
 		{
-			if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
-			{   
-				animation = getSlideOutAnimation(convInfo);
-				animation.setDuration(500);
+			if (!isSearchModeOn)
+			{
+				if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
+				{
+					animation = getSlideOutAnimation(convInfo);
+					startSlideOutAnimation(animation, v);
+				}
+				else
+				{
+					removeConversation(convInfo);
+				}
+				removeBotMsisdn = null;
 			}
 			else
 			{
-				removeConversation(convInfo);
+				setAnimationBit(convInfo, true);
 			}
-			removeBotMsisdn = null;
 		}
 		else
 		{
-			switch (BotUtils.getBotAnimaionType(convInfo))
+			if (!isSearchModeOn)
 			{
-			case BotUtils.BOT_SLIDE_IN_ANIMATION:
-				animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_from_left);
-				animation.setStartOffset(botAnimationStartTime*250);
-				animation.setDuration(400);
-				botAnimationStartTime++;
-				break;
-			case BotUtils.BOT_READ_SLIDE_OUT_ANIMATION:
-				animation = getSlideOutAnimation(convInfo);
-				animation.setDuration(500);
-				break;
+				switch (BotUtils.getBotAnimaionType(convInfo))
+				{
+				case BotUtils.BOT_SLIDE_IN_ANIMATION:
+					animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_from_left);
+					animation.setStartOffset(botAnimationStartTime * 250);
+					animation.setDuration(400);
+					botAnimationStartTime++;
+					v.startAnimation(animation);
+					break;
+				case BotUtils.BOT_READ_SLIDE_OUT_ANIMATION:
+					animation = getSlideOutAnimation(convInfo);
+					startSlideOutAnimation(animation, v);
+					break;
+				}
+			}
+			else
+			{
+				setAnimationBit(convInfo, false);
 			}
 
 		}
-		return animation;
+	}
+
+	private void setAnimationBit(ConvInfo convInfo, boolean isSlideOut)
+	{
+		if (BotUtils.isBot(convInfo.getMsisdn()))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
+
+			if (botInfo.isMessagingBot())
+			{
+				setMessagingBotAnimation(botInfo, isSlideOut);
+			}
+			else
+			{
+			    setNonMessagingBotAnimation(botInfo, isSlideOut);
+			}
+		}
+	}
+
+	private void setMessagingBotAnimation(BotInfo botInfo, boolean isSlideOut)
+	{
+		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(botInfo.getMetadata());
+		MessagingBotConfiguration configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), messagingBotMetadata.isReceiveEnabled());
+		if (isSlideOut && !configuration.isReadSlideOutEnabled())
+		{
+			configuration.setBit(MessagingBotConfiguration.READ_SLIDE_OUT, true);
+			BotUtils.updateBotConfiguration(botInfo, botInfo.getMsisdn(), configuration.getConfig());
+		}
+		else if (configuration.isSlideInEnabled())
+		{
+			configuration.setBit(MessagingBotConfiguration.SLIDE_IN, false);
+			BotUtils.updateBotConfiguration(botInfo, botInfo.getMsisdn(), configuration.getConfig());
+		}
+	}
+
+	private void setNonMessagingBotAnimation(BotInfo botInfo, boolean isSlideOut)
+	{
+		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
+		configuration.setBit(MessagingBotConfiguration.READ_SLIDE_OUT, true);
+		if (isSlideOut && !configuration.isReadSlideOutEnabled())
+		{
+			configuration.setBit(MessagingBotConfiguration.READ_SLIDE_OUT, true);
+			BotUtils.updateBotConfiguration(botInfo, botInfo.getMsisdn(), configuration.getConfig());
+
+		}
+		else if (configuration.isSlideInEnabled())
+		{
+			configuration.setBit(MessagingBotConfiguration.SLIDE_IN, false);
+			BotUtils.updateBotConfiguration(botInfo, botInfo.getMsisdn(), configuration.getConfig());
+		}
 	}
 
 	private Animation getSlideOutAnimation(final ConvInfo convInfo)
@@ -257,6 +340,12 @@ public class ConversationsAdapter extends BaseAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
+		// getLastVisiblePosition is -1 only when the getview is called for the first time and when the notify data set change is called
+		// we need to set the gap between different animation to 0
+		if(listView.getLastVisiblePosition() == -1)
+		{
+			botAnimationStartTime = 0;
+		}
 		final ConvInfo convInfo = getItem(position);
 
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
@@ -332,16 +421,8 @@ public class ConversationsAdapter extends BaseAdapter
 
 		updateViewsRelatedToMute(v, convInfo);
 
-		Animation botAnimation = getAnimation(convInfo);
-		if ( botAnimation!= null)
-		{ 
-			v.startAnimation(botAnimation);
-		}
-		if (position == (completeList.size()-1))
-		{
-			botAnimationStartTime = 0;
-		}
-		
+		performAnimation(convInfo,v);
+			
 		return v;
 	}
 
@@ -692,7 +773,6 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			viewHolder.hiddenIndicator.setVisibility(View.GONE);
 		}
-		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
 	}
 
 	public void updateViewsRelatedToMute(View parentView, ConvInfo convInfo)
@@ -876,7 +956,7 @@ public class ConversationsAdapter extends BaseAdapter
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
 		 */
-		else if (message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
+		else if (isNuxLocked || message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
 		{
 
 			if (message.isSent())
