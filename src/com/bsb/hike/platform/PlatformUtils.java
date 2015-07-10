@@ -285,7 +285,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -295,7 +295,7 @@ public class PlatformUtils
 					public void onComplete(PlatformContentModel content)
 					{
 						Logger.d(TAG, "microapp download packet success.");
-						botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+						botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
 					}
 
 					@Override
@@ -309,7 +309,7 @@ public class PlatformUtils
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
 						{
 							Logger.d(TAG, "microapp already exists");
-							botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+							botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
 						}
 						else
 						{
@@ -333,10 +333,10 @@ public class PlatformUtils
 
 	}
 
-	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
+	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme)
 	{
 		enableBot(botInfo, enableBot);
-		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
+		BotUtils.updateBotParams(botChatTheme, botInfo);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 	}
 
@@ -480,8 +480,7 @@ public class PlatformUtils
 	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
 	{
 
-
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
+		ConvMessage convMessage = new ConvMessage();
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(metadata);

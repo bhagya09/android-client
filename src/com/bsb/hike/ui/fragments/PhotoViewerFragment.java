@@ -178,8 +178,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(getArguments().containsKey(HikeConstants.FROM_CHAT_THREAD))
 			fromChatThread = getArguments().getBoolean(HikeConstants.FROM_CHAT_THREAD);
 		
-		Collections.reverse(sharedMediaItems);
-		
 		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
 		selectedPager.setAdapter(smAdapter);
 		selectedPager.setOnPageChangeListener(this);
@@ -233,7 +231,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		}
 		else
 		{
-			setSelection(sharedMediaItems.size() - initialPosition - 1); // Opened from the gallery perhaps, hence set the view pager to the required position
+			setSelection(initialPosition); // Opened from the gallery perhaps, hence set the view pager to the required position
 		}
 		
 		gallaryButton.setOnClickListener(new OnClickListener()
@@ -278,11 +276,13 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPageScrollStateChanged(int arg0)
 	{
+		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onPageScrolled(int arg0, float arg1, int arg2)
 	{
+		// TODO Auto-generated method stub
 	}
 
 	@Override

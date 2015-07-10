@@ -34,6 +34,7 @@ import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -57,6 +58,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	private String mOriginalName, mDestinationFilename;
 
 	private HikePhotosListener mListener;
+	
+	private final String TAG = PhotosEditerFrameLayoutView.class.getSimpleName();
 
 	public PhotosEditerFrameLayoutView(Context context)
 	{
@@ -170,35 +173,32 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	private void handleImage()
 	{
+		
+		Logger.d(TAG, "handleImage()");
+		
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		int width = metrics.widthPixels;
 		int height = (int) (metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight) * 1.0f / getContext().getResources().getInteger(
 				R.integer.photos_editor_weightSum));
 
+		Logger.d(TAG, "handleImage() width " + width + " height " + height);
+		
 		imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
 		if (imageScaled == null)
 		{
+			Logger.d(TAG, "handleImage() imageScaled == null");
 			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
 			IntentFactory.openHomeActivity(getContext(), true);
 			return;
 		}
 
 		effectLayer.handleImage(imageScaled, true);
-		
-		
 
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
+			Logger.d(TAG, "handleImage() making imageOriginal");
 			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
 		}
-		else if(imageOriginal.getConfig() == null)
-		{
-			//Special Case happens in case of gifs
-			Bitmap temp = imageOriginal;
-			imageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, 0, 0, true, false, false, true);
-			HikePhotosUtils.manageBitmaps(temp);
-		}
-		
 	}
 
 	public void loadImageFromBitmap(Bitmap bmp)
@@ -367,8 +367,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			out = new FileOutputStream(file);
 			imageEdited.compress(Bitmap.CompressFormat.JPEG, getOutputQuality(), out);
-			out.flush();
-			out.getFD().sync();
 		}
 		catch (Exception e)
 		{
@@ -380,6 +378,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				try
 				{
+					out.flush();
 					out.close();
 					
 					//Copy edited image
@@ -447,7 +446,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		@Override
 		public void run()
 		{
-			Utils.copyImage(srcPath, destPath, Bitmap.Config.ARGB_8888, getOutputQuality());
+			Utils.copyFile(srcPath, destPath, fileType);
 		}
 
 	}

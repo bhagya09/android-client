@@ -34,8 +34,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import com.bsb.hike.utils.Utils;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -758,7 +756,18 @@ public class ViewServer implements Runnable
 			}
 			finally
 			{
-				Utils.closeStreams(in);
+				if (in != null)
+				{
+					try
+					{
+						in.close();
+
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+					}
+				}
 				if (mClient != null)
 				{
 					try
@@ -1052,7 +1061,17 @@ public class ViewServer implements Runnable
 			}
 			finally
 			{
-				Utils.closeStreams(out);
+				if (out != null)
+				{
+					try
+					{
+						out.close();
+					}
+					catch (IOException e)
+					{
+						// Ignore
+					}
+				}
 				removeWindowListener(this);
 			}
 			return true;

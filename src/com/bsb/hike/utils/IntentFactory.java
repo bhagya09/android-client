@@ -29,7 +29,6 @@ import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -547,16 +546,6 @@ public class IntentFactory
 		intent.setType("image");
 		return intent;
 	}
-	
-	public static Intent getMultipleFileForwardIntent(Context context, ArrayList<Uri> filePaths,HikeFileType type)
-	{
-		Intent intent = new Intent(context, ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
-		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filePaths);
-		intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-		intent.setType(HikeFileType.toString(type));
-		return intent;
-	}
 
 	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String croppedOutputDestination)
 	{
@@ -583,7 +572,7 @@ public class IntentFactory
 		
 		if(croppedOutputDestination != null)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true, false));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true));
 		}
 		
 		if(destIntents.size()>0)
@@ -831,14 +820,13 @@ public class IntentFactory
 		startShareImageIntent(mimeType, imagePath, null);
 	}
 	
-	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight,boolean returnOnlyBounds)
+	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
 	{
 		/* Crop the image */
 		Intent intent = new Intent(context, CropImage.class);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
 		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.RETURN_BOUNDS, returnOnlyBounds);
 		intent.putExtra(HikeConstants.Extras.SCALE, false);
 		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);

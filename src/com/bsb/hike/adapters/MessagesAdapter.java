@@ -97,7 +97,9 @@ import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
 import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
@@ -115,7 +117,6 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
-import com.bsb.hike.view.TextDrawable;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -863,9 +864,59 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.image.setVisibility(View.GONE);
 				stickerHolder.image.setImageDrawable(null);
 
-				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
-				singleStickerDownloadTask.execute();
+				StickerDownloadManager.getInstance().DownloadSingleSticker(categoryId, stickerId, new IStickerResultListener()
+				{
 
+					@Override
+					public void onSuccess(Object result)
+					{
+						// Here we update sticker category, if we received a different category in download response.
+						// This is being done to fix a legacy bug, where catId came as "unknown"
+						
+						String newCategoryId = (String) result;
+						
+						if(TextUtils.isEmpty(newCategoryId))
+						{
+							return ;
+						}
+						
+						String oldCategoryId = convMessage.getMetadata().getSticker().getStickerId();
+						if (!oldCategoryId.equals(newCategoryId))
+						{
+							try
+							{
+								MessageMetadata newMetadata = convMessage.getMetadata();
+								newMetadata.updateSticker(newCategoryId);
+								HikeConversationsDatabase.getInstance().updateMessageMetadata(convMessage.getMsgID(), newMetadata);
+							}
+							catch (JSONException e)
+							{
+								Logger.wtf("MessagesAdapter", "Got new categoryId as " + result.toString() + " But failed to update the metadata for : " + convMessage.getMsgID());
+							}
+
+						}
+						HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, null);
+
+					}
+
+					@Override
+					public void onProgressUpdated(double percentage)
+					{
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void onFailure(Object result, StickerException exception)
+					{
+						if (result == null)
+						{
+							return;
+						}
+						String largeStickerPath = (String) result;
+						(new File(largeStickerPath)).delete();
+					}
+				});
 
 			}
 			displayBroadcastIndicator(convMessage, stickerHolder.broadcastIndicator, false);
@@ -2036,7 +2087,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 				
-				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
+				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation);
 				
 				String message = OneToNConversationUtils.getParticipantAddedMessage(convMessage, context, highlight);
 				
@@ -2697,12 +2748,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
-				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
+				else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
 				{
-					if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
-					{
-						holder.ftAction.setImageResource(playImage);
-					}
+					holder.ftAction.setImageResource(playImage);
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
@@ -2736,13 +2784,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;
 		case COMPLETED:
-			if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
+			if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
 			{
-				if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
-				{
-					holder.ftAction.setImageResource(playImage);
-				}
-
+				holder.ftAction.setImageResource(playImage);
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}

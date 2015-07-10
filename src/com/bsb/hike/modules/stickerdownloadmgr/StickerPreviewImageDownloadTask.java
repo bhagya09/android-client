@@ -1,174 +1,118 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.StickerPreviewImageDownloadRequest;
-
 import java.io.File;
 
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.STResult;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
-import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
-import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.HttpRequestType;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
+public class StickerPreviewImageDownloadTask extends BaseStickerDownloadTask
 {
-	private String TAG = "StickerPreviewImageDownloadTask";
-
-	private String categoryId;
-
-	String previewImagePath;
 	
-	private RequestToken token;
+	private Handler handler;
+	private Context context;
+	private String taskId;
+	private String catId;
 
-	public StickerPreviewImageDownloadTask(String categoryId)
+	protected StickerPreviewImageDownloadTask(Handler handler, Context ctx, String taskId, String categoryId, IStickerResultListener callback)
 	{
-		this.categoryId = categoryId;
+		super(handler, ctx, taskId , callback);
+		this.handler = handler;
+		this.taskId = taskId;
+		context = ctx;
+		this.catId = categoryId;
 	}
 
 	@Override
-	public void execute()
+	public STResult call() throws Exception
 	{
-		if (!StickerManager.getInstance().isMinimumMemoryAvailable())
+		String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(catId);
+		if (dirPath == null)
 		{
-			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
-			return;
+			setException(new StickerException(StickerException.DIRECTORY_NOT_EXISTS));
+			Logger.e(StickerDownloadManager.TAG, "Sticker download failed directory does not exist for task : " + taskId);
+			return STResult.DOWNLOAD_FAILED;
 		}
-
-		String requestId = getRequestId();
-		token = StickerPreviewImageDownloadRequest(requestId, categoryId, getRequestInterceptor(), getRequestListener());
-
-		if (token.isRequestRunning()) // duplicate check
+		
+		String previewImagePath = dirPath + StickerManager.OTHER_STICKER_ASSET_ROOT  + "/" + StickerManager.PREVIEW_IMAGE + StickerManager.OTHER_ICON_TYPE;
+		
+		try
 		{
-			return;
+			File otherDir = new File(dirPath + StickerManager.OTHER_STICKER_ASSET_ROOT);
+			if (!otherDir.exists())
+			{
+				if (!otherDir.mkdirs())
+				{
+					setException(new StickerException(StickerException.DIRECTORY_NOT_CREATED));
+					Logger.e(StickerDownloadManager.TAG, "Sticker download failed directory not created for task : " + taskId);
+					return STResult.DOWNLOAD_FAILED;
+				}
+			}
+			
+			Utils.makeNoMediaFile(otherDir);
+			
+			String urlString = AccountUtils.base + "/stickers/preview?catId=" + catId + "&resId=" + Utils.getResolutionId();
+			if(AccountUtils.ssl)
+			{
+				urlString = AccountUtils.HTTPS_STRING + AccountUtils.host + "/v1" + "/stickers/preview?catId=" + catId + "&resId=" + Utils.getResolutionId();
+			}
+			setDownloadUrl(urlString);
+			
+			Logger.d(StickerDownloadManager.TAG,  "Starting download task : " + taskId + " url : " + urlString );
+			JSONObject response = (JSONObject) download(null, HttpRequestType.GET);
+			if (response == null || !HikeConstants.OK.equals(response.getString(HikeConstants.STATUS)) || !catId.equals(response.getString(StickerManager.CATEGORY_ID)))
+			{
+				setException(new StickerException(StickerException.NULL_OR_INVALID_RESPONSE));
+				Logger.e(StickerDownloadManager.TAG, "Sticker download failed null or invalid response for task : " + taskId);
+				return STResult.DOWNLOAD_FAILED;
+			}
+			Logger.d(StickerDownloadManager.TAG,  "Got response for download task : " + taskId + " response : " + response.toString());
+			JSONObject data = response.getJSONObject(HikeConstants.DATA_2);
+
+			String stickerData = data.getString(HikeConstants.PREVIEW_IMAGE);
+			
+			HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(catId, StickerManager.PREVIEW_IMAGE_TYPE));
+			Utils.saveBase64StringToFile(new File(previewImagePath), stickerData);
+			sendSuccessBroadCast();
 		}
-		token.execute();
+		catch(StickerException e)
+		{
+			Logger.e(StickerDownloadManager.TAG, "Sticker download failed for task : " + taskId, e);
+			setException(e);
+			return STResult.DOWNLOAD_FAILED;
+		}
+		catch(Exception e)
+		{
+			Logger.e(StickerDownloadManager.TAG, "Sticker download failed for task : " + taskId, e);
+			setException(new StickerException(e));
+			return STResult.DOWNLOAD_FAILED;
+		}
+		return STResult.SUCCESS;
 	}
 	
-	@Override
-	public void cancel()
-	{
-		if (null != token)
-		{
-			token.cancel();
-		}
-	}
-
-	private String getRequestId()
-	{
-		return (StickerRequestType.PREVIEW.getLabel() + "\\" + categoryId);
-	}
-
-	private IRequestInterceptor getRequestInterceptor()
-	{
-		return new IRequestInterceptor()
-		{
-
-			@Override
-			public void intercept(Chain chain)
-			{
-				String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
-				if (dirPath == null)
-				{
-					Logger.e(TAG, "Sticker download failed directory does not exist");
-					doOnFailure(null);
-					return;
-				}
-
-				previewImagePath = dirPath + StickerManager.OTHER_STICKER_ASSET_ROOT + "/" + StickerManager.PREVIEW_IMAGE + StickerManager.OTHER_ICON_TYPE;
-
-				File otherDir = new File(dirPath + StickerManager.OTHER_STICKER_ASSET_ROOT);
-				if (!otherDir.exists())
-				{
-					if (!otherDir.mkdirs())
-					{
-						Logger.e(TAG, "Sticker download failed directory not created");
-						doOnFailure(null);
-						return;
-					}
-				}
-				Utils.makeNoMediaFile(otherDir);
-				
-				chain.proceed();
-			}
-		};
-	}
-
-	private IRequestListener getRequestListener()
-	{
-		return new IRequestListener()
-		{
-
-			@Override
-			public void onRequestSuccess(Response result)
-			{
-				try
-				{
-					JSONObject response = (JSONObject) result.getBody().getContent();
-					if (!Utils.isResponseValid(response))
-					{
-						Logger.e(TAG, "Sticker download failed null or invalid response");
-						doOnFailure(null);
-						return;
-					}
-					Logger.d(TAG, "Got response for download task " + response.toString());
-					JSONObject data = response.getJSONObject(HikeConstants.DATA_2);
-
-					if (null == data)
-					{
-						Logger.e(TAG, "Sticker download failed null data");
-						doOnFailure(null);
-						return;
-					}
-
-					String stickerData = data.getString(HikeConstants.PREVIEW_IMAGE);
-					HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PREVIEW_IMAGE_TYPE));
-					Utils.saveBase64StringToFile(new File(previewImagePath), stickerData);
-					doOnSuccess(null);
-				}
-				catch (Exception e)
-				{
-					doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
-				}
-			}
-
-			@Override
-			public void onRequestProgressUpdate(float progress)
-			{
-
-			}
-
-			@Override
-			public void onRequestFailure(HttpException httpException)
-			{
-				doOnFailure(httpException);
-			}
-		};
-	}
-
-	@Override
-	public void doOnSuccess(Object result)
+	private void sendSuccessBroadCast()
 	{
 		Intent i = new Intent(StickerManager.STICKER_PREVIEW_DOWNLOADED);
-		LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(i);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(i);
 	}
 
 	@Override
-	public void doOnFailure(HttpException e)
+	protected void postExecute(STResult result)
 	{
-		Logger.e(TAG, "on failure, exception ", e);
+		// TODO Auto-generated method stub
+		super.postExecute(result);
 	}
+
 }
