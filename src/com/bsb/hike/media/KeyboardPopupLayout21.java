@@ -13,9 +13,7 @@ import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.PopupWindow;
-import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
 import com.bsb.hike.analytics.HAManager;
@@ -56,7 +54,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
  *          
  *           
  */
-public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDismissListener
+public class KeyboardPopupLayout21 extends KeyboardPopupLayout 
 {
 	private static final int STATE_NONE = 0;// not keyboard and sticker present
 
@@ -76,7 +74,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 
 	private int countUtilKeyboardIsNotOpen = 0;// reset on every state change
 
-	private EditText mEditText;
+	private View lastClickedEditText;//hold EditText through which keyboard opened last time 
 
 	/**
 	 * 
@@ -88,19 +86,18 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 	 * @param editText
 	 *            For which keyboard working
 	 */
-	public KeyboardPopupLayout21(View mainView, int firstTimeHeight, Context context, PopupListener listener, EditText editText, OnSoftKeyboardListener onSoftKeyboardListener)
+	public KeyboardPopupLayout21(View mainView, int firstTimeHeight, Context context, PopupListener listener, OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		super(mainView, firstTimeHeight, context, listener);
 		registerOnPreDrawListener();
 		registerOnGlobalLayoutListener();
-		this.mEditText = editText;
 		setOnSoftKeyboardListener(onSoftKeyboardListener);
 	}
 
-	public KeyboardPopupLayout21(View mainView, int firstTimeHeight, Context context, int[] eatTouchEventViewIds, PopupListener listener, EditText editText,
+	public KeyboardPopupLayout21(View mainView, int firstTimeHeight, Context context, int[] eatTouchEventViewIds, PopupListener listener,
 			OnSoftKeyboardListener onSoftKeyboardListener)
 	{
-		this(mainView, firstTimeHeight, context, listener, editText, onSoftKeyboardListener);
+		this(mainView, firstTimeHeight, context, listener, onSoftKeyboardListener);
 		this.mEatTouchEventViewIds = eatTouchEventViewIds;
 	}
 
@@ -242,16 +239,6 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 	}
 
 	@Override
-	public boolean onTouch(View v, MotionEvent event)
-	{
-		if (v == mEditText)
-		{
-			return onEditTextTouch(v, event);
-		}
-		return super.onTouch(v, event);
-	}
-
-	@Override
 	public void updateListenerAndView(PopupListener listener, View view)
 	{
 		super.updateListenerAndView(listener, view);
@@ -384,7 +371,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 		return true;
 	}
 
-	private boolean onEditTextTouch(View v, MotionEvent event)
+	public boolean onEditTextTouch(View v, MotionEvent event)
 	{
 		if (event.getAction() == MotionEvent.ACTION_UP)
 		{
@@ -399,6 +386,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 				preDrawTaskFlag = false;
 				setState(STATE_NONE);
 			}
+			lastClickedEditText=v;
 		}
 		return false;
 	}
@@ -446,14 +434,12 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout implements OnDism
 
 	private void openKeyBoard()
 	{
-		View view = mEditText;
+		View view = lastClickedEditText;
 		if (view == null)
 		{
 			return;
 		}
-		InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-
+		Utils.showSoftKeyboard(view, InputMethodManager.SHOW_IMPLICIT);
 	}
 
 	private void updateInputMethodMode(int mode)
