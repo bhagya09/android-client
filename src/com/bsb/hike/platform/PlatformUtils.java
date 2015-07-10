@@ -524,6 +524,40 @@ public class PlatformUtils
 
 	}
 	
+	public static byte[] prepareFileBody(String filePath)
+	{
+		String boundary = "\r\n--" + BOUNDARY + "--\r\n";
+		File file = new File(filePath);
+		int chunkSize = (int) file.length();
+		String boundaryMessage = getBoundaryMessage(filePath);
+		byte[] fileContent = new byte[(int) file.length()];
+		FileInputStream fileInputStream = null;
+	    try
+		{
+	    	fileInputStream = new FileInputStream(file);
+			fileInputStream.read(fileContent);
+		}
+		catch (IOException | NullPointerException e)
+		{
+			e.printStackTrace();
+		}
+	    finally
+	    {
+		    try
+			{
+	    		if(fileInputStream != null)
+	    		{
+					fileInputStream.close();
+	    		}
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+	    }
+	    return setupFileBytes(boundaryMessage, boundary, chunkSize,fileContent);
+	}
+	
 	public static void uploadFile(final String filePath,final String url,final IFileUploadListener fileListener)
 	{
 		if(filePath == null)
@@ -539,33 +573,7 @@ public class PlatformUtils
 			@Override
 			public void run()
 			{
-				String boundary = "\r\n--" + BOUNDARY + "--\r\n";
-				File file = new File(filePath);
-				int chunkSize = (int) file.length();
-				String boundaryMessage = getBoundaryMessage(filePath);
-				byte[] fileContent = new byte[(int) file.length()];
-				FileInputStream fileInputStream = null;
-			    try
-				{
-			    	fileInputStream = new FileInputStream(file);
-					fileInputStream.read(fileContent);
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-			    finally
-			    {
-				    try
-					{
-						fileInputStream.close();
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-			    }
-			    byte[] fileBytes = setupFileBytes(boundaryMessage, boundary, chunkSize,fileContent);
+				byte[] fileBytes = prepareFileBody(filePath);
 				String response = send(fileBytes,filePath,url,fileListener);
 				Logger.d("FileUpload", response);
 			}
