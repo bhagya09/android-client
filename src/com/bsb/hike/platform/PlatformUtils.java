@@ -18,6 +18,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
@@ -31,6 +32,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -573,7 +575,7 @@ public class PlatformUtils
 			@Override
 			public void run()
 			{
-				byte[] fileBytes = prepareFileBody(filePath);
+			    byte[] fileBytes = prepareFileBody(filePath);
 				String response = send(fileBytes,filePath,url,fileListener);
 				Logger.d("FileUpload", response);
 			}
@@ -626,7 +628,7 @@ public class PlatformUtils
 	 */
 	private static String getBoundaryMessage(String filePath)
 	{
-		String sendingFileType = "text/plain";
+		String sendingFileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(filePath));
 		File selectedFile = new File(filePath);
 		StringBuffer res = new StringBuffer("--").append(BOUNDARY).append("\r\n");
 		String name = selectedFile.getName();

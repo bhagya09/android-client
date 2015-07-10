@@ -732,6 +732,10 @@ public abstract class JavascriptBridge
 			return;
 		}
 		String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+		if(!(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp")).exists())
+		{
+			(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp")).mkdirs();
+		}
 		final String tempFilePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp" + File.separator + (new File(filePath).getName());
 		
 		IFileUploadListener fileListener = new IFileUploadListener()
@@ -745,7 +749,7 @@ public abstract class JavascriptBridge
 				File tempFile = new File(tempFilePath);
 				if(tempFile.exists())
 				{
-					PlatformUtils.deleteDirectory(tempFilePath);
+					PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp");
 				}
 			}
 			
@@ -757,7 +761,7 @@ public abstract class JavascriptBridge
 				File tempFile = new File(tempFilePath);
 				if(tempFile.exists())
 				{
-					PlatformUtils.deleteDirectory(tempFilePath);
+					PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp");
 				}
 			}
 		};
@@ -765,6 +769,8 @@ public abstract class JavascriptBridge
 		if(fileExtension != null && MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension).contains("image") && doCompress)
 		{
 			Utils.compressAndCopyImage(filePath, tempFilePath, weakActivity.get());
+			Logger.d("FileUpload", "original size =" + (new File(filePath)).length());
+			Logger.d("FileUpload", "compressed size =" + (new File(tempFilePath)).length());
 			PlatformUtils.uploadFile(tempFilePath, url, fileListener);
 		}
 		else
