@@ -2442,18 +2442,43 @@ public class Utils
 		(new File(path, fileName)).delete();
 	}
 
-	public static boolean renameUniqueTempProfileImage(String newFileName, String tmpFilePath)
+	public static boolean renameFiles(String newFilePath, String oldFilePath)
 	{
-		Logger.d("dp_download", "inside renameUniqueTempProfileImage "+ newFileName + ", "+ tmpFilePath);
-		File tempFile = new File(tmpFilePath);
-		File newFile = new File(newFileName);
-		return tempFile.renameTo(newFile);
+		Logger.d("dp_download", "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
+		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
+		{
+			File tempFile = new File(oldFilePath);
+			File newFile = new File(newFilePath);
+			if(tempFile.exists())
+			{
+				return tempFile.renameTo(newFile);
+			}
+			return false;
+		}
+		else
+		{
+			Logger.d("dp_download", "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			return false;
+		}
 	}
 
-	public static boolean removeUniqueTempProfileImage(String tmpFilePath)
+	public static boolean removeFile(String tmpFilePath)
 	{
-		Logger.d("dp_download", "inside removeUniqueTempProfileImage "+ tmpFilePath);
-		return (new File(tmpFilePath)).delete();
+		if(!TextUtils.isEmpty(tmpFilePath))
+		{
+			Logger.d("dp_download", "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			File file = new File(tmpFilePath);
+			if(file.exists())
+			{
+				return (new File(tmpFilePath)).delete();
+			}
+			return false;
+		}
+		else
+		{
+			Logger.d("dp_download", "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			return false;
+		}
 	}
 	
 	public static void vibrateNudgeReceived(Context context)

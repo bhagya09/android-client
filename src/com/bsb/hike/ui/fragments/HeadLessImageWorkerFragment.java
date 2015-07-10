@@ -1,24 +1,44 @@
 package com.bsb.hike.ui.fragments;
 
-import java.io.File;
-
 import com.actionbarsherlock.app.SherlockFragment;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 /**
- * This is base class for any Fragment used for any Call 
- * which does File I/O on success/Failure/Cancelled
+ * This is base class for any Fragment used for any Call which does File I/O on success/Failure/Cancelled
  * 
- * It ensures that all File I/O are in in sync as concurrent Del/creating/renaming
- * Files will cause issues.So this does those operations on keeping a lock
+ * It ensures that all File I/O are in in sync as concurrent Del/creating/renaming Files will cause issues.So this does those operations on keeping a lock
  *
  */
 public class HeadLessImageWorkerFragment extends SherlockFragment
 {
+
+	static class SingletonClass
+	{
+		private static SingletonClass instance = null;
+
+		private SingletonClass()
+		{
+			// Exists only to defeat instantiation.
+		}
+
+		public static SingletonClass getInstance()
+		{
+			if (instance == null)
+			{
+				synchronized (SingletonClass.class)
+				{
+					if (instance == null)
+					{
+						instance = new SingletonClass();
+					}
+				}
+			}
+			return instance;
+		}
+	}
 
 	/**
 	 * Callback interface through which the fragment will report the task's progress and results back to the Caller.
@@ -41,35 +61,18 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	{
 		this.mTaskCallbacks = callbacks;
 	}
-	
+
 	/**
 	 * Deletes temp File
 	 * 
 	 * @param tmpFilePath
 	 */
-	protected void doRequestFailAtomicFileIO(String tmpFilePath)
+	protected boolean doAtomicFileDel(String tmpFilePath)
 	{
 		Logger.d("dp_download", "inside API doRequestFailAtomicFileIO");
-		synchronized (HikeMessengerApp.getInstance())
+		synchronized (SingletonClass.getInstance())
 		{
-			Utils.removeUniqueTempProfileImage(tmpFilePath);
-		}
-	}
-	
-	/**
-	 * Deletes temp File and original File
-	 * 
-	 * @param orignialFilePath
-	 * @param tmpFilePath
-	 */
-	protected void doRequestFailAtomicFileIO(String orignialFilePath, String tmpFilePath)
-	{
-		Logger.d("dp_download", "inside API doRequestFailAtomicFileIO");
-		synchronized (HikeMessengerApp.getInstance())
-		{
-			Utils.removeUniqueTempProfileImage(tmpFilePath);
-			File file = new File(orignialFilePath);
-			file.delete();
+			return Utils.removeFile(tmpFilePath);
 		}
 	}
 
@@ -79,36 +82,35 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	 * @param orignialFilePath
 	 * @param tmpFilePath
 	 */
-	protected void doRequestCancelAtomicFileIO(String orignialFilePath, String tmpFilePath)
+	protected boolean doAtomicMultiFileDel(String orignialFilePath, String tmpFilePath)
 	{
-		Logger.d("dp_download", "inside API doRequestCancelAtomicFileIO");
-		synchronized (HikeMessengerApp.getInstance())
+		Logger.d("dp_download", "inside API doRequestFailAtomicFileIO");
+		synchronized (SingletonClass.getInstance())
 		{
-			File file = new File(orignialFilePath);
-			file.delete();
-			Utils.removeUniqueTempProfileImage(tmpFilePath);
+			return (Utils.removeFile(tmpFilePath) && Utils.removeFile(orignialFilePath));
 		}
 	}
-	
+
 	/**
 	 * Renames tmp file to fileName
 	 * 
 	 * @param originalFilePath
 	 * @param tmpFilePath
+	 * @return
 	 */
-	protected void doRequestSuccAtomicFileIO(String originalFilePath, String tmpFilePath)
+	protected boolean doAtomicFileRenaming(String originalFilePath, String tmpFilePath)
 	{
 		Logger.d("dp_download", "inside API doRequestSuccAtomicFileIO");
-		synchronized (HikeMessengerApp.getInstance())
+		synchronized (SingletonClass.getInstance())
 		{
-			Utils.renameUniqueTempProfileImage(originalFilePath, tmpFilePath);
+			return Utils.renameFiles(originalFilePath, tmpFilePath);
 		}
 	}
-	
+
 	public void doContactManagerIconChange(String msisdn, byte[] bytes, boolean isProfilePc)
 	{
 		Logger.d("dp_download", "inside API doContactManagerIconChange");
-		synchronized (HikeMessengerApp.getInstance())
+		synchronized (SingletonClass.getInstance())
 		{
 			ContactManager.getInstance().setIcon(msisdn, bytes, isProfilePc);
 		}
