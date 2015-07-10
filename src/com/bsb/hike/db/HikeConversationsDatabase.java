@@ -3384,6 +3384,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public void deleteMessages(ArrayList<Long> msgIds, String msisdn, Boolean containsLastMessage)
 	{
+
+		if (msgIds == null || msgIds.isEmpty())
+		{
+			Logger.e(HikeConversationsDatabase.class.getSimpleName(), "deleteMessages :: msgIds not present");
+			return;
+		}
+		
 		StringBuilder inSelection = new StringBuilder("(" + msgIds.get(0));
 		for (int i = 0; i < msgIds.size(); i++)
 		{
