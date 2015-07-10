@@ -59,6 +59,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
+import com.bsb.hike.voip.VoIPDataPacket.BroadcastListItem;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.bsb.hike.voip.view.VoIPActivity;
@@ -557,6 +558,7 @@ public class VoIPService extends Service {
 			Logger.d(tag, "We're in a conference. Maintaining call id: " + getCallId());
 			// Disable crypto for clients in conference. 
 			getClient().cryptoEnabled = false;
+			client.isInAHostedConference = true;
 			client.cryptoEnabled = false;
 			startConferenceBroadcast();			
 		}
@@ -1545,7 +1547,7 @@ public class VoIPService extends Service {
 							clientDp.setData(newPCM);
 							clientDp.setVoice(true);
 							client.addSampleToEncode(clientDp); 
-							//								Logger.d(tag, "Custom to: " + client.getPhoneNumber());
+//							Logger.d(tag, "Custom to: " + client.getName());
 						}
 					}
 
@@ -1575,6 +1577,7 @@ public class VoIPService extends Service {
 
 				// Wait till the broadcast frames start coming in
 				OpusWrapper opusWrapper = null;
+				int voicePacketNumber = 0;
 				try {
 					byte[] broadcastFrame = conferenceBroadcastSamples.take();
 					Logger.w(tag, "Starting conference broadcast.");
@@ -1586,7 +1589,8 @@ public class VoIPService extends Service {
 					int compressedDataLength = 0;
 
 					while (keepRunning) {
-						// Compress and send the audio frame
+//						Logger.d(tag, "Broadcaster running.");
+						// Compress the audio frame
 						if ((compressedDataLength = opusWrapper.encode(broadcastFrame, compressedData)) > 0) {
 							byte[] trimmedCompressedData = new byte[compressedDataLength];
 							System.arraycopy(compressedData, 0, trimmedCompressedData, 0, compressedDataLength);
@@ -1594,27 +1598,38 @@ public class VoIPService extends Service {
 							dp.write(trimmedCompressedData);
 							dp.setVoice(true);
 
-							// Broadcast to each client that is not speaking
+							// Create a broadcast list
+//							String hosts = "";
 							for (VoIPClient client : clients.values()) {
 								if (client.isSpeaking() || !client.connected)
 									continue;
 
-								VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();
-								client.addEncodedFrame(dpClone);
-//								Logger.d(tag, "Broadcasting to: " + client.getPhoneNumber());
+								BroadcastListItem item = dp.new BroadcastListItem();
+								item.setIp(client.getExternalIPAddress());
+								item.setPort(client.getExternalPort());
+								dp.addToBroadcastList(item);
+//								hosts += client.getName() + " (" + item.getIp() + ":" + item.getPort() + ") | ";
 							}
+							
+							if (dp.getBroadcastList() != null) {
+//								Logger.d(tag, "Broadcasting to: " + hosts);
+								
+								// Send the packet
+								dp.setVoicePacketNumber(voicePacketNumber++);
+								getClient().addToSendingQueue(dp);
+							}
+							
 						} else {
-							Logger.w(tag, "Compression error.");
+							Logger.w(tag, "Conference broadcast compression error.");
 						}
-
 						broadcastFrame = conferenceBroadcastSamples.take();
 					}
 				} catch (InterruptedException e) {
 					Logger.d(tag, "Conference broadcast thread interrupted.");
 				} catch (IOException e) {
-					Logger.e(tag, "Codec exception: " + e.toString());
+					Logger.e(tag, "Codec IOException: " + e.toString());
 				} catch (Exception e) {
-					Logger.e(tag, "Codec exception: " + e.toString());
+					Logger.e(tag, "Codec Exception: " + e.toString());
 				} finally {
 					if (opusWrapper != null)
 						opusWrapper.destroy();
