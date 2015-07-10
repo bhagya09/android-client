@@ -2072,12 +2072,21 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
 		}
 
-		if (data.has(HikeConstants.GROUP_NOTIFIACTION_DELAY))
+		if (data.has(HikeConstants.NOTIFIACTION_DELAY_GROUP))
 		{
-			int groupNotificationDelay = data.getInt(HikeConstants.GROUP_NOTIFIACTION_DELAY);
+			int groupNotificationDelay = data.getInt(HikeConstants.NOTIFIACTION_DELAY_GROUP);
 			if (groupNotificationDelay>=0)
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.GROUP_NOTIFIACTION_DELAY, groupNotificationDelay);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFIACTION_DELAY_GROUP, groupNotificationDelay);
+			}
+		}
+
+		if (data.has(HikeConstants.NOTIFIACTION_DELAY_ONE_TO_ONE))
+		{
+			int oneToOneNotificationDelay = data.getInt(HikeConstants.NOTIFIACTION_DELAY_ONE_TO_ONE);
+			if (oneToOneNotificationDelay>=0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFIACTION_DELAY_ONE_TO_ONE, oneToOneNotificationDelay);
 			}
 		}
 		
