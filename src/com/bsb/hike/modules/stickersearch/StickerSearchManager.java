@@ -1,12 +1,15 @@
 package com.bsb.hike.modules.stickersearch;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.util.Pair;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
@@ -15,6 +18,7 @@ import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
+import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
 import com.bsb.hike.modules.stickersearch.tasks.RemoveDeletedStickerTagsTask;
 import com.bsb.hike.modules.stickersearch.tasks.SingleCharacterHighlightTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchSetupTask;
@@ -45,6 +49,7 @@ public class StickerSearchManager
 	{
 		searchEngine = new StickerSearchEngine();
 		shownFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
+		setAlarmFirstTime();
 	}
 
 	public static StickerSearchManager getInstance()
@@ -288,5 +293,38 @@ public class StickerSearchManager
 	public boolean getFirstContinuousMatchFound()
 	{
 		return isFirstPhraseOrWord;
+	}
+	
+	public void setAlarmFirstTime()
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SET_ALARM_FIRST_TIME, false))
+		{
+			Logger.d("Rebalancing", "setting alarm first time");
+			setAlarm();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SET_ALARM_FIRST_TIME, true);
+		}
+	}
+	
+	public void setAlarm()
+	{
+		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REBALANCING_TIME, StickerSearchConstants.REBALACING_DEFAULT_TIME), 0, 0, 0);
+		if (scheduleTime < System.currentTimeMillis())
+		{
+			scheduleTime += 24 * 60 * 60 * 1000;
+		}
+		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true, getRebalancingAlarmIntent(), true);
+	}
+	
+	private Intent getRebalancingAlarmIntent()
+	{
+		Intent intent = new Intent();
+		intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
+		return intent;
+	}
+	
+	public void startRebalancing(Intent intent)
+	{
+		RebalancingTask rebalancingTask = new RebalancingTask(intent);
+		searchEngine.runOnQueryThread(rebalancingTask);
 	}
 }
