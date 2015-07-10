@@ -680,17 +680,38 @@ public class UserLogInfo {
 
 		ComponentName componentInfo = null;
 		ActivityManager am = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Activity.ACTIVITY_SERVICE);
-		if (Utils.isLollipopOrHigher())
+		try
 		{
-			List<ActivityManager.AppTask> appTask = am.getAppTasks();
-			componentInfo = appTask.get(0).getTaskInfo().origActivity;
+			if (Utils.isLollipopOrHigher())
+			{
+				List<ActivityManager.AppTask> appTask = am.getAppTasks();
+				if(appTask != null && !appTask.isEmpty())
+				{
+					componentInfo = appTask.get(0).getTaskInfo().origActivity;
+				}
+			}
+			else
+			{
+				List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+				if(taskInfo != null && !taskInfo.isEmpty())
+				{
+					componentInfo = taskInfo.get(0).topActivity;
+				}
+			}
 		}
-		else
+		catch (SecurityException se)
 		{
-			List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-			componentInfo = taskInfo.get(0).topActivity;
+			Logger.d(TAG, "SecurityException while recording tasks");
 		}
-		hikeStickerActivityForegrounded = componentInfo.getClassName().equals(ChatHeadActivity.class.getName());
+		catch (Exception e)
+		{
+			Logger.d(TAG, "Exception while recording tasks");
+		}
+
+		if(componentInfo != null)
+		{
+			hikeStickerActivityForegrounded = componentInfo.getClassName().equals(ChatHeadActivity.class.getName());
+		}
 	}
 	
 }

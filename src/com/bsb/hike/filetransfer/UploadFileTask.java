@@ -843,6 +843,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_QUICK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Exception QUICK UPLOAD_FAILED - ", e);
 				Logger.e(getClass().getSimpleName(), "Exception", e);
 				return null;
 			}
@@ -1443,7 +1444,6 @@ public class UploadFileTask extends FileTransferBase
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				retry++;
-				Thread.sleep(60 * 1000);
 				if (retry == MAX_RETRY)
 					throw e;
 			}
