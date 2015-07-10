@@ -34,20 +34,25 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 
 	public StickerTagDownloadTask(Set<String> stickerSet)
 	{
-		this.stickerCategoryList = new ArrayList<String>(stickerSet);
+		if (stickerSet == null)
+		{
+			this.stickerCategoryList = null;
+		}
+		else
+		{
+			this.stickerCategoryList = new ArrayList<String>(stickerSet);
+		}
 	}
 
 	@Override
 	public void execute()
 	{
-
+		Logger.d(TAG, "sticker list : " + stickerCategoryList);
 		if (this.stickerCategoryList == null)
 		{
 			return;
 		}
 
-		Logger.d(TAG, "sticker list : " + stickerCategoryList.toString());
-		
 		int i = 1;
 		int downloadSize = getDownloadSize();
 		JSONArray array = null;
@@ -124,7 +129,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 					doOnFailure(null);
 					return;
 				}
-				
+
 				doOnSuccess(data);
 			}
 
@@ -170,5 +175,4 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	{
 		Logger.d(TAG, "response failed.");
 	}
-
 }

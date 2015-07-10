@@ -378,8 +378,8 @@ public enum StickerSearchDataController
 								}
 							}
 
-							int numberOfElements = tempElements.size();
-							if (numberOfElements > 0)
+							stickerDataCount = tempElements.size();
+							if (stickerDataCount > 0)
 							{
 								isTagDataEmpty = false;
 
@@ -425,7 +425,7 @@ public enum StickerSearchDataController
 			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tagList, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tagList, tagPriorityList, stickerMomentList, stickerList));
 
 			Logger.d(TAG, "Current untagged stickers: " + untaggedSet);
-			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeMessengerApp.STICKER_SET, null);
 			Set<String> updateRetrySet = new HashSet<String>();
 			Logger.d(TAG, "previous retry list: " + pendingRetrySet);
 

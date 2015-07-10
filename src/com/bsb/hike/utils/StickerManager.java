@@ -1741,7 +1741,7 @@ public class StickerManager
 		}
 		else 
 		{
-			Set<String> categorySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+			Set<String> categorySet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeMessengerApp.STICKER_SET, null);
 			
 			if(categorySet != null && !categorySet.isEmpty())
 			{

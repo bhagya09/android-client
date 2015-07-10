@@ -1,11 +1,8 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import android.util.Pair;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
@@ -48,7 +45,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		}
 		else
 		{
-			stickerSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+			stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeMessengerApp.STICKER_SET, null);
 		}
 		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet);
 		stickerTagDownloadTask.execute();
