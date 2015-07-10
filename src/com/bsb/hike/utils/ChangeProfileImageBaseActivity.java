@@ -777,7 +777,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	protected void onDestroy()
 	{
 		dismissDialog();
-		removeHeadLessImageUploadFragment();
+		//TODO need to discuss this
+		//removeHeadLessImageUploadFragment();
 		super.onDestroy();
 	}
 	

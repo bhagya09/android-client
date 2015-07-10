@@ -120,6 +120,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	
 	public void onActivityCreated(Bundle savedInstanceState) 
 	{
+		super.onActivityCreated(savedInstanceState);
 		hikeUiHandler = new HikeUiHandler(this);
 	};
 	
