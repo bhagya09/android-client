@@ -34,6 +34,7 @@ import com.bsb.hike.HikeMessengerApp;
 
 public class HikeSystemSettingsDBUtil
 {
+	private static final String TAG = HikeSystemSettingsDBUtil.class.getSimpleName();
 
 	public static final String STRING_EMPTY = "";
 
@@ -42,8 +43,6 @@ public class HikeSystemSettingsDBUtil
 	public static final String STRING_RELATER = ":";
 
 	public static final String STRING_CLOSURE = "$";
-
-	private static final String TAG = HikeSystemSettingsDBUtil.class.getSimpleName();
 
 	private static final String HIKE_PACKAGE_NAME_PREF = HikeMessengerApp.getInstance().getPackageName() + STRING_RELATER;
 
@@ -1303,7 +1302,7 @@ public class HikeSystemSettingsDBUtil
 
 		private static final String VERSION_INFO = "_v_";
 
-		private static final String ERROR = "You are trying to delete system settings data. You must not delete settings key which is not specific to your application, rather you should update it by calling saveData()";
+		private static final String ERROR = "You are trying to delete system settings data. You must not delete settings key which is not specific to your application, rather you can update it by calling saveData(); if it is required to do so.";
 
 		/* Constructor to this class, which can be accessed only by it's outer class */
 		private SystemSettingsUpdateException()

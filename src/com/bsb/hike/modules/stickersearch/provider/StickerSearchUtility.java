@@ -6,12 +6,15 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
+import java.io.ObjectInputStream.GetField;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 
 import android.text.TextUtils;
 import android.util.Pair;
@@ -62,6 +65,43 @@ public class StickerSearchUtility
 		return sb.toString();
 	}
 
+	/* Get the code w.r.t. momement of time i.e. morning, evening, night etc. */
+	public static TIME_CODE getMomentCode()
+	{
+		TIME_CODE momentCode = HikeStickerSearchBaseConstants.TIME_CODE.UNKNOWN;
+
+		Calendar calendar = Calendar.getInstance();
+		int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+		int minuteOfHour = calendar.get(Calendar.MINUTE);
+		int secondOfMinute = calendar.get(Calendar.SECOND);
+		int milliSecondOfMinute = calendar.get(Calendar.MILLISECOND);
+
+		float time = hourOfDay + (((float) minuteOfHour) / 100) + (((float) secondOfMinute) / 10000) + (((float) milliSecondOfMinute) / 10000000);
+
+		if (time >= 4.3000000 && time < 12.0000000)
+		{
+			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.MORNING;
+		}
+		else if (time >= 12.0000000 && time < 12.3000000)
+		{
+			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NOON;
+		}
+		else if (time >= 12.3000000 && time < 16.3000000)
+		{
+			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.AFTER_NOON;
+		}
+		else if (time >= 16.3000000 && time < 20.0000000)
+		{
+			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.EVENING;
+		}
+		else if (time >= 20.0000000 && time < 4.3000000)
+		{
+			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NIGHT;
+		}
+
+		return momentCode;
+	}
+
 	/* Split charSequence in regular manner with boundary indexing */
 	public static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression)
 	{
@@ -71,7 +111,6 @@ public class StickerSearchUtility
 	/* Split charSequence in regular manner with boundary indexing along with limit on splitting */
 	private static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression, int limit)
 	{
-
 		ArrayList<String> matchList = null;
 		ArrayList<Integer> startList = null;
 		ArrayList<Integer> endList = null;
@@ -132,7 +171,7 @@ public class StickerSearchUtility
 				{
 					int i = matchList.size() - 1;
 
-					while ((i > -1) && matchList.get(i).equals(HikeStickerSearchBaseConstants.EMPTY))
+					while ((i > -1) && matchList.get(i).equals(HikeStickerSearchBaseConstants.STRING_EMPTY))
 					{
 						matchList.remove(i);
 						startList.remove(i);

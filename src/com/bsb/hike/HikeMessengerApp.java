@@ -900,7 +900,7 @@ public void onTrimMemory(int level)
 		
 		ChatHeadUtils.startOrStopService(false);
 		
-		StickerSearchManager.getInstance().initSetupWizard();
+		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();;
 	}
 
 	/**
