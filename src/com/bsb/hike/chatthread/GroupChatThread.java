@@ -851,7 +851,11 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			ll.removeAllViews();
 		}
-		ll.addView(pinView, 0);
+		try {
+			ll.addView(pinView, 0);
+		} catch (Exception e) {
+			throw new IllegalStateException("Exception during adding of pin message, parent's child count  :"+ll.getChildCount(), e);
+		}
 
 		/**
 		 * If we were composing a new pin and a pin arrives from somewhere else Then we hide the received pin. The pin view will be made visible when pinCreateView is Destroyed.
