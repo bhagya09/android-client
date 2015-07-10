@@ -8,8 +8,14 @@ package com.bsb.hike.platform;
 public interface IFileUploadListener
 {
 	/**
-	 * In case of successful request caller will receive the path of the file that is uploaded on the server
+	 * In case of successful request caller will receive the s3 path of the file that is uploaded on the server
 	 * @param response
 	 */
-	void onRequestResponse(String response);
+	void onRequestSuccess(String response);
+	
+	/**
+	 * In case of unsuccessful request caller will receive the appropriate exception error as a response
+	 * @param response
+	 */
+	void onRequestFailure(String response);
 }

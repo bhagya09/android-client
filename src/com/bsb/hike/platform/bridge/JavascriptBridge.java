@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.webkit.JavascriptInterface;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -45,6 +46,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.AccountUtils;
@@ -579,7 +581,7 @@ public abstract class JavascriptBridge
 			Logger.e(tag, "Empty function name when calling the JS back");
 			return;
 		}
-		if (mHandler == null || !mWebView.isWebViewShowing())
+		if (mHandler == null || !mWebView.isAttachedToWindow())
 		{
 			return;
 		}
@@ -682,30 +684,74 @@ public abstract class JavascriptBridge
 	 * returns the response on each file upload success
 	 */
 	@JavascriptInterface
-	public void uploadFile(final String id,String filePathArray,String url)
+	public void uploadFile(final String id,String data)
 	{
-		if(filePathArray == null)
+		if(data == null)
 		{
-			callbackToJS(id, "Field Null");
+			callbackToJS(id, "Data field Null");
 			return;
 		}
-		List<String> list = new ArrayList<String>(Arrays.asList(filePathArray.split(",")));
-		for(int i = 0; i < list.size();i++)
+		JSONObject json;
+		String filePath = null;
+		String url = null;
+		boolean doCompress = false;
+		try
 		{
-			String filePath = list.get(i);
-			
-			IFileUploadListener fileListener = new IFileUploadListener()
-			{
-				
-				@Override
-				public void onRequestResponse(String response)
-				{
-					callbackToJS(id, response);
-				}
-			};
-			PlatformUtils.uploadFile(filePath, url, fileListener);
+			json = new JSONObject(data);
+			filePath = json.optString("filePath");
+			url = json.optString("uploadUrl");
+			doCompress = json.optBoolean("doCompress");
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
 		}
 		
+		if(filePath == null || url == null)
+		{
+			callbackToJS(id, "JSON content Null");
+			return;
+		}
+		String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+		final String tempFilePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp" + File.separator + (new File(filePath).getName());
+		
+		IFileUploadListener fileListener = new IFileUploadListener()
+		{
+			
+			@Override
+			public void onRequestFailure(String response)
+			{
+				Logger.d("FileUpload", "Failure Response from the server is ----->" + response);
+				callbackToJS(id, response);
+				File tempFile = new File(tempFilePath);
+				if(tempFile.exists())
+				{
+					PlatformUtils.deleteDirectory(tempFilePath);
+				}
+			}
+			
+			@Override
+			public void onRequestSuccess(String response)
+			{
+				Logger.d("FileUpload", "Success Response from the server is ----->" + response);
+				callbackToJS(id, response);
+				File tempFile = new File(tempFilePath);
+				if(tempFile.exists())
+				{
+					PlatformUtils.deleteDirectory(tempFilePath);
+				}
+			}
+		};
+		
+		if(MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension).contains("image") && doCompress)
+		{
+			Utils.compressAndCopyImage(filePath, tempFilePath, weakActivity.get());
+			PlatformUtils.uploadFile(tempFilePath, url, fileListener);
+		}
+		else
+		{
+			PlatformUtils.uploadFile(filePath, url, fileListener);
+		}
 	}
 
 	public void getInitJson(JSONObject jsonObj, String msisdn)

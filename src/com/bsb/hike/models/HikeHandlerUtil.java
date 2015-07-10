@@ -57,6 +57,15 @@ public class HikeHandlerUtil
 		startHandlerThread();
 		return mHandlerThread.getLooper();
 	}
+	
+	/**
+	 * Posting task on the handler with zero delay
+	 */
+	public void postRunnable(Runnable runnable)
+	{
+
+		mHandler.post(runnable);
+	}
 
 	/**
 	 * Posting task on the handler.

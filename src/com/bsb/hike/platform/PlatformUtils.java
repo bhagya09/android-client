@@ -1,7 +1,6 @@
 package com.bsb.hike.platform;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -528,7 +528,7 @@ public class PlatformUtils
 	{
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
+		mThread.postRunnable(new Runnable()
 		{
 			
 			@Override
@@ -550,54 +550,56 @@ public class PlatformUtils
 					e.printStackTrace();
 				}
 			    byte[] fileBytes = setupFileBytes(boundaryMessage, boundary, chunkSize,fileContent);
-				String response = send(fileBytes,filePath,url);
-				fileListener.onRequestResponse(response);
+				String response = send(fileBytes,filePath,url,fileListener);
+				Logger.d("FileUpload", response);
 			}
-		},0);
+		});
 
 	}
 	
-	private static String send(byte[] fileBytes,final String filePath,final String url)
+	private static String send(byte[] fileBytes,final String filePath,final String url,IFileUploadListener filelistener)
 	{
-		HttpClient client = null;
-		if(client == null)
-		{
-			client = new DefaultHttpClient();
-			client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
-			long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
-			Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
-			client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
-			client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
-			client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
-		}
+		HttpClient client = new DefaultHttpClient();
+		client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
+		long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
+		Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
+		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
+		client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
+		client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
+		
 		HttpPost post = new HttpPost(url);
 		String res = null;
 		int resCode = 0;
 		try
 		{
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-			String s = new String(fileBytes);
-			System.out.print(s);
 			post.setEntity(new ByteArrayEntity(fileBytes));
 			HttpResponse response = client.execute(post);
+			Logger.d("FileUpload", response.toString());
 			resCode = response.getStatusLine().getStatusCode();
 			
 			res = EntityUtils.toString(response.getEntity());
 		}
-		catch (ConnectTimeoutException | SocketException | UnknownHostException ex)
+		catch (IOException ex)
 		{
-			ex.printStackTrace();
+			Logger.d("FileUpload", ex.toString());
+			filelistener.onRequestFailure(ex.toString());
 			return ex.toString();
 		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return e.toString();
-		}
 		Logger.d("FileUpload", res);
+		if(resCode == 200)
+		{
+			filelistener.onRequestSuccess(res);
+		}
+		else
+		{
+			filelistener.onRequestFailure(res);
+		}
 		return res;
 	}
-	
+	/*
+	 * gets the boundary message for the file path
+	 */
 	private static String getBoundaryMessage(String filePath)
 	{
 		String sendingFileType = "text/plain";
@@ -609,6 +611,10 @@ public class PlatformUtils
 		return res.toString();
 	}
 	
+	/*
+	 * Sets up the file byte array with boundary message File Content and boundary
+	 * returns the completed setup file byte array
+	 */
 	private static byte[] setupFileBytes(String boundaryMesssage, String boundary, int chunkSize,byte[] fileContent)
 	{
 		byte[] fileBytes = new byte[boundaryMesssage.length() + fileContent.length + boundary.length()];

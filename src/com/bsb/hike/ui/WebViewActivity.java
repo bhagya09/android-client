@@ -26,6 +26,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
 import android.webkit.GeolocationPermissions;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -890,14 +891,26 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return;
 		}
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode != -1)
+		if (requestCode != - 1)
 		{
 			switch (requestCode)
 			{
 			case JavascriptBridge.FILE_SELECT_REQUEST:
 				String filePath = data.getStringExtra(HikeConstants.Extras.FILE_PATH);
 				Logger.d("FileUpload", "Path of selected file :" + filePath);
-				mmBridge.callbackToJS(id, filePath);
+				String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+				String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+				JSONObject json = new JSONObject();
+				try
+				{
+					json.put("filePath", filePath);
+					json.put("mimeType", mimeType);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+				mmBridge.callbackToJS(id, json.toString());
 				break;
 			}
 		}
