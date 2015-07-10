@@ -1396,7 +1396,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		OfflineController controller = null;
 		if (offlineContact != null)
 		{
-			controller = new OfflineController(null);
+			controller = new OfflineController();
 			arrayList.remove(offlineContact);
 		}
 		

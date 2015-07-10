@@ -55,25 +55,14 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	private Map<Long, FileTransferModel> currentSendingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
 	private Map<Long, FileTransferModel> currentReceivingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
 
-	private static HikeConverter _instance = null;
 	private Context context;
 	private OfflineMessagesManager messagesManager = null;
+	
+	IFileCallback fileCallback = null;
 
-	private HikeConverter() 
+	public  HikeConverter() 
 	{
 		init();
-	}
-
-	public static HikeConverter getInstance() {
-		if (_instance == null) {
-			synchronized (HikeConverter.class) {
-				if (_instance == null) {
-					_instance = new HikeConverter();
-
-				}
-			}
-		}
-		return _instance;
 	}
 
 	private void init() {

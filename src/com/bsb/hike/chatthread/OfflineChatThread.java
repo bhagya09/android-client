@@ -98,7 +98,8 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	public OfflineChatThread(ChatThreadActivity activity, String msisdn)
 	{
 		super(activity, msisdn);
-		controller = new OfflineController(this);
+		controller = new OfflineController();
+		controller.addListener(this);
 	}
 
 	@Override

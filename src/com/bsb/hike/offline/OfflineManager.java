@@ -29,6 +29,8 @@ import com.hike.transporter.DefaultRetryPolicy;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.interfaces.IConnectionListener;
+import com.hike.transporter.interfaces.IMessageReceived;
+import com.hike.transporter.interfaces.IMessageSent;
 import com.hike.transporter.models.Config;
 import com.hike.transporter.models.SenderConsignment;
 import com.hike.transporter.models.Topic;
@@ -64,8 +66,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private boolean startedForChatThread = false;
 	
-	private HikeConverter hikeConverter;
-	
 	private Transporter transporter;
 	
 	private Config transporterConfig;
@@ -86,26 +86,17 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	};
 
-	private OfflineManager()
+	private IMessageSent messageSentCallback=null;
+
+	private IMessageReceived messageReceivedCallback=null;
+
+	public OfflineManager(IMessageSent messageSentCallback,IMessageReceived messageReceivedCallback)
 	{
+		this.messageSentCallback = messageSentCallback;
+		this.messageReceivedCallback = messageReceivedCallback;
 		init();
 	}
 
-	public static OfflineManager getInstance()
-	{
-		if (_instance == null)
-		{
-			synchronized (OfflineManager.class)
-			{
-				if (_instance == null)
-				{
-					_instance = new OfflineManager();
-
-				}
-			}
-		}
-		return _instance;
-	}
 
 	private void handleMsgOnBackEndThread(Message msg)
 	{
@@ -183,7 +174,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 		context = HikeMessengerApp.getInstance().getApplicationContext();
 		connectionManager = ConnectionManager.getInstance();
-		hikeConverter =  HikeConverter.getInstance();
 		transporter = Transporter.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
 		setDeviceNameAsMsisdn();
@@ -307,7 +297,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			connectedDevice = offlineNetworkMsisdn;
 			initClientConfig("o:"+connectedDevice);
 			Logger.d(TAG, "Starting as Client");
-			transporter.initAsClient(transporterConfig, context,hikeConverter,hikeConverter,this,handler.getLooper());
+			transporter.initAsClient(transporterConfig, context,messageSentCallback,messageReceivedCallback,this,handler.getLooper());
 		}
 	}
 
@@ -365,7 +355,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		performWorkOnBackEndThread(msg);
 		initServerConfig("o:"+msisdn);
 		Logger.d(TAG, "Starting server!");
-		transporter.initAsServer(transporterConfig,context,hikeConverter,hikeConverter,this,handler.getLooper());
+		transporter.initAsServer(transporterConfig,context,messageSentCallback,messageReceivedCallback,this,handler.getLooper());
 	}
 
 	private void initServerConfig(String namespace) 
@@ -625,7 +615,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			
 			Transporter.getInstance().shutDown();
 			Logger.d(TAG, "going to disconnect");
-			Transporter.getInstance().shutDown();
 			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
 
 			hikeConverter.shutDown(exception);

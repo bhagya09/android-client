@@ -37,18 +37,42 @@ public class OfflineController
 
 	private IOfflineCallbacks offlineListener = null;
 
-	OfflineManager offlineManager;
+	private OfflineManager offlineManager;
 	
-	HikeConverter  converter;
+	private HikeConverter  converter;
 
-	public OfflineController(IOfflineCallbacks listener)
+	public static volatile OfflineController _instance=null;
+	
+	private OfflineFileManager fileManager;
+	
+	public static OfflineController getInstance()
 	{
-		this.offlineListener = listener;
-		offlineManager = OfflineManager.getInstance();
-		converter =  HikeConverter.getInstance();
-		offlineManager.addListener(offlineListener);
+		if (_instance == null)
+		{
+			synchronized (OfflineController.class)
+			{
+				if (_instance == null)
+				{
+					_instance = new OfflineController();
+				}
+			}
+		}
+		return _instance;
+
 	}
 
+	public OfflineController()
+	{
+		fileManager = new OfflineFileManager();
+		converter = new HikeConverter();
+		offlineManager = new OfflineManager();
+		
+	}
+
+	public void addListener(IOfflineCallbacks listener)
+	{
+		offlineManager.addListener(listener);
+	}
 	public void startScan()
 	{
 		offlineManager.startScan();
