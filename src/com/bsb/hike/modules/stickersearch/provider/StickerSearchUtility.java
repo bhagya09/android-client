@@ -93,7 +93,7 @@ public class StickerSearchUtility
 		{
 			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.EVENING;
 		}
-		else if (time >= 20.0000000f || time < 4.3000000f)
+		else if ((time >= 20.0000000f && time < 24.0000000f) || (time >= 0.0000000f && time < 4.3000000f))
 		{
 			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NIGHT;
 		}

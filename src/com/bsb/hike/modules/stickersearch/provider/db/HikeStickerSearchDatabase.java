@@ -444,8 +444,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					}
 
 					list.addAll(tempList);
-					Logger.d(TAG, "Search findings count = " + temp.size());
-					Logger.i(TAG, "Search findings:  " + temp);
+					Logger.i(TAG, "Search findings count = " + list.size());
+					Logger.i(TAG, "Search findings: " + list);
 				}
 			}
 		}
