@@ -722,7 +722,7 @@ public abstract class JavascriptBridge
 			public void onRequestFailure(String response)
 			{
 				Logger.d("FileUpload", "Failure Response from the server is ----->" + response);
-				callbackToJS(id, response);
+				callbackToJS(id, "");
 				File tempFile = new File(tempFilePath);
 				if(tempFile.exists())
 				{
