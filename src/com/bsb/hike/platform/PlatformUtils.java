@@ -526,6 +526,11 @@ public class PlatformUtils
 	
 	public static void uploadFile(final String filePath,final String url,final IFileUploadListener fileListener)
 	{
+		if(filePath == null)
+		{
+			Logger.d("FileUpload", "File Path specified as null");
+			fileListener.onRequestFailure("File Path null");
+		}
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
 		mThread.postRunnable(new Runnable()
@@ -539,16 +544,27 @@ public class PlatformUtils
 				int chunkSize = (int) file.length();
 				String boundaryMessage = getBoundaryMessage(filePath);
 				byte[] fileContent = new byte[(int) file.length()];
+				FileInputStream fileInputStream = null;
 			    try
 				{
-			    	FileInputStream fileInputStream = new FileInputStream(file);
+			    	fileInputStream = new FileInputStream(file);
 					fileInputStream.read(fileContent);
-				    fileInputStream.close();
 				}
 				catch (IOException e)
 				{
 					e.printStackTrace();
 				}
+			    finally
+			    {
+				    try
+					{
+						fileInputStream.close();
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+					}
+			    }
 			    byte[] fileBytes = setupFileBytes(boundaryMessage, boundary, chunkSize,fileContent);
 				String response = send(fileBytes,filePath,url,fileListener);
 				Logger.d("FileUpload", response);
@@ -580,7 +596,7 @@ public class PlatformUtils
 			
 			res = EntityUtils.toString(response.getEntity());
 		}
-		catch (IOException ex)
+		catch (IOException | NullPointerException ex)
 		{
 			Logger.d("FileUpload", ex.toString());
 			filelistener.onRequestFailure(ex.toString());
@@ -618,9 +634,17 @@ public class PlatformUtils
 	private static byte[] setupFileBytes(String boundaryMesssage, String boundary, int chunkSize,byte[] fileContent)
 	{
 		byte[] fileBytes = new byte[boundaryMesssage.length() + fileContent.length + boundary.length()];
-		System.arraycopy(boundaryMesssage.getBytes(), 0, fileBytes, 0, boundaryMesssage.length());
-		System.arraycopy(fileContent, 0, fileBytes, boundaryMesssage.length(), fileContent.length);
-		System.arraycopy(boundary.getBytes(), 0, fileBytes, boundaryMesssage.length() + fileContent.length, boundary.length());
+		try
+		{
+			System.arraycopy(boundaryMesssage.getBytes(), 0, fileBytes, 0, boundaryMesssage.length());
+			System.arraycopy(fileContent, 0, fileBytes, boundaryMesssage.length(), fileContent.length);
+			System.arraycopy(boundary.getBytes(), 0, fileBytes, boundaryMesssage.length() + fileContent.length, boundary.length());
+		}
+		catch(NullPointerException | ArrayStoreException | IndexOutOfBoundsException e)
+		{
+			e.printStackTrace();
+			Logger.d("FileUpload", e.toString());
+		}
 		return fileBytes;
 	}
 

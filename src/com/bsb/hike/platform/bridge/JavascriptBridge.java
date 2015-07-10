@@ -743,7 +743,7 @@ public abstract class JavascriptBridge
 			}
 		};
 		
-		if(MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension).contains("image") && doCompress)
+		if(fileExtension != null && MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension).contains("image") && doCompress)
 		{
 			Utils.compressAndCopyImage(filePath, tempFilePath, weakActivity.get());
 			PlatformUtils.uploadFile(tempFilePath, url, fileListener);
