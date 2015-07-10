@@ -316,18 +316,14 @@ public class HikeSystemSettingsDBUtil
 
 		if (!Utils.isBlank(key))
 		{
-			String transformedValue = null;
-			if (value != null)
+			StringBuilder sb = new StringBuilder(STRING_EMPTY);
+			for (String s : value)
 			{
-				StringBuilder sb = new StringBuilder(STRING_EMPTY);
-				for (String s : value)
-				{
-					sb.append(s);
-					sb.append(STRING_SEPARATOR);
-				}
-
-				transformedValue = sb.toString();
+				sb.append(s);
+				sb.append(STRING_SEPARATOR);
 			}
+
+			String transformedValue = sb.toString();
 
 			if (mIsHikeSpecificData)
 			{
