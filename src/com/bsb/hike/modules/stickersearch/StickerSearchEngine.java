@@ -34,7 +34,7 @@ public class StickerSearchEngine
 
 		backgroundSearchExecuter = new ScheduledThreadPoolExecutor(CORE_POOL_SIZE, Utils.threadFactory("sticker_search_thread", false),
 				Utils.rejectedExecutionHandler());
-		
+
 		searchQueue = backgroundSearchExecuter.getQueue();
 		backgroundSearchExecuter.setKeepAliveTime(30, TimeUnit.SECONDS);
 

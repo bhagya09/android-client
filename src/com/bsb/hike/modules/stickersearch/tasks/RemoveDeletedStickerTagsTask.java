@@ -6,7 +6,6 @@ import java.util.Set;
 
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
 import com.bsb.hike.utils.StickerManager;
 
@@ -43,5 +42,4 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 		
 		StickerSearchDataController.getInstance().updateStickerList(stickerSet);
 	}
-
 }

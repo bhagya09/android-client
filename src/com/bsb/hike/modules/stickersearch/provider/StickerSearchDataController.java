@@ -9,6 +9,7 @@ package com.bsb.hike.modules.stickersearch.provider;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -17,7 +18,6 @@ import org.json.JSONObject;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -29,8 +29,6 @@ public enum StickerSearchDataController
 	INSTANCE;
 	private static final String TAG = StickerSearchDataController.class.getSimpleName();
 
-	private static final Object sStickerSearckDataLock = new Object();
-
 	public static StickerSearchDataController getInstance()
 	{
 		return INSTANCE;
@@ -38,30 +36,13 @@ public enum StickerSearchDataController
 
 	public void init()
 	{
-		Logger.d(TAG, "init()");
-		HikeStickerSearchDatabase.init();
-
-		synchronized (sStickerSearckDataLock)
-		{
-			if (!HikeSharedPreferenceUtil.getInstance().getData("isPopulated", false))
-			{
-				HikeStickerSearchDatabase.getInstance().markDataInsertionInitiation();
-				String[] tables = new String[27];
-				tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
-				for (int i = 0; i < 26; i++)
-				{
-					tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
-				}
-				Logger.d(TAG, "Starting population first time...");
-				HikeStickerSearchDatabase.getInstance().createVirtualTable(tables);
-				HikeSharedPreferenceUtil.getInstance().saveData("isPopulated", true);
-			}
-		}
+		Logger.i(TAG, "init()");
+		HikeStickerSearchDatabase.getInstance().prepare();
 	}
 
 	public void setupStickerSearchWizard(JSONObject json, int state)
 	{
-		Logger.d(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
+		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
 
 		synchronized (StickerSearchDataController.class)
 		{
@@ -73,6 +54,8 @@ public enum StickerSearchDataController
 
 			Iterator<String> categories = packs.keys();
 			ArrayList<String> tagList = new ArrayList<String>();
+			ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
+			ArrayList<Integer> stickerMomentList = new ArrayList<Integer>();
 			ArrayList<String> stickerList = new ArrayList<String>();
 			Set<String> untaggedSet = new HashSet<String>();
 
@@ -138,20 +121,24 @@ public enum StickerSearchDataController
 					if (tagData != null && tagData.length() > 0)
 					{
 						JSONObject tags = tagData.optJSONObject("catgrs");
+						int stickerDataCount = 0;
 
 						if (tags != null && tags.length() > 0)
 						{
 							Iterator<String> languages = tags.keys();
 							ArrayList<String> tempElements = new ArrayList<String>();
+							ArrayList<Integer> tempPriorities = new ArrayList<Integer>();
+							ArrayList<String> tempMatchElements = new ArrayList<String>();
 
 							while (languages.hasNext())
 							{
 								String languageId = languages.next();
 								JSONObject dictionaryData = tags.optJSONObject(languageId);
+								tempMatchElements.clear();
 
 								if (dictionaryData != null && dictionaryData.length() > 0)
 								{
-									JSONArray[] s = new JSONArray[8];
+									JSONArray[] s = new JSONArray[9];
 									s[0] = dictionaryData.optJSONArray("*cbehaviour");
 									s[1] = dictionaryData.optJSONArray("*ctheme");
 									s[2] = dictionaryData.optJSONArray("*creaction");
@@ -160,6 +147,23 @@ public enum StickerSearchDataController
 									s[5] = dictionaryData.optJSONArray("*cfeeling");
 									s[6] = dictionaryData.optJSONArray("*cgeneral");
 									s[7] = dictionaryData.optJSONArray("*cother");
+									s[8] = dictionaryData.optJSONArray("*ctitle");
+
+									if (s[8] != null)
+									{
+										Logger.d(TAG, "Received tags: " + s[8].toString());
+										for (int i = 0; i < s[8].length(); i++)
+										{
+											if (!Utils.isBlank(s[8].optString(i)))
+											{
+												tempMatchElements.add(s[8].optString(i).toUpperCase(Locale.ENGLISH));
+											}
+										}
+									}
+									else
+									{
+										Logger.d(TAG, stickerInfo + " dictionary at index = " + 8 + " is invalid or, empty.");
+									}
 
 									for (int m = 0; m < 8; m++)
 									{
@@ -170,7 +174,8 @@ public enum StickerSearchDataController
 											{
 												if (!Utils.isBlank(s[m].optString(i)))
 												{
-													tempElements.add(s[m].optString(i));
+													tempElements.add(s[m].optString(i).toUpperCase(Locale.ENGLISH));
+													tempPriorities.add(tempMatchElements.indexOf(s[m].optString(i).toUpperCase(Locale.ENGLISH)));
 												}
 											}
 										}
@@ -182,16 +187,13 @@ public enum StickerSearchDataController
 								}
 							}
 
-							int numberOfElements = tempElements.size();
-							if (numberOfElements > 0)
+							stickerDataCount = tempElements.size();
+							if (stickerDataCount > 0)
 							{
 								isTagDataEmpty = false;
 
 								tagList.addAll(tempElements);
-								for (int i = 0; i < numberOfElements; i++)
-								{
-									stickerList.add(stickerInfo);
-								}
+								tagPriorityList.addAll(tempPriorities);
 							}
 						}
 
@@ -199,10 +201,21 @@ public enum StickerSearchDataController
 						if (attributes != null)
 						{
 							Logger.d(TAG, "No. of attributes attached with " + stickerInfo + " = " + attributes.length());
+							int momentCode = attributes.optInt("*atime", -1);
+							for (int i = 0; i < stickerDataCount; i++)
+							{
+								stickerMomentList.add(momentCode);
+								stickerList.add(stickerInfo);
+							}
 						}
 						else
 						{
 							Logger.d(TAG, "No attribute attached with " + stickerInfo);
+							for (int i = 0; i < stickerDataCount; i++)
+							{
+								stickerMomentList.add(-1);
+								stickerList.add(stickerInfo);
+							}
 						}
 					}
 
@@ -215,8 +228,10 @@ public enum StickerSearchDataController
 
 			Logger.d(TAG, "Stickers: " + stickerList);
 			Logger.d(TAG, "Tags: " + tagList);
+			Logger.d(TAG, "Tag Priorities: " + tagPriorityList);
+			Logger.d(TAG, "Sticker moments: " + stickerMomentList);
 
-			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tagList, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tagList, stickerList));
+			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tagList, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tagList, tagPriorityList, stickerMomentList, stickerList));
 
 			Logger.d(TAG, "Untagged stickers: " + untaggedSet);
 		}
@@ -224,7 +239,7 @@ public enum StickerSearchDataController
 
 	public void updateStickerSearchWizard(JSONObject json, int state)
 	{
-		Logger.d(TAG, "updateStickerSearchWizard(" + json + ", " + state + ")");
+		Logger.i(TAG, "updateStickerSearchWizard(" + json + ", " + state + ")");
 
 		synchronized (StickerSearchDataController.class)
 		{
@@ -236,6 +251,8 @@ public enum StickerSearchDataController
 
 			Iterator<String> categories = packs.keys();
 			ArrayList<String> tagList = new ArrayList<String>();
+			ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
+			ArrayList<Integer> stickerMomentList = new ArrayList<Integer>();
 			ArrayList<String> stickerList = new ArrayList<String>();
 			Set<String> untaggedSet = new HashSet<String>();
 
@@ -295,20 +312,24 @@ public enum StickerSearchDataController
 					if (tagData != null && tagData.length() > 0)
 					{
 						JSONObject tags = tagData.optJSONObject("catgrs");
+						int stickerDataCount = 0;
 
 						if (tags != null && tags.length() > 0)
 						{
 							Iterator<String> languages = tags.keys();
 							ArrayList<String> tempElements = new ArrayList<String>();
+							ArrayList<Integer> tempPriorities = new ArrayList<Integer>();
+							ArrayList<String> tempMatchElements = new ArrayList<String>();
 
 							while (languages.hasNext())
 							{
 								String languageId = languages.next();
 								JSONObject dictionaryData = tags.optJSONObject(languageId);
+								tempMatchElements.clear();
 
 								if (dictionaryData != null && dictionaryData.length() > 0)
 								{
-									JSONArray[] s = new JSONArray[8];
+									JSONArray[] s = new JSONArray[9];
 									s[0] = dictionaryData.optJSONArray("*cbehaviour");
 									s[1] = dictionaryData.optJSONArray("*ctheme");
 									s[2] = dictionaryData.optJSONArray("*creaction");
@@ -317,6 +338,23 @@ public enum StickerSearchDataController
 									s[5] = dictionaryData.optJSONArray("*cfeeling");
 									s[6] = dictionaryData.optJSONArray("*cgeneral");
 									s[7] = dictionaryData.optJSONArray("*cother");
+									s[8] = dictionaryData.optJSONArray("*ctitle");
+
+									if (s[8] != null)
+									{
+										Logger.d(TAG, "Received tags: " + s[8].toString());
+										for (int i = 0; i < s[8].length(); i++)
+										{
+											if (!Utils.isBlank(s[8].optString(i)))
+											{
+												tempMatchElements.add(s[8].optString(i).toUpperCase(Locale.ENGLISH));
+											}
+										}
+									}
+									else
+									{
+										Logger.d(TAG, stickerInfo + " dictionary at index = " + 8 + " is invalid or, empty.");
+									}
 
 									for (int m = 0; m < 8; m++)
 									{
@@ -327,7 +365,8 @@ public enum StickerSearchDataController
 											{
 												if (!Utils.isBlank(s[m].optString(i)))
 												{
-													tempElements.add(s[m].optString(i));
+													tempElements.add(s[m].optString(i).toUpperCase(Locale.ENGLISH));
+													tempPriorities.add(tempMatchElements.indexOf(s[m].optString(i).toUpperCase(Locale.ENGLISH)));
 												}
 											}
 										}
@@ -345,10 +384,7 @@ public enum StickerSearchDataController
 								isTagDataEmpty = false;
 
 								tagList.addAll(tempElements);
-								for (int i = 0; i < numberOfElements; i++)
-								{
-									stickerList.add(stickerInfo);
-								}
+								tagPriorityList.addAll(tempPriorities);
 							}
 						}
 
@@ -356,10 +392,21 @@ public enum StickerSearchDataController
 						if (attributes != null)
 						{
 							Logger.d(TAG, "No. of attributes attached with " + stickerInfo + " = " + attributes.length());
+							int momentCode = attributes.optInt("*atime", -1);
+							for (int i = 0; i < stickerDataCount; i++)
+							{
+								stickerMomentList.add(momentCode);
+								stickerList.add(stickerInfo);
+							}
 						}
 						else
 						{
 							Logger.d(TAG, "No attribute attached with " + stickerInfo);
+							for (int i = 0; i < stickerDataCount; i++)
+							{
+								stickerMomentList.add(-1);
+								stickerList.add(stickerInfo);
+							}
 						}
 					}
 
@@ -372,8 +419,10 @@ public enum StickerSearchDataController
 
 			Logger.d(TAG, "Stickers: " + stickerList);
 			Logger.d(TAG, "Tags: " + tagList);
+			Logger.d(TAG, "Tag Priorities: " + tagPriorityList);
+			Logger.d(TAG, "Sticker moments: " + stickerMomentList);
 
-			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tagList, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tagList, stickerList));
+			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tagList, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tagList, tagPriorityList, stickerMomentList, stickerList));
 
 			Logger.d(TAG, "Current untagged stickers: " + untaggedSet);
 			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
@@ -398,7 +447,6 @@ public enum StickerSearchDataController
 
 	public void updateStickerList(Set<String> stickerInfo)
 	{
-
 		synchronized (StickerSearchDataController.class)
 		{
 			HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfo);

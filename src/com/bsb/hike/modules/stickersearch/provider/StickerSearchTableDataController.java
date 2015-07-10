@@ -115,7 +115,7 @@ public class StickerSearchTableDataController
 				// Sort the tags to apply searching operation
 				Collections.sort(mTags, String.CASE_INSENSITIVE_ORDER);
 				// Initial call to tabulate tags
-				computeTableContent(HikeStickerSearchBaseConstants.EMPTY);
+				computeTableContent(HikeStickerSearchBaseConstants.STRING_EMPTY);
 
 				if (tagsResultData.length < SIZE_RESULT_ARRAY)
 				{
@@ -201,8 +201,8 @@ public class StickerSearchTableDataController
 
 		if (wordsOrder > 0)
 		{
-			mPrefixLBOfTableContent.add(HikeStickerSearchBaseConstants.EMPTY);
-			mPrefixUBOfTableContent.add(HikeStickerSearchBaseConstants.EMPTY);
+			mPrefixLBOfTableContent.add(HikeStickerSearchBaseConstants.STRING_EMPTY);
+			mPrefixUBOfTableContent.add(HikeStickerSearchBaseConstants.STRING_EMPTY);
 			mTableRemainingCapacity.add(mTotalCapacityOfAnyTable - wordsOrder);
 			mTotalCapacityRemained -= mTotalCapacityOfAnyTable;
 		}
@@ -313,7 +313,7 @@ public class StickerSearchTableDataController
 
 				actualIndexOfLastExistingTable = virtualIndexOfLastExistingTable = mPrefixLBOfTableContent.size() - 1;
 				// Do not use reserved table, named previously, if any
-				if (mPrefixLBOfTableContent.contains(HikeStickerSearchBaseConstants.EMPTY))
+				if (mPrefixLBOfTableContent.contains(HikeStickerSearchBaseConstants.STRING_EMPTY))
 				{
 					virtualIndexOfLastExistingTable = actualIndexOfLastExistingTable - 1;
 				}

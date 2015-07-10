@@ -133,14 +133,14 @@ public class DeleteAccountTask implements ActivityCallableTask
 			// DBBackupRestore.getInstance(ctx).deleteAllFiles();
 		}
 		
-		HikeStickerSearchDatabase.getInstance().deleteDataInTables(false);
+		HikeStickerSearchDatabase.getInstance().deleteDataInTables(true);
 		if(delete)
 		{
 			HikeSystemSettingsDBUtil.getInstance(true).deleteAllHikeSpecificData();
 		}
 		else
 		{
-			HikeSystemSettingsDBUtil.getInstance(true).deleteAllHikeSpecificDataExcept(HikeConstants.STICKER_SEARCH);
+			HikeSystemSettingsDBUtil.getInstance(true).deleteAllHikeSpecificDataExcept(HikeConstants.MODULE_STICKER_SEARCH);
 		}
 		
 

@@ -175,7 +175,7 @@ public class StickerSearchManager
 		Logger.i(StickerTagWatcher.TAG, "First highlight pair: [" + highlightArray[0][0] + " - " + highlightArray[0][1] + "]");
 		int highlightLength = highlightArray[0][1] - highlightArray[0][0];
 		String preString = currentString.substring(0, highlightArray[0][0]);
-		String postString = (((highlightArray[0][1] + 1) > currentLength) ? HikeStickerSearchBaseConstants.EMPTY : currentString.substring(highlightArray[0][1] + 1));
+		String postString = (((highlightArray[0][1] + 1) > currentLength) ? HikeStickerSearchBaseConstants.STRING_EMPTY : currentString.substring(highlightArray[0][1] + 1));
 		if ((highlightLength > 0) && Utils.isBlank(preString) && Utils.isBlank(postString))
 		{
 			if (highlightLength == 1)
@@ -246,6 +246,7 @@ public class StickerSearchManager
 	{
 		Logger.i(StickerTagWatcher.TAG, "onClickToSendSticker(" + clickPosition + ")");
 		ArrayList<Sticker> stickerList = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
+
 		if (listener != null)
 		{
 			listener.dismissStickerSearchPopup();
@@ -266,7 +267,7 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(stickerInsertTask);
 	}
 
-	public void initSetupWizard()
+	public void initStickerSearchProiderSetupWizard()
 	{
 		StickerSearchSetupTask stickerSearchSetupTask = new StickerSearchSetupTask();
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);

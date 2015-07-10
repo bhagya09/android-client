@@ -121,13 +121,13 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			{
 				if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
 				{
-					Logger.d(TAG, " no sticker list or keyboard not open");
+					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or keyboard is closed.");
 					return;
 				}
 
 				chatthread.closeStickerRecommendTip();
 				
-				Logger.d(TAG, " on show sticker popup is called " + stickerList);
+				Logger.d(TAG, "showStickerSearchPopup() is called: " + stickerList);
 
 				if(stickerRecommendView == null)
 				{
@@ -148,7 +148,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 								.commitAllowingStateLoss();
 					}
 				}
-				
+
 				((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 				showFtueAnimation();
@@ -212,7 +212,6 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public boolean onTouch(View v, MotionEvent event)
 	{
 		Logger.i(TAG, "onTouch() called " + editText);
-
 		if (editText == null || (event.getAction() != MotionEvent.ACTION_DOWN))
 		{
 			return false;
