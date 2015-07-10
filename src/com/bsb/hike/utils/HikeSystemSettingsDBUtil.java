@@ -325,10 +325,7 @@ public class HikeSystemSettingsDBUtil
 					sb.append(s);
 					sb.append(STRING_SEPARATOR);
 				}
-				if (sb.length() > 0)
-				{
-					sb.setLength(sb.length() - 1);
-				}
+
 				transformedValue = sb.toString();
 			}
 
@@ -597,6 +594,11 @@ public class HikeSystemSettingsDBUtil
 				for (String value : values)
 				{
 					result.add(value);
+				}
+
+				if (transformedValue.endsWith(STRING_SEPARATOR + STRING_SEPARATOR))
+				{
+					result.add(STRING_EMPTY);
 				}
 			}
 		}

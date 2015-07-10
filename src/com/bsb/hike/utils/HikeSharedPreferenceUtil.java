@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import android.app.Activity;
@@ -13,6 +14,10 @@ import com.bsb.hike.HikeMessengerApp;
 public class HikeSharedPreferenceUtil
 {
 	private static final String DEFAULT_PREF_NAME = HikeMessengerApp.ACCOUNT_SETTINGS;
+
+	public static final String STRING_EMPTY = "";
+
+	public static final String STRING_SEPARATOR = ",";
 
 	public static final String CONV_UNREAD_COUNT = "ConvUnreadCount";
 	
@@ -96,7 +101,29 @@ public class HikeSharedPreferenceUtil
 	
 	public synchronized boolean saveDataSet(String key, Set<String> value)
 	{
-		editor.putStringSet(key, value);
+		if (Utils.isHoneycombOrHigher())
+		{
+			editor.putStringSet(key, value);
+		}
+		else
+		{
+			if (value != null)
+			{
+				StringBuilder sb = new StringBuilder(STRING_EMPTY);
+				for (String s : value)
+				{
+					sb.append(s);
+					sb.append(STRING_SEPARATOR);
+				}
+
+				editor.putString(key, sb.toString());
+			}
+			else
+			{
+				editor.remove(key);
+			}
+		}
+
 		return editor.commit();
 	}
 	/*
@@ -120,7 +147,40 @@ public class HikeSharedPreferenceUtil
 	}
 	
 	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues) {
-		return hikeSharedPreferences.getStringSet(key, defaultValues);
+
+		if (Utils.isHoneycombOrHigher())
+		{
+			return hikeSharedPreferences.getStringSet(key, defaultValues);
+		}
+		else
+		{
+			String transformedValue = hikeSharedPreferences.getString(key, null);
+			if (transformedValue == null)
+			{
+				return defaultValues;
+			}
+			else if (transformedValue.length() == 0)
+			{
+				return new HashSet<String>(0);
+			}
+			else
+			{
+				String[] values = transformedValue.split(STRING_SEPARATOR);
+				HashSet<String> result = new HashSet<String>(values.length);
+
+				for (String value : values)
+				{
+					result.add(value);
+				}
+
+				if (transformedValue.endsWith(STRING_SEPARATOR + STRING_SEPARATOR))
+				{
+					result.add(STRING_EMPTY);
+				}
+
+				return result;
+			}
+		}
 	}
 
 	public synchronized float getData(String key, float defaultValue)
@@ -137,11 +197,6 @@ public class HikeSharedPreferenceUtil
 	public synchronized long getData(String key, long defaultValue)
 	{
 		return hikeSharedPreferences.getLong(key, defaultValue);
-	}
-	
-	public synchronized Set<String> getDataSet(String key, Set<String> defaultValues)
-	{
-		return hikeSharedPreferences.getStringSet(key, defaultValues);
 	}
 
 	public synchronized void deleteAllData()
