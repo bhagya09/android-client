@@ -15,7 +15,7 @@ public class MqttConstants
 	
 	public static final String COLON = ":";
 
-	public static final String PRODUCTION_BROKER_HOST_NAME = "mqtt.im.hike.in";
+	public static final String PRODUCTION_BROKER_HOST_NAME = AppConfig.PRODUCTION_BROKER_HOST_NAME; 
 
 	public static final String STAGING_BROKER_HOST_NAME = AccountUtils.STAGING_HOST;
 
@@ -74,4 +74,10 @@ public class MqttConstants
 		CONNECTED, // connected
 		NOT_CONNECTED_UNKNOWN_REASON // failed to connect for some reason
 	}
+	
+	public static final String EXCEPTION_DEV_AREA = "exception";
+	
+	public static final String EXCEPTION_DEFAULT = "exception_default";
+	
+	public static final String CONNECTION_PROD_AREA = "conn";
 }

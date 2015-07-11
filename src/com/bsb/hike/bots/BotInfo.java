@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.integer;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -27,7 +28,11 @@ public class BotInfo extends ConvInfo
 	public static final int MESSAGING_BOT = 1;
 	public static final int NON_MESSAGING_BOT = 2;
 
-	private int type, configuration;
+	// messaging bot by default because all the earlier bots were messaging by default and all the earlier builds had only messaging bots.
+	private int type = MESSAGING_BOT;
+
+	//by default all the configured items are on.
+	private int configuration = Integer.MAX_VALUE;
 
 	private String namespace;
 
@@ -43,8 +48,6 @@ public class BotInfo extends ConvInfo
 
 	private String helperData;
 	
-	private static final String DEFAULT_UNREAD_COUNT = "1+";
-
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
 		private int type, config;
@@ -79,12 +82,6 @@ public class BotInfo extends ConvInfo
 		public P type(int type)
 		{
 			this.type = type;
-			return getSelfObject();
-		}
-
-		public P configuration(int configuration)
-		{
-			this.config = configuration;
 			return getSelfObject();
 		}
 
@@ -158,6 +155,11 @@ public class BotInfo extends ConvInfo
 	public String getNamespace()
 	{
 		return namespace;
+	}
+
+	public void setNamespace(String namespace)
+	{
+		this.namespace = namespace;
 	}
 
 	public String getNotifData()
@@ -321,13 +323,62 @@ public class BotInfo extends ConvInfo
 	}
 	
 	@Override
-	public String getUnreadCountString()
-	{
-		if (isNonMessagingBot())
+	public void setUnreadCount(int unreadCount)
+	{		
+		if (isMessagingBot())
 		{
-			return DEFAULT_UNREAD_COUNT;
+			setMessagingBotUnreadCount(unreadCount);
+			return;
+		}
+		else if(isNonMessagingBot())
+		{
+			setNonMessagingBotUnreadCount(unreadCount);
+            return;			
+		}
+		super.setUnreadCount(unreadCount);
+	}
+	
+	private void setNonMessagingBotUnreadCount(int unreadCount)
+	{
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(getMetadata());
+		if (metadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ZERO))
+		{
+			super.setUnreadCount(0); 
+			return;
+		}
+		super.setUnreadCount(unreadCount);
+	}
+
+	private void setMessagingBotUnreadCount(int unreadCount)
+	{
+		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
+		if (messagingBotMetadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ZERO))
+		{
+			super.setUnreadCount(0); 
+			return;
 		}
 		
+		super.setUnreadCount(unreadCount);
+	}
+
+	@Override
+	public String getUnreadCountString()
+	{
+		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
+		if (isMessagingBot())
+		{   
+			// it will show the hard coded unread count sent from the server  
+			if (!messagingBotMetadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ACTUAL))
+			{
+				return messagingBotMetadata.getUnreadCountShowType();
+			}
+		}
+
+		else if (isNonMessagingBot())
+		{
+			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(getMetadata());
+			return metadata.getUnreadCountShowType();
+		}
 		return super.getUnreadCountString();
 	}
 	

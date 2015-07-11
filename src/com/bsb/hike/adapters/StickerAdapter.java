@@ -460,5 +460,12 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 	{
 		return stickerCategoryList.get(index);
 	}
+
+	@Override
+	public String getIconContentDescription(int index)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

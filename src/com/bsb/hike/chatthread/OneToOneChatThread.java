@@ -459,6 +459,20 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		return false;
 	}
+	
+	protected void removeFromUndeliverdMessages(ConvMessage msg)
+	{
+		if(msg != null)
+		{
+			sendUIMessage(REMOVE_UNDELIVERED_MESSAGES, msg);
+		}
+		else
+		{
+			uiHandler.sendEmptyMessage(REMOVE_UNDELIVERED_MESSAGES);
+		}
+		
+		super.removeFromUndeliverdMessages(msg);
+	}
 
 	@Override
 	public void onEventReceived(String type, Object object)

@@ -33,6 +33,9 @@ import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
+import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
@@ -169,7 +172,7 @@ public class HikeService extends Service
 	public static HikeSDKRequestHandler mHikeSDKRequestHandler;
 
 	private Messenger mSDKRequestMessenger;
-
+	
 	private boolean isInitialized;
 
 	/************************************************************************/
@@ -256,7 +259,7 @@ public class HikeService extends Service
 			 * Forcing a sync first time service is created to fix bug where if the app is force stopped no contacts are synced if they are added when the app is in force stopped
 			 * state
 			 */
-			getContentResolver().notifyChange(ContactsContract.Contacts.CONTENT_URI, null);
+			contactsReceived.onChange(false);
 		}
 
 		if (postDeviceDetails == null)
@@ -280,7 +283,7 @@ public class HikeService extends Service
 			registerReceiver(postGreenBlueDetails, new IntentFilter(SEND_GB_DETAILS_TO_SERVER_ACTION));
 			sendBroadcast(new Intent(SEND_GB_DETAILS_TO_SERVER_ACTION));
 		}
-
+		
 		if (getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH, null) != null && postSignupProfilePic == null)
 		{
 			postSignupProfilePic = new PostSignupProfilePic();
@@ -294,8 +297,9 @@ public class HikeService extends Service
 			SyncContactExtraInfo syncContactExtraInfo = new SyncContactExtraInfo();
 			Utils.executeAsyncTask(syncContactExtraInfo);
 		}
-
+		
 		setInitialized(true);
+
 	}
 
 	private void assignUtilityThread()
@@ -493,8 +497,12 @@ public class HikeService extends Service
 				{
 					mContactsChanged.manualSync = manualSync;
 					HikeService.this.mContactsChangedHandler.removeCallbacks(mContactsChanged);
-					long delay = manualSync ? 0L: HikeConstants.CONTACT_UPDATE_TIMEOUT;
-					HikeService.this.mContactsChangedHandler.postDelayed(mContactsChanged, delay);
+					long delayInSeconds = 0L;
+					if(!manualSync)
+					{
+						delayInSeconds = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CONTACT_UPDATE_WAIT_TIME, HikeConstants.CONTACT_UPDATE_TIMEOUT);
+					}
+					HikeService.this.mContactsChangedHandler.postDelayed(mContactsChanged, delayInSeconds * 1000);
 					// Schedule the next manual sync to happed 24 hours from now.
 					scheduleNextManualContactSync();
 	
@@ -521,8 +529,7 @@ public class HikeService extends Service
 		public void onReceive(Context context, Intent intent)
 		{
 			contactsReceived.manualSync = intent.getBooleanExtra(HikeConstants.Extras.MANUAL_SYNC, false);
-
-			getContentResolver().notifyChange(ContactsContract.Contacts.CONTENT_URI, null);
+			contactsReceived.onChange(false);
 		}
 	}
 

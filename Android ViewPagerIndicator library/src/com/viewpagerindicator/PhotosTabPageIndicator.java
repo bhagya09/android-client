@@ -151,7 +151,7 @@ public class PhotosTabPageIndicator extends HorizontalScrollView implements Page
         }
     }
 
-    private void addTab(int index, CharSequence text, int iconResId) {
+    private void addTab(int index, CharSequence text, int iconResId,String iconContentDescription) {
         TabView tabView = new TabView(getContext());
         tabView.mIndex = index;
         tabView.setGravity(Gravity.CENTER);
@@ -165,6 +165,7 @@ public class PhotosTabPageIndicator extends HorizontalScrollView implements Page
         if (iconResId != 0) {
         	ImageView imageView = new ImageView(getContext());
 			imageView.setImageResource(iconResId);
+			imageView.setContentDescription(iconContentDescription);
 			tabView.addView(imageView);
         }
 
@@ -228,10 +229,12 @@ public class PhotosTabPageIndicator extends HorizontalScrollView implements Page
                 title = EMPTY_TITLE;
             }
             int iconResId = 0;
+            String iconContentDescription = "";
             if (iconAdapter != null) {
                 iconResId = iconAdapter.getIconResId(i);
+                iconContentDescription = iconAdapter.getIconContentDescription(i);
             }
-            addTab(i, title, iconResId);
+            addTab(i, title, iconResId, iconContentDescription);
         }
         if (mSelectedTabIndex > count) {
             mSelectedTabIndex = count - 1;
