@@ -1898,7 +1898,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		List<ConvMessage> msgList = loadMoreMessages(-1, movingList.getUniqueId(endIndex) + 1, movingList.getUniqueId(startIndex) - 1);
 		for (int i = 0; i < msgList.size(); i++)
 		{
-			movingList.set(i + endIndex - msgList.size() + 1, msgList.get(i));
+			movingList.set(startIndex + i,msgList.get(i));
 		}
 		uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 		loadingMoreMessages = false;
