@@ -26,10 +26,10 @@ import com.bsb.hike.HikeMessengerApp;
  * Hence, one can choose the key-names along with '<module-name>' by passing additional parameter in respective method; if respective data is eligible to a specific module. These
  * data operations are internally synchronized by Android_Settings_DataBase, hence application doesn't have any control over order of occurrence of these operations.
  * 
- * Use of these data operations is recommended only for 3 purposes: 1. To read system settings/ control values commonly used by all applications. Application can modify these
- * values, only if such application is meant for providing system settings control. 2. To share/ notify data with other application through ContentObserver implemented by friend
- * application. 3. To save/ delete/ restore data, which needs to be recovered after reinstalling application or, after clearing application data or, in case of dependency on user
- * history or, while handling multi-user scenario.
+ * Use of these data operations is recommended only for 3 purposes:
+ * 1. To read system settings/ control values commonly used by all applications. Application can modify these values, only if such application is meant for providing system settings control.
+ * 2. To share/ notify data with other application through ContentObserver implemented by friend application.
+ * 3. To save/ delete/ restore data, which needs to be recovered after reinstalling application or, after clearing application data or, in case of dependency on user history or, while handling multiuser scenario.
  */
 
 public class HikeSystemSettingsDBUtil
@@ -61,6 +61,8 @@ public class HikeSystemSettingsDBUtil
 	private static final Object sHikeKeyInfoEditLock = new Object();
 
 	private static final SystemSettingsUpdateException sSystemSettingsUpdateException = new SystemSettingsUpdateException();
+
+	private static final NullPointerException sNullPointerException = new NullPointerException(SystemSettingsUpdateException.ERROR_NPE);
 
 	private static final HashMap<Boolean, HikeSystemSettingsDBUtil> sInstanceContainer = new HashMap<Boolean, HikeSystemSettingsDBUtil>();
 
@@ -258,6 +260,7 @@ public class HikeSystemSettingsDBUtil
 
 	/* Save key-value pair first time or, modify String value for an existing key */
 	/* Return true; if operation was successful */
+	/* Throw NullPointerException (Caught internally); if trying to save a null value for any key */
 	public boolean saveData(String key, String value)
 	{
 		Logger.i(TAG, "saveData(" + key + ", " + value + ", " + mIsHikeSpecificData + ")");
@@ -266,18 +269,25 @@ public class HikeSystemSettingsDBUtil
 
 		if (!Utils.isBlank(key))
 		{
-			if (mIsHikeSpecificData)
+			if (value != null)
 			{
-				result = System.putString(sContentResolver, HIKE_PACKAGE_NAME_PREF + key, value);
-
-				if (result)
+				if (mIsHikeSpecificData)
 				{
-					result = updateHikeKeysInfo(key, false);
+					result = System.putString(sContentResolver, HIKE_PACKAGE_NAME_PREF + key, value);
+
+					if (result)
+					{
+						result = updateHikeKeysInfo(key, false);
+					}
+				}
+				else
+				{
+					result = System.putString(sContentResolver, key, value);
 				}
 			}
 			else
 			{
-				result = System.putString(sContentResolver, key, value);
+				Logger.wtf(TAG, "It failed to save value for key: " + key, sNullPointerException);
 			}
 		}
 
@@ -287,6 +297,7 @@ public class HikeSystemSettingsDBUtil
 	/* Save key-value pair first time or, modify String value for an existing key related to any specific module */
 	/* One must retrieve value for such key specific to any module by calling 'getData()' method with 'moduleName' parameter */
 	/* Return true; if operation was successful */
+	/* Throw NullPointerException (Caught internally); if trying to save a null value for any key */
 	public boolean saveData(String moduleName, String key, String value)
 	{
 		Logger.i(TAG, "saveData(" + moduleName + ", " + key + ", " + value + ", " + mIsHikeSpecificData + ")");
@@ -308,35 +319,43 @@ public class HikeSystemSettingsDBUtil
 	/* Save key-value pair first time or, modify String-set value for an existing key */
 	/* It will override existing set instead of appending to existing set */
 	/* Return true; if operation was successful */
-	public boolean saveData(String key, Set<String> value)
+	/* Throw NullPointerException (Caught internally); if trying to save a null set for any key */
+	public boolean saveDataSet(String key, Set<String> value)
 	{
-		Logger.i(TAG, "saveData(" + key + ", " + value + ", " + mIsHikeSpecificData + ")");
+		Logger.i(TAG, "saveDataSet(" + key + ", " + value + ", " + mIsHikeSpecificData + ")");
 
 		boolean result = false;
 
 		if (!Utils.isBlank(key))
 		{
-			StringBuilder sb = new StringBuilder(STRING_EMPTY);
-			for (String s : value)
+			if (value != null)
 			{
-				sb.append(s);
-				sb.append(STRING_SEPARATOR);
-			}
-
-			String transformedValue = sb.toString();
-
-			if (mIsHikeSpecificData)
-			{
-				result = System.putString(sContentResolver, HIKE_PACKAGE_NAME_PREF + key, transformedValue);
-
-				if (result)
+				StringBuilder sb = new StringBuilder(STRING_EMPTY);
+				for (String s : value)
 				{
-					result = updateHikeKeysInfo(key, false);
+					sb.append(s);
+					sb.append(STRING_SEPARATOR);
+				}
+
+				String transformedValue = sb.toString();
+
+				if (mIsHikeSpecificData)
+				{
+					result = System.putString(sContentResolver, HIKE_PACKAGE_NAME_PREF + key, transformedValue);
+
+					if (result)
+					{
+						result = updateHikeKeysInfo(key, false);
+					}
+				}
+				else
+				{
+					result = System.putString(sContentResolver, key, transformedValue);
 				}
 			}
 			else
 			{
-				result = System.putString(sContentResolver, key, transformedValue);
+				Logger.wtf(TAG, "It failed to save value for key: " + key, sNullPointerException);
 			}
 		}
 
@@ -347,15 +366,16 @@ public class HikeSystemSettingsDBUtil
 	/* It will override existing set instead of appending to existing set */
 	/* One must retrieve value for such key specific to any module by calling 'getData()' method with 'moduleName' parameter */
 	/* Return true; if operation was successful */
-	public boolean saveData(String moduleName, String key, Set<String> value)
+	/* Throw NullPointerException (Caught internally); if trying to save a null set for any key */
+	public boolean saveDataSet(String moduleName, String key, Set<String> value)
 	{
-		Logger.i(TAG, "saveData(" + moduleName + ", " + key + ", " + value + ", " + mIsHikeSpecificData + ")");
+		Logger.i(TAG, "saveDataSet(" + moduleName + ", " + key + ", " + value + ", " + mIsHikeSpecificData + ")");
 
 		boolean result;
 
 		if (!Utils.isBlank(moduleName) && !Utils.isBlank(key))
 		{
-			result = saveData((moduleName + STRING_CLOSURE + key), value);
+			result = saveDataSet((moduleName + STRING_CLOSURE + key), value);
 		}
 		else
 		{
@@ -674,7 +694,7 @@ public class HikeSystemSettingsDBUtil
 	/* Delete stored key-value pair specifically stored for application-only use */
 	/* Return true; if operation was successful */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public boolean deleteHikeSpecificData(String key) throws SystemSettingsUpdateException
+	public boolean deleteHikeSpecificData(String key)
 	{
 		Logger.i(TAG, "deleteHikeSpecificData(" + key + ")");
 
@@ -717,7 +737,7 @@ public class HikeSystemSettingsDBUtil
 	/* Delete stored key-value pairs specifically stored for application-only use */
 	/* Return the number of keys removed */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public int deleteHikeSpecificData(List<String> keys) throws SystemSettingsUpdateException
+	public int deleteHikeSpecificData(List<String> keys)
 	{
 		Logger.i(TAG, "deleteHikeSpecificData(" + keys + ")");
 
@@ -774,7 +794,7 @@ public class HikeSystemSettingsDBUtil
 	/* Delete stored key-value pairs related to any specific module and specifically stored for application-only use */
 	/* Return true; if operation was successful */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public boolean deleteHikeSpecificDataForModule(String moduleName) throws SystemSettingsUpdateException
+	public boolean deleteHikeSpecificDataForModule(String moduleName)
 	{
 		Logger.i(TAG, "deleteHikeSpecificDataForModule(" + moduleName + ")");
 
@@ -817,7 +837,7 @@ public class HikeSystemSettingsDBUtil
 	/* Delete stored key-value pairs related to any of supplied modules and specifically stored for application-only use */
 	/* Return true; if operation was successful */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public boolean deleteHikeSpecificDataForModules(List<String> moduleNames) throws SystemSettingsUpdateException
+	public boolean deleteHikeSpecificDataForModules(List<String> moduleNames)
 	{
 		Logger.i(TAG, "deleteHikeSpecificDataForModules(" + moduleNames + ")");
 
@@ -873,7 +893,7 @@ public class HikeSystemSettingsDBUtil
 	/* Delete all stored key-value pairs specifically stored for application-only use */
 	/* Return true; if all keys were removed successfully */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public boolean deleteAllHikeSpecificData() throws SystemSettingsUpdateException
+	public boolean deleteAllHikeSpecificData()
 	{
 		Logger.i(TAG, "deleteAllHikeSpecificData()");
 
@@ -894,7 +914,7 @@ public class HikeSystemSettingsDBUtil
 	/* It facilitates preferential clearing of data */
 	/* Return true; if all applicable keys were removed successfully */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public boolean deleteAllHikeSpecificDataExcept(String excludedKey) throws SystemSettingsUpdateException
+	public boolean deleteAllHikeSpecificDataExcept(String excludedKey)
 	{
 		Logger.i(TAG, "deleteAllHikeSpecificDataExcept(" + excludedKey + ")");
 
@@ -937,7 +957,7 @@ public class HikeSystemSettingsDBUtil
 	/* It facilitates preferential clearing of data */
 	/* Return true; if all applicable keys were removed successfully */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public boolean deleteAllHikeSpecificDataExcept(List<String> keyNames) throws SystemSettingsUpdateException
+	public boolean deleteAllHikeSpecificDataExcept(List<String> keyNames)
 	{
 		Logger.i(TAG, "deleteAllHikeSpecificDataExcept(" + keyNames + ")");
 
@@ -989,7 +1009,7 @@ public class HikeSystemSettingsDBUtil
 	/* It facilitates preferential clearing of data */
 	/* Return true; if all applicable keys were removed successfully */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public boolean deleteAllHikeSpecificDataExceptModule(String excludedModuleName) throws SystemSettingsUpdateException
+	public boolean deleteAllHikeSpecificDataExceptModule(String excludedModuleName)
 	{
 		Logger.i(TAG, "deleteAllHikeSpecificDataExceptModules(" + excludedModuleName + ")");
 
@@ -1032,7 +1052,7 @@ public class HikeSystemSettingsDBUtil
 	/* It facilitates preferential clearing of data */
 	/* Return true; if all applicable keys were removed successfully */
 	/* Throw RunTimeException; if trying to delete commonly used system-wide key-value data */
-	public boolean deleteAllHikeSpecificDataExceptModules(List<String> excludedModuleNames) throws SystemSettingsUpdateException
+	public boolean deleteAllHikeSpecificDataExceptModules(List<String> excludedModuleNames)
 	{
 		Logger.i(TAG, "deleteAllHikeSpecificDataExceptModules(" + excludedModuleNames + ")");
 
@@ -1300,12 +1320,14 @@ public class HikeSystemSettingsDBUtil
 
 		private static final String VERSION_INFO = "_v_";
 
-		private static final String ERROR = "You are trying to delete system settings data. You must not delete settings key which is not specific to your application, rather you can update it by calling saveData(); if it is required to do so.";
+		private static final String ERROR_DELETE = "You are trying to delete system settings data. You must not delete settings key which is not specific to your application, rather you can update it by calling saveData(); if it is required to do so.";
+
+		private static final String ERROR_NPE = "You are trying to save a null value in System Database.";
 
 		/* Constructor to this class, which can be accessed only by it's outer class */
 		private SystemSettingsUpdateException()
 		{
-			super(ERROR + EXCEPTION_INFO + SystemSettingsUpdateException.class.getSimpleName() + VERSION_INFO + serialVersionUID);
+			super(ERROR_DELETE + EXCEPTION_INFO + SystemSettingsUpdateException.class.getSimpleName() + VERSION_INFO + serialVersionUID);
 		}
 	}
 }
