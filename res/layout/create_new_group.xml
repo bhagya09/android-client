@@ -49,13 +49,34 @@
         android:paddingRight="10dp"
         android:paddingTop="8dp"
         android:singleLine="true" />
-    
-    <CheckBox android:id="@+id/gc_setting"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/group_setting_option_only_admin"
-       />
+        android:layout_centerVertical="true"
+        android:clickable="true"
+        android:onClick="onGSCheckboxClicked"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        >
+
+        <TextView
+            android:id="@+id/groups_massegesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/group_setting_option_only_admin"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <CheckBox
+            android:id="@+id/checkBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/groups_massegesTextView"
+            android:button="@drawable/hike_list_item_checkbox"
+            android:clickable="false"
+            android:focusable="false" />
+    </RelativeLayout>
     
      <TextView
         android:id="@+id/group_info"
@@ -64,7 +85,6 @@
         android:layout_gravity="center"
         android:drawableLeft="@drawable/ic_chat_theme_info"
         android:drawablePadding="4dp"
-        android:layout_marginTop="20dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="8dp"

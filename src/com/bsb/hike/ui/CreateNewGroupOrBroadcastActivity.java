@@ -186,7 +186,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (EditText) findViewById(R.id.group_name);
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
-			gsSettings = (CheckBox) findViewById(R.id.gc_setting);
+			gsSettings = (CheckBox) findViewById(R.id.checkBox);
 			convName.addTextChangedListener(new TextWatcher()
 			{
 
@@ -334,6 +334,12 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		}
 	}
 	
+	public void onGSCheckboxClicked(final View view) {
+		final boolean checked =( (CheckBox) view.findViewById(R.id.checkBox)).isChecked();
+		final CheckBox checkBox = ( (CheckBox) view.findViewById(R.id.checkBox));
+		checkBox.setChecked(!checked);
+
+	}
 	@Override
 	public String profileImageCropped()
 	{
