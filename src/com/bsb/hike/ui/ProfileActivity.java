@@ -2070,7 +2070,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			if (mLocalMSISDN.equals(pair.first))
 			{
 				oneToNConversation.setMetadata(pair.second);
-				setupGroupProfileList();
+				runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						invalidateOptionsMenu();
+						setupGroupProfileList();
+						updateProfileHeaderView();
+						profileAdapter.notifyDataSetChanged();
+					}
+				});
 		
 			}
 		}
