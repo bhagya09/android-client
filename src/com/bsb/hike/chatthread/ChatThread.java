@@ -1600,6 +1600,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			View mBottomView = activity.findViewById(R.id.bottom_panel);
 			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 			mBottomView.setVisibility(View.VISIBLE);
+			setupDefaultActionBar(false);
 			messageSearchManager.deactivate();
 			mAdapter.setSearchText(null);
 			searchText = null;
@@ -4294,10 +4295,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void setupActionBar(boolean firstInflation)
 	{
-		setupDefaultActionBar(firstInflation);
 		if (mCurrentActionMode ==  SEARCH_ACTION_MODE)
 		{
 			setupSearchMode(searchText);
+		}
+		else
+		{
+			setupDefaultActionBar(firstInflation);
 		}
 		mCurrentActionMode = -1;
 	}

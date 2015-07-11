@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -381,7 +382,11 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	
 	private void finish()
 	{
-		getSherlockActivity().onBackPressed();
+		SherlockFragmentActivity fragment = getSherlockActivity();
+		if (fragment != null)
+		{
+			getSherlockActivity().onBackPressed();
+		}
 	}
 
 	public static void openPhoto(int resId, Context context, ArrayList<HikeSharedFile> hikeSharedFiles, boolean fromChatThread, Conversation conversation)
