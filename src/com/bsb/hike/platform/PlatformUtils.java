@@ -1,28 +1,16 @@
 package com.bsb.hike.platform;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +20,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -42,7 +29,6 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -58,7 +44,6 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -73,8 +58,6 @@ import com.bsb.hike.utils.Utils;
 public class PlatformUtils
 {
 	private static final String TAG = "PlatformUtils";
-	
-	private static final String BOUNDARY = "----------V2ymHFg03ehbqgZCaKO6jy";
 	
 	/**
 	 * 
@@ -524,138 +507,6 @@ public class PlatformUtils
 		convMessage.setMsisdn(msisdn);
 		return convMessage;
 
-	}
-	
-	public static byte[] prepareFileBody(String filePath)
-	{
-		String boundary = "\r\n--" + BOUNDARY + "--\r\n";
-		File file = new File(filePath);
-		int chunkSize = (int) file.length();
-		String boundaryMessage = getBoundaryMessage(filePath);
-		byte[] fileContent = new byte[(int) file.length()];
-		FileInputStream fileInputStream = null;
-	    try
-		{
-	    	fileInputStream = new FileInputStream(file);
-			fileInputStream.read(fileContent);
-		}
-		catch (IOException | NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-	    finally
-	    {
-		    try
-			{
-	    		if(fileInputStream != null)
-	    		{
-					fileInputStream.close();
-	    		}
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-	    }
-	    return setupFileBytes(boundaryMessage, boundary, chunkSize,fileContent);
-	}
-	
-	public static void uploadFile(final String filePath,final String url,final IFileUploadListener fileListener)
-	{
-		if(filePath == null)
-		{
-			Logger.d("FileUpload", "File Path specified as null");
-			fileListener.onRequestFailure("File Path null");
-		}
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		mThread.postRunnable(new Runnable()
-		{
-			
-			@Override
-			public void run()
-			{
-			    byte[] fileBytes = prepareFileBody(filePath);
-				String response = send(fileBytes,filePath,url,fileListener);
-				Logger.d("FileUpload", response);
-			}
-		});
-
-	}
-	
-	private static String send(byte[] fileBytes,final String filePath,final String url,IFileUploadListener filelistener)
-	{
-		HttpClient client = new DefaultHttpClient();
-		client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
-		long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
-		Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
-		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
-		client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
-		client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
-		
-		HttpPost post = new HttpPost(url);
-		String res = null;
-		int resCode = 0;
-		try
-		{
-			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-			post.setEntity(new ByteArrayEntity(fileBytes));
-			HttpResponse response = client.execute(post);
-			Logger.d("FileUpload", response.toString());
-			resCode = response.getStatusLine().getStatusCode();
-			
-			res = EntityUtils.toString(response.getEntity());
-		}
-		catch (IOException | NullPointerException ex)
-		{
-			Logger.d("FileUpload", ex.toString());
-			filelistener.onRequestFailure(ex.toString());
-			return ex.toString();
-		}
-		Logger.d("FileUpload", res);
-		if(resCode == 200)
-		{
-			filelistener.onRequestSuccess(res);
-		}
-		else
-		{
-			filelistener.onRequestFailure(res);
-		}
-		return res;
-	}
-	/*
-	 * gets the boundary message for the file path
-	 */
-	private static String getBoundaryMessage(String filePath)
-	{
-		String sendingFileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(filePath));
-		File selectedFile = new File(filePath);
-		StringBuffer res = new StringBuffer("--").append(BOUNDARY).append("\r\n");
-		String name = selectedFile.getName();
-		res.append("Content-Disposition: form-data; name=\"").append("file").append("\"; filename=\"").append(name).append("\"\r\n").append("Content-Type: ")
-				.append(sendingFileType).append("\r\n\r\n");
-		return res.toString();
-	}
-	
-	/*
-	 * Sets up the file byte array with boundary message File Content and boundary
-	 * returns the completed setup file byte array
-	 */
-	private static byte[] setupFileBytes(String boundaryMesssage, String boundary, int chunkSize,byte[] fileContent)
-	{
-		byte[] fileBytes = new byte[boundaryMesssage.length() + fileContent.length + boundary.length()];
-		try
-		{
-			System.arraycopy(boundaryMesssage.getBytes(), 0, fileBytes, 0, boundaryMesssage.length());
-			System.arraycopy(fileContent, 0, fileBytes, boundaryMesssage.length(), fileContent.length);
-			System.arraycopy(boundary.getBytes(), 0, fileBytes, boundaryMesssage.length() + fileContent.length, boundary.length());
-		}
-		catch(NullPointerException | ArrayStoreException | IndexOutOfBoundsException e)
-		{
-			e.printStackTrace();
-			Logger.d("FileUpload", e.toString());
-		}
-		return fileBytes;
 	}
 
 	public static List<Header> getHeaders()
