@@ -867,8 +867,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
-	 * This method checks whether a contact has a icon or not. First we check if contact is loaded or not and if it is loaded then {@link ContactInfo#hasCustomPhoto()} is used
-	 * otherwise check in database is made.
+	 * This method checks whether a contact has a icon or not. 
 	 * 
 	 * @param msisdn
 	 * @return

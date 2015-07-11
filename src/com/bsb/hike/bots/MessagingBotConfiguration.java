@@ -73,7 +73,11 @@ public class MessagingBotConfiguration extends BotConfiguration
 	private static byte ATTACHMENT_PICKER = 21;
 
 	private static byte CALL = 22;
-
+	
+	public static final byte SLIDE_IN = 23;
+	
+	public static final byte READ_SLIDE_OUT = 24;
+	
 	public boolean isLongTapEnabled()
 	{
 		return isBitSet(LONG_TAP);
@@ -188,5 +192,27 @@ public class MessagingBotConfiguration extends BotConfiguration
 	{
 		return isReceiveEnabled && isBitSet(CALL);
 	}
-
+	
+	public boolean  isSlideInEnabled()
+	{
+		return isBitSet(SLIDE_IN);
+	}
+	
+	public void setBit(byte bit,boolean toSet)
+	{
+		if (toSet)
+		{
+			setConfig(getConfig() | (1 << bit));
+		}
+		else
+		{
+			setConfig(getConfig() & ~(1 << bit));
+		}
+	}
+	
+	public boolean isReadSlideOutEnabled()
+	{
+		return isBitSet(READ_SLIDE_OUT);
+	}
+	
 }

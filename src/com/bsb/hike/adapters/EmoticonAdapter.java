@@ -129,6 +129,13 @@ public class EmoticonAdapter extends PagerAdapter implements StickerEmoticonIcon
 		GridView grid = (GridView) view.findViewById(R.id.emoticon_grid);
 		grid.setAdapter(new EmoticonPageAdapter(context, emoticonSubCategories, emoticonResIds, position, idOffset, listener));
 	}
+
+	@Override
+	public String getIconContentDescription(int index)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 

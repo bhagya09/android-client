@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import com.bsb.hike.platform.CustomWebView;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,12 +16,15 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -176,6 +180,11 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		if(action.equals(PopUpAction.DOWNLOAD_STKPK.toString()))
 		{
 			ProductInfoManager.getInstance().downloadStkPk(metaData);
+		}
+		if(action.equals(PopUpAction.ACTIVATE_CHAT_HEAD_APPS.toString()))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+			ChatHeadUtils.startOrStopService(false);
 		}
 		
 
