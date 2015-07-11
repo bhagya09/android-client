@@ -458,6 +458,7 @@ public class OfflineController
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 			
 			offlineManager.updateListeners(getOfflineState());
+			offlineManager.releaseResources();
 	}
 	
 	}	
