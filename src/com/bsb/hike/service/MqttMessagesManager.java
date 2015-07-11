@@ -85,6 +85,7 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.fragments.HeadLessImageDownloaderFragment;
+import com.bsb.hike.ui.fragments.HeadLessImageWorkerFragment;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChatTheme;
@@ -185,8 +186,9 @@ public class MqttMessagesManager
 			return;
 		}
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
-		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
-
+		//ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		HeadLessImageWorkerFragment.doContactManagerIconChange(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
 		// IconCacheManager.getInstance().clearIconForMSISDN(msisdn);
@@ -245,7 +247,8 @@ public class MqttMessagesManager
 			return;
 		}
 
-		conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		HeadLessImageWorkerFragment.doContactManagerIconChange(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		//conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
 
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(groupId);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
@@ -2534,7 +2537,8 @@ public class MqttMessagesManager
 			String iconBase64 = jsonObj.getJSONObject(HikeConstants.DATA).optString(HikeConstants.THUMBNAIL);
 			if (!TextUtils.isEmpty(iconBase64))
 			{
-				ContactManager.getInstance().setIcon(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
+				//ContactManager.getInstance().setIcon(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
+				HeadLessImageWorkerFragment.doContactManagerIconChange(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
 			}
 			// increment the unseen status count straight away.
 			// we've got a new pro tip.

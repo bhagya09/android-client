@@ -107,7 +107,18 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 		}
 	}
 
-	public void doContactManagerIconChange(String msisdn, byte[] bytes, boolean isProfilePc)
+	/**
+	 * This API removes File with name "msisdn.jpg 
+	 * from directory 'Hike Media Profile'"
+	 * 
+	 * Note: API is made static so that can be used everywhere
+	 * Which applies lock on file before deleting it
+	 * 
+	 * @param msisdn
+	 * @param bytes
+	 * @param isProfilePc
+	 */
+	public static void doContactManagerIconChange(String msisdn, byte[] bytes, boolean isProfilePc)
 	{
 		Logger.d("dp_download", "inside API doContactManagerIconChange");
 		synchronized (SingletonClass.getInstance())
