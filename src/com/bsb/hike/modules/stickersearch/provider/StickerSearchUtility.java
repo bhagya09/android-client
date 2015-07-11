@@ -64,7 +64,7 @@ public class StickerSearchUtility
 		return sb.toString();
 	}
 
-	/* Get the code w.r.t. momement of time i.e. morning, evening, night etc. */
+	/* Get the code w.r.t. moment of time i.e. morning, evening, night etc. */
 	public static TIME_CODE getMomentCode()
 	{
 		TIME_CODE momentCode = HikeStickerSearchBaseConstants.TIME_CODE.UNKNOWN;
