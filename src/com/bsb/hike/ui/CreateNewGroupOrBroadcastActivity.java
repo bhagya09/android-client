@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -76,6 +77,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private String myMsisdn;
 	
 	private ImageView editImageIcon;
+
+	private CheckBox gsSettings;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -182,8 +185,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (EditText) findViewById(R.id.group_name);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
+			gsSettings = (CheckBox) findViewById(R.id.gc_setting);
 			convName.addTextChangedListener(new TextWatcher()
 			{
 
@@ -321,7 +324,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				break;
 				
 			case GROUP:
-				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim());
+				int settings = 0;
+				if(gsSettings.isChecked()){
+					settings = 1;
+				}
+				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(),settings);
 				startActivity(intentGroup);
 				break;
 		}

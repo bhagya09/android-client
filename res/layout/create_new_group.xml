@@ -49,6 +49,14 @@
         android:paddingRight="10dp"
         android:paddingTop="8dp"
         android:singleLine="true" />
+    
+    <CheckBox android:id="@+id/gc_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/group_setting_option_only_admin"
+       />
+    
      <TextView
         android:id="@+id/group_info"
         android:layout_width="wrap_content"
