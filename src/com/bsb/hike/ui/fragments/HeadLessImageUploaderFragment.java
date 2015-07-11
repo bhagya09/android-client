@@ -105,10 +105,12 @@ public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment i
 			doContactManagerIconChange(msisdn, bytes, !toDelPreviousMsisdnPic);
 		}
 		
-		if(!doAtomicFileRenaming(originqlFilePath, tmpFilePath))
+		/*if(!doAtomicFileRenaming(originqlFilePath, tmpFilePath))
 		{
 			return;
-		}
+		}*/
+		
+		doAtomicFileRenaming(originqlFilePath, tmpFilePath);
 		
 		if(mTaskCallbacks != null)
 		{
@@ -123,10 +125,12 @@ public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment i
 		
 		if(toDelTempFileOnCallFail)
 		{
-			if(!doAtomicFileDel(tmpFilePath))
+			/*if(!doAtomicFileDel(tmpFilePath))
 			{
 				return;
-			}
+			}*/
+			
+			doAtomicFileDel(tmpFilePath);
 		}
 		
 		if(mTaskCallbacks != null)

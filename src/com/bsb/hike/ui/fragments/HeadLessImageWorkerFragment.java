@@ -66,6 +66,8 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	 * Deletes temp File
 	 * 
 	 * @param tmpFilePath
+	 * @return true:- if file is deleted successfully
+	 * 	       false:- if file is not deleted or file is not present
 	 */
 	protected boolean doAtomicFileDel(String tmpFilePath)
 	{
@@ -81,6 +83,8 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	 * 
 	 * @param orignialFilePath
 	 * @param tmpFilePath
+	 * @return true:- Deltes Both file Successfully
+	 * 		   false:- Any of file is not deleted  or  Any of the file is not present
 	 */
 	protected boolean doAtomicMultiFileDel(String orignialFilePath, String tmpFilePath)
 	{
@@ -96,7 +100,8 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	 * 
 	 * @param originalFilePath
 	 * @param tmpFilePath
-	 * @return
+	 * @return true: if tmp file is renamed properly
+	 *         false:- if renaming not done or tmp file is not present
 	 */
 	protected boolean doAtomicFileRenaming(String originalFilePath, String tmpFilePath)
 	{

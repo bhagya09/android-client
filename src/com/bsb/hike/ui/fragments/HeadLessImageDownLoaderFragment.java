@@ -148,11 +148,13 @@ public class HeadLessImageDownloaderFragment extends HeadLessImageWorkerFragment
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		if(!doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath()))
+		/*if(!doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath()))
 		{
 			return;
-		}
+		}*/
 
+		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
+		
 		if(mTaskCallbacks != null)
 		{
 			mTaskCallbacks.onFailed();
@@ -162,10 +164,12 @@ public class HeadLessImageDownloaderFragment extends HeadLessImageWorkerFragment
 	@Override
 	public void onRequestCancelled()
 	{
-		if(!doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath()))
+		/*if(!doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath()))
 		{
 			return;
-		}
+		}*/
+		
+		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
 		if(mTaskCallbacks != null)
 		{

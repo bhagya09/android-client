@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
@@ -76,6 +77,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			{
 				Logger.d("dp_download", "inside ImageViewerFragment, onFailed Recv");
 				dismissProgressDialog();
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.download_failed), Toast.LENGTH_SHORT).show();
 			}
 			removeHeadLessFragment();
 		}
@@ -91,6 +93,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			{
 				Logger.d("dp_download", "inside ImageViewerFragment, onCancelled Recv");
 				dismissProgressDialog();
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.download_failed), Toast.LENGTH_SHORT).show();
 			}
 			removeHeadLessFragment();
 		}
