@@ -71,7 +71,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 		{
 			int extraWifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
 
-			if(OfflineManager.getInstance().isHotspotCreated())
+			if(OfflineController.getInstance().isHotspotCreated())
 			{
 				return;
 			}
@@ -79,9 +79,9 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			switch (extraWifiState)
 			{
 			case WifiManager.WIFI_STATE_DISABLED:
-				if (OfflineManager.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTED)
+				if (OfflineController.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTED)
 				{
-					OfflineManager.getInstance().shutDown(new OfflineException(OfflineException.WIFI_CLOSED));
+					OfflineController.getInstance().shutdown(new OfflineException(OfflineException.WIFI_CLOSED));
 				}
 				break;
 			case WifiManager.WIFI_STATE_DISABLING:
@@ -100,7 +100,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 		{
 			int state = intent.getIntExtra("wifi_state", 0);
 			
-			if(!OfflineManager.getInstance().isHotspotCreated())
+			if(!OfflineController.getInstance().isHotspotCreated())
 			{
 				return;
 			}
@@ -109,9 +109,9 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			case OfflineConstants.WIFI_HOTSPOT_STATE_DISABLED:
 				break;
 			case OfflineConstants.WIFI_HOTSPOT_STATE_DISABLING:
-				if(OfflineManager.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
+				if(OfflineController.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
 				{
-					OfflineManager.getInstance().shutDown(new OfflineException(OfflineException.HOTSPOT_CLOSED));
+					OfflineController.getInstance().shutdown(new OfflineException(OfflineException.HOTSPOT_CLOSED));
 				}
 				break;
 			case OfflineConstants.WIFI_HOTSPOT_STATE_ENABLED:

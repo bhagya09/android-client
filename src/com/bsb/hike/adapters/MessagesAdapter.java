@@ -104,6 +104,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
 import com.bsb.hike.offline.HikeConverter;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
@@ -1018,7 +1019,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (conversation instanceof OfflineConversation)
 			{
 				Logger.d("MessagesAdapter", "In Offline file Transfer");
-				fss = HikeConverter.getInstance().getFileState(convMessage, file);
+				fss = OfflineController.getInstance().getFileState(convMessage, file);
 			}
 			else
 			{
@@ -1331,8 +1332,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				displayBroadcastIndicator(convMessage, videoHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, videoHolder.messageContainer);
 				if (conversation instanceof OfflineConversation)
-				{	videoHolder.circularProgress.resetProgress();
-					HikeConverter.getInstance().setupFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
+				{
+					videoHolder.circularProgress.resetProgress();
+					setupOfflineFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
 				}
 				else
 				{
@@ -1484,7 +1486,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (conversation instanceof OfflineConversation)
 				{
 					imageHolder.circularProgress.resetProgress();
-					HikeConverter.getInstance().setupFileState(imageHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
+					setupOfflineFileState(imageHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
 				}
 				else
 				{
@@ -1854,7 +1856,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (conversation instanceof OfflineConversation)
 				{
 					fileHolder.circularProgress.resetProgress();
-					HikeConverter.getInstance().setupFileState(fileHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), true);
+					setupOfflineFileState(fileHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), true);
 				}
 				else
 				{
@@ -3381,10 +3383,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				
 				if (conversation instanceof OfflineConversation)
 				{
-					FileSavedState offlineFss = HikeConverter.getInstance().getFileState(convMessage, hikeFile.getFile());
+					FileSavedState offlineFss = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
 					if (offlineFss.getFTState() == FTState.ERROR)
 					{
-						HikeConverter.getInstance().handleRetryButton(convMessage);
+						OfflineController.getInstance().handleRetryButton(convMessage);
 						return;
 					}	
 				}
@@ -3422,7 +3424,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				
 				if (conversation instanceof OfflineConversation)
 				{
-					FileSavedState offlineFss = HikeConverter.getInstance().getFileState(convMessage, hikeFile.getFile());
+					FileSavedState offlineFss = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
 					if (offlineFss.getFTState() == FTState.ERROR)
 					{
 						Toast.makeText(mActivity, "Error in Opening File.Corrupt Due to incomplete Download", Toast.LENGTH_SHORT).show();
@@ -4217,5 +4219,92 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			mWebViewCardRenderer.onActivityResult(resultCode, data);
 		}
+	}
+	
+	private void showOfflineTransferProgress(FTViewHolder holder, FileSavedState fss,
+			long msgId, HikeFile hikeFile, boolean isSent) 
+	{
+		long progress = OfflineController.getInstance().getTransferProgress(msgId, isSent, hikeFile.getFileSize());
+		if (progress == -1)
+			return;
+		
+		Logger.d("OfflineManager", "in showTransferProgress with progress: " + progress);
+		if (fss.getFTState() == FTState.IN_PROGRESS && progress == 0 && isSent) 
+		{
+			holder.initializing.setVisibility(View.VISIBLE);
+		} 
+		else if (fss.getFTState() == FTState.IN_PROGRESS) 
+		{
+			if (progress < 100)
+				holder.circularProgress.setProgress(progress * 0.01f);
+			if (Utils.isHoneycombOrHigher())
+				holder.circularProgress.stopAnimation();
+
+			Logger.d("Spinner", "Msg Id is......... " + msgId + ".........holder.circularProgress="
+					+ holder.circularProgress.getCurrentProgress() * 100 + " Progress=" + progress);
+
+			float animatedProgress = 0 * 0.01f;
+			if (fss.getTotalSize() > 0) 
+			{
+				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
+				animatedProgress = animatedProgress / fss.getTotalSize();
+			}
+			if (Utils.isHoneycombOrHigher()) 
+			{
+				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100) 
+				{
+					holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
+				}
+				else
+					holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+			}
+			holder.circularProgress.setVisibility(View.VISIBLE);
+			holder.circularProgressBg.setVisibility(View.VISIBLE);
+		}
+	}
+
+	private void setupOfflineFileState(FTViewHolder holder, FileSavedState fss,
+			long msgId, HikeFile hikeFile, boolean isSent, boolean ext) 
+	{
+		int playImage = -1;
+		int retryImage = R.drawable.ic_retry_image_video;
+		if (!ext) {
+			playImage = R.drawable.ic_videoicon;
+		}
+		holder.ftAction.setVisibility(View.GONE);
+		holder.circularProgressBg.setVisibility(View.GONE);
+		holder.initializing.setVisibility(View.GONE);
+		holder.circularProgress.setVisibility(View.GONE);
+		switch (fss.getFTState()) {
+		case IN_PROGRESS:
+			holder.circularProgressBg.setVisibility(View.VISIBLE);
+			holder.circularProgress.setVisibility(View.VISIBLE);
+			Logger.d("OfflineManager", "IN_PROGRESS");
+			showOfflineTransferProgress(holder, fss, msgId, hikeFile, isSent);
+			break;
+		case COMPLETED:
+			holder.circularProgressBg.setVisibility(View.GONE);
+			holder.circularProgress.resetProgress();
+			Logger.d("OfflineManager", "COMPLETED");
+			holder.circularProgress.setVisibility(View.GONE);
+			if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext) {
+				holder.ftAction.setImageResource(playImage);
+				holder.ftAction.setVisibility(View.VISIBLE);
+				holder.circularProgressBg.setVisibility(View.VISIBLE);
+			}
+			break;
+		case ERROR:
+			if (isSent) {
+				holder.ftAction.setImageResource(retryImage);
+				holder.ftAction.setContentDescription(context.getResources()
+						.getString(R.string.content_des_retry_file_download));
+				holder.ftAction.setVisibility(View.VISIBLE);
+				holder.circularProgressBg.setVisibility(View.VISIBLE);
+			}
+			break;
+		default:
+			break;
+		}
+		holder.ftAction.setScaleType(ScaleType.CENTER);
 	}
 }

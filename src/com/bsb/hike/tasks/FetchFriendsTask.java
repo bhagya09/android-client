@@ -23,6 +23,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -563,9 +564,9 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 		
 
-		if(!TextUtils.isEmpty(OfflineManager.getInstance().getConnectedDevice()) && !(("o:"+OfflineManager.getInstance().getConnectedDevice()).compareTo(sendingMsisdn)==0))
+		if(!TextUtils.isEmpty(OfflineController.getInstance().getConnectedDevice()) && !(("o:"+OfflineController.getInstance().getConnectedDevice()).compareTo(sendingMsisdn)==0))
 		{
-			ContactInfo contactInfo66 = ContactManager.getInstance().getContact("o:"+OfflineManager.getInstance().getConnectedDevice());
+			ContactInfo contactInfo66 = ContactManager.getInstance().getContact("o:"+OfflineController.getInstance().getConnectedDevice());
 			offlineFilteredList.add(contactInfo66);
 			offlineList.addAll(offlineFilteredList);
 		}

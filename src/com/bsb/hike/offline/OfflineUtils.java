@@ -627,5 +627,11 @@ public class OfflineUtils
 	{
 		return packet.optString(HikeConstants.TYPE).equals(OfflineConstants.INFO_PKT);
 	}
+	
+	public static void toggleToAndFromField(JSONObject message, String connectedDevice) throws JSONException 
+	{
+		message.put(HikeConstants.FROM, "o:" + connectedDevice);
+		message.remove(HikeConstants.TO);
+	}
 
 }
