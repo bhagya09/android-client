@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.util.Pair;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -15,6 +16,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.interfaces.IMessageReceived;
@@ -188,12 +190,12 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			OfflineUtils.toggleToAndFromField(messageJSON, OfflineController.getInstance().getConnectedDevice());
 			if(!OfflineUtils.isContactTransferMessage(messageJSON) && OfflineUtils.isFileTransferMessage(messageJSON)) 
 			{
-				ConvMessage convMessage = fileManager.handleMessageReceived(messageJSON);
-				if (convMessage != null)
-				{
-					receiverConsignment.setTag(convMessage);
-					addToDatabase(convMessage);
-				}
+				setFileVariablesAndUpdateJSON(messageJSON);
+				ConvMessage convMessage = new ConvMessage(messageJSON, context);
+				
+				addToDatabase(convMessage);
+				fileManager.handleMessageReceived(convMessage);
+				receiverConsignment.setTag(convMessage);
 			}
 			else if(OfflineUtils.isInfoPkt(messageJSON))
 			{
@@ -230,6 +232,35 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		{
 			OfflineController.getInstance().onDisconnect(offlineException);
 		}
+	}
+	
+	private void setFileVariablesAndUpdateJSON(JSONObject messageJSON) throws JSONException 
+	{
+		JSONObject fileJSON = getFileJSONFromMetadata(messageJSON);
+		int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
+		String fileName = Utils.getFinalFileName(HikeFileType.values()[type], fileJSON.getString(HikeConstants.FILE_NAME));
+		String filePath = OfflineUtils.getFileBasedOnType(type, fileName);
+		updateMessageJSON(messageJSON, filePath, fileName);
+	}
+	
+	private JSONObject getFileJSONFromMetadata(JSONObject messageJSON) throws JSONException
+	{
+		JSONObject metadata;
+		metadata = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+		JSONObject fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
+		return fileJSON;
+	}
+	
+	private void updateMessageJSON(JSONObject messageJSON, String filePath, String fileName) throws JSONException 
+	{
+		OfflineUtils.toggleToAndFromField(messageJSON, OfflineController.getInstance().getConnectedDevice());
+		(messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES))
+						.getJSONObject(0).putOpt(HikeConstants.FILE_PATH, filePath);
+		(messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES))
+						.getJSONObject(0).putOpt(HikeConstants.SOURCE_FILE_PATH,filePath);
+		(messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES))
+						.getJSONObject(0).putOpt(HikeConstants.FILE_NAME, fileName);
+
 	}
 
 	private void addToDatabase(ConvMessage convMessage) {
@@ -313,6 +344,6 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	}
 
 	public void releaseResources() {
-		fileManager.deleteRemainingReceivingFiles();
+		//fileManager.deleteRemainingReceivingFiles();
 	}
 }

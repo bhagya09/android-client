@@ -11,25 +11,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.view.View;
-import android.widget.ImageView.ScaleType;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.MessagesAdapter.FTViewHolder;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.hike.transporter.TException;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 
 public class OfflineFileManager
 {
@@ -254,59 +247,18 @@ public class OfflineFileManager
 		HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
 		removeFromCurrentSendingFile(msgId);
 	}
-
-	public ConvMessage handleMessageReceived(JSONObject messageJSON) {
-		try
-		{
-			setFileVariablesAndUpdateJSON(messageJSON);
-			int totalChunks = getTotalChunks(messageJSON);
-			
-			ConvMessage convMessage = new ConvMessage(messageJSON, context);
-			FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, totalChunks), convMessage);
-			addToCurrentReceivingFile(convMessage.getMsgID(), fileTransferModel);
-			return convMessage;
-		}
-		catch(JSONException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+	
+	public void handleMessageReceived(ConvMessage convMessage) 
+	{
+		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+		int totalChunks = getTotalChunks(hikeFile.getFileSize());
+		
+		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, totalChunks), convMessage);
+		addToCurrentReceivingFile(convMessage.getMsgID(), fileTransferModel);
 	}
 	
-	private void setFileVariablesAndUpdateJSON(JSONObject messageJSON) throws JSONException 
+	private int getTotalChunks(int fileSize)
 	{
-		JSONObject fileJSON = getFileJSONFromMetadata(messageJSON);
-		int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
-		String fileName = Utils.getFinalFileName(HikeFileType.values()[type], fileJSON.getString(HikeConstants.FILE_NAME));
-		String filePath = OfflineUtils.getFileBasedOnType(type, fileName);
-		updateMessageJSON(messageJSON, filePath, fileName);
-	}
-	
-	private JSONObject getFileJSONFromMetadata(JSONObject messageJSON) throws JSONException
-	{
-		JSONObject metadata;
-		metadata = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-		JSONObject fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
-		return fileJSON;
-	}
-	
-	private void updateMessageJSON(JSONObject messageJSON, String filePath, String fileName) throws JSONException 
-	{
-		OfflineUtils.toggleToAndFromField(messageJSON, OfflineController.getInstance().getConnectedDevice());
-		(messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES))
-						.getJSONObject(0).putOpt(HikeConstants.FILE_PATH, filePath);
-		(messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES))
-						.getJSONObject(0).putOpt(HikeConstants.SOURCE_FILE_PATH,filePath);
-		(messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES))
-						.getJSONObject(0).putOpt(HikeConstants.FILE_NAME, fileName);
-
-	}
-	
-
-	private int getTotalChunks(JSONObject messageJSON) throws JSONException
-	{
-		JSONObject fileJSON = getFileJSONFromMetadata(messageJSON);
-		int fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
 		int totalChunks = OfflineUtils.getTotalChunks(fileSize);
 		return totalChunks;
 	}
