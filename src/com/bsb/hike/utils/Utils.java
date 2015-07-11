@@ -2628,8 +2628,17 @@ public class Utils
 		{
 			return;
 		}
-		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.showSoftInput(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+		showSoftKeyboard(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+	}
+	
+	public static void showSoftKeyboard(View v,int flags)
+	{
+		if (v == null)
+		{
+			return;
+		}
+		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInput(v, flags);
 	}
 	
 //	public static void showSoftKeyboard(Context context)

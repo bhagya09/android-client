@@ -5,7 +5,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import com.bsb.hike.R;
@@ -37,10 +36,10 @@ public class ShareablePopupLayout
 	 * @param eatOuterTouchIds
 	 */
 
-	public ShareablePopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener,EditText editText,OnSoftKeyboardListener onSoftKeyboardListener)
+	public ShareablePopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener,OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		initViewToDisplay(context);
-		initPopupLayout(context, mainView, firstTimeHeight, eatOuterTouchIds, listener,editText,onSoftKeyboardListener);
+		initPopupLayout(context, mainView, firstTimeHeight, eatOuterTouchIds, listener,onSoftKeyboardListener);
 	}
 
 	private void initViewToDisplay(Context context)
@@ -59,14 +58,14 @@ public class ShareablePopupLayout
 	 * @param onSoftKeyboardListener 
 	 */
 
-	private void initPopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener, EditText editText, OnSoftKeyboardListener onSoftKeyboardListener)
+	private void initPopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener, OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		if (mKeyboardPopupLayout == null)
 		{
 			if (KeyboardPopupLayout21.shouldShow(context))
 			{
-				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener,editText,onSoftKeyboardListener) : new KeyboardPopupLayout21(mainView, firstTimeHeight,
-						context, eatOuterTouchIds, listener,editText,onSoftKeyboardListener);
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener,onSoftKeyboardListener) : new KeyboardPopupLayout21(mainView, firstTimeHeight,
+						context, eatOuterTouchIds, listener,onSoftKeyboardListener);
 			}else{
 				
 				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
@@ -241,7 +240,7 @@ public class ShareablePopupLayout
 		}
 	}
 	public boolean onEditTextTouch(View v, MotionEvent event){
-		return mKeyboardPopupLayout.onTouch(v, event);
+		return mKeyboardPopupLayout.onEditTextTouch(v, event);
 	}
 
 }

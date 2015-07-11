@@ -623,7 +623,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			initEmoticonPicker();
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
-					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this,mComposeView,this);
+					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this,this);
 		}
 
 		else
@@ -2844,6 +2844,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		switch (v.getId())
 		{
+		case R.id.messageedittext:
+			mShareablePopupLayout.onEditTextTouch(v, event);
+			return event == null;
+
 		case R.id.msg_compose:
 			mShareablePopupLayout.onEditTextTouch(v, event);
 			/**
