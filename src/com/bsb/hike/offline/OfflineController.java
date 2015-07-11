@@ -402,7 +402,8 @@ public class OfflineController
 
 		File f = hikeFile.getFile();
 		if (f.exists()) {
-			hikeConverter.getFileConsignment(convMessage);
+			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage);
+			offlineManager.sendConsignment(fileConsignment);
 		} else {
 			HikeMessengerApp.getInstance().showToast("File not found.!!");
 		}
