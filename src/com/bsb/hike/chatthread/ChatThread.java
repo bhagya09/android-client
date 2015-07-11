@@ -5394,6 +5394,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mCurrentActionMode = mActionMode.whichActionModeIsOn();
 		}
 	}
+
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
