@@ -192,6 +192,7 @@ public class OfflineFileManager
 	
 	public void shutDown() 
 	{
+		deleteRemainingReceivingFiles();
 		currentReceivingFiles.clear();
 		currentSendingFiles.clear();
 	}

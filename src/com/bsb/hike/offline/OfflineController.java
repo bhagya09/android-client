@@ -440,8 +440,10 @@ public class OfflineController
 			Logger.d(TAG, "going to disconnect");
 			HikeMessengerApp.getInstance().showToast(
 					"Disconnected Reason " + exception.getReasonCode());
-
-			hikeConverter.shutDown(exception);
+		
+			hikeConverter.releaseResources();
+			fileManager.shutDown();
+			offlineManager.releaseResources();
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(
 					HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
@@ -452,14 +454,12 @@ public class OfflineController
 	{
 		if (getOfflineState() == OFFLINE_STATE.CONNECTED)
 		{
-			hikeConverter.releaseResources();
 			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + getConnectedDevice(), HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_deestablished),
 					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
 			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 			
 			offlineManager.updateListeners(getOfflineState());
-			offlineManager.releaseResources();
 	}
 	
 	}	
