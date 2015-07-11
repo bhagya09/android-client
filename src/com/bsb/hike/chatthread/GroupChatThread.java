@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.json.JSONException;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -34,7 +36,11 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -44,6 +50,7 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
@@ -81,6 +88,55 @@ public class GroupChatThread extends OneToNChatThread
 	public GroupChatThread(ChatThreadActivity activity, String msisdn)
 	{
 		super(activity, msisdn);
+	}
+
+	@Override
+	public void onCreate(Bundle savedState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedState);
+		shouldShowMultiAdminPopup();
+	}
+
+	private void shouldShowMultiAdminPopup() {
+		if( HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false))
+		{
+			try {
+				if(oneToNConversation.getMetadata().amIAdmin()){
+					showMultiAdminTip(activity);
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+		
+	}
+	public static void showMultiAdminTip(final Context context)
+	{
+	
+		HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
+		{
+
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, true);
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+			}
+
+		}, 0);
 	}
 
 	@Override
