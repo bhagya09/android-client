@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +27,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
 import android.webkit.GeolocationPermissions;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -60,7 +60,9 @@ import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.IBridgeCallback;
+import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
@@ -120,6 +122,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED};
 
 	private boolean allowLoc;
+	
+
+	public String id;
+	
+	public void setId(String id)
+	{
+		this.id = id;
+	}
 	
 	
 	@Override
@@ -848,6 +858,38 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 	
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if(data == null)
+		{
+			return;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode != - 1)
+		{
+			switch (requestCode)
+			{
+			case JavascriptBridge.FILE_SELECT_REQUEST:
+				String filePath = data.getStringExtra(HikeConstants.Extras.FILE_PATH);
+				Logger.d("FileUpload", "Path of selected file :" + filePath);
+				String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+				String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+				JSONObject json = new JSONObject();
+				try
+				{
+					json.put("filePath", filePath);
+					json.put("mimeType", mimeType);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+				mmBridge.callbackToJS(id, json.toString());
+				break;
+			}
+		}
+	}
+	
 	public void openFullPage(String url)
 	{
 		startWebViewWithBridge(url, "");
@@ -1002,5 +1044,5 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return true;
 		}
 	}
-	
+
 }
