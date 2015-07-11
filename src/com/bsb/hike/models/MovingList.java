@@ -162,6 +162,12 @@ public class MovingList<T extends Unique> implements Collection<T>
 		return (Iterator<T>) items.iterator();
 	}
 
+	public T remove(int index)
+	{
+		uniqueIds.remove(index);
+		return (T) items.remove(index);
+	}
+	
 	@Override
 	public boolean remove(Object object)
 	{
