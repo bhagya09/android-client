@@ -1,6 +1,7 @@
 package com.bsb.hike.offline;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -649,10 +650,10 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			}
 
 			ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), 
-												"o:"+OfflineManager.getInstance().getConnectedDevice());
+												OfflineManager.getInstance().getConnectedDevice());
 			
 			final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage(
-					"o:"+ OfflineManager.getInstance().getConnectedDevice(),context.getString(R.string.files_not_received),
+					 OfflineManager.getInstance().getConnectedDevice(),context.getString(R.string.files_not_received),
 					OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE);
 			
 			HikeConversationsDatabase.getInstance().addConversationMessages(deleteFilesConvMessage, true);
@@ -662,7 +663,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 
 	private void toggleToAndFromField(JSONObject message) throws JSONException 
 	{
-		message.put(HikeConstants.FROM, "o:" + OfflineManager.getInstance().getConnectedDevice());
+		message.put(HikeConstants.FROM,OfflineManager.getInstance().getConnectedDevice());
 		message.remove(HikeConstants.TO);
 	}
 

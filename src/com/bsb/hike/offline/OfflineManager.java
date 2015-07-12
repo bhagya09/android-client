@@ -305,7 +305,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		if (offlineNetworkMsisdn != null && connectedDevice == null && offlineState == OFFLINE_STATE.CONNECTING)
 		{
 			connectedDevice = offlineNetworkMsisdn;
-			initClientConfig("o:"+connectedDevice);
+			initClientConfig(connectedDevice);
 			Logger.d(TAG, "Starting as Client");
 			transporter.initAsClient(transporterConfig, context,hikeConverter,hikeConverter,this,handler.getLooper());
 		}
@@ -363,7 +363,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		msg.what = OfflineConstants.HandlerConstants.CREATE_HOTSPOT;
 		msg.obj = msisdn;
 		performWorkOnBackEndThread(msg);
-		initServerConfig("o:"+msisdn);
+		initServerConfig(msisdn);
 		Logger.d(TAG, "Starting server!");
 		transporter.initAsServer(transporterConfig,context,hikeConverter,hikeConverter,this,handler.getLooper());
 	}
@@ -545,7 +545,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		if (getOfflineState() == OFFLINE_STATE.CONNECTED)
 		{
 			hikeConverter.deleteRemainingReceivingFiles();
-			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_deestablished),
+			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(connectedDevice, context.getString(R.string.connection_deestablished),
 					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
 			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
@@ -589,7 +589,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
 		removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
 		offlineState = OFFLINE_STATE.CONNECTED;
-		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_established),
+		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(connectedDevice, context.getString(R.string.connection_established),
 				OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
