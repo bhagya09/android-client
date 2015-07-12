@@ -74,6 +74,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.OneToOneChatThread;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -100,6 +101,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OfflineConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
@@ -2134,7 +2136,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if(infoState == ParticipantInfoState.OFFLINE_CONNECTION_STATUS_CONNECTED)
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
-				String name="Connection Established with " + ((OfflineConversation)conversation).getLabel();
+				String name="Connection Established with " + ((OneToOneConversation)(conversation)).getLabel();
 				setTextAndIconForSystemMessages(mainMessage,name, isDefaultTheme ? R.drawable.offline_inline_message : R.drawable.offline_inline_message_white);
 
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
@@ -2143,7 +2145,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			else if(infoState == ParticipantInfoState.OFFLINE_CONNECTION_STATUS_DISCONNECTED)
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
-				String name="Connection Disconnected with " + ((OfflineConversation)conversation).getLabel();
+				String name="Connection Disconnected with " + ((OneToOneConversation)(conversation)).getLabel();
 				setTextAndIconForSystemMessages(mainMessage,name,isDefaultTheme ? R.drawable.offline_inline_message : R.drawable.offline_inline_message_white);
 
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
