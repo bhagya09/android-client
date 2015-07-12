@@ -23,11 +23,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.net.wifi.ScanResult;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -123,6 +126,11 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.offline.IOfflineCallbacks;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -158,7 +166,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener
+		OverflowViewListener, OnSoftKeyboardListener ,IOfflineCallbacks
 {
 	private static final String TAG = "chatthread";
 
@@ -318,6 +326,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected HikeDialog dialog;
 	
+	protected IChannelSelector channelSelector;
+	
+	protected OnlineChannel onlineChannel;
+	
+	protected OfflineChannel offlineChannel;
+	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -338,7 +352,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 
 	private ChatThreadBroadcasts mBroadCastReceiver;
-
+	
+	protected OfflineController offlineController = null;
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -565,7 +580,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mConversationDb = HikeConversationsDatabase.getInstance();
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
+		initMessageChannel();
 	}
+
+	
+	private void initMessageChannel() {
+		String connectedMsisdn = OfflineUtils.getconnectedMsisdn();
+		if(!(TextUtils.isEmpty(connectedMsisdn)) && msisdn.compareTo(connectedMsisdn)==0)
+		{
+			offlineController = new OfflineController(this);
+			offlineChannel = new OfflineChannel(offlineController);
+			channelSelector = offlineChannel;
+		}
+		else
+		{
+			onlineChannel = new OnlineChannel();
+			channelSelector = onlineChannel;
+		}
+	}
+
 
 	/**
 	 * This function must be called after setting content view
@@ -5055,4 +5088,50 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
 	}
+	
+	public void connectedToMsisdn(String connectedDevice)
+	{
+		
+	}
+	
+	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
+	{
+		
+	}
+
+	public void wifiScanResults(Map<String, ScanResult> results)
+	{
+		
+	}
+
+	public void onDisconnect(ERRORCODE errorCode)
+	{
+		if(onlineChannel!=null)
+		{
+			channelSelector = onlineChannel;
+		}
+		else
+		{
+			channelSelector = new OnlineChannel();
+		}
+	}
+	
+	public void toggleChannel(Boolean isOffline)
+	{
+		if(isOffline)
+		{
+			if(offlineController==null)
+				offlineController = new OfflineController(this);
+			if(offlineChannel==null)
+				offlineChannel = new OfflineChannel(offlineController);
+			channelSelector = offlineChannel;
+		}
+		else
+		{
+			if(onlineChannel==null)
+				onlineChannel = new OnlineChannel();
+			channelSelector = onlineChannel;
+		}
+	}
+	
 }
