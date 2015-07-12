@@ -994,7 +994,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		ChatThreadUtils.setPokeMetadata(convMessage);
 
 		// 1) user double clicked on Chat Screen i.e Sending nudge
-		MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.TEXT);
+		channelSelector.startMessageRelLogging(convMessage, MessageType.TEXT);
 				
 		sendMessage(convMessage);
 
@@ -1011,7 +1011,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		ChatThreadUtils.setStickerMetadata(convMessage, sticker.getCategoryId(), sticker.getStickerId(), source);
 
 		// 1) user clicked sticker in Sticker Pallete i.e Sending Sticker
-		MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.STICKER);
+		channelSelector.startMessageRelLogging(convMessage, MessageType.STICKER);
 				
 		sendMessage(convMessage);
 	}
@@ -1658,10 +1658,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		
 		ConvMessage convMessage = createConvMessageFromCompose();
-
 		// 1) user pressed send button i.e sending Text Message
-		MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.TEXT);
-				
+		channelSelector.startMessageRelLogging(convMessage, MessageType.TEXT);
 		sendMessage(convMessage);
 	}
 	

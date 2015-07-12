@@ -832,7 +832,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			 */
 			if (data != null)
 			{
-				ChatThreadUtils.onShareFile(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
+				channelSelector.onShareFile(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
 			}
 			break;
 		case AttachmentPicker.CONTACT:
@@ -1082,7 +1082,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (convMessage != null)
 		{
 			addMessage(convMessage);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+			/*This will publish pubsub if convmessage is being sent online 
+			  else it will send it to OfflineController to send it offline*/
+			channelSelector.sendMessage(convMessage);
 		}
 	}
 	
@@ -1588,13 +1590,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void imageParsed(Uri uri)
 	{
-		ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, uri, HikeFileType.IMAGE, mConversation.isOnHike());
+		channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri, HikeFileType.IMAGE, mConversation.isOnHike());
 	}
 
 	@Override
 	public void imageParsed(String imagePath)
 	{
-		ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT);
+		channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT);
 	}
 
 	@Override
@@ -1610,13 +1612,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (requestCode)
 		{
 		case AttachmentPicker.AUDIO:
-			ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, filePath, HikeFileType.AUDIO, mConversation.isOnHike(), FTAnalyticEvents.AUDIO_ATTACHEMENT);
+			channelSelector.sendAudio(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		case AttachmentPicker.VIDEO:
-			ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, filePath, HikeFileType.VIDEO, mConversation.isOnHike(), FTAnalyticEvents.VIDEO_ATTACHEMENT);
+			channelSelector.sendVideo(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		}
-
 	}
 
 	@Override
@@ -1688,9 +1689,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (dialog.getId())
 		{
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
-			ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn, ((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
+			channelSelector.initialiseContactTransfer(activity.getApplicationContext(), msisdn,((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
 			dialog.dismiss();
-
 			break;
 
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
@@ -1738,8 +1738,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void audioRecordSuccess(String filePath, long duration)
 	{
 		Logger.i(TAG, "Audio Recorded " + filePath + "--" + duration);
-		ChatThreadUtils.initialiseFileTransfer(activity.getApplicationContext(), msisdn, filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE,
-				true, duration, false, mConversation.isOnHike(), FTAnalyticEvents.AUDIO_ATTACHEMENT);
+		channelSelector.sendAudioRecording(activity.getApplicationContext(),filePath,duration,msisdn,mConversation.isOnHike());
 	}
 
 	@Override
@@ -2095,7 +2094,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		else if (intent.hasExtra(HikeConstants.Extras.FILE_PATH))
 		{
-			ChatThreadUtils.onShareFile(activity.getApplicationContext(), msisdn, intent, mConversation.isOnHike());
+			channelSelector.onShareFile(activity.getApplicationContext(),msisdn,intent,mConversation.isOnHike());
 			// Making sure the file does not get forwarded again on
 			// orientation change.
 			intent.removeExtra(HikeConstants.Extras.FILE_PATH);
@@ -2162,11 +2161,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 						if (Utils.isPicasaUri(filePath))
 						{
-							FileTransferManager.getInstance(activity.getApplicationContext()).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, mConversation.isOnHike());
+							channelSelector.sendPicasaUriFile(activity.getApplicationContext(),Uri.parse(filePath), hikeFileType, msisdn, mConversation.isOnHike());
 						}
 						else
 						{
-							ChatThreadUtils.initialiseFileTransfer(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+							channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
 									recordingDuration, true, mConversation.isOnHike(), attachmentType);
 						}
 					}
@@ -2176,14 +2175,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						double latitude = msgExtrasJson.getDouble(HikeConstants.Extras.LATITUDE);
 						double longitude = msgExtrasJson.getDouble(HikeConstants.Extras.LONGITUDE);
 						int zoomLevel = msgExtrasJson.getInt(HikeConstants.Extras.ZOOM_LEVEL);
-						ChatThreadUtils.initialiseLocationTransfer(activity.getApplicationContext(), msisdn, latitude, longitude, zoomLevel, mConversation.isOnHike(),true);
+						channelSelector.initialiaseLocationTransfer(activity.getApplicationContext(), msisdn, latitude, longitude, zoomLevel, mConversation.isOnHike(),true);
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.CONTACT_METADATA))
 					{
 						try
 						{
 							JSONObject contactJson = new JSONObject(msgExtrasJson.getString(HikeConstants.Extras.CONTACT_METADATA));
-							ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn, contactJson, mConversation.isOnHike());
+							channelSelector.initialiseContactTransfer(activity.getApplicationContext(), msisdn, contactJson, mConversation.isOnHike());
 						}
 						catch (JSONException e)
 						{
@@ -2270,7 +2269,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
 			for (String filePath : filePaths)
 			{
-				ChatThreadUtils.initiateFileTransferFromIntentData(activity.getApplicationContext(), msisdn, fileType, filePath, mConversation.isOnHike(), FTAnalyticEvents.OTHER_ATTACHEMENT);
+				channelSelector.initiateFileTransferFromIntentData(activity.getApplicationContext(), msisdn, fileType, filePath, mConversation.isOnHike(), FTAnalyticEvents.OTHER_ATTACHEMENT);
 			}
 			intent.removeExtra(HikeConstants.Extras.FILE_PATHS);
 		}
