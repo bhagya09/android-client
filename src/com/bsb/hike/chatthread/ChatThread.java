@@ -59,6 +59,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -242,7 +243,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     private static final int SHARING_FUNCTIONALITY = 34;
     
 	protected static final int UPDATE_STEALTH_BADGE = 35;
-    
+	
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
     private int currentNudgeCount = 0;
@@ -851,6 +852,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				mConversationsView.setSelection(messages.size() - 1);
 			}
 			break;
+		case AttachmentPicker.APPS:
+			if (data != null)
+			{
+				ArrayList<ApplicationInfo> results = data.getParcelableArrayListExtra(OfflineConstants.APK_SELECTION_RESULTS);
+				
+				for(ApplicationInfo apk: results)
+				{
+					String filePath = apk.sourceDir;
+					String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
+					String apkLabel = (String)activity.getPackageManager().getApplicationLabel(apk);
+					channelSelector.sendApps(filePath, mime, apkLabel, msisdn);
+				}
+			}
+			break;
 		case HikeConstants.PLATFORM_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
@@ -888,7 +903,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				activity.closeChatThread(msisdn);
 			}
-
+			
 			break;
 		default:
 			break;

@@ -277,4 +277,11 @@ public class OfflineController
 			sendMessage(convMessage);
 		}
 	}
+
+	public void sendfile(String filePath , String fileKey, HikeFileType hikeFileType,
+			String fileType, boolean isRecording, long recordingDuration,
+			int attachmentType, String msisdn,String apkLabel) {
+		
+		converter.sendFile(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, apkLabel);
+	}
 }

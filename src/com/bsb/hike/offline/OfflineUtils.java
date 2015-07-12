@@ -628,4 +628,8 @@ public class OfflineUtils
 		return packet.optString(HikeConstants.TYPE).equals(OfflineConstants.INFO_PKT);
 	}
 
+	public static String getconnectedMsisdn() {
+		return null;
+	}
+
 }

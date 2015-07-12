@@ -1,12 +1,14 @@
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,6 +18,8 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -70,7 +74,9 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.ChatTheme;
@@ -142,7 +148,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 30;
 
 	private static final int DEFAULT_SMS_LENGTH = 140;
-	
+
 	String prevLastSeen = null;
 
 	private View hikeToOfflineTipView;
@@ -677,6 +683,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 
 	}
+
 
 	/**
 	 * Method is called from the UI Thread to show the SMS Sync Dialog
@@ -1265,16 +1272,38 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case R.string.scan_free_hike:
 			startFreeHikeConversation();
 			break;
+		case R.string.connect_offline:
+			if (item.text.equals(getString(R.string.connect_offline)))
+			{
+				startFreeHikeConversation();
+			}
+			else
+			{
+				stopFreeHikeConnection();
+			}
+			break;
 		default:
 		}
 	}
 	
+	private void stopFreeHikeConnection() 
+	{
+		showToast(R.string.user_disconnect);
+		offlineController.shutDown();
+	}
+	
+	private void setupOfflineUI()
+	{	
+		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.awaiting_response));
+		//TODO  -  Will Start Of Animation 
+	}
+
 	private void startFreeHikeConversation()
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(activity, OfflineUtils.createOfflineMsisdn(msisdn), false);
-		intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
-		activity.startActivity(intent);
-		activity.overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+		showToast(R.string.scan_process_started);
+		offlineController = new OfflineController(this);
+		offlineController.connectAsPerMsisdn(mConversation.getMsisdn());
+		setupOfflineUI();
 	}
 
 	@Override
@@ -2754,5 +2783,40 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 		scheduleLastSeen();
+	}
+	
+	@Override
+	public void connectedToMsisdn(String connectedDevice)
+	{
+		//TODO  - Handle Animation 
+		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
+		toggleChannel(true);
+	}
+	
+	@Override
+	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
+	{
+		
+	}
+
+	@Override
+	public void wifiScanResults(Map<String, ScanResult> results)
+	{
+		
+	}
+
+	@Override
+	public void onDisconnect(ERRORCODE errorCode)
+	{
+		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_deestablished));
+		if(onlineChannel!=null)
+		{
+			channelSelector = onlineChannel;
+		}
+		else
+		{
+			channelSelector = new OnlineChannel();
+		}
+		//TODO Setup online UI 
 	}
 }

@@ -144,6 +144,8 @@ public class OfflineConstants
 	public static final String OFFLINE_FTUE_SHOWN_AND_CANCELLED = "offline_ftue_shown";
 
 	public static final String FIRST_OFFLINE_MSISDN = "first_offline_msisdn";
+
+	public static final String DISCONNECT_CLIKED = "Disconnected";
 	
 	
 }
