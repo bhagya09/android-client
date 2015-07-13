@@ -10,6 +10,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,15 +40,19 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeUiHandler;
+import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
 
-public class ProfilePicFragment extends SherlockFragment implements FinishableEvent
+public class ProfilePicFragment extends SherlockFragment implements FinishableEvent, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	private View mFragmentView;
 
@@ -77,7 +83,49 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	private Bitmap smallerBitmap;
 
 	private String origImagePath;
+	
+	private HikeUiHandler hikeUiHandler;
+	
+	private HeadlessImageUploaderFragment mImageWorkerFragment;
+	
+	private static final String TAG = "dp_download";
 
+	private Runnable failedRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d(TAG, "inside ImageViewerFragment, onFailed Recv");
+				showErrorState();
+				removeHeadLessFragment();
+			}
+		}
+	};
+	
+	private Runnable successRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d(TAG, "inside ImageViewerFragment, onSucecess Recv");
+				updateProgress(90f - mCurrentProgress);
+				removeHeadLessFragment();
+			}
+		}
+	};
+	
+	public void onActivityCreated(Bundle savedInstanceState) 
+	{
+		super.onActivityCreated(savedInstanceState);
+		hikeUiHandler = new HikeUiHandler(this);
+	};
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -172,62 +220,42 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 
-			String httpRequestURL = "/account";
+			// User info is saved in shared preferences
+			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+					.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 
-			HikeHttpRequest request = new HikeHttpRequest(httpRequestURL + "/avatar", RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
-			{
-				public void onFailure()
-				{
-					showErrorState();
-				}
+			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
 
-				public void onSuccess(JSONObject response)
-				{
-
-					// User info is saved in shared preferences
-					SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-							.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
-
-					ContactInfo userInfo = Utils.getUserContactInfo(preferences);
-
-					String mLocalMSISDN = userInfo.getMsisdn();
-
-					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
-
-					Utils.renameTempProfileImage(mLocalMSISDN);
-
-					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, true);
-
-					Utils.incrementUnseenStatusCount();
-
-					/*
-					 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-					 */
-
-					if (statusMessage.getId() != -1)
-					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-					}
-
-					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
-					
-					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
-
-					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
-
-					updateProgress(90f - mCurrentProgress);
-				}
-			});
-
-			request.setFilePath(origImagePath);
-
-			Utils.executeHttpTask(new HikeHTTPTask(ProfilePicFragment.this, R.string.delete_status_error), request);
-
+			String mLocalMSISDN = userInfo.getMsisdn();
+			
+			loadHeadLessImageUploadingFragment(bytes, origImagePath, mLocalMSISDN);
+			
 			updateProgressUniformly(80f, 10f);
 		}
 	}
 
+	public void loadHeadLessImageUploadingFragment(byte[] bytes, String origImagePath, String mLocalMSISDN)
+	{
+		Logger.d("dp_upload", "inside API loadHeadLessImageUploadingFragment");
+		FragmentManager fm = getFragmentManager();
+		mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+
+	    // If the Fragment is non-null, then it is currently being
+	    // retained across a configuration change.
+	    if (mImageWorkerFragment == null) 
+	    {
+	    	Logger.d("dp_upload", "starting new mImageLoaderFragment");
+	    	mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
+	    	mImageWorkerFragment.setTaskCallbacks(this);
+	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
+	    }
+	    else
+	    {
+	    	Logger.d("dp_download", "As mImageLoaderFragment already there, so not starting new one");
+	    }
+
+	}
+	
 	private void updateProgressUniformly(final float total, final float interval)
 	{
 		if (total <= 0.0f || mUploadStatus == UPLOAD_FAILED || mCurrentProgress >= 100)
@@ -410,5 +438,76 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void onFinish(boolean success)
 	{
 		// Do nothing
+	}
+
+	@Override
+	public void onProgressUpdate(float percent)
+	{
+		
+	}
+
+	@Override
+	public void onCancelled()
+	{
+		
+	}
+
+	@Override
+	public void onFailed()
+	{
+		hikeUiHandler.post(failedRunnable);
+	}
+
+	@Override
+	public void onSuccess(Response result)
+	{
+		// User info is saved in shared preferences
+		SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+				.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+
+		ContactInfo userInfo = Utils.getUserContactInfo(preferences);
+
+		String mLocalMSISDN = userInfo.getMsisdn();
+
+		JSONObject response = (JSONObject) result.getBody().getContent();
+		
+		StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, true);
+
+		Utils.incrementUnseenStatusCount();
+
+		/*
+		 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
+		 */
+
+		if (statusMessage.getId() != -1)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+		}
+
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
+		
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+		
+		hikeUiHandler.post(successRunnable);
+	}
+
+	@Override
+	public void handleUIMessage(Message msg)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private void removeHeadLessFragment()
+	{
+		Logger.d(TAG, "inside ImageViewerFragment, removing UILessFragment");
+		if(getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT) != null)
+		{
+			mImageWorkerFragment = (HeadlessImageUploaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+			getFragmentManager().beginTransaction().remove(mImageWorkerFragment).commit();
+		}
 	}
 }

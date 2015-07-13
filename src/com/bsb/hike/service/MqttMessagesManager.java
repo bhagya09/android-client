@@ -16,8 +16,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,14 +40,9 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
-import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.MessagingBotConfiguration;
-import com.bsb.hike.bots.MessagingBotMetadata;
-import com.bsb.hike.bots.NonMessagingBotConfiguration;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -89,9 +82,10 @@ import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.tasks.DownloadProfileImageTask;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
+import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChatTheme;
@@ -192,8 +186,9 @@ public class MqttMessagesManager
 			return;
 		}
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
-		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
-
+		//ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		HeadlessImageWorkerFragment.doContactManagerIconChange(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
 		// IconCacheManager.getInstance().clearIconForMSISDN(msisdn);
@@ -252,7 +247,8 @@ public class MqttMessagesManager
 			return;
 		}
 
-		conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		HeadlessImageWorkerFragment.doContactManagerIconChange(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		//conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
 
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(groupId);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
@@ -2541,7 +2537,8 @@ public class MqttMessagesManager
 			String iconBase64 = jsonObj.getJSONObject(HikeConstants.DATA).optString(HikeConstants.THUMBNAIL);
 			if (!TextUtils.isEmpty(iconBase64))
 			{
-				ContactManager.getInstance().setIcon(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
+				//ContactManager.getInstance().setIcon(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
+				HeadlessImageWorkerFragment.doContactManagerIconChange(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
 			}
 			// increment the unseen status count straight away.
 			// we've got a new pro tip.
@@ -3431,9 +3428,9 @@ public class MqttMessagesManager
 		}
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName());
-		downloadProfileImageTask.execute();
+		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true);
+		downLoaderFragment.startLoadingTask();
 	}
 
 	private void autoDownloadGroupImage(String id)
@@ -3443,17 +3440,18 @@ public class MqttMessagesManager
 		{
 			return;
 		}
+		
 		String fileName = Utils.getProfileImageFileName(id);
-		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, id, fileName, true, false, null, null);
-		downloadProfileImageTask.execute();
+		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(id, fileName, false, true, null, null, null, true);
+		downLoaderFragment.startLoadingTask();
 	}
 
 	private void autoDownloadProtipImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL());
-		downloadProfileImageTask.execute();
+		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL(), true);
+		downLoaderFragment.startLoadingTask();
 	}
 
 	private void setDefaultSMSClientTutorialSetting()
