@@ -227,8 +227,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
     protected static final int SET_WINDOW_BG = 28;
  
-    protected static final int SCROLL_TO_POSITION = 29;
-
     protected static final int BLOCK_UNBLOCK_USER = 30;
 
     protected static final int ACTION_MODE_CONFIG_CHANGE = 32;
@@ -441,10 +439,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case SCROLL_TO_END:
 			mConversationsView.setSelection(messages.size() - 1);
-			break;
-		case SCROLL_TO_POSITION:
-			Logger.i("gaurav", "scrolling to pos: " + (int)msg.obj);
-			scrollToPosition((int)msg.obj,0);
 			break;
 		case STICKER_FTUE_TIP:
 			mTips.showStickerFtueTip();
