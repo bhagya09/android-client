@@ -96,9 +96,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
 
-	private static final boolean TEST = false; // TODO: Test flag only, turn off
-												// for Production
-
 	private OverflowAdapter overflowAdapter;
 	
 	private boolean extrasClearedOut = false;
@@ -216,7 +213,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		if(isShareIntent(getIntent()))
+		//Make sure we are not launching share intent if our activity is restarted by OS
+		if(isShareIntent(getIntent()) && savedInstanceState == null)
 		{
 			handleFileShareIntent(getIntent());
 		}

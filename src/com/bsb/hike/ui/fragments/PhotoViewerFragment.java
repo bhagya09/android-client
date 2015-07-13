@@ -178,8 +178,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(getArguments().containsKey(HikeConstants.FROM_CHAT_THREAD))
 			fromChatThread = getArguments().getBoolean(HikeConstants.FROM_CHAT_THREAD);
 		
-		Collections.reverse(sharedMediaItems);
-		
 		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
 		selectedPager.setAdapter(smAdapter);
 		selectedPager.setOnPageChangeListener(this);
@@ -233,7 +231,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		}
 		else
 		{
-			setSelection(sharedMediaItems.size() - initialPosition - 1); // Opened from the gallery perhaps, hence set the view pager to the required position
+			setSelection(initialPosition); // Opened from the gallery perhaps, hence set the view pager to the required position
 		}
 		
 		gallaryButton.setOnClickListener(new OnClickListener()
@@ -656,7 +654,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 			toggleViewsVisibility();
 		}
-		if(smAdapter != null)
+		if(smAdapter != null && smAdapter.getSharedFileImageLoader().getIsExitTasksEarly())
 		{
 			smAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
 			
@@ -673,7 +671,12 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			
 				after removing this, problem was solved with that device
 			 */
-			//smAdapter.notifyDataSetChanged();
+			smAdapter.notifyDataSetChanged();
+			
+			/**
+			 * Instead refresh current visible view only
+			 */
+//			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
 		}
 		
 		super.onResume();
