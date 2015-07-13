@@ -4,13 +4,20 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.PopupWindow.OnDismissListener;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineController;
@@ -29,6 +36,7 @@ public class OfflineChannel implements IChannelSelector{
 	@Override
 	public void sendMessage(ConvMessage convMessage) 
 	{
+		convMessage.setMessageOriginType(OriginType.OFFLINE);
 		offlineController.sendMessage(convMessage);
 	}
 
@@ -105,14 +113,14 @@ public class OfflineChannel implements IChannelSelector{
 	@Override
 	public void uploadFile(Context applicationContext, String msisdn, Uri uri,
 			HikeFileType image, boolean onHike) {
-		offlineController.sendImage(Utils.getRealPathFromUri(uri,applicationContext), msisdn);
+		offlineController.sendImage(Utils.getRealPathFromUri(uri,applicationContext), msisdn,FTAnalyticEvents.OTHER_ATTACHEMENT);
 	}
 
 	@Override
 	public void uploadFile(Context applicationContext, String msisdn,
 			String imagePath, HikeFileType imageType, boolean isOnHike,
 			int cameraAttachement) {
-		offlineController.sendImage(imagePath, msisdn);
+		offlineController.sendImage(imagePath, msisdn,cameraAttachement);
 	}
 
 	@Override
@@ -121,5 +129,17 @@ public class OfflineChannel implements IChannelSelector{
 		
 		offlineController.sendApps(filePath, mime, apkLabel, msisdn);
 	}
+
+	@Override
+	public void modifyAttachmentPicker(ChatThreadActivity activity,
+			AttachmentPicker attachmentPicker, boolean addContact) {
+		if (addContact)
+		{
+			attachmentPicker.appendItem(new OverFlowMenuItem(activity.getResources().getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
+		}
+		attachmentPicker.removeItem(AttachmentPicker.LOCATOIN);
+		attachmentPicker.appendItem(new OverFlowMenuItem(activity.getResources().getString(R.string.apps), 0, R.drawable.ic_attach_apk, AttachmentPicker.APPS));
+	}
+
 
 }

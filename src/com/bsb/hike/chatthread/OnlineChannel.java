@@ -9,10 +9,13 @@ import android.net.Uri;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 
@@ -109,7 +112,16 @@ public class OnlineChannel implements IChannelSelector{
 	@Override
 	public void sendApps(String filePath, String mime, String apkLabel,
 			String msisdn) {
-		//To do - Send apk's online
+		//TODO - Send apk's online
+	}
+
+	@Override
+	public void modifyAttachmentPicker(ChatThreadActivity activity,
+			AttachmentPicker attachmentPicker, boolean addContact) {
+		if (addContact)
+		{
+			attachmentPicker.appendItem(new OverFlowMenuItem(activity.getResources().getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
+		}
 	}
 
 }

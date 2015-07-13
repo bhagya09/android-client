@@ -4,10 +4,14 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.PopupWindow.OnDismissListener;
 
+import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 
@@ -56,5 +60,8 @@ public interface IChannelSelector {
 			int cameraAttachement);
 
 	void sendApps(String filePath, String mime, String apkLabel, String msisdn);
+
+	void modifyAttachmentPicker(ChatThreadActivity activity, AttachmentPicker attachmentPicker,
+			boolean addContact);
 
 }

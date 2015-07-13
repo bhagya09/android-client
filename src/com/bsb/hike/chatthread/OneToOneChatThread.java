@@ -1,7 +1,6 @@
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +16,8 @@ import org.json.JSONObject;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -179,6 +180,34 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 	
 	@Override
+	public void onResume() 
+	{
+		super.onResume();
+		setStatusWhenConnectedOffline();
+	};
+	
+	
+	private void setStatusWhenConnectedOffline()
+	{
+		switch (offlineController.getOfflineState())
+		{
+		case CONNECTED:
+			if (mConversation.getMsisdn().equals(offlineController.getConnectedDevice()))
+			{
+				sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
+			}
+			break;
+		case CONNECTING:
+
+			break;
+		case NOT_CONNECTED:
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		Logger.i(TAG, "on create options menu " + menu.hashCode());
@@ -225,10 +254,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private List<OverFlowMenuItem> getOverFlowItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
-		if(mConversation.isOnHike())
-		{
-			list.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
-		}list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
+		list.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
+		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		
@@ -1270,10 +1297,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			addFavorite();
 			break;
 		case R.string.scan_free_hike:
-			startFreeHikeConversation();
-			break;
-		case R.string.connect_offline:
-			if (item.text.equals(getString(R.string.connect_offline)))
+			if (item.text.equals(getString(R.string.scan_free_hike)))
 			{
 				startFreeHikeConversation();
 			}
@@ -1389,7 +1413,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void showNetworkError(boolean isNetworkError) 
 	{
-		TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
+		/*TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
 		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
 		String contactFirstName = msisdn;
 		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
@@ -1398,7 +1422,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
 		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
-		activity.findViewById(R.id.free_hike_no_netwrok_btn).setOnClickListener(this);
+		activity.findViewById(R.id.free_hike_no_netwrok_btn).setOnClickListener(this);*/
+		super.showNetworkError(isNetworkError);
 	};
 
 	/**
@@ -2735,6 +2760,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			case R.string.block_title:
 				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
 				break;
+			case R.string.scan_free_hike:
+				if (TextUtils.isEmpty(offlineController.getConnectedDevice()) || (!offlineController.getConnectedDevice().equals(mConversation.getMsisdn())))
+				{
+					overFlowMenuItem.text = getString(R.string.scan_free_hike);
+				}
+				else
+				{
+					overFlowMenuItem.text = getString(R.string.disconnect_offline);
+				}
+				
+				break;
 			}
 		}
 	}
@@ -2791,8 +2827,13 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		//TODO  - Handle Animation 
 		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
 		toggleChannel(true);
+		clearAttachmentPicker();
 	}
-	
+
+	private void clearAttachmentPicker() {
+		attachmentPicker = null;
+	}
+
 	@Override
 	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
 	{
@@ -2808,15 +2849,23 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_deestablished));
-		if(onlineChannel!=null)
+		
+		toggleChannel(false);
+		switch (errorCode)
 		{
-			channelSelector = onlineChannel;
-		}
-		else
-		{
-			channelSelector = new OnlineChannel();
+		case OUT_OF_RANGE:
+			break;
+		case TIMEOUT:
+			break;
+		case USERDISCONNECTED:
+			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_deestablished));
+			break;
+		case COULD_NOT_CONNECT:
+			break;
+		default:
+			break;
 		}
 		//TODO Setup online UI 
+		clearAttachmentPicker();
 	}
 }

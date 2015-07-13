@@ -26,6 +26,8 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -158,6 +160,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import com.google.android.gms.internal.cn;
 
 /**
  * 
@@ -586,12 +589,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	
 	private void initMessageChannel() {
-		String connectedMsisdn = OfflineUtils.getconnectedMsisdn();
-		if(!(TextUtils.isEmpty(connectedMsisdn)) && msisdn.compareTo(connectedMsisdn)==0)
+		offlineController =  new OfflineController(this);
+		String connectedMsisdn = offlineController.getConnectedDevice();
+		if(!(TextUtils.isEmpty(connectedMsisdn)) && msisdn.equals(connectedMsisdn))
 		{
-			offlineController = new OfflineController(this);
 			offlineChannel = new OfflineChannel(offlineController);
 			channelSelector = offlineChannel;
+			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 		}
 		else
 		{
@@ -1243,10 +1247,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (attachmentPicker == null)
 		{
 			attachmentPicker = new AttachmentPicker(msisdn, this, this, activity, true);
-			if (addContact)
-			{
-				attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
-			}
+			channelSelector.modifyAttachmentPicker(activity,attachmentPicker,addContact);
 		}
 	}
 
@@ -1704,7 +1705,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (dialog.getId())
 		{
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
-			channelSelector.initialiseContactTransfer(activity.getApplicationContext(), msisdn,((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
+			if(channelSelector instanceof OnlineChannel)
+			{
+				ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn,((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());	
+			}
+			else
+			{
+				ConvMessage offlineConvMessage = OfflineUtils.createOfflineContactConvMessage(msisdn,((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
+				sendMessage(offlineConvMessage);
+			}
 			dialog.dismiss();
 			break;
 
@@ -3364,8 +3373,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(null);
 		
 		releaseActionBarResources();
+		
+		releaseOfflineListeners();
 	}
 	
+	private void releaseOfflineListeners() {
+		if (offlineController != null)
+		{
+			offlineController.removeListener(this);
+		}
+	}
+
+
 	private void releaseActionBarResources()
 	{
 		if (mActionBar != null)
@@ -3455,6 +3474,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeViewWatcher.setBtnEnabled();
 			mComposeView.requestFocus();
 		}
+		
 
 	}
 
