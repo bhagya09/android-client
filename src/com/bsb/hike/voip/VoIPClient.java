@@ -119,7 +119,7 @@ public class VoIPClient  {
 	private final int QUALITY_CALCULATION_FREQUENCY = 4;	// Quality is calculated every 'x' playback samples
 	private BitSet playbackTrackingBits = new BitSet(VoIPConstants.AUDIO_SAMPLE_RATE * QUALITY_BUFFER_SIZE/ OpusWrapper.OPUS_FRAME_SIZE);
 	private int playbackFeederCounter = 0;
-	public CallQuality currentCallQuality = CallQuality.UNKNOWN;
+	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
 	private int plcCounter = 0;
 	
 	private final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
@@ -358,6 +358,11 @@ public class VoIPClient  {
 		}
 	}
 	
+	/**
+	 * Initiates a call to this client. <br/>
+	 * Step one of call initiation is to retrieve your public ip:port
+	 * using our version of ICE. 
+	 */
 	public void retrieveExternalSocket() {
 
 		IceSocketTimeout = VoIPConstants.INITIAL_ICE_SOCKET_TIMEOUT;
@@ -540,7 +545,14 @@ public class VoIPClient  {
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
-						Logger.d(tag, "Giving up on connection.");
+						if (isInAHostedConference) {
+							Logger.w(tag, "Yes, we are in a conf");
+							if (reconnectForConference()) {
+								Thread.currentThread().interrupt();
+								return;
+							}
+						}
+						Logger.w(tag, "Giving up on connection.");
 						hangUp();
 						break;
 					}
@@ -592,7 +604,7 @@ public class VoIPClient  {
 			reconnecting = true;
 
 		reconnectAttempts++;
-		Logger.w(tag, "VoIPService reconnect()");
+		Logger.w(tag, "Reconnecting..");
 
 		// Interrupt the receiving thread since we will make the socket null
 		// and it could throw an NPE.
@@ -867,6 +879,7 @@ public class VoIPClient  {
 		stopReconnectBeeps();
 		connected = false;
 		audioStarted = false;
+		reconnecting = false;
 		removeExternalSocketInfo();
 		
 		ackWaitQueue.clear();
@@ -895,16 +908,20 @@ public class VoIPClient  {
 			
 			@Override
 			public void run() {
-				for (int i = 0; i < numLoop || reconnecting; i++) {
+				for (int i = 0; (i < numLoop || reconnecting) && keepRunning; i++) {
 					try {
 						Thread.sleep(VoIPConstants.TIMEOUT_PARTNER_SOCKET_INFO / numLoop);
 						sendSocketInfoToPartner();		// Retry sending socket info. 
 					} catch (InterruptedException e) {
-						// Logger.d(logTag, "Timeout thread interrupted.");
 						return;
 					}
 				}
 
+				if (isInAHostedConference) {
+					if (reconnectForConference()) 
+						return;
+				}
+				
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
 				if (!isInitiator() && !reconnecting) {
 					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber());
@@ -1855,6 +1872,36 @@ public class VoIPClient  {
 
 	}
 
+	public CallQuality getQuality() {
+
+		// Call quality is usually based on how reliably we are receiving data. 
+		// However, through the client heartbeat we are also sent information
+		// on how many packets the other party is receiving per second. 
+		// So, if the other party is not receiving enough data, show poor quality. 
+		if (version >= 2 && remotePacketsReceivedPerSecond < 10)
+			return CallQuality.WEAK;
+		
+		return currentCallQuality;
+	}
+	
+	private boolean reconnectForConference() {
+		if (version >= 2) {
+			reconnecting = false;
+			
+			// Socket info timeout thread will be running since we will 
+			// already be trying to reconnect.
+			if (partnerSocketInfoTimeoutThread != null)
+				partnerSocketInfoTimeoutThread.interrupt();
+			socketInfoReceived = false;
+			
+			retrieveExternalSocket();
+			Logger.w(tag, "Yup, reconnecting.");
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public void addSampleToEncode(VoIPDataPacket dp) {
 		samplesToEncodeQueue.add(dp);
 	}
