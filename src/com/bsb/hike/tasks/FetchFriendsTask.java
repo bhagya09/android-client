@@ -564,11 +564,24 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 		
 
-		if(!TextUtils.isEmpty(OfflineController.getInstance().getConnectedDevice()) && !(("o:"+OfflineController.getInstance().getConnectedDevice()).compareTo(sendingMsisdn)==0))
+		if(!TextUtils.isEmpty(OfflineController.getInstance().getConnectedDevice()))
 		{
-			ContactInfo contactInfo66 = ContactManager.getInstance().getContact("o:"+OfflineController.getInstance().getConnectedDevice());
-			offlineFilteredList.add(contactInfo66);
-			offlineList.addAll(offlineFilteredList);
+			if (TextUtils.isEmpty(sendingMsisdn))
+			{
+				ContactInfo contactInfo66 = ContactManager.getInstance().getContact("o:"+OfflineController.getInstance().getConnectedDevice());
+				offlineFilteredList.add(contactInfo66);
+				offlineList.addAll(offlineFilteredList);
+			}
+			else
+			{
+				if (!TextUtils.isEmpty(sendingMsisdn) && 
+						!("o:"+OfflineController.getInstance().getConnectedDevice()).equals(sendingMsisdn))
+				{
+					ContactInfo contactInfo66 = ContactManager.getInstance().getContact("o:"+OfflineController.getInstance().getConnectedDevice());
+					offlineFilteredList.add(contactInfo66);
+					offlineList.addAll(offlineFilteredList);
+				}
+			}
 		}
 		friendsAdapter.setListFetchedOnce(true);
 		// We dont need to show contacts in NUX Invite screen
