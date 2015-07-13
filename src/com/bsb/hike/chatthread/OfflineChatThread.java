@@ -39,6 +39,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -49,6 +50,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.PhonebookContact;
@@ -102,6 +104,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		controller.addListener(this);
 	}
 
+	
 	@Override
 	protected void handleUIMessage(Message msg)
 	{
@@ -132,6 +135,27 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		{
 			statusView.setVisibility(View.VISIBLE);
 			statusView.setText(status);
+		}
+	}
+	
+	@Override
+	protected String[] getPubSubListeners() {
+		return new String[]{ HikePubSub.OFFLINE_FILE_COMPLETED};
+	}
+	
+	@Override
+	public void onEventReceived(String type, Object object) {
+		switch (type) {
+		case HikePubSub.OFFLINE_FILE_COMPLETED:
+			if (isActivityVisible)
+			{
+				ConvMessage message = (ConvMessage) object;
+				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
+			}
+			break;
+		default:
+			super.onEventReceived(type, object);
+			break;
 		}
 	}
 

@@ -951,7 +951,7 @@ public class MqttMessagesManager
 		
 	}
 
-	private void saveMessageRead(JSONObject jsonObj) throws JSONException
+	public void saveMessageRead(JSONObject jsonObj) throws JSONException
 	{
 		JSONArray serverIds = jsonObj.optJSONArray(HikeConstants.DATA);
 		

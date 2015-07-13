@@ -2,6 +2,7 @@ package com.bsb.hike.offline;
 
 import java.io.File;
 
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,6 +16,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.TException;
@@ -197,6 +199,10 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				fileManager.handleMessageReceived(convMessage);
 				receiverConsignment.setTag(convMessage);
 			}
+			else if(OfflineUtils.isMessageReadType(messageJSON))
+			{
+				MqttMessagesManager.getInstance(context).saveMessageRead(messageJSON);
+			}
 			else if(OfflineUtils.isInfoPkt(messageJSON))
 			{
 				Logger.d(TAG, "Info Packet received ...>>" + messageJSON.toString());
@@ -342,8 +348,14 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			
 		}
 	}
+	
+	public void releaseResources() 
+	{
+	}
 
-	public void releaseResources() {
-		//fileManager.deleteRemainingReceivingFiles();
+	public SenderConsignment getMRConsignement(JSONObject object) {
+	
+		SenderConsignment consignment=new SenderConsignment.Builder(object.toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false).persistance(false).build();
+		return consignment;
 	}
 }

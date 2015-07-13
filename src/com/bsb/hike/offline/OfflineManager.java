@@ -16,10 +16,6 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
@@ -513,24 +509,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	@Override
 	public void onConnect() 
 	{
-		Logger.d(TAG, "In onConnect");
-		this.connectedDevice=connectinMsisdn;
-		Logger.d(TAG,"Connecting Device is "+connectinMsisdn);
-		removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
-		removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
-		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTED);
-		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_established),
-				OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
-		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-		for (IOfflineCallbacks offlineListener : listeners)
-		{
-			offlineListener.connectedToMsisdn(connectedDevice);
-		}
-		sendInfoPacket();
+		OfflineController.getInstance().onConnect();
 	}
 
-	private void sendInfoPacket()
+	protected void sendInfoPacket()
 	{
 		SenderConsignment senderConsignment = new SenderConsignment.Builder(OfflineUtils.createInfoPkt().toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false)
 				.persistance(false).build();
@@ -576,6 +558,20 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			for (IOfflineCallbacks offlineListener : listeners) {
 				offlineListener.onDisconnect(ERRORCODE.TIMEOUT);
 			}
+		}
+	}
+
+
+	public void setConnectingDeviceAsConnected() {
+		this.connectedDevice=connectinMsisdn;
+	}
+
+
+	public void sendConnectedCallback() 
+	{
+		for (IOfflineCallbacks offlineListener : listeners)
+		{
+			offlineListener.connectedToMsisdn(getConnectedDevice());
 		}
 	}
 

@@ -240,6 +240,7 @@ public class OfflineFileManager
 			
 			removeFromCurrentReceivingFile(message.getMsgID());
 			OfflineUtils.showSpinnerProgress(fileTransferModel);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_FILE_COMPLETED, message);
 		}
 	}
 

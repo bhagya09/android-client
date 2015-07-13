@@ -424,7 +424,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected void onMessageRead(Object object)
 	{
 		Pair<String, long[]> pair = (Pair<String, long[]>) object;
-		// If the msisdn don't match we simply return
+		
+		Logger.d("OfflineManager", "Message read received for " + pair.second.toString());
 		if (!mConversation.getMsisdn().equals(pair.first))
 		{
 			return;
@@ -437,6 +438,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			ConvMessage msg = findMessageById(ids[i]);
 			if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_DELIVERED_READ.ordinal()))
 			{
+				Logger.d("OfflineManager", "ConvMessage state changed!!");
 				msg.setState(ConvMessage.State.SENT_DELIVERED_READ);
 				removeFromMessageMap(msg);
 			}
@@ -472,6 +474,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
+		Logger.d(TAG, "Inside onEventReceived of pubSub : " + type);
 		switch (type)
 		{
 		case HikePubSub.MESSAGE_DELIVERED_READ:

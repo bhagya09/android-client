@@ -1,14 +1,13 @@
 package com.bsb.hike.offline;
 
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
@@ -17,22 +16,20 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
+import com.bsb.hike.utils.Logger;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.models.SenderConsignment;
-import com.bsb.hike.utils.Logger;
 
 /**
  * 
@@ -158,6 +155,11 @@ public class OfflineController
 		offlineManager.sendConsignment(msgConsignment);
 	}
 	
+	public void sendMR(JSONObject object)
+	{
+		SenderConsignment mrConsignement=hikeConverter.getMRConsignement(object);
+		offlineManager.sendConsignment(mrConsignement);
+	}
 	public void sendAudioFile(String filePath, long duration, String msisdn)
 	{
 		SenderConsignment audioConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true, duration,
@@ -462,5 +464,21 @@ public class OfflineController
 			offlineManager.updateListeners(getOfflineState());
 	}
 	
+	}
+
+	public void onConnect() 
+	{
+		Logger.d(TAG, "In onConnect");
+		offlineManager.setConnectingDeviceAsConnected();
+		Logger.d(TAG,"Connected Device is "+ offlineManager.getConnectedDevice());
+		offlineManager.removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
+		offlineManager.removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
+		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTED);
+		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + offlineManager.getConnectedDevice(), 
+						HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_established), OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+		offlineManager.sendConnectedCallback();
+		offlineManager.sendInfoPacket();
 	}	
 }

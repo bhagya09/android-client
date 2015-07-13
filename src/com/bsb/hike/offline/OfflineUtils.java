@@ -516,7 +516,7 @@ public class OfflineUtils
 	{
 		try
 		{
-			if (packet.has(HikeConstants.DATA))
+			if (packet.optJSONObject(HikeConstants.DATA)!=null)
 			{
 				if (packet.optJSONObject(HikeConstants.DATA).has(HikeConstants.METADATA))
 				{
@@ -632,6 +632,11 @@ public class OfflineUtils
 	{
 		message.put(HikeConstants.FROM, "o:" + connectedDevice);
 		message.remove(HikeConstants.TO);
+	}
+
+	public static boolean isMessageReadType(JSONObject messageJSON) {
+		
+		return HikeConstants.MqttMessageTypes.MESSAGE_READ.equals(messageJSON.optString(HikeConstants.TYPE));
 	}
 
 }
