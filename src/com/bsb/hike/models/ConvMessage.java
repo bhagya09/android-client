@@ -140,6 +140,7 @@ public class ConvMessage implements Searchable
 	{
 		NORMAL, /* message sent to server */
 		BROADCAST, /* message originated from a broadcast */
+		OFFLINE, /* message originated when connected in Hike Offline */
 	};
 	
 	private OriginType messageOriginType = OriginType.NORMAL;
@@ -1242,6 +1243,10 @@ public class ConvMessage implements Searchable
 	
 	public boolean isBroadcastMessage() {
 		return messageOriginType == OriginType.BROADCAST;
+	}
+	
+	public boolean isOfflineMessage(){
+		return messageOriginType == OriginType.OFFLINE;
 	}
 	
 	public ArrayList<String> getSentToMsisdnsList() {
