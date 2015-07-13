@@ -240,9 +240,9 @@ public class OfflineController
 		converter.sendFile(filePath, null, HikeFileType.VIDEO, null, false, -1, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn, null);
 	}
 
-	public void sendImage(String imagePath, String msisdn)
+	public void sendImage(String imagePath, String msisdn,int attachementType)
 	{
-		converter.sendFile(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,null);
+		converter.sendFile(imagePath, null, HikeFileType.IMAGE, null, false, -1,attachementType, msisdn,null);
     }
 	
 	public void createHotspot(String msisdn)
