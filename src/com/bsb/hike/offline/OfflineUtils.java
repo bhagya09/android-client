@@ -632,4 +632,9 @@ public class OfflineUtils
 		return null;
 	}
 
+	public static boolean isConnectedToSameMsisdn(String msisdn) {
+	
+		return false;
+	}
+
 }
