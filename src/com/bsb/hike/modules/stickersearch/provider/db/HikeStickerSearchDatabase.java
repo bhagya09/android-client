@@ -24,6 +24,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQuery;
+import android.database.sqlite.SQLiteQueryBuilder;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Pair;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
@@ -144,7 +147,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// Region Function : String [Compulsory], Frequency density function of regions/ languages
 		// Overall Tag History : String [Compulsory], History of given tag w.r.t. associated sticker
 		// Overall Sticker History : String [Compulsory], History of associated sticker irrespective of given tag
-		// Associated Story : String [Compulsory], ID of associated themes put from TABLE_STICKER_TAG_ENTITY
+		// Associated Story Themes : String [Compulsory], ID of associated themes put from TABLE_STICKER_TAG_ENTITY
 		// Moment Attribute : Integer [Optional], Optional data such as time specialization
 		// Festival Attribute : String [Optional], Optional data such as celebration specialization
 		// Age Attribute : Integer [Optional], Optional data to determine how old sticker is
@@ -240,19 +243,31 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	{
 		Logger.d(TAG, "deleteAll(" + isNeedToDeleteAllSearchData + ")");
 
-		// Delete tables used for search
-		deleteSearchData();
-
-		if (isNeedToDeleteAllSearchData)
+		try
 		{
-			// Delete fixed table: TABLE_STICKER_CATEGORY_HISTORY
-			mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_PACK_CATEGORY_HISTORY, null, null);
+			mDb.beginTransaction();
 
-			// Delete fixed table: TABLE_STICKER_TAG_MAPPING
-			mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
+			// Delete tables used for search
+			deleteSearchData();
 
-			// Delete fixed table: TABLE_STICKER_TAG_MAPPING
-			mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, null);
+			if (isNeedToDeleteAllSearchData)
+			{
+				// Delete fixed table: TABLE_STICKER_CATEGORY_HISTORY
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_PACK_CATEGORY_HISTORY, null, null);
+
+				// Delete fixed table: TABLE_STICKER_TAG_MAPPING
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
+
+				// Delete fixed table: TABLE_STICKER_TAG_MAPPING
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, null);
+			}
+			SQLiteDatabase.releaseMemory();
+
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
 		}
 	}
 
@@ -262,11 +277,40 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Logger.d(TAG, "deleteSearchData()");
 
 		// Delete dynamically added tables
+		String[] tables = new String[HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT];
+
+		tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
+		mDb.delete(tables[0], null, null);
+		SQLiteDatabase.releaseMemory();
+		try
+		{
+			Thread.sleep(5);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+
+		int remainingCount = HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT - 1;
+		for (int i = 0; i < remainingCount; i++)
+		{
+			tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
+			mDb.delete(tables[i + 1], null, null);
+
+			SQLiteDatabase.releaseMemory();
+			try
+			{
+				Thread.sleep(5);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
-	public long[] insertIntoPrimaryTable(ArrayList<String> tags, ArrayList<Integer> priorities,ArrayList<Integer> moments, ArrayList<String> stickerInfo)
+	public long[] insertIntoPrimaryTable(ArrayList<String> tags, ArrayList<Integer> priorities, ArrayList<Integer> moments, ArrayList<String> stickerInfo)
 	{
-
 		long[] rows = new long[tags.size()];
 		try
 		{
@@ -303,7 +347,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private ArrayList<ArrayList<Object>> searchInPrimaryTable(String match, int[] primaryKeys, boolean isExactMatchNeeded)
 	{
-
 		ArrayList<ArrayList<Object>> list = null;
 		ArrayList<ArrayList<Object>> tempList = null;
 		ArrayList<Float> matchRankList = null;
@@ -325,7 +368,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sb.append(",?");
 			}
 
-			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN (" + sb.toString() + ")", args, null,
+			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN(" + sb.toString() + ")", args, null,
 					null, null);
 			if (c != null)
 			{
@@ -424,15 +467,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						matchRankList.remove(index);
 						tempList.remove(index);
 
-						if ((previousStikcer == null) || !currentStickerData.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE).equals(
-								previousStikcer.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE)))
+						if ((previousStikcer == null)
+								|| !currentStickerData.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE).equals(
+										previousStikcer.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE)))
 						{
 							list.add(currentStickerData);
 						}
 						else
 						{
-							if ((int) currentStickerData.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) >
-								(int) previousStikcer.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER))
+							if ((int) currentStickerData.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) > (int) previousStikcer
+									.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER))
 							{
 								list.set(list.size() - 1, currentStickerData);
 							}
@@ -583,83 +627,129 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public void disableTagsForDeletedStickers(Set<String> stickerInfo)
 	{
-
-		if (stickerInfo == null || stickerInfo.isEmpty())
+		if (stickerInfo == null)
+		{
 			return;
+		}
+
+		if (stickerInfo.isEmpty())
+		{
+			try
+			{
+				mDb.beginTransaction();
+
+				deleteSearchData();
+
+				mDb.endTransaction();
+			}
+			finally
+			{
+				mDb.setTransactionSuccessful();
+			}
+			return;
+		}
 
 		Cursor c = null;
-		ArrayList<Long> primaryKeys = null;
+		ArrayList<Long> primaryKeys = new ArrayList<Long>();
 		try
 		{
 			Iterator<String> iterator = stickerInfo.iterator();
 			String[] args = new String[stickerInfo.size()];
-			int i = 0;
-			while (iterator.hasNext())
+			for (int i = 0; iterator.hasNext(); i++)
 			{
-				args[i++] = iterator.next();
+				args[i] = iterator.next();
 			}
 
-			StringBuilder sb = new StringBuilder(args.length * 2 - 1);
-			sb.append("?");
-			for (i = 1; i < args.length; i++)
+			for (int j = 0; j < args.length;)
 			{
-				sb.append(",?");
-			}
-
-			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + " NOT IN (" + sb.toString()
-					+ ")", args, null, null, null);
-			if (c != null)
-			{
-				if (c.getCount() > 0)
+				int remainingCount = args.length - j;
+				int count = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER : remainingCount;
+	
+				StringBuilder sb = new StringBuilder(args.length * 2 - 1);
+				sb.append("?");
+				for (int i = 1; i < count; i++)
 				{
-					primaryKeys = new ArrayList<Long>(c.getCount());
-					while (c.moveToNext())
+					sb.append(",?");
+				}
+
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null,
+						HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + " NOT IN(" + sb.toString() + ")", Arrays.copyOfRange(args, j, (j + count)), null, null, null);
+				if (c != null)
+				{
+					if (c.getCount() > 0)
 					{
-						primaryKeys.add(c.getLong(c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID)));
+						while (c.moveToNext())
+						{
+							primaryKeys.add(c.getLong(c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID)));
+						}
 					}
+				}
+
+				j += count;
+
+				try
+				{
+					Thread.sleep(20);
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
 				}
 			}
 
 			if (primaryKeys != null && primaryKeys.size() > 0)
 			{
-				String[] groupIds = new String[primaryKeys.size()];
-				for (i = 0; i < primaryKeys.size(); i++)
-				{
-					groupIds[i] = String.valueOf(primaryKeys.get(i));
-				}
-				sb = new StringBuilder(groupIds.length * 2 - 1);
-				sb.append("?");
-				for (i = 1; i < groupIds.length; i++)
-				{
-					sb.append(",?");
-				}
 				String[] tables = new String[27];
 				tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
-				for (i = 0; i < 26; i++)
+				for (int i = 0; i < 26; i++)
 				{
 					tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
+				}
+
+				String[] groupIds = new String[primaryKeys.size()];
+				for (int i = 0; i < primaryKeys.size(); i++)
+				{
+					groupIds[i] = String.valueOf(primaryKeys.get(i));
 				}
 
 				try
 				{
 					mDb.beginTransaction();
-					for (i = 0; i < 27; i++)
+
+					for (int j = 0; j < groupIds.length;)
 					{
-						mDb.delete(tables[i], "WHERE " + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + " IN (" + sb.toString() + ")", groupIds);
-						SQLiteDatabase.releaseMemory();
-						try
+						int remainingCount = groupIds.length - j;
+						int count = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER : remainingCount;
+			
+						StringBuilder sb = new StringBuilder(args.length * 2 - 1);
+						sb.append("?");
+						for (int i = 1; i < count; i++)
 						{
-							Thread.sleep(20);
+							sb.append(",?");
 						}
-						catch (InterruptedException e)
+
+						for (int i = 0; i < 27; i++)
 						{
-							e.printStackTrace();
+							mDb.delete(tables[i], HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + " IN(" + sb.toString() + ")", Arrays.copyOfRange(groupIds, j, (j + count)));
+							SQLiteDatabase.releaseMemory();
+							try
+							{
+								Thread.sleep(5);
+							}
+							catch (InterruptedException e)
+							{
+								e.printStackTrace();
+							}
 						}
+
+						j += count;
 					}
+
+					mDb.setTransactionSuccessful();
 				}
 				finally
 				{
-					mDb.setTransactionSuccessful();
+					mDb.endTransaction();
 				}
 			}
 		}
