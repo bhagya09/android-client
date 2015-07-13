@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.bsb.hike.utils.AccountUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -353,6 +354,31 @@ public class PlatformUtils
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 	}
 
+	private static void createBotMqttAnalytics(String key, BotInfo botInfo)
+	{
+		try
+		{
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.NON_UI_EVENT);
+
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, key);
+			metadata.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
+			metadata.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
+			metadata.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+
+			data.put(HikeConstants.METADATA, metadata);
+
+			Utils.sendLogEvent(data, AnalyticsConstants.DOWNLOAD_EVENT, null);
+		}
+		catch (JSONException e)
+		{
+			Logger.w("LE", "Invalid json");
+		}
+	}
+
 	private static void createBotAnalytics(String key, BotInfo botInfo)
 	{
 		createBotAnalytics(key, botInfo, null);
@@ -371,6 +397,7 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+			createBotMqttAnalytics(key, botInfo);
 		}
 		catch (JSONException e)
 		{
