@@ -190,8 +190,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			dir.mkdirs();
 		}
 
-		//String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
-		
 		String fileName = Utils.getUniqueFilename(HikeFileType.IMAGE);
 		String destFilePath = directory + File.separator + fileName;
 		return destFilePath;

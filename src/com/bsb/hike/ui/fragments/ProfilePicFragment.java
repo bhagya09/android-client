@@ -87,6 +87,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	private HikeUiHandler hikeUiHandler;
 	
 	private HeadlessImageUploaderFragment mImageWorkerFragment;
+	
+	private static final String TAG = "dp_download";
 
 	private Runnable failedRunnable = new Runnable()
 	{
@@ -96,7 +98,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		{
 			if(isAdded() && isVisible())
 			{
-				Logger.d("dp_download", "inside ImageViewerFragment, onFailed Recv");
+				Logger.d(TAG, "inside ImageViewerFragment, onFailed Recv");
 				showErrorState();
 				removeHeadLessFragment();
 			}
@@ -111,7 +113,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		{
 			if(isAdded() && isVisible())
 			{
-				Logger.d("dp_download", "inside ImageViewerFragment, onSucecess Recv");
+				Logger.d(TAG, "inside ImageViewerFragment, onSucecess Recv");
 				updateProgress(90f - mCurrentProgress);
 				removeHeadLessFragment();
 			}
@@ -501,7 +503,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	
 	private void removeHeadLessFragment()
 	{
-		Logger.d("dp_upload", "inside ImageViewerFragment, removing UILessFragment");
+		Logger.d(TAG, "inside ImageViewerFragment, removing UILessFragment");
 		if(getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT) != null)
 		{
 			mImageWorkerFragment = (HeadlessImageUploaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);

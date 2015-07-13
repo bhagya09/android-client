@@ -122,7 +122,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-		Logger.d("dp_download", "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
+		Logger.d(TAG, "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		String filePath = directory + "/" +  Utils.getProfileImageFileName(id);
 		
