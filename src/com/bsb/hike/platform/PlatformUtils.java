@@ -331,7 +331,7 @@ public class PlatformUtils
 							try
 							{
 								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
-								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo);
+								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 							}
 							catch (JSONException e)
 							{
