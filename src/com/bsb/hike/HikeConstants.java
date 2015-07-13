@@ -2642,6 +2642,8 @@ public class HikeConstants
 	
 	public static final String SESSION_LOG_TRACKING = "stl";
 
+	public static final String PHONE_SPEC = "pspec";
+
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";

@@ -53,11 +53,11 @@ public class ChatHeadUtils
 		return false;
 	}
 
-	public static Set<String> getForegroundedPackages()
+	public static Set<String> getForegroundedPackages(boolean getAll)
 	{
 		if (foregroundedPackages == null)
 		{
-			foregroundedPackages = new HashSet<String>(5);
+			foregroundedPackages = new HashSet<String>(15);
 		}
 		else
 		{
@@ -66,48 +66,65 @@ public class ChatHeadUtils
 
 		ActivityManager mActivityManager = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
 		
-		if(Utils.isLollipopOrHigher())
+		if (Utils.isLollipopOrHigher())
 		{
-			Field field = null;
-			try
-			{
-				field = RunningAppProcessInfo.class.getDeclaredField("processState");
-			} catch (NoSuchFieldException e)
-			{
-				Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
-			}
 			List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
-			for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+			if (!getAll)
 			{
-				if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
+				Field field = null;
+				try
 				{
-					Integer state = null;
-					try
+					field = RunningAppProcessInfo.class.getDeclaredField("processState");
+				}
+				catch (NoSuchFieldException e)
+				{
+					Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+				}
+				for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+				{
+					if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
 					{
-						state = field.getInt(processInfo);
+						Integer state = null;
+						try
+						{
+							state = field.getInt(processInfo);
+						}
+						catch (IllegalAccessException e)
+						{
+							Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+						}
+						catch (IllegalArgumentException e)
+						{
+							Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+						}
+						if (state != null && state == 2)
+						{
+							foregroundedPackages.add(processInfo.processName);
+						}
 					}
-					catch (IllegalAccessException e)
+				}
+			}
+			else
+			{
+				for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+				{
+				   	if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND || processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_SERVICE)
 					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
-					}
-					catch (IllegalArgumentException e)
-					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
-					}
-					if (state != null && state == 2) 
-					{
-						foregroundedPackages.add(processInfo.processName);
-					}
+							foregroundedPackages.add(processInfo.processName);
+ 					}
 				}
 			}
 		}
 		else
 		{
-			List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(1);
-			foregroundedPackages.add(runningTasks.get(0).topActivity.getPackageName());
-			
+			int numberOfApps;
+			numberOfApps = getAll ? 15 : 1; 
+			List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(numberOfApps);
+			for (int i=0;i<runningTasks.size();i++)
+			{
+				foregroundedPackages.add(runningTasks.get(i).topActivity.getPackageName());
+			}
 		}
-
 		return foregroundedPackages;
 	}
 

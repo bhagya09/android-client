@@ -96,7 +96,7 @@ public class ChatHeadService extends Service
 		public void run()
 		{   
 			chatHeadIconExist = true;
-			Set<String> foregroundPackages = ChatHeadUtils.getForegroundedPackages();
+			Set<String> foregroundPackages = ChatHeadUtils.getForegroundedPackages(false);
 			UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
 			
 			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
@@ -247,7 +247,7 @@ public class ChatHeadService extends Service
 				switch (flag)
 				{
 				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
-					if(!ChatHeadUtils.getForegroundedPackages().contains(foregroundApp))
+					if(!ChatHeadUtils.getForegroundedPackages(false).contains(foregroundApp))
 					{
 						break;
 					}
@@ -257,7 +257,7 @@ public class ChatHeadService extends Service
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
 					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp);
-					if (intent != null && ChatHeadUtils.getForegroundedPackages().contains(foregroundApp))
+					if (intent != null && ChatHeadUtils.getForegroundedPackages(false).contains(foregroundApp))
 					{
 						startActivity(intent);
 					}
@@ -543,7 +543,7 @@ public class ChatHeadService extends Service
 		
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 		
-		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(), UserLogInfo.START);
+		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(false), UserLogInfo.START);
 
 	}
 
@@ -581,7 +581,7 @@ public class ChatHeadService extends Service
 	{
 		chatHeadHandler.removeCallbacks(chatHeadRunnable);
 
-		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(), UserLogInfo.STOP);
+		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(false), UserLogInfo.STOP);
 		chatHeadIconExist = false;
 		if (chatHead.isShown())
 			windowManager.removeView(chatHead);

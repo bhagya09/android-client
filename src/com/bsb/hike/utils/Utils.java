@@ -3298,6 +3298,16 @@ public class Utils
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
 	}
+	
+	public static boolean isJELLY_BEANOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+	}
+
+	public static boolean isJELLY_BEANMR1OrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
+	}
 
 	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
 	{
