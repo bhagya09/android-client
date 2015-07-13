@@ -597,12 +597,12 @@ public final class HikeEffectsFactory
 			{
 				mScript.set_input1(mBlendAllocation);
 				mScript.set_isThumbnail(0);
-				mScript.set_imageWidth(currentOut.getWidth());
+				mScript.set_imageHeight(currentOut.getHeight());
 			}
 			else
 			{
 				mScript.set_isThumbnail(1);
-				mScript.set_imageWidth(inBitmapOut.getWidth());
+				mScript.set_imageHeight(inBitmapOut.getHeight());
 			}
 
 			switch (effect)
@@ -912,7 +912,14 @@ public final class HikeEffectsFactory
 				mScript.set_bSpline(blue.getInterpolationMatrix());
 				mScript.forEach_filter_sunlitt(mInAllocation, mOutAllocations);
 				break;
-
+				
+			case TIRANGAA:
+				mScript.set_r(new int[] { 0xFF, 0xFF, 0x05 });
+				mScript.set_g(new int[] { 0x8A, 0xFF, 0x89 });
+				mScript.set_b(new int[] { 0x00, 0xFF, 0x00 });
+				mScript.forEach_filter_tirangaa(mInAllocation, mOutAllocations);
+				break;
+				
 			default:
 				mScript.forEach_filter_colorMatrix(mInAllocation, mOutAllocations);
 				break;
