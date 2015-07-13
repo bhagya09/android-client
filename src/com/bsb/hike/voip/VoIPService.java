@@ -433,6 +433,7 @@ public class VoIPService extends Service {
 			client.setInitiator(intent.getBooleanExtra(VoIPConstants.Extras.INITIATOR, true));
 			client.setRelayAddress(intent.getStringExtra(VoIPConstants.Extras.RELAY));
 			client.setRelayPort(intent.getIntExtra(VoIPConstants.Extras.RELAY_PORT, VoIPConstants.ICEServerPort));
+			client.setVersion(intent.getIntExtra(VoIPConstants.Extras.VOIP_VERSION, 1));
 
 			// Error case: we are receiving a delayed v0 message for a call we 
 			// initiated earlier. 
@@ -1860,7 +1861,7 @@ public class VoIPService extends Service {
 	public CallQuality getQuality() {
 		VoIPClient client = getClient();
 		if (client != null)
-			return client.currentCallQuality;
+			return client.getQuality();
 		else
 			return CallQuality.UNKNOWN;
 	}
@@ -1947,8 +1948,11 @@ public class VoIPService extends Service {
 
 	private void removeFromClients(String msisdn) {
 		synchronized (clients) {
-			getClient(msisdn).close();
-			clients.remove(msisdn);
+			VoIPClient client = getClient(msisdn);
+			if (client != null) {
+				client.close();
+				clients.remove(msisdn);
+			}
 		}
 		sendClientsListToAllClients();
 	}
