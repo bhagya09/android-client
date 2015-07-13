@@ -28,6 +28,12 @@ public class VoIPConstants {
 	 */
 	public static final int MAXIMUM_GROUP_CHAT_SIZE = 10;
 	
+	/**
+	 * If a client does not provide audio data continuously this many times, 
+	 * we assume they are not speaking. 
+	 */
+	public static final int PLC_LIMIT = 5;
+	
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions

@@ -119,6 +119,7 @@ public class VoIPClient  {
 	private BitSet playbackTrackingBits = new BitSet(VoIPConstants.AUDIO_SAMPLE_RATE * QUALITY_BUFFER_SIZE/ OpusWrapper.OPUS_FRAME_SIZE);
 	private int playbackFeederCounter = 0;
 	public CallQuality currentCallQuality = CallQuality.UNKNOWN;
+	private int plcCounter = 0;
 	
 	private final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> samplesToDecodeQueue     = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -1792,17 +1793,25 @@ public class VoIPClient  {
 		if (dp == null && opusWrapper != null) {
 			// We do not have audio data from the client. 
 			// Use packet loss concealment to extrapolate data.
-			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
-			byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 			try {
-//				Logger.d(tag, "PLC");
-				opusWrapper.plc(data);
+				if (plcCounter++ > VoIPConstants.PLC_LIMIT) {
+					// We have had no data from the client for a while. 
+					// Assume they are not speaking. 
+					setSpeaking(false);
+				} else {
+					// Use the decoder to extrapolate previous samples 
+					// into a current sample.
+					dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+					byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
+					opusWrapper.plc(data);
+					dp.setData(data);
+				}
 			} catch (Exception e) {
 				Logger.e(tag, "PLC Exception: " + e.toString());
 			}
-			dp.setData(data);
 			playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
 		} else {
+			plcCounter = 0;
 			playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
 		}
 		
