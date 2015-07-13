@@ -457,6 +457,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{
+				Utils.hideSoftKeyboard(getApplicationContext(), v);
 				onBackPressed();
 			}
 		});
@@ -1596,6 +1597,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onEmoticonClick(View v)
 	{
+		Utils.hideSoftKeyboard(getApplicationContext(), v);
 		if (v != null)
 		{
 			if (currentSelection != null)
