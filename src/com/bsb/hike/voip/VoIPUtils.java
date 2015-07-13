@@ -663,12 +663,22 @@ public class VoIPUtils {
 	/**
 	 * If DNS lookup on relay servers fails, then this method will return a randomly selected
 	 * IP address of a relay server. The client has a hardcoded list, and this list can be altered by
-	 * sending a configuration packet. 
+	 * sending a configuration packet.
+	 * <p>
+	 * <b>Warning:</b> The configuration packet for a new list of relay servers will only work
+	 * above (and including) Honeycomb (>= API v11). Consider fixing this in the future, or
+	 * dropping support for Gingerbread. 
+	 * </p> 
+	 * 
 	 * @return InetAddress 
 	 */
 	public static InetAddress getRelayIpFromHardcodedAddresses() {
 
-		Set<String> ipSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.VOIP_RELAY_IPS, null);
+		Set<String> ipSet = null;
+		
+		if (Utils.isHoneycombOrHigher())
+			ipSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.VOIP_RELAY_IPS, null);
+		
 		Random random = new Random();
 		int index = 0;
 		InetAddress address = null;
