@@ -3,14 +3,20 @@ package com.bsb.hike.userlogs;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.Context;
@@ -32,9 +38,9 @@ public class PhoneSpecUtils
 
 	public static final String DATE = "date";
 
-	public static final String ELAPSED_TIME = "elapsedTym";
+	public static final String ELAPSED_TIME = "elapsedTime";
 
-	public static final String AUTO_TIME_SET = "autoTymSet";
+	public static final String AUTO_TIME_SET = "isAutoTimeSet";
 
 	public static final String INTERNAL_MEMORY = "intMem";
 
@@ -45,8 +51,6 @@ public class PhoneSpecUtils
 	public static final String CACHE_MEMORY = "cacheMem";
 
 	public static final String RAM = "ram";
-
-	public static final String BATTERY = "battery";
 
 	public static final String PHONE_SPEC = "Phone Spec";
 
@@ -70,40 +74,20 @@ public class PhoneSpecUtils
 		JSONObject phoneSpec = new JSONObject();
 		try
 		{
-			phoneSpec.put(DATE, (System.currentTimeMillis()));
-			phoneSpec.put(ELAPSED_TIME, (SystemClock.elapsedRealtime()));
+			phoneSpec.put(DATE, (System.currentTimeMillis()/1000));
+			phoneSpec.put(ELAPSED_TIME, (SystemClock.elapsedRealtime()/1000));
 			phoneSpec.put(AUTO_TIME_SET, isAutomaticDateAndTimeSet(context));
 			phoneSpec.put(INTERNAL_MEMORY, getInternalMem());
 			phoneSpec.put(DATA_MEMORY, getDataMem());
 			phoneSpec.put(SD_MEMORY, getSDCardMem());
 			phoneSpec.put(CACHE_MEMORY, getCacheMem());
 			phoneSpec.put(RAM, getRamSize(context));
-			phoneSpec.put(BATTERY, getBatteryLevel(context));
 			Logger.d(PHONE_SPEC, phoneSpec.toString());
 			return phoneSpecArray.put(phoneSpec);
 		}
 		catch (JSONException e)
 		{
-			e.printStackTrace();
 			return null;
-		}
-	}
-
-	/**
-	 * returns the percent of battery at a particular instance
-	 */
-	private static float getBatteryLevel(Context context)
-	{
-		Intent batteryIntent = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-		int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-		int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-		if (scale != 0)
-		{
-			return ((float) level / (float) scale) * 100.0f;
-		}
-		else
-		{
-			return -1;
 		}
 	}
 
@@ -126,7 +110,7 @@ public class PhoneSpecUtils
 		ActivityManager actManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		android.app.ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
 		actManager.getMemoryInfo(memInfo);
-		if (Utils.isJELLY_BEANOrHigher())
+		if (Utils.isJellybeanOrHigher())
 		{
 			totalRamBytes = memInfo.totalMem;
 		}
@@ -146,7 +130,6 @@ public class PhoneSpecUtils
 		}
 		catch (JSONException e)
 		{
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -162,7 +145,7 @@ public class PhoneSpecUtils
 		String[] arrayOfString;
 		long initial_memory = 0;
 		try
-		{
+		{   //read the file meminfo file and give the total memory  
 			FileReader localFileReader = new FileReader(str1);
 			BufferedReader localBufferedReader = new BufferedReader(localFileReader, 8192);
 			str2 = localBufferedReader.readLine();// meminfo
@@ -220,7 +203,6 @@ public class PhoneSpecUtils
 		}
 		catch (JSONException e)
 		{
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -277,7 +259,7 @@ public class PhoneSpecUtils
 	private static boolean isAutomaticDateAndTimeSet(Context context)
 	{
 		int isSet;
-		if (Utils.isJELLY_BEANMR1OrHigher())
+		if (Utils.isJellybeanMR1OrHigher())
 		{
 			isSet = android.provider.Settings.Global.getInt(context.getContentResolver(), android.provider.Settings.Global.AUTO_TIME, 0);
 		}
@@ -292,33 +274,27 @@ public class PhoneSpecUtils
 	/** 
 	 * getting the int after setting the particular bit according to arguments provided
 	 */
-	public static int getNumberAfterSettingBit(int num, byte bit,boolean toSet)
+	public static int getNumberAfterSettingBit(int oldNumber, byte bit,boolean toSet)
 	{
 		if (toSet)
 		{
-			return (num | (1 << bit));
+			return (oldNumber | (1 << bit));
 		}
 		else
 		{
-			return (num & ~(1 << bit));
+			return (oldNumber & ~(1 << bit));
 		}
 	}
 	
-
-	/**
-	 * returns the package names of the running processes
+	/** 
+	 * getting the package name from process by removing after : part
 	 */
-	public static HashSet<String> getRunningPackageName(Context context)
+    public static String getPackageFromProcess(String process)
 	{
-		ActivityManager actvityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-		List<RunningAppProcessInfo> runningAppProcesseInfos = actvityManager.getRunningAppProcesses();
-		Iterator runningAppProcessInfo = runningAppProcesseInfos.iterator();
-		HashSet<String> packageName = new HashSet<String>();
-		while (runningAppProcessInfo.hasNext())
+		if (process!=null)
 		{
-			ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo) (runningAppProcessInfo.next());
-			packageName.add(info.processName.split(":")[0]);
+			return process.split(":")[0];
 		}
-		return packageName;
-	}
+    	return null;
+	} 
 }

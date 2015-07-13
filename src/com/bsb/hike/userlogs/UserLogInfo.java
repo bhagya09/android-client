@@ -102,6 +102,10 @@ public class UserLogInfo {
 	private static final String SESSION_COUNT = "sn";
 	private static final String DURATION = "dr";
 	private static long MIN_SESSION_RECORD_TIME = 2000;
+	
+	private final static byte RUNNING_PROCESS_BIT = 0;
+	private final static byte FOREGROUND_TASK_BIT = 1;
+	
 
 	private static int flags;
 	
@@ -205,13 +209,10 @@ public class UserLogInfo {
 		List<AppLogPojo> appLogList = new ArrayList<AppLogPojo>();
 		Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 		List<PackageInfo> packInfoList = ctx.getPackageManager().getInstalledPackages(0);
-		HashSet<String> runningPackageNames = PhoneSpecUtils.getRunningPackageName(ctx);
-		Set<String> currentRunningtasks = ChatHeadUtils.getForegroundedPackages(true);
-		final byte runningProcess = 0;
-		
-		final byte runningTask = 1;
-		
-		int num = 0;
+		Set<String> runningPackageNames = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
+		Set<String> currentRunningtasks = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_FOREGROUND_PROCESSES);
+
+		int appStatus = 0;
 		
 		for(PackageInfo pi : packInfoList){
 			
@@ -219,26 +220,18 @@ public class UserLogInfo {
 				continue;
 			if (runningPackageNames.contains(pi.packageName))
 			{
-				num = PhoneSpecUtils.getNumberAfterSettingBit(num, runningProcess, true);
+				appStatus = PhoneSpecUtils.getNumberAfterSettingBit(appStatus, RUNNING_PROCESS_BIT, true);
 				runningPackageNames.remove(pi.packageName);
-			}
-			else
-			{
-				num = PhoneSpecUtils.getNumberAfterSettingBit(num, runningProcess, false);
 			}
 			if (currentRunningtasks.contains(pi.packageName))
 			{
-				num = PhoneSpecUtils.getNumberAfterSettingBit(num, runningTask, true);
+				appStatus = PhoneSpecUtils.getNumberAfterSettingBit(appStatus, FOREGROUND_TASK_BIT, true);
 				currentRunningtasks.remove(pi.packageName);
 		    }
-			else
-			{
-		       num = PhoneSpecUtils.getNumberAfterSettingBit(num, runningTask, false);
-			}
 			AppLogPojo appLog = new AppLogPojo(
 					pi.packageName,
 					pi.applicationInfo.loadLabel(ctx.getPackageManager()).toString(),
-					new File(pi.applicationInfo.sourceDir).lastModified(), num);
+					new File(pi.applicationInfo.sourceDir).lastModified(), appStatus);
 			appLogList.add(appLog);
 		}
         return appLogList;

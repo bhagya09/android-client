@@ -3299,12 +3299,12 @@ public class Utils
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
 	}
 	
-	public static boolean isJELLY_BEANOrHigher()
+	public static boolean isJellybeanOrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
 	}
 
-	public static boolean isJELLY_BEANMR1OrHigher()
+	public static boolean isJellybeanMR1OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
 	}

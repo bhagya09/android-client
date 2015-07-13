@@ -3,6 +3,7 @@ package com.bsb.hike.chatHead;
 import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.ui.HikePreferences;
+import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -32,46 +34,44 @@ public class ChatHeadUtils
     
     private static final String TAG = "ChatHeadUtils";
 
-	private static Set<String> foregroundedPackages;
+	public static final int GET_TOP_MOST_SINGLE_PROCESS = 0; 
 
-	public static boolean areWhitelistedPackagesSharable(Context context)
+	public static final int GET_FOREGROUND_PROCESSES = 1; 
+
+	public static final int GET_ALL_RUNNING_PROCESSES = 2; 
+
+	
+	/**
+	 * returns the package names of the running processes can be single, all or in tasks packages as per argument
+	 */
+	public static Set<String> getRunningAppPackage(int type)
 	{
-		try
+		Context context = HikeMessengerApp.getInstance();
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		List<RunningAppProcessInfo> processInfos = activityManager.getRunningAppProcesses();
+		Set<String> packageName = new HashSet<String>();
+		
+		//called if all the packages whose processes are running is needed
+		if (type == GET_ALL_RUNNING_PROCESSES)
 		{
-			JSONArray whitelistedPackages = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
-			List<String> packgesWithImageShareAbility = Utils.getPackagesMatchingIntent(Intent.ACTION_SEND, null, "image/jpeg");
-			for (int i = 0; i < whitelistedPackages.length(); i++)
+			Iterator runningAppProcessInfo = processInfos.iterator();
+			while (runningAppProcessInfo.hasNext())
 			{
-				if(packgesWithImageShareAbility.contains(whitelistedPackages.getJSONObject(i).optString(HikeConstants.ChatHead.PACKAGE_NAME)))
-				{
-					return true;
-				}
+				ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo) (runningAppProcessInfo.next());
+				packageName.add(PhoneSpecUtils.getPackageFromProcess(info.processName));
 			}
+			return packageName;
 		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return false;
+
+		//called if all the packages whose task is running is needed
+		return getRunningTaskPackage(context, activityManager, processInfos, packageName, type);
 	}
 
-	public static Set<String> getForegroundedPackages(boolean getAll)
+	public static Set<String> getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
 	{
-		if (foregroundedPackages == null)
-		{
-			foregroundedPackages = new HashSet<String>(15);
-		}
-		else
-		{
-			foregroundedPackages.clear();
-		}
-
-		ActivityManager mActivityManager = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
-		
 		if (Utils.isLollipopOrHigher())
 		{
-			List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
-			if (!getAll)
+			if (type == GET_TOP_MOST_SINGLE_PROCESS)
 			{
 				Field field = null;
 				try
@@ -101,32 +101,34 @@ public class ChatHeadUtils
 						}
 						if (state != null && state == 2)
 						{
-							foregroundedPackages.add(processInfo.processName);
+							packageName.add(PhoneSpecUtils.getPackageFromProcess(processInfo.processName));
 						}
 					}
 				}
+
+				return packageName;
 			}
-			else
+			else 
 			{
 				for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
 				{
-				   	if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND || processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_SERVICE)
+					if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+							|| processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_SERVICE)
 					{
-							foregroundedPackages.add(processInfo.processName);
- 					}
+						packageName.add(PhoneSpecUtils.getPackageFromProcess(processInfo.processName));
+					}
 				}
+				return packageName;
 			}
 		}
 		else
 		{
 			try
 			{
-				int numberOfApps;
-				numberOfApps = getAll ? 15 : 1; 
-				List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(numberOfApps);
-				for (int i=0;i<runningTasks.size();i++)
+				List<RunningTaskInfo> runningTasks = activityManager.getRunningTasks((type == GET_TOP_MOST_SINGLE_PROCESS)? 1 : Integer.MAX_VALUE);
+				for (int i = 0; i < runningTasks.size(); i++)
 				{
-					foregroundedPackages.add(runningTasks.get(i).topActivity.getPackageName());
+					packageName.add(runningTasks.get(i).topActivity.getPackageName());
 				}
 			}
 			catch (SecurityException se)
@@ -135,10 +137,33 @@ public class ChatHeadUtils
 			}
 			catch (Exception e)
 			{
-				Logger.d(TAG,"Exception in fetching tasks");
+				Logger.d(TAG, "Exception in fetching tasks");
+			}
+			return packageName;
+		}
+	}
+	
+	
+	
+	public static boolean areWhitelistedPackagesSharable(Context context)
+	{
+		try
+		{
+			JSONArray whitelistedPackages = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
+			List<String> packgesWithImageShareAbility = Utils.getPackagesMatchingIntent(Intent.ACTION_SEND, null, "image/jpeg");
+			for (int i = 0; i < whitelistedPackages.length(); i++)
+			{
+				if(packgesWithImageShareAbility.contains(whitelistedPackages.getJSONObject(i).optString(HikeConstants.ChatHead.PACKAGE_NAME)))
+				{
+					return true;
+				}
 			}
 		}
-		return foregroundedPackages;
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public static void settingDailySharedPref()
