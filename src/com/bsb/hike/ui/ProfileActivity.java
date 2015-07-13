@@ -457,6 +457,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{
+				Utils.hideSoftKeyboard(getApplicationContext(), v);
 				onBackPressed();
 			}
 		});
@@ -917,7 +918,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(!isUpdate)
 		{
-			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn,false));
+			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn));
 			profileImage.setTag(imageViewerInfo);
 		}
 		if(headerViewInitialized || profileImageUpdated )
@@ -1596,6 +1597,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onEmoticonClick(View v)
 	{
+		Utils.hideSoftKeyboard(getApplicationContext(), v);
 		if (v != null)
 		{
 			if (currentSelection != null)
@@ -2816,9 +2818,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 
 			if(this.profileType == ProfileType.GROUP_INFO || this.profileType == ProfileType.BROADCAST_INFO)
-				PhotoViewerFragment.openPhoto(R.id.parent_layout, ProfileActivity.this, hsf, true, oneToNConversation,true);
+				PhotoViewerFragment.openPhoto(R.id.parent_layout, ProfileActivity.this, hsf, true, oneToNConversation);
 			else
-				PhotoViewerFragment.openPhoto(R.id.parent_layout, ProfileActivity.this, hsf, true, 0, hsf.get(0).getMsisdn(), contactInfo.getFirstNameAndSurname(),true);
+				PhotoViewerFragment.openPhoto(R.id.parent_layout, ProfileActivity.this, hsf, true, 0, hsf.get(0).getMsisdn(), contactInfo.getFirstNameAndSurname());
 			
 			return;
 		}
