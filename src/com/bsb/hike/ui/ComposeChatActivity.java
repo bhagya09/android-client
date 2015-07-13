@@ -1386,7 +1386,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		ContactInfo offlineContact = null;
 		for (ContactInfo ci : arrayList)
 		{
-			if (Utils.isOfflineConversation(ci.getMsisdn()))
+			if (!TextUtils.isEmpty(OfflineUtils.getconnectedMsisdn())  && OfflineUtils.getconnectedMsisdn().equals(ci.getMsisdn()))
 			{
 				offlineContact = ci;
 			}
