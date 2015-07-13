@@ -2870,7 +2870,9 @@ public class HikeConstants
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
 
-	public static final String GROUP_NOTIFIACTION_DELAY = "gnt";
+	public static final String NOTIFIACTION_DELAY_GROUP = "gnt";
+
+	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
 
 	public static final String GET="get";
 

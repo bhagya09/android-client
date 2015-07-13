@@ -1603,8 +1603,8 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				int lastPacketReceived = 0;
 				int uncompressedLength = 0;
+				int lastPacketReceived = 0;
 				while (keepRunning == true) {
 					VoIPDataPacket dpdecode;
 					try {

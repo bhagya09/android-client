@@ -5993,7 +5993,14 @@ public class Utils
 
 	public static boolean isSendLogsEnabled()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+		}
+		
+		return false;
 	}
 	
 
