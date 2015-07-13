@@ -1856,7 +1856,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			if (endIndex < 0)
 				return;
-			startIndex = Math.max(0, endIndex - 20);
+			startIndex = Math.max(0, endIndex - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME);
 		}
 		else
 		{
@@ -1872,7 +1872,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			if (startIndex < 0)
 				return;
-			endIndex = Math.min(startIndex + 20, messages.size() - 1);
+			endIndex = Math.min(startIndex + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, messages.size() - 1);
 		}
 		if (async)
 		{
@@ -1957,7 +1957,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 * Adapter has to show UI elements like tips, day/date of messages, unknown contact headers etc.
 		 */
 		messages = new MovingList<ConvMessage>(mConversation.getMessagesList(),mOnItemsFinishedListener);
-		messages.setLoadBufferSize(20);
+		messages.setLoadBufferSize(HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME);
 
 		mMessageMap = new HashMap<Long, ConvMessage>();
 		addtoMessageMap(0, messages.size());
@@ -2697,6 +2697,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private static class MessageFinder extends AsyncTaskLoader<Object>
 	{
+		static final int MaxMsgLoadCount = 3200;
+
 		int loaderId;
 	
 		int position = -2;
@@ -2744,8 +2746,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						ids.addAll(0, MovingList.getIds(msgList));
 						if (position > 0)
 						{
-							int start = Math.max(position - 20, 0);
-							int end = Math.min(position + 20, msgList.size()-1);
+							int start = Math.max(position - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, 0);
+							int end = Math.min(position + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, msgList.size()-1);
 							ArrayList<ConvMessage> toBeAddedList = new ArrayList<ConvMessage>(ids.size());
 							Utils.preFillArrayList(toBeAddedList, ids.size());
 							for (int i = start; i <= end; i++)
@@ -2753,13 +2755,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 								toBeAddedList.set(i, msgList.get(i));
 							}
 							MovingList<ConvMessage> movingList = new MovingList<ConvMessage>(toBeAddedList, ids, chatThread.get().mOnItemsFinishedListener);
-							movingList.setLoadBufferSize(20);
+							movingList.setLoadBufferSize(HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME);
 							chatThread.get().sendUIMessage(chatThread.get().UPDATE_MESSAGE_LIST,new Pair<>(movingList, firstVisisbleItem));
 						}
 						else
 						{
 							//No need to load more than 3200 messaging in one go.
-							if (loadMessageCount < 3200)
+							if (loadMessageCount < MaxMsgLoadCount)
 							{
 								loadMessageCount *= 2;
 							}
@@ -2798,7 +2800,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						{
 							count += msgList.size(); 
 							//No need to load more than 3200 messaging in one go.
-							if (loadMessageCount < 3200)
+							if (loadMessageCount < MaxMsgLoadCount)
 							{
 								loadMessageCount *= 2;
 							}
