@@ -152,7 +152,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	private void init()
 	{
 		context = HikeMessengerApp.getInstance().getApplicationContext();
-		connectionManager = ConnectionManager.getInstance();
+		connectionManager = new ConnectionManager(context, HikeHandlerUtil.getInstance().getLooper());
 		transporter = Transporter.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
 		setDeviceNameAsMsisdn();

@@ -17,20 +17,16 @@ import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
+import android.os.Looper;
 import android.text.TextUtils;
-
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikeMessengerApp.CurrentState;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.utils.Logger;
+import android.util.Log;
 
 /**
  * 
- * @author sahil This class deals with functions related to WifiManager and WifiP2pManager and other Hotspot functionalities
+ * @author sahil/deepak This class deals with functions related to WifiManager and WifiP2pManager and other Hotspot functionalities
  */
 public class ConnectionManager implements ChannelListener
 {
-	private static ConnectionManager _instance = null;
 	private boolean retryChannel = false;
 	private Context context;
 	private WifiManager wifiManager;
@@ -40,28 +36,19 @@ public class ConnectionManager implements ChannelListener
 	private String TAG = ConnectionManager.class.getName();
     private WifiConfiguration prevConfig = null;
 	private int connectedNetworkId = -1;
-	private ConnectionManager()
+	private Looper looper;
+	
+	public ConnectionManager(Context context, Looper looper)
 	{
-    	init();
+    	init(context, looper);
 	}
 	
-	public static ConnectionManager getInstance()
+	private void init(Context context, Looper looper)
 	{
-		if(_instance==null)
-			synchronized (ConnectionManager.class) {
-				if (_instance == null) {
-					_instance = new ConnectionManager();
-				}
-			}
-			
-		return _instance;
-	}
-	
-	private void init()
-	{
-		context =HikeMessengerApp.getInstance().getApplicationContext();
+		this.context = context;
+		this.looper = looper;
         wifiP2pManager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = wifiP2pManager.initialize(context,HikeHandlerUtil.getInstance().getLooper(), this);
+        channel = wifiP2pManager.initialize(context, looper, this);
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         myMsisdn = OfflineUtils.getMyMsisdn();
 	}
@@ -76,28 +63,28 @@ public class ConnectionManager implements ChannelListener
 			m.invoke(wifiP2pManager, channel, myMsisdn, new WifiP2pManager.ActionListener() {
 				@Override
 				public void onSuccess() {
-					Logger.d(TAG, "Device Name changed to " + myMsisdn);
+					Log.d(TAG, "Device Name changed to " + myMsisdn);
 				}
 				@Override
 				public void onFailure(int reason) {
-					Logger.e(TAG, "Unable to set device name as msisdn");
+					Log.e(TAG, "Unable to set device name as msisdn");
 				}
 			});
 		} catch (NoSuchMethodException e) {
-			Logger.e(TAG, e.toString());
+			Log.e(TAG, e.toString());
 		} catch (IllegalAccessException e) {
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 		} catch (IllegalArgumentException e) {
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 		} catch (InvocationTargetException e) {
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 		}
 	}
 	
 	public Boolean connectToHotspot(String targetMsisdn) 
 	{
 		String ssid = OfflineUtils.getSsidForMsisdn(myMsisdn,targetMsisdn);
-		Logger.d("OfflineManager","SSID is "+ssid);
+		Log.d("OfflineManager","SSID is "+ssid);
 		WifiConfiguration wifiConfig = new WifiConfiguration();
 		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
 		wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
@@ -125,12 +112,12 @@ public class ConnectionManager implements ChannelListener
 		wifiP2pManager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() { 
-            	Logger.d(TAG, "Wifi Direct Discovery Enabled");
+            	Log.d(TAG, "Wifi Direct Discovery Enabled");
             }
 
             @Override
             public void onFailure(int reasonCode) {
-            	Logger.d(TAG, "Wifi Direct Discovery FAILED");
+            	Log.d(TAG, "Wifi Direct Discovery FAILED");
             }
 		});
 	}
@@ -146,7 +133,7 @@ public class ConnectionManager implements ChannelListener
 	public void onChannelDisconnected() {
 		if (wifiP2pManager != null && !retryChannel) {
             retryChannel = true;
-            wifiP2pManager.initialize(context,HikeHandlerUtil.getInstance().getLooper(), this);
+            wifiP2pManager.initialize(context, looper, this);
         }
 	}
 
@@ -166,7 +153,7 @@ public class ConnectionManager implements ChannelListener
 			}
 		}
 		boolean wifiScan = wifiManager.startScan();
-		Logger.d(TAG, "Wifi Scan returns " + wifiScan);
+		Log.d(TAG, "Wifi Scan returns " + wifiScan);
 	}
 	
 	public void startWifi()
@@ -188,12 +175,12 @@ public class ConnectionManager implements ChannelListener
 		wifiP2pManager.stopPeerDiscovery(channel, new ActionListener() {
 			@Override
 			public void onSuccess() {
-				Logger.d(TAG, "stop peer discovery started");
+				Log.d(TAG, "stop peer discovery started");
 			}
 			
 			@Override
 			public void onFailure(int reason) {
-				Logger.d(TAG, "Stop peer discovery failed");
+				Log.d(TAG, "Stop peer discovery failed");
 			}
 		});
 	}
@@ -202,18 +189,18 @@ public class ConnectionManager implements ChannelListener
 		if(wifiManager.getConnectionInfo()!=null)
 		{
 			String ssid = wifiManager.getConnectionInfo().getSSID();
-			Logger.d("OfflineManager","Connected SSID in getConnectedHikeNetwork "+ssid);
+			Log.d("OfflineManager","Connected SSID in getConnectedHikeNetwork "+ssid);
 			
 			// System returns ssid as "ssid". Hence removing the quotes.
 			ssid = ssid.substring(1, ssid.length()-1);
-			Logger.d(TAG, "ssid after removing quotes" + ssid);
+			Log.d(TAG, "ssid after removing quotes" + ssid);
 			boolean isHikeNetwork = (OfflineUtils.isOfflineSsid(ssid));
 			if(isHikeNetwork)
 			{
 				String decodedSSID = OfflineUtils.decodeSsid(ssid);
-				Logger.d("ConnectionManager","decodedSSID  is " + decodedSSID);
+				Log.d("ConnectionManager","decodedSSID  is " + decodedSSID);
 				String connectedMsisdn = OfflineUtils.getconnectedDevice(decodedSSID);  
-				Logger.d("ConnectionManager","connectedMsisdn is " + connectedMsisdn);
+				Log.d("ConnectionManager","connectedMsisdn is " + connectedMsisdn);
 				return connectedMsisdn;
 			}
 		}
@@ -248,14 +235,14 @@ public class ConnectionManager implements ChannelListener
 	public Boolean createHotspot(String wifiP2pDeviceName)
 	{
 		// save current WifiHotspot Name
-		Logger.d("OfflineManager","wil create hotspot for "+wifiP2pDeviceName);
+		Log.d("OfflineManager","wil create hotspot for "+wifiP2pDeviceName);
 		saveCurrentHotspotSSID();
 		if(isHotspotCreated())
 		{
 			closeExistingHotspot(prevConfig);
 		}
 		Boolean result = setWifiApEnabled(wifiP2pDeviceName, true);
-		Logger.d("OfflineManager", "HotSpot creation result is "+ result);
+		Log.d("OfflineManager", "HotSpot creation result is "+ result);
 		return result;
 	}
 	private boolean closeExistingHotspot(WifiConfiguration prevConfig2) {
@@ -265,14 +252,14 @@ public class ConnectionManager implements ChannelListener
 		try {
 			enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
 		} catch (NoSuchMethodException e) {
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 			return result;
 		}
 		try {
 			result = (Boolean) enableWifi.invoke(wifiManager,prevConfig2,false);
 		} catch (IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 			return result;
 		}
 		
@@ -281,7 +268,7 @@ public class ConnectionManager implements ChannelListener
 
 	public Boolean closeHikeHotspot(String targetMsisdn)
 	{
-		Logger.d(TAG, "going to close hotspot");
+		Log.d(TAG, "going to close hotspot");
 		Boolean result = setWifiApEnabled(targetMsisdn, false);
 		// restore previous WifiHotspot Name back
 		setPreviousHotspotConfig();
@@ -296,15 +283,15 @@ public class ConnectionManager implements ChannelListener
 		try {
 			enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
 		} catch (NoSuchMethodException e) {
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 			return result;
 		}
 		String ssid  =   OfflineUtils.getSsidForMsisdn(targetMsisdn, myMsisdn);
-		Logger.d("OfflineManager","SSID is "+ssid);
+		Log.d("OfflineManager","SSID is "+ssid);
 		String encryptedSSID = OfflineUtils.encodeSsid(ssid);
-		Logger.d(TAG, encryptedSSID);
+		Log.d(TAG, encryptedSSID);
 		String pass = OfflineUtils.generatePassword(ssid);
-		Logger.d(TAG, "Password: " + (pass));
+		Log.d(TAG, "Password: " + (pass));
 		WifiConfiguration  myConfig =  new WifiConfiguration();
 		myConfig.SSID = encryptedSSID;
 		myConfig.preSharedKey  = pass ;
@@ -320,7 +307,7 @@ public class ConnectionManager implements ChannelListener
 			result = (Boolean) enableWifi.invoke(wifiManager, myConfig,status);
 		} catch (IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 			return result;
 		}
 		
@@ -343,7 +330,7 @@ public class ConnectionManager implements ChannelListener
 				catch (IllegalAccessException | IllegalArgumentException
 						| InvocationTargetException e) 
 				{
-					Logger.e(TAG,e.toString());
+					Log.e(TAG,e.toString());
 				}
 			}
 		}
@@ -364,7 +351,7 @@ public class ConnectionManager implements ChannelListener
 		} 
 		catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) 
 		{
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 			result = false;
 		}
 		return result;
@@ -380,7 +367,7 @@ public class ConnectionManager implements ChannelListener
 			isWifiHotspotRunning = (Boolean) method.invoke(wifiManager);
 		} catch (IllegalAccessException | IllegalArgumentException
 				| NoSuchMethodException| InvocationTargetException e) {
-			Logger.e(TAG,e.toString());
+			Log.e(TAG,e.toString());
 		}
 
 		return isWifiHotspotRunning;
@@ -407,7 +394,7 @@ public class ConnectionManager implements ChannelListener
 	
 	public boolean tryConnectingToHotSpot(final String msisdn) 
 	{
-		Logger.d(TAG, "tryConnectingToHotSpot");
+		Log.d(TAG, "tryConnectingToHotSpot");
 		
 		if(!wifiManager.isWifiEnabled())
 		{
@@ -426,9 +413,9 @@ public class ConnectionManager implements ChannelListener
 		// removing quotes.
 		if (connectedToSSID.length() > 2)
 			connectedToSSID = connectedToSSID.substring(1, connectedToSSID.length()-1);
-		Logger.d(TAG, "Connected SSID in isConnectedToSSID: " + connectedToSSID + " EncodedSSID: " + encodedSSID);
+		Log.d(TAG, "Connected SSID in isConnectedToSSID: " + connectedToSSID + " EncodedSSID: " + encodedSSID);
 		
-		ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 		if (connectedToSSID.compareTo(encodedSSID)==0 && networkInfo.isConnected())
 		{
@@ -440,7 +427,7 @@ public class ConnectionManager implements ChannelListener
 	public String getConnectedSSID()
 	{
 		String ssid =  wifiManager.getConnectionInfo().getSSID();
-		Logger.d(TAG, "In getConnectedSSID: " + ssid);
+		Log.d(TAG, "In getConnectedSSID: " + ssid);
 		ssid = ssid.substring(1, ssid.length()-1);
 		return ssid;
 	}
