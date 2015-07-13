@@ -5,9 +5,10 @@
     android:installLocation="auto"
     android:versionCode="1236"
     android:versionName="3.9.7" >
+
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="17"/>
+        android:targetSdkVersion="17" />
 
     <permission
         android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE"
@@ -239,8 +240,9 @@
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
         </activity>
-        <activity android:name=".ui.SettingsActivity" 
-                  android:configChanges="orientation|screenSize">            
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:configChanges="orientation|screenSize" >
         </activity>
         <activity
             android:name="com.bsb.hike.ui.ConnectedAppsActivity"
@@ -268,10 +270,12 @@
             android:name=".ui.GalleryActivity"
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.HikeSharedFilesActivity"
+        <activity
+            android:name=".ui.HikeSharedFilesActivity"
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.GallerySelectionViewer"
+        <activity
+            android:name=".ui.GallerySelectionViewer"
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
@@ -332,8 +336,8 @@
         <activity
             android:name="com.bsb.hike.ui.DelegateActivity"
             android:launchMode="standard"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         </activity>
         <activity
             android:name=".ui.PinHistoryActivity"
@@ -349,11 +353,10 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:screenOrientation="user"
             android:theme="@style/LockPatternTheme" />
-         <activity
+        <activity
             android:name=".ui.ServerHostChangeActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" 
-            android:label="@string/app_label"
-            />
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_label" />
 
         <receiver
             android:name=".service.BootService"
@@ -432,18 +435,20 @@
         <activity
             android:name=".voip.view.VoIPActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:excludeFromRecents="true"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:showOnLockScreen="true"
             android:taskAffinity=":voip"
-            android:excludeFromRecents="true"
             android:theme="@style/TranslucentBlack" >
         </activity>
 
         <!-- CocosGaming Activity -->
-        <activity android:name="com.bsb.hike.platform.CocosGamingActivity">
+        <activity
+            android:name="com.bsb.hike.platform.CocosGamingActivity"
+            android:configChanges="orientation" >
         </activity>
-        
+
         <receiver android:name=".voip.IncomingCallListener" >
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
