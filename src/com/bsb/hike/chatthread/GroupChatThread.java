@@ -536,21 +536,13 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private boolean checkForDead()
 	{
-		if (!oneToNConversation.isConversationAlive())
-		{
-			return true;
-		}
-		return false;
+	    	return !oneToNConversation.isConversationAlive();
 	}
 	
 	private boolean checkForBlocked()
 	{
-		if (oneToNConversation.isBlocked())
-		{
-			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-			return true;
-		}
-		return false;
+			return oneToNConversation.isBlocked();
+	
 	}
 
 	private void showPinCreateView()
