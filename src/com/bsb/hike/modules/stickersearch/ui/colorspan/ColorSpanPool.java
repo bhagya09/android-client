@@ -1,32 +1,43 @@
 package com.bsb.hike.modules.stickersearch.ui.colorspan;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.text.style.ForegroundColorSpan;
 
 public class ColorSpanPool
 {	
-	private ArrayList<ColorSpan> highlightColorSpans;
+	private List<ColorSpan> highlightColorSpans;
 	
-	private ArrayList<ColorSpan> unHighlightColorSpans;
+	private List<ColorSpan> unHighlightColorSpans;
 	
 	private int highlightColor, unHighlightColor;
 	
-	private static int INITIAL_COLOR_SPAN_LIST_SIZE = 10;
+	private final int INITIAL_POOL_SIZE = 10;
 	
 	public ColorSpanPool(int highlightColor, int unHighlightColor)
 	{
-		highlightColorSpans = new ArrayList<>(INITIAL_COLOR_SPAN_LIST_SIZE);
-		unHighlightColorSpans =  new ArrayList<>(INITIAL_COLOR_SPAN_LIST_SIZE);
+		this(highlightColor, unHighlightColor, -1);
+	}
+	
+	public ColorSpanPool(int highlightColor, int unHighlightColor, int poolSize)
+	{
+		if(poolSize == -1)
+		{
+			poolSize = INITIAL_POOL_SIZE;
+		}
+		
+		highlightColorSpans = new ArrayList<>(poolSize);
+		unHighlightColorSpans =  new ArrayList<>(poolSize);
 		
 		this.highlightColor = highlightColor;
 		this.unHighlightColor = unHighlightColor;
-		initialise();
+		initialise(poolSize);
 	}
 	
-	private void initialise()
+	private void initialise(int poolSize)
 	{
-		for (int i = 0; i < INITIAL_COLOR_SPAN_LIST_SIZE; i++)
+		for (int i = 0; i < poolSize; i++)
 		{
 			highlightColorSpans.add(new ColorSpan(highlightColor));
 			unHighlightColorSpans.add(new ColorSpan(unHighlightColor));
@@ -35,26 +46,14 @@ public class ColorSpanPool
 	
 	public void markAll()
 	{
-		for(ColorSpan highlightColorSpan : highlightColorSpans)
-		{
-			highlightColorSpan.setMarked(true);
-		}
-		for(ColorSpan unHighlightColorSpan : unHighlightColorSpans)
-		{
-			unHighlightColorSpan.setMarked(true);
-		}
+		markAllHighlightSpans();
+		markAllUnHighlightSpans();
 	}
 	
 	public void unMarkAll()
 	{
-		for(ColorSpan highlightColorSpan : highlightColorSpans)
-		{
-			highlightColorSpan.setMarked(false);
-		}
-		for(ColorSpan unHighlightColorSpan : unHighlightColorSpans)
-		{
-			unHighlightColorSpan.setMarked(false);
-		}
+		unMarkAllHighlightSpans();
+		unMarkAllUnHighlightSpans();
 	}
 	
 	public void markAllHighlightSpans()

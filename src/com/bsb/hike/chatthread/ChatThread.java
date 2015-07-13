@@ -3460,6 +3460,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return ;
 		}
 		stickerTagWatcher.releaseResources();
+		mComposeView.removeTextChangedListener(stickerTagWatcher);
 		stickerTagWatcher = null;
 	}
 	

@@ -43,7 +43,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	
 	private ChatThread chatthread;
 
-	EditText editText;
+	private EditText editText;
 
 	int color;
 
@@ -91,18 +91,57 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void highlightText(int start, int end)
+	public void highlightText(final int start, final int end)
 	{
-		Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
-		editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		if(activity == null)
+		{
+			return;
+		}
+		activity.runOnUiThread(new Runnable()
+		{
 			
+			@Override
+			public void run()
+			{
+				Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
+				removeAttachedSpans(start, end);
+				editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				
+			}
+		});
 	}
 
 	@Override
-	public void unHighlightText(int start, int end)
+	public void unHighlightText(final int start, final int end)
 	{
-		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
-		editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		if(activity == null)
+		{
+			return;
+		}
+		activity.runOnUiThread(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				
+				Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
+				removeAttachedSpans(start, end);
+				editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+		});
+	}
+	
+	private void removeAttachedSpans(int start, int end)
+	{
+		ForegroundColorSpan[] spans =  editable.getSpans(start, end, ForegroundColorSpan.class);
+		if(spans != null)
+		{
+			for(int  i = 0 ; i < spans.length ; i ++)
+			{
+				editable.removeSpan(spans[i]);
+			}
+		}
 	}
 
 	@Override
