@@ -36,7 +36,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomMessageTextView.DimentionMatrixHolder;
 import com.bsb.hike.view.CustomMessageTextView.ViewDimentions;
 
-public class ConvMessage implements Searchable, DimentionMatrixHolder
+public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 
 {
 	private boolean isBlockAddHeader;
@@ -1314,5 +1314,11 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder
 	public void setDimentionMatrix(ViewDimentions vD)
 	{
 		this.viewDimentions = vD;
+	}
+
+	@Override
+	public Long getUniqueId()
+	{
+		return getMsgID();
 	}
 }

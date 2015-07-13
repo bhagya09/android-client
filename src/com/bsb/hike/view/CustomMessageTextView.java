@@ -112,10 +112,13 @@ public abstract class CustomMessageTextView extends CustomFontTextView
 				}
 
 				this.setMeasuredDimension(layoutWidth, layoutHeight);
-				viewDimentions = new ViewDimentions();
-				viewDimentions.width = layoutWidth;
-				viewDimentions.height = layoutHeight;
-				mDimentionMatrixHolder.setDimentionMatrix(viewDimentions);
+				if (lines > 10)
+				{
+					viewDimentions = new ViewDimentions();
+					viewDimentions.width = layoutWidth;
+					viewDimentions.height = layoutHeight;
+					mDimentionMatrixHolder.setDimentionMatrix(viewDimentions);
+				}
 			}
 		}
 		catch (Exception e)
