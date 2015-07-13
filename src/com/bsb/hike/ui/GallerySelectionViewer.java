@@ -257,8 +257,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						{
 							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
 							Utils.executeAsyncTask(fileTransferTask);
-							if(!OfflineUtils.isOfflineSsid(msisdn))
-							progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
+							if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
+								progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
 							hikeDialog.dismiss();
 						}
 
