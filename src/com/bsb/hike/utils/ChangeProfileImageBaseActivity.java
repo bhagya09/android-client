@@ -51,14 +51,14 @@ import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.fragments.HeadLessImageUploaderFragment;
-import com.bsb.hike.ui.fragments.HeadLessImageWorkerFragment;
+import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
+import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, 
-						FinishableEvent, DisplayPictureEditListener, HeadLessImageWorkerFragment.TaskCallbacks
+						FinishableEvent, DisplayPictureEditListener, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	private HikeSharedPreferenceUtil prefs;
 
@@ -66,7 +66,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	private Dialog mDialog;
 	
-	private HeadLessImageWorkerFragment mImageWorkerFragment;
+	private HeadlessImageWorkerFragment mImageWorkerFragment;
+	
+	private static final String TAG = "dp_upload";
 
 	public class ActivityState
 	{
@@ -612,21 +614,22 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				return;
 
 			FragmentManager fm = getSupportFragmentManager();
-			mImageWorkerFragment = (HeadLessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+			mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
 
 		    // If the Fragment is non-null, then it is currently being
 		    // retained across a configuration change.
 		    if (mImageWorkerFragment == null) 
 		    {
-		    	Logger.d("dp_upload", "starting new mImageLoaderFragment");
+		    	Logger.d(TAG, "starting new mImageLoaderFragment");
 		    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-		    	mImageWorkerFragment = HeadLessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, mLocalMSISDN, true, true);
+		    	mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, mLocalMSISDN, true, true);
 		    	mImageWorkerFragment.setTaskCallbacks(this);
 		        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
 		    }
 		    else
 		    {
-		    	Logger.d("dp_upload", "As mImageLoaderFragment already there, so not starting new one");
+		    	Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+		    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
 		    }
 		}
 	}
@@ -645,7 +648,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		
 		if (statusMessage != null)
 		{
-			//ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, true);
 			mImageWorkerFragment.doContactManagerIconChange(statusMessage.getMappedId(), scaleDownBitmap(), true);
 			
 			int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
@@ -797,7 +799,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	public void onFailed()
 	{
-		Logger.d("dp_upload", "req failed");
+		Logger.d(TAG, "req failed");
 		failureWhileSettingProfilePic();
 		Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
 		removeHeadLessImageUploadFragment();
@@ -805,7 +807,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	private void removeHeadLessImageUploadFragment()
 	{
-		Logger.d("dp_upload", "inside ImageViewerFragment, removeHeadLessImageUploadFragment");
+		Logger.d(TAG, "inside ImageViewerFragment, removeHeadLessImageUploadFragment");
 		FragmentManager fm = getSupportFragmentManager();
 		fm.beginTransaction().remove(mImageWorkerFragment).commit();
 	}

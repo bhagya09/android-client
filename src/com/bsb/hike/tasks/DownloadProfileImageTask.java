@@ -1,6 +1,7 @@
 package com.bsb.hike.tasks;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -32,7 +33,7 @@ public class DownloadProfileImageTask
 
 	private String urlString;
 	
-	private DownloadProfileImageTaskCallbacks downloadProfileImageTaskCallbacks;
+	private WeakReference<DownloadProfileImageTaskCallbacks> downloadProfileImageTaskCallbacks;
 
 	public DownloadProfileImageTask(String id, String filePath, String fileName, boolean hasCustomIcon, boolean statusImage)
 	{
@@ -60,7 +61,7 @@ public class DownloadProfileImageTask
 				
 				if (downloadProfileImageTaskCallbacks != null)
 				{
-					downloadProfileImageTaskCallbacks.onRequestCancelled();
+					downloadProfileImageTaskCallbacks.get().onRequestCancelled();
 				}
 				return;
 			}
@@ -81,7 +82,7 @@ public class DownloadProfileImageTask
 			
 			if(downloadProfileImageTaskCallbacks != null)
 			{
-				downloadProfileImageTaskCallbacks.onRequestSuccess(result);
+				downloadProfileImageTaskCallbacks.get().onRequestSuccess(result);
 			}
 		}
 
@@ -90,7 +91,7 @@ public class DownloadProfileImageTask
 		{
 			if(downloadProfileImageTaskCallbacks != null)
 			{
-				downloadProfileImageTaskCallbacks.onRequestProgressUpdate(progress);
+				downloadProfileImageTaskCallbacks.get().onRequestProgressUpdate(progress);
 			}
 		}
 
@@ -103,7 +104,7 @@ public class DownloadProfileImageTask
 				
 				if(downloadProfileImageTaskCallbacks != null)
 				{
-					downloadProfileImageTaskCallbacks.onRequestCancelled();
+					downloadProfileImageTaskCallbacks.get().onRequestCancelled();
 				}
 			}
 			else
@@ -112,7 +113,7 @@ public class DownloadProfileImageTask
 				
 				if(downloadProfileImageTaskCallbacks != null)
 				{
-					downloadProfileImageTaskCallbacks.onRequestFailure(httpException);
+					downloadProfileImageTaskCallbacks.get().onRequestFailure(httpException);
 				}
 			}
 		}
@@ -145,7 +146,7 @@ public class DownloadProfileImageTask
 	
 	public void setDownloadProfileImageTaskCallbacks(DownloadProfileImageTaskCallbacks downloadProfileImageTaskCallbacks)
 	{
-		this.downloadProfileImageTaskCallbacks = downloadProfileImageTaskCallbacks;
+		this.downloadProfileImageTaskCallbacks = new WeakReference<DownloadProfileImageTaskCallbacks>(downloadProfileImageTaskCallbacks);
 	}
 	
 	/**

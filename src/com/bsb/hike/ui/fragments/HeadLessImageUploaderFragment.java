@@ -1,9 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
-import java.io.File;
-
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -22,7 +19,7 @@ import com.bsb.hike.utils.Utils;
  * 				   2) Rename tmpFile to msisdn.jpg
  *				   3) listener callback
  */
-public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment implements UploadProfileImageTaskCallbacks
+public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment implements UploadProfileImageTaskCallbacks
 {
 
 	private byte[] bytes;
@@ -35,11 +32,11 @@ public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment i
 	
 	private boolean toDelPreviousMsisdnPic;
 
-	private static final String TAG = HeadLessImageWorkerFragment.class.getName();
+	private static final String TAG = "dp_upload";
 
-	public static HeadLessImageUploaderFragment newInstance(byte[] bytes, String tmpFilePath, String msisdn, boolean toDelTempFileOnCallFail, boolean toDeletPrevMsisdnPic) {
+	public static HeadlessImageUploaderFragment newInstance(byte[] bytes, String tmpFilePath, String msisdn, boolean toDelTempFileOnCallFail, boolean toDeletPrevMsisdnPic) {
 		
-		HeadLessImageUploaderFragment mHeadLessImageUploaderFragment = new HeadLessImageUploaderFragment();
+		HeadlessImageUploaderFragment mHeadLessImageUploaderFragment = new HeadlessImageUploaderFragment();
 		Bundle arguments = new Bundle();
     	arguments.putByteArray(HikeConstants.Extras.BYTES, bytes);
     	arguments.putString(HikeConstants.Extras.FILE_PATH, tmpFilePath);
@@ -81,7 +78,7 @@ public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment i
 	public void onDetach()
 	{
 		super.onDetach();
-		mTaskCallbacks = null;
+		taskCallbacks = null;
 	}
 
 	private void readArguments()
@@ -96,7 +93,7 @@ public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment i
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-		Logger.d("dp_download", "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
+		Logger.d(TAG, "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		String originqlFilePath = directory + "/" +  Utils.getProfileImageFileName(msisdn);
 		
@@ -105,37 +102,27 @@ public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment i
 			doContactManagerIconChange(msisdn, bytes, !toDelPreviousMsisdnPic);
 		}
 		
-		/*if(!doAtomicFileRenaming(originqlFilePath, tmpFilePath))
-		{
-			return;
-		}*/
-		
 		doAtomicFileRenaming(originqlFilePath, tmpFilePath);
 		
-		if(mTaskCallbacks != null)
+		if(taskCallbacks != null)
 		{
-			mTaskCallbacks.onSuccess(result);
+			taskCallbacks.onSuccess(result);
 		}
 	}
 
 	@Override
 	public void onRequestCancelled()
 	{
-		Logger.d("dp_upload", "inside API onRequestCancelled inside HEADLESSIMAGEUPLOAD FRAGMENT");
+		Logger.d(TAG, "inside API onRequestCancelled inside HEADLESSIMAGEUPLOAD FRAGMENT");
 		
 		if(toDelTempFileOnCallFail)
 		{
-			/*if(!doAtomicFileDel(tmpFilePath))
-			{
-				return;
-			}*/
-			
 			doAtomicFileDel(tmpFilePath);
 		}
 		
-		if(mTaskCallbacks != null)
+		if(taskCallbacks != null)
 		{
-			mTaskCallbacks.onCancelled();
+			taskCallbacks.onCancelled();
 		}
 	}
 
@@ -148,7 +135,7 @@ public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment i
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		Logger.d("dp_upload", "inside API onFailure inside HEADLESSIMAGEUPLOADFRAGMENT");
+		Logger.d(TAG, "inside API onFailure inside HEADLESSIMAGEUPLOADFRAGMENT");
 		
 		if(toDelTempFileOnCallFail)
 		{
@@ -158,9 +145,9 @@ public class HeadLessImageUploaderFragment extends HeadLessImageWorkerFragment i
 			}
 		}
 
-		if(mTaskCallbacks != null)
+		if(taskCallbacks != null)
 		{
-			mTaskCallbacks.onFailed();
+			taskCallbacks.onFailed();
 		}
 	}
 

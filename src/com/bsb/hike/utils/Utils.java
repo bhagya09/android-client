@@ -2444,7 +2444,7 @@ public class Utils
 
 	public static boolean renameFiles(String newFilePath, String oldFilePath)
 	{
-		Logger.d("dp_download", "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
+		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
 		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
 		{
 			File tempFile = new File(oldFilePath);
@@ -2457,7 +2457,7 @@ public class Utils
 		}
 		else
 		{
-			Logger.d("dp_download", "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
 			return false;
 		}
 	}
@@ -2466,17 +2466,17 @@ public class Utils
 	{
 		if(!TextUtils.isEmpty(tmpFilePath))
 		{
-			Logger.d("dp_download", "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage "+ tmpFilePath);
 			File file = new File(tmpFilePath);
 			if(file.exists())
 			{
-				return (new File(tmpFilePath)).delete();
+				return file.delete();
 			}
 			return false;
 		}
 		else
 		{
-			Logger.d("dp_download", "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
 			return false;
 		}
 	}

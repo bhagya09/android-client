@@ -21,7 +21,7 @@ import com.bsb.hike.utils.Utils;
  * if isProfilePicDownload = true, means used for DP(User/Group/SU) Download
  *
  */
-public class HeadLessImageDownloaderFragment extends HeadLessImageWorkerFragment implements DownloadProfileImageTaskCallbacks
+public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment implements DownloadProfileImageTaskCallbacks
 {
 	private String id;
 
@@ -41,12 +41,12 @@ public class HeadLessImageDownloaderFragment extends HeadLessImageWorkerFragment
 	
 	private String name;
 	
-	private static final String TAG = HeadLessImageWorkerFragment.class.getName();
+	private static final String TAG = "dp_download";
 
-	public static HeadLessImageDownloaderFragment newInstance(String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
+	public static HeadlessImageDownloaderFragment newInstance(String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
 			String url, boolean isProfilePicDownloaded) {
 		
-		HeadLessImageDownloaderFragment mHeadLessImageDownloaderFragment = new HeadLessImageDownloaderFragment();
+		HeadlessImageDownloaderFragment mHeadLessImageDownloaderFragment = new HeadlessImageDownloaderFragment();
 		Bundle arguments = new Bundle();
     	arguments.putString(HikeConstants.Extras.MAPPED_ID, key);
     	arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, statusImage);
@@ -95,7 +95,7 @@ public class HeadLessImageDownloaderFragment extends HeadLessImageWorkerFragment
 	public void onDetach()
 	{
 		super.onDetach();
-		mTaskCallbacks = null;
+		taskCallbacks = null;
 	}
 
 	private void readArguments()
@@ -113,9 +113,9 @@ public class HeadLessImageDownloaderFragment extends HeadLessImageWorkerFragment
 	@Override
 	public void onRequestProgressUpdate(float progress)
 	{
-		if(mTaskCallbacks != null)
+		if(taskCallbacks != null)
 		{
-			mTaskCallbacks.onProgressUpdate(progress);
+			taskCallbacks.onProgressUpdate(progress);
 		}
 	}
 	
@@ -124,9 +124,9 @@ public class HeadLessImageDownloaderFragment extends HeadLessImageWorkerFragment
 	{
 		Logger.d("dp_download", "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		String originqlFilePath = directory + "/" +  Utils.getProfileImageFileName(id);
+		String filePath = directory + "/" +  Utils.getProfileImageFileName(id);
 		
-		if(!doAtomicFileRenaming(originqlFilePath, downloadProfileImageTask.getFilePath()))
+		if(!doAtomicFileRenaming(filePath, downloadProfileImageTask.getFilePath()))
 		{
 			return;
 		}
@@ -139,55 +139,45 @@ public class HeadLessImageDownloaderFragment extends HeadLessImageWorkerFragment
 			}
 		}
 		
-		if(mTaskCallbacks != null)
+		if(taskCallbacks != null)
 		{
-			mTaskCallbacks.onSuccess(result);
+			taskCallbacks.onSuccess(result);
 		}
 	}
 
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		/*if(!doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath()))
-		{
-			return;
-		}*/
-
 		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
-		if(mTaskCallbacks != null)
+		if(taskCallbacks != null)
 		{
-			mTaskCallbacks.onFailed();
+			taskCallbacks.onFailed();
 		}
 	}
 
 	@Override
 	public void onRequestCancelled()
 	{
-		/*if(!doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath()))
-		{
-			return;
-		}*/
-		
 		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
-		if(mTaskCallbacks != null)
+		if(taskCallbacks != null)
 		{
-			mTaskCallbacks.onCancelled();
+			taskCallbacks.onCancelled();
 		}
 	}
 	
 	private boolean doPostSuccessfulProfilePicDownload()
 	{
-		Logger.d("dp_download", "inside API doPostSuccessfulProfilePicDownload");
-		String idpp = id;
+		Logger.d(TAG, "inside API doPostSuccessfulProfilePicDownload");
+		String tempId = id;
 
 		if (!statusImage)
 		{
-			idpp = id + ProfileActivity.PROFILE_PIC_SUFFIX;
+			tempId = id + ProfileActivity.PROFILE_PIC_SUFFIX;
 		}
 
-		HikeMessengerApp.getLruCache().remove(idpp);
+		HikeMessengerApp.getLruCache().remove(tempId);
 
 		if (statusImage)
 		{

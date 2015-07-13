@@ -84,8 +84,8 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.fragments.HeadLessImageDownloaderFragment;
-import com.bsb.hike.ui.fragments.HeadLessImageWorkerFragment;
+import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
+import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChatTheme;
@@ -187,7 +187,7 @@ public class MqttMessagesManager
 		}
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
 		//ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
-		HeadLessImageWorkerFragment.doContactManagerIconChange(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		HeadlessImageWorkerFragment.doContactManagerIconChange(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
 		
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
@@ -247,7 +247,7 @@ public class MqttMessagesManager
 			return;
 		}
 
-		HeadLessImageWorkerFragment.doContactManagerIconChange(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		HeadlessImageWorkerFragment.doContactManagerIconChange(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
 		//conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
 
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(groupId);
@@ -2538,7 +2538,7 @@ public class MqttMessagesManager
 			if (!TextUtils.isEmpty(iconBase64))
 			{
 				//ContactManager.getInstance().setIcon(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
-				HeadLessImageWorkerFragment.doContactManagerIconChange(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
+				HeadlessImageWorkerFragment.doContactManagerIconChange(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
 			}
 			// increment the unseen status count straight away.
 			// we've got a new pro tip.
@@ -3428,7 +3428,7 @@ public class MqttMessagesManager
 		}
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		HeadLessImageDownloaderFragment downLoaderFragment = HeadLessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
 				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true);
 		downLoaderFragment.startLoadingTask();
 	}
@@ -3442,14 +3442,14 @@ public class MqttMessagesManager
 		}
 		
 		String fileName = Utils.getProfileImageFileName(id);
-		HeadLessImageDownloaderFragment downLoaderFragment = HeadLessImageDownloaderFragment.newInstance(id, fileName, false, true, null, null, null, true);
+		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(id, fileName, false, true, null, null, null, true);
 		downLoaderFragment.startLoadingTask();
 	}
 
 	private void autoDownloadProtipImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		HeadLessImageDownloaderFragment downLoaderFragment = HeadLessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
 				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL(), true);
 		downLoaderFragment.startLoadingTask();
 	}

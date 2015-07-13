@@ -52,7 +52,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
 
-public class ProfilePicFragment extends SherlockFragment implements FinishableEvent, IHandlerCallback, HeadLessImageWorkerFragment.TaskCallbacks
+public class ProfilePicFragment extends SherlockFragment implements FinishableEvent, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	private View mFragmentView;
 
@@ -86,7 +86,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	
 	private HikeUiHandler hikeUiHandler;
 	
-	private HeadLessImageUploaderFragment mImageWorkerFragment;
+	private HeadlessImageUploaderFragment mImageWorkerFragment;
 
 	private Runnable failedRunnable = new Runnable()
 	{
@@ -236,14 +236,14 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	{
 		Logger.d("dp_upload", "inside API loadHeadLessImageUploadingFragment");
 		FragmentManager fm = getFragmentManager();
-		mImageWorkerFragment = (HeadLessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+		mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
 
 	    // If the Fragment is non-null, then it is currently being
 	    // retained across a configuration change.
 	    if (mImageWorkerFragment == null) 
 	    {
 	    	Logger.d("dp_upload", "starting new mImageLoaderFragment");
-	    	mImageWorkerFragment = HeadLessImageUploaderFragment.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
+	    	mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
 	    	mImageWorkerFragment.setTaskCallbacks(this);
 	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
 	    }
@@ -504,7 +504,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		Logger.d("dp_upload", "inside ImageViewerFragment, removing UILessFragment");
 		if(getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT) != null)
 		{
-			mImageWorkerFragment = (HeadLessImageUploaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+			mImageWorkerFragment = (HeadlessImageUploaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
 			getFragmentManager().beginTransaction().remove(mImageWorkerFragment).commit();
 		}
 	}

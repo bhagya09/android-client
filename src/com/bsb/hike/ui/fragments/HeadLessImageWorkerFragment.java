@@ -12,9 +12,11 @@ import com.bsb.hike.utils.Utils;
  * It ensures that all File I/O are in in sync as concurrent Del/creating/renaming Files will cause issues.So this does those operations on keeping a lock
  *
  */
-public class HeadLessImageWorkerFragment extends SherlockFragment
+public class HeadlessImageWorkerFragment extends SherlockFragment
 {
 
+	private static final String TAG = "dp_woker";
+	
 	static class SingletonClass
 	{
 		private static SingletonClass instance = null;
@@ -55,11 +57,11 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 		
 	}
 
-	protected TaskCallbacks mTaskCallbacks;
+	protected TaskCallbacks taskCallbacks;
 
 	public void setTaskCallbacks(TaskCallbacks callbacks)
 	{
-		this.mTaskCallbacks = callbacks;
+		this.taskCallbacks = callbacks;
 	}
 
 	/**
@@ -71,7 +73,7 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	 */
 	protected boolean doAtomicFileDel(String tmpFilePath)
 	{
-		Logger.d("dp_download", "inside API doRequestFailAtomicFileIO");
+		Logger.d(TAG, "inside API doRequestFailAtomicFileIO");
 		synchronized (SingletonClass.getInstance())
 		{
 			return Utils.removeFile(tmpFilePath);
@@ -88,7 +90,7 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	 */
 	protected boolean doAtomicMultiFileDel(String orignialFilePath, String tmpFilePath)
 	{
-		Logger.d("dp_download", "inside API doRequestFailAtomicFileIO");
+		Logger.d(TAG, "inside API doRequestFailAtomicFileIO");
 		synchronized (SingletonClass.getInstance())
 		{
 			return (Utils.removeFile(tmpFilePath) && Utils.removeFile(orignialFilePath));
@@ -105,7 +107,7 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	 */
 	protected boolean doAtomicFileRenaming(String originalFilePath, String tmpFilePath)
 	{
-		Logger.d("dp_download", "inside API doRequestSuccAtomicFileIO");
+		Logger.d(TAG, "inside API doRequestSuccAtomicFileIO");
 		synchronized (SingletonClass.getInstance())
 		{
 			return Utils.renameFiles(originalFilePath, tmpFilePath);
@@ -125,7 +127,7 @@ public class HeadLessImageWorkerFragment extends SherlockFragment
 	 */
 	public static void doContactManagerIconChange(String msisdn, byte[] bytes, boolean isProfilePc)
 	{
-		Logger.d("dp_download", "inside API doContactManagerIconChange");
+		Logger.d(TAG, "inside API doContactManagerIconChange");
 		synchronized (SingletonClass.getInstance())
 		{
 			ContactManager.getInstance().setIcon(msisdn, bytes, isProfilePc);

@@ -1,6 +1,7 @@
 package com.bsb.hike.tasks;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -20,7 +21,7 @@ public class UploadProfileImageTask
 
 	private String filePath;
 
-	private UploadProfileImageTaskCallbacks uploadProfileImageTaskCallbacks;
+	private WeakReference<UploadProfileImageTaskCallbacks> uploadProfileImageTaskCallbacks;
 
 	public UploadProfileImageTask(String filePath, String fileName)
 	{
@@ -33,17 +34,14 @@ public class UploadProfileImageTask
 		File dir = new File(filePath);
 		if (!dir.exists())
 		{
-			if (!dir.mkdirs())
+			doOnFailure();
+			
+			if (uploadProfileImageTaskCallbacks != null)
 			{
-				doOnFailure();
-				
-				if (uploadProfileImageTaskCallbacks != null)
-				{
-					uploadProfileImageTaskCallbacks.onRequestCancelled();
-				}
-				
-				return;
+				uploadProfileImageTaskCallbacks.get().onRequestCancelled();
 			}
+			
+			return;
 		}
 
 		RequestToken token = HttpRequests.editProfileAvatarRequest(fileName, requestListener);
@@ -59,7 +57,7 @@ public class UploadProfileImageTask
 
 			if (uploadProfileImageTaskCallbacks != null)
 			{
-				uploadProfileImageTaskCallbacks.onRequestSuccess(result);
+				uploadProfileImageTaskCallbacks.get().onRequestSuccess(result);
 			}
 
 		}
@@ -69,7 +67,7 @@ public class UploadProfileImageTask
 		{
 			if (uploadProfileImageTaskCallbacks != null)
 			{
-				uploadProfileImageTaskCallbacks.onRequestProgressUpdate(progress);
+				uploadProfileImageTaskCallbacks.get().onRequestProgressUpdate(progress);
 			}
 		}
 
@@ -82,7 +80,7 @@ public class UploadProfileImageTask
 
 				if (uploadProfileImageTaskCallbacks != null)
 				{
-					uploadProfileImageTaskCallbacks.onRequestCancelled();
+					uploadProfileImageTaskCallbacks.get().onRequestCancelled();
 				}
 			}
 			else
@@ -91,7 +89,7 @@ public class UploadProfileImageTask
 
 				if (uploadProfileImageTaskCallbacks != null)
 				{
-					uploadProfileImageTaskCallbacks.onRequestFailure(httpException);
+					uploadProfileImageTaskCallbacks.get().onRequestFailure(httpException);
 				}
 			}
 		}
@@ -140,7 +138,7 @@ public class UploadProfileImageTask
 
 	public void setUploadProfileImageTaskCallbacks(UploadProfileImageTaskCallbacks uploadProfileImageTaskCallbacks)
 	{
-		this.uploadProfileImageTaskCallbacks = uploadProfileImageTaskCallbacks;
+		this.uploadProfileImageTaskCallbacks = new WeakReference<UploadProfileImageTaskCallbacks>(uploadProfileImageTaskCallbacks);
 	}
 
 }

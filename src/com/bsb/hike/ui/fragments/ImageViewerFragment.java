@@ -29,11 +29,12 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
-public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener, IHandlerCallback, HeadLessImageWorkerFragment.TaskCallbacks
+public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -61,11 +62,13 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	
 	private ProfileImageLoader profileImageLoader;
 	
-	private HeadLessImageWorkerFragment mImageWorkerFragment;
+	private HeadlessImageWorkerFragment mImageWorkerFragment;
 	
 	private boolean hasCustomImage;
 	
 	private HikeUiHandler hikeUiHandler;
+	
+	private static final String TAG = "dp_download";
 	
 	private Runnable failedRunnable = new Runnable()
 	{
@@ -75,7 +78,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		{
 			if(isAdded() && isVisible())
 			{
-				Logger.d("dp_download", "inside ImageViewerFragment, onFailed Recv");
+				Logger.d(TAG, "inside ImageViewerFragment, onFailed Recv");
 				dismissProgressDialog();
 				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.download_failed), Toast.LENGTH_SHORT).show();
 			}
@@ -91,7 +94,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		{
 			if(isAdded() && isVisible())
 			{
-				Logger.d("dp_download", "inside ImageViewerFragment, onCancelled Recv");
+				Logger.d(TAG, "inside ImageViewerFragment, onCancelled Recv");
 				dismissProgressDialog();
 				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.download_failed), Toast.LENGTH_SHORT).show();
 			}
@@ -107,7 +110,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		{
 			if(isAdded() && isVisible())
 			{
-				Logger.d("dp_download", "inside ImageViewerFragment, onSucecess Recv");
+				Logger.d(TAG, "inside ImageViewerFragment, onSucecess Recv");
 				dismissProgressDialog();
 				profileImageLoader.loadFromFile();
 			}
@@ -352,66 +355,36 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		hikeUiHandler.post(failedRunnable);
 	}
 
-	/*//TODO API Duplicated, As currently used in loader as well will be removed
-	//When loader will be removed from Voip as well
-	private void loadFromFile() 
-	{
-		Logger.d("dp_download", "inside ImageViewerFragment, loadFromFile Recv, "+ Thread.currentThread().getName());
-		Logger.e("dp_test", "============ loadFromFile ============");
-		String fileName = Utils.getProfileImageFileName(key);
-
-		String basePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		
-		File file = new File(basePath, fileName);
-
-		BitmapDrawable drawable = null;
-		if (file.exists() && isAdded())
-		{
-			Logger.d(getClass().getSimpleName(),"setting final downloaded image...");
-			drawable = HikeBitmapFactory.getBitmapDrawable(getActivity().getResources(),
-					HikeBitmapFactory.scaleDownBitmap(basePath + "/" + fileName, imageSize, imageSize, Bitmap.Config.RGB_565,true,false));
-			imageView.setImageDrawable(drawable);
-			
-			Logger.d(getClass().getSimpleName(), "Putting in cache mappedId : " + mappedId);
-			
-			 * Putting downloaded image bitmap in cache.
-			 
-			if (drawable != null)
-			{
-				HikeMessengerApp.getLruCache().putInCache(mappedId, drawable);
-			}
-		}
-	}*/
-	
 	private void loadHeadLessImageDownloadingFragment()
 	{
-		Logger.d("dp_download", "isnide API loadHeadLessImageDownloadingFragment");
+		Logger.d(TAG, "isnide API loadHeadLessImageDownloadingFragment");
 		FragmentManager fm = getFragmentManager();
-		mImageWorkerFragment = (HeadLessImageDownloaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
+		mImageWorkerFragment = (HeadlessImageDownloaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
 
 	    // If the Fragment is non-null, then it is currently being
 	    // retained across a configuration change.
 	    if (mImageWorkerFragment == null) 
 	    {
-	    	Logger.d("dp_download", "starting new mImageLoaderFragment");
+	    	Logger.d(TAG, "starting new mImageLoaderFragment");
 	    	String fileName = Utils.getProfileImageFileName(key);
-	    	mImageWorkerFragment = HeadLessImageDownloaderFragment.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
+	    	mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
 	    	mImageWorkerFragment.setTaskCallbacks(this);
 	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
 	    }
 	    else
 	    {
-	    	Logger.d("dp_download", "As mImageLoaderFragment already there, so not starting new one");
+	    	Toast.makeText(getActivity(), getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
 	    }
 
 	}
 	
 	private void removeHeadLessFragment()
 	{
-		Logger.d("dp_download", "inside ImageViewerFragment, removing UILessFragment");
+		Logger.d(TAG, "inside ImageViewerFragment, removing UILessFragment");
 		if(getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT) != null)
 		{
-			mImageWorkerFragment = (HeadLessImageDownloaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
+			mImageWorkerFragment = (HeadlessImageDownloaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
 			getFragmentManager().beginTransaction().remove(mImageWorkerFragment).commit();
 		}
 	}
