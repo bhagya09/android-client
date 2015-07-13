@@ -1,7 +1,6 @@
 package com.bsb.hike.offline;
 
 import java.io.File;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -12,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable.Orientation;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView.ScaleType;
@@ -28,6 +28,7 @@ import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -275,6 +276,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	}
 
 	private void addToDatabase(ConvMessage convMessage) {
+		convMessage.setMessageOriginType(OriginType.OFFLINE);
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED,convMessage);
 	}
