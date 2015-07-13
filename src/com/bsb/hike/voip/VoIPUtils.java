@@ -522,6 +522,10 @@ public class VoIPUtils {
 					i.putExtra(VoIPConstants.Extras.RECONNECTING, metadataJSON.getBoolean(VoIPConstants.Extras.RECONNECTING));
 					i.putExtra(VoIPConstants.Extras.INITIATOR, metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR));
 					i.putExtra(VoIPConstants.Extras.CALL_ID, metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
+					
+					if (metadataJSON.has(VoIPConstants.Extras.VOIP_VERSION))
+						i.putExtra(VoIPConstants.Extras.VOIP_VERSION, metadataJSON.getInt(VoIPConstants.Extras.VOIP_VERSION));
+					
 					context.startService(i);
 					return;
 				}

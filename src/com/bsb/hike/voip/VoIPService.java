@@ -433,7 +433,10 @@ public class VoIPService extends Service {
 			client.setInitiator(intent.getBooleanExtra(VoIPConstants.Extras.INITIATOR, true));
 			client.setRelayAddress(intent.getStringExtra(VoIPConstants.Extras.RELAY));
 			client.setRelayPort(intent.getIntExtra(VoIPConstants.Extras.RELAY_PORT, VoIPConstants.ICEServerPort));
+			client.setVersion(intent.getIntExtra(VoIPConstants.Extras.VOIP_VERSION, 1));
 
+			Logger.e(tag, "Supported version: " + client.getVersion());
+			
 			// Error case: we are receiving a delayed v0 message for a call we 
 			// initiated earlier. 
 			if (!client.isInitiator() && partnerCallId != getCallId()) {

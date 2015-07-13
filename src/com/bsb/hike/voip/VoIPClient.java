@@ -67,6 +67,7 @@ public class VoIPClient  {
 	private int ourInternalPort, ourExternalPort;
 	private String name;
 	private boolean initiator, ender;
+	private int version;
 	private volatile ConnectionMethods preferredConnectionMethod = ConnectionMethods.UNKNOWN;
 	private InetAddress cachedInetAddress = null;
 	private String relayAddress;
@@ -217,6 +218,14 @@ public class VoIPClient  {
 
 	public void setEnder(boolean ender) {
 		this.ender = ender;
+	}
+	
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
 	public ConnectionMethods getPreferredConnectionMethod() {
@@ -472,15 +481,16 @@ public class VoIPClient  {
 		
 		try {
 			JSONObject socketData = new JSONObject();
-			socketData.put("internalIP", getOurInternalIPAddress());
-			socketData.put("internalPort", getOurInternalPort());
-			socketData.put("externalIP", getOurExternalIPAddress());
-			socketData.put("externalPort", getOurExternalPort());
-			socketData.put("relay", getRelayAddress());
-			socketData.put("relayport", getRelayPort());
-			socketData.put("callId", VoIPService.getCallId());
-			socketData.put("initiator", !isInitiator());
-			socketData.put("reconnecting", reconnecting);
+			socketData.put(VoIPConstants.Extras.INTERNAL_IP, getOurInternalIPAddress());
+			socketData.put(VoIPConstants.Extras.INTERNAL_PORT, getOurInternalPort());
+			socketData.put(VoIPConstants.Extras.EXTERNAL_IP, getOurExternalIPAddress());
+			socketData.put(VoIPConstants.Extras.EXTERNAL_PORT, getOurExternalPort());
+			socketData.put(VoIPConstants.Extras.RELAY, getRelayAddress());
+			socketData.put(VoIPConstants.Extras.RELAY_PORT, getRelayPort());
+			socketData.put(VoIPConstants.Extras.CALL_ID, VoIPService.getCallId());
+			socketData.put(VoIPConstants.Extras.INITIATOR, !isInitiator());
+			socketData.put(VoIPConstants.Extras.RECONNECTING, reconnecting);
+			socketData.put(VoIPConstants.Extras.VOIP_VERSION, VoIPConstants.VOIP_VERSION);
 			
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));

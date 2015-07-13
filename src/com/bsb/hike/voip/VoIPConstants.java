@@ -3,6 +3,14 @@ package com.bsb.hike.voip;
 
 public class VoIPConstants {
 	public static final String TAG = "VoIP";
+
+	/**
+	 * <p>Current VoIP protocol version.</p>
+	 * <p>Added in <b>v2</b>: <br/>
+	 * - Conference support
+	 * </p>
+	 */
+	public static final int VOIP_VERSION = 2;
 	
 	// Relay and ICE server 
 	public static final String ICEServerName = "54.179.137.97"; // "relay.hike.in";	// TODO! TODO! 
@@ -175,6 +183,8 @@ public class VoIPConstants {
 		public static final String CALL_ID = "callId";
 
 		public static final String INCOMING_CALL = "incomingCall";
+		
+		public static final String VOIP_VERSION = "version";
 	}
 
 	
