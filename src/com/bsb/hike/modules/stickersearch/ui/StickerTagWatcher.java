@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -45,7 +46,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	private EditText editText;
 
-	int color;
+	private int color;
 
 	private Editable editable;
 
