@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1274"
-    android:versionName="3.9.8.44" >
+    android:versionName="3.9.8.81.001_dp_flow_revamp" >
 
     <uses-sdk
         android:minSdkVersion="9"
