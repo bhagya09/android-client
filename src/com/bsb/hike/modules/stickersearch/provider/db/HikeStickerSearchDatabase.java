@@ -243,19 +243,31 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	{
 		Logger.d(TAG, "deleteAll(" + isNeedToDeleteAllSearchData + ")");
 
-		// Delete tables used for search
-		deleteSearchData();
-
-		if (isNeedToDeleteAllSearchData)
+		try
 		{
-			// Delete fixed table: TABLE_STICKER_CATEGORY_HISTORY
-			mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_PACK_CATEGORY_HISTORY, null, null);
+			mDb.beginTransaction();
 
-			// Delete fixed table: TABLE_STICKER_TAG_MAPPING
-			mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
+			// Delete tables used for search
+			deleteSearchData();
 
-			// Delete fixed table: TABLE_STICKER_TAG_MAPPING
-			mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, null);
+			if (isNeedToDeleteAllSearchData)
+			{
+				// Delete fixed table: TABLE_STICKER_CATEGORY_HISTORY
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_PACK_CATEGORY_HISTORY, null, null);
+
+				// Delete fixed table: TABLE_STICKER_TAG_MAPPING
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
+
+				// Delete fixed table: TABLE_STICKER_TAG_MAPPING
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, null);
+			}
+			SQLiteDatabase.releaseMemory();
+
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
 		}
 	}
 
@@ -266,14 +278,34 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		// Delete dynamically added tables
 		String[] tables = new String[HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT];
+
 		tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
 		mDb.delete(tables[0], null, null);
+		SQLiteDatabase.releaseMemory();
+		try
+		{
+			Thread.sleep(5);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 
 		int remainingCount = HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT - 1;
 		for (int i = 0; i < remainingCount; i++)
 		{
 			tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
 			mDb.delete(tables[i + 1], null, null);
+
+			SQLiteDatabase.releaseMemory();
+			try
+			{
+				Thread.sleep(5);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -602,8 +634,18 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		if (stickerInfo.isEmpty())
 		{
-			// Disable all stickers
-			deleteSearchData();
+			try
+			{
+				mDb.beginTransaction();
+
+				deleteSearchData();
+
+				mDb.endTransaction();
+			}
+			finally
+			{
+				mDb.setTransactionSuccessful();
+			}
 			return;
 		}
 
