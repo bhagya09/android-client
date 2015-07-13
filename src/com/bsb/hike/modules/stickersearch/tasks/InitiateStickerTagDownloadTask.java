@@ -45,7 +45,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		}
 		else
 		{
-			stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeMessengerApp.STICKER_SET, null);
+			stickerSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
 		}
 		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet);
 		stickerTagDownloadTask.execute();

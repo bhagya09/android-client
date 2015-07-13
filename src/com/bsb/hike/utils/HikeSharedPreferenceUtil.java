@@ -20,7 +20,7 @@ public class HikeSharedPreferenceUtil
 	public static final String STRING_SEPARATOR = ",";
 
 	public static final String CONV_UNREAD_COUNT = "ConvUnreadCount";
-	
+
 	private SharedPreferences hikeSharedPreferences;
 
 	private Editor editor;
@@ -98,7 +98,7 @@ public class HikeSharedPreferenceUtil
 		editor.putInt(key, value);
 		return editor.commit();
 	}
-	
+
 	public synchronized boolean saveDataSet(String key, Set<String> value)
 	{
 		if (Utils.isHoneycombOrHigher())
@@ -115,9 +115,11 @@ public class HikeSharedPreferenceUtil
 					sb.append(s);
 					sb.append(STRING_SEPARATOR);
 				}
-
+				// do not remove last separator, as it would not be able to determine, if last element of set was empty string
+				// at same time, if set argument has no element, then equivalent string will empty without having any separator
 				editor.putString(key, sb.toString());
 			}
+			// value is null, i.e. remove the key as same as Android standard behavior
 			else
 			{
 				editor.remove(key);
@@ -126,9 +128,6 @@ public class HikeSharedPreferenceUtil
 
 		return editor.commit();
 	}
-	/*
-	 * public synchronized boolean saveData(String key, Set<String> value) { //editor.putStringSet(key, value); return editor.commit(); }
-	 */
 
 	public synchronized boolean removeData(String key)
 	{
@@ -145,9 +144,9 @@ public class HikeSharedPreferenceUtil
 	{
 		return hikeSharedPreferences.getString(key, defaultValue);
 	}
-	
-	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues) {
 
+	public synchronized Set<String> getDataSet(String key, Set<String> defaultValues)
+	{
 		if (Utils.isHoneycombOrHigher())
 		{
 			return hikeSharedPreferences.getStringSet(key, defaultValues);
@@ -155,14 +154,17 @@ public class HikeSharedPreferenceUtil
 		else
 		{
 			String transformedValue = hikeSharedPreferences.getString(key, null);
+			// return default value, if no such key is present
 			if (transformedValue == null)
 			{
 				return defaultValues;
 			}
+			// return empty set, if empty set (equivalent to empty string) was saved
 			else if (transformedValue.length() == 0)
 			{
 				return new HashSet<String>(0);
 			}
+			// return set built by values (determined by splitting equivalent string)
 			else
 			{
 				String[] values = transformedValue.split(STRING_SEPARATOR);
@@ -173,6 +175,7 @@ public class HikeSharedPreferenceUtil
 					result.add(value);
 				}
 
+				// if saved set contained empty string as its last element, then equivalent string would have been ended with 2 separators.
 				if (transformedValue.endsWith(STRING_SEPARATOR + STRING_SEPARATOR))
 				{
 					result.add(STRING_EMPTY);
@@ -185,7 +188,6 @@ public class HikeSharedPreferenceUtil
 
 	public synchronized float getData(String key, float defaultValue)
 	{
-
 		return hikeSharedPreferences.getFloat(key, defaultValue);
 	}
 
@@ -209,10 +211,9 @@ public class HikeSharedPreferenceUtil
 	{
 		return hikeSharedPreferences;
 	}
-	
+
 	public synchronized boolean contains(String key)
 	{
 		return hikeSharedPreferences.contains(key);
 	}
-
 }

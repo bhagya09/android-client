@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -160,7 +159,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			{
 				if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
 				{
-					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or keyboard is closed.");
+					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or popup is already shown: " + isStickerRecommnedPoupShowing() + ", isKeyboardOpen(): " + chatthread.isKeyboardOpen());
 					return;
 				}
 
