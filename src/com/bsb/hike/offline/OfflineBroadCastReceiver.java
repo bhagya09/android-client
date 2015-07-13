@@ -7,10 +7,9 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.text.TextUtils;
+import android.util.Log;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.utils.Logger;
 
 public class OfflineBroadCastReceiver extends BroadcastReceiver
 {
@@ -52,12 +51,12 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 		else if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action))
 		{
 			NetworkInfo netInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-			WifiManager wifiManager = (WifiManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+			WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
 			String ssid = wifiManager.getConnectionInfo().getSSID();
 			if (!TextUtils.isEmpty(ssid))
 			{
-				Logger.d(TAG, "OfflineBroadCast ssid: " + ssid);
+				Log.d(TAG, "OfflineBroadCast ssid: " + ssid);
 				if (ssid.length() > 2)
 					ssid = ssid.substring(1, ssid.length() - 1);
 
@@ -75,7 +74,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			{
 				return;
 			}
-			Logger.d(TAG,"Wifi state change "+extraWifiState);
+			Log.d(TAG,"Wifi state change "+extraWifiState);
 			switch (extraWifiState)
 			{
 			case WifiManager.WIFI_STATE_DISABLED:
@@ -121,7 +120,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			case OfflineConstants.WIFI_HOTSPOT_STATE_UNKNOWN:
 				break;
 			}
-			Logger.d(TAG, "Wifi Hotspot State " + state);
+			Log.d(TAG, "Wifi Hotspot State " + state);
 		}
 
 	}
