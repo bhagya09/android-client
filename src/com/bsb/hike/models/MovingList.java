@@ -161,7 +161,15 @@ public class MovingList<T extends Unique> implements Collection<T>
 		if (mOnItemsFinishedListener != null)
 		{
 			int a = Math.max(0, index - LoadBufferSize);
+			while (getRaw(a) != null)
+			{
+				a++;
+			}
 			int b = Math.min(size() - 1, index + LoadBufferSize);
+			while (getRaw(b) != null)
+			{
+				b--;
+			}
 			mOnItemsFinishedListener.getMoreItems(this, a, b);
 		}
 	}
