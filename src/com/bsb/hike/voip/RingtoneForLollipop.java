@@ -5,7 +5,7 @@ import android.media.Ringtone;
 
 public class RingtoneForLollipop {
 
-	public void create(Ringtone ringtone) {
+	static public void create(Ringtone ringtone) {
 		AudioAttributes.Builder attrs = new AudioAttributes.Builder();
 		attrs.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
 		attrs.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
