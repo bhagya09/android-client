@@ -25,6 +25,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -44,18 +45,18 @@ class AlarmPingSender implements MqttPingSender {
 
 	// TODO: Add log.
 	private ClientComms comms;
-	private Context service;
+	private HikeMessengerApp app;
 	private BroadcastReceiver alarmReceiver;
 	private AlarmPingSender that;
 	private PendingIntent pendingIntent;
 	private volatile boolean hasStarted = false;
 
-	public AlarmPingSender(Context service) {
-		if (service == null) {
+	public AlarmPingSender(HikeMessengerApp app) {
+		if (app == null) {
 			throw new IllegalArgumentException(
 					"Neither service nor client can be null.");
 		}
-		this.service = service;
+		this.app = app;
 		that = this;
 	}
 
@@ -70,9 +71,9 @@ class AlarmPingSender implements MqttPingSender {
 		String action = MqttConstants.PING_SENDER
 				+ comms.getClient().getClientId();
 		Logger.d(TAG, "Register alarmreceiver to MqttService"+ action);
-		service.registerReceiver(alarmReceiver, new IntentFilter(action));
+		app.registerReceiver(alarmReceiver, new IntentFilter(action));
 
-		pendingIntent = PendingIntent.getBroadcast(service, 0, new Intent(
+		pendingIntent = PendingIntent.getBroadcast(app, 0, new Intent(
 				action), PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		schedule(comms.getKeepAlive());
@@ -82,7 +83,7 @@ class AlarmPingSender implements MqttPingSender {
 	@Override
 	public void stop() {
 		// Cancel Alarm.
-		AlarmManager alarmManager = (AlarmManager) service
+		AlarmManager alarmManager = (AlarmManager) app
 				.getSystemService(Service.ALARM_SERVICE);
 		alarmManager.cancel(pendingIntent);
 
@@ -90,7 +91,7 @@ class AlarmPingSender implements MqttPingSender {
 		if(hasStarted){
 			hasStarted = false;
 			try{
-				service.unregisterReceiver(alarmReceiver);
+				app.unregisterReceiver(alarmReceiver);
 			}catch(IllegalArgumentException e){
 				//Ignore unregister errors.			
 			}
@@ -102,7 +103,7 @@ class AlarmPingSender implements MqttPingSender {
 		long nextAlarmInMilliseconds = System.currentTimeMillis()
 				+ delayInMilliseconds;
 		Logger.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);
-		AlarmManager alarmManager = (AlarmManager) service
+		AlarmManager alarmManager = (AlarmManager) app
 				.getSystemService(Service.ALARM_SERVICE);
 		if (Utils.isKitkatOrHigher())
 		{
@@ -146,7 +147,7 @@ class AlarmPingSender implements MqttPingSender {
 			// arrives. Get another wakelock even receiver already has one,
 			// release it until ping response returns.
 			if (wakelock == null) {
-				PowerManager pm = (PowerManager) service
+				PowerManager pm = (PowerManager) app
 						.getSystemService(Service.POWER_SERVICE);
 				wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
 						wakeLockTag);
@@ -176,6 +177,8 @@ class AlarmPingSender implements MqttPingSender {
 					}
 				}
 			});
+			
+			app.connectToService();
 		}
 	}
 }
