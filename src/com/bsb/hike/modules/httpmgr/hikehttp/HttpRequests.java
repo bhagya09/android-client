@@ -4,9 +4,11 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDK
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
@@ -23,24 +25,23 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.setProf
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateAddressbookBaseUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bsb.hike.modules.httpmgr.request.StringRequest;
-import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONObject;
 
-import com.bsb.hike.HikeConstants;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -52,16 +53,23 @@ import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
+import com.bsb.hike.modules.httpmgr.request.StringRequest;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.MultipartRequestBody;
 import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
+import com.squareup.okhttp.RequestBody;
 
 public class HttpRequests
 {
@@ -128,7 +136,24 @@ public class HttpRequests
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
+	
+	public static RequestToken postStatusRequest(String argStatusMessage, int argMood, IRequestListener requestListener, String imageFilePath) throws IOException
+	{
+		final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
 
+		final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/plain; charset=UTF-8");
+
+		final RequestBody requestBody = new MultipartBuilder().type(MultipartBuilder.FORM)
+				.addPart(Headers.of("Content-Disposition", "form-data; name=\"status-message\""), RequestBody.create(MEDIA_TYPE_MARKDOWN, argStatusMessage))
+				.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_MARKDOWN, String.valueOf(argMood)))
+				.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"abc.png\""), RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath))).build();
+
+		MultipartRequestBody body = new MultipartRequestBody(requestBody);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(getPostImageSUUrl()).setRequestListener(requestListener).post(body).build();
+
+		return requestToken;
+	}
 	public static RequestToken platformZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new FileRequest.Builder()
@@ -492,7 +517,7 @@ public class HttpRequests
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(updateLoveLinkUrl())
+				.setUrl(updateUnLoveLinkUrl())
 				.setRequestListener(requestListener)
 				.delete(body)
 				.build();
