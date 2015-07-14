@@ -192,8 +192,6 @@ public abstract class ImageWorker
 			final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, loadingBitmap, task);
 			imageView.setImageDrawable(asyncDrawable);
 
-			sendImageCallback(imageView);
-			
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
 			// for more info on what was changed.
@@ -480,6 +478,7 @@ public abstract class ImageWorker
 					 */
 					setImageDrawable(imageView, defaultDrawable);
 					imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+					sendImageCallback(imageView);
 				}
 
 			}
