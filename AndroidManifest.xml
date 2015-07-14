@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1236"
-    android:versionName="3.9.7" >
+    android:versionCode="1272"
+    android:versionName="3.9.8.42.plf" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -259,9 +259,7 @@
             android:name=".ui.HikeSharedFilesActivity"
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity
-            android:name=".ui.GallerySelectionViewer"
-            android:theme="@style/AppTheme.Home.Photos" >
+        <activity android:name=".ui.GallerySelectionViewer">
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
         </activity>
@@ -319,10 +317,17 @@
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity
-            android:name="com.bsb.hike.ui.DelegateActivity"
-            android:launchMode="standard"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            android:name=".chatHead.ChatHeadActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.bsb.hike.chatHead"
+            android:launchMode="singleInstance">
+		</activity>
+		<activity
+            android:name=".chatHead.StickerShareSettings"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
         
 		<activity
