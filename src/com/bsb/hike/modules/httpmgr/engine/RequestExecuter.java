@@ -8,8 +8,10 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_R
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SERVER_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONTENT_LENGTH_REQUIRED;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -31,6 +33,8 @@ import com.bsb.hike.modules.httpmgr.network.NetworkChecker;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.RequestCall;
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
+import com.bsb.hike.modules.httpmgr.request.requestbody.GzipRequestBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
@@ -269,10 +273,23 @@ public class RequestExecuter
 				handleRetry(ex, REASON_CODE_NO_NETWORK);
 				return;
 			}
-
 			if (statusCode == HTTP_UNAUTHORIZED || statusCode == HTTP_FORBIDDEN)
 			{
 				handleException(ex, REASON_CODE_AUTH_FAILURE);
+			}
+			/**
+			 * in case of response code == 411 we make a retry without gzip
+			 */
+			else if(statusCode == HTTP_LENGTH_REQUIRED)
+			{
+				IRequestBody requestBody = request.getBody();
+				if(requestBody instanceof GzipRequestBody)
+				{
+					request.setBody(((GzipRequestBody) requestBody).getOriginalBody());
+				}
+				HttpUtils.removeHeader(request.getHeaders(), "Content-Encoding", "gzip");
+				request.getRequestInterceptors().remove("gzip");
+				handleRetry(ex, REASON_CODE_CONTENT_LENGTH_REQUIRED);
 			}
 			else
 			{
