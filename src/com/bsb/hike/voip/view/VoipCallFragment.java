@@ -310,6 +310,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 		
+		// Ignore intents if we're hosting a conference
+		if (voipService != null && voipService.hostingConference()) {
+			Logger.w(tag, "Ignoring intent with action " + action + " because we're hosting a conference.");
+			return;
+		}
+		
 		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
 		{
 			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
@@ -674,6 +680,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					callDuration.setText(getString(R.string.voip_call_ended));
 				}
 				break;
+				
+			case HOSTING_CONFERENCE:
+				startCallDuration();
+				break;
+				
 		default:
 			// Logger.w(tag, "Unhandled status: " + status);
 			callDuration.startAnimation(anim);
@@ -725,7 +736,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 
-		if (voipService.hostingConference() || clientPartner.clientMsisdns != null) {
+		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			nameOrMsisdn = getString(R.string.voip_conference_label);
 			contactMsisdnView.setVisibility(View.VISIBLE);
 			contactMsisdnView.setText(voipService.getClientNames());
@@ -779,6 +790,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					   			break;
 		default:
 			Logger.w(tag, "Unhandled voice quality: " + quality);
+			gd.setColor(getResources().getColor(R.color.signal_good));
+	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
 			break;
 		}
 		signalContainer.startAnimation(anim);

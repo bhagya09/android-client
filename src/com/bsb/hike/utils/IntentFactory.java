@@ -790,12 +790,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, VoIPUtils.CallSource source)
+	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, String groupChatMsisdn, VoIPUtils.CallSource source)
 	{
 		Intent intent = new Intent(context, VoIPService.class);
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		intent.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
 		return intent;
 	}
 
