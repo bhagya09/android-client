@@ -123,6 +123,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		TextView seeAll;
 
+		CheckBox checkBoxLove;
+
 		public ViewHolder(View convertView, int viewType)
 		{
 			super(convertView);
@@ -131,6 +133,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			parent = convertView.findViewById(R.id.main_content);
 			name = (TextView) convertView.findViewById(R.id.name);
 			mainInfo = (TextView) convertView.findViewById(R.id.main_info);
+			checkBoxLove = (CheckBox)convertView.findViewById(R.id.btn_love);
 
 			//Grab view references
 			switch (viewType)
@@ -415,14 +418,14 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			/*
 			 * Fetch larger image
 			 */
-			// TODO
-			// bigPicImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, isListFlinging);
 			bigPicImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false);
 
 			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, mContext));
 
 			viewHolder.infoContainer.setTag(statusMessage);
 			viewHolder.infoContainer.setOnClickListener(onProfileInfoClickListener);
+			viewHolder.checkBoxLove.setTag(statusMessage);
+			viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 			break;
 
 		case FTUE_ITEM:
@@ -786,6 +789,78 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			// TODO
 			// mContext.finish();
+		}
+	};
+	
+	private OnCheckedChangeListener onLoveToggleListener = new OnCheckedChangeListener()
+	{
+		
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+		{
+			StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
+			
+			JSONObject json = new JSONObject();
+			
+			try
+			{
+				json.put("su_id", statusMessage.getId());
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+			
+			if(isChecked)
+			{
+				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
+				{
+					
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						Toast.makeText(mContext, "Like success", Toast.LENGTH_SHORT).show();
+						
+					}
+					
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						Toast.makeText(mContext, "Like failure", Toast.LENGTH_SHORT).show();
+					}
+				}, null);
+				token.execute();
+			}
+			else
+			{
+				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
+				{
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						Toast.makeText(mContext, "Unlike success", Toast.LENGTH_SHORT).show();
+					}
+					
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						Toast.makeText(mContext, "Unlike failure", Toast.LENGTH_SHORT).show();
+					}
+				}, null);
+				token.execute();
+			}
 		}
 	};
 
