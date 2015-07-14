@@ -879,7 +879,7 @@ public class UploadFileTask extends FileTransferBase
 			this.analyticEvents.mRetryCount += 1;
 		}
 		_state = FTState.IN_PROGRESS;
-		LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		
 		if (mStart >= length)
 		{
@@ -1312,7 +1312,7 @@ public class UploadFileTask extends FileTransferBase
 				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, resCode, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "Response code greater than 400");
 				deleteStateFile();
 				_state = FTState.IN_PROGRESS;
-				freshStart = true;
+				retry = false;
 			}
 		}
 		time = System.currentTimeMillis() - time;
