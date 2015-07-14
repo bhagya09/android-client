@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1263"
-    android:versionName="3.9.8.31.1.multiadmin" >
+    android:versionName="3.9.8.81.1.multiadmin" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
