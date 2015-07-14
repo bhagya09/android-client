@@ -7,18 +7,12 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -32,6 +26,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.webkit.JavascriptInterface;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,12 +35,21 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -655,6 +659,120 @@ public abstract class JavascriptBridge
 			callbackToJS(id, "Failure");
 		}
 
+	}
+	
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to open file chooser and select the file
+	 * @param id	:	The function id
+	 * returns the absolute path of the selected file in onActivityResult() of WebViewActivity
+	 */
+	@JavascriptInterface
+	public void chooseFile(final String id)
+	{
+		if (null == mHandler)
+		{
+			Logger.e("FileUpload", "mHandler is null");
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{	Context weakActivityRef=weakActivity.get();
+				if (weakActivityRef != null)
+				{
+					Intent fileChooserIntent = new Intent(IntentFactory.getFileSelectActivityIntent(weakActivityRef, "123123123"));
+					fileChooserIntent.setType("*/*");
+					((WebViewActivity) weakActivityRef).setId(id);
+					weakActivity.get().startActivityForResult(Intent.createChooser(fileChooserIntent, "Upload File"),FILE_SELECT_REQUEST);
+				}
+			}
+		});
+	}
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to upload multiple files to the server
+	 * @param id			:	the function id
+	 * @param filePathArray	:	the comma separated string containing the list of file paths
+	 * @param url			:	the URL of the server where the files have to be uploaded
+	 * returns the response on each file upload success
+	 */
+	@JavascriptInterface
+	public void uploadFile(final String id,String data)
+	{
+		if(data == null)
+		{
+			callbackToJS(id, "Data field Null");
+			return;
+		}
+		JSONObject json;
+		String filePath = null;
+		String url = null;
+		boolean doCompress = false;
+		try
+		{
+			json = new JSONObject(data);
+			filePath = json.optString("filePath");
+			url = json.optString("uploadUrl");
+			doCompress = json.optBoolean("doCompress");
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		
+		if(filePath == null || url == null)
+		{
+			callbackToJS(id, "JSON content Null");
+			return;
+		}
+		String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+		if(!(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp")).exists())
+		{
+			(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp")).mkdirs();
+		}
+		final String tempFilePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp" + File.separator + (new File(filePath).getName());
+		
+		IFileUploadListener fileListener = new IFileUploadListener()
+		{
+			
+			@Override
+			public void onRequestFailure(String response)
+			{
+				Logger.d("FileUpload", "Failure Response from the server is ----->" + response);
+				callbackToJS(id, "");
+				File tempFile = new File(tempFilePath);
+				if(tempFile.exists())
+				{
+					PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp");
+				}
+			}
+			
+			@Override
+			public void onRequestSuccess(String response)
+			{
+				Logger.d("FileUpload", "Success Response from the server is ----->" + response);
+				callbackToJS(id, response);
+				File tempFile = new File(tempFilePath);
+				if(tempFile.exists())
+				{
+					PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp");
+				}
+			}
+		};
+		
+		if(fileExtension != null && MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension).contains("image") && doCompress)
+		{
+			Utils.compressAndCopyImage(filePath, tempFilePath, weakActivity.get());
+			Logger.d("FileUpload", "original size =" + (new File(filePath)).length());
+			Logger.d("FileUpload", "compressed size =" + (new File(tempFilePath)).length());
+			PlatformUtils.uploadFile(tempFilePath, url, fileListener);
+		}
+		else
+		{
+			PlatformUtils.uploadFile(filePath, url, fileListener);
+		}
 	}
 
 	public void getInitJson(JSONObject jsonObj, String msisdn)

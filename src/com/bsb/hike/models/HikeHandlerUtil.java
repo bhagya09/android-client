@@ -101,4 +101,9 @@ public class HikeHandlerUtil
 		mHandlerThread = null;
 
 	}
+
+	public void postRunnable(Runnable runnable)
+	{
+		mHandler.post(runnable);
+	}
 }
