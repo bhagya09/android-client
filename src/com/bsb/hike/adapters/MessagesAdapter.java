@@ -2279,8 +2279,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			
 				String message = OneToNConversationUtils.getAdminUpdatedMessage(convMessage, context);
 				
-				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_joined_chat
-						: R.drawable.ic_joined_chat_custom);
+				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_admin_default_theme
+						: R.drawable.ic_admin);
 				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
 			}
 			else if (infoState == ParticipantInfoState.GC_SETTING_CHANGE)
@@ -2289,8 +2289,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			
 				String message = OneToNConversationUtils.getSettingUpdatedMessage(convMessage, context);
 				
-				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_joined_chat
-						: R.drawable.ic_joined_chat_custom);
+				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_group_info
+						: R.drawable.ic_group_info_custom);
 				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
 			}
 			else if (infoState == ParticipantInfoState.CHAT_BACKGROUND)

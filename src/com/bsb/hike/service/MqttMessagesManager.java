@@ -584,8 +584,8 @@ public class MqttMessagesManager
 		String groupId = jsonObj.optString(HikeConstants.TO);
 		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 		int setting = data.optInt(HikeConstants.SETTING);
-		boolean admin =this.convDb.changeGroupSettings(groupId, setting,0, new ContentValues());
-		if(directSettingChange   && admin)
+		this.convDb.changeGroupSettings(groupId, setting,0, new ContentValues());
+		if(directSettingChange )
 		{
 	     	saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
 		}
