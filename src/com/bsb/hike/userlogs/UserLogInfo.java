@@ -300,7 +300,7 @@ public class UserLogInfo {
 			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs());
 			case ADVERTISIND_ID_FLAG : return getAdvertisingId();
 			case FETCH_LOG_FLAG : return getJSONLogArray(getLogsFor(HikeConstants.SESSION_LOG_TRACKING));
-			case PHONE_SPEC:  return PhoneSpecUtils.getPhoneSpec(HikeMessengerApp.getInstance());
+			case PHONE_SPEC:  return PhoneSpecUtils.getPhoneSpec();
 			default : return null;
 		}
 	}

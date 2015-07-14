@@ -4,15 +4,18 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -68,8 +71,9 @@ public class PhoneSpecUtils
 	 * retuns the phonespec at the current instance of time
 	 */
 
-	public static JSONArray getPhoneSpec(Context context)
+	public static JSONArray getPhoneSpec()
 	{
+		Context context = HikeMessengerApp.getInstance();
 		JSONArray phoneSpecArray = new JSONArray();
 		JSONObject phoneSpec = new JSONObject();
 		try
@@ -77,11 +81,11 @@ public class PhoneSpecUtils
 			phoneSpec.put(DATE, (System.currentTimeMillis()/1000));
 			phoneSpec.put(ELAPSED_TIME, (SystemClock.elapsedRealtime()/1000));
 			phoneSpec.put(AUTO_TIME_SET, isAutomaticDateAndTimeSet(context));
-			phoneSpec.put(INTERNAL_MEMORY, getInternalMem());
-			phoneSpec.put(DATA_MEMORY, getDataMem());
-			phoneSpec.put(SD_MEMORY, getSDCardMem());
-			phoneSpec.put(CACHE_MEMORY, getCacheMem());
-			phoneSpec.put(RAM, getRamSize(context));
+			phoneSpec.put(INTERNAL_MEMORY, new JSONObject(getInternalMem()));
+			phoneSpec.put(DATA_MEMORY, new JSONObject(getDataMem()));
+			phoneSpec.put(SD_MEMORY, new JSONObject(getSDCardMem()));
+			phoneSpec.put(CACHE_MEMORY, new JSONObject(getCacheMem()));
+			phoneSpec.put(RAM, new JSONObject(getRamSize(context)));
 			Logger.d(PHONE_SPEC, phoneSpec.toString());
 			return phoneSpecArray.put(phoneSpec);
 		}
@@ -94,7 +98,7 @@ public class PhoneSpecUtils
 	/**
 	 * returns the busy, free and total Cache memory in bytes
 	 */
-	private static JSONObject getCacheMem()
+	private static Map<String,Long> getCacheMem()
 	{
 		StatFs statFs = new StatFs(Environment.getDownloadCacheDirectory().getAbsolutePath());
 		return getMemory(statFs);
@@ -103,10 +107,10 @@ public class PhoneSpecUtils
 	/**
 	 * returns the Ram details of the Device
 	 */
-	private static JSONObject getRamSize(Context context)
+	private static Map<String, Object> getRamSize(Context context)
 	{
 		long totalRamBytes;
-		JSONObject ram = new JSONObject();
+		Map<String, Object> ram = new HashMap<String,Object>();
 		ActivityManager actManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		android.app.ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
 		actManager.getMemoryInfo(memInfo);
@@ -116,54 +120,48 @@ public class PhoneSpecUtils
 		}
 		else
 		{
-			totalRamBytes = getTotalMemory();
+			try
+			{
+				totalRamBytes = getTotalMemory();
+			}
+			catch (IOException e)
+			{
+				totalRamBytes = 0;
+			}
 		}
-		try
-		{
 			ram.put(TOTAL, totalRamBytes);
 			ram.put(THRESHOLD, memInfo.threshold);
 			ram.put(LOW, memInfo.lowMemory);
 			ram.put(FREE, memInfo.availMem);
 			ram.put(BUSY, (totalRamBytes - memInfo.availMem));
 			return ram;
-
-		}
-		catch (JSONException e)
-		{
-			return null;
-		}
 	}
 
 	/**
 	 * returns the total Ram Size in bytes
 	 */
-	private static long getTotalMemory()
+	private static long getTotalMemory() throws IOException
 	{
-
-		String str1 = "/proc/meminfo";
-		String str2;
-		String[] arrayOfString;
+		String memInfoLine;
 		long initial_memory = 0;
-		try
-		{   //read the file meminfo file and give the total memory  
-			FileReader localFileReader = new FileReader(str1);
-			BufferedReader localBufferedReader = new BufferedReader(localFileReader, 8192);
-			str2 = localBufferedReader.readLine();// meminfo
-			arrayOfString = str2.split("\\s+");
-			initial_memory = Integer.valueOf(arrayOfString[1]).intValue() * 1024;
-			localBufferedReader.close();
-			return initial_memory;
-		}
-		catch (IOException e)
+        //as buffered reader is auto closeable we don't need to close it
+		try (FileReader localFileReader = new FileReader("/proc/meminfo"); BufferedReader localBufferedReader = new BufferedReader(localFileReader, 8192);)
 		{
-			return -1;
+			// read the file meminfo file and give the total memory
+			memInfoLine = localBufferedReader.readLine();// meminfo
 		}
+		if (memInfoLine != null)
+		{
+			String[] memInfoStrings = memInfoLine.split("\\s+");
+			initial_memory = Integer.valueOf(memInfoStrings[1]).intValue() * 1024;
+		}
+		return initial_memory;
 	}
 
 	/**
 	 * returns the busy, free and total SDcard memory
 	 */
-	private static JSONObject getSDCardMem()
+	private static Map<String,Long> getSDCardMem()
 	{
 		StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
 		return getMemory(statFs);
@@ -172,7 +170,7 @@ public class PhoneSpecUtils
 	/**
 	 * returns the busy, free and total external memory
 	 */
-	private static JSONObject getDataMem()
+	private static Map<String, Long> getDataMem()
 	{
 		StatFs statFs = new StatFs(Environment.getDataDirectory().getAbsolutePath());
 		return getMemory(statFs);
@@ -181,7 +179,7 @@ public class PhoneSpecUtils
 	/**
 	 * returns the busy, free and total internal memory
 	 */
-	private static JSONObject getInternalMem()
+	private static Map<String,Long> getInternalMem()
 	{
 		StatFs statFs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
 		return getMemory(statFs);
@@ -191,20 +189,13 @@ public class PhoneSpecUtils
 	 * 
 	 * returns the jsonObj of the freeMem, freeMem, busyMem of the statFs provided
 	 */
-	private static JSONObject getMemory(StatFs statFs)
+	private static Map<String, Long> getMemory(StatFs statFs)
 	{
-		JSONObject memory = new JSONObject();
-		try
-		{
-			memory.put(TOTAL, getTotalMem(statFs));
-			memory.put(FREE, getFreeMem(statFs));
-			memory.put(BUSY, getBusyMem(statFs));
-			return memory;
-		}
-		catch (JSONException e)
-		{
-			return null;
-		}
+		HashMap<String, Long> memory = new HashMap<String, Long>();
+		memory.put(TOTAL, getTotalMem(statFs));
+		memory.put(FREE, getFreeMem(statFs));
+		memory.put(BUSY, getBusyMem(statFs));
+		return memory;
 	}
 
 	/**

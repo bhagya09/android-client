@@ -39,6 +39,9 @@ public class ChatHeadUtils
 	public static final int GET_FOREGROUND_PROCESSES = 1; 
 
 	public static final int GET_ALL_RUNNING_PROCESSES = 2; 
+	
+	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
+	public static final int PROCESS_STATE_TOP =2;
 
 	
 	/**
@@ -99,7 +102,8 @@ public class ChatHeadUtils
 						{
 							Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
 						}
-						if (state != null && state == 2)
+						// its a hidden api and no value is defined 
+						if (state != null && state == PROCESS_STATE_TOP)
 						{
 							packageName.add(PhoneSpecUtils.getPackageFromProcess(processInfo.processName));
 						}
