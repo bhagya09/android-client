@@ -592,10 +592,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	
 	private void initMessageChannel() {
-		offlineController =  new OfflineController(this);
-		String connectedMsisdn = offlineController.getConnectedDevice();
-		if(!(TextUtils.isEmpty(connectedMsisdn)) && msisdn.equals(connectedMsisdn))
+		
+		
+		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
+			if(offlineController==null)
+			{
+				offlineController = OfflineController.getInstance();
+				offlineController.addListener(this);
+			}
 			offlineChannel = new OfflineChannel(offlineController);
 			channelSelector = offlineChannel;
 			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
@@ -5270,12 +5275,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
-	public void toggleChannel(Boolean isOffline)
+	public void toggleChannel()
 	{
-		if(isOffline)
+		if(channelSelector instanceof OnlineChannel)
 		{
-			if(offlineController==null)
-				offlineController = new OfflineController(this);
 			if(offlineChannel==null)
 				offlineChannel = new OfflineChannel(offlineController);
 			channelSelector = offlineChannel;

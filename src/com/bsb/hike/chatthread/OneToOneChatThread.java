@@ -183,7 +183,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onResume() 
 	{
 		super.onResume();
-		setStatusWhenConnectedOffline();
+		if(offlineController!=null)
+			setStatusWhenConnectedOffline();
 	};
 	
 	
@@ -1335,7 +1336,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void startFreeHikeConversation()
 	{
 		showToast(R.string.scan_process_started);
-		offlineController = new OfflineController(this);
+		offlineController = OfflineController.getInstance();
+		offlineController.addListener(this);
 		offlineController.connectAsPerMsisdn(mConversation.getMsisdn());
 		setupOfflineUI();
 	}
@@ -2771,7 +2773,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
 				break;
 			case R.string.scan_free_hike:
-				if (TextUtils.isEmpty(offlineController.getConnectedDevice()) || (!offlineController.getConnectedDevice().equals(mConversation.getMsisdn())))
+				if (!OfflineUtils.isConnectedToSameMsisdn(mConversation.getMsisdn()))
 				{
 					overFlowMenuItem.text = getString(R.string.scan_free_hike);
 				}
@@ -2836,7 +2838,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		//TODO  - Handle Animation 
 		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
-		toggleChannel(true);
+		toggleChannel();
 		clearAttachmentPicker();
 	}
 
@@ -2860,7 +2862,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		toggleChannel(false);
+		toggleChannel();
 		switch (errorCode)
 		{
 		case OUT_OF_RANGE:
