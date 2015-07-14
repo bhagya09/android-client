@@ -34,7 +34,7 @@ public class UploadProfileImageTask
 		File dir = new File(filePath);
 		if (!dir.exists())
 		{
-			doOnFailure();
+			//doOnFailure();
 			
 			if (uploadProfileImageTaskCallbacks != null)
 			{
@@ -53,7 +53,7 @@ public class UploadProfileImageTask
 		@Override
 		public void onRequestSuccess(Response result)
 		{
-			doOnSuccess();
+			//doOnSuccess();
 
 			if (uploadProfileImageTaskCallbacks != null)
 			{
@@ -76,7 +76,7 @@ public class UploadProfileImageTask
 		{
 			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 			{
-				doOnCancelled();
+				//doOnCancelled();
 
 				if (uploadProfileImageTaskCallbacks != null)
 				{
@@ -85,7 +85,7 @@ public class UploadProfileImageTask
 			}
 			else
 			{
-				doOnFailure();
+				//doOnFailure();
 
 				if (uploadProfileImageTaskCallbacks != null)
 				{
@@ -95,25 +95,6 @@ public class UploadProfileImageTask
 		}
 	};
 
-	public void cancel()
-	{
-		doOnCancelled();
-	}
-
-	private void doOnCancelled()
-	{
-
-	}
-
-	private void doOnFailure()
-	{
-
-	}
-
-	private void doOnSuccess()
-	{
-
-	}
 
 	public String getFilePath()
 	{
