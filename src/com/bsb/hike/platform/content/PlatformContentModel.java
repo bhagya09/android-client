@@ -42,6 +42,8 @@ public class PlatformContentModel
 	private int mAppHash = -1;
 
 	private int uniqueId;
+
+	public String target_platform;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -402,14 +404,14 @@ public class PlatformContentModel
 			this.h = h;
 		}
 
-		public String getnotifTitle()
+		public String getnotifText()
 		{
-			return notifTitle;
+			return notifText;
 		}
 
-		public void setnotifTitle(String notifTitle)
+		public void setnotifText(String notifText)
 		{
-			this.notifTitle = notifTitle;
+			this.notifText = notifText;
 		}
 		
 		@Expose
@@ -443,7 +445,7 @@ public class PlatformContentModel
 		public String h;
 		
 		@Expose
-		public String notifTitle;
+		public String notifText;
 
 	}
 

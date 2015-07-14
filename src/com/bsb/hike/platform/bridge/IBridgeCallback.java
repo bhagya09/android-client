@@ -11,8 +11,11 @@ package com.bsb.hike.platform.bridge;
  */
 public interface IBridgeCallback
 {
-	
 	public void overflowMenuUpdated();
-	
+
 	public void openFullPage(String url);
+	
+	public void openFullPageWithTitle(String url, String title);
+
+	public void changeActionBarTitle(String title);
 }

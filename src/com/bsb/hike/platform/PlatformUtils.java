@@ -1,9 +1,18 @@
 package com.bsb.hike.platform;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.bsb.hike.utils.AccountUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +33,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
@@ -49,7 +59,7 @@ import com.bsb.hike.utils.Utils;
 public class PlatformUtils
 {
 	private static final String TAG = "PlatformUtils";
-
+	
 	/**
 	 * 
 	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
@@ -67,17 +77,8 @@ public class PlatformUtils
 				JSONObject helperData = new JSONObject(helper);
 				JSONObject cardObj = metadataJSON.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 				JSONObject oldHelper = cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA);
-				if (oldHelper == null)
-				{
-					oldHelper = new JSONObject();
-				}
-				Iterator<String> i = helperData.keys();
-				while (i.hasNext())
-				{
-					String key = i.next();
-					oldHelper.put(key, helperData.get(key));
-				}
-				cardObj.put(HikePlatformConstants.HELPER_DATA, oldHelper);
+				JSONObject newHelperData = mergeJSONObjects(oldHelper, helperData);
+				cardObj.put(HikePlatformConstants.HELPER_DATA, newHelperData);
 				metadataJSON.put(HikePlatformConstants.CARD_OBJECT, cardObj);
 				originalMetadata = metadataJSON.toString();
 				return originalMetadata;
@@ -93,6 +94,35 @@ public class PlatformUtils
 			Logger.e(TAG, "Meta data is null in UpdateHelperData");
 		}
 		return null;
+	}
+
+	/**
+	 * Call this function to merge two JSONObjects. Will iterate for the keys present in the dataDiff. Will add the key in the oldData if not already
+	 * present or will update the value in oldData if the key is present.
+	 * @param oldData : the data that wants to be merged.
+	 * @param dataDiff : the diff that will be merged with the old data.
+	 * @return : the merged data.
+	 */
+	public static JSONObject mergeJSONObjects(JSONObject oldData, JSONObject dataDiff)
+	{
+		if (oldData == null)
+		{
+			oldData = new JSONObject();
+		}
+		Iterator<String> i = dataDiff.keys();
+		while (i.hasNext())
+		{
+			String key = i.next();
+			try
+			{
+				oldData.put(key, dataDiff.get(key));
+			}
+			catch (JSONException e)
+			{
+				Logger.e(TAG, "Caught a JSON Exception while merging helper data" + e.toString());
+			}
+		}
+		return oldData;
 	}
 	
 	public static void openActivity(Activity context, String data)
@@ -247,6 +277,10 @@ public class PlatformUtils
 			{
 				IntentFactory.createBroadcastDefault(context);
 			}
+			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
+			{
+				IntentFactory.openSettingStickerOnOtherApp(context);
+			}
 		}
 		catch (JSONException e)
 		{
@@ -265,7 +299,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -275,7 +309,7 @@ public class PlatformUtils
 					public void onComplete(PlatformContentModel content)
 					{
 						Logger.d(TAG, "microapp download packet success.");
-						botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
+						botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 					}
 
 					@Override
@@ -289,16 +323,16 @@ public class PlatformUtils
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
 						{
 							Logger.d(TAG, "microapp already exists");
-							botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
+							botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 						}
 						else
 						{
-							Logger.wtf(TAG, "microapp download packet failed.");
+							Logger.wtf(TAG, "microapp download packet failed." + event.toString());
 							JSONObject json = new JSONObject();
 							try
 							{
 								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
-								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo);
+								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 							}
 							catch (JSONException e)
 							{
@@ -313,11 +347,36 @@ public class PlatformUtils
 
 	}
 
-	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme)
+	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
 		enableBot(botInfo, enableBot);
-		BotUtils.updateBotParams(botChatTheme, botInfo);
+		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
+	}
+
+	private static void createBotMqttAnalytics(String key, BotInfo botInfo)
+	{
+		try
+		{
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.NON_UI_EVENT);
+
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, key);
+			metadata.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
+			metadata.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
+			metadata.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+
+			data.put(HikeConstants.METADATA, metadata);
+
+			Utils.sendLogEvent(data, AnalyticsConstants.DOWNLOAD_EVENT, null);
+		}
+		catch (JSONException e)
+		{
+			Logger.w("LE", "Invalid json");
+		}
 	}
 
 	private static void createBotAnalytics(String key, BotInfo botInfo)
@@ -338,6 +397,7 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+			createBotMqttAnalytics(key, botInfo);
 		}
 		catch (JSONException e)
 		{
@@ -347,7 +407,7 @@ public class PlatformUtils
 
 	private static void enableBot(BotInfo botInfo, boolean enableBot)
 	{
-		if (enableBot)
+		if (enableBot && botInfo.isNonMessagingBot())
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(botInfo);
 		}
@@ -408,8 +468,8 @@ public class PlatformUtils
 						}
 					}
 				});
-
-				downloadAndUnzip(rqst, false);
+				boolean doReplace = downloadData.optBoolean(PlatformContentConstants.REPLACE_MICROAPP_VERSION);
+				downloadAndUnzip(rqst, false,doReplace);
 
 	}
 
@@ -437,11 +497,12 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader(request, isTemplatingEnabled);
-		if (!downloader.isMicroAppExist())
+
+		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace);
+		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
 		}
@@ -449,6 +510,11 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
+		
+	}
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	{
+		downloadAndUnzip(request, isTemplatingEnabled, false);
 	}
 
 	/**
@@ -460,7 +526,8 @@ public class PlatformUtils
 	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
 	{
 
-		ConvMessage convMessage = new ConvMessage();
+
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(metadata);
@@ -484,6 +551,183 @@ public class PlatformUtils
 			return headers;
 		}
 		return new ArrayList<Header>();
+	}
+	
+	/*
+	 * This function is called to read the list of files from the System from a folder
+	 * 
+	 * @param filePath : The complete file path that is about to be read returns the JSON Array of the file paths of the all the files in a folder
+	 * @param doDeepLevelAccess : To specify if we want to read all the internal files and folders recursively
+	 */
+	public static JSONArray readFileList(String filePath,boolean doDeepLevelAccess)
+	{	
+		File directory = new File(filePath);
+		if (directory.exists() && !directory.isDirectory())
+		{
+			Logger.d("FileSystemAccess", "Cannot read a single file");
+			return null;
+		}
+		else if(!directory.exists())
+		{
+			Logger.d("FileSystemAccess", "Invalid file path!");
+			return null;
+		}
+		ArrayList<File> list = filesReader(directory,doDeepLevelAccess);
+		JSONArray mArray = new JSONArray();
+		for (int i = 0; i < list.size(); i++)
+		{
+			String path = HikePlatformConstants.FILE_DESCRIPTOR + list.get(i).getAbsolutePath();// adding the file descriptor
+			mArray.put(path);
+		}
+		return mArray;
+	}
+	
+	public static JSONArray trimFilePath(JSONArray mArray)
+	{
+		JSONArray trimmedArray = new JSONArray();
+		for (int i = 0; i < mArray.length(); i++)
+		{
+			String path;
+			try
+			{
+				path = mArray.get(i).toString();
+				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+				trimmedArray.put(path);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return trimmedArray;
+	}
+
+	// Method that returns the reads the list of files
+	public static ArrayList<File> filesReader(File root,boolean doDeepLevelAccess)
+	{
+		ArrayList<File> a = new ArrayList<>();
+
+		File[] files = root.listFiles();
+		for (int i = 0; i < files.length; i++)
+		{
+			if (doDeepLevelAccess)
+			{
+				if(files[i].isDirectory())
+				{
+					a.addAll(filesReader(files[i],doDeepLevelAccess));	
+				}
+				else
+				{
+					a.add(files[i]);
+				}
+
+			}
+			else
+			{
+				a.add(files[i]);
+			}
+		}
+		return a;
+	}
+
+	/*
+	 * This function is called to copy a directory from one location to another location 
+	 * @param sourceLocation : The folder which is about to be copied
+	 * @param targetLocation : The folder where the directory is about to be copied
+	 */
+	public static boolean copyDirectoryTo(File sourceLocation, File targetLocation) throws IOException
+	{
+		if (sourceLocation.isDirectory())
+		{
+			if (!targetLocation.exists())
+			{
+				targetLocation.mkdir();
+			}
+			String[] children = sourceLocation.list();
+			for (int i = 0; i < sourceLocation.listFiles().length; i++)
+			{
+				copyDirectoryTo(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
+			}
+		}
+		else
+		{
+			
+			  InputStream in = new FileInputStream(sourceLocation);
+			  OutputStream out = new FileOutputStream(targetLocation);
+			  byte[] buf = new byte[1024]; int len;
+			  while ((len = in.read(buf)) > 0) 
+			  { 
+				  out.write(buf, 0, len); 
+			  }
+			  in.close();
+			  out.close();
+		}
+		return true;
+	}
+
+	/*
+	 * This function is called to delete a particular file from the System
+	 * 
+	 * @param filePath : The complete file path of the file that is about to be deleted returns whether the file is deleted or not
+	 * Does not return a guaranteed call for a full delete
+	 */
+	public static boolean deleteDirectory(String filePath)
+	{
+		File deletedDir = new File(filePath);
+		if (deletedDir.exists())
+		{
+			boolean isDeleted = deleteOp(deletedDir);
+			Logger.d("FileSystemAccess", "Directory exists!");
+			Logger.d("FileSystemAccess", (isDeleted) ? "File is deleted" : " File not deleted");
+			return isDeleted;
+		}
+		else
+		{
+			Logger.d("FileSystemAccess", "Invalid file path!");
+			return false;
+		}
+	}
+
+	// This method performs the actual deletion of the file
+	public static boolean deleteOp(File dir)
+	{
+		Logger.d("FileSystemAccess", "In delete");
+		if (dir.exists())
+		{// This checks if the file/folder exits or not
+			if (dir.isDirectory())// This checks if the call is made to delete a particular file (eg. "index.html") or an entire sub-folder
+			{
+				String[] children = dir.list();
+				for (int i = 0; i < children.length; i++)
+				{
+					File temp = new File(dir, children[i]);
+					if (temp.isDirectory())
+					{
+						Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
+						deleteOp(temp);
+					}
+					else
+					{
+						Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
+						boolean b = temp.delete();
+						if (!b)
+						{
+							Logger.d("DeleteRecursive", "DELETE FAIL");
+							return false;
+						}
+					}
+				}
+				dir.delete();
+			}
+			else
+			{
+				dir.delete();
+			}
+			Logger.d("FileSystemAccess", "Delete done!");
+			return true;
+		}
+		return false;
 	}
 
 }

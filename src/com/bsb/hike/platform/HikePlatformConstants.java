@@ -61,6 +61,10 @@ public interface HikePlatformConstants
 	public static final String ERROR_MESSAGE = "error_message";
 	public static final String SUCCESS = "success";
 	public static final String FAILURE = "failure";
+	public static final String NON_MESSAGING_BOT_TYPE = "nm_type";
+	public static final String MICROAPP_MODE = "nm_app";
+	public static final String URL_MODE = "url_app";
+	public static final String CUSTOMER_SUPPORT_BOT_MSISDN = "+hikecs+";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -132,6 +136,8 @@ public interface HikePlatformConstants
 	public static final String SILENT_PUSH = "silent";
 
 	public static final String LOUD_PUSH = "loud";
+	
+	public static final String FILE_DESCRIPTOR = "file:///";
 
 	public static final String  NO_PUSH = "none";
 	
@@ -172,11 +178,11 @@ public interface HikePlatformConstants
 	 * Overflow menu item constants end
 	 */
 	
-	public static final int VERSION_0 = 0;
+	public static final int VERSION_NANO = 0;
 	
-	public static final int VERSION_1 = 1;
+	public static final int VERSION_ALTO = 1;
 	
-	public static final int CURRENT_VERSION = VERSION_1;
+	public static final int CURRENT_VERSION = 2;
 	
 	public static final String AB_COLOR = "color";
 	
@@ -190,4 +196,8 @@ public interface HikePlatformConstants
 	final String HIKE_MESSAGE = "hm";
 	
 	final String JS_INJECT = "js_inject";
+	
+	final String FULL_SCREEN_CONFIG = "full_screen_config";
+	
+	final String SECONDARY_TITLE = "secondary_title";
 }

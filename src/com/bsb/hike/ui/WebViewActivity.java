@@ -4,6 +4,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.platform.content.HikeWebClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,13 +83,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	public static final int WEB_URL_MODE = 1; // DEFAULT MODE OF THIS ACTIVITY
 
-	public static final int WEB_URL_WITH_BRIDGE_MODE = 2;
+	public static final int SERVER_CONTROLLED_WEB_URL_MODE = 2;
 
 	public static final int MICRO_APP_MODE = 3;
 
+	public static final int WEB_URL_BOT_MODE = 4;
+	
+	public static final String FULL_SCREEN_AB_COLOR = "abColor";
+	
+	public static final String JS_TO_INJECT = "jsToInject";
+
 	public static final String WEBVIEW_MODE = "webviewMode";
 
-	private CustomWebView webView,secondaryWebView;
+	private CustomWebView webView;
 	
 	private  ProgressBar bar;
 	
@@ -110,7 +117,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private Menu mMenu;
 	
-	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED}; 
+	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED};
+
+	private boolean allowLoc;
 	
 	
 	@Override
@@ -124,10 +133,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			return;
 		}
+
+		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			initMsisdn();
 			if (filterNonMessagingBot(msisdn))
@@ -245,10 +256,66 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			setMicroAppMode();
 		}
+
+		else if (mode == WEB_URL_BOT_MODE)
+		{
+			setWebUrlBotMode();
+		}
+		
+		else if (mode == SERVER_CONTROLLED_WEB_URL_MODE)
+		{
+			setServerControlledWebUrlMode();
+		}
+		
 		else
 		{
 			setWebURLMode(); // default mode we consider this activity is opened for
 		}
+	}
+
+	private void setWebUrlBotMode()
+	{
+		findViewById(R.id.progress).setVisibility(View.VISIBLE);
+		attachBridge();
+		setupMicroAppActionBar();
+		handleURLBotMode();
+		checkAndBlockOrientation();
+	}
+
+	private void handleURLBotMode()
+	{
+		webView.loadUrl(botMetaData.getUrl());
+		webView.setWebViewClient(new HikeWebViewClient());
+		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
+	}
+
+	private void setServerControlledWebUrlMode()
+	{
+		String url = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
+		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
+		int color = getIntent().getIntExtra(FULL_SCREEN_AB_COLOR, R.color.blue_hike);
+		final String js = getIntent().getStringExtra(JS_TO_INJECT);
+		setupWebURLWithBridgeActionBar(title, color);
+		
+		
+		WebViewClient mClient = new HikeWebViewClient()
+		{
+			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				if (view != null && !TextUtils.isEmpty(js))
+				{
+					Logger.i(tag, "loading js injection");
+					view.loadUrl("javascript:" + js);
+				}
+
+				super.onPageFinished(view, url);
+			}
+		};
+
+		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
+		webView.setWebViewClient(mClient);
+		webView.loadUrl(url);
 	}
 
 	private void initView()
@@ -256,7 +323,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
 		bar = (ProgressBar) findViewById(R.id.progress);
 
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			View view = findViewById(R.id.overflow_anchor);
 			LayoutParams layoutParams = view.getLayoutParams();
@@ -312,27 +379,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		String urlToLoad = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
-		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
-
-		
-
-		WebViewClient client = new WebViewClient()
+		WebViewClient client = new HikeWebViewClient()
 		{
-			@Override
-			public void onPageFinished(WebView view, String url)
-			{
-				super.onPageFinished(view, url);
-				bar.setVisibility(View.INVISIBLE);
-			}
-
-			@Override
-			public void onPageStarted(WebView view, String url, Bitmap favicon)
-			{
-				bar.setProgress(0);
-				bar.setVisibility(View.VISIBLE);
-				super.onPageStarted(view, url, favicon);
-			}
 
 			@Override
 			public WebResourceResponse shouldInterceptRequest(WebView view, String url)
@@ -383,24 +432,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		webView.getSettings().setGeolocationEnabled(allowLoc);
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.setWebViewClient(client);
-		webView.setWebChromeClient(new WebChromeClient()
-		{
-			@Override
-			public void onProgressChanged(WebView view, int newProgress)
-			{
-				super.onProgressChanged(view, newProgress);
-				bar.setProgress(newProgress);
-			}
-			
-			@Override
-			public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback)
-			{
-				if (allowLoc)
-					callback.invoke(origin, true, false);
-				else
-					super.onGeolocationPermissionsShowPrompt(origin, callback);
-			}
-		});
+		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
 		if(handleURLLoadInWebView(webView, urlToLoad)){
 			setupActionBar(title);
 		}else {
@@ -426,12 +458,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if(webView!=null)
 		{
 			webView.onActivityDestroyed();
-		}
-		
-		secondaryWebView  =(CustomWebView) findViewById(R.id.secondaryWebView);
-		if(secondaryWebView!=null)
-		{
-			secondaryWebView.onActivityDestroyed();
 		}
 		
 		if (mActionBar != null)
@@ -578,7 +604,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setupActionBar(String titleString)
 	{
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			inflateMicroAppActionBar(titleString);
 		}
@@ -645,6 +671,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		setAvatar();
 	}
+	
+	private void setupWebURLWithBridgeActionBar(String title, int color)
+	{
+		setupActionBar(title);
+		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.bg_header));
+	}
+	
 
 	private void loadMicroApp()
 	{
@@ -683,31 +716,20 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onBackPressed()
 	{
-		if(secondaryWebView!=null)
-		{
-			secondaryWebView.stopLoading();
-			if(secondaryWebView.canGoBack()) // 1 is for about:blank
-			{
-				Logger.i(tag, "taking secondary webview back");
-				secondaryWebView.goBack();
-			}else{
-				hideSecondaryWebView();
-			}
-			return;
-		}
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			if (botConfig != null && botInfo.getIsBackPressAllowed())
 			{
 				mmBridge.onBackPressed();
 				return;
 			}
-			
 		}
-		if (mode == WEB_URL_MODE && webView.canGoBack())
+
+		if ((mode == WEB_URL_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE) && webView.canGoBack())
 		{
 			webView.goBack();
 		}
+		
 		else
 		{
 			super.onBackPressed();
@@ -740,15 +762,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		switch (arg0.getId())
 		{
 		case R.id.back:
-			if(secondaryWebView!=null)
-			{
-				hideSecondaryWebView();
-			}else{
 			finish();
-			}
 			break;
 		}
-
 	}
 
 	@Override
@@ -831,75 +847,34 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 	
-	private void initSecondaryWebview()
-	{
-		if(secondaryWebView == null)
-		{
-			secondaryWebView = (CustomWebView) findViewById(R.id.secondaryWebView);
-			secondaryWebView.getSettings().setJavaScriptEnabled(true);
-		}
-	}
-
 	@Override
 	public void openFullPage(String url)
 	{
-		initSecondaryWebview();
-		secondaryWebView.setVisibility(View.VISIBLE);
-		mMenu.findItem(R.id.overflow_menu).setVisible(false);
-		secondaryWebView.setWebViewClient(new WebViewClient()
-		{
-			@Override
-			public void onPageStarted(WebView view, String url, Bitmap favicon)
-			{
-				bar.setVisibility(View.VISIBLE);
-				super.onPageStarted(view, url, favicon);
-			}
-			
-
-			@Override
-			public void onPageFinished(WebView view, String url)
-			{
-				Logger.i(tag, "onpage finished secondary " + url);
-				bar.setVisibility(View.GONE);
-				super.onPageFinished(view, url);
-				if("about:blank".equals(url) && secondaryWebView!=null) {
-					secondaryWebView.clearHistory();
-					secondaryWebView.setVisibility(View.GONE);
-					mMenu.findItem(R.id.overflow_menu).setVisible(true);
-					secondaryWebView = null;
-				}else {
-					if(secondaryWebView!=null && botConfig.isJSInjectorEnabled()) {
-						String js = botConfig.getJSToInject();
-						if(js!=null) {
-							Logger.i(tag, "loading js injection");
-							secondaryWebView.loadUrl("javascript:"+js);
-						}
-					}
-				}
-			}
-
-			@Override
-			public boolean shouldOverrideUrlLoading(WebView view, String url)
-			{
-				Logger.i(tag, "url about to load in secondary " + url);
-				if (url == null)
-				{
-					return false;
-				}
-				view.loadUrl(url);
-				return true;
-			}
-		});
-		Logger.i(tag, "url about to load first time in secondary " + url);
-		secondaryWebView.loadUrl(url);
-		
+		startWebViewWithBridge(url, "");
 	}
 	
-	private void hideSecondaryWebView()
+	@Override
+	public void openFullPageWithTitle(String url, String title)
 	{
-		secondaryWebView.loadUrl("about:blank");
-//		secondaryWebView.setVisibility(View.GONE);
+		startWebViewWithBridge(url, title);
+	}
+	
+	private void startWebViewWithBridge(String url, String title)
+	{
+		if (TextUtils.isEmpty(title))
+		{
+			title = botConfig.getFullScreenTitle();
+		}
+		Intent intent = IntentFactory.getWebViewActivityIntent(getApplicationContext(), url, title);
+		intent.putExtra(WEBVIEW_MODE, SERVER_CONTROLLED_WEB_URL_MODE);
+		int color = botConfig.getFullScreenActionBarColor();
+		intent.putExtra(FULL_SCREEN_AB_COLOR, color == -1 ? botConfig.getActionBarColor() : color);
+		if (botConfig.isJSInjectorEnabled())
+		{
+			intent.putExtra(JS_TO_INJECT, botConfig.getJSToInject());
+		}
 		
+		startActivity(intent);
 	}
 
 	/**
@@ -934,6 +909,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			HAManager.getInstance().startChatSession(msisdn);
 		}
+		
+		/**
+		 * Used to clear notif tray if this is opened from notification
+		 */
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 	}
 	
 	@Override
@@ -954,6 +934,73 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+
+	@Override
+	public void changeActionBarTitle(String title)
+	{
+		TextView actionBarTitle = (TextView) actionBarView.findViewById(R.id.contact_name);
+		actionBarTitle.setText(title);
+	}
+
+	private class HikeWebChromeClient extends WebChromeClient
+	{
+		boolean allowLocation;
+
+		public HikeWebChromeClient(boolean allowLocation)
+		{
+			this.allowLocation = allowLocation;
+		}
+
+		@Override
+		public void onProgressChanged(WebView view, int newProgress)
+		{
+			super.onProgressChanged(view, newProgress);
+			bar.setProgress(newProgress);
+		}
+
+		@Override
+		public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback)
+		{
+			if (allowLocation)
+			{
+				callback.invoke(origin, true, false);
+			}
+			else
+			{
+				super.onGeolocationPermissionsShowPrompt(origin, callback);
+			}
+		}
+	}
+
+	private class HikeWebViewClient extends HikeWebClient
+	{
+		@Override
+		public void onPageFinished(WebView view, String url)
+		{
+			super.onPageFinished(view, url);
+			bar.setVisibility(View.INVISIBLE);
+		}
+
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon)
+		{
+			bar.setProgress(0);
+			bar.setVisibility(View.VISIBLE);
+			super.onPageStarted(view, url, favicon);
+		}
+
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url)
+		{
+			Logger.i(tag, "url about to load " + url);
+			if (url == null)
+			{
+				return false;
+			}
+			view.loadUrl(url);
+			return true;
+		}
 	}
 	
 }

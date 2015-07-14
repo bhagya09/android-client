@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,6 +39,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.jess.ui.TwoWayAbsListView;
 import com.jess.ui.TwoWayAbsListView.OnScrollListener;
@@ -272,12 +274,25 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 					int count = 0;
 					if (!isInsideAlbum)
 					{
-						String dirPath = cursor.getString(dataIdx);
-						if(dirPath==null)
+						String filePath = cursor.getString(dataIdx);
+						if (TextUtils.isEmpty(filePath))
+						{
+							Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: empty " + filePath);
+							continue;
+						}
+						
+						File mediafile = new File(filePath);
+						if (!mediafile.exists())
+						{
+							Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: does not exist " + filePath);
+							continue;
+						}
+						
+						String dirPath = mediafile.getParent();
+						if(dirPath == null)
 						{
 							continue;
 						}
-						dirPath = dirPath.substring(0, dirPath.lastIndexOf("/"));
 						count = getGalleryItemCount(dirPath);
 					}
 					GalleryItem galleryItem = new GalleryItem(cursor.getLong(idIdx), cursor.getString(bucketIdIdx), cursor.getString(nameIdx), cursor.getString(dataIdx), count);
@@ -545,15 +560,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 		intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, getIntent().getParcelableExtra(HikeConstants.Extras.SELECTED_BUCKET));
 
-		if (!sendResult)
-		{
-			startActivity(intent);
-		}
-		else
+		if (sendResult)
 		{
 			intent.putExtra(START_FOR_RESULT, sendResult);
-			startActivity(intent);
 		}
+		
+		startActivity(intent);
 	}
 
 	@Override
@@ -644,7 +656,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
 			if (selectedFile == null)
 			{
-				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.not_enough_memory, Toast.LENGTH_SHORT).show();
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
 				return;
 			}
 			startActivityForResult(IntentFactory.getNativeCameraAppIntent(true, selectedFile), HikeConstants.CAMERA_RESULT);
