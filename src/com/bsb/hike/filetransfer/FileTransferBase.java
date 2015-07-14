@@ -61,7 +61,7 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected short retryAttempts = 0;
 
-	protected short MAX_RETRY_ATTEMPTS = 10;
+	protected short MAX_RETRY_ATTEMPTS = 3;
 
 	protected int reconnectTime = 0;
 
