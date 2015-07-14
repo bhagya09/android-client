@@ -1,5 +1,7 @@
 package com.bsb.hike.tasks;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 
 import org.json.JSONException;
@@ -8,11 +10,13 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -22,6 +26,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class StatusUpdateTask implements IHikeHTTPTask
 {
@@ -31,11 +36,21 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 	private RequestToken token;
 
+	private String imageFilePath;
+
 	public StatusUpdateTask(String status, int moodId)
 	{
 		this.status = status;
 		this.moodId = moodId;
 		token = HttpRequests.postStatusRequest(getPostData(), getRequestListener());
+	}
+	
+	public StatusUpdateTask(String status, int moodId, String imageFilePath) throws IOException
+	{
+		this.status = status;
+		this.moodId = moodId;
+		this.imageFilePath = imageFilePath;
+		token = HttpRequests.postStatusRequest(status, moodId, getRequestListener(), imageFilePath);
 	}
 
 	@Override
@@ -88,7 +103,17 @@ public class StatusUpdateTask implements IHikeHTTPTask
 				String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
 				String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
 				long time = (long) System.currentTimeMillis() / 1000;
-				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, StatusMessageType.TEXT, time, moodId, timeOfDay);
+				
+				StatusMessageType suType = getStatusMessageType(text, imageFilePath);
+				
+				if(suType == StatusMessageType.TEXT_IMAGE || suType == StatusMessageType.IMAGE)
+				{
+					//TODO Support all image formats (same code is present in ChangeProfileImageBaseActivity)
+					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
+					Utils.copyFile(imageFilePath, destFilePath, HikeFileType.IMAGE);
+				}
+				
+				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, suType, time, moodId, timeOfDay);
 				HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
 				int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 				Editor editor = preferences.edit();
@@ -107,6 +132,38 @@ public class StatusUpdateTask implements IHikeHTTPTask
 					HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 				}
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, true);
+			}
+
+			private StatusMessageType getStatusMessageType(String text, String imageFilePath)
+			{
+				if (TextUtils.isEmpty(text) && TextUtils.isEmpty(imageFilePath))
+				{
+					throw new IllegalArgumentException("Both text and image cannot be empty");
+				}
+
+				File imageFile = null;
+				if (!TextUtils.isEmpty(imageFilePath))
+				{
+					imageFile = new File(imageFilePath);
+					if (!imageFile.exists())
+					{
+						imageFile = null;
+					}
+				}
+
+				if (TextUtils.isEmpty(text) && imageFile != null)
+				{
+					return StatusMessageType.IMAGE;
+				}
+				else if (!TextUtils.isEmpty(text) && imageFile == null)
+				{
+					return StatusMessageType.TEXT;
+				}
+				else
+				{
+					return StatusMessageType.TEXT_IMAGE;
+				}
+
 			}
 
 			@Override

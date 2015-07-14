@@ -53,6 +53,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
+import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -832,6 +833,18 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
 		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
+		return intent;
+	}
+	
+	public static Intent getPostStatusUpdateIntent(Activity argActivity, String argImagePath)
+	{
+		Intent intent = new Intent(argActivity, StatusUpdate.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		if (!TextUtils.isEmpty(argImagePath))
+		{
+			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
+		}
 		return intent;
 	}
 }

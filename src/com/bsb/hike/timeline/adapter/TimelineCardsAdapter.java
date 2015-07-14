@@ -3,6 +3,7 @@ package com.bsb.hike.timeline.adapter;
 import java.lang.ref.SoftReference;
 import java.util.List;
 
+import org.acra.util.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,11 +24,15 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.CheckBox;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -39,6 +44,11 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.Protip;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineImageLoader;
@@ -68,6 +78,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private final int FTUE_ITEM = -13;
 
 	private final int FTUE_CARD = -14;
+	
+	private final int IMAGE = -15;
+	
+	private final int TEXT_IMAGE = -16;
 
 	public static final long EMPTY_STATUS_NO_STATUS_ID = -3;
 
@@ -138,6 +152,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				seeAll = (TextView) convertView.findViewById(R.id.see_all);
 				break;
 			case PROFILE_PIC_CHANGE:
+			case IMAGE:
+			case TEXT_IMAGE:
 				avatar = (ImageView) convertView.findViewById(R.id.avatar);
 				largeProfilePic = (ImageView) convertView.findViewById(R.id.profile_pic);
 				timeStamp = (TextView) convertView.findViewById(R.id.timestamp);
@@ -198,6 +214,14 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		else if (message.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
 			return PROFILE_PIC_CHANGE;
+		}
+		else if (message.getStatusMessageType() == StatusMessageType.IMAGE)
+		{
+			return IMAGE;
+		}
+		else if (message.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		{
+			return TEXT_IMAGE;
 		}
 		else if (EMPTY_STATUS_NO_STATUS_ID == message.getId() || EMPTY_STATUS_NO_STATUS_RECENTLY_ID == message.getId())
 		{
@@ -354,13 +378,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				Linkify.addLinks(viewHolder.extraInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 				break;
-			case IMAGE:
-				break;
 			case JOINED_HIKE:
-				break;
-			case PROFILE_PIC:
-				break;
-			case TEXT_IMAGE:
 				break;
 			default:
 				break;
@@ -373,11 +391,21 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			break;
 
+		case IMAGE:
+		case TEXT_IMAGE:
 		case PROFILE_PIC_CHANGE:
 			setAvatar(statusMessage.getMsisdn(), viewHolder.avatar);
 			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : statusMessage
 					.getNotNullName());
-			viewHolder.mainInfo.setText(R.string.status_profile_pic_notification);
+
+			if (TextUtils.isEmpty(statusMessage.getText()))
+			{
+				viewHolder.mainInfo.setText(R.string.status_profile_pic_notification);
+			}
+			else
+			{
+				viewHolder.mainInfo.setText(statusMessage.getText());
+			}
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
 
@@ -500,6 +528,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			convertView = mInflater.inflate(R.layout.ftue_updates_item, parent, false);
 			return new ViewHolder(convertView, viewType);
 		case PROFILE_PIC_CHANGE:
+			convertView = mInflater.inflate(R.layout.profile_pic_timeline_item, parent, false);
+			return new ViewHolder(convertView, viewType);
+		case IMAGE:
+			convertView = mInflater.inflate(R.layout.profile_pic_timeline_item, parent, false);
+			return new ViewHolder(convertView, viewType);
+		case TEXT_IMAGE:
 			convertView = mInflater.inflate(R.layout.profile_pic_timeline_item, parent, false);
 			return new ViewHolder(convertView, viewType);
 		case FTUE_CARD:

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/home_bg"
     android:orientation="vertical"
-    android:visibility="gone" >
+     >
 
     <GridView
         android:id="@+id/mood_pager"

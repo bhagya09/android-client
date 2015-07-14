@@ -1417,9 +1417,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="added_in_broadcast">You have already added this contact in broadcast list</string>
     <string name="enter_valid_group_name">Group name cannot be empty</string>
     <string name="enter_valid_broadcast_name">Broadcast name cannot be empty</string>
-    <string name="doodle_error_message">Unable to save Doodle!\nNot Enough Memory On Device.</string>
-    <string name="photos_oom_save">Unable to save Image\nNot Enough Memory On Device.</string>
-    <string name="photos_oom_load">Unable to load Image</string>
+    <string name="doodle_error_message">Unable to save Doodle!\nPlease try again</string>
+    <string name="photos_oom_save">Unable to save image\nPlease try again</string>
+    <string name="photos_oom_load">Unable to load image</string>
     <string name="photos_oom_retry">Try Again</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
     <string name="stealth_mode_title">Hidden Mode</string>
@@ -1517,4 +1517,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
+	<string name="could_not_post_pic">Unable to post picture. Please try again</string>
 </resources>
