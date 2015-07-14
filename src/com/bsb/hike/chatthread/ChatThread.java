@@ -1565,7 +1565,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void updateUIforSearchResult(final int position)
 	{
-		Logger.d("gaurav","updateUIforSearchResult");
+		Logger.d("gaurav","updateUIforSearchResult: " + position);
 		searchDialog.dismiss();
 		if (position >= 0)
 		{
@@ -2738,7 +2738,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						}
 						position = messageSearchManager.searchFirstItem(msgList, msgList.size(), 0, chatThread.get().searchText);
 						ids.addAll(0, MovingList.getIds(msgList));
-						if (position > 0)
+						if (position >= 0)
 						{
 							int start = Math.max(position - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, 0);
 							int end = Math.min(position + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, msgList.size()-1);
@@ -2774,7 +2774,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					if (firstVisisbleItem + loadMessageCount >= chatThread.get().messages.size())
 						loadMessageCount = chatThread.get().messages.size() - firstVisisbleItem - 1;
 					long maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem + loadMessageCount);
-					int count = 0;
+					int count = firstVisisbleItem;
 					int msgSize = chatThread.get().messages.size();
 					while (position < 0)
 					{
@@ -2785,7 +2785,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 							break;
 						}
 						position = messageSearchManager.searchFirstItem(msgList, 0, msgList.size(), chatThread.get().searchText);
-						if (position > 0)
+						if (position >= 0)
 						{
 							count += position;
 							position = count;
