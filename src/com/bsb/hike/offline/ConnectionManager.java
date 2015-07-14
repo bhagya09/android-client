@@ -349,7 +349,15 @@ public class ConnectionManager implements ChannelListener
 			WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifiManager);
 
 			wifiConfig = prevConfig;
-			setConfigMethod = wifiManager.getClass().getMethod("setWifiApConfiguration", WifiConfiguration.class);
+			String methodName = "setWifiApConfiguration";
+			String htcMethodName = "setWifiApConfig";
+
+			if (WifiConfiguration.class.getDeclaredField("mWifiApProfile") != null)
+			{
+				Log.d("OfflineManager", "This is a HTC device");
+				methodName = htcMethodName;
+			}
+			setConfigMethod = wifiManager.getClass().getMethod(methodName, WifiConfiguration.class);
 			setConfigMethod.invoke(wifiManager, wifiConfig);
 			result = true;
 		} 
@@ -357,6 +365,9 @@ public class ConnectionManager implements ChannelListener
 		{
 			Log.e(TAG,e.toString());
 			result = false;
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return result;
 	}
