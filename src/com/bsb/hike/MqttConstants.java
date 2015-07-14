@@ -88,6 +88,12 @@ public class MqttConstants
 	public static final String PING_SENDER = MQTT + ".pingSender.";
 	  
 	  //Constant for wakelock
-	public static final String PING_WAKELOCK = MQTT + ".client.";  
+	public static final String PING_WAKELOCK = MQTT + ".client.";
+
+	public static final String MQTT_PING_SENDER = "mqttPingSender";
+
+	public static final int ALARM_PING_SENDER_CONSTANT = 1;
+	
+	public static final int TIMER_PING_SENDER_CONSTANT = 0;
 	  
 }
