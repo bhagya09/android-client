@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.utils.Logger;
 
 public class OfflineBroadCastReceiver extends BroadcastReceiver
 {

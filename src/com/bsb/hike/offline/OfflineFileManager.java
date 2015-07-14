@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -100,7 +101,7 @@ public class OfflineFileManager
 						(int) file.length(),
 						currentSendingFiles.get(msgId).getTransferProgress()
 								.getCurrentChunks() * 1024);
-			} else if (convMessage.getState().equals(State.SENT_UNCONFIRMED)) {
+			} else if (TextUtils.isEmpty(hikeFile.getFileKey()) ) {
 				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0);
 			} else {
 				fss = new FileSavedState(FTState.COMPLETED,
