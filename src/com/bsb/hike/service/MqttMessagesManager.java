@@ -619,6 +619,8 @@ public class MqttMessagesManager
 		String groupId = jsonObj.optString(HikeConstants.TO);
 		if (this.convDb.toggleGroupDeadOrAlive(groupId, false) > 0)
 		{
+			this.convDb.changeGroupSettings(groupId, 0, 0,
+					new ContentValues());
 			saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
 		}
 	}
