@@ -509,10 +509,7 @@ public class VoIPService extends Service {
 				}
 				
 				// Show activity
-				Logger.d(tag, "Restoring activity..");
-				Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
-				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(i);
+				restoreActivity();
 				return returnInt;
 			}
 
@@ -547,7 +544,21 @@ public class VoIPService extends Service {
 		return returnInt;
 	}
 
+	private void restoreActivity() {
+		Logger.d(tag, "Restoring activity..");
+		Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(i);
+	}
+
 	private void initiateOutgoingCall(VoIPClient client, int callSource) {
+		
+		// Check if a call has already been initiated to the client
+		if (clients.containsKey(client.getPhoneNumber())) {
+			Logger.w(tag, "Client has already been added.");
+			restoreActivity();
+			return;
+		}
 		
 		client.setInitiator(false);
 		client.callSource = callSource;
@@ -880,16 +891,8 @@ public class VoIPService extends Service {
 			return;
 		}
 		
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			AudioAttributes audioAttributes = new AudioAttributes.Builder()
-			.setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-			.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-			.build();
-
-			soundpool = new SoundPool.Builder()
-			.setMaxStreams(2)
-			.setAudioAttributes(audioAttributes)
-			.build();
+		if (Utils.isLollipopOrHigher()) {
+			soundpool = new SoundPoolForLollipop().create();
 		} else {
 			soundpool = new SoundPool(2, AudioManager.STREAM_VOICE_CALL, 0);
 		}
@@ -1778,10 +1781,7 @@ public class VoIPService extends Service {
 				}
 				
 				if (Utils.isLollipopOrHigher()) {
-					AudioAttributes.Builder attrs = new AudioAttributes.Builder();
-					attrs.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
-					attrs.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
-					ringtone.setAudioAttributes(attrs.build());
+					new RingtoneForLollipop().create(ringtone);
 				} else
 					ringtone.setStreamType(AudioManager.STREAM_RING);
 				ringtone.play();		
