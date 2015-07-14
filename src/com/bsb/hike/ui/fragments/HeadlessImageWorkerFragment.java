@@ -17,31 +17,8 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 
 	private static final String TAG = "dp_woker";
 	
-	static class SingletonClass
-	{
-		private static SingletonClass instance = null;
-
-		private SingletonClass()
-		{
-			// Exists only to defeat instantiation.
-		}
-
-		public static SingletonClass getInstance()
-		{
-			if (instance == null)
-			{
-				synchronized (SingletonClass.class)
-				{
-					if (instance == null)
-					{
-						instance = new SingletonClass();
-					}
-				}
-			}
-			return instance;
-		}
-	}
-
+	private static volatile Object singleton = new Object();
+	
 	/**
 	 * Callback interface through which the fragment will report the task's progress and results back to the Caller.
 	 */
@@ -74,7 +51,7 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	protected boolean doAtomicFileDel(String tmpFilePath)
 	{
 		Logger.d(TAG, "inside API doRequestFailAtomicFileIO");
-		synchronized (SingletonClass.getInstance())
+		synchronized (singleton)
 		{
 			return Utils.removeFile(tmpFilePath);
 		}
@@ -91,7 +68,7 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	protected boolean doAtomicMultiFileDel(String orignialFilePath, String tmpFilePath)
 	{
 		Logger.d(TAG, "inside API doRequestFailAtomicFileIO");
-		synchronized (SingletonClass.getInstance())
+		synchronized (singleton)
 		{
 			return (Utils.removeFile(tmpFilePath) && Utils.removeFile(orignialFilePath));
 		}
@@ -108,7 +85,7 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	protected boolean doAtomicFileRenaming(String originalFilePath, String tmpFilePath)
 	{
 		Logger.d(TAG, "inside API doRequestSuccAtomicFileIO");
-		synchronized (SingletonClass.getInstance())
+		synchronized (singleton)
 		{
 			return Utils.renameFiles(originalFilePath, tmpFilePath);
 		}
@@ -128,9 +105,10 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	public static void doContactManagerIconChange(String msisdn, byte[] bytes, boolean isProfilePc)
 	{
 		Logger.d(TAG, "inside API doContactManagerIconChange");
-		synchronized (SingletonClass.getInstance())
+		synchronized (singleton)
 		{
 			ContactManager.getInstance().setIcon(msisdn, bytes, isProfilePc);
 		}
 	}
+	
 }

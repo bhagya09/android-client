@@ -1,5 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
+import java.io.File;
+
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
@@ -95,7 +97,7 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 	{
 		Logger.d(TAG, "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		String originqlFilePath = directory + "/" +  Utils.getProfileImageFileName(msisdn);
+		String originqlFilePath = directory + File.separator +  Utils.getProfileImageFileName(msisdn);
 		
 		if(bytes != null)
 		{

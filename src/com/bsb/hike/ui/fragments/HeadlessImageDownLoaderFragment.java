@@ -1,5 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
+import java.io.File;
+
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -196,7 +198,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		if (statusImage && !TextUtils.isEmpty(this.fileName) && !TextUtils.isEmpty(this.msisdn))
 		{
 			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-			this.fileName = directory + "/" + Utils.getProfileImageFileName(msisdn);
+			this.fileName = directory + File.separator + Utils.getProfileImageFileName(msisdn);
 
 			Bundle bundle = new Bundle();
 			bundle.putString(HikeConstants.Extras.IMAGE_PATH, this.fileName);
