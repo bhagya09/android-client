@@ -67,7 +67,7 @@ public class DownloadProfileImageTask
 			}
 		}
 
-		filePath = filePath + "/" + Utils.getUniqueFilename(HikeFileType.IMAGE);
+		filePath = filePath + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		
 		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, filePath, hasCustomIcon, statusImage, urlString, requestListener);
 		token.execute();
