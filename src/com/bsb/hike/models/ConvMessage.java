@@ -519,9 +519,9 @@ public class ConvMessage implements Searchable
 
 			JSONObject dataO = obj.optJSONObject(HikeConstants.DATA);
 			String msisdns = dataO.optString(HikeConstants.ADMIN_MSISDN);
-			if (msisdns.equalsIgnoreCase(myMsidn))
+			if (!msisdns.equalsIgnoreCase(myMsidn))
 			{
-				this.shouldShowPush = true;
+				this.shouldShowPush = false;
 			}
 			this.mMessage = OneToNConversationUtils.getAdminUpdatedMessage(this, context);
 			break;
