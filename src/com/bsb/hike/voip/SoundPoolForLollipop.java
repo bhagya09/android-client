@@ -5,7 +5,7 @@ import android.media.SoundPool;
 
 public class SoundPoolForLollipop {
 
-	public SoundPool create() {
+	static public SoundPool create() {
 		SoundPool soundpool;
 		
 		AudioAttributes audioAttributes = new AudioAttributes.Builder()
