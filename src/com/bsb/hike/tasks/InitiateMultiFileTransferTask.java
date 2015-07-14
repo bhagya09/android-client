@@ -12,10 +12,15 @@ import android.util.Pair;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.HikeConverter;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.Utils;
 
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
@@ -75,7 +80,13 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 			{
 				return;
 			}
-			HikeConverter.getInstance().sendFile(filePath, null, hikeFileType, fileType, false, -1, attachementType, msisdn, null);
+			ArrayList<ContactInfo> list = new ArrayList<ContactInfo>();
+			list.add(ContactManager.getInstance().getContact(msisdn));
+			FileTransferData fileTransferData = new FileTransferData(filePath, null, hikeFileType, fileType, false, -1, false, list, file);
+			
+			ArrayList<FileTransferData> fileTransferList = new ArrayList<FileTransferData>();
+			fileTransferList.add(fileTransferData);
+			OfflineController.getInstance().sendFile(fileTransferList, msisdn);
 		}
 		else
 		{

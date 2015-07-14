@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthread;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -46,6 +47,7 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -394,9 +396,18 @@ public class ChatThreadUtils
 	{
 		message.setState(ConvMessage.State.RECEIVED_READ);
 		mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), msisdn);
+		
+		
 		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
-			HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
+			if(Utils.isOfflineConversation(message.getMsisdn())&&!message.isFileTransferMessage())
+			{
+				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
+			}
+			else
+			{
+				HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
+			}
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
@@ -580,7 +591,7 @@ public class ChatThreadUtils
 
 		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
 
-		if (pairList == null || Utils.isOfflineConversation(msisdn))
+		if (pairList == null)
 		{
 			return;
 		}
@@ -633,7 +644,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, ids);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+				postMR(object);
 			}
 
 			if (dataMR != null && dataMR.length() > 0)
@@ -643,7 +654,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, dataMR);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+				postMR(object);
 			}
 			Logger.d(TAG, "Unread Count event triggered");
 
@@ -662,6 +673,18 @@ public class ChatThreadUtils
 
 	}
 	
+	private static void postMR(JSONObject object) throws JSONException {
+		String msisdn=object.getString(HikeConstants.TO);
+		if(!Utils.isOfflineConversation(msisdn))
+		{
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);	
+		}
+		else
+		{
+			OfflineController.getInstance().sendMR(object);
+		}
+	}
+
 	/**
 	 * Utility method for returning msisdn from action:SendTo intent which is invoked from outside the application
 	 * 

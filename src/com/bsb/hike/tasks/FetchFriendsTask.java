@@ -23,6 +23,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -562,6 +563,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 		}
 		
+
 		friendsAdapter.setListFetchedOnce(true);
 		// We dont need to show contacts in NUX Invite screen
 		if(showDefaultEmptyList)

@@ -396,6 +396,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String UPDATE_LAST_MSG_STATE = "updateLastMsgState";
 	
+	public static final String OFFLINE_FILE_COMPLETED = "offlineFileCompleted";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

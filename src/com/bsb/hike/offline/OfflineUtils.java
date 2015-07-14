@@ -516,7 +516,7 @@ public class OfflineUtils
 	{
 		try
 		{
-			if (packet.has(HikeConstants.DATA))
+			if (packet.optJSONObject(HikeConstants.DATA)!=null)
 			{
 				if (packet.optJSONObject(HikeConstants.DATA).has(HikeConstants.METADATA))
 				{
@@ -626,6 +626,17 @@ public class OfflineUtils
 	public static boolean isInfoPkt(JSONObject packet)
 	{
 		return packet.optString(HikeConstants.TYPE).equals(OfflineConstants.INFO_PKT);
+	}
+	
+	public static void toggleToAndFromField(JSONObject message, String connectedDevice) throws JSONException 
+	{
+		message.put(HikeConstants.FROM, "o:" + connectedDevice);
+		message.remove(HikeConstants.TO);
+	}
+
+	public static boolean isMessageReadType(JSONObject messageJSON) {
+		
+		return HikeConstants.MqttMessageTypes.MESSAGE_READ.equals(messageJSON.optString(HikeConstants.TYPE));
 	}
 
 	public static String getconnectedMsisdn() {
