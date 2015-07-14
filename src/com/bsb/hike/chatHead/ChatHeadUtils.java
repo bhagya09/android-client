@@ -28,6 +28,10 @@ import com.bsb.hike.utils.Utils;
 
 public class ChatHeadUtils
 {
+	public static int shareCount, totalShareCount, noOfDays, shareLimit, maxDismissLimit;
+	
+	public static final String SERVICE_START_DATE= "strtDate";
+	
     private static final String SERVICE_LAST_USED = "lastUsed";
     
     private static final String TAG = "ChatHeadUtils";

@@ -559,7 +559,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadInfoIconLayout.setVisibility(View.VISIBLE);
 		mIconPageIndicator.unselectCurrent();
 		chatHeadDisableLayout.setVisibility(View.GONE);
-		if (ChatHeadService.dismissed > ChatHeadActivity.maxDismissLimit)
+		if (ChatHeadService.dismissed > ChatHeadUtils.maxDismissLimit)
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.DISMISS_LIMIT);
@@ -567,14 +567,14 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			ChatHeadService.dismissed = 0;
 
 		}
-		else if (ChatHeadActivity.shareCount >= ChatHeadActivity.shareLimit)
+		else if (ChatHeadUtils.shareCount >= ChatHeadUtils.shareLimit)
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.SHARE_LIMIT);
 			chatHeadgetMoreStickersButton.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
 		}
 		initLayoutComponentsView();
-		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadActivity.totalShareCount, ChatHeadActivity.noOfDays));
+		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadUtils.totalShareCount, ChatHeadUtils.noOfDays));
 		chatHeadSideText.setEnabled(false);
 	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
 	}
@@ -582,11 +582,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private void initLayoutComponentsView()
 	{
 		chatHeadMainLayout.setVisibility(View.VISIBLE);
-		chatHeadMainText.setText(String.format(mContext.getString(R.string.stickers_sent_today), ChatHeadActivity.shareCount, ChatHeadActivity.shareLimit));
+		chatHeadMainText.setText(String.format(mContext.getString(R.string.stickers_sent_today), ChatHeadUtils.shareCount, ChatHeadUtils.shareLimit));
 		int progress;
-		if (ChatHeadActivity.shareLimit != 0)
+		if (ChatHeadUtils.shareLimit != 0)
 		{
-			progress = (int) ((ChatHeadActivity.shareCount * 100) / ChatHeadActivity.shareLimit);
+			progress = (int) ((ChatHeadUtils.shareCount * 100) / ChatHeadUtils.shareLimit);
 		}
 		else
 		{
@@ -609,7 +609,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		chatHeadMainLayout.setVisibility(View.VISIBLE);
 		chatHeadDisableLayout.setVisibility(View.GONE);
-		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadActivity.totalShareCount, ChatHeadActivity.noOfDays));
+		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadUtils.totalShareCount, ChatHeadUtils.noOfDays));
 		chatHeadSideText.setEnabled(false);
 		chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
 	}
@@ -635,7 +635,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadstickerPickerView = getView(context.getResources().getConfiguration().orientation);
 		findindViewById();
 		layout.addView(chatHeadstickerPickerView);
-		if (ChatHeadService.dismissed > ChatHeadActivity.maxDismissLimit || ChatHeadActivity.shareCount >= ChatHeadActivity.shareLimit)
+		if (ChatHeadService.dismissed > ChatHeadUtils.maxDismissLimit || ChatHeadUtils.shareCount >= ChatHeadUtils.shareLimit)
 		{
 			infoIconClick();
 		}

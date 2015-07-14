@@ -254,6 +254,7 @@ public class ChatHeadService extends Service
 					{
 						break;
 					}
+					//TODO replace the openeing of activity with a view inside window manager
 					Intent intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
