@@ -1258,7 +1258,7 @@ public class MqttMessagesManager
 	private void saveAccountInfo(JSONObject jsonObj) throws JSONException
 	{
 		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-
+		
 		boolean inviteTokenAdded = false;
 		boolean inviteeNumChanged = false;
 		boolean showNewRewards = false;
@@ -1292,6 +1292,11 @@ public class MqttMessagesManager
 			}
 
 			handleSendNativeInviteKey(sendNativeInvite, showFreeInvitePopup, null, null, editor);
+		}
+		if (data.has(HikeConstants.GROUPS))
+		{
+			JSONObject groups = data.getJSONObject(HikeConstants.GROUPS);
+			saveGroupProperties(groups);
 		}
 		if (data.has(HikeConstants.ACCOUNT))
 		{
@@ -1335,6 +1340,7 @@ public class MqttMessagesManager
 					}
 				}
 			}
+			
 			if (account.has(HikeConstants.FAVORITES))
 			{
 				JSONObject favorites = account.getJSONObject(HikeConstants.FAVORITES);
@@ -1480,6 +1486,22 @@ public class MqttMessagesManager
 				NUXManager.getInstance().parseNuxPacket(mmobObject.getJSONObject(HikeConstants.NUX).toString());
 		}
 		
+	}
+
+	private void saveGroupProperties(JSONObject groups) {
+		JSONArray gids = groups.names();
+		if (gids == null) {
+			return;
+		}
+		for (int i = 0; i < gids.length(); i++) {
+			String msisdn = gids.optString(i);
+
+			JSONObject grpInfo = groups.optJSONObject(msisdn);
+
+			if (grpInfo.has(HikeConstants.ROLE)) {
+				this.convDb.changeGroupSettings(msisdn, 0, grpInfo.optInt(HikeConstants.ROLE), new ContentValues());
+			}
+		}
 	}
 
 	private void saveUserOptIn(JSONObject jsonObj) throws JSONException

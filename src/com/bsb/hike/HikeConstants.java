@@ -226,6 +226,8 @@ public class HikeConstants
 	public static final String ONE_TO_ONE_CONVERSATION = "oc";
 
 	public static final String MUTED = "muted";
+	
+	public static final String GROUPS = "groups";
 
 	public static final String POST_AB = "postab";
 	
