@@ -64,4 +64,6 @@ public interface IChannelSelector {
 	void modifyAttachmentPicker(ChatThreadActivity activity, AttachmentPicker attachmentPicker,
 			boolean addContact);
 
+	void postMR(JSONObject object);
+
 }

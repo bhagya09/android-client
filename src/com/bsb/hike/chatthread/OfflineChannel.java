@@ -141,5 +141,11 @@ public class OfflineChannel implements IChannelSelector{
 		attachmentPicker.appendItem(new OverFlowMenuItem(activity.getResources().getString(R.string.apps), 0, R.drawable.ic_attach_apk, AttachmentPicker.APPS));
 	}
 
+	@Override
+	public void postMR(JSONObject object) {
+		
+		OfflineController.getInstance().sendMR(object);
+	}
+
 
 }

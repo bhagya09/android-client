@@ -9,6 +9,7 @@ import android.net.Uri;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
@@ -18,6 +19,7 @@ import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.service.HikeMqttManagerNew;
 
 public class OnlineChannel implements IChannelSelector{
 
@@ -122,6 +124,11 @@ public class OnlineChannel implements IChannelSelector{
 		{
 			attachmentPicker.appendItem(new OverFlowMenuItem(activity.getResources().getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
 		}
+	}
+
+	@Override
+	public void postMR(JSONObject object) {
+		HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);	
 	}
 
 }

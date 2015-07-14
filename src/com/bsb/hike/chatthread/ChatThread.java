@@ -83,6 +83,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
@@ -140,6 +141,7 @@ import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
 import com.bsb.hike.ui.GalleryActivity;
@@ -161,6 +163,7 @@ import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.google.android.gms.internal.cn;
+import com.hike.transporter.Transporter;
 
 /**
  * 
@@ -3214,8 +3217,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (activity.hasWindowFocus())
 			{
-				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn);
-				
+				publishReadByForMessage(message, mConversationDb, msisdn);
+
 				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 				{
 					//Logs for Msg Reliability
@@ -3241,6 +3244,30 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
+	protected void publishReadByForMessage(ConvMessage message, HikeConversationsDatabase mConversationDb, String msisdn)
+	{
+		message.setState(ConvMessage.State.RECEIVED_READ);
+		mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), msisdn);
+		
+		
+		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		{
+			
+			
+			if((channelSelector instanceof OfflineChannel) && 
+					(OfflineUtils.isContactTransferMessage(message.serialize()) ||  !message.isFileTransferMessage()))
+			{
+				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
+			}
+			else if(channelSelector instanceof OnlineChannel)
+			{
+				HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
+			}
+		}
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
+	}
+	
 	protected boolean onMessageDelivered(Object object)
 	{
 
@@ -4220,10 +4247,103 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
-			ChatThreadUtils.sendMR(msisdn);
+			sendMR(msisdn);
 		}
 
 	}
+	
+	/**
+	 * Sends nmr/mr as per pd is present in convmessage or not.Not sending MR for Offline conversation
+	 * @param msisdn
+	 */
+	protected  void sendMR(String msisdn)
+	{
+
+		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
+
+		if (pairList == null)
+		{
+			return;
+		}
+		
+		try
+		{
+
+			JSONObject dataMR = new JSONObject();
+
+			JSONArray ids = new JSONArray();
+
+			for (int i = 0; i < pairList.size(); i++)
+			{
+				Pair<Long, JSONObject> pair = pairList.get(i);
+				JSONObject object = pair.second;
+				if (object.has(HikeConstants.PRIVATE_DATA))
+				{
+					String pdString = object.optString(HikeConstants.PRIVATE_DATA);
+					JSONObject pd = new JSONObject(pdString);
+					if (pd != null)
+					{
+						String trackId = pd.optString(HikeConstants.MSG_REL_UID);
+						if (trackId != null)
+						{
+							dataMR.putOpt(String.valueOf(pair.first), pd);
+							// Logs for Msg Reliability
+							MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN, msisdn);
+						}
+						else
+						{
+							ids.put(String.valueOf(pair.first));
+						}
+					}
+				}
+				else
+				{
+					ids.put(String.valueOf(pair.first));
+				}
+			}
+
+			Logger.d("UnreadBug", "Unread count event triggered");
+
+			/*
+			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
+			 */
+			if (ids != null && ids.length() > 0)
+			{
+				JSONObject object = new JSONObject();
+				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
+				object.put(HikeConstants.TO, msisdn);
+				object.put(HikeConstants.DATA, ids);
+
+				channelSelector.postMR(object);
+			}
+
+			if (dataMR != null && dataMR.length() > 0)
+			{
+				JSONObject object = new JSONObject();
+				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ);
+				object.put(HikeConstants.TO, msisdn);
+				object.put(HikeConstants.DATA, dataMR);
+
+				channelSelector.postMR(object);
+			}
+			Logger.d(TAG, "Unread Count event triggered");
+
+			/**
+			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
+			 * 
+			 */
+			ChatThreadUtils.publishMessagesRead(ids, msisdn);
+
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
+	
 
 	/**
 	 * Returns true if and only if the last message was received but unread
