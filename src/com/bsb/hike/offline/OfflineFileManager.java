@@ -51,10 +51,10 @@ public class OfflineFileManager
 			}
 
 			ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), 
-												"o:"+OfflineController.getInstance().getConnectedDevice());
+												OfflineController.getInstance().getConnectedDevice());
 			
 			final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage(
-					"o:"+ OfflineController.getInstance().getConnectedDevice(), context.getString(R.string.files_not_received),
+					 OfflineController.getInstance().getConnectedDevice(), context.getString(R.string.files_not_received),
 					OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE);
 			
 			HikeConversationsDatabase.getInstance().addConversationMessages(deleteFilesConvMessage, true);

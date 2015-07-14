@@ -5288,7 +5288,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if(onlineChannel==null)
 				onlineChannel = new OnlineChannel();
 			channelSelector = onlineChannel;
+			//Move offline messages to online persistance
+		    OfflineController.getInstance().postSendPendingMessagesToMQTT(msisdn);
 		}
+		
 	}
 	
 }

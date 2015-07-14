@@ -366,4 +366,9 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		SenderConsignment consignment=new SenderConsignment.Builder(object.toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false).persistance(false).build();
 		return consignment;
 	}
+
+	public ConvMessage getConvMessageFromSenderConsignment(
+			SenderConsignment senderConsignment) {
+		return null;
+	}
 }

@@ -630,7 +630,7 @@ public class OfflineUtils
 	
 	public static void toggleToAndFromField(JSONObject message, String connectedDevice) throws JSONException 
 	{
-		message.put(HikeConstants.FROM, "o:" + connectedDevice);
+		message.put(HikeConstants.FROM,connectedDevice);
 		message.remove(HikeConstants.TO);
 	}
 
@@ -640,12 +640,16 @@ public class OfflineUtils
 	}
 
 	public static String getconnectedMsisdn() {
-		return null;
+		return OfflineController.getInstance().getConnectedDevice();
 	}
 
 	public static boolean isConnectedToSameMsisdn(String msisdn) {
-	
-		return false;
+		String connectedMsisdn = OfflineController.getInstance().getConnectedDevice(); 
+		if(TextUtils.isEmpty(connectedMsisdn))
+		{
+			return false;
+		}
+		return connectedMsisdn.equals(msisdn);
 	}
 
 }

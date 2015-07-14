@@ -96,6 +96,8 @@ public class OfflineController
 		case OfflineConstants.HandlerConstants.SHUTDOWN:
 			shutdownProcess((OfflineException) msg.obj);
 			break;
+		case OfflineConstants.HandlerConstants.MOVE_MESSAGES_TO_MQTT:
+			sendPendingMessagesToMQTT((String)msg.obj);
 		default:
 			break;
 		}
@@ -493,25 +495,26 @@ public class OfflineController
 		offlineManager.sendInfoPacket();
 	}
 
-	public Boolean sendPendingMessagesToMQTT(String msisdn) {
-		
+	private void sendPendingMessagesToMQTT(String msisdn)
+	{
 		List<SenderConsignment> unDeliveredMessages = offlineManager.movePendingMessagesToMQTT(msisdn);
 		if(unDeliveredMessages!=null && unDeliveredMessages.size()>0)
 		{
 			for(SenderConsignment senderConsignment: unDeliveredMessages)
 			{
-				try 
-				{
-					HikeMqttManagerNew.getInstance().sendMessage(new JSONObject(senderConsignment.message),MqttConstants.MQTT_QOS_ONE);
-				} 
-				catch (JSONException e) 
-				{
-					return false;
-				}
+				ConvMessage convMessage = hikeConverter.getConvMessageFromSenderConsignment(senderConsignment);
+				HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(),MqttConstants.MQTT_QOS_ONE);
 			}
 			offlineManager.removeMessageFromOfflinePersistance(msisdn);
 		}
-		return true;
+	}
+	
+	public void postSendPendingMessagesToMQTT(String msisdn) {
+		
+		Message msg = Message.obtain();
+		msg.what = OfflineConstants.HandlerConstants.MOVE_MESSAGES_TO_MQTT;
+		msg.obj = msisdn;
+		mHandler.sendMessage(msg);
 	}	
 
 }

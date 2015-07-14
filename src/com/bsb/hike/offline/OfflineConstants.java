@@ -95,6 +95,8 @@ public class OfflineConstants
 		public static final int SHUTDOWN = -112;
 
 		public static final int DISCONNECT_BY_USER = -113;
+
+		public static final int MOVE_MESSAGES_TO_MQTT = -114;
 	}
 	
 	public static enum ERRORCODE
