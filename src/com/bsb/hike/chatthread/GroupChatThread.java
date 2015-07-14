@@ -254,15 +254,8 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Is the group owner blocked ? If true then show the block overlay with appropriate strings
 		 */
-
-		if (oneToNConversation.isBlocked())
-		{
-			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-
-			showBlockOverlay(label);
-
-		}
-
+         ///from now onwards  group will never block
+	
 		toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
 		toggleGroupLife(oneToNConversation.isConversationAlive());
 		addUnreadCountMessage();
