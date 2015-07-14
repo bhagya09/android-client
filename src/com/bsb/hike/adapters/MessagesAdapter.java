@@ -503,7 +503,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	@Override
 	public int getItemViewType(int position)
 	{
-		Logger.d("gaurav","getItemViewType: " + position);
 		ConvMessage convMessage = getItem(position);
 		ViewType type;
 		
@@ -3892,9 +3891,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		HashMap<Long, ConvMessage> selectedMsgs = new HashMap<Long, ConvMessage>();
 		for (ConvMessage convMessage : convMessages)
 		{
-			if (mSelectedItemsIds.contains(convMessage.getMsgID()))
+			if (convMessage != null)
 			{
-				selectedMsgs.put(convMessage.getMsgID(), convMessage);
+				if (mSelectedItemsIds.contains(convMessage.getMsgID()))
+				{
+					selectedMsgs.put(convMessage.getMsgID(), convMessage);
+				}
 			}
 		}
 		return selectedMsgs;
@@ -4062,12 +4064,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			long msgId = msgIds.get(i);
 			for (ConvMessage convMessage : convMessages)
 			{
-				if (convMessage.getMsgID() == msgId && convMessage.isFileTransferMessage())
+				if (convMessage != null)
 				{
-					HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-					if (hikeFile.getHikeFileType() == HikeFileType.IMAGE || hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.AUDIO_RECORDING)
+					if (convMessage.getMsgID() == msgId && convMessage.isFileTransferMessage())
 					{
-						return true;
+						HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+						if (hikeFile.getHikeFileType() == HikeFileType.IMAGE || hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.AUDIO_RECORDING)
+						{
+							return true;
+						}
 					}
 				}
 			}

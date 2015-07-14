@@ -4134,13 +4134,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			for (ConvMessage convMessage : messages)
 			{
-				if (convMessage.getMsgID() == msgId)
+				if (convMessage != null)
 				{
-					deleteMsgs.add(convMessage);
-				}
-				else if (convMessage.getMsgID() > msgId)
-				{
-					break;
+					if (convMessage.getMsgID() == msgId)
+					{
+						deleteMsgs.add(convMessage);
+					}
+					else if (convMessage.getMsgID() > msgId)
+					{
+						break;
+					}
 				}
 			}
 		}
