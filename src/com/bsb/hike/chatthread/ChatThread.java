@@ -2473,7 +2473,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		for(int i = oldIndex; i<messages.size(); i++)
 		{
-			newList.add(newList.size(), messages.get(i), messages.getUniqueId(i));
+			newList.add(newList.size(), messages.getRaw(i), messages.getUniqueId(i));
 		}
 		messages = newList;
 		mAdapter.updateMessageList(messages);
