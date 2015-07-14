@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -40,23 +41,23 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private HikeAppStateBaseFragmentActivity activity;
 
 	private StickerPickerListener stickerPickerListener;
-	
+
 	private ChatThread chatthread;
 
 	private EditText editText;
 
-	int color;
+	private int color;
 
 	private Editable editable;
 
 	private FrameLayout stickerRecommendView;
-	
-	private Fragment fragment ;
-	
+
+	private Fragment fragment;
+
 	private int count;
-	
+
 	private ColorSpanPool colorSpanPool;
-	
+
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
 		this.activity = activity;
@@ -64,11 +65,11 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.color = color;
 		this.chatthread = chathread;
 		this.stickerPickerListener = (StickerPickerListener) chathread;
-		colorSpanPool = new ColorSpanPool(color, Color.BLACK);
+		colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
-	
+
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after)
 	{
@@ -93,20 +94,20 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void highlightText(final int start, final int end)
 	{
-		if(activity == null)
+		if (activity == null)
 		{
 			return;
 		}
 		activity.runOnUiThread(new Runnable()
 		{
-			
+
 			@Override
 			public void run()
 			{
 				Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
 				removeAttachedSpans(start, end);
 				editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				
+
 			}
 		});
 	}
@@ -114,30 +115,29 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void unHighlightText(final int start, final int end)
 	{
-		if(activity == null)
+		if (activity == null)
 		{
 			return;
 		}
 		activity.runOnUiThread(new Runnable()
 		{
-			
+
 			@Override
 			public void run()
 			{
-				
 				Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 				removeAttachedSpans(start, end);
 				editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		});
 	}
-	
+
 	private void removeAttachedSpans(int start, int end)
 	{
-		ForegroundColorSpan[] spans =  editable.getSpans(start, end, ForegroundColorSpan.class);
-		if(spans != null)
+		ForegroundColorSpan[] spans = editable.getSpans(start, end, ForegroundColorSpan.class);
+		if (spans != null)
 		{
-			for(int  i = 0 ; i < spans.length ; i ++)
+			for (int i = 0; i < spans.length; i++)
 			{
 				editable.removeSpan(spans[i]);
 			}
@@ -147,43 +147,46 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void showStickerSearchPopup(final List<Sticker> stickerList)
 	{
-		if(activity == null)
+		if (activity == null)
 		{
-			return ;
+			return;
 		}
 		activity.runOnUiThread(new Runnable()
 		{
-			
+
 			@Override
 			public void run()
 			{
 				if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
 				{
-					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or popup is already shown: " + isStickerRecommnedPoupShowing() + ", isKeyboardOpen(): " + chatthread.isKeyboardOpen());
+					Logger.d(
+							TAG,
+							"showStickerSearchPopup(), No sticker list or popup is already shown: " + isStickerRecommnedPoupShowing() + ", isKeyboardOpen(): "
+									+ chatthread.isKeyboardOpen());
 					return;
 				}
 
 				chatthread.closeStickerRecommendTip();
-				
+
 				Logger.d(TAG, "showStickerSearchPopup() is called: " + stickerList);
 
-				if(stickerRecommendView == null)
+				if (stickerRecommendView == null)
 				{
 					stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
 					android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
 					params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
 					stickerRecommendView.setLayoutParams(params);
 					stickerRecommendView.setOnTouchListener(onTouchListener);
-					
+
 					fragment = activity.getSupportFragmentManager().findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
-					
+
 					if (fragment == null)
 					{
 						Logger.d(StickerTagWatcher.TAG, "sticker recommnd fragment is null");
-						
+
 						fragment = StickerRecommendationFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
-						activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
-								.commitAllowingStateLoss();
+						activity.getSupportFragmentManager().beginTransaction()
+								.replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG).commitAllowingStateLoss();
 					}
 				}
 
@@ -191,28 +194,28 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				stickerRecommendView.setVisibility(View.VISIBLE);
 				showFtueAnimation();
 			}
-		});	
+		});
 	}
-	
+
 	public void showFtueAnimation()
 	{
-		if(count > 0)
+		if (count > 0)
 		{
 			stickerRecommendView.removeCallbacks(scrollRunnable);
 			stickerRecommendView.postDelayed(scrollRunnable, SCROLL_DELAY);
 		}
 	}
-	
+
 	private Runnable scrollRunnable = new Runnable()
 	{
-		
+
 		@Override
 		public void run()
 		{
-			if(isStickerRecommnedPoupShowing() && fragment != null)
+			if (isStickerRecommnedPoupShowing() && fragment != null)
 			{
 				boolean shown = ((StickerRecommendationFragment) fragment).showFtueAnimation();
-				if(shown)
+				if (shown)
 				{
 					count--;
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, count);
@@ -232,10 +235,10 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				@Override
 				public void run()
 				{
-					if(stickerRecommendView != null)
+					if (stickerRecommendView != null)
 					{
 						Logger.i(TAG, "dismissStickerSearchPopup()");
-						stickerRecommendView.setVisibility(View.INVISIBLE);	
+						stickerRecommendView.setVisibility(View.INVISIBLE);
 					}
 				}
 			});
@@ -311,7 +314,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
 		fragment = null;
-		
+
 		colorSpanPool.releaseResources();
 		colorSpanPool = null;
 	}
@@ -334,7 +337,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		chatthread.showStickerRecommendTip();
 	}
-	
+
 	@Override
 	public void clearSearchText()
 	{

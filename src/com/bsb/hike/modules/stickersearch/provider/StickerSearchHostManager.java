@@ -130,7 +130,7 @@ public class StickerSearchHostManager
 
 	public Pair<CharSequence, int[][]> onTextChange(CharSequence s, int start, int before, int count)
 	{
-		Logger.i(TAG, "onTextChanged(), searching start: " + System.currentTimeMillis());
+		Logger.i(TAG, "onTextChanged(), Searching start: " + System.currentTimeMillis());
 
 		Pair<CharSequence, int[][]> result;
 
@@ -154,11 +154,11 @@ public class StickerSearchHostManager
 			mEnd = end;
 			mIndexLimit = s.length();
 
-			int brokerLimit = 60;
+			int brokerLimit = 75;
 			boolean isNeedToRemoveLastWord = false;
-			if (mIndexLimit > 55)
+			if (mIndexLimit > 70)
 			{
-				mIndexLimit = 55;
+				mIndexLimit = 70;
 				while ((mIndexLimit < s.length()) && (s.charAt(mIndexLimit) != ' '))
 				{
 					mIndexLimit++;
@@ -168,22 +168,17 @@ public class StickerSearchHostManager
 						break;
 					}
 				}
-
-				if (!isNeedToRemoveLastWord)
-				{
-					mIndexLimit = s.length();
-				}
 			}
 
 			result = searchAndGetStickerResult(s, start, end, before, count, isNeedToRemoveLastWord);
 		}
 		catch (Exception e)
 		{
-			Logger.e(TAG, "Exception in searching...", e);
+			Logger.e(TAG, "onTextChanged(), Exception in searching...", e);
 			result = null;
 		}
 
-		Logger.i(TAG, "onTextChanged(), searching over time: " + System.currentTimeMillis());
+		Logger.i(TAG, "onTextChanged(), Searching over time: " + System.currentTimeMillis());
 
 		return result;
 	}
@@ -616,7 +611,7 @@ public class StickerSearchHostManager
 		pResult = result;
 		Logger.v(TAG, "Results address: " + Arrays.toString(result));
 
-		return new Pair<CharSequence, int[][]>(s, result);
+		return new Pair<CharSequence, int[][]>(wholeString, result);
 	}
 
 	public void onMessageSent(String prevText, Sticker sticker, String nextText)
