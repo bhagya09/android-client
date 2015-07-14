@@ -113,6 +113,7 @@ public class VoIPClient  {
 	public List<String> clientMsisdns = null;
 	public boolean isHostingConference;
 	public boolean isInAHostedConference;
+	public String groupChatMsisdn;
 	
 	// Audio quality
 	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
@@ -497,6 +498,10 @@ public class VoIPClient  {
 			socketData.put(VoIPConstants.Extras.RECONNECTING, reconnecting);
 			socketData.put(VoIPConstants.Extras.VOIP_VERSION, VoIPConstants.VOIP_VERSION);
 			
+			if (!TextUtils.isEmpty(groupChatMsisdn))
+				socketData.put(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
+				
+			
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
 			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
@@ -827,7 +832,17 @@ public class VoIPClient  {
 			setCallStatus(VoIPConstants.CallStatus.ENDED);
 		}
 
-		VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+		if (TextUtils.isEmpty(groupChatMsisdn))
+			VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+		else {
+			if (isHostingConference) {
+				// Hack!
+				// Replacing the client msisdn with group chat msisdn, so that the call summary
+				// goes in the right place
+				setPhoneNumber(groupChatMsisdn);
+				VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+			}
+		}
 
 		if (iceThread != null)
 			iceThread.interrupt();
@@ -851,7 +866,7 @@ public class VoIPClient  {
 			codecDecompressionThread.interrupt();
 		
 		synchronized (VoIPClient.this) {
-			if(chronometer != null) {
+			if (chronometer != null) {
 				chronometer.stop();
 				chronometer = null;
 			}
@@ -923,7 +938,7 @@ public class VoIPClient  {
 				}
 				
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
-				if (!isInitiator() && !reconnecting) {
+				if (!isInitiator() && !reconnecting && !isInAHostedConference) {
 					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber());
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
@@ -1912,8 +1927,8 @@ public class VoIPClient  {
 	
 	private void updateClientsList(String csv) {
 		clientMsisdns = Arrays.asList(csv.split("\\s*,\\s*"));
-		Logger.w(tag, "Received clients list: " + clientMsisdns.toString());
-		if (clientMsisdns.size() == 1) {
+//		Logger.w(tag, "Received clients list: " + clientMsisdns.toString());
+		if (clientMsisdns.size() <= 2) {
 			Logger.w(tag, "Conference over?");
 			clientMsisdns = null;
 			isHostingConference = false;

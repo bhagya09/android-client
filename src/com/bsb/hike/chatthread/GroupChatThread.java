@@ -283,7 +283,7 @@ public class GroupChatThread extends OneToNChatThread
 			} else {
 				activity.getApplicationContext().startService(
 						IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-								msisdns, VoIPUtils.CallSource.CHAT_THREAD)
+								msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD)
 						);
 			}
 			break;

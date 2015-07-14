@@ -164,6 +164,8 @@ public class VoIPConstants {
 
 		public static final String CALL_SOURCE = "call_source";
 
+		public static final String GROUP_CHAT_MSISDN = "groupChatMsisdn";
+
 		public static final String INTERNAL_IP = "internalIP";
 
 		public static final String INTERNAL_PORT = "internalPort";
@@ -202,7 +204,16 @@ public class VoIPConstants {
 
 	public static enum CallStatus
 	{
-		OUTGOING_CONNECTING, OUTGOING_RINGING, INCOMING_CALL, PARTNER_BUSY, RECONNECTING, ON_HOLD, ACTIVE, ENDED, UNINITIALIZED
+		OUTGOING_CONNECTING, 
+		OUTGOING_RINGING, 
+		INCOMING_CALL, 
+		PARTNER_BUSY, 
+		RECONNECTING, 
+		ON_HOLD, 
+		ACTIVE, 
+		ENDED, 
+		UNINITIALIZED,
+		HOSTING_CONFERENCE
 	}
 
 	/**

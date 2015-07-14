@@ -526,6 +526,9 @@ public class VoIPUtils {
 					if (metadataJSON.has(VoIPConstants.Extras.VOIP_VERSION))
 						i.putExtra(VoIPConstants.Extras.VOIP_VERSION, metadataJSON.getInt(VoIPConstants.Extras.VOIP_VERSION));
 					
+					if (metadataJSON.has(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
+						i.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, metadataJSON.getString(VoIPConstants.Extras.GROUP_CHAT_MSISDN));
+					
 					context.startService(i);
 					return;
 				}
