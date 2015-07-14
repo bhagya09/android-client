@@ -66,7 +66,7 @@ public class MqttConstants
 	/* represents max amount of time taken by message to process exceeding which we will send analytics to server */
 	public static final long DEFAULT_MAX_MESSAGE_PROCESS_TIME = 1 * 1000l;
 	
-	public static final long PING_WAKELOCK_TIMEOUT = 1 * 60 * 1000; // 1 minute
+	public static final int DEFAULT_PING_WAKELOCK_TIMEOUT_IN_SECONDS = 10 ; // 10 seconds
 
 	// constants used to define MQTT connection status, this is used by external classes and hardly of any use internally
 	public enum MQTTConnectionStatus
@@ -95,5 +95,6 @@ public class MqttConstants
 	public static final int ALARM_PING_SENDER_CONSTANT = 1;
 	
 	public static final int TIMER_PING_SENDER_CONSTANT = 0;
-	  
+	
+	public static final String ALARM_PING_WAKELOCK_TIMEOUT = "alarmPingWakeLockTimeout";
 }
