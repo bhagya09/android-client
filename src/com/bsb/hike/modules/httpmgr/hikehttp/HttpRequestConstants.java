@@ -236,13 +236,23 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
 	}
 	
+	public static String updateUnLoveLinkUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/unlove";
+	}
+	
 	public static String updateLoveLinkUrl()
 	{
-		return BASE_URL + BASE_V1 + "/love/status";
+		return BASE_URL + BASE_V1 + "/status/love";
 	}
 	
 	public static String getActionsUpdateUrl()
 	{
 		return BASE_URL + BASE_V1 + "/love/get_counts_with_msisdn";
+	}
+	
+	public static String getPostImageSUUrl()
+	{
+		return BASE_URL + BASE_V1 + "/user/status-timeline";
 	}
 }
