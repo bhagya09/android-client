@@ -923,7 +923,6 @@ public class VoIPService extends Service {
 		}
 		
 		if (Utils.isLollipopOrHigher()) {
-			new SoundPoolForLollipop();
 			soundpool = SoundPoolForLollipop.create();
 		} else {
 			soundpool = new SoundPool(2, AudioManager.STREAM_VOICE_CALL, 0);
@@ -1831,7 +1830,6 @@ public class VoIPService extends Service {
 				}
 				
 				if (Utils.isLollipopOrHigher()) {
-					new RingtoneForLollipop();
 					RingtoneForLollipop.create(ringtone);
 				} else
 					ringtone.setStreamType(AudioManager.STREAM_RING);
