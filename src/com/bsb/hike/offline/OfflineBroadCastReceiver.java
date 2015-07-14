@@ -56,12 +56,17 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			String ssid = wifiManager.getConnectionInfo().getSSID();
 			if (!TextUtils.isEmpty(ssid))
 			{
-				Log.d(TAG, "OfflineBroadCast ssid: " + ssid);
-				if (ssid.length() > 2)
+				Log.d(TAG, "OfflineBroadCast ssid: " + ssid +".......Detailed state is "+  (netInfo.getDetailedState()==(NetworkInfo.DetailedState.CONNECTED)) +"....idOfflineSSID     "+OfflineUtils.isOfflineSsid(ssid)+"     netIfo state is  "+netInfo.isConnected());
+				
+			
+				if (ssid.length() > 2&&ssid.startsWith("\"")&&ssid.endsWith("\""))
 					ssid = ssid.substring(1, ssid.length() - 1);
-
-				if (netInfo != null && netInfo.getDetailedState().equals(NetworkInfo.DetailedState.CONNECTED) && OfflineUtils.isOfflineSsid(ssid) && netInfo.isConnected())
+			
+				if ((netInfo != null) &&
+						(netInfo.getDetailedState()==(NetworkInfo.DetailedState.CONNECTED)) && 
+						(OfflineUtils.isOfflineSsid(ssid)))
 				{
+					Log.d(TAG,"inconnected");
 					wifiCallBack.checkConnectedNetwork();
 				}
 			}
