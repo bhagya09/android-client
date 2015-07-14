@@ -2168,6 +2168,11 @@ public class MqttMessagesManager
 			int pingSender = data.getInt(MqttConstants.MQTT_PING_SENDER);
 			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.MQTT_PING_SENDER, pingSender);
 		}
+		if (data.has(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT))
+		{
+			int alarmPingWakeLockTimeout = data.getInt(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT, alarmPingWakeLockTimeout);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

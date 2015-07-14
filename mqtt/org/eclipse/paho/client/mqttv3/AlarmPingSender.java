@@ -27,6 +27,7 @@ import android.util.Log;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -146,14 +147,17 @@ class AlarmPingSender implements MqttPingSender {
 			// Assign new callback to token to execute code after PingResq
 			// arrives. Get another wakelock even receiver already has one,
 			// release it until ping response returns.
-			if (wakelock == null) {
-				PowerManager pm = (PowerManager) app
-						.getSystemService(Service.POWER_SERVICE);
-				wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-						wakeLockTag);
-				wakelock.setReferenceCounted(false);
+			int pingWackLockTimeout = HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT, (MqttConstants.DEFAULT_PING_WAKELOCK_TIMEOUT_IN_SECONDS * 1000));
+			if(pingWackLockTimeout > 0)
+			{
+				if (wakelock == null)
+				{
+					PowerManager pm = (PowerManager) app.getSystemService(Service.POWER_SERVICE);
+					wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag);
+					wakelock.setReferenceCounted(false);
+				}
+				wakelock.acquire(pingWackLockTimeout);
 			}
-			wakelock.acquire(MqttConstants.PING_WAKELOCK_TIMEOUT);
 			token.setActionCallback(new IMqttActionListener() {
 
 				@Override
