@@ -51,7 +51,7 @@ public class IconListPreference extends ListPreference
 			imageView.setImageDrawable(this.mIcon);
 			imageView.setVisibility(View.VISIBLE);
 		}
-		else 
+		else if((imageView != null) && (this.mIcon == null))
 		{
 			imageView.setVisibility(View.GONE);
 		}
