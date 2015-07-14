@@ -64,11 +64,13 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 	private String version;
 	private static String appId;
 	private static String appName;
+	private String cocosEngineVersion;
 
 	private Handler mHandler = new Handler();
 
 	public static final String SHARED_PREF = "native_games_sharedpref";
 	public static final String LIST_OF_APPS = "list_of_games_map";
+	public static final String COCOS_ENGINE_VERSION = "cocos_engine_version";
 
 	private SharedPreferences sharedPreferences;
 	private SharedPreferences.Editor sharedPrefEditor;
@@ -110,6 +112,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 		downloadPathUrl = getIntent().getStringExtra("downloadPathUrl");
 		isPortrait = getIntent().getBooleanExtra("isPortrait", true);
 		version = getIntent().getStringExtra("version");
+		cocosEngineVersion = getIntent().getStringExtra("cocosEngineVersion");
 		appId = getIntent().getStringExtra("appId");
 
 		Logger.d(TAG, "isPortrait : " + isPortrait);
@@ -219,8 +222,23 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 		protected void onPreExecute() {
 			super.onPreExecute();
 			pdia = new ProgressDialog(CocosGamingActivity.this);
-			if (!new File(getFileBasePath(context) + "libcocos2d.so").exists()) {
+			if (!new File(getFileBasePath(context) + "cocosEngine-" + cocosEngineVersion + "/libcocos2d.so").exists()) {
 				isEngineDownload = true;
+				pdia.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+				pdia.setMessage("Downloading");
+				pdia.setIndeterminate(false);
+				pdia.setProgress(0);
+				pdia.setCancelable(false);
+				pdia.show();
+			}
+			if (Integer.parseInt(cocosEngineVersion) > sharedPreferences.getInt(COCOS_ENGINE_VERSION, 0)) {
+				isEngineDownload = true;
+				pdia.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+				pdia.setMessage("Downloading");
+				pdia.setIndeterminate(false);
+				pdia.setProgress(0);
+				pdia.setCancelable(false);
+				pdia.show();
 			}
 			if (!new File(getFileBasePath(context) + appName + "/libcocos2dcpp.so").exists()) {
 				isDownload = true;
@@ -261,8 +279,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				Logger.d(TAG, "DownloadGameTask::doInBackground()");
 				// Check if app is stored locally or not
 				if (isEngineDownload) {
-					if (!downloadFromUrl("https://s3-ap-southeast-1.amazonaws.com/games-assets/MicroApps/cocosHike/cocos_3_6.zip",
-							getFileBasePath(CocosGamingActivity.this) + "libcocosengine" + ".zip")) {
+					if (!downloadFromUrl("https://s3-ap-southeast-1.amazonaws.com/games-assets/MicroApps/cocosHike/cocosEngine-" + cocosEngineVersion
+							+ ".zip", getFileBasePath(CocosGamingActivity.this) + "libcocosengine" + ".zip")) {
 						Logger.d(TAG, "Download failed");
 						return false;
 					}
@@ -272,6 +290,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 					}
 					File zipFile = new File(getFileBasePath(context) + "libcocosengine" + ".zip");
 					zipFile.delete();
+					sharedPrefEditor.putInt(COCOS_ENGINE_VERSION, Integer.valueOf(cocosEngineVersion)).commit();
 				}
 				if (isDownload) {
 					if (!downloadFromUrl(downloadPathUrl, getFileBasePath(CocosGamingActivity.this) + appName + ".zip")) {
@@ -314,7 +333,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				CocosPlayClient.init(CocosGamingActivity.this, false);
 				Logger.d(TAG, "onPostExecute() 1");
 				// loading cocos engine
-				System.load(getFileBasePath(context) + "/libcocos2d.so");
+				System.load(getFileBasePath(context) + "cocosEngine-" + cocosEngineVersion + "/libcocos2d.so");
 				// loading game
 				System.load(getFileBasePath(context) + appName + "/libcocos2dcpp.so");
 
