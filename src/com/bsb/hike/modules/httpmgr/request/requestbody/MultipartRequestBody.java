@@ -34,7 +34,15 @@ public class MultipartRequestBody implements IRequestBody
 	@Override
 	public long length()
 	{
-		return mRequestBody.contentLength();
+		try
+		{
+			return mRequestBody.contentLength();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return -1L;
+		}
 	}
 
 	@Override
