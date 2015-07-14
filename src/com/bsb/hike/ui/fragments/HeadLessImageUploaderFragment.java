@@ -139,10 +139,7 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 		
 		if(toDelTempFileOnCallFail)
 		{
-			if(!doAtomicFileDel(tmpFilePath))
-			{
-				return;
-			}
+			doAtomicFileDel(tmpFilePath);
 		}
 
 		if(taskCallbacks != null)

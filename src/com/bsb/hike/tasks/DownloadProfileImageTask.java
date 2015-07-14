@@ -57,7 +57,7 @@ public class DownloadProfileImageTask
 		{
 			if (!dir.mkdirs())
 			{
-				doOnFailure();
+				//doOnFailure();
 				
 				if (downloadProfileImageTaskCallbacks != null)
 				{
@@ -78,7 +78,7 @@ public class DownloadProfileImageTask
 		@Override
 		public void onRequestSuccess(Response result)
 		{
-			doOnSuccess();
+			//doOnSuccess();
 			
 			if(downloadProfileImageTaskCallbacks != null)
 			{
@@ -100,7 +100,7 @@ public class DownloadProfileImageTask
 		{
 			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 			{
-				doOnCancelled();
+				//doOnCancelled();
 				
 				if(downloadProfileImageTaskCallbacks != null)
 				{
@@ -109,7 +109,7 @@ public class DownloadProfileImageTask
 			}
 			else
 			{
-				doOnFailure();
+				//doOnFailure();
 				
 				if(downloadProfileImageTaskCallbacks != null)
 				{
@@ -118,26 +118,6 @@ public class DownloadProfileImageTask
 			}
 		}
 	};
-
-	public void cancel()
-	{
-		doOnCancelled();
-	}
-
-	private void doOnCancelled()
-	{
-		
-	}
-
-	private void doOnFailure()
-	{
-		
-	}
-
-	private void doOnSuccess()
-	{
-		
-	}
 
 	public String getFilePath()
 	{

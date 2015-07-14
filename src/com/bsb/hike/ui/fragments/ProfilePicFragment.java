@@ -236,7 +236,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	public void loadHeadLessImageUploadingFragment(byte[] bytes, String origImagePath, String mLocalMSISDN)
 	{
-		Logger.d("dp_upload", "inside API loadHeadLessImageUploadingFragment");
+		Logger.d(TAG, "inside API loadHeadLessImageUploadingFragment");
 		FragmentManager fm = getFragmentManager();
 		mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
 
@@ -251,7 +251,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	    }
 	    else
 	    {
-	    	Logger.d("dp_download", "As mImageLoaderFragment already there, so not starting new one");
+	    	Toast.makeText(getActivity(), getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
 	    }
 
 	}
