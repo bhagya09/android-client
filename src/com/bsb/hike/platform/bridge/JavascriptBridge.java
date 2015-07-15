@@ -45,6 +45,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.IFileUploadListener;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -63,6 +64,9 @@ import com.bsb.hike.utils.Utils;
  * Platform Bridge Version Start = 0
  * Platform Bridge Version End = ~
  */
+
+
+
 public abstract class JavascriptBridge
 {
 	protected CustomWebView mWebView;
@@ -77,6 +81,7 @@ public abstract class JavascriptBridge
 	
 	private static final int PICK_CONTACT_REQUEST = 1;
 
+	public static final int FILE_SELECT_REQUEST = 2;
 
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -533,7 +538,40 @@ public abstract class JavascriptBridge
 			case PICK_CONTACT_REQUEST:
 				handlePickContactResult(resultCode, data);
 				break;
+			case FILE_SELECT_REQUEST:
+				handlePickFileResult(resultCode, data);
 			}
+		}
+	}
+	
+	private void handlePickFileResult(int resultCode, Intent data)
+	{
+		if(resultCode == Activity.RESULT_OK)
+		{
+			String filePath = data.getStringExtra(HikeConstants.Extras.FILE_PATH);	
+			if(filePath==null)
+				{
+				Logger.e("fileChoose","Invalid file Path");
+				return;
+				}
+			else
+			{
+			Logger.d("FileUpload", "Path of selected file :" + filePath);
+			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put("filePath", filePath);
+				json.put("mimeType", mimeType);
+				callbackToJS(data.getStringExtra("callback"), json.toString());
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+			
+		}
 		}
 	}
 
@@ -585,7 +623,7 @@ public abstract class JavascriptBridge
 			Logger.e(tag, "Empty function name when calling the JS back");
 			return;
 		}
-		if (mHandler == null || !mWebView.isWebViewShowing())
+		if (mHandler == null || !mWebView.isAttachedToWindow())
 		{
 			return;
 		}
@@ -684,8 +722,10 @@ public abstract class JavascriptBridge
 				{
 					Intent fileChooserIntent = new Intent(IntentFactory.getFileSelectActivityIntent(weakActivityRef, "123123123"));
 					fileChooserIntent.setType("*/*");
-					((WebViewActivity) weakActivityRef).setId(id);
-					weakActivity.get().startActivityForResult(Intent.createChooser(fileChooserIntent, "Upload File"),FILE_SELECT_REQUEST);
+					fileChooserIntent.putExtra("callback", id);
+					fileChooserIntent.putExtra(REQUEST_CODE, FILE_SELECT_REQUEST);
+					fileChooserIntent.putExtra("allowLongPress", true);
+					((WebViewActivity) weakActivityRef).startActivityForResult(Intent.createChooser(fileChooserIntent, "Upload File"),HikeConstants.PLATFORM_REQUEST);
 				}
 			}
 		});
@@ -713,30 +753,36 @@ public abstract class JavascriptBridge
 		try
 		{
 			json = new JSONObject(data);
-			filePath = json.optString("filePath");
-			url = json.optString("uploadUrl");
-			doCompress = json.optBoolean("doCompress");
+			filePath = json.getString("filePath");
+			url = json.getString("uploadUrl");
+			doCompress = json.getBoolean("doCompress");
 		}
 		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		
-		if(filePath == null || url == null)
-		{
-			callbackToJS(id, "JSON content Null");
+		{	
+			Logger.e("fileUpload","Malformed Json object"+"filePath = "+filePath+" "+"url = " + url+" "+" docompress = "+ doCompress);
 			return;
 		}
-		String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
-		if(!(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp")).exists())
+		
+		if(TextUtils.isEmpty(filePath)  || TextUtils.isEmpty(url))
 		{
-			(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp")).mkdirs();
+			callbackToJS(id, "JSON content Null or Length = 0");
+			return;
+		}
+		
+		String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+		File temp_file =new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp");
+		if(!temp_file.exists())
+		{
+			temp_file.mkdirs();
 		}
 		final String tempFilePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + "_temp" + File.separator + (new File(filePath).getName());
 		
 		IFileUploadListener fileListener = new IFileUploadListener()
 		{
-			
+			/*
+			 * (non-Javadoc)
+			 * params:id,null is sent in case of invalid response
+			 */
 			@Override
 			public void onRequestFailure(String response)
 			{
@@ -879,6 +925,7 @@ public abstract class JavascriptBridge
 
 
 		@Override
+		
 		public void onRequestFailure(HttpException httpException)
 		{
 			Logger.e("JavascriptBridge", "microApp request failed with exception " + httpException.getMessage());

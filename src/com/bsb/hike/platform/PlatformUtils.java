@@ -14,6 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EntityUtils;
@@ -67,6 +68,8 @@ import com.bsb.hike.utils.Utils;
 public class PlatformUtils
 {
 	private static final String TAG = "PlatformUtils";
+	
+	private static final String BOUNDARY = "----------V2ymHFg03ehbqgZCaKO6jy";
 	
 	/**
 	 * 
@@ -548,6 +551,7 @@ public class PlatformUtils
 	{
 		String boundary = "\r\n--" + BOUNDARY + "--\r\n";
 		File file = new File(filePath);
+		if(file.exists() && !file.isDirectory()){
 		int chunkSize = (int) file.length();
 		String boundaryMessage = getBoundaryMessage(filePath);
 		byte[] fileContent = new byte[(int) file.length()];
@@ -559,7 +563,8 @@ public class PlatformUtils
 		}
 		catch (IOException | NullPointerException e)
 		{
-			e.printStackTrace();
+			Logger.e("fileUplaod","file body not present");
+			return null;
 		}
 	    finally
 	    {
@@ -572,10 +577,16 @@ public class PlatformUtils
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				Logger.e("fileUpload","Couldn't Read File");
 			}
 	    }
 	    return setupFileBytes(boundaryMessage, boundary, chunkSize,fileContent);
+		}
+		else
+		{
+			Logger.e("fileUpload","Invalid file Path");
+			return null;
+		}
 	}
 	
 	public static void uploadFile(final String filePath,final String url,final IFileUploadListener fileListener)
@@ -594,8 +605,16 @@ public class PlatformUtils
 			public void run()
 			{
 			    byte[] fileBytes = prepareFileBody(filePath);
+			    if(fileBytes!=null)
+			    {
 				String response = send(fileBytes,filePath,url,fileListener);
 				Logger.d("FileUpload", response);
+			    }
+			    else
+			    {
+			    	Logger.e("fileUpload","Empty File Body");
+			    	return ;
+			    }
 			}
 		});
 
@@ -623,6 +642,7 @@ public class PlatformUtils
 			resCode = response.getStatusLine().getStatusCode();
 			
 			res = EntityUtils.toString(response.getEntity());
+			Logger.d("FileUpload",""+resCode);
 		}
 		catch (IOException | NullPointerException ex)
 		{
@@ -670,8 +690,9 @@ public class PlatformUtils
 		}
 		catch(NullPointerException | ArrayStoreException | IndexOutOfBoundsException e)
 		{
-			e.printStackTrace();
+			
 			Logger.d("FileUpload", e.toString());
+			return null;
 		}
 		return fileBytes;
 	}
