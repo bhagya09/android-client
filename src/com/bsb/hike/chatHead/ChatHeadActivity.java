@@ -22,19 +22,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 {
 	
 	private StickerPicker picker;
-	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		super.onConfigurationChanged(newConfig);
-		this.finish();
-	}
-
-	@Override
-	protected void onDestroy()
-	{
-		super.onDestroy();
-	}
 
 	@Override
 	protected void onStop()
