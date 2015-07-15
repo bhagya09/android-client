@@ -171,6 +171,7 @@ public class AudioRecordView
 						{
 							stopRecorder();
 							recordingError(true);
+							dialog.dismiss();
 							Logger.e(getClass().getSimpleName(), "Failed to start recording", e);
 							return false;
 						}
