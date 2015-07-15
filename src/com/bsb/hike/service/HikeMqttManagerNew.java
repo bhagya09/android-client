@@ -1260,7 +1260,9 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_SERVER_CONNECT_ERROR:
+			handleOtherException();
 			scheduleNextConnectionCheck(getConnRetryTime());
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_SOCKET_FACTORY_MISMATCH:
 			clearSettings();
@@ -1276,6 +1278,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		case MqttException.REASON_CODE_UNEXPECTED_ERROR:
 			// This could happen while reading or writing error on a socket, hence disconnection happens
+			handleOtherException();
 			scheduleNextConnectionCheck(getConnRetryTime());
 			sendAnalyticsEvent(e);
 			break;
@@ -1331,6 +1334,16 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		Logger.e(TAG, "Client exception : entered handleSocketTimeOutException");
 		connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
 	}
+	
+	private void handleOtherException()
+	{
+		if(previousHostInfo != null)
+		{
+			Logger.e(TAG, "Client exception : entered handleOtherException");
+			previousHostInfo.setExceptionOnConnect(ConnectExceptions.OTHER);
+		}
+	}
+
 
 	/**
 	 * Dns exception occured, Connect using ips

@@ -23,6 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.DatabaseUtils.InsertHelper;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -113,7 +114,22 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private HikeConversationsDatabase(Context context)
 	{
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
-		mDb = getWritableDatabase();
+		try
+		{
+			mDb = getWritableDatabase();
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+			/*
+			 * Ref: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/database/sqlite/SQLiteOpenHelper.java
+			 * 
+			 * When mContext.openOrCreateDatabase throws SQLException, in catch it creates a new database using SQLiteDatabase.openDatabase method.
+			 * 
+			 * SQLiteDatabase.openDatabase returns the newly opened database
+			 * 
+			 * */
+		}
 	}
 	
 	public SQLiteDatabase getWriteDatabase()
@@ -3384,6 +3400,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public void deleteMessages(ArrayList<Long> msgIds, String msisdn, Boolean containsLastMessage)
 	{
+
+		if (msgIds == null || msgIds.isEmpty())
+		{
+			Logger.e(HikeConversationsDatabase.class.getSimpleName(), "deleteMessages :: msgIds not present");
+			return;
+		}
+		
 		StringBuilder inSelection = new StringBuilder("(" + msgIds.get(0));
 		for (int i = 0; i < msgIds.size(); i++)
 		{

@@ -17,6 +17,7 @@ import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.webkit.URLUtil;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -24,7 +25,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.chatHead.StickerShareSettings;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -157,7 +157,7 @@ public class IntentFactory
 		{
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		if (pkgName != null)
 		{
 			intent.setPackage(pkgName);
@@ -249,16 +249,8 @@ public class IntentFactory
 
 		if (!TextUtils.isEmpty(hikeExtrasUrl))
 		{
-			if (Utils.switchSSLOn(context))
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						AccountUtils.HTTPS_STRING + hikeExtrasUrl + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
-			else
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						AccountUtils.HTTP_STRING + hikeExtrasUrl + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
+			Uri gamesUri = Utils.getFormedUri(context, hikeExtrasUrl, prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, gamesUri.toString());
 		}
 
 		String hikeExtrasName = prefs.getString(HikeConstants.HIKE_EXTRAS_NAME, context.getString(R.string.hike_extras));
@@ -284,16 +276,8 @@ public class IntentFactory
 
 		if (!TextUtils.isEmpty(rewards_url))
 		{
-			if (Utils.switchSSLOn(context))
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						AccountUtils.HTTPS_STRING + rewards_url + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
-			else
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						AccountUtils.HTTP_STRING + rewards_url + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
+			Uri rewardsUri = Utils.getFormedUri(context, rewards_url, prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, rewardsUri.toString());
 		}
 
 		String rewards_name = prefs.getString(HikeConstants.REWARDS_NAME, context.getString(R.string.rewards));
@@ -311,11 +295,6 @@ public class IntentFactory
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
-		/*
-		 * New task flag is needed as we are opening our activity in another task outside hike existing task and clear task to remove existing activities of hike task so that user
-		 * can return from where he came to this task
-		 */
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
 				HttpRequestConstants.getMorestickersUrl() + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
 		intent.putExtra(HikeConstants.Extras.TITLE, context.getString(R.string.more_stickers));
@@ -325,9 +304,7 @@ public class IntentFactory
 
 	public static Intent getStickerShareSettingsIntent(Context context)
 	{
-		Intent intent = new Intent(context, StickerShareSettings.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		return intent;
+		return new Intent(context, StickerShareSettings.class);
 	}
 	
 
@@ -617,7 +594,7 @@ public class IntentFactory
 		
 		if(croppedOutputDestination != null)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, false));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true,80, false));
 		}
 		
 		if(destIntents.size()>0)
@@ -766,20 +743,7 @@ public class IntentFactory
 
 	public static Intent getStickerShopIntent(Context context)
 	{
-		Intent intent = new Intent(context, StickerShopActivity.class);
-		
-		return intent;
-	}
-	public static Intent getStickerShopIntent(Context context, boolean flags)
-	{
-		Intent intent = new Intent(context, StickerShopActivity.class);
-		
-		if(flags)
-		{  /*New task flag is needed as we are opening our activity in another task outside hike existing task and clear task 
-		 to remove existing activities of hike task so that user can return from where he came to this task*/  
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		}
-		return intent;
+		return new Intent(context, StickerShopActivity.class);
 	}
 
 	public static Intent getStickerSettingIntent(Activity context)
