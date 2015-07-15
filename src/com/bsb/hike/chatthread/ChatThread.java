@@ -938,11 +938,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
+			if (mShareablePopupLayout.isBusyInOperations())
+			{//  previous task is running don't accept this event
+				return;
+			}
 			setEmoticonButtonSelected(false);
 			setStickerButtonSelected(true);
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
+			if (mShareablePopupLayout.isBusyInOperations())
+			{// previous task is running don't accept this event
+				return;
+			}
 			setStickerButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
@@ -1266,6 +1274,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public boolean onBackPressed()
 	{
+		mShareablePopupLayout.onBackPressed();
 		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
 		{
 			return true;
@@ -2845,11 +2854,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (v.getId())
 		{
 		case R.id.messageedittext:
-			mShareablePopupLayout.onEditTextTouch(v, event);
-			return event == null;
+			return mShareablePopupLayout.onEditTextTouch(v, event);
 
 		case R.id.msg_compose:
-			mShareablePopupLayout.onEditTextTouch(v, event);
+
 			/**
 			 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
 			 * http://code.google.com/p/android/issues/detail?id=2516
@@ -2859,8 +2867,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				mComposeView.requestFocusFromTouch();
 
 			}
-			
-			return event == null;
+			return mShareablePopupLayout.onEditTextTouch(v, event);
 
 		default:
 			return mGestureDetector.onTouchEvent(event);
@@ -3415,7 +3422,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeViewWatcher.setBtnEnabled();
 			mComposeView.requestFocus();
 		}
-
 	}
 
 	public void onRestart()
@@ -4779,6 +4785,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mShareablePopupLayout.dismiss();
 		}
+		mShareablePopupLayout.onBackPressed();
 	}
 
 	/**

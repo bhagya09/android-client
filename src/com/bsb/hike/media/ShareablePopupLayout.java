@@ -243,4 +243,14 @@ public class ShareablePopupLayout
 		return mKeyboardPopupLayout.onEditTextTouch(v, event);
 	}
 
+	public boolean isBusyInOperations(){
+		return mKeyboardPopupLayout.isBusyInOperations();
+	}
+
+	public void onBackPressed()
+	{
+		mKeyboardPopupLayout.onBackPressed();
+	}
+
+
 }
