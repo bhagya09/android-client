@@ -1423,6 +1423,10 @@ public class StickerManager
 			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, source);
 			multiStickerDownloadTask.execute();
 		}
+		else if(category.getDownloadedStickersCount() >= category.getTotalStickers())
+		{
+			category.setState(StickerCategory.DONE);
+		}
 		saveCategoryAsVisible(category);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 	}
