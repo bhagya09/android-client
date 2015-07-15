@@ -2919,9 +2919,12 @@ public class HikeConstants
 
 	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
 
-	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
-	
 	public static final String TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT = "headlessimage_down_fragment";
 	
 	public static final String TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT = "headlessimage_up_fragment";
+
+	public static final String SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	
+	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+
 }

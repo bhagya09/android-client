@@ -1381,9 +1381,10 @@ public class Utils
 	{
 		String result = null;
 		Cursor cursor = null;
+		String[] projection = { MediaStore.Images.Media.DATA };
 		try
 		{
-			cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+			cursor = mContext.getContentResolver().query(uri, projection, null, null, null);
 			if (cursor == null)
 			{
 				result = uri.getPath();
@@ -1397,10 +1398,7 @@ public class Utils
 					{
 						result = cursor.getString(idx);
 					}
-					else if(isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
-					{
-						result = getPathFromDocumentedUri(uri, mContext);
-					}
+					
 				}
 				else
 				{
@@ -1416,6 +1414,18 @@ public class Utils
 		{
 			if (cursor != null)
 				cursor.close();
+		}
+		
+		try
+		{
+			if(result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+			{
+				result = getPathFromDocumentedUri(uri, mContext);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 		return result;
 	}
