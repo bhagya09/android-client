@@ -1174,7 +1174,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = videoHolder;
-				setSenderDetails(convMessage, position, videoHolder, false);
+				setSenderDetails(convMessage, position, videoHolder, true);
 
 				videoHolder.fileThumb.setBackgroundResource(0);
 				videoHolder.fileThumb.setImageResource(0);
@@ -1339,7 +1339,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = imageHolder;
-				setSenderDetails(convMessage, position, imageHolder, false);
+				setSenderDetails(convMessage, position, imageHolder, true);
 
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
@@ -1490,7 +1490,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = imageHolder;
-				setSenderDetails(convMessage, position, imageHolder, false);
+				setSenderDetails(convMessage, position, imageHolder, true);
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
 
