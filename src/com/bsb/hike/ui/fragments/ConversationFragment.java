@@ -941,15 +941,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
 		super.onCreateOptionsMenu(menu, inflater);
-		resetSearchIcon();
-	}
-
-	private void resetSearchIcon()
-	{
-		if (!searchMode)
-		{
-			HomeActivity.setSearchOptionAccess(!isConversationsEmpty());
-		}
 	}
 
 	private boolean isConversationsEmpty()
@@ -1670,7 +1661,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		mConversationsAdded = new HashSet<String>();
 
 		setupConversationLists();
-		resetSearchIcon();
 
 		if (mAdapter != null)
 		{
@@ -1824,7 +1814,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			mAdapter.addToLists(stealthConversations);
 		}
 		
-		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
 		notifyDataSetChanged();
 	}
@@ -2021,7 +2010,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					{
 						clearConversation(msisdn);
 						notifyDataSetChanged();
-						resetSearchIcon();
 					}
 					else
 					{
@@ -2083,7 +2071,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					mAdapter.sortLists(mConversationsComparator);
 					
 					notifyDataSetChanged();
-					resetSearchIcon();
 				}
 			});
 		}
@@ -2820,7 +2807,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					mAdapter.remove(delConv);
 					mConversationsByMSISDN.remove(msisdn);
 					mConversationsAdded.remove(msisdn);
-					resetSearchIcon();
 
 					StealthModeManager.getInstance().markStealthMsisdn(msisdn, false, false);
 					stealthConversations.remove(delConv);
