@@ -48,6 +48,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -406,7 +407,7 @@ public class ChatThreadUtils
 		
 		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
-			if(Utils.isOfflineConversation(message.getMsisdn())&&!message.isFileTransferMessage())
+			if(OfflineUtils.isConnectedToSameMsisdn(message.getMsisdn())&&!message.isFileTransferMessage())
 			{
 				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
 			}
@@ -580,11 +581,6 @@ public class ChatThreadUtils
 			return HikeConstants.Extras.BOT_CHAT_THREAD;
 		}
 		
-		else if(Utils.isOfflineConversation(msisdn))
-		{
-			return HikeConstants.Extras.OFFLINE_CHAT_THREAD;
-		}
-	
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
 	}
 
@@ -681,7 +677,7 @@ public class ChatThreadUtils
 	
 	private static void postMR(JSONObject object) throws JSONException {
 		String msisdn=object.getString(HikeConstants.TO);
-		if(!Utils.isOfflineConversation(msisdn))
+		if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);	
 		}

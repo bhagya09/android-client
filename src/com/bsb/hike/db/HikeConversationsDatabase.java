@@ -2285,13 +2285,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
-				else if(Utils.isOfflineConversation(msisdn))
-				{
-					contactInfo = ContactManager.getInstance().getContact(msisdn.replace("o:", ""), false, true, false);
-					String name = contactInfo.getNameOrMsisdn();
-					OfflineConvInfo convInfo=new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).setConvName(name).build();
-					conv=new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).setConvInfo(convInfo).build();
-				}
 				else
 				{
 					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).setIsOnHike(onhike).build();
@@ -2444,15 +2437,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					return null;
 				}
 				conv.setIsStealth(isStealth);
-			}
-			else if(Utils.isOfflineConversation(msisdn))
-			{
-				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn.replace("o:", ""), false, true, false);
-				String name = contactInfo.getNameOrMsisdn();
-				
-				OfflineConvInfo convInfo=new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).setConvName(name).build();
-
-				conv=new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).setIsStealth(isStealth).setConvInfo(convInfo).build();
 			}
 			
 			/**
@@ -3005,12 +2989,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
 
-					else if(Utils.isOfflineConversation(msisdn))
-					{
-						convInfo = new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).setSortingTimeStamp(sortingTimestamp).setOnHike(true).build();
-						contact=ContactManager.getInstance().getContact(((OfflineConvInfo)convInfo).getDisplayMsisdn());
-					}
-					
 					else
 					{
 						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
