@@ -7,6 +7,13 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,8 +51,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.voip.VoIPUtils;
-import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
 
 /**
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
@@ -112,14 +117,20 @@ public abstract class JavascriptBridge
 	
 	protected void sendMessageToUiThread(int what,Object data)
 	{
-		sendMessageToUiThread(what, 0, data);
+		sendMessageToUiThread(what, 0,0, data);
+	}
+
+	protected void sendMessageToUiThread(int what,int arg1, Object data)
+	{
+		sendMessageToUiThread(what, arg1, 0, data);
 	}
 	
-	protected void sendMessageToUiThread(int what, int arg1,Object data)
+	protected void sendMessageToUiThread(int what, int arg1, int arg2, Object data)
 	{
 		Message msg = Message.obtain(); 
 		msg.what = what;
 		msg.arg1 = arg1;
+		msg.arg2 = arg2;
 		msg.obj = data;
 		mHandler.sendMessage(msg);
 	}
@@ -603,12 +614,56 @@ public abstract class JavascriptBridge
 		callbackToJS(id, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 	}
 
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to call the non-messaging bot
+	 * @param id : : the id of the function that native will call to call the js .
+	 * @param msisdn: the msisdn of the non-messaging bot to be opened.
+	 * returns Success if success and failure if failure.
+	 */
+	@JavascriptInterface
+	public void openNonMessagingBot(String id, String msisdn)
+	{
+
+		if (BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if (botInfo.isNonMessagingBot())
+			{
+				Intent intent = null;
+				if (weakActivity.get() != null)
+				{
+					intent = IntentFactory.getNonMessagingBotIntent(msisdn, weakActivity.get());
+				}
+				if (null != intent)
+				{
+					weakActivity.get().startActivity(intent);
+					callbackToJS(id, "Success");
+				}
+				else
+				{
+					callbackToJS(id, "Failure");
+				}
+			}
+			else
+			{
+				callbackToJS(id, "Failure");
+			}
+		}
+		else
+		{
+			callbackToJS(id, "Failure");
+		}
+
+	}
+
 	public void getInitJson(JSONObject jsonObj, String msisdn)
 	{
 		try
 		{
 			jsonObj.put(HikeConstants.MSISDN, msisdn);
 			jsonObj.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			jsonObj.put(HikePlatformConstants.PLATFORM_TOKEN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null));
 			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
 		}
 		catch (JSONException e)
@@ -629,5 +684,123 @@ public abstract class JavascriptBridge
 		}
 		return "";
 		
+	}
+
+	/**
+	 * Platform Bridge Version 1
+	 * call this function for any post call.
+	 * @param functionId : function id to call back to the js.
+	 * @param data : the stringified data that contains:
+	 *     "url": the url that will be called.
+	 *     "params": the push params to be included in the body.
+	 * Response to the js will be sent as follows:
+	 * callbackFromNative(functionId, responseJson)
+	 *    responseJson will be like this:
+	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
+	 *          Failure: "{ "status": "failure", "error_message" : error message}"
+	 *
+	 */
+	@JavascriptInterface
+	public void doPostRequest(final String functionId, String data)
+	{
+		try
+		{
+			JSONObject jsonObject = new JSONObject(data);
+			String url = jsonObject.optString(HikePlatformConstants.URL);
+			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
+			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), new PlatformMicroAppRequestListener(functionId));
+			if (!token.isRequestRunning())
+			{
+				token.execute();
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "error in JSON");
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * call this function for any post call.
+	 * @param functionId : function id to call back to the js.
+	 * @param url : "url": the url that will be called.
+	 * Response to the js will be sent as follows:
+	 * callbackFromNative(functionId, responseJson)
+	 *    responseJson will be like this:
+	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
+	 *          Failure: "{ "status": "failure", "error_message" : error message}"
+	 *
+	 */
+	@JavascriptInterface
+	public void doGetRequest(final String functionId, String url)
+	{
+		RequestToken token = HttpRequests.microAppGetRequest(url, new PlatformMicroAppRequestListener(functionId));
+		if (!token.isRequestRunning())
+		{
+			token.execute();
+		}
+
+	}
+
+	private class PlatformMicroAppRequestListener implements IRequestListener
+	{
+		String functionId;
+
+		PlatformMicroAppRequestListener(String functionId)
+		{
+			this.functionId = functionId;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return super.hashCode();
+		}
+
+
+		@Override
+		public void onRequestFailure(HttpException httpException)
+		{
+			Logger.e("JavascriptBridge", "microApp request failed with exception " + httpException.getMessage());
+			JSONObject failure = new JSONObject();
+			try
+			{
+				failure.put(HikePlatformConstants.STATUS, HikePlatformConstants.FAILURE);
+				failure.put(HikePlatformConstants.ERROR_MESSAGE, httpException.getMessage());
+			}
+			catch (JSONException e)
+			{
+				Logger.e("JavascriptBridge", "Error while parsing failure request");
+				e.printStackTrace();
+			}
+			callbackToJS(functionId, String.valueOf(failure));
+		}
+
+		@Override
+		public void onRequestSuccess(Response result)
+		{
+			Logger.d("JavascriptBridge", "microapp request success with code " + result.getStatusCode());
+			JSONObject success = new JSONObject();
+			try
+			{
+				success.put(HikePlatformConstants.STATUS, HikePlatformConstants.SUCCESS);
+				success.put(HikePlatformConstants.STATUS_CODE, result.getStatusCode());
+				success.put(HikePlatformConstants.RESPONSE, result.getBody().getContent());
+			}
+			catch (JSONException e)
+			{
+				Logger.e("JavascriptBridge", "Error while parsing success request");
+				e.printStackTrace();
+			}
+			callbackToJS(functionId, String.valueOf(success));
+		}
+
+		@Override
+		public void onRequestProgressUpdate(float progress)
+		{
+
+		}
 	}
 }
