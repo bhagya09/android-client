@@ -1987,14 +1987,7 @@ public class MqttMessagesManager
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
 			{ 
 				JSONArray list =  stickerWidgetJSONObj.getJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
-				
-				for(int j=0; j<list.length() ; j++)
-				{
-					list.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, serviceUserControl);
-				}
-				
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, list.toString());
-				ChatHeadUtils.startOrStopService(true);
+				ChatHeadUtils.setAllApps(list, serviceUserControl);
 			}
 			
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))

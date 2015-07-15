@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.bsb.hike.platform.CustomWebView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -181,13 +182,29 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		{
 			ProductInfoManager.getInstance().downloadStkPk(metaData);
 		}
-		if(action.equals(PopUpAction.ACTIVATE_CHAT_HEAD_APPS.toString()))
+		if (action.equals(PopUpAction.ACTIVATE_CHAT_HEAD_APPS.toString()) && Utils.isIceCreamOrHigher())
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
-			ChatHeadUtils.startOrStopService(false);
+			OnChatHeadPopupActivateClick();
 		}
-		
+	}
 
+	private void OnChatHeadPopupActivateClick()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+		JSONArray packagesJSONArray;
+		try
+		{
+			packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+			if (packagesJSONArray != null)
+			{
+				ChatHeadUtils.setAllApps(packagesJSONArray, true);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void multiFwdStickers(Context context, String stickerId, String categoryId, boolean selectAll)
