@@ -543,7 +543,7 @@ public class MqttMessagesManager
 				}
 			}
 			if(metadata.has(HikeConstants.GROUP_SETTING)){
-				this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(), metadata.optInt(HikeConstants.GROUP_SETTING),0, new ContentValues());
+				this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(), metadata.optInt(HikeConstants.GROUP_SETTING),-1, new ContentValues());
 			}
 		}
 
@@ -584,7 +584,7 @@ public class MqttMessagesManager
 		String groupId = jsonObj.optString(HikeConstants.TO);
 		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 		int setting = data.optInt(HikeConstants.SETTING);
-		this.convDb.changeGroupSettings(groupId, setting,0, new ContentValues());
+		this.convDb.changeGroupSettings(groupId, setting,-1, new ContentValues());
 		if(directSettingChange )
 		{
 	     	saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));

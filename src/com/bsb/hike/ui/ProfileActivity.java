@@ -2965,7 +2965,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				Logger.d(getClass().getSimpleName(), " post group add memmber settings succeeded : " + response);
 				dismissLoadingDialog();
 				HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
-				convDb.changeGroupSettings(grpId, setting,0, new ContentValues());
+				convDb.changeGroupSettings(grpId, setting,-1, new ContentValues());
 			}
 			
 			@Override

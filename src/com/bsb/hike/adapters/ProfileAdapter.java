@@ -319,17 +319,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				
 			case GROUP_SETTINGS:
 				v = inflater.inflate(R.layout.group_settings_item, null);
-				CheckBox box = (CheckBox) v.findViewById(R.id.checkBox);
-				try {
-					if (groupConversation != null
-							&& groupConversation.getMetadata()
-									.getAddMembersRight() == OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ADMIN_CAN_ADD) {
-						box.setChecked(true);
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-
+				viewHolder.checkbox = (CheckBox) v.findViewById(R.id.checkBox);
+			
 				break;
 
 			case GROUP_PARTICIPANT:
@@ -622,7 +613,18 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				}
 			}
 			break;
-
+		case GROUP_SETTINGS:
+			try {
+				if (groupConversation != null && groupConversation.getMetadata()
+						.getAddMembersRight() == OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ADMIN_CAN_ADD) {
+					viewHolder.checkbox.setChecked(true);
+				}else{
+					viewHolder.checkbox.setChecked(false);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			break;
 		case PHONE_NUMBER:
 			String head = context.getResources().getString(R.string.phone_pa);
 			viewHolder.text.setText(head);
@@ -904,6 +906,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		View pins;
 		
 		View mediaLayout;
+		
+		CheckBox checkbox;
 	}
 	
 	public void setProfilePreview(Bitmap preview)
