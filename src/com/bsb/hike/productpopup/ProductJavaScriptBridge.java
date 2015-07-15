@@ -15,9 +15,11 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -182,7 +184,7 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		{
 			ProductInfoManager.getInstance().downloadStkPk(metaData);
 		}
-		if (action.equals(PopUpAction.ACTIVATE_CHAT_HEAD_APPS.toString()) && Utils.isIceCreamOrHigher())
+		if (action.equals(PopUpAction.ACTIVATE_CHAT_HEAD_APPS.toString()))
 		{
 			OnChatHeadPopupActivateClick();
 		}
@@ -190,20 +192,32 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 
 	private void OnChatHeadPopupActivateClick()
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
-		JSONArray packagesJSONArray;
-		try
+		Context context = HikeMessengerApp.getInstance();
+		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 		{
-			packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
-			if (packagesJSONArray != null)
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
+			if (Utils.isIceCreamOrHigher())
 			{
-				ChatHeadUtils.setAllApps(packagesJSONArray, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+				JSONArray packagesJSONArray;
+				try
+				{
+					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+					if (packagesJSONArray != null)
+					{
+						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
-		catch (JSONException e)
+		else
 		{
-			e.printStackTrace();
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 		}
 	}
 

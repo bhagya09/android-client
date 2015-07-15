@@ -25,6 +25,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -193,10 +195,14 @@ public class IntentFactory
 	}
 
 	
-	public static void openSettingStickerOnOtherApp(Context context)
+	public static void openStickerSettings(Context context)
 	{
-		Intent intent = new Intent(context, StickerShareSettings.class);
-		context.startActivity(intent);
+		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
+		if (Utils.isIceCreamOrHigher())
+		{
+			Intent intent = new Intent(context, StickerShareSettings.class);
+			context.startActivity(intent);
+		}
 	}
 	
 	public static void openSettingHelp(Context context)
