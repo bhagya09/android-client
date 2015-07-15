@@ -63,6 +63,7 @@
             android:id="@+id/groups_massegesTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:text="@string/group_setting_option_only_admin"
             android:textSize="16sp"
             android:textStyle="normal" />
