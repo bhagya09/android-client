@@ -2749,7 +2749,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					long minId = -1;
 					ArrayList<Long> ids = new ArrayList<Long>();
 					//position = messageSearchManager.searchFirstItem(chatThread.get().messages, firstVisisbleItem - 1, 0, chatThread.get().searchText);
-					while (position < 0)
+					while (position < 0 && messageSearchManager.isActive())
 					{
 						Logger.d("gaurav", "loadmoremessages for search: " + loadMessageCount + " " + maxId + " " + minId);
 						msgList = new ArrayList<>(chatThread.get().loadMoreMessages(loadMessageCount, maxId, minId));
@@ -2796,7 +2796,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					long minId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
 					int maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
 					long maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
-					while (position < 0)
+					while (position < 0 && messageSearchManager.isActive())
 					{
 						Logger.d("gaurav", "loadmoremessages for search: " + loadMessageCount + " " + maxId + " " + minId);
 						msgList = new ArrayList<>(chatThread.get().loadMoreMessages(loadMessageCount, maxId + 1, minId));
@@ -3604,6 +3604,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
+		hideActionMode();
+
 		removePubSubListeners();
 
 		removeBroadcastReceiver();
