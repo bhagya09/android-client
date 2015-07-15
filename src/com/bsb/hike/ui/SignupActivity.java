@@ -2408,7 +2408,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
-			applyCompression();
+			
+			if (mActivityState.destFilePath == null)
+			{
+				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			
+			applyCompression(mActivityState.destFilePath);
 			setProfileImage();
 			break;
 		case HikeConstants.ResultCodes.SELECT_COUNTRY:	
