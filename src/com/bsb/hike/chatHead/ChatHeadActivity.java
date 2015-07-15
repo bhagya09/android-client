@@ -58,7 +58,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		ChatHeadService.registerReceiver(this);
 		setContentView(R.layout.chat_head);
 		ChatHeadUtils.settingDailySharedPref();
-		initVariables();
+		ChatHeadUtils.initVariables();
 		picker = new StickerPicker(R.layout.chat_head_sticker_layout, this, this, null);
 		LinearLayout layout = (LinearLayout) findViewById(R.id.sticker_pallete_other_app);
 		picker.onCreatingChatHeadActivity(this, layout);
@@ -68,30 +68,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	public void closeActivity(View v)
 	{
 		ChatHeadService.getInstance().resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
-	}
-
-	private void initVariables()
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(ChatHeadUtils.SERVICE_START_DATE, -1L) == -1L)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadUtils.SERVICE_START_DATE, Utils.gettingMidnightTimeinMilliseconds());
-		}
-		ChatHeadUtils.noOfDays = (int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(ChatHeadUtils.SERVICE_START_DATE,
-				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * ChatHeadConstants.HOUR_TO_MILLISEC_CONST)) + 1;
-		if (ChatHeadUtils.noOfDays < 1)
-		{
-			ChatHeadUtils.noOfDays = 1;
-		}
-		ChatHeadUtils.totalShareCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0);
-		ChatHeadUtils.shareLimit = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.STICKERS_PER_DAY, HikeConstants.ChatHead.DEFAULT_NO_STICKERS_PER_DAY) + HikeSharedPreferenceUtil
-				.getInstance().getData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0));
-		ChatHeadUtils.maxDismissLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, ChatHeadConstants.DISMISS_CONST);
-		ChatHeadUtils.shareCount = HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0);
-		if (ChatHeadUtils.shareCount > ChatHeadUtils.shareLimit)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, ChatHeadUtils.shareLimit);
-			ChatHeadUtils.shareCount = ChatHeadUtils.shareLimit;
-		}
 	}
 
 	@Override
