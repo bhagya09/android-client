@@ -71,7 +71,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC)
 				.file(file).persistance(false).ackRequired(true).build();
 		senderConsignment.setTag(convMessage);
-		senderConsignment.setAwb((int) convMessage.getMsgID());
+		senderConsignment.setAwb(convMessage.getMsgID());
 		
 		FileTransferModel fileTransferModel = new FileTransferModel(
 				new TransferProgress(0, OfflineUtils.getTotalChunks((int) file
@@ -307,7 +307,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 					messageJSON.toString(), OfflineConstants.TEXT_TOPIC)
 					.build();
 		}
-		senderConsignment.setAwb((int) convMessage.getMsgID());
+		senderConsignment.setAwb(convMessage.getMsgID());
 		senderConsignment.setTag(convMessage);
 		return senderConsignment;
 	}
