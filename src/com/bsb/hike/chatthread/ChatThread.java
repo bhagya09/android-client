@@ -1569,7 +1569,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		searchDialog.dismiss();
 		if (position >= 0)
 		{
-			scrollToPosition(position, 0);
+			scrollToPosition(position, (int) (40 * Utils.densityMultiplier));
 		}
 		else
 		{
