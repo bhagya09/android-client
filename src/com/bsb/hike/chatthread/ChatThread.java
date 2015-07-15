@@ -226,6 +226,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int SEARCH_LOOP = 27;
 
     protected static final int SET_WINDOW_BG = 28;
+    
+    protected static final int SEARCH_RESULT = 29;
  
     protected static final int BLOCK_UNBLOCK_USER = 30;
 
@@ -464,6 +466,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case UPDATE_MESSAGE_LIST:
 			Pair<MovingList<ConvMessage>, Integer> pair = (Pair<MovingList<ConvMessage>, Integer>)(msg.obj);
 			updateMessageList(pair.first,pair.second);
+			break;
+		case SEARCH_RESULT:
+			updateUIforSearchResult((int) msg.obj);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -2465,7 +2470,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Logger.d("gaurav","new size:" + newList.size());
 		Logger.d("gaurav","old size:" + messages.size());
 		Logger.d("gaurav","oldIndex : "  + oldIndex);
-		int newListSize = newList.size();
+		int firstMessageFromBottom = messages.size() - mConversationsView.getFirstVisiblePosition();
 		int scrollOffset = 0;
 		if (mConversationsView.getChildAt(0) != null)
 		{
@@ -2491,7 +2496,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mAdapter.updateMessageList(messages);
 		Logger.d("gaurav","final size:" + messages.size());
 		Logger.d("gaurav","setting selection back");
-		mConversationsView.setSelectionFromTop(newListSize, scrollOffset);
+		mConversationsView.setSelectionFromTop(newList.size() - firstMessageFromBottom, scrollOffset);
+		Logger.d("gaurav","update message list complete");
 	}
 
 	private void addMoreMessages(List<ConvMessage> list)
@@ -2559,7 +2565,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			int id = loader.loaderId;
 			if (id == SEARCH_LOOP || id == SEARCH_NEXT || id == SEARCH_PREVIOUS)
 			{
-				updateUIforSearchResult((int) arg1);
+				sendUIMessage(SEARCH_RESULT, 320, (int) arg1);
 				recordSearchInputWithResult(id, searchText, (int) arg1);
 			}
 		}
@@ -2731,8 +2737,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (chatThread.get() != null)
 			{
 				chatThread.get().loadingMoreMessages = true;
+				int msgSize = chatThread.get().messages.size();
 				int firstVisisbleItem = chatThread.get().mConversationsView.getFirstVisiblePosition();
 				Logger.d("gaurav","firstVisisbleItem : "  + firstVisisbleItem);
+				if (firstVisisbleItem < msgSize-1)
+					firstVisisbleItem++;
 				ArrayList<ConvMessage> msgList;
 				if (loaderId == SEARCH_PREVIOUS || loaderId == SEARCH_LOOP)
 				{
@@ -2752,6 +2761,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						ids.addAll(0, MovingList.getIds(msgList));
 						if (position >= 0)
 						{
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
 							int start = Math.max(position - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, 0);
 							int end = Math.min(position + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, msgList.size()-1);
 							ArrayList<ConvMessage> toBeAddedList = new ArrayList<ConvMessage>(ids.size());
@@ -2782,16 +2792,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 				if (loaderId == SEARCH_NEXT)
 				{
-					long minId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
-					if (firstVisisbleItem + loadMessageCount >= chatThread.get().messages.size())
-						loadMessageCount = chatThread.get().messages.size() - firstVisisbleItem - 1;
-					long maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem + loadMessageCount);
 					int count = firstVisisbleItem;
-					int msgSize = chatThread.get().messages.size();
+					long minId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
+					int maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
+					long maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
 					while (position < 0)
 					{
 						Logger.d("gaurav", "loadmoremessages for search: " + loadMessageCount + " " + maxId + " " + minId);
-						msgList = new ArrayList<>(chatThread.get().loadMoreMessages(loadMessageCount, maxId, minId));
+						msgList = new ArrayList<>(chatThread.get().loadMoreMessages(loadMessageCount, maxId + 1, minId));
 						if (msgList == null || msgList.isEmpty() || !messageSearchManager.isActive())
 						{
 							break;
@@ -2799,7 +2807,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						position = messageSearchManager.searchFirstItem(msgList, 0, msgList.size(), chatThread.get().searchText);
 						if (position >= 0)
 						{
-							count += position;
+							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getMsgID());
+							count += (position + 1);
 							position = count;
 						}
 						else
@@ -2811,9 +2820,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 								loadMessageCount *= 2;
 							}
 							minId = msgList.get(msgList.size() - 1).getMsgID();
-							if (firstVisisbleItem + loadMessageCount >= msgSize)
-								loadMessageCount = msgSize - firstVisisbleItem - 1;
-							maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem + loadMessageCount);
+							maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
+							maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
 						}
 					}
 				}
