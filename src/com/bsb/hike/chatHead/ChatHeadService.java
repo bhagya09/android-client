@@ -259,7 +259,7 @@ public class ChatHeadService extends Service
 					startActivity(intent);
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
-					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp);
+					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp, true);
 					if (intent != null && ChatHeadUtils.getForegroundedPackages().contains(foregroundApp))
 					{
 						startActivity(intent);
@@ -562,7 +562,6 @@ public class ChatHeadService extends Service
 		
 		RECT_CONST_DP = (int)(RECT_CONST * Utils.densityMultiplier);
 		
-		Logger.d("ashish",RECT_CONST_DP+":recconst");
 	}
 
 	@Override

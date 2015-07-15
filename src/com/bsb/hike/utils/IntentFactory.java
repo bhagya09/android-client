@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.bool;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -149,7 +150,7 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName)
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName, boolean isFromChatHead)
 	{
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType(mimeType);
@@ -157,7 +158,14 @@ public class IntentFactory
 		{
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		if (isFromChatHead)
+		{
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		else
+		{
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		}
 		if (pkgName != null)
 		{
 			intent.setPackage(pkgName);
