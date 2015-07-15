@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +27,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
 import android.webkit.GeolocationPermissions;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -60,7 +60,9 @@ import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.IBridgeCallback;
+import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
@@ -120,7 +122,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED};
 
 	private boolean allowLoc;
-	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -848,6 +849,22 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 	
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if(data == null)
+		{
+			return;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == RESULT_OK)
+		{
+			if(requestCode == HikeConstants.PLATFORM_REQUEST)
+			{
+				mmBridge.onActivityResult(resultCode, data);
+			}
+		}
+	}
+	
 	public void openFullPage(String url)
 	{
 		startWebViewWithBridge(url, "");
@@ -1002,5 +1019,5 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return true;
 		}
 	}
-	
+
 }
