@@ -59,7 +59,8 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			{
 				Log.d(TAG, "OfflineBroadCast ssid: " + ssid +".......Detailed state is "+  (netInfo.getDetailedState()==(NetworkInfo.DetailedState.CONNECTED)) +"....idOfflineSSID     "+OfflineUtils.isOfflineSsid(ssid)+"     netIfo state is  "+netInfo.isConnected());
 				
-			
+				
+				// HTC desire X gives ssid without quotes but all other devices give ssid with quotes
 				if (ssid.length() > 2&&ssid.startsWith("\"")&&ssid.endsWith("\""))
 					ssid = ssid.substring(1, ssid.length() - 1);
 			

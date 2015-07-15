@@ -219,7 +219,7 @@ public class UploadFileTask extends FileTransferBase
 		JSONArray filesArray = new JSONArray();
 
 		HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);
-		hikeFile.setFileKey("OfflineMessageFileKey"+System.currentTimeMillis());
+		//hikeFile.setFileKey("OfflineMessageFileKey"+System.currentTimeMillis());
 		hikeFile.setFileSize((int)sourceFile.length());
 		hikeFile.setHikeFileType(hikeFileType);
 		hikeFile.setRecordingDuration(recordingDuration);

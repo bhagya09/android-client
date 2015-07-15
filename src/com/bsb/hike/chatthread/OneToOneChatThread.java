@@ -2862,7 +2862,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		toggleChannel();
+		
 		switch (errorCode)
 		{
 		case OUT_OF_RANGE:
@@ -2878,6 +2878,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		}
 		//TODO Setup online UI 
+		toggleChannel();
 		clearAttachmentPicker();
 	}
 }

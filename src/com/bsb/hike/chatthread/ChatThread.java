@@ -5265,14 +5265,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		if(onlineChannel!=null)
-		{
-			channelSelector = onlineChannel;
-		}
-		else
-		{
-			channelSelector = new OnlineChannel();
-		}
+		
 	}
 	
 	public void toggleChannel()
@@ -5288,6 +5281,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if(onlineChannel==null)
 				onlineChannel = new OnlineChannel();
 			channelSelector = onlineChannel;
+			releaseOfflineListeners();
+			offlineController = null;
 			//Move offline messages to online persistance
 		    OfflineController.getInstance().postSendPendingMessagesToMQTT(msisdn);
 		}

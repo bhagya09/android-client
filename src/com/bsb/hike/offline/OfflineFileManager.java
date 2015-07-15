@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.http.util.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -21,7 +21,6 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 
@@ -101,7 +100,7 @@ public class OfflineFileManager
 						(int) file.length(),
 						currentSendingFiles.get(msgId).getTransferProgress()
 								.getCurrentChunks() * 1024);
-			} else if (TextUtils.isEmpty(hikeFile.getFileKey()) ) {
+			} else if (TextUtils.isEmpty(hikeFile.getFileKey())) {
 				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0);
 			} else {
 				fss = new FileSavedState(FTState.COMPLETED,

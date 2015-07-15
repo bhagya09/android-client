@@ -880,7 +880,7 @@ public class ConvMessage implements Searchable
 					break;
 
 				}
-				object.put(OfflineConstants.IS_OFFLINE_MESSAGE, IsOfflineMessage());
+				//object.put(OfflineConstants.IS_OFFLINE_MESSAGE, IsOfflineMessage());
 				object.put(HikeConstants.TYPE, mInvite ? HikeConstants.MqttMessageTypes.INVITE : HikeConstants.MqttMessageTypes.MESSAGE);
 			}
 		}
@@ -1325,10 +1325,6 @@ public class ConvMessage implements Searchable
 		}
 	}
 	
-	public boolean IsOfflineMessage()
-	{
-		return isOfflineMessage;
-	}
 	
 	public void setIsOfflineMessage(boolean  isOfflineMessage) {
 		this.isOfflineMessage = isOfflineMessage;

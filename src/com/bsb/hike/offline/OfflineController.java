@@ -406,6 +406,7 @@ public class OfflineController
 
 	public void handleRetryButton(ConvMessage convMessage) 
 	{
+		
 		if (OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED) 
 		{
 			HikeMessengerApp.getInstance().showToast("You are not connected..!! Kindly connect.");
@@ -502,8 +503,17 @@ public class OfflineController
 		{
 			for(SenderConsignment senderConsignment: unDeliveredMessages)
 			{
-				ConvMessage convMessage = hikeConverter.getConvMessageFromSenderConsignment(senderConsignment);
-				HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(),MqttConstants.MQTT_QOS_ONE);
+				JSONObject msgJSON;
+				try 
+				{
+					msgJSON = hikeConverter.getConvmessageJsonFromSenderConsignment(senderConsignment);
+					HikeMqttManagerNew.getInstance().sendMessage(msgJSON,MqttConstants.MQTT_QOS_ONE);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(TAG, "Error in Json");
+				}
+			
 			}
 			offlineManager.removeMessageFromOfflinePersistance(msisdn);
 		}
