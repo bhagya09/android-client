@@ -39,6 +39,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.StatusMessage;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.ui.HomeActivity;
@@ -1613,7 +1614,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				{
 					continue;
 				}
-
+				
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}

@@ -14,6 +14,8 @@ public class HttpAnalyticsConstants
 	
 	public static final String HTTP_EXCEPTION_ANALYTICS = "ex";
 	
+	public static final String HTTP_PRODUCT_AREA = "http";
+
 	public static final int REQUEST_LOG_EVENT = 1;
 
 	public static final int RESPONSE_LOG_EVENT = 4;

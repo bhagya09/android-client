@@ -1153,10 +1153,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE) {
                     getIntent().removeExtra(EXTRA_PATTERN);
                     mTextInfo
-                            .setText(StealthModeManager.getInstance().isPinAsPassword() ? R.string.stealth_msg_enter_an_unlock_pin : R.string.stealth_msg_draw_an_unlock_pattern);
+                            .setText(mLockPinView.getVisibility() == View.VISIBLE ? R.string.stealth_msg_enter_an_unlock_pin : R.string.stealth_msg_draw_an_unlock_pattern);
                 } else
                     mTextInfo
-                            .setText(StealthModeManager.getInstance().isPinAsPassword() ? R.string.stealth_msg_reenter_pin_to_confirm: R.string.stealth_msg_redraw_pattern_to_confirm);
+                            .setText(mLockPinView.getVisibility() == View.VISIBLE ? R.string.stealth_msg_reenter_pin_to_confirm: R.string.stealth_msg_redraw_pattern_to_confirm);
             }// ACTION_CREATE_PATTERN
             else if (ACTION_COMPARE_PATTERN.equals(getIntent().getAction())) {
                 mLockPatternView.setDisplayMode(DisplayMode.Correct);
@@ -1191,11 +1191,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 
         @Override
         public void onClick(View v) {
-        	if(StealthModeManager.getInstance().isPinAsPassword())
-        	{
-        		mLockPinView.setText("");
-        		mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
-        	}
         	mLockPatternViewReloader.run();
         }// onClick()
     };
@@ -1240,7 +1235,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
                     mLockPinView.setText("");
-                    if(StealthModeManager.getInstance().isPinAsPassword())
+                    if(mLockPinView.getVisibility() == View.VISIBLE)
                     {
                     	mTextInfo.setText(R.string.stealth_msg_reenter_pin_to_confirm);   	
                     } else {
@@ -1287,6 +1282,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         @Override
         public void run() {
             mLockPatternView.clearPattern();
+            mLockPinView.setText("");
             mLockPatternViewListener.onPatternCleared();
         }// run()
     };// mLockPatternViewReloader
