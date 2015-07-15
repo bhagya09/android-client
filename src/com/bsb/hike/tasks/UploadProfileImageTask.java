@@ -8,6 +8,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.Logger;
 
 /**
  * This class Uploads image with 
@@ -22,6 +23,8 @@ public class UploadProfileImageTask
 	private String filePath;
 
 	private WeakReference<UploadProfileImageTaskCallbacks> uploadProfileImageTaskCallbacks;
+	
+	private final String TAG = "dp_upload_task";
 
 	public UploadProfileImageTask(String filePath, String fileName)
 	{
@@ -57,6 +60,7 @@ public class UploadProfileImageTask
 
 			if (uploadProfileImageTaskCallbacks != null)
 			{
+				Logger.d(TAG, "calling onRequestSuccess of listener from UploadImageProfileTask");
 				uploadProfileImageTaskCallbacks.get().onRequestSuccess(result);
 			}
 

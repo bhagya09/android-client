@@ -95,7 +95,7 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-		Logger.d(TAG, "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
+		Logger.d(TAG, "inside API onRequestSuccess inside HEADLESS IMAGE UPLOAD FRAGMENT");
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		String originqlFilePath = directory + File.separator +  Utils.getProfileImageFileName(msisdn);
 		
@@ -108,6 +108,7 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 		
 		if(taskCallbacks != null)
 		{
+			Logger.d(TAG, "calling onSuccess of listener");
 			taskCallbacks.onSuccess(result);
 		}
 	}
