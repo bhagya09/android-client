@@ -1115,13 +1115,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		addContacts(l, false);
 	}
 
-	List<Pair<AtomicBoolean, ContactInfo>> getNonHikeContacts()
+	List<Pair<AtomicBoolean, ContactInfo>> getNonHikeContacts(Set<String> blockMsisdns)
 	{
 		List<Pair<AtomicBoolean, ContactInfo>> contactInfos = new ArrayList<Pair<AtomicBoolean, ContactInfo>>();
 
 		Map<String, ContactInfo> contactMap = getContactMap(HikeConstants.NOT_ON_HIKE_VALUE);
-
-		Set<String> blockMsisdns = getBlockedMsisdnSet();
 
 		for (String msisdn : blockMsisdns)
 		{
@@ -1224,7 +1222,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	Map<String, ContactInfo> getNOTFRIENDScontactsFromDB(int onHike, String myMsisdn, boolean nativeSMSOn, boolean ignoreUnknownContacts)
+	Map<String, ContactInfo> getNOTFRIENDScontactsFromDB(Set<String> blockSet,int onHike, String myMsisdn, boolean nativeSMSOn, boolean ignoreUnknownContacts)
 	{
 		Map<String, FavoriteType> favoriteMap = getFavoriteMap();
 
@@ -1248,9 +1246,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		// remove self msisdn from favoriteMap
 		contactInfomap.remove(myMsisdn);
 
-		// get block msisdns
-		Set<String> blockSet = getBlockedMsisdnSet();
-
 		// remove block msisdns from favoriteMap
 		for (String msisdn : blockSet)
 		{
@@ -1260,16 +1255,14 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		return contactInfomap;
 	}
 
-	Map<String, ContactInfo> getContactsOfFavoriteTypeDB(FavoriteType[] favoriteType, int onHike, String myMsisdn, boolean nativeSMSOn, boolean ignoreUnknownContacts)
+	Map<String, ContactInfo> getContactsOfFavoriteTypeDB(FavoriteType[] favoriteType, Set<String> blockSet, int onHike, String myMsisdn, boolean nativeSMSOn,
+			boolean ignoreUnknownContacts)
 	{
 		Map<String, FavoriteType> favoriteMap = getFavoriteMap(favoriteType);
 		if (null == favoriteMap)
 		{
 			return null;
 		}
-
-		// get block msisdns
-		Set<String> blockSet = getBlockedMsisdnSet();
 
 		// remove block msisdns from favoriteMap
 		for (String msisdn : blockSet)
@@ -2246,7 +2239,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 					{
 						String msisdn = recommendedContactsArray.getString(i);
 
-						if (isBlocked(msisdn))
+						if (ContactManager.getInstance().isBlocked(msisdn))
 						{
 							continue;
 						}
