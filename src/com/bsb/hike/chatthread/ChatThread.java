@@ -2471,6 +2471,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			scrollOffset = mConversationsView.getChildAt(0).getTop();
 		}
+		if (messages.size() - HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY < oldIndex)
+		{
+			int from = oldIndex - 1;
+			int to = messages.size() - HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY;
+			int position = newList.size()-1;
+			while (from >= to)
+			{
+				newList.set(position, messages.getRaw(from), messages.getUniqueId(from));
+				position--;
+				from--;
+			}
+		}
 		for(int i = oldIndex; i<messages.size(); i++)
 		{
 			newList.add(newList.size(), messages.getRaw(i), messages.getUniqueId(i));

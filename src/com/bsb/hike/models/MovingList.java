@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
-
 public class MovingList<T extends Unique> implements Collection<T>
 {
 
@@ -237,10 +235,15 @@ public class MovingList<T extends Unique> implements Collection<T>
 	 */
 	public T set(int index, T object)
 	{
+		return set(index, object, object.getUniqueId());
+	}
+	
+	public T set(int index, T object, Long uniqueId)
+	{
 		@SuppressWarnings("unchecked")
 		T result = (T) items.get(index);
 		items.set(index, object);
-		uniqueIds.set(index, object.getUniqueId());
+		uniqueIds.set(index, uniqueId);
 		return result;
 	}
 
