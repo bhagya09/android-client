@@ -2,12 +2,10 @@ package com.bsb.hike.offline;
 
 import java.io.File;
 
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
@@ -17,9 +15,6 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
-import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.HikeFile;
-
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;

@@ -19,7 +19,6 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.models.ConvMessage;
@@ -515,6 +514,12 @@ public class OfflineController
 		msg.what = OfflineConstants.HandlerConstants.MOVE_MESSAGES_TO_MQTT;
 		msg.obj = msisdn;
 		mHandler.sendMessage(msg);
+	}
+
+	public void deleteMessages(ArrayList<Long> msgIds)
+	{
+		offlineManager.deleteMsgs(msgIds);
+		
 	}	
 
 }

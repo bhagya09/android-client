@@ -655,13 +655,13 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	@Override
 	public void imageParsed(String imagePath)
 	{
-		controller.sendImage(imagePath, msisdn);
+		//controller.sendImage(imagePath, msisdn);
 	}
 
 	@Override
 	public void imageParsed(Uri uri)
 	{
-		controller.sendImage(Utils.getRealPathFromUri(uri, activity.getApplicationContext()), msisdn);
+		//controller.sendImage(Utils.getRealPathFromUri(uri, activity.getApplicationContext()), msisdn);
 	}
 
 	protected void showToast(String message)
