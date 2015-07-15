@@ -2361,7 +2361,7 @@ public class Utils
 				HikeConstants.GOOGLE_PLUS_PREFIX)|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
 	}
 
-	public static Uri makePicasaUri(Uri uri)
+	public static Uri makePicasaUriIfRequired(Uri uri)
 	{
 		if (uri.toString().startsWith("content://com.android.gallery3d.provider"))
 		{
@@ -6036,7 +6036,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+			return prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
 		}
 		
 		return false;
