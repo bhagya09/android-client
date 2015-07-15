@@ -325,11 +325,6 @@ public class IntentFactory
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
-		/*
-		 * New task flag is needed as we are opening our activity in another task outside hike existing task and clear task to remove existing activities of hike task so that user
-		 * can return from where he came to this task
-		 */
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
 				HttpRequestConstants.getMorestickersUrl() + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
 		intent.putExtra(HikeConstants.Extras.TITLE, context.getString(R.string.more_stickers));
@@ -339,9 +334,7 @@ public class IntentFactory
 
 	public static Intent getStickerShareSettingsIntent(Context context)
 	{
-		Intent intent = new Intent(context, StickerShareSettings.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		return intent;
+		return new Intent(context, StickerShareSettings.class);
 	}
 	
 
@@ -790,20 +783,7 @@ public class IntentFactory
 
 	public static Intent getStickerShopIntent(Context context)
 	{
-		Intent intent = new Intent(context, StickerShopActivity.class);
-		
-		return intent;
-	}
-	public static Intent getStickerShopIntent(Context context, boolean flags)
-	{
-		Intent intent = new Intent(context, StickerShopActivity.class);
-		
-		if(flags)
-		{  /*New task flag is needed as we are opening our activity in another task outside hike existing task and clear task 
-		 to remove existing activities of hike task so that user can return from where he came to this task*/  
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		}
-		return intent;
+		return new Intent(context, StickerShopActivity.class);
 	}
 
 	public static Intent getStickerSettingIntent(Activity context)
