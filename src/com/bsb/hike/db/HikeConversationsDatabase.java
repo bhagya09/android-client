@@ -2295,7 +2295,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					conv.updateLastConvMessage(initialConvMessage);
 				}
 
-				Logger.d("OfflineManager",(conv.getConvInfo() instanceof OfflineConvInfo) +"");
 				HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, conv.getConvInfo());
 				return conv;
 

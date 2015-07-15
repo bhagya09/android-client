@@ -549,14 +549,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 		TextView contactView = viewHolder.headerText;
 		String name="";
-		if(convInfo instanceof OfflineConvInfo)
-		{
-			name = ((OfflineConvInfo) convInfo).getLabel();
-		}
-		else
-		{
-			name = convInfo.getLabel();
-		}Logger.d("OfflineManager",name+"");
+		name = convInfo.getLabel();
 		Integer startSpanIndex = convSpanStartIndexes.get(convInfo.getMsisdn());
 		if(isSearchModeOn && startSpanIndex!=null)
 		{
@@ -790,7 +783,7 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			// Using this to differentiate the normal chat and Offline Chat
 			//TODO:set Offline asset here
-			if(convInfo instanceof OfflineConvInfo)
+			if(convInfo.getLastConversationMsg().isOfflineMessage())
 			{
 				imgStatus.setVisibility(View.VISIBLE);
 				imgStatus.setImageResource(R.drawable.freehike_logo);
@@ -819,7 +812,7 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
 		}
-		if(convInfo instanceof OfflineConvInfo)
+		if(convInfo.getLastConversationMsg().isOfflineMessage())
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.welcome_blue));
 		}
