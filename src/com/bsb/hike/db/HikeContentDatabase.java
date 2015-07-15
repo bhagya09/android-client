@@ -63,7 +63,12 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		String[] updateQueries = getUpdateQueries(oldVersion, newVersion);
 
 		ArrayList<JSONObject> contentCacheTable = null;
-		if (oldVersion < 5)
+
+		//migration is needed only for db version 4 as the table was added in db version 4. We are creating a new table with uniqueness based on
+		//key and namespace for which we needed to drop the earlier table and create a new one with new uniqueness. If any version other than 4 say
+		//version 3 wants to get this data for migration, the app will crash as it does not havs the table yet. After getting the table data, the
+		//content cache table is dropped, new table is created and data is migrated.
+		if (oldVersion == 4)
 		{
 			contentCacheTable = getContentCacheTableForMigration();
 		}
@@ -72,7 +77,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			db.execSQL(update);
 		}
 
-		if (oldVersion < 5)
+		if (oldVersion == 4)
 		{
 			migrateToNewContentCacheTable(contentCacheTable);
 		}
@@ -597,5 +602,16 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		}
 
 		return null;
+	}
+
+	public void deletePartialMicroAppCacheData(String key, String nameSpace)
+	{
+		String where = HIKE_CONTENT.NAMESPACE + "=? and " + HIKE_CONTENT.KEY + "=?";
+		mDB.delete(HIKE_CONTENT.CONTENT_CACHE_TABLE, where , new String[]{nameSpace, key} );
+	}
+
+	public void deleteAllMicroAppCacheData(String nameSpace)
+	{
+		mDB.delete(HIKE_CONTENT.CONTENT_CACHE_TABLE, HIKE_CONTENT.NAMESPACE + "=?" , new String[]{nameSpace} );
 	}
 }

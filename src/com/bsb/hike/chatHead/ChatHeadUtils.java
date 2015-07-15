@@ -29,23 +29,22 @@ import com.bsb.hike.utils.Utils;
 public class ChatHeadUtils
 {
     private static final String SERVICE_LAST_USED = "lastUsed";
+    
+    private static final String TAG = "ChatHeadUtils";
 
 	private static Set<String> foregroundedPackages;
 
-	public static boolean isSharingPackageInstalled(Context context)
+	public static boolean areWhitelistedPackagesSharable(Context context)
 	{
 		try
 		{
-			JSONArray packageJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
-
-			for (int i = 0; i < packageJSONArray.length(); i++)
+			JSONArray whitelistedPackages = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
+			List<String> packgesWithImageShareAbility = Utils.getPackagesMatchingIntent(Intent.ACTION_SEND, null, "image/jpeg");
+			for (int i = 0; i < whitelistedPackages.length(); i++)
 			{
-				JSONObject obj = packageJSONArray.getJSONObject(i);
+				if(packgesWithImageShareAbility.contains(whitelistedPackages.getJSONObject(i).optString(HikeConstants.ChatHead.PACKAGE_NAME)))
 				{
-					if (Utils.isPackageInstalled(context, obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, "")))
-					{
-						return true;
-					}
+					return true;
 				}
 			}
 		}
@@ -106,9 +105,22 @@ public class ChatHeadUtils
 		}
 		else
 		{
-			List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(1);
-			foregroundedPackages.add(runningTasks.get(0).topActivity.getPackageName());
-			
+			try
+			{
+				List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(1);
+				if(runningTasks != null && !runningTasks.isEmpty())
+				{
+					foregroundedPackages.add(runningTasks.get(0).topActivity.getPackageName());
+				}
+			}
+			catch (SecurityException se)
+			{
+				Logger.d(TAG, "SecurityException in fetching Tasks");
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG,"Exception in fetching tasks");
+			}
 		}
 
 		return foregroundedPackages;

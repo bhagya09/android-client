@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -961,7 +960,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			return;
 		}
 		
-		if (existingGroupOrBroadcastId != null && adapter.getOnHikeContactsCount() == 0)
+		if (adapter.getOnHikeContactsCount() == 0)
 		{
 			return;
 		}
@@ -1357,7 +1356,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(id);
 						if (botInfo.isNonMessagingBot())
 						{
-							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);
+							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), this);
 						}
 						else
 						{
@@ -1369,12 +1368,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
 					}
 
-				}else{
+				}
+				else
+				{
 					//home activity
 					intent = Utils.getHomeActivityIntent(this);
 				}
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				forwardMessageAsPerType(presentIntent, intent,arrayList);
+				if (intent != null)
+				{
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					forwardMessageAsPerType(presentIntent, intent, arrayList);
+				}
 			}
 		}
 	}
@@ -1400,30 +1404,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					for (Uri fileUri : imageUris)
 					{
 						Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
-						String fileUriStart = "file:";
-						String fileUriString = fileUri.toString();
 
-						String filePath;
-						if (Utils.isPicasaUri(fileUriString))
-						{
-							filePath = fileUriString;
-						}else if (fileUriString.startsWith(fileUriStart))
-						{
-							File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-							/*
-							 * Done to fix the issue in a few Sony devices.
-							 */
-							filePath = selectedFile.getAbsolutePath();
-						}
-						else
-						{
-							filePath = Utils.getRealPathFromUri(fileUri, this);
-						}
+						String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
 
 						// Defensive fix for play store crash. java.lang.NullPointerException in java.io.File.fixSlashes.
 						if(filePath == null)
 						{
 							Logger.e(getClass().getSimpleName(), "filePath was null. Defensive check for play store crash was hit");
+							FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_7_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - 1forwardMessageAsPerType - file path is null.");
 							continue;
 						}
 						
@@ -1448,6 +1436,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 					if (showMaxFileToast)
 					{
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - 1forwardMessageAsPerType - Max limit is reached.");
 						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
 					}
 
@@ -1687,6 +1676,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				} else {
 					if (TextUtils.isEmpty(contactId))
 					{
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - contact id is null.");
 						Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
 						return;
 					}
@@ -1727,29 +1717,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
 				ArrayList<FileTransferData> fileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
-				fileUri = Utils.makePicasaUri(fileUri);
-				String fileUriStart = "file:";
-				String fileUriString = fileUri.toString();
-				String filePath;
-				if (Utils.isPicasaUri(fileUriString))
-				{
-					filePath = fileUriString;
-				}
-				else if (fileUriString.startsWith(fileUriStart))
-				{
-					File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-					/*
-					 * Done to fix the issue in a few Sony devices.
-					 */
-					filePath = selectedFile.getAbsolutePath();
-				}
-				else
-				{
-					filePath = Utils.getRealPathFromUri(fileUri, this);
-				}
-	
+				fileUri = Utils.makePicasaUriIfRequired(fileUri);
+				
+				String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
+				
 				if (TextUtils.isEmpty(filePath))
 				{
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - file path is null.");
 					Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
 					return;
 				}
@@ -1757,6 +1731,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				File file = new File(filePath);
 				if (file.length() > HikeConstants.MAX_FILE_SIZE)
 				{
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - Max size reached.");
 					Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
 					return;
 				}
@@ -1851,7 +1826,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			platformAnalyticsJson.put(AnalyticsConstants.TO, contactList);
 			platformAnalyticsJson.put(HikeConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
-			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, platformAnalyticsJson);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, platformAnalyticsJson);
 		}
 		catch (JSONException e)
 		{
@@ -2139,6 +2114,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if (filePath == null)
 		{
 			Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - InitialiseFileTransfer - File path is null.");
 			return null;
 		}
 		File file = new File(filePath);
@@ -2146,6 +2122,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - InitialiseFileTransfer - Max size reached.");
 			Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
 			return null;
 		}

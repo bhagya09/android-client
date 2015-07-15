@@ -1558,6 +1558,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void imageParseFailed()
 	{
+		FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Image Parsing failed. 'Error capturing image'");
 		showToast(R.string.error_capture);
 		ChatThreadUtils.clearTempData(activity.getApplicationContext());
 	}
@@ -1583,9 +1584,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (requestCode)
 		{
 		case AttachmentPicker.AUDIO:
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_4_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Audio could not be recorded.");
 			showToast(R.string.error_recording);
 			break;
 		case AttachmentPicker.VIDEO:
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_6, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Error capturing the video");
 			showToast(R.string.error_capture_video);
 			break;
 		}
@@ -1597,6 +1600,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (data == null)
 		{
 			showToast(R.string.error_pick_location);
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_5, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Error while picking location");
 		}
 		else
 		{
@@ -1855,7 +1859,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty();
+		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked();
 	}
 
 	/**
@@ -2041,6 +2045,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (TextUtils.isEmpty(contactId))
 			{
 				Toast.makeText(activity.getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_6, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "TakeActionBasedOnIntent - Contact Id is empty");
 			}
 			else
 			{
@@ -2190,7 +2195,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 							json.put(HikePlatformConstants.CARD_TYPE, convMessage.webMetadata.getAppName());
 							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
 							json.put(AnalyticsConstants.TO, msisdn);
-							HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 						}
 						catch (JSONException e)
 						{
@@ -3900,7 +3905,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_DELETE);
 				json.put(AnalyticsConstants.ORIGIN, origin);
 				json.put(AnalyticsConstants.CHAT_MSISDN, msisdn);
-				HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 			}
 			catch (JSONException e)
 			{

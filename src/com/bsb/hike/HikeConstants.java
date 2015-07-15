@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Environment;
 
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 public class HikeConstants
 {
@@ -2302,6 +2303,10 @@ public class HikeConstants
 		public static final String NUX = "nux";
 
 		public static final String CREATE_MULTIPLE_BOTS = "cbot";
+		
+		public static final String REMOVE_MICRO_APP = "dmapp";
+		
+		public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
@@ -2867,7 +2872,9 @@ public class HikeConstants
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
 
-	public static final String GROUP_NOTIFIACTION_DELAY = "gnt";
+	public static final String NOTIFIACTION_DELAY_GROUP = "gnt";
+
+	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
 
 	public static final String GET="get";
 
@@ -2894,6 +2901,17 @@ public class HikeConstants
 	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
 	
 	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
-	
+
+	public static final String OTHER_EXCEPTION_LOGGING = "otherExLoging";
+	public static final String HTTP_EXCEPTION_LOGGING = "httpExc";
+
+	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
+
+	public static final String MESSAGING = "messaging";
+
+	public static final String DUPLICATE = "duplicate";
+
+	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
+
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 }
