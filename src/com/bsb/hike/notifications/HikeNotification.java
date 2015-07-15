@@ -1198,10 +1198,14 @@ public class HikeNotification
 		String vibrate = preferenceManager.getString(HikeConstants.VIBRATE_PREF_LIST, VIB_DEF);
 		final Bitmap avatarBitmap = HikeBitmapFactory.getCircularBitmap(HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(avatarDrawable, Bitmap.Config.RGB_565)), context));
 		
-		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setContentTitle(contentTitle).setSmallIcon(smallIconId).setLargeIcon(avatarBitmap)
-				.setContentText(contentText).setAutoCancel(true).setTicker(tickerText).setPriority(NotificationCompat.PRIORITY_DEFAULT)
-				.setCategory(NotificationCompat.CATEGORY_MESSAGE).setColor(context.getResources().getColor(R.color.blue_hike));
+		// check the current notification priority whether to show Heads up notifications or normal notifications
+		boolean isHeadsUpEnabled = HikeSharedPreferenceUtil.getInstance().getPref().getBoolean(HikeConstants.ENABLE_HEADS_UP, false);		
+		int notifPriority = isHeadsUpEnabled ? NotificationCompat.PRIORITY_HIGH : NotificationCompat.PRIORITY_DEFAULT; 
 		
+		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setContentTitle(contentTitle).setSmallIcon(smallIconId).setLargeIcon(avatarBitmap)
+				.setContentText(contentText).setAutoCancel(true).setTicker(tickerText).setPriority(notifPriority)
+				.setCategory(NotificationCompat.CATEGORY_MESSAGE).setColor(context.getResources().getColor(R.color.blue_hike));
+					
 		// Reset ticker text since we dont want to tick older messages
 		hikeNotifMsgStack.setTickerText(null);
 		
