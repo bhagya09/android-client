@@ -378,7 +378,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			{
 			case BLOCK:
 				getBlockedContactsList(contactList, firstSectionList);
-				alreadyBlockedContacts = new HashSet<String>(selectedContacts.size());
+				alreadyBlockedContacts = new HashSet<String>(selectedContacts);
 				selectAllContainer.setVisibility(View.GONE);
 				break;
 			case INVITE:
