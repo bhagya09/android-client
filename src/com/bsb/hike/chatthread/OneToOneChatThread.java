@@ -687,7 +687,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void onShowSMSSyncDialog()
 	{
-		smsDialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.SMS_SYNC_DIALOG, true);
+		if((activity != null) && !activity.isFinishing())
+		{
+			smsDialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.SMS_SYNC_DIALOG, true);
+		}
 	}
 
 	/**
