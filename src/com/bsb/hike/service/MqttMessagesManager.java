@@ -2162,10 +2162,10 @@ public class MqttMessagesManager
 			boolean msgingLogging = data.getBoolean(HikeConstants.MESSAGING_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, msgingLogging);
 		}
-		if(data.has(HikeConstants.ENABLE_HEADS_UP))
+		if(data.has(HikeConstants.NOTIFICATIONS_PRIORITY))
 		{
-			boolean enabled = data.getBoolean(HikeConstants.ENABLE_HEADS_UP);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_HEADS_UP, enabled);			
+			int priority = data.getInt(HikeConstants.NOTIFICATIONS_PRIORITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);			
 		}
 		
 		editor.commit();

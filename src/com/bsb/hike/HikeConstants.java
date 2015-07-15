@@ -2911,5 +2911,5 @@ public class HikeConstants
 
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 	
-	public static final String ENABLE_HEADS_UP = "headsup";
+	public static final String NOTIFICATIONS_PRIORITY = "npc";
 }

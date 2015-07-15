@@ -1198,9 +1198,13 @@ public class HikeNotification
 		String vibrate = preferenceManager.getString(HikeConstants.VIBRATE_PREF_LIST, VIB_DEF);
 		final Bitmap avatarBitmap = HikeBitmapFactory.getCircularBitmap(HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(avatarDrawable, Bitmap.Config.RGB_565)), context));
 		
-		// check the current notification priority whether to show Heads up notifications or normal notifications
-		boolean isHeadsUpEnabled = HikeSharedPreferenceUtil.getInstance().getPref().getBoolean(HikeConstants.ENABLE_HEADS_UP, false);		
-		int notifPriority = isHeadsUpEnabled ? NotificationCompat.PRIORITY_HIGH : NotificationCompat.PRIORITY_DEFAULT; 
+		// Check the current notification priority
+		// notifPriority(0) = PRIORITY_DEFAULT
+		// notifPriority(-2) = PRIORITY_MIN
+		// notifPriority(2) = PRIORITY_MAX
+		// notifPriority(-1) = PRIORITY_LOW
+		// notifPriority(1) = PRIORITY_HIGH
+		int notifPriority = HikeSharedPreferenceUtil.getInstance().getPref().getInt(HikeConstants.NOTIFICATIONS_PRIORITY, NotificationCompat.PRIORITY_DEFAULT);		
 		
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setContentTitle(contentTitle).setSmallIcon(smallIconId).setLargeIcon(avatarBitmap)
 				.setContentText(contentText).setAutoCancel(true).setTicker(tickerText).setPriority(notifPriority)
