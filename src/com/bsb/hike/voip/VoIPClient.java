@@ -986,7 +986,8 @@ public class VoIPClient  {
 			// If the client is in a conference, then the packet numbers will be
 			// set by service since one packet is broadcast to everyone.
 			// Hence, set a voice packet number only if we're not in a hosted conference
-			if (!isInAHostedConference)
+			// and the other client is v2 or above
+			if (!isInAHostedConference && version >= 2)
 				dp.setVoicePacketNumber(voicePacketCount++);
 		}
 		
