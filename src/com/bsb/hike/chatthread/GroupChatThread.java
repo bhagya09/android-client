@@ -358,7 +358,7 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Proceeding only if the group is alive
 		 */
-		if (oneToNConversation.isConversationAlive() && !oneToNConversation.isBlocked())
+		if (oneToNConversation.isConversationAlive())
 		{
 			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.GROUP_INFO_TOP_BUTTON);
 
@@ -367,11 +367,6 @@ public class GroupChatThread extends OneToNChatThread
 			activity.startActivity(intent);
 		}
 		
-		else if (oneToNConversation.isBlocked())
-		{
-			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
-		}
 		
 		else
 		{
@@ -563,7 +558,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		if (!checkForDeadOrBlocked())
+		if (!checkForDead())
 		{
 			switch (item.getItemId())
 			{
@@ -577,21 +572,13 @@ public class GroupChatThread extends OneToNChatThread
 		return false;
 	}
 	
-	private boolean checkForDeadOrBlocked()
+	private boolean checkForDead()
 	{
 		if (!oneToNConversation.isConversationAlive())
 		{
 			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
 			return true;
 		}
-
-		if (oneToNConversation.isBlocked())
-		{
-			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
-			return true;
-		}
-
 		return false;
 	}
 
@@ -1004,7 +991,7 @@ public class GroupChatThread extends OneToNChatThread
 			{
 			case R.string.group_profile:
 			case R.string.chat_theme:
-				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
+				overFlowMenuItem.enabled = !checkForDead();
 				break;
 			case R.string.mute_group:
 				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
