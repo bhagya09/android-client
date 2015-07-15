@@ -2452,6 +2452,45 @@ public class Utils
 		(new File(path, fileName)).delete();
 	}
 
+	public static boolean renameFiles(String newFilePath, String oldFilePath)
+	{
+		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
+		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
+		{
+			File tempFile = new File(oldFilePath);
+			File newFile = new File(newFilePath);
+			if(tempFile.exists())
+			{
+				return tempFile.renameTo(newFile);
+			}
+			return false;
+		}
+		else
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			return false;
+		}
+	}
+
+	public static boolean removeFile(String tmpFilePath)
+	{
+		if(!TextUtils.isEmpty(tmpFilePath))
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			File file = new File(tmpFilePath);
+			if(file.exists())
+			{
+				return file.delete();
+			}
+			return false;
+		}
+		else
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			return false;
+		}
+	}
+	
 	public static void vibrateNudgeReceived(Context context)
 	{
 		String VIB_OFF = context.getResources().getString(R.string.vib_off);

@@ -17,17 +17,18 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
@@ -43,23 +44,28 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.SettingsActivity;
+import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
+import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, FinishableEvent, DisplayPictureEditListener
+public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, 
+						FinishableEvent, DisplayPictureEditListener, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	private HikeSharedPreferenceUtil prefs;
 
 	private String mLocalMSISDN;
 
 	private Dialog mDialog;
+	
+	private static final String TAG = "dp_upload";
 
 	public class ActivityState
 	{
@@ -86,6 +92,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public String statusId;
 		
 		public StatusMessageType statusMsgType;
+		
+		public HeadlessImageWorkerFragment mImageWorkerFragment;
 	}
 
 	private ActivityState mActivityState;
@@ -111,17 +119,25 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				mActivityState.task.setActivity(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			}
+			
+			FragmentManager fm = getSupportFragmentManager();
+			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+			if(mActivityState.mImageWorkerFragment != null)
+			{
+				mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+			}
 		}
 		else
 		{
 			mActivityState = new ActivityState();
 		}
 	}
-
+	
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
-		Logger.d("ChangeProfileImageBaseActivity", "onRetainNonConfigurationinstance");
+		Logger.d(TAG, "onRetainNonConfigurationinstance");
 		return mActivityState;
 	}
 
@@ -181,7 +197,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			dir.mkdirs();
 		}
 
-		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
+		String fileName = Utils.getUniqueFilename(HikeFileType.IMAGE);
 		String destFilePath = directory + File.separator + fileName;
 		return destFilePath;
 
@@ -589,52 +605,66 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			if (bytes == null)
 				return;
 
-			HikeHttpRequest request = new HikeHttpRequest(httpApi, RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
-			{
-				public void onFailure()
-				{
-					Logger.d("ProfileActivity", "resetting image");
-					failureWhileSettingProfilePic();
-				}
+			FragmentManager fm = getSupportFragmentManager();
+			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
 
-				public void onSuccess(JSONObject response)
-				{
-					mActivityState.destFilePath = null;
-					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
-					Utils.renameTempProfileImage(mLocalMSISDN);
-					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
-
-					if (statusMessage != null)
-					{
-						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, true);
-
-						int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-						Editor editor = prefs.getPref().edit();
-						editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-						editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-						editor.commit();
-
-						/*
-						 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-						 */
-						if (statusMessage.getId() != -1)
-						{
-							HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-						}
-					}
-					
-					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
-
-					profilePictureUploaded();
-				}
-			});
-			request.setFilePath(mActivityState.destFilePath);
-			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
-			Utils.executeHttpTask(mActivityState.task, request);
+		    // If the Fragment is non-null, then it is currently being
+		    // retained across a configuration change.
+		    if (mActivityState.mImageWorkerFragment == null) 
+		    {
+		    	Logger.d(TAG, "starting new mImageLoaderFragment");
+		    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+		    	mActivityState.mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, mLocalMSISDN, true, true);
+		    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+		        fm.beginTransaction().add(mActivityState.mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
+		    }
+		    else
+		    {
+		    	Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+		    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+		    }
 		}
+	}
+	
+	@Override
+	public void onSuccess(Response result)
+	{
+		Logger.d(TAG, "inside onSuccess of request");
+		dismissDialog();
+		
+		mActivityState.task = null;
+		
+		mActivityState.destFilePath = null;
+		
+		JSONObject response = (JSONObject) result.getBody().getContent();
+		StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
+		
+		if (statusMessage != null)
+		{
+			mActivityState.mImageWorkerFragment.doContactManagerIconChange(statusMessage.getMappedId(), scaleDownBitmap(), true);
+			
+			int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+			Editor editor = prefs.getPref().edit();
+			editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+			editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+			editor.commit();
+
+			/*
+			 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
+			 */
+			if (statusMessage.getId() != -1)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+			}
+		}
+		
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
+
+		profilePictureUploaded();
+
+		removeHeadLessImageUploadFragment();
 	}
 
 	/**
@@ -650,8 +680,20 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void failureWhileSettingProfilePic()
 	{
-		Utils.removeTempProfileImage(mLocalMSISDN);
+		dismissDialog();
+		
 		mActivityState.destFilePath = null;
+		
+		mActivityState.task = null;
+	}
+
+	private void dismissDialog()
+	{
+		if (mDialog != null)
+		{
+			mDialog.dismiss();
+			mDialog = null;
+		}
 	}
 
 	/**
@@ -668,11 +710,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	public void onFinish(boolean success)
 	{
-		if (mDialog != null)
-		{
-			mDialog.dismiss();
-			mDialog = null;
-		}
+		dismissDialog();
 		mActivityState.task = null;
 	}
 
@@ -731,11 +769,37 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	protected void onDestroy()
 	{
-		if (mDialog != null)
-		{
-			mDialog.dismiss();
-			mDialog = null;
-		}
+		dismissDialog();
 		super.onDestroy();
 	}
+	
+	@Override
+	public void onProgressUpdate(float percent)
+	{
+		
+	}
+
+	@Override
+	public void onCancelled()
+	{
+		onFailed();
+	}
+	
+	@Override
+	public void onFailed()
+	{
+		Logger.d(TAG, "req failed");
+		failureWhileSettingProfilePic();
+		Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
+		removeHeadLessImageUploadFragment();
+	}
+
+	private void removeHeadLessImageUploadFragment()
+	{
+		Logger.d(TAG, "inside ImageViewerFragment, removeHeadLessImageUploadFragment");
+		FragmentManager fm = getSupportFragmentManager();
+		fm.beginTransaction().remove(mActivityState.mImageWorkerFragment).commit();
+		mActivityState.mImageWorkerFragment = null;
+	}
+	
 }
