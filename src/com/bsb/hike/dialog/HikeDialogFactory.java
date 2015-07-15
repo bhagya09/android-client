@@ -274,6 +274,7 @@ public class HikeDialogFactory
 				{
 				case R.id.gotItButton:
 					hikeDialog.dismiss();
+					listener.positiveClicked(hikeDialog);
 					break;
 				
 				}

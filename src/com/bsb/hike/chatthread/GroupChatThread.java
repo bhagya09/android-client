@@ -98,7 +98,7 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	private void shouldShowMultiAdminPopup() {
-		if( HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false))
+		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false))
 		{
 			try {
 				if(oneToNConversation.getMetadata().amIAdmin()||oneToNConversation.getConversationOwner().equalsIgnoreCase(activity.getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, ""))){
