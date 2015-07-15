@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import static com.bsb.hike.modules.httpmgr.request.RequestConstants.POST;
+
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_AUTH_FAILURE;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
@@ -282,14 +284,7 @@ public class RequestExecuter
 			 */
 			else if(statusCode == HTTP_LENGTH_REQUIRED)
 			{
-				IRequestBody requestBody = request.getBody();
-				if(requestBody instanceof GzipRequestBody)
-				{
-					request.setBody(((GzipRequestBody) requestBody).getOriginalBody());
-				}
-				HttpUtils.removeHeader(request.getHeaders(), "Content-Encoding", "gzip");
-				request.getRequestInterceptors().remove("gzip");
-				handleRetry(ex, REASON_CODE_CONTENT_LENGTH_REQUIRED);
+				handle411Error(ex);
 			}
 			else
 			{
@@ -309,15 +304,36 @@ public class RequestExecuter
 		ResponseBody<?> body = response.getBody();
 		if (null == body || null == body.getContent())
 		{
+			LogFull.d("null response for  " + request.getUrl());
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
 			listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
 		}
 		else
 		{
+			LogFull.d("positive response for : " + request.getUrl());
 			// positive response
 			HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 			listener.onResponse(response, null);
 		}	
+	}
+	
+	/**
+	 * Handles HTTP_LENGTH_REQUIRED response code. In this case we retry request with original body and without "content-encoding":"gzip" header
+	 * @param ex
+	 */
+	private void handle411Error(Exception ex)
+	{
+		if(request.getMethod() == POST && request.getBody() != null)
+		{
+			IRequestBody requestBody = request.getBody();
+			if(requestBody instanceof GzipRequestBody)
+			{
+				request.setBody(((GzipRequestBody) requestBody).getOriginalBody());
+			}
+			HttpUtils.removeHeader(request.getHeaders(), "Content-Encoding", "gzip");
+			request.getRequestInterceptors().remove("gzip");
+			handleRetry(ex, REASON_CODE_CONTENT_LENGTH_REQUIRED);
+		}
 	}
 
 	/**
