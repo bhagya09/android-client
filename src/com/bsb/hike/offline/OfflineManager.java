@@ -542,7 +542,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	
 	public void releaseResources()
 	{
-		connectionManager.closeConnection(getConnectedDevice());
+		String targetMsisdn = connectedDevice;
+		if (TextUtils.isEmpty(targetMsisdn))
+			targetMsisdn = connectinMsisdn;
+		connectionManager.closeConnection(targetMsisdn);
 		clearAllVariables();
 	}
 

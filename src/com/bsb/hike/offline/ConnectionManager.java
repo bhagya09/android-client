@@ -192,7 +192,9 @@ public class ConnectionManager implements ChannelListener
 			Log.d("OfflineManager","Connected SSID in getConnectedHikeNetwork "+ssid);
 			
 			// System returns ssid as "ssid". Hence removing the quotes.
-			ssid = ssid.substring(1, ssid.length()-1);
+			if (ssid.length() > 2&&ssid.startsWith("\"")&&ssid.endsWith("\""))
+				ssid = ssid.substring(1, ssid.length() - 1);
+			
 			Log.d(TAG, "ssid after removing quotes" + ssid);
 			boolean isHikeNetwork = (OfflineUtils.isOfflineSsid(ssid));
 			if(isHikeNetwork)
@@ -305,9 +307,11 @@ public class ConnectionManager implements ChannelListener
 		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
 		try {
 			result = (Boolean) enableWifi.invoke(wifiManager, myConfig,status);
-		} catch (IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
-			Log.e(TAG,e.toString());
+		} 
+		catch (IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) 
+		{
+			e.printStackTrace();
 			return result;
 		}
 		
@@ -345,7 +349,15 @@ public class ConnectionManager implements ChannelListener
 			WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifiManager);
 
 			wifiConfig = prevConfig;
-			setConfigMethod = wifiManager.getClass().getMethod("setWifiApConfiguration", WifiConfiguration.class);
+			String methodName = "setWifiApConfiguration";
+			String htcMethodName = "setWifiApConfig";
+
+			if (WifiConfiguration.class.getDeclaredField("mWifiApProfile") != null)
+			{
+				Log.d("OfflineManager", "This is a HTC device");
+				methodName = htcMethodName;
+			}
+			setConfigMethod = wifiManager.getClass().getMethod(methodName, WifiConfiguration.class);
 			setConfigMethod.invoke(wifiManager, wifiConfig);
 			result = true;
 		} 
@@ -353,6 +365,9 @@ public class ConnectionManager implements ChannelListener
 		{
 			Log.e(TAG,e.toString());
 			result = false;
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return result;
 	}
