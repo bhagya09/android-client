@@ -22,7 +22,7 @@
             android:paddingRight="8dp"
             android:src="@drawable/ic_back" />
 
-        <RelativeLayout
+        <FrameLayout
             android:id="@+id/avatar_frame"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -31,10 +31,6 @@
             android:layout_marginRight="4dp"
             android:layout_marginTop="5dp" >
             
-           <FrameLayout
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content" >
-
                <com.bsb.hike.view.RoundedImageView
                    android:id="@+id/avatar"
                    style="@style/RoundedStyle"
@@ -49,12 +45,7 @@
                    android:layout_gravity="bottom|right"
                    android:src="@drawable/stealth_badge"
                    android:visibility="gone" />
-           </FrameLayout>
-
-            <ImageView
-                android:id="@+id/avatar_frame"
-                style="@style/AvatarStyle" />
-        </RelativeLayout>
+         </FrameLayout>
 
     </LinearLayout>
 
