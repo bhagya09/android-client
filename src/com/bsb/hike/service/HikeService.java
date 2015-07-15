@@ -173,6 +173,7 @@ public class HikeService extends Service
 	
 	private boolean isInitialized;
 
+	private static final String TAG_IMG_UPLOAD = "dp_upload";
 	/************************************************************************/
 	/* METHODS - core Service lifecycle methods */
 	/************************************************************************/
@@ -769,7 +770,7 @@ public class HikeService extends Service
 
 			if (profilePicPath == null)
 			{
-				Logger.d(getClass().getSimpleName(), "Signup profile pic already uploaded");
+				Logger.d(TAG_IMG_UPLOAD, "Signup profile pic already uploaded");
 				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 				return;
 			}
@@ -783,7 +784,7 @@ public class HikeService extends Service
 				return;
 			}
 
-			Logger.d(getClass().getSimpleName(), "profile pic upload started");
+			Logger.d(TAG_IMG_UPLOAD, "profile pic upload started");
 
 			String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 			HeadlessImageUploaderFragment mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(null, profilePicPath, msisdn, false, true);
@@ -817,7 +818,7 @@ public class HikeService extends Service
 		@Override
 		public void onFailed()
 		{
-			Logger.d(getClass().getSimpleName(), "profile pic upload failed");
+			Logger.d(TAG_IMG_UPLOAD, "profile pic upload failed");
 			File f = new File(filePath);
 			if (f.exists() && f.length() > 0)
 			{
@@ -839,13 +840,13 @@ public class HikeService extends Service
 			
 			// clearing cache for this msisdn because if user go to profile before rename (above line) executes then icon blurred image will be set in cache
 			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-			Logger.d(getClass().getSimpleName(), "profile pic upload done");
+			Logger.d(TAG_IMG_UPLOAD, "profile pic upload done");
 
 			StatusMessage sm = Utils.createTimelinePostForDPChange(response);
 			
 			if(sm == null)
 			{
-				Logger.d("dp_upload", "Timeline post creation was unsuccessfull on signup");
+				Logger.d(TAG_IMG_UPLOAD, "Timeline post creation was unsuccessfull on signup");
 				return;
 			}	
 		}
