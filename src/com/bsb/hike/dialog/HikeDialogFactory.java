@@ -431,7 +431,7 @@ public class HikeDialogFactory
 			confirmDialog.setHeader("");
 			confirmDialog.setBody(text);
 
-		confirmDialog.setOkButton(R.string.ok,
+		confirmDialog.setOkButton(R.string.yes,
 				new View.OnClickListener() {
 
 					@Override
@@ -440,7 +440,7 @@ public class HikeDialogFactory
 					}
 				});
 
-		confirmDialog.setCancelButton(R.string.cancel,
+		confirmDialog.setCancelButton(R.string.no,
 				new View.OnClickListener() {
 
 					@Override
