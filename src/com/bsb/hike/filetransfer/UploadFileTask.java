@@ -843,6 +843,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_QUICK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Exception QUICK UPLOAD_FAILED - ", e);
 				Logger.e(getClass().getSimpleName(), "Exception", e);
 				return null;
 			}
@@ -878,7 +879,7 @@ public class UploadFileTask extends FileTransferBase
 			this.analyticEvents.mRetryCount += 1;
 		}
 		_state = FTState.IN_PROGRESS;
-		LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		
 		if (mStart >= length)
 		{
@@ -1311,7 +1312,7 @@ public class UploadFileTask extends FileTransferBase
 				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, resCode, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "Response code greater than 400");
 				deleteStateFile();
 				_state = FTState.IN_PROGRESS;
-				freshStart = true;
+				retry = false;
 			}
 		}
 		time = System.currentTimeMillis() - time;
@@ -1443,7 +1444,6 @@ public class UploadFileTask extends FileTransferBase
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				retry++;
-				Thread.sleep(60 * 1000);
 				if (retry == MAX_RETRY)
 					throw e;
 			}

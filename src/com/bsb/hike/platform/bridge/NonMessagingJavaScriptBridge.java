@@ -632,13 +632,26 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		sendMessageToUiThread(OPEN_FULL_PAGE, url);
 	}
 
+	/**
+	 * Platform Version 2 called by the special packet sent in the bot to delete the conversation of the particular bot
+	 */
 	@JavascriptInterface
-	public void botToBeDeleted()
+	public void deleteBotConversation()
 	{
 		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
-		Activity context = weakActivity.get();
+		final Activity context = weakActivity.get();
 		ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
-	    context.finish();
+		final Intent intent = Utils.getHomeActivityIntent(context);
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				context.finish();
+				context.startActivity(intent);
+			}
+		});
+
 	}
 
 }

@@ -2,6 +2,7 @@ package com.bsb.hike.bots;
 
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +19,9 @@ public class NonMessagingBotMetadata
 	String appName;
 	JSONObject cardObj;
 	String appPackage;
-	private int unReadCountShowType;
+    private String unReadCountShowType;
+
+	private static final String DEFAULT_UNREAD_COUNT = "1+";
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -68,8 +71,32 @@ public class NonMessagingBotMetadata
 				setAppPackage(cardObj.optString(HikePlatformConstants.APP_PACKAGE));
 			}
 		}
-		this.unReadCountShowType = json.optInt(BotUtils.UNREAD_COUNT_SHOW_TYPE, BotUtils.SHOW_UNREAD_COUNT_ACTUAL);
+
+		setUnreadCountShowType();
 	}
+
+	// if unreadCountShowType is less than 0 then we need to set showType as default that is hardcoded one
+	// if unreadCountShowType is 0 then we will set 0 
+	// if number of digits is >4 it will set as max 4
+	private void setUnreadCountShowType()
+	{
+		try
+		{
+			this.unReadCountShowType = json.optString(BotUtils.UNREAD_COUNT_SHOW_TYPE, DEFAULT_UNREAD_COUNT);
+			int unReadCountType = Integer.parseInt(this.unReadCountShowType);
+			if (unReadCountType < 0)
+			{
+				this.unReadCountShowType = DEFAULT_UNREAD_COUNT;
+			}
+			this.unReadCountShowType = this.unReadCountShowType.substring(0, (this.unReadCountShowType.length() < 4) ? this.unReadCountShowType.length() : 4);
+		}
+		catch (NumberFormatException e)
+		{
+			this.unReadCountShowType = this.unReadCountShowType.substring(0, (this.unReadCountShowType.length() < 4) ? this.unReadCountShowType.length() : 4);
+			e.printStackTrace();
+		}
+	}
+
 
 	public String getAppName()
 	{
@@ -117,7 +144,7 @@ public class NonMessagingBotMetadata
 		return null;
 	}
 	
-	public int getUnreadCountShowType()
+	public String getUnreadCountShowType()
 	{
 		return unReadCountShowType;
 	}

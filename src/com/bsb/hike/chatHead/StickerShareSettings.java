@@ -147,7 +147,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private void onSelectAllCheckboxClick()
 	{
-		boolean allChecked = checkAllCheckedOrUnchecked(true);
+		boolean allChecked = areAllItemsCheckedOrUnchecked(true);
 		if (allChecked)
 		{
 			for (int j = 0; j < mListViewItems.size(); j++)
@@ -175,7 +175,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private static void settingSelectAllText()
 	{
-		boolean allChecked = checkAllCheckedOrUnchecked(true);
+		boolean allChecked = areAllItemsCheckedOrUnchecked(true);
 		if (allChecked)
 		{
 			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_deselect_all));
@@ -188,7 +188,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			
 		}
 		selectAllCheckbox.setChecked(allChecked);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, allChecked);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, !areAllItemsCheckedOrUnchecked(false));
 		
 
 		listAdapter.notifyDataSetChanged();
@@ -196,18 +196,19 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		ChatHeadUtils.startOrStopService(true);
 	}
 
-	static boolean checkAllCheckedOrUnchecked(boolean checked)
+	static boolean areAllItemsCheckedOrUnchecked(boolean allItemsExpectedChecked)
 	{
+		// if all list items are expected checked, we return false if even one list item is unchecked, and vice versa
 		for (int j = 0; j < mListViewItems.size(); j++)
 		{
-			boolean pkgEnbl = mListViewItems.get(j).appChoice;
+			boolean thisPackageIsChecked = mListViewItems.get(j).appChoice;
 
-			if (checked ^ pkgEnbl)
+			if (allItemsExpectedChecked ^ thisPackageIsChecked)
 			{
 				return false;
 			}
 		}
-		return true;   
+		return true;
 	}
 
 	public static void onItemClickEvent(int tag)

@@ -43,7 +43,15 @@ public class HikeSharedPreferenceUtil
 		}
 		else
 		{
-			return initializeHikeSharedPref(HikeMessengerApp.getInstance().getApplicationContext(), DEFAULT_PREF_NAME);
+			if (HikeMessengerApp.getInstance() != null)
+			{
+				return initializeHikeSharedPref(HikeMessengerApp.getInstance().getApplicationContext(), DEFAULT_PREF_NAME);
+			}
+			else
+			{
+				return null;
+			}
+
 		}
 	}
 

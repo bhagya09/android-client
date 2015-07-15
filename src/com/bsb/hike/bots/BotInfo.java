@@ -48,8 +48,6 @@ public class BotInfo extends ConvInfo
 
 	private String helperData;
 	
-	private static final String DEFAULT_UNREAD_COUNT = "1+";
-
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
 		private int type, config;
@@ -343,14 +341,9 @@ public class BotInfo extends ConvInfo
 	private void setNonMessagingBotUnreadCount(int unreadCount)
 	{
 		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(getMetadata());
-		if (metadata.getUnreadCountShowType() == BotUtils.SHOW_UNREAD_COUNT_ZERO)
+		if (metadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ZERO))
 		{
 			super.setUnreadCount(0); 
-			return;
-		}
-		else if(metadata.getUnreadCountShowType() == BotUtils.SHOW_UNREAD_COUNT_ONE && unreadCount > 0)
-		{
-			super.setUnreadCount(1); 
 			return;
 		}
 		super.setUnreadCount(unreadCount);
@@ -359,28 +352,32 @@ public class BotInfo extends ConvInfo
 	private void setMessagingBotUnreadCount(int unreadCount)
 	{
 		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
-		if (messagingBotMetadata.getUnreadCountShowType() == BotUtils.SHOW_UNREAD_COUNT_ZERO)
+		if (messagingBotMetadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ZERO))
 		{
 			super.setUnreadCount(0); 
 			return;
 		}
-		else if(messagingBotMetadata.getUnreadCountShowType() == BotUtils.SHOW_UNREAD_COUNT_ONE && unreadCount > 0)
-		{
-			super.setUnreadCount(1); 
-			return;
-		}
+		
 		super.setUnreadCount(unreadCount);
 	}
 
 	@Override
 	public String getUnreadCountString()
-	{   
-	   if(isNonMessagingBot())
-		{
-			if(getUnreadCount() > 1)
+	{
+		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(getMetadata());
+		if (isMessagingBot())
+		{   
+			// it will show the hard coded unread count sent from the server  
+			if (!messagingBotMetadata.getUnreadCountShowType().equals(BotUtils.SHOW_UNREAD_COUNT_ACTUAL))
 			{
-				return DEFAULT_UNREAD_COUNT ; 
+				return messagingBotMetadata.getUnreadCountShowType();
 			}
+		}
+
+		else if (isNonMessagingBot())
+		{
+			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(getMetadata());
+			return metadata.getUnreadCountShowType();
 		}
 		return super.getUnreadCountString();
 	}
