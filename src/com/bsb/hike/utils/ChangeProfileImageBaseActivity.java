@@ -66,8 +66,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	private Dialog mDialog;
 	
-	private HeadlessImageWorkerFragment mImageWorkerFragment;
-	
 	private static final String TAG = "dp_upload";
 
 	public class ActivityState
@@ -95,6 +93,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public String statusId;
 		
 		public StatusMessageType statusMsgType;
+		
+		public HeadlessImageWorkerFragment mImageWorkerFragment;
 	}
 
 	private ActivityState mActivityState;
@@ -120,17 +120,25 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				mActivityState.task.setActivity(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			}
+			
+			FragmentManager fm = getSupportFragmentManager();
+			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+			if(mActivityState.mImageWorkerFragment != null)
+			{
+				mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+			}
 		}
 		else
 		{
 			mActivityState = new ActivityState();
 		}
 	}
-
+	
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
-		Logger.d("ChangeProfileImageBaseActivity", "onRetainNonConfigurationinstance");
+		Logger.d(TAG, "onRetainNonConfigurationinstance");
 		return mActivityState;
 	}
 
@@ -612,17 +620,17 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				return;
 
 			FragmentManager fm = getSupportFragmentManager();
-			mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
 
 		    // If the Fragment is non-null, then it is currently being
 		    // retained across a configuration change.
-		    if (mImageWorkerFragment == null) 
+		    if (mActivityState.mImageWorkerFragment == null) 
 		    {
 		    	Logger.d(TAG, "starting new mImageLoaderFragment");
 		    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-		    	mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, mLocalMSISDN, true, true);
-		    	mImageWorkerFragment.setTaskCallbacks(this);
-		        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
+		    	mActivityState.mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, mLocalMSISDN, true, true);
+		    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+		        fm.beginTransaction().add(mActivityState.mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
 		    }
 		    else
 		    {
@@ -635,6 +643,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	public void onSuccess(Response result)
 	{
+		Logger.d(TAG, "inside onSuccess of request");
 		dismissDialog();
 		
 		mActivityState.task = null;
@@ -646,7 +655,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		
 		if (statusMessage != null)
 		{
-			mImageWorkerFragment.doContactManagerIconChange(statusMessage.getMappedId(), scaleDownBitmap(), true);
+			mActivityState.mImageWorkerFragment.doContactManagerIconChange(statusMessage.getMappedId(), scaleDownBitmap(), true);
 			
 			int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 			Editor editor = prefs.getPref().edit();
@@ -685,8 +694,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void failureWhileSettingProfilePic()
 	{
-		//Utils.removeTempProfileImage(mLocalMSISDN);
-		
 		dismissDialog();
 		
 		mActivityState.destFilePath = null;
@@ -777,8 +784,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	protected void onDestroy()
 	{
 		dismissDialog();
-		//TODO need to discuss this
-		//removeHeadLessImageUploadFragment();
 		super.onDestroy();
 	}
 	
@@ -807,6 +812,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		Logger.d(TAG, "inside ImageViewerFragment, removeHeadLessImageUploadFragment");
 		FragmentManager fm = getSupportFragmentManager();
-		fm.beginTransaction().remove(mImageWorkerFragment).commit();
+		fm.beginTransaction().remove(mActivityState.mImageWorkerFragment).commit();
+		mActivityState.mImageWorkerFragment = null;
 	}
+	
 }
