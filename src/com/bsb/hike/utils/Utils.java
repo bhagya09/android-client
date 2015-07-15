@@ -6037,27 +6037,16 @@ public class Utils
      */
     public static boolean areIdenticalSets(Set<String> first, Set<String> second) 
     {
+    	boolean areIdentical = false;
     	// if size of the Sets itself is not equal, return false 
     	if ( first.size() != second.size()) 
     	{
-    		return false;
+    		areIdentical = false;
     	}
-    	Iterator<String> itr = first.iterator();
-
-    	// compare item by item over the Sets
-    	while (itr.hasNext())
+    	if(first.containsAll(second) && second.containsAll(first))
     	{
-    		String item = (String) itr.next();
-
-    		if (second.contains(item))
-    		{
-    			continue;
-    		} 
-    		else 
-    		{
-    			return false;
-    		}
+    		areIdentical = true;
     	}
-    	return true;
+    	return areIdentical;
     }
 }
