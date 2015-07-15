@@ -849,7 +849,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				stickerImage = new File(categoryDirPath, stickerId);
 			}
-			if (convMessage.getMessageOriginType().equals(OriginType.OFFLINE))
+			if (convMessage.isOfflineMessage())
 			{
 				if (stickerImage == null || !(stickerImage.exists()))
 				{
@@ -1018,7 +1018,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			File file = hikeFile.getFile();
 			
-			if (convMessage.getMessageOriginType().equals(OriginType.OFFLINE))
+			if (convMessage.isOfflineMessage())
 			{
 				Logger.d("MessagesAdapter", "In Offline file Transfer");
 				fss = OfflineController.getInstance().getFileState(convMessage, file);
@@ -1255,7 +1255,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setImageResource(0);
 
 				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
-						.wasFileDownloaded()) || convMessage.getMessageOriginType().equals(OriginType.OFFLINE));
+						.wasFileDownloaded()) || convMessage.isOfflineMessage());
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
@@ -1334,7 +1334,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				displayBroadcastIndicator(convMessage, videoHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, videoHolder.messageContainer);
 
-				if (convMessage.getMessageOriginType().equals(OriginType.OFFLINE))
+				if (convMessage.isOfflineMessage())
 				{	
 					videoHolder.circularProgress.resetProgress();
 					setupOfflineFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
@@ -1422,7 +1422,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
 				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
-						.wasFileDownloaded()) || convMessage.getMessageOriginType().equals(OriginType.OFFLINE) );
+						.wasFileDownloaded()) || convMessage.isOfflineMessage() );
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
@@ -1486,7 +1486,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				displayBroadcastIndicator(convMessage, imageHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, imageHolder.messageContainer);
-				if (convMessage.getMessageOriginType().equals(OriginType.OFFLINE))
+				if (convMessage.isOfflineMessage())
 				{
 					imageHolder.circularProgress.resetProgress();
 					setupOfflineFileState(imageHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
@@ -1719,7 +1719,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				fileHolder.fileName.setVisibility(View.VISIBLE);
 				fileHolder.fileDetails.setVisibility(View.VISIBLE);
 
-				if ((convMessage.getMessageOriginType().equals(OriginType.OFFLINE) || !convMessage.isSent()) || (convMessage.isSent() && !TextUtils.isEmpty(hikeFile.getFileKey())))
+				if ((convMessage.isOfflineMessage() || !convMessage.isSent()) || (convMessage.isSent() && !TextUtils.isEmpty(hikeFile.getFileKey())))
 				{
 					fileHolder.circularProgressBg.setVisibility(View.GONE);
 				}
@@ -1856,7 +1856,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				displayBroadcastIndicator(convMessage, fileHolder.broadcastIndicator, true);
 				setBubbleColor(convMessage, fileHolder.messageContainer);
-				if (convMessage.getMessageOriginType().equals(OriginType.OFFLINE))
+				if (convMessage.isOfflineMessage())
 				{
 					fileHolder.circularProgress.resetProgress();
 					setupOfflineFileState(fileHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), true);
@@ -3384,7 +3384,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				Logger.d(getClass().getSimpleName(), "Hike File name: " + hikeFile.getFileName() + " File key: " + hikeFile.getFileKey());
 				
-				if (convMessage.getMessageOriginType().equals(OriginType.OFFLINE))
+				if (convMessage.isOfflineMessage())
 				{
 					FileSavedState offlineFss = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
 					if (offlineFss.getFTState() == FTState.ERROR)
@@ -3425,7 +3425,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			else
 			{
 				
-				if (convMessage.getMessageOriginType().equals(OriginType.OFFLINE))
+				if (convMessage.isOfflineMessage())
 				{
 					FileSavedState offlineFss = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
 					if (offlineFss.getFTState() == FTState.ERROR)
