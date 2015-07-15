@@ -5997,7 +5997,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+			return prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
 		}
 		
 		return false;
