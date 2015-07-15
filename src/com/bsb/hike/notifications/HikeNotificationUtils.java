@@ -129,10 +129,6 @@ public class HikeNotificationUtils
 			key = String.format(convMsg.getMetadata().getKey(), key);
 		}
 
-		if(Utils.isOfflineConversation(convMsg.getMsisdn()))
-		{
-			key=contactManager.getContact(msisdn.replace("o:", ""), true, false).getNameOrMsisdn();
-		}
 		return new NotificationPreview(message, key,convMsg.getNotificationType());
 	}
 
@@ -162,12 +158,6 @@ public class HikeNotificationUtils
 			name = ContactManager.getInstance().getName(argMsisdn);
 		}
 		
-		
-		if(Utils.isOfflineConversation(argMsisdn))
-		{
-			name = ContactManager.getInstance().getName(argMsisdn.replace("o:", ""));
-			
-		}
 		if (TextUtils.isEmpty(name))
 		{
 			name = argMsisdn;
@@ -233,21 +223,5 @@ public class HikeNotificationUtils
 			edit.putString(HikeConstants.VIBRATE_PREF_LIST, Utils.getOldVibratePref(context));
 			edit.commit();
 		}
-	}
-	
-	public static String getContentTitleFromMsisdn(boolean isSingleMsisdn,String msisdn)
-	{
-		if (isSingleMsisdn && Utils.isOfflineConversation(msisdn))
-		{
-			return msisdn.replace("o:", "");
-		}
-
-		if (!isSingleMsisdn)
-		{
-			return "bulk";
-		}
-
-		return msisdn;
-
 	}
 }

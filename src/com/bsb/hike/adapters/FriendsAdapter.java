@@ -1168,11 +1168,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					}
 					else
 					{
-						if(Utils.isOfflineConversation(contactInfo.getMsisdn()))
-						{
-							lastSeen.setText(contactInfo.getMsisdn().replace("o:", ""));
-						}
-						else
 						lastSeen.setText(contactInfo.getMsisdn());
 						statusMood.setVisibility(View.GONE);
 					}
