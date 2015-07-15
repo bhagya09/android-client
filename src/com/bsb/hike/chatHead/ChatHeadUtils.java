@@ -3,6 +3,7 @@ package com.bsb.hike.chatHead;
 import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.ui.HikePreferences;
+import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -32,8 +34,121 @@ public class ChatHeadUtils
     
     private static final String TAG = "ChatHeadUtils";
 
-	private static Set<String> foregroundedPackages;
+	public static final int GET_TOP_MOST_SINGLE_PROCESS = 0; 
 
+	public static final int GET_FOREGROUND_PROCESSES = 1; 
+
+	public static final int GET_ALL_RUNNING_PROCESSES = 2; 
+	
+	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
+	public static final int PROCESS_STATE_TOP =2;
+
+	
+	/**
+	 * returns the package names of the running processes can be single, all or in tasks packages as per argument
+	 */
+	public static Set<String> getRunningAppPackage(int type)
+	{
+		Context context = HikeMessengerApp.getInstance();
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		List<RunningAppProcessInfo> processInfos = activityManager.getRunningAppProcesses();
+		Set<String> packageName = new HashSet<String>();
+		
+		//called if all the packages whose processes are running is needed
+		if (type == GET_ALL_RUNNING_PROCESSES)
+		{
+			Iterator runningAppProcessInfo = processInfos.iterator();
+			while (runningAppProcessInfo.hasNext())
+			{
+				ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo) (runningAppProcessInfo.next());
+				packageName.add(PhoneSpecUtils.getPackageFromProcess(info.processName));
+			}
+			return packageName;
+		}
+
+		//called if all the packages whose task is running is needed
+		return getRunningTaskPackage(context, activityManager, processInfos, packageName, type);
+	}
+
+	public static Set<String> getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
+	{
+		if (Utils.isLollipopOrHigher())
+		{
+			if (type == GET_TOP_MOST_SINGLE_PROCESS)
+			{
+				Field field = null;
+				try
+				{
+					field = RunningAppProcessInfo.class.getDeclaredField("processState");
+				}
+				catch (NoSuchFieldException e)
+				{
+					Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+				}
+				for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+				{
+					if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
+					{
+						Integer state = null;
+						try
+						{
+							state = field.getInt(processInfo);
+						}
+						catch (IllegalAccessException e)
+						{
+							Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+						}
+						catch (IllegalArgumentException e)
+						{
+							Logger.d(ChatHeadUtils.class.getSimpleName(), e.toString());
+						}
+						// its a hidden api and no value is defined 
+						if (state != null && state == PROCESS_STATE_TOP)
+						{
+							packageName.add(PhoneSpecUtils.getPackageFromProcess(processInfo.processName));
+						}
+					}
+				}
+
+				return packageName;
+			}
+			else 
+			{
+				for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+				{
+					if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+							|| processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_SERVICE)
+					{
+						packageName.add(PhoneSpecUtils.getPackageFromProcess(processInfo.processName));
+					}
+				}
+				return packageName;
+			}
+		}
+		else
+		{
+			try
+			{
+				List<RunningTaskInfo> runningTasks = activityManager.getRunningTasks((type == GET_TOP_MOST_SINGLE_PROCESS)? 1 : Integer.MAX_VALUE);
+				for (int i = 0; i < runningTasks.size(); i++)
+				{
+					packageName.add(runningTasks.get(i).topActivity.getPackageName());
+				}
+			}
+			catch (SecurityException se)
+			{
+				Logger.d(TAG, "SecurityException in fetching Tasks");
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG, "Exception in fetching tasks");
+			}
+			return packageName;
+		}
+	}
+	
+	
+	
 	public static boolean areWhitelistedPackagesSharable(Context context)
 	{
 		try
@@ -53,77 +168,6 @@ public class ChatHeadUtils
 			e.printStackTrace();
 		}
 		return false;
-	}
-
-	public static Set<String> getForegroundedPackages()
-	{
-		if (foregroundedPackages == null)
-		{
-			foregroundedPackages = new HashSet<String>(5);
-		}
-		else
-		{
-			foregroundedPackages.clear();
-		}
-
-		ActivityManager mActivityManager = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
-		
-		if(Utils.isLollipopOrHigher())
-		{
-			Field field = null;
-			try
-			{
-				field = RunningAppProcessInfo.class.getDeclaredField("processState");
-			} catch (NoSuchFieldException e)
-			{
-				Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
-			}
-			List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
-			for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
-			{
-				if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
-				{
-					Integer state = null;
-					try
-					{
-						state = field.getInt(processInfo);
-					}
-					catch (IllegalAccessException e)
-					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
-					}
-					catch (IllegalArgumentException e)
-					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(),  e.toString());
-					}
-					if (state != null && state == 2) 
-					{
-						foregroundedPackages.add(processInfo.processName);
-					}
-				}
-			}
-		}
-		else
-		{
-			try
-			{
-				List<RunningTaskInfo>  runningTasks = mActivityManager.getRunningTasks(1);
-				if(runningTasks != null && !runningTasks.isEmpty())
-				{
-					foregroundedPackages.add(runningTasks.get(0).topActivity.getPackageName());
-				}
-			}
-			catch (SecurityException se)
-			{
-				Logger.d(TAG, "SecurityException in fetching Tasks");
-			}
-			catch (Exception e)
-			{
-				Logger.d(TAG,"Exception in fetching tasks");
-			}
-		}
-
-		return foregroundedPackages;
 	}
 
 	public static void settingDailySharedPref()

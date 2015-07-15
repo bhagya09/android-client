@@ -1859,7 +1859,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return mConversation.getMessagesList().isEmpty();
+		return mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked();
 	}
 
 	/**
@@ -3352,6 +3352,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onPause()
 	{
+		Utils.hideSoftKeyboard(activity, mComposeView);
+		
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);
@@ -3367,6 +3369,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		isActivityVisible = true;
 
+		if (shouldShowKeyboard())
+		{
+			Utils.showSoftKeyboard(activity, mComposeView);
+		}
+		
 		/**
 		 * Mark any messages unread as read
 		 */

@@ -2395,7 +2395,7 @@ public class HikeConstants
 
 	public static enum FTResult
 	{
-		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD
+		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD, UNKNOWN_SERVER_ERROR
 	}
 
 	public static enum SMSSyncState
@@ -2641,6 +2641,8 @@ public class HikeConstants
 	public static final String FETCH_LOG_ANALYTICS = "gl";
 	
 	public static final String SESSION_LOG_TRACKING = "stl";
+
+	public static final String PHONE_SPEC = "pl";
 
 	public static final String SHOP = "shop";
 

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -34,6 +35,8 @@ class PersistenceCache extends ContactsCache
 	// Memory persistence for all group names and list of msisdns(last message in group) that should always be loaded
 	private Map<String, GroupDetails> groupPersistence;
 
+	private Set<String> blockedMsisdns;
+
 	private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
 	private final Lock readLock = readWriteLock.readLock();
@@ -49,6 +52,7 @@ class PersistenceCache extends ContactsCache
 		convsContactsPersistence = new HashMap<String, ContactInfo>();
 		groupContactsPersistence = new HashMap<String, PairModified<ContactInfo, Integer>>();
 		groupPersistence = new HashMap<String, GroupDetails>();
+		blockedMsisdns = new HashSet<String>();
 		loadMemory();
 	}
 
@@ -573,6 +577,8 @@ class PersistenceCache extends ContactsCache
 				}
 			}
 		}
+
+		blockedMsisdns = hDb.getBlockedMsisdnSet();
 	}
 
 	/**
@@ -1109,6 +1115,98 @@ class PersistenceCache extends ContactsCache
 		}
 	}
 
+	/**
+	 * Blocks a msisdn , adds it to {@link #blockedMsisdns}
+	 * 
+	 * @param msisdn
+	 */
+	public void block(String msisdn)
+	{
+		writeLock.lock();
+		try
+		{
+			blockedMsisdns.add(msisdn);
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+	}
+
+	/**
+	 * Blocks a list of msisdns , adds them to {@link #blockedMsisdns}
+	 * 
+	 * @param msisdn
+	 */
+	public void block(List<String> msisdn)
+	{
+		writeLock.lock();
+		try
+		{
+			blockedMsisdns.addAll(msisdn);
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+	}
+
+	/**
+	 * Unblocks a msisdn , removes it from {@link #blockedMsisdns}
+	 * 
+	 * @param msisdn
+	 */
+	public void unblock(String msisdn)
+	{
+		writeLock.lock();
+		try
+		{
+			blockedMsisdns.remove(msisdn);
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+	}
+
+	/**
+	 * Returns true if the msisdn is blocked otherwise false
+	 * 
+	 * @param msisdn
+	 * @return
+	 */
+	public boolean isBlocked(String msisdn)
+	{
+		readLock.lock();
+		try
+		{
+			return blockedMsisdns.contains(msisdn);
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+
+	/**
+	 * Returns the set of all blocked msisdns
+	 * 
+	 * @return
+	 */
+	public Set<String> getBlockedMsisdnSet()
+	{
+		readLock.lock();
+		try
+		{
+			// creating a new hash set from current one to prevent outside world not to change cache set
+			return new HashSet<String>(blockedMsisdns);
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+	
 	/**
 	 * Clears the memory {@see #clearMemory()} and make all references null
 	 */

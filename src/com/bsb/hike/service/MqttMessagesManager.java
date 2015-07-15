@@ -36,6 +36,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -2168,6 +2169,17 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);			
 		}
 		
+		if (data.has(MqttConstants.MQTT_PING_SENDER))
+		{
+			int pingSender = data.getInt(MqttConstants.MQTT_PING_SENDER);
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.MQTT_PING_SENDER, pingSender);
+		}
+		if (data.has(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT))
+		{
+			int alarmPingWakeLockTimeout = data.getInt(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT, alarmPingWakeLockTimeout);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
