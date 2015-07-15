@@ -24,7 +24,7 @@ public class UploadProfileImageTask
 
 	private WeakReference<UploadProfileImageTaskCallbacks> uploadProfileImageTaskCallbacks;
 	
-	private static final String TAG = "dp_upload_task";
+	private final String TAG = "dp_upload_task";
 
 	public UploadProfileImageTask(String filePath, String fileName)
 	{

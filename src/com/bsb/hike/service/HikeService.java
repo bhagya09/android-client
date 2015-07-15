@@ -173,7 +173,8 @@ public class HikeService extends Service
 	
 	private boolean isInitialized;
 
-	private static final String TAG_IMG_UPLOAD = "dp_upload";
+	private final String TAG_IMG_UPLOAD = "dp_upload";
+	
 	/************************************************************************/
 	/* METHODS - core Service lifecycle methods */
 	/************************************************************************/
