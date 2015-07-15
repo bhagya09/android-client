@@ -311,4 +311,18 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	{
 		return false;
 	}
+
+	/**
+	 * 
+	 * @return true if previous task is running
+	 */
+	public boolean isBusyInOperations(){
+		return false;
+	}
+
+	public void onBackPressed()
+	{
+
+	}
+
 }

@@ -2870,6 +2870,8 @@ public class HikeConstants
 
 	public static final String GROUP_NOTIFIACTION_DELAY = "gnt";
 
+	public static final String KEYBOARD_CONFIGURATION = "kc";
+
 	public static final String GET="get";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
