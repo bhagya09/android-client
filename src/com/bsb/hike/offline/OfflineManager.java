@@ -16,6 +16,7 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
@@ -273,7 +274,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			connectedDevice = offlineNetworkMsisdn;
 			initClientConfig(connectedDevice);
 			Logger.d(TAG, "Starting as Client");
-			transporter.initAsClient(transporterConfig, context,messageSentCallback,messageReceivedCallback,this,handler.getLooper());
+			transporter.initAsClient(transporterConfig, context,messageSentCallback,messageReceivedCallback,this,handler.getLooper(), HikeOfflinePersistence.getInstance());
 		}
 	}
 
@@ -331,7 +332,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		performWorkOnBackEndThread(msg);
 		initServerConfig(msisdn);
 		Logger.d(TAG, "Starting server!");
-		transporter.initAsServer(transporterConfig,context,messageSentCallback,messageReceivedCallback,this,handler.getLooper());
+		transporter.initAsServer(transporterConfig,context,messageSentCallback,messageReceivedCallback,this,handler.getLooper(), HikeOfflinePersistence.getInstance());
 	}
 
 	private void initServerConfig(String namespace) 
@@ -577,13 +578,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			offlineListener.connectedToMsisdn(getConnectedDevice());
 		}
 	}
-
-
-	public  List<SenderConsignment> movePendingMessagesToMQTT(String msisdn) {
-		List<SenderConsignment> unSentMessages =  transporter.getAllUnSendMessages(msisdn);
-		return unSentMessages;
-	}
-
 
 	public void removeMessageFromOfflinePersistance(String msisdn) {
 		transporter.deleteFromPersistance(msisdn);
