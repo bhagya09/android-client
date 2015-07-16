@@ -132,7 +132,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-             <intent-filter android:label="@string/app_label">
+        </activity>
+        <activity
+            android:name=".ui.ComposeChatActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_label"
+            android:theme="@style/AppTheme.Home"
+            android:windowSoftInputMode="stateHidden" >
+            <intent-filter android:label="@string/app_label">
                 <action android:name="android.intent.action.SEND" />
                 
 				<action android:name="android.intent.action.SEND_MULTIPLE" />
@@ -141,13 +148,6 @@
                 
                 <data android:mimeType="*/*" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".ui.ComposeChatActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_label"
-            android:theme="@style/AppTheme.Home"
-            android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
             android:name=".ui.AddFriendsActivity"
