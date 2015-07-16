@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1276"
-    android:versionName="3.9.8.81.07.chatthe" >
+    android:versionCode="1277"
+    android:versionName="3.9.8.81.07.chatt" >
 
 
     <uses-sdk
