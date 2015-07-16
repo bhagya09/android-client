@@ -4,8 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1275"
-    android:versionName="3.9.8.81" >
-
+    android:versionName="3.9.8.81.0.gc_bugs" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
