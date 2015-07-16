@@ -20,7 +20,7 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 	@Override
 	public void run()
 	{
-		List<StickerCategory> stickerCategories = StickerManager.getInstance().getStickerCategoryList();
+		List<StickerCategory> stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
 		Set<String> stickerSet = new HashSet<String>();
 		
 		for(StickerCategory stickerCategory : stickerCategories)

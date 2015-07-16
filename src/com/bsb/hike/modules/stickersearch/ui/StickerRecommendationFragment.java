@@ -32,7 +32,7 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 	
 	private StickerRecomendationAdapter mAdapter;
 
-	private static IStickerRecommendFragmentListener listener;
+	private IStickerRecommendFragmentListener listener;
 
 	private List<Sticker> stickerList;
 
@@ -45,7 +45,7 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 	public static StickerRecommendationFragment newInstance(IStickerRecommendFragmentListener lIStickerRecommendFragmentListener, ArrayList<Sticker> stickerList)
 	{
 		StickerRecommendationFragment fragment = new StickerRecommendationFragment();
-		listener = lIStickerRecommendFragmentListener;
+		fragment.setListener(lIStickerRecommendFragmentListener);
 		Bundle args = new Bundle();
 		args.putParcelableArrayList(HikeConstants.LIST, stickerList);
 		fragment.setArguments(args);
@@ -100,6 +100,8 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 	{
 		Logger.d(StickerTagWatcher.TAG, "recommend fragment on destroy called");
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		listener = null;
+		stickerList = null;
 		super.onDestroy();
 	}
 
@@ -211,5 +213,15 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 		default:
 			break;
 		}
+	}
+	
+	public IStickerRecommendFragmentListener getListener()
+	{
+		return listener;
+	}
+
+	public void setListener(IStickerRecommendFragmentListener listener)
+	{
+		this.listener = listener;
 	}
 }

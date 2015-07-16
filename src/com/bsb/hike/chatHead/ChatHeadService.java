@@ -32,6 +32,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.userlogs.UserLogInfo;
@@ -273,6 +274,7 @@ public class ChatHeadService extends Service
 					ChatHeadService.getInstance().setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.STICKER_SHOP_ANIMATION:
+					HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
 					intent = IntentFactory.getStickerShopIntent(getApplicationContext(), true);
 					startActivity(intent);
 					break;

@@ -1915,11 +1915,17 @@ public class HikeConstants
 
 		public static final String PIN_HISTORY_VIA_PIN_CLICK = "pinHistoryViaPinClick";
 
-		public static final String STICKER_BTN_CLICKED = "stickerBtnClicked";
+		public static final String STICKER_BTN_CLICKED = "sBnc";
 
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
 		public static final String STICKER_SETTING_BTN_CLICKED = "stickerSettingBtnClicked";
+		
+		public static final String STICKER_RECOMMENDATION_PANEL_SETTINGS_BTN_CLICKED = "srps";
+		
+		public static final String STICKER_RECOMMENDATION_SETTING_STATE = "srSTs";
+		
+		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
 		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
 
@@ -2925,4 +2931,8 @@ public class HikeConstants
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 	
 	public static final String  MODULE_STICKER_SEARCH = "stickersearch";
+	
+	public static final String NUMBER_OF_PACKS = "np";
+	
+	public static final String PACK_DATA = "pd";
 }
