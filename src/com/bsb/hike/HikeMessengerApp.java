@@ -450,8 +450,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 	public static final String IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN = "showCategoryReordering";
 	
-	public static final String STICKED_BTN_CLICKED_FIRST_TIME = "stickerBtnClickedFirstTime";
-
 	public static final String STICKER_SETTING_CHECK_BOX_CLICKED = "stickerSettingCheckBoxClicked";
 	
 	public static final String STICKER_SETTING_UNCHECK_BOX_CLICKED = "stickerSettingUnCheckBoxClicked";
@@ -519,6 +517,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
 	
 	public static final String REBALANCING_TIME = "rebalancingTime";
+	
+	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
+	
+	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
 
 	//private static Twitter twitter;
 
@@ -860,6 +862,8 @@ public void onTrimMemory(int level)
 		{
 			fetchPlatformIDIfNotPresent();
 		}
+		
+		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 	}
 	
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -904,7 +908,7 @@ public void onTrimMemory(int level)
 		
 		ChatHeadUtils.startOrStopService(false);
 		
-		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();;
+		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();
 	}
 
 	/**

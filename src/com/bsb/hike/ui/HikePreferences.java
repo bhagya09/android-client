@@ -58,6 +58,7 @@ import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.IconListPreference;
@@ -1020,6 +1021,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
+			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(isChecked);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{

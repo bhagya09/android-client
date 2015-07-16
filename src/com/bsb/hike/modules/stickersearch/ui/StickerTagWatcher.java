@@ -265,7 +265,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			throw new IllegalStateException("sticker picker is null but sticker is selected");
 		}
 		StickerManager.getInstance().addRecentStickerToPallete(sticker);
-		stickerPickerListener.stickerSelected(sticker, StickerManager.FROM_RECOMMENDATION);
+		stickerPickerListener.stickerSelected(sticker, StickerSearchManager.getInstance().getFirstContinuousMatchFound() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL :  StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);
 		
 		/*
 		 * dismiss sticker search popup
@@ -295,6 +295,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void onSettingsClicked()
 	{
 		IntentFactory.openSettingChat(activity);
+		StickerManager.getInstance().sendRecommendationPanelSettingsButtonClickAnalytics();
 	}
 
 	public boolean isStickerRecommnedPoupShowing()
