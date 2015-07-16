@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:background="@drawable/chat_head_bg_top"
+    android:orientation="vertical" >
+
+    <include
+        android:layout_gravity="top"
+        android:layout_weight="1"
+        layout="@layout/chat_head_sticker_info"
+        android:visibility="gone" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/sticker_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="top"
+        android:layout_weight="1"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/icon_container"
+        android:layout_width="match_parent"
+        android:layout_height="48.5dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal" >
+
+        <com.bsb.hike.view.StickerEmoticonIconPageIndicator
+            android:id="@+id/sticker_icon_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/chat_head_bg_bottom" />
+
+        <LinearLayout
+            android:layout_width="96.5dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:background="@drawable/chat_head_bg_light"
+            android:orientation="horizontal" >
+
+            <com.bsb.hike.ui.utils.RecyclingImageView
+                android:id="@+id/shop_icon_external"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/sticker_shop_selector"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_sticker_shop" />
+
+            <View
+                android:id="@+id/vertical_sep"
+                android:layout_width="0.5dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp"
+                android:background="#444444" />
+
+            <com.bsb.hike.ui.utils.RecyclingImageView
+                android:id="@+id/info_icon"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/info_icon_selector" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

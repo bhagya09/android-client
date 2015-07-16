@@ -16,9 +16,11 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.httpmgr.Header;
@@ -267,6 +269,17 @@ public class PlatformUtils
 			{
 				IntentFactory.createBroadcastDefault(context);
 			}
+			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
+			{   
+				if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
+				{
+					IntentFactory.openStickerSettings(context);
+				}
+				else
+				{
+					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
+				}
+			}
 		}
 		catch (JSONException e)
 		{
@@ -285,7 +298,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -295,7 +308,7 @@ public class PlatformUtils
 					public void onComplete(PlatformContentModel content)
 					{
 						Logger.d(TAG, "microapp download packet success.");
-						botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
+						botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 					}
 
 					@Override
@@ -309,7 +322,7 @@ public class PlatformUtils
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
 						{
 							Logger.d(TAG, "microapp already exists");
-							botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
+							botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 						}
 						else
 						{
@@ -333,10 +346,10 @@ public class PlatformUtils
 
 	}
 
-	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme)
+	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
 		enableBot(botInfo, enableBot);
-		BotUtils.updateBotParams(botChatTheme, botInfo);
+		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 	}
 
@@ -480,7 +493,8 @@ public class PlatformUtils
 	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
 	{
 
-		ConvMessage convMessage = new ConvMessage();
+
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(metadata);

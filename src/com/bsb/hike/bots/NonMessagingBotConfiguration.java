@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.text.TextUtils;
@@ -45,6 +44,10 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public static final byte DELETE_BLOCK = 7;
 	
 	public static final byte JS_INJECTOR = 8;
+	
+    public static final byte SLIDE_IN = 9;
+	
+	public static final byte READ_SLIDE_OUT = 10;
 	
 	/**
 	 * Bit positions end here.
@@ -379,4 +382,79 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	{
 		return configData.optString(HikePlatformConstants.JS_INJECT, null);
 	}
+	
+	/**
+	 * Utility method to get action bar color from fullScreenJson. The JSON will look like :
+	 * 
+	 * { "cd": { "full_screen_config": { "color": "#0f8fe1", "secondary_title": "Hike News 2.0" } }}
+	 * 
+	 * @return
+	 */
+	public int getFullScreenActionBarColor()
+	{
+		if (configData != null)
+		{
+			JSONObject fullScreenJSON = configData.optJSONObject(HikePlatformConstants.FULL_SCREEN_CONFIG);
+
+			if (fullScreenJSON != null)
+			{
+				String color = fullScreenJSON.optString(HikePlatformConstants.AB_COLOR, null);
+				try
+				{
+					return color != null ? Color.parseColor(color) : -1;
+				}
+
+				catch (IllegalArgumentException e)
+				{
+					Logger.e(TAG, "Seems like you sent a wrong color");
+				}
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Utility method to get title from fullScreenJson. The JSON will look like :
+	 * 
+	 * { "cd": { "full_screen_config": { "color": "#0f8fe1", "secondary_title": "Hike News 2.0" } } }
+	 * 
+	 * @return
+	 */
+	public String getFullScreenTitle()
+	{
+		if (configData != null)
+		{
+			JSONObject fullScreenJSON = configData.optJSONObject(HikePlatformConstants.FULL_SCREEN_CONFIG);
+
+			if (fullScreenJSON != null)
+			{
+				return fullScreenJSON.optString(HikePlatformConstants.SECONDARY_TITLE, null);
+			}
+		}
+		return null;
+	}
+
+	public boolean  isSlideInEnabled()
+	{
+		return isBitSet(SLIDE_IN);
+	}
+	
+	public void setBit(Byte bit, boolean toSet)
+	{
+		if (toSet)
+		{
+			setConfig(getConfig() | (1 << bit));
+		}
+		else
+		{
+			setConfig(getConfig() & ~(1 << bit));
+		}
+	}
+	
+	
+	public boolean isReadSlideOutEnabled()
+	{
+		return isBitSet(READ_SLIDE_OUT);
+	}
+	
 }

@@ -79,6 +79,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private boolean isDeleting;
 
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
+	
+	private boolean mIsResumed = false;
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -412,6 +414,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		outState.putInt(HikeConstants.Extras.BLOKING_TASK_TYPE, blockingTaskType.ordinal());
 		super.onSaveInstanceState(outState);
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mIsResumed = true;
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mIsResumed = false;
+	}
 
 	@Override
 	public void onDestroy()
@@ -430,6 +444,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		Logger.d("HikePreferences", "setting task:" + task.isFinished());
 		if (!task.isFinished())
 		{
+			// dismissing any existing dialog before showing the new one
+			dismissProgressDialog();
 			mTask = task;
 			String title = getString(R.string.account);
 			String message = "";
@@ -1458,7 +1474,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		mTask = null;
 		dismissProgressDialog();
 		Preference notificationPreference = getPreferenceScreen().findPreference(HikeConstants.NOTIF_SOUND_PREF);
-		if(notificationPreference != null)
+		if(notificationPreference != null && mIsResumed && !isFinishing())
 		{
 			NotificationToneListPreference notifToneListPref = (NotificationToneListPreference) notificationPreference;
 			notifToneListPref.createAndShowDialog(ringtonesNameURIMap);
