@@ -11,6 +11,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.utils.Logger;
+import com.hike.transporter.interfaces.IPersistanceInterface;
+import com.hike.transporter.models.SenderConsignment;
+import com.hike.transporter.utils.TConstants.TDBConstants;
 
 public class HikeMqttPersistence extends SQLiteOpenHelper
 {
@@ -107,7 +110,7 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 			c.close();
 		}
 	}
-	
+		
 	public boolean isMessageSent(long mqttMsgId)
 	{
 		Cursor c = mDb.query(DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE, new String[] { DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID }, DBConstants.HIKE_PERSISTENCE.MQTT_MESSAGE_ID + "=?", new String[] { Long.toString(mqttMsgId) }, null, null, null);
@@ -139,7 +142,6 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 		db.execSQL(sql);
 
 		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.MQTT_TIME_STAMP + ")";
-		HikeOfflinePersistence.onCreate(db);
 	}
 
 	@Override
@@ -160,7 +162,6 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 			String alter2 = "ALTER TABLE " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " ADD COLUMN " + DBConstants.HIKE_PERSISTENCE.MQTT_MSG_MSG_TYPE + " TEXT";
 			db.execSQL(alter2);
 		}
-		HikeOfflinePersistence.onUpgrade(db, oldVersion, newVersion);
 	}
 
 	public void removeMessage(long msgId)
@@ -170,7 +171,14 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 		Logger.d("HikeMqttPersistence", "Removed " + numRows + " Rows from " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " with Msg ID: " + msgId);
 	}
 	
-	public void removeMessages(ArrayList<Long> msgIds)
+	public void removeMessage(int type)
+	{
+		String[] bindArgs = new String[] { Integer.toString(type) };
+		int numRows = mDb.delete(DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE, DBConstants.HIKE_PERSISTENCE.MQTT_PACKET_TYPE + "=?", bindArgs);
+		Logger.d("HikeMqttPersistence", "Removed " + numRows + " Rows from " + DBConstants.HIKE_PERSISTENCE.MQTT_DATABASE_TABLE + " with type: " + type);
+	}
+	
+	public void removeMessages(List<Long> msgIds)
 	{
 		if(msgIds.isEmpty())
 		{
