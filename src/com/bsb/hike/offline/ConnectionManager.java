@@ -21,6 +21,8 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.hike.transporter.utils.Logger;
+
 /**
  * 
  * @author sahil/deepak This class deals with functions related to WifiManager and WifiP2pManager and other Hotspot functionalities
@@ -94,10 +96,13 @@ public class ConnectionManager implements ChannelListener
 		{
 			if(wifiConfiguration!=null && wifiConfiguration.SSID != null && wifiConfiguration.SSID.equals(wifiConfig.SSID)) 
 			{
+				Log.d("OfflineManager", "Disconnecting existing ssid");
 				wifiManager.disconnect();
 				boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
+				Log.d("OfflineManager", "Enabled network");
 				connectedNetworkId=wifiConfiguration.networkId;
 				wifiManager.reconnect();               
+				Log.d("OfflineManager", "trying to connect!");
 				return status;
 			}
 		}
