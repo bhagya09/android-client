@@ -521,6 +521,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
 	
 	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
+	
+	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
+	
+	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 
 	//private static Twitter twitter;
 
@@ -864,6 +868,7 @@ public void onTrimMemory(int level)
 		}
 		
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
+		StickerManager.getInstance().refreshTagData();
 	}
 	
 	private void initImportantAppComponents(SharedPreferences prefs)
