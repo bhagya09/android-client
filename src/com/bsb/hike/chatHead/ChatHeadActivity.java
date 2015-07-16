@@ -1,7 +1,6 @@
 package com.bsb.hike.chatHead;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.media.StickerPickerListener;
@@ -11,7 +10,6 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Utils;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -29,13 +27,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		super.onConfigurationChanged(newConfig);
 		this.finish();
 	}
-
-	@Override
-	protected void onDestroy()
-	{
-		super.onDestroy();
-	}
-
 	@Override
 	protected void onStop()
 	{
@@ -43,19 +34,14 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		{
 			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
 		}
-		saveUpdatedSharedPref();
+		HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, ChatHeadUtils.shareCount);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, ChatHeadUtils.totalShareCount);
+	
 		ChatHeadService.flagActivityRunning = false;
 		picker.stoppingChatHeadActivity();
 		ChatHeadService.unregisterReceiver(this);
 		super.onStop();
 	}
-		
-	private void saveUpdatedSharedPref()
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, ChatHeadUtils.shareCount);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, ChatHeadUtils.totalShareCount);
-	}
-
 	@Override
 	public void onBackPressed()
 	{
