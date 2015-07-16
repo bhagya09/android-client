@@ -572,7 +572,12 @@ public class GroupChatThread extends OneToNChatThread
 		playPinCreateViewAnim();
 
 		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		if (mShareablePopupLayout.isShowing())
+		{
+			mShareablePopupLayout.dismiss();
+		}
 
+		mComposeView.setOnTouchListener(this);
 		mComposeView.addTextChangedListener(new EmoticonTextWatcher());
 		mComposeView.requestFocus();
 

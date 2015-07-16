@@ -119,7 +119,7 @@ public class HikeBitmapFactory
 		canvas.translate(-textView.getScrollX(), -textView.getScrollY());
 		textView.draw(canvas);
 		textView.setDrawingCacheEnabled(true);
-		Bitmap cacheBmp = textView.getDrawingCache();
+		Bitmap cacheBmp = Bitmap.createBitmap(textView.getDrawingCache());
 		Bitmap viewBmp = null;
 		if (cacheBmp != null)
 		{
