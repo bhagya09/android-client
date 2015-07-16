@@ -2841,7 +2841,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		//TODO  - Handle Animation 
 		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
-		toggleChannel();
+		changeChannel(true);
 		clearAttachmentPicker();
 	}
 
@@ -2882,7 +2882,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		}
 		//TODO Setup online UI 
-		toggleChannel();
+		changeChannel(false);
 		clearAttachmentPicker();
 	}
 }

@@ -3389,11 +3389,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		releaseOfflineListeners();
 	}
 	
-	private void releaseOfflineListeners() {
+	private void releaseOfflineListeners() 
+	{
 		if (offlineController != null)
 		{
 			offlineController.removeListener(this);
 		}
+		offlineController = null;
 	}
 
 
@@ -5158,19 +5160,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 	}
 	
-	public void toggleChannel()
+	public void changeChannel(Boolean setOfflineChannel)
 	{
-		if(channelSelector instanceof OnlineChannel)
+		if(setOfflineChannel)
 		{
-				channelSelector = new OfflineChannel(offlineController);
+			channelSelector = new OfflineChannel(offlineController);
 		}
 		else
 		{
-				channelSelector = new OnlineChannel();
-				releaseOfflineListeners();
-				offlineController.postSendPendingMessagesToMQTT(msisdn);
-				offlineController = null;
-			//Move offline messages to online persistance
+			channelSelector = new OnlineChannel();
+			releaseOfflineListeners();
 		}
 		
 	}
