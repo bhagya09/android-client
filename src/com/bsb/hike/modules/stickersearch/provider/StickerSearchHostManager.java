@@ -884,11 +884,11 @@ public class StickerSearchHostManager
 			}
 
 			Logger.d(TAG, "Finding stickers for searched phrase \"" + currentPhrase + "\"");
-			if (lastIndexInPhraseStartedWithPivot == wordIndexInText && !exactSearch)
+			if ((lastIndexInPhraseStartedWithPivot == wordIndexInText) && !exactSearch)
 			{
 				tempSelectedStickers = processStickerData(currentPhrase.replaceAll("\\*", ""), history.get(currentPhrase + "*"));
 			}
-			else
+			else if ((currentPhrase.length() > 1) || (isFirstValidWord))
 			{
 				tempSelectedStickers = processStickerData(currentPhrase.replaceAll("\\*", ""), history.get(currentPhrase));
 			}
