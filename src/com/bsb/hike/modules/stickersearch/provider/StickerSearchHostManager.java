@@ -22,6 +22,7 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import android.content.Context;
 import android.util.Pair;
@@ -130,7 +131,7 @@ public class StickerSearchHostManager
 
 	public Pair<CharSequence, int[][]> onTextChange(CharSequence s, int start, int before, int count)
 	{
-		Logger.i(TAG, "onTextChanged(), searching start: " + System.currentTimeMillis());
+		Logger.i(TAG, "onTextChanged(), Searching start: " + System.currentTimeMillis());
 
 		Pair<CharSequence, int[][]> result;
 
@@ -154,11 +155,11 @@ public class StickerSearchHostManager
 			mEnd = end;
 			mIndexLimit = s.length();
 
-			int brokerLimit = 60;
+			int brokerLimit = 75;
 			boolean isNeedToRemoveLastWord = false;
-			if (mIndexLimit > 55)
+			if (mIndexLimit > 70)
 			{
-				mIndexLimit = 55;
+				mIndexLimit = 70;
 				while ((mIndexLimit < s.length()) && (s.charAt(mIndexLimit) != ' '))
 				{
 					mIndexLimit++;
@@ -168,22 +169,17 @@ public class StickerSearchHostManager
 						break;
 					}
 				}
-
-				if (!isNeedToRemoveLastWord)
-				{
-					mIndexLimit = s.length();
-				}
 			}
 
 			result = searchAndGetStickerResult(s, start, end, before, count, isNeedToRemoveLastWord);
 		}
 		catch (Exception e)
 		{
-			Logger.e(TAG, "Exception in searching...", e);
+			Logger.e(TAG, "onTextChanged(), Exception in searching...", e);
 			result = null;
 		}
 
-		Logger.i(TAG, "onTextChanged(), searching over time: " + System.currentTimeMillis());
+		Logger.i(TAG, "onTextChanged(), Searching over time: " + System.currentTimeMillis());
 
 		return result;
 	}
@@ -616,24 +612,40 @@ public class StickerSearchHostManager
 		pResult = result;
 		Logger.v(TAG, "Results address: " + Arrays.toString(result));
 
-		return new Pair<CharSequence, int[][]>(s, result);
+		return new Pair<CharSequence, int[][]>(wholeString, result);
 	}
 
-	public void onMessageSent(String prevText, Sticker sticker, String nextText)
+	public void onMessageSent(String prevText, Sticker sticker, String nextText, String currentText)
 	{
 		Logger.i(TAG, "onMessageSent()");
 
-		if (pwords != null)
+		if (Utils.isBlank(currentText))
 		{
-			pwords.clear();
-			pstarts.clear();
-			pends.clear();
+			if (pwords != null)
+			{
+				pwords.clear();
+				pwords = null;
+			}
+
+			if (pstarts != null)
+			{
+				pstarts.clear();
+				pstarts = null;
+			}
+
+			if (pends != null)
+			{
+				pends.clear();
+				pends = null;
+			}
+
+			pResult = null;
+			history.clear();
+			mIndexLimit = 0;
 		}
 
-		pResult = null;
-		history.clear();
-		mIndexLimit = 0;
 		mMomentCode = StickerSearchUtility.getMomentCode();
+		StickerSearchDataController.getInstance().analyseMessageSent(prevText, sticker, nextText);
 	}
 
 	public ArrayList<Sticker> onClickToSendSticker(int where)
@@ -873,11 +885,11 @@ public class StickerSearchHostManager
 			}
 
 			Logger.d(TAG, "Finding stickers for searched phrase \"" + currentPhrase + "\"");
-			if (lastIndexInPhraseStartedWithPivot == wordIndexInText && !exactSearch)
+			if ((lastIndexInPhraseStartedWithPivot == wordIndexInText) && !exactSearch)
 			{
 				tempSelectedStickers = processStickerData(currentPhrase.replaceAll("\\*", ""), history.get(currentPhrase + "*"));
 			}
-			else
+			else if ((currentPhrase.length() > 1) || (isFirstValidWord))
 			{
 				tempSelectedStickers = processStickerData(currentPhrase.replaceAll("\\*", ""), history.get(currentPhrase));
 			}
@@ -904,8 +916,9 @@ public class StickerSearchHostManager
 		else
 		{
 			int count = stData.size();
-			float preScoreWeitage = 0.4f;
-			float postScoreWeitage = 0.6f;
+			float preScoreWeitage = 0.25f;
+			float postScoreWeitage = 0.4f;
+			float frequencyWeitage = 0.35f;
 			ArrayList<String> stikcerCodeList = new ArrayList<String>();
 			ArrayList<Integer> stikcerMomentList = new ArrayList<Integer>();
 			ArrayList<Float> matchRankList = new ArrayList<Float>(count);
@@ -919,15 +932,36 @@ public class StickerSearchHostManager
 				}
 				else
 				{
-					if (((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER)) == -1)
+					String frequencyString = (String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY);
+					int frequency;
+					if (Utils.isBlank(frequencyString))
 					{
-						matchRankList.add(0f + (preScoreWeitage * (count - i) / count));
+						frequency = 0;
 					}
 					else
 					{
-						matchRankList.add(((postScoreWeitage * computeAnalogousScoreForExactMatch(searchKey,
-								((String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE)).toUpperCase(Locale.ENGLISH))) / ((int) stData.get(i)
-								.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (preScoreWeitage * (count - i) / count));
+						frequency = Integer.parseInt(frequencyString);
+					}
+					float formattedFrequency;
+					if (frequency >= 10)
+					{
+						formattedFrequency = 0.99f;
+					}
+					else
+					{
+						formattedFrequency = ((float) frequency) / 10f;
+					}
+
+					if (((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER)) == -1)
+					{
+						matchRankList.add((preScoreWeitage * (count - i) / count) + 0f + (frequencyWeitage * formattedFrequency));
+					}
+					else
+					{
+						matchRankList.add((preScoreWeitage * (count - i) / count)
+								+ (postScoreWeitage * (computeAnalogousScoreForExactMatch(searchKey,
+										(String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE))) / ((int) stData.get(i).get(
+										HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (frequencyWeitage * formattedFrequency));
 					}
 					stikcerMomentList.add((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE));
 					stikcerCodeList.add((String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE));

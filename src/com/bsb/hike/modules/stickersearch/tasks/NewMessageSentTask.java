@@ -10,17 +10,20 @@ public class NewMessageSentTask implements Runnable
 	private Sticker sticker;
 
 	private String nextText;
+	
+	private String currentText;
 
-	public NewMessageSentTask(String prevText, Sticker sticker, String nextText)
+	public NewMessageSentTask(String prevText, Sticker sticker, String nextText, String currentText)
 	{
 		this.prevText = prevText;
 		this.sticker = sticker;
 		this.nextText = nextText;
+		this.currentText = currentText;
 	}
 
 	@Override
 	public void run()
 	{
-		StickerSearchHostManager.getInstance().onMessageSent(prevText, sticker, nextText);
+		StickerSearchHostManager.getInstance().onMessageSent(prevText, sticker, nextText, currentText);
 	}
 }

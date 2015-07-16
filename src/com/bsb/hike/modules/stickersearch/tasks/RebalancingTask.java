@@ -4,11 +4,12 @@ import android.content.Intent;
 
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
 import com.bsb.hike.utils.Logger;
 
 public class RebalancingTask implements Runnable
 {
-	private static final String TAG = "Rebalancing";
+	private static final String TAG = RebalancingTask.class.getSimpleName();
 	
 	private Intent intent;
 	
@@ -22,9 +23,10 @@ public class RebalancingTask implements Runnable
 	@Override
 	public void run()
 	{
-		Logger.d(TAG, "rebalancing started");
+		Logger.d(TAG, "Rebalancing started.");
 		
-		//result = startRebalancing() TODO call rebalance function here
+		result = StickerSearchDataController.startRebalancing();
+
 		if(result)
 		{
 			HikeAlarmManager.deleteAlarmFromDatabase(intent);
