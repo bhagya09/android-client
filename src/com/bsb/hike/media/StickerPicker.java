@@ -1,5 +1,6 @@
 package com.bsb.hike.media;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -349,7 +350,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		setStickerIntroPrefs();
 		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
 		Intent i = IntentFactory.getStickerShopIntent(mContext);
-		mContext.startActivity(i);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		mContext.getApplicationContext().startActivity(i);
 	}
 
 	public void updateDimension(int width, int height)
@@ -636,6 +638,19 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		setOnClick();
 		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);
+	}
+	
+	public void createExternalStickerPicker(LinearLayout layout)
+	{
+//		chatHeadstickerPickerView = getView(context.getResources().getConfiguration().orientation);
+//		findindViewById();
+//		layout.addView(chatHeadstickerPickerView);
+//		if (ChatHeadService.dismissed > ChatHeadUtils.maxDismissLimit || ChatHeadUtils.shareCount >= ChatHeadUtils.shareLimit)
+//		{
+//			infoIconClick();
+//		}
+//		setOnClick();
+//		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);	
 	}
 
 	private void findindViewById()

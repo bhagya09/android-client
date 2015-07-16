@@ -1,6 +1,7 @@
 package com.bsb.hike.chatHead;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.media.StickerPickerListener;
@@ -58,7 +59,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		setContentView(R.layout.chat_head);
 		ChatHeadUtils.settingDailySharedPref();
 		ChatHeadUtils.initVariables();
-		picker = new StickerPicker(R.layout.chat_head_sticker_layout, this, this, null);
+		picker = new StickerPicker(R.layout.chat_head_sticker_layout, HikeMessengerApp.getInstance(), this, null);
 		LinearLayout layout = (LinearLayout) findViewById(R.id.sticker_pallete_other_app);
 		picker.onCreatingChatHeadActivity(this, layout);
 		picker.setOnClick();

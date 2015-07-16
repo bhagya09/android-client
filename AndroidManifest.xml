@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1275"
-    android:versionName="3.9.8.81.07.chattheme">
+    android:versionCode="1280"
+    android:versionName="3.9.8.81.21">
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -321,6 +321,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:noHistory="true"
             android:excludeFromRecents="true"
+            android:autoRemoveFromRecents="true"
             android:taskAffinity="com.bsb.hike.chatHead"
             android:launchMode="singleInstance">
 		</activity>
