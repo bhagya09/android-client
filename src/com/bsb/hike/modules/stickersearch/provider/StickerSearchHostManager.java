@@ -645,6 +645,7 @@ public class StickerSearchHostManager
 		}
 
 		mMomentCode = StickerSearchUtility.getMomentCode();
+		StickerSearchDataController.getInstance().analyseMessageSent(prevText, sticker, nextText);
 	}
 
 	public ArrayList<Sticker> onClickToSendSticker(int where)
@@ -915,8 +916,9 @@ public class StickerSearchHostManager
 		else
 		{
 			int count = stData.size();
-			float preScoreWeitage = 0.4f;
-			float postScoreWeitage = 0.6f;
+			float preScoreWeitage = 0.25f;
+			float postScoreWeitage = 0.4f;
+			float frequencyWeitage = 0.35f;
 			ArrayList<String> stikcerCodeList = new ArrayList<String>();
 			ArrayList<Integer> stikcerMomentList = new ArrayList<Integer>();
 			ArrayList<Float> matchRankList = new ArrayList<Float>(count);
@@ -930,15 +932,36 @@ public class StickerSearchHostManager
 				}
 				else
 				{
-					if (((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER)) == -1)
+					String frequencyString = (String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY);
+					int frequency;
+					if (Utils.isBlank(frequencyString))
 					{
-						matchRankList.add(0f + (preScoreWeitage * (count - i) / count));
+						frequency = 0;
 					}
 					else
 					{
-						matchRankList.add(((postScoreWeitage * computeAnalogousScoreForExactMatch(searchKey,
-								((String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE)).toUpperCase(Locale.ENGLISH))) / ((int) stData.get(i)
-								.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (preScoreWeitage * (count - i) / count));
+						frequency = Integer.parseInt(frequencyString);
+					}
+					float formattedFrequency;
+					if (frequency >= 10)
+					{
+						formattedFrequency = 0.99f;
+					}
+					else
+					{
+						formattedFrequency = ((float) frequency) / 10f;
+					}
+
+					if (((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER)) == -1)
+					{
+						matchRankList.add((preScoreWeitage * (count - i) / count) + 0f + (frequencyWeitage * formattedFrequency));
+					}
+					else
+					{
+						matchRankList.add((preScoreWeitage * (count - i) / count)
+								+ (postScoreWeitage * (computeAnalogousScoreForExactMatch(searchKey,
+										(String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE))) / ((int) stData.get(i).get(
+										HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (frequencyWeitage * formattedFrequency));
 					}
 					stikcerMomentList.add((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE));
 					stikcerCodeList.add((String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE));

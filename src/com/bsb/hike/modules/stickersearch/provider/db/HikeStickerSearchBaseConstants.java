@@ -83,6 +83,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_WORDS_NOT_USED_WITH_TAG = "frequentWordsForRejectingSticker";
 
+	public static final String STICKER_TAG_POPULARITY = "stickerTagSuitabilityOrder";
+
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
 
@@ -104,6 +106,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String SYNTAX_FTS_VERSION_4 = " USING fts4";
 
 	public static final String SYNTAX_INTEGER_NEXT = " INTEGER, ";
+
+	public static final String SYNTAX_INTEGER_LAST = " INTEGER";
 
 	public static final String SYNTAX_TEXT_NEXT = " TEXT, ";
 
@@ -186,6 +190,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String KEY_PREF_IS_POPULATED = "is_populated";
 
+	public static final String KEY_PREF_LAST_SUMMERIZATION_TIME = "last_summerization_time";
+
 	// ==============================================Constants used in shared_pref or system_db]]
 
 	// Constants used for coding of time moments===============================================[[
@@ -220,6 +226,28 @@ public class HikeStickerSearchBaseConstants
 
 	// =============================================Constants used for indexing of sticker data]]
 
+	// Constants used for indexing of sticker tag data=========================================[[
+	// Order of following indices must be maintained iteratively; whenever removal/ addition of new index is taken place
+	public static final int INDEX_TAG_DATA_TAG_PHRASE = 0;
+
+	public static final int INDEX_TAG_DATA_PHRASE_LANGUAGE = 1;
+
+	public static final int INDEX_TAG_DATA_TAG_STATE_CATEGORY = 2;
+
+	public static final int INDEX_TAG_DATA_CHAT_THEME = 3;
+
+	public static final int INDEX_TAG_DATA_EXACTNESS_PRIORITY = 4;
+
+	public static final int INDEX_TAG_DATA_MOMENT_CODE = 5;
+
+	public static final int INDEX_TAG_DATA_FESTIVALS = 6;
+
+	public static final int INDEX_TAG_DATA_PRIORITY = 7;
+
+	public static final int INDEX_TAG_DATA_COUNT = 8;
+
+	// =========================================Constants used for indexing of sticker tag data]]
+
 	// Constants used for indexing of sticker data=============================================[[
 	// Order of following indices must be maintained iteratively; whenever removal/ addition of new index is taken place
 	public static final int INDEX_STICKER_DATA_STICKER_CODE = 0;
@@ -251,6 +279,15 @@ public class HikeStickerSearchBaseConstants
 	public static final int INDEX_STICKER_DATA_COUNT = 13;
 
 	// =============================================Constants used for indexing of sticker data]]
+
+	// Default story
+	public static final String STORY_DEFAULT = "generic";
+
+	// Default theme
+	public static final String THEME_DEFAULT = "generic";
+
+	// Default moment
+	public static final int MOMENT_DEFAULT = -1;
 
 	// States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY

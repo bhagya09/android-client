@@ -7,16 +7,23 @@
 package com.bsb.hike.modules.stickersearch.provider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -25,7 +32,6 @@ import com.bsb.hike.utils.Utils;
 
 public enum StickerSearchDataController
 {
-
 	INSTANCE;
 	private static final String TAG = StickerSearchDataController.class.getSimpleName();
 
@@ -37,7 +43,11 @@ public enum StickerSearchDataController
 	public void init()
 	{
 		Logger.i(TAG, "init()");
-		HikeStickerSearchDatabase.getInstance().prepare();
+
+		synchronized (StickerSearchDataController.class)
+		{
+			HikeStickerSearchDatabase.getInstance().prepare();
+		}
 	}
 
 	public void setupStickerSearchWizard(JSONObject json, int state)
@@ -46,410 +56,493 @@ public enum StickerSearchDataController
 
 		synchronized (StickerSearchDataController.class)
 		{
-			JSONObject packs = json.optJSONObject(HikeConstants.PACKS);
-			if (packs == null || packs.length() == 0)
+			JSONObject packsData = json.optJSONObject(HikeConstants.PACKS);
+			if ((packsData == null) || (packsData.length() <= 0))
 			{
 				return;
 			}
 
-			Iterator<String> categories = packs.keys();
-			ArrayList<String> tagList = new ArrayList<String>();
-			ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
-			ArrayList<Integer> stickerMomentList = new ArrayList<Integer>();
-			ArrayList<String> stickerList = new ArrayList<String>();
+			Iterator<String> categories = packsData.keys();
+			HashSet<String> stickerCodeList = new HashSet<String>();
+			Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
+			Map<String, ArrayList<Object>> stickerTagData = new HashMap<String, ArrayList<Object>>();
 			Set<String> untaggedSet = new HashSet<String>();
 
 			while (categories.hasNext())
 			{
-				String categoryId = categories.next();
-				if (Utils.isBlank(categoryId))
+				String packId = categories.next();
+				if (Utils.isBlank(packId))
 				{
-					Logger.d(TAG, "Invalid pack id");
+					Logger.e(TAG, "setupStickerSearchWizard(), Invalid pack id.");
 					continue;
 				}
 
-				JSONObject packData = packs.optJSONObject(categoryId);
-				if (packData == null || packData.length() == 0)
+				JSONObject packData = packsData.optJSONObject(packId);
+				if ((packData == null) || (packData.length() <= 0))
 				{
-					Logger.d(TAG, "Empty pack data: " + categoryId);
+					Logger.e(TAG, "setupStickerSearchWizard(), Empty pack data: " + packId);
 					continue;
 				}
 
-				JSONObject stickerData = packData.optJSONObject(HikeConstants.STICKERS);
-				if (stickerData == null || stickerData.length() == 0)
+				JSONObject stickersData = packData.optJSONObject(HikeConstants.STICKERS);
+				if ((stickersData == null) || (stickersData.length() <= 0))
 				{
-					Logger.d(TAG, "No stickers for pack: " + categoryId);
+					Logger.e(TAG, "setupStickerSearchWizard(), No sticker for pack: " + packId);
 					continue;
 				}
-				Iterator<String> stickers = stickerData.keys();
 
-				if (packData.has("stories"))
-				{
-					JSONArray storiesData = packData.optJSONArray("stories");
-					if (storiesData != null)
-					{
-						Logger.d(TAG, categoryId + ": Stories = " + storiesData);
-					}
-				}
+				Iterator<String> stickers = stickersData.keys();
+				int packTagDataCount = 0;
 
 				while (stickers.hasNext())
 				{
 					String stickerId = stickers.next();
 					if (Utils.isBlank(stickerId))
 					{
-						Logger.d(TAG, "Invalid sticker id for pack: " + categoryId);
+						Logger.e(TAG, "setupStickerSearchWizard(), Invalid sticker id inside pack: " + packId);
 						continue;
 					}
 
-					String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId, categoryId);
-					JSONObject data = stickerData.optJSONObject(stickerId);
-					if (data == null || data.length() == 0)
+					String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId.trim(), packId.trim());
+					JSONObject stickerData = stickersData.optJSONObject(stickerId);
+
+					if ((stickerData == null) || (stickerData.length() <= 0))
 					{
-						Logger.d(TAG, "Empty sticker data: " + stickerInfo);
+						Logger.e(TAG, "setupStickerSearchWizard(), Empty sticker data: " + stickerInfo);
 						continue;
 					}
 
-					if (Utils.isBlank(data.optString(HikeConstants.IMAGE)))
+					if (state == StickerSearchConstants.STICKER_DATA_FIRST_SETUP)
 					{
-						Logger.d(TAG, "Empty sticker image data: " + stickerInfo);
-						continue;
+						if (TextUtils.isEmpty(stickerData.optString(HikeConstants.IMAGE)))
+						{
+							Logger.e(TAG, "setupStickerSearchWizard(), Empty sticker image data: " + stickerInfo);
+							continue;
+						}
+					}
+					else if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
+					{
+						Logger.v(TAG, "setupStickerSearchWizard(), No dependency on sticker image data: " + stickerInfo);
+					}
+					else
+					{
+						Logger.e(TAG, "setupStickerSearchWizard(), Invalid trial request: " + stickerInfo);
+						break;
 					}
 
-					JSONObject tagData = data.optJSONObject("tag_data");
-					boolean isTagDataEmpty = true;
+					JSONObject tagData = stickerData.optJSONObject("tag_data");
 
-					if (tagData != null && tagData.length() > 0)
+					if ((tagData != null) && (tagData.length() > 0))
 					{
 						JSONObject tags = tagData.optJSONObject("catgrs");
-						int stickerDataCount = 0;
 
-						if (tags != null && tags.length() > 0)
+						ArrayList<String> themeList = new ArrayList<String>();
+						ArrayList<String> tagList = new ArrayList<String>();
+						ArrayList<String> tagLanguageList = new ArrayList<String>();
+						ArrayList<String> tagCategoryList = new ArrayList<String>();
+						ArrayList<Integer> tagExactMatchPriorityList = new ArrayList<Integer>();
+						ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
+						ArrayList<Integer> stickerMomentList = new ArrayList<Integer>();
+						ArrayList<String> stickerFestivalList = new ArrayList<String>();
+
+						ArrayList<String> tempMatchElements = new ArrayList<String>();
+						ArrayList<String> tempRemainingMatchElements = new ArrayList<String>();
+
+						if ((tags != null) && (tags.length() > 0))
 						{
 							Iterator<String> languages = tags.keys();
-							ArrayList<String> tempElements = new ArrayList<String>();
-							ArrayList<Integer> tempPriorities = new ArrayList<Integer>();
-							ArrayList<String> tempMatchElements = new ArrayList<String>();
 
 							while (languages.hasNext())
 							{
 								String languageId = languages.next();
-								JSONObject dictionaryData = tags.optJSONObject(languageId);
-								tempMatchElements.clear();
-
-								if (dictionaryData != null && dictionaryData.length() > 0)
+								if (Utils.isBlank(languageId))
 								{
-									JSONArray[] s = new JSONArray[9];
-									s[0] = dictionaryData.optJSONArray("*cbehaviour");
-									s[1] = dictionaryData.optJSONArray("*ctheme");
-									s[2] = dictionaryData.optJSONArray("*creaction");
-									s[3] = dictionaryData.optJSONArray("*cresponse");
-									s[4] = dictionaryData.optJSONArray("*cemotion");
-									s[5] = dictionaryData.optJSONArray("*cfeeling");
-									s[6] = dictionaryData.optJSONArray("*cgeneral");
-									s[7] = dictionaryData.optJSONArray("*cother");
-									s[8] = dictionaryData.optJSONArray("*ctitle");
+									Logger.e(TAG, "setupStickerSearchWizard(), Invalid language id for sticker: " + stickerInfo);
+									continue;
+								}
 
-									if (s[8] != null)
+								JSONObject dictionaryData = tags.optJSONObject(languageId);
+
+								if ((dictionaryData != null) && (dictionaryData.length() > 0))
+								{
+									languageId = languageId.trim().toLowerCase(Locale.ENGLISH);
+									Logger.e(TAG, "setupStickerSearchWizard(), Fetching tag data of sticker: " + stickerInfo + ", language: " + languageId);
+
+									String key;
+									String formattedKey;
+									String tag;
+									int exactMatchPriority;
+									Iterator<String> tagTypeKeys = dictionaryData.keys();
+
+									while (tagTypeKeys.hasNext())
 									{
-										Logger.d(TAG, "Received tags: " + s[8].toString());
-										for (int i = 0; i < s[8].length(); i++)
+										key = tagTypeKeys.next();
+
+										if ("*ctitle".equalsIgnoreCase(key))
 										{
-											if (!Utils.isBlank(s[8].optString(i)))
+											JSONArray tagArray = dictionaryData.optJSONArray(key);
+											Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", exact matching tags: " + tagArray);
+
+											if ((tagArray != null) && (tagArray.length() > 0))
 											{
-												tempMatchElements.add(s[8].optString(i).toUpperCase(Locale.ENGLISH));
+												for (int i = 0; i < tagArray.length(); i++)
+												{
+													tag = tagArray.optString(i);
+													if (!Utils.isBlank(tag))
+													{
+														tag = tag.trim().toUpperCase(Locale.ENGLISH);
+														tempMatchElements.add(tag);
+														tempRemainingMatchElements.add(tag);
+													}
+												}
 											}
+
+											dictionaryData.remove(key);
+											break;
 										}
 									}
-									else
+
+									tagTypeKeys = dictionaryData.keys();
+
+									while (tagTypeKeys.hasNext())
 									{
-										Logger.d(TAG, stickerInfo + " dictionary at index = " + 8 + " is invalid or, empty.");
+										key = tagTypeKeys.next();
+
+										if ("*ctheme".equalsIgnoreCase(key))
+										{
+											JSONArray tagArray = dictionaryData.optJSONArray(key);
+											Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", theme tags: " + tagArray);
+
+											if ((tagArray != null) && (tagArray.length() > 0))
+											{
+												formattedKey = key.toLowerCase(Locale.ENGLISH).replace("*c", "");
+
+												for (int i = 0; i < tagArray.length(); i++)
+												{
+													tag = tagArray.optString(i);
+													if (!Utils.isBlank(tag))
+													{
+														tag = tag.trim().toUpperCase(Locale.ENGLISH);
+														themeList.add(tag);
+
+														if (!HikeStickerSearchBaseConstants.THEME_DEFAULT.equals(tag))
+														{
+															tagList.add(tag);
+															tagLanguageList.add(languageId);
+															tagCategoryList.add(formattedKey);
+															exactMatchPriority = tempMatchElements.indexOf(tag);
+															tagExactMatchPriorityList.add(exactMatchPriority);
+															if (exactMatchPriority >= 0)
+															{
+																tempRemainingMatchElements.remove(tag);
+															}
+															tagPriorityList.add(i);
+														}
+													}
+												}
+											}
+
+											dictionaryData.remove(key);
+											break;
+										}
 									}
 
-									for (int m = 0; m < 8; m++)
+									tagTypeKeys = dictionaryData.keys();
+
+									while (tagTypeKeys.hasNext())
 									{
-										if (s[m] != null)
+										key = tagTypeKeys.next();
+										JSONArray tagArray = dictionaryData.optJSONArray(key);
+										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", '" + key + "' tags: " + tagArray);
+
+										if ((tagArray != null) && (tagArray.length() > 0))
 										{
-											Logger.d(TAG, "Received tags: " + s[m].toString());
-											for (int i = 0; i < s[m].length(); i++)
+											key = key.toLowerCase(Locale.ENGLISH);
+											if (key.startsWith("*c"))
 											{
-												if (!Utils.isBlank(s[m].optString(i)))
+												formattedKey = key.replace("*c", "");
+
+												for (int i = 0; i < tagArray.length(); i++)
 												{
-													tempElements.add(s[m].optString(i).toUpperCase(Locale.ENGLISH));
-													tempPriorities.add(tempMatchElements.indexOf(s[m].optString(i).toUpperCase(Locale.ENGLISH)));
+													tag = tagArray.optString(i);
+													if (!Utils.isBlank(tag))
+													{
+														tag = tag.trim().toUpperCase(Locale.ENGLISH);
+														tagList.add(tag);
+														tagLanguageList.add(languageId);
+														tagCategoryList.add(formattedKey);
+														exactMatchPriority = tempMatchElements.indexOf(tag);
+														tagExactMatchPriorityList.add(exactMatchPriority);
+														if (exactMatchPriority >= 0)
+														{
+															tempRemainingMatchElements.remove(tag);
+														}
+														tagPriorityList.add(i);
+													}
 												}
+											}
+											else
+											{
+												Logger.w(TAG, "setupStickerSearchWizard(), Unresolved key: " + key + " was found for sticker id: " + stickerInfo);
 											}
 										}
 										else
 										{
-											Logger.d(TAG, stickerInfo + " dictionary at index = " + m + " is invalid or, empty.");
+											Logger.w(TAG, "setupStickerSearchWizard(), Dictionary of '" + key + "' is invalid/ empty for sticker id: " + stickerInfo);
 										}
 									}
+
+									for (String remainingTag : tempRemainingMatchElements)
+									{
+										tagList.add(remainingTag);
+										tagLanguageList.add(languageId);
+										tagCategoryList.add("title");
+										exactMatchPriority = tempMatchElements.indexOf(remainingTag);
+										tagExactMatchPriorityList.add(exactMatchPriority);
+										tagPriorityList.add(exactMatchPriority);
+									}
+
+									tempMatchElements.clear();
+									tempRemainingMatchElements.clear();
+								}
+								else
+								{
+									Logger.e(TAG, "setupStickerSearchWizard(), Empty sticker tag data: " + stickerInfo + ", language: " + languageId);
 								}
 							}
 
-							stickerDataCount = tempElements.size();
-							if (stickerDataCount > 0)
+							if (themeList.size() <= 0)
 							{
-								isTagDataEmpty = false;
+								tagList.clear();
+								tagLanguageList.clear();
+								tagCategoryList.clear();
+								tagExactMatchPriorityList.clear();
+								tagPriorityList.clear();
 
-								tagList.addAll(tempElements);
-								tagPriorityList.addAll(tempPriorities);
-							}
-						}
-
-						JSONObject attributes = tagData.optJSONObject("attrbs");
-						if (attributes != null)
-						{
-							Logger.d(TAG, "No. of attributes attached with " + stickerInfo + " = " + attributes.length());
-							int momentCode = attributes.optInt("*atime", -1);
-							for (int i = 0; i < stickerDataCount; i++)
-							{
-								stickerMomentList.add(momentCode);
-								stickerList.add(stickerInfo);
+								Logger.e(TAG, "setupStickerSearchWizard(), No valid theme is attached with sticker: " + stickerInfo);
+								continue;
 							}
 						}
 						else
 						{
-							Logger.d(TAG, "No attribute attached with " + stickerInfo);
-							for (int i = 0; i < stickerDataCount; i++)
-							{
-								stickerMomentList.add(-1);
-								stickerList.add(stickerInfo);
-							}
+							Logger.e(TAG, "setupStickerSearchWizard(), Empty sticker tag data: " + stickerInfo);
 						}
-					}
 
-					if (isTagDataEmpty)
-					{
-						untaggedSet.add(stickerInfo);
-					}
-				}
-			}
-
-			Logger.d(TAG, "Stickers: " + stickerList);
-			Logger.d(TAG, "Tags: " + tagList);
-			Logger.d(TAG, "Tag Priorities: " + tagPriorityList);
-			Logger.d(TAG, "Sticker moments: " + stickerMomentList);
-
-			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tagList, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tagList, tagPriorityList, stickerMomentList, stickerList));
-
-			Logger.d(TAG, "Untagged stickers: " + untaggedSet);
-		}
-	}
-
-	public void updateStickerSearchWizard(JSONObject json, int state)
-	{
-		Logger.i(TAG, "updateStickerSearchWizard(" + json + ", " + state + ")");
-
-		synchronized (StickerSearchDataController.class)
-		{
-			JSONObject packs = json.optJSONObject(HikeConstants.PACKS);
-			if (packs == null || packs.length() == 0)
-			{
-				return;
-			}
-
-			Iterator<String> categories = packs.keys();
-			ArrayList<String> tagList = new ArrayList<String>();
-			ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
-			ArrayList<Integer> stickerMomentList = new ArrayList<Integer>();
-			ArrayList<String> stickerList = new ArrayList<String>();
-			Set<String> untaggedSet = new HashSet<String>();
-
-			while (categories.hasNext())
-			{
-				String categoryId = categories.next();
-				if (Utils.isBlank(categoryId))
-				{
-					Logger.d(TAG, "Invalid pack id");
-					continue;
-				}
-
-				JSONObject packData = packs.optJSONObject(categoryId);
-				if (packData == null || packData.length() == 0)
-				{
-					Logger.d(TAG, "Empty pack data: " + categoryId);
-					continue;
-				}
-
-				JSONObject stickerData = packData.optJSONObject(HikeConstants.STICKERS);
-				if (stickerData == null || stickerData.length() == 0)
-				{
-					Logger.d(TAG, "No stickers for pack: " + categoryId);
-					continue;
-				}
-				Iterator<String> stickers = stickerData.keys();
-
-				if (packData.has("stories"))
-				{
-					JSONArray storiesData = packData.optJSONArray("stories");
-					if (storiesData != null)
-					{
-						Logger.d(TAG, categoryId + ": Stories = " + storiesData);
-					}
-				}
-
-				while (stickers.hasNext())
-				{
-					String stickerId = stickers.next();
-					if (Utils.isBlank(stickerId))
-					{
-						Logger.d(TAG, "Invalid sticker id for pack: " + categoryId);
-						continue;
-					}
-
-					String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId, categoryId);
-					JSONObject data = stickerData.optJSONObject(stickerId);
-					if (data == null || data.length() == 0)
-					{
-						Logger.d(TAG, "Empty sticker data: " + stickerInfo);
-						continue;
-					}
-
-					JSONObject tagData = data.optJSONObject("tag_data");
-					boolean isTagDataEmpty = true;
-
-					if (tagData != null && tagData.length() > 0)
-					{
-						JSONObject tags = tagData.optJSONObject("catgrs");
-						int stickerDataCount = 0;
-
-						if (tags != null && tags.length() > 0)
+						int stickerTagDataCount = tagList.size();
+						if (stickerTagDataCount > 0)
 						{
-							Iterator<String> languages = tags.keys();
-							ArrayList<String> tempElements = new ArrayList<String>();
-							ArrayList<Integer> tempPriorities = new ArrayList<Integer>();
-							ArrayList<String> tempMatchElements = new ArrayList<String>();
+							boolean momentDataEntered = false;
+							boolean festivalDataEntered = false;
+							JSONObject attributeData = tagData.optJSONObject("attrbs");
 
-							while (languages.hasNext())
+							if ((attributeData != null) && (attributeData.length() > 0))
 							{
-								String languageId = languages.next();
-								JSONObject dictionaryData = tags.optJSONObject(languageId);
-								tempMatchElements.clear();
+								Logger.v(TAG, "setupStickerSearchWizard(), No. of attributes attached with " + stickerInfo + " = " + attributeData.length());
+								Iterator<String> attributeKeys = attributeData.keys();
+								String key;
 
-								if (dictionaryData != null && dictionaryData.length() > 0)
+								while (attributeKeys.hasNext())
 								{
-									JSONArray[] s = new JSONArray[9];
-									s[0] = dictionaryData.optJSONArray("*cbehaviour");
-									s[1] = dictionaryData.optJSONArray("*ctheme");
-									s[2] = dictionaryData.optJSONArray("*creaction");
-									s[3] = dictionaryData.optJSONArray("*cresponse");
-									s[4] = dictionaryData.optJSONArray("*cemotion");
-									s[5] = dictionaryData.optJSONArray("*cfeeling");
-									s[6] = dictionaryData.optJSONArray("*cgeneral");
-									s[7] = dictionaryData.optJSONArray("*cother");
-									s[8] = dictionaryData.optJSONArray("*ctitle");
-
-									if (s[8] != null)
+									key = attributeKeys.next();
+									if (key.equalsIgnoreCase("*atime"))
 									{
-										Logger.d(TAG, "Received tags: " + s[8].toString());
-										for (int i = 0; i < s[8].length(); i++)
+										int momentCode = attributeData.optInt(key, HikeStickerSearchBaseConstants.MOMENT_DEFAULT);
+
+										for (int i = 0; i < stickerTagDataCount; i++)
 										{
-											if (!Utils.isBlank(s[8].optString(i)))
-											{
-												tempMatchElements.add(s[8].optString(i).toUpperCase(Locale.ENGLISH));
-											}
+											stickerMomentList.add(momentCode);
 										}
-									}
-									else
-									{
-										Logger.d(TAG, stickerInfo + " dictionary at index = " + 8 + " is invalid or, empty.");
-									}
 
-									for (int m = 0; m < 8; m++)
+										momentDataEntered = true;
+									}
+									else if (key.equalsIgnoreCase("*afestival"))
 									{
-										if (s[m] != null)
+										JSONArray festivalArray = attributeData.optJSONArray(key);
+										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", festivals: " + festivalArray);
+										StringBuilder sb = new StringBuilder();
+										String festivalString;
+
+										if (festivalArray != null)
 										{
-											Logger.d(TAG, "Received tags: " + s[m].toString());
-											for (int i = 0; i < s[m].length(); i++)
+											for (int i = 0; i < festivalArray.length(); i++)
 											{
-												if (!Utils.isBlank(s[m].optString(i)))
+												festivalString = festivalArray.optString(i);
+												if (!Utils.isBlank(festivalString))
 												{
-													tempElements.add(s[m].optString(i).toUpperCase(Locale.ENGLISH));
-													tempPriorities.add(tempMatchElements.indexOf(s[m].optString(i).toUpperCase(Locale.ENGLISH)));
+													sb.append(festivalString.trim().toUpperCase(Locale.ENGLISH));
+													sb.append(",");
 												}
 											}
+
+											if (sb.length() > 0)
+											{
+												sb.setLength(sb.length() - 1);
+											}
 										}
-										else
+
+										festivalString = sb.toString();
+
+										for (int i = 0; i < stickerTagDataCount; i++)
 										{
-											Logger.d(TAG, stickerInfo + " dictionary at index = " + m + " is invalid or, empty.");
+											stickerFestivalList.add(festivalString);
 										}
+
+										festivalDataEntered = true;
 									}
 								}
 							}
-
-							stickerDataCount = tempElements.size();
-							if (stickerDataCount > 0)
+							else
 							{
-								isTagDataEmpty = false;
-
-								tagList.addAll(tempElements);
-								tagPriorityList.addAll(tempPriorities);
+								Logger.e(TAG, "setupStickerSearchWizard(), No attribute attached with sticker: " + stickerInfo);
 							}
-						}
 
-						JSONObject attributes = tagData.optJSONObject("attrbs");
-						if (attributes != null)
-						{
-							Logger.d(TAG, "No. of attributes attached with " + stickerInfo + " = " + attributes.length());
-							int momentCode = attributes.optInt("*atime", -1);
-							for (int i = 0; i < stickerDataCount; i++)
+							if (!momentDataEntered)
 							{
-								stickerMomentList.add(momentCode);
-								stickerList.add(stickerInfo);
+								for (int i = 0; i < stickerTagDataCount; i++)
+								{
+									stickerMomentList.add(HikeStickerSearchBaseConstants.MOMENT_DEFAULT);
+								}
 							}
+
+							if (!festivalDataEntered)
+							{
+								for (int i = 0; i < stickerTagDataCount; i++)
+								{
+									stickerFestivalList.add("");
+								}
+							}
+
+							// build tag data
+							stickerTagData.put(
+									stickerInfo,
+									buildStickerTagData(tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList, tagPriorityList, stickerMomentList,
+											stickerFestivalList));
+							stickerCodeList.add(stickerInfo);
 						}
 						else
 						{
-							Logger.d(TAG, "No attribute attached with " + stickerInfo);
-							for (int i = 0; i < stickerDataCount; i++)
+							untaggedSet.add(stickerInfo);
+						}
+
+						packTagDataCount += stickerTagDataCount;
+					}
+					else
+					{
+						Logger.w(TAG, "setupStickerSearchWizard(), No tagging is available for sticker: " + stickerInfo);
+					}
+				}
+
+				if (packTagDataCount > 0)
+				{
+					JSONArray storyData = packData.optJSONArray("stories");
+					if ((storyData != null) && (storyData.length() > 0))
+					{
+						Logger.v(TAG, "setupStickerSearchWizard(), pack: " + packId + ", stories: " + storyData);
+						ArrayList<String> stories = new ArrayList<String>();
+						String story;
+
+						for (int i = 0; i < storyData.length(); i++)
+						{
+							story = storyData.optString(i);
+							if (!Utils.isBlank(story))
 							{
-								stickerMomentList.add(-1);
-								stickerList.add(stickerInfo);
+								stories.add(story.trim().toLowerCase(Locale.ENGLISH));
 							}
 						}
+						packStoryData.put(packId, stories);
 					}
-
-					if (isTagDataEmpty)
+					else
 					{
-						untaggedSet.add(stickerInfo);
+						Logger.w(TAG, "setupStickerSearchWizard(), No story is attached for pack: " + packId);
+						ArrayList<String> stories = new ArrayList<String>();
+						stories.add(HikeStickerSearchBaseConstants.STORY_DEFAULT);
+						packStoryData.put(packId, stories);
 					}
 				}
-			}
-
-			Logger.d(TAG, "Stickers: " + stickerList);
-			Logger.d(TAG, "Tags: " + tagList);
-			Logger.d(TAG, "Tag Priorities: " + tagPriorityList);
-			Logger.d(TAG, "Sticker moments: " + stickerMomentList);
-
-			HikeStickerSearchDatabase.getInstance().insertIntoFTSTable(tagList, HikeStickerSearchDatabase.getInstance().insertIntoPrimaryTable(tagList, tagPriorityList, stickerMomentList, stickerList));
-
-			Logger.d(TAG, "Current untagged stickers: " + untaggedSet);
-			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-			Set<String> updateRetrySet = new HashSet<String>();
-			Logger.d(TAG, "previous retry list: " + pendingRetrySet);
-
-			if (pendingRetrySet != null)
-			{
-				for (String s : pendingRetrySet)
+				else
 				{
-					if (!stickerList.contains(s) && !untaggedSet.contains(s))
-					{
-						updateRetrySet.add(s);
-					}
+					Logger.e(TAG, "setupStickerSearchWizard(), Invalid/ Empty tagging is attached with stickers of pack: " + packId);
 				}
 			}
 
-			Logger.d(TAG, "updated retry list: " + updateRetrySet);
-			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
+			Logger.v(TAG, "setupStickerSearchWizard(), Pack-Story data: " + packStoryData);
+			Logger.v(TAG, "setupStickerSearchWizard(), Sticker-Tag data: " + stickerTagData);
+			HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickerTagData);
+
+			Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
+			if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
+			{
+				Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+				Set<String> updateRetrySet = new HashSet<String>();
+				Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trail list: " + pendingRetrySet);
+
+				if (pendingRetrySet != null)
+				{
+					for (String stickerCode : pendingRetrySet)
+					{
+						if (!stickerCodeList.contains(stickerCode) && !untaggedSet.contains(stickerCode))
+						{
+							updateRetrySet.add(stickerCode);
+						}
+					}
+				}
+
+				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
+				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
+			}
 		}
 	}
 
-	public void updateStickerList(Set<String> stickerInfo)
+	public void updateStickerList(Set<String> stickerInfoSet)
 	{
+		Logger.i(TAG, "updateStickerList(" + stickerInfoSet + ")");
+
 		synchronized (StickerSearchDataController.class)
 		{
-			HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfo);
+			HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfoSet);
 		}
+	}
+
+	private ArrayList<Object> buildStickerTagData(ArrayList<String> tags, ArrayList<String> languages, ArrayList<String> tagCategories, ArrayList<String> themes,
+			ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities, ArrayList<Integer> moments, ArrayList<String> festivals)
+	{
+		ArrayList<Object> data = new ArrayList<Object>(HikeStickerSearchBaseConstants.INDEX_TAG_DATA_COUNT);
+
+		// Do not change the order of insertion as per indices defined as followed
+		// INDEX_TAG_DATA_TAG_PHRASE = 0;
+		// INDEX_TAG_DATA_PHRASE_LANGUAGE = 1;
+		// INDEX_TAG_DATA_TAG_STATE_CATEGORY = 2;
+		// INDEX_TAG_DATA_CHAT_THEME = 3;
+		// INDEX_TAG_DATA_EXACTNESS_PRIORITY = 4;
+		// INDEX_TAG_DATA_MOMENT_CODE = 5;
+		// INDEX_TAG_DATA_FESTIVALS = 6;
+		// INDEX_TAG_DATA_PRIORITY = 7;
+		// INDEX_TAG_DATA_COUNT = 8;
+
+		data.add(tags);
+		data.add(languages);
+		data.add(tagCategories);
+		data.add(themes);
+		data.add(tagExactMatchPriorities);
+		data.add(moments);
+		data.add(festivals);
+		data.add(tagPriorities);
+
+		return data;
+	}
+
+	public void analyseMessageSent(String prevText, Sticker sticker, String nextText)
+	{
+		Logger.i(TAG, "analyseMessageSet(" + prevText + ", " + sticker + ", " + nextText + ")");
+
+		HikeStickerSearchDatabase.getInstance().analyseMessageSent(prevText, sticker, nextText);
+	}
+
+	public static boolean startRebalancing()
+	{
+		Logger.i(TAG, "startRebalancing()");
+
+
+		return HikeStickerSearchDatabase.getInstance().startRebalancing();
 	}
 }

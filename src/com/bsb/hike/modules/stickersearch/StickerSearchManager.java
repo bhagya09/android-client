@@ -270,7 +270,7 @@ public class StickerSearchManager
 
 	public void insertStickerTags(JSONObject json, int trialValue)
 	{
-		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, trialValue, 1);
+		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, trialValue);
 		searchEngine.runOnQueryThread(stickerInsertTask);
 	}
 
