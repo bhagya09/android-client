@@ -88,65 +88,58 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void afterTextChanged(Editable s)
+	public void afterTextChanged(Editable editable)
 	{
-		this.editable = s;
+		this.editable = editable;
 		Logger.i(TAG, "afterTextChanged(), " + "string: " + editable);
 	}
 
 	@Override
 	public void highlightText(final int start, final int end)
 	{
-		if(activity == null)
+		try
 		{
-			Logger.wtf(TAG, "highlightText text acivity is null");
-			return;
+			Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
+			removeAttachedSpans(start, end);
+			editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
-		activity.runOnUiThread(new Runnable()
+		catch(IndexOutOfBoundsException ex)
 		{
-			
-			@Override
-			public void run()
-			{
-				Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
-				removeAttachedSpans(start, end);
-				editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				
-			}
-		});
+			Logger.d(TAG, "index out of bounds ex in highlight text ", ex);
+		}
 	}
 
 	@Override
 	public void unHighlightText(final int start, final int end)
 	{
-		if(activity == null)
+		try
 		{
-			Logger.wtf(TAG, "unHighlightText text acivity is null");
-			return;
+			Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
+			removeAttachedSpans(start, end);
+			editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
-		activity.runOnUiThread(new Runnable()
+		catch(IndexOutOfBoundsException ex)
 		{
-			
-			@Override
-			public void run()
-			{
-				
-				Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
-				removeAttachedSpans(start, end);
-				editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-		});
+			Logger.d(TAG, "index out of bounds ex in unhighlight text ", ex);
+		}
 	}
 	
 	private void removeAttachedSpans(int start, int end)
 	{
-		ForegroundColorSpan[] spans =  editable.getSpans(start, end, ForegroundColorSpan.class);
-		if(spans != null)
+		try
 		{
-			for(int  i = 0 ; i < spans.length ; i ++)
+			ForegroundColorSpan[] spans =  editable.getSpans(start, end, ForegroundColorSpan.class);
+			if(spans != null)
 			{
-				editable.removeSpan(spans[i]);
+				for(int  i = 0 ; i < spans.length ; i ++)
+				{
+					editable.removeSpan(spans[i]);
+				}
 			}
+		}
+		catch (Throwable e) // multiple exceptions in yureka
+		{
+			Logger.e(TAG, "Exception in get spans ", e);
 		}
 	}
 
