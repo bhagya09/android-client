@@ -1959,8 +1959,13 @@ public class VoIPService extends Service {
 			} else
 				seconds = 0;
 			return seconds;
-		} else
-			return getClient().getCallDuration();
+		} else {
+			VoIPClient client = getClient();
+			if (client != null)
+				return client.getCallDuration();
+			else
+				return 0;
+		}
 	}
 	
 	public boolean hostingConference() {

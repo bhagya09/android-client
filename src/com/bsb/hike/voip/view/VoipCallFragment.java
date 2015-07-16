@@ -209,8 +209,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
-		updateCallStatus();
 		initProximityWakelock();
+		updateCallStatus();
 		super.onResume();
 	}
 
@@ -272,7 +272,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(tag, "There is no active call.");
-			getSherlockActivity().finish();	// Bugfix AND-354
+//			getSherlockActivity().finish();	// Bugfix AND-354
 			return;
 		}
 
