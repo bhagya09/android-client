@@ -3528,7 +3528,7 @@ public class Utils
 		Intent intent = new Intent();
 		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
 		{
-			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
 		}
 
 		else
