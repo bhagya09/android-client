@@ -702,6 +702,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			animation.setFillAfter(true);
 			mParent.findViewById(R.id.info_group).startAnimation(animation);
 			mParent.findViewById(R.id.gradient).startAnimation(animation);
+			gallaryButton.setVisibility((gallaryButton.getVisibility() == View.VISIBLE)?View.GONE:View.VISIBLE);
 		}
 	}
 	
