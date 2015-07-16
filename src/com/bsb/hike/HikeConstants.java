@@ -1074,6 +1074,8 @@ public class HikeConstants
 
 	public static final String VOIP_BITRATE_WIFI = "vbw";
 
+	public static final String VOIP_BITRATE_CONFERENCE = "vbc";
+
 	public static final String VOIP_ACTIVATED = "voip";
 
 	public static final String VOIP_CALL_RATE_POPUP_SHOW = "vrmcs";

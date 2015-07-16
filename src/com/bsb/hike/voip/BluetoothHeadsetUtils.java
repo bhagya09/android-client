@@ -1,19 +1,13 @@
 package com.bsb.hike.voip;
 
-import java.util.List;
-
-import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothHeadset;
-import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.os.Build;
 import android.os.CountDownTimer;
 import android.util.Log;
 
@@ -24,7 +18,6 @@ public abstract class BluetoothHeadsetUtils
     private  Context mContext;
 
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothHeadset mBluetoothHeadset;
     private BluetoothDevice mConnectedHeadset;
 
     private AudioManager mAudioManager;
@@ -34,7 +27,7 @@ public abstract class BluetoothHeadsetUtils
     private boolean mIsOnHeadsetSco;
     private boolean mIsStarted;
 
-    private static final String TAG = "BluetoothHeadsetUtils"; //$NON-NLS-1$
+    private static final String TAG = VoIPConstants.TAG +  " BluetoothHeadsetUtils"; //$NON-NLS-1$
 
     /**
      * Constructor
@@ -55,17 +48,8 @@ public abstract class BluetoothHeadsetUtils
     {
         if (!mIsStarted)
         {
-            mIsStarted = true;
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-            {
-                mIsStarted = startBluetooth();
-            }
-            else
-            {
-                mIsStarted = startBluetooth();
-                // mIsStarted = startBluetooth11();
-            }
+        	mIsStarted = true;
+        	mIsStarted = startBluetooth();
         }
 
         return mIsStarted;
@@ -80,17 +64,8 @@ public abstract class BluetoothHeadsetUtils
     {
         if (mIsStarted)
         {
-            mIsStarted = false;
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-            {
-                stopBluetooth();
-            }
-            else
-            {
-                stopBluetooth();
-                // stopBluetooth11();
-            }
+        	mIsStarted = false;
+        	stopBluetooth();
         }
     }
 
@@ -167,34 +142,6 @@ public abstract class BluetoothHeadsetUtils
     }
 
     /**
-     * Register a headset profile listener
-     * @return false    if device does not support bluetooth or current platform does not supports
-     *                  use of SCO for off call or error in getting profile proxy.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private boolean startBluetooth11()
-    {
-        Log.d(TAG, "startBluetooth11"); //$NON-NLS-1$
-
-        // Device support bluetooth
-        if (mBluetoothAdapter != null)
-        {
-            if (mAudioManager.isBluetoothScoAvailableOffCall())
-            {
-                // All the detection and audio connection are done in mHeadsetProfileListener
-                if (mBluetoothAdapter.getProfileProxy(mContext, 
-                                                    mHeadsetProfileListener, 
-                                                    BluetoothProfile.HEADSET))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * API < 11
      * Unregister broadcast receivers and stop Sco audio connection
      * and cancel count down.
@@ -214,33 +161,6 @@ public abstract class BluetoothHeadsetUtils
         mContext.unregisterReceiver(mBroadcastReceiver);
         mAudioManager.stopBluetoothSco();
         mAudioManager.setMode(AudioManager.MODE_NORMAL);
-    }
-
-    /**
-     * API >= 11
-     * Unregister broadcast receivers and stop Sco audio connection
-     * and cancel count down.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    protected void stopBluetooth11()
-    {
-        Log.d(TAG, "stopBluetooth11"); //$NON-NLS-1$
-
-        if (mIsCountDownOn)
-        {
-            mIsCountDownOn = false;
-            mCountDown11.cancel();
-        }
-
-        if (mBluetoothHeadset != null)
-        {
-            // Need to call stopVoiceRecognition here when the app
-            // change orientation or close with headset still turns on.
-            mBluetoothHeadset.stopVoiceRecognition(mConnectedHeadset);
-            mContext.unregisterReceiver(mHeadsetBroadcastReceiver);
-            mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEADSET, mBluetoothHeadset);
-            mBluetoothHeadset = null;
-        }
     }
 
     /**
@@ -373,185 +293,6 @@ public abstract class BluetoothHeadsetUtils
             mIsCountDownOn = false;
             mAudioManager.setMode(AudioManager.MODE_NORMAL);
 
-            Log.d(TAG, "\nonFinish fail to connect to headset audio"); //$NON-NLS-1$
-        }
-    };
-
-    /**
-     * API >= 11
-     * Check for already connected headset and if so start audio connection.
-     * Register for broadcast of headset and Sco audio connection states.
-     */
-    private BluetoothProfile.ServiceListener mHeadsetProfileListener = new BluetoothProfile.ServiceListener()
-    {
-
-        /**
-         * This method is never called, even when we closeProfileProxy on onPause.
-         * When or will it ever be called???
-         */
-        @Override
-        public void onServiceDisconnected(int profile)
-        {
-            Log.d(TAG, "Profile listener onServiceDisconnected"); //$NON-NLS-1$
-            stopBluetooth11();
-        }
-
-        @SuppressWarnings("synthetic-access")
-        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-        @Override
-        public void onServiceConnected(int profile, BluetoothProfile proxy)
-        {
-            Log.d(TAG, "Profile listener onServiceConnected"); //$NON-NLS-1$
-
-            // mBluetoothHeadset is just a headset profile, 
-            // it does not represent a headset device.
-            mBluetoothHeadset = (BluetoothHeadset) proxy;
-
-            // If a headset is connected before this application starts,
-            // ACTION_CONNECTION_STATE_CHANGED will not be broadcast. 
-            // So we need to check for already connected headset.
-            List<BluetoothDevice> devices = mBluetoothHeadset.getConnectedDevices();
-            if (devices.size() > 0)
-            {
-                // Only one headset can be connected at a time, 
-                // so the connected headset is at index 0.
-                mConnectedHeadset = devices.get(0);
-
-                onHeadsetConnected();
-
-                // Should not need count down timer, but just in case.
-                // See comment below in mHeadsetBroadcastReceiver onReceive()
-                mIsCountDownOn = true;
-                mCountDown11.start();
-
-                Log.d(TAG, "Start count down"); //$NON-NLS-1$
-            }
-
-            // During the active life time of the app, a user may turn on and off the headset.
-            // So register for broadcast of connection states.
-            mContext.registerReceiver(mHeadsetBroadcastReceiver, 
-                            new IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED));
-            // Calling startVoiceRecognition does not result in immediate audio connection.
-            // So register for broadcast of audio connection states. This broadcast will
-            // only be sent if startVoiceRecognition returns true.
-            mContext.registerReceiver(mHeadsetBroadcastReceiver, 
-                            new IntentFilter(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED));
-        }
-    };
-
-    /**
-     *  API >= 11
-     *  Handle headset and Sco audio connection states.
-     */
-    private BroadcastReceiver mHeadsetBroadcastReceiver = new BroadcastReceiver()
-    {
-
-        @SuppressWarnings("synthetic-access")
-        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-        @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            String action = intent.getAction();
-            int state;
-            if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
-            {
-                state = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, 
-                                            BluetoothHeadset.STATE_DISCONNECTED);
-                Log.d(TAG, "\nAction = " + action + "\nState = " + state); //$NON-NLS-1$ //$NON-NLS-2$
-                if (state == BluetoothHeadset.STATE_CONNECTED)
-                {
-                    mConnectedHeadset = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                    // Calling startVoiceRecognition always returns false here, 
-                    // that why a count down timer is implemented to call
-                    // startVoiceRecognition in the onTick.
-                    mIsCountDownOn = true;
-                    mCountDown11.start();
-
-                    // override this if you want to do other thing when the device is connected.
-                    onHeadsetConnected();
-
-                    Log.d(TAG, "Start count down"); //$NON-NLS-1$
-                }
-                else if (state == BluetoothHeadset.STATE_DISCONNECTED)
-                {
-                    // Calling stopVoiceRecognition always returns false here
-                    // as it should since the headset is no longer connected.
-                    if (mIsCountDownOn)
-                    {
-                        mIsCountDownOn = false;
-                        mCountDown11.cancel();
-                    }
-                    mConnectedHeadset = null;
-
-                    // override this if you want to do other thing when the device is disconnected.
-                    onHeadsetDisconnected();
-
-                    Log.d(TAG, "Headset disconnected"); //$NON-NLS-1$
-                }
-            }
-            else // audio
-            {
-                state = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
-                Log.d(TAG, "\nAction = " + action + "\nState = " + state); //$NON-NLS-1$ //$NON-NLS-2$
-                if (state == BluetoothHeadset.STATE_AUDIO_CONNECTED)
-                {
-                    Log.d(TAG, "\nHeadset audio connected");  //$NON-NLS-1$
-
-                    mIsOnHeadsetSco = true;
-
-                    if (mIsCountDownOn)
-                    {
-                        mIsCountDownOn = false;
-                        mCountDown11.cancel();
-                    }
-
-                    // override this if you want to do other thing when headset audio is connected.
-                    onScoAudioConnected();
-                }
-                else if (state == BluetoothHeadset.STATE_AUDIO_DISCONNECTED)
-                {
-                    mIsOnHeadsetSco = false;
-
-                    // The headset audio is disconnected, but calling
-                    // stopVoiceRecognition always returns true here.
-                    mBluetoothHeadset.stopVoiceRecognition(mConnectedHeadset);
-
-                    // override this if you want to do other thing when headset audio is disconnected.
-                    onScoAudioDisconnected();
-
-                    Log.d(TAG, "Headset audio disconnected"); //$NON-NLS-1$
-                }
-            }   
-        }
-    };
-
-    /**
-     * API >= 11
-     * Try to connect to audio headset in onTick.
-     */
-    private CountDownTimer mCountDown11 = new CountDownTimer(10000, 1000)
-    {
-        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public void onTick(long millisUntilFinished)
-        {
-            // First stick calls always returns false. The second stick
-            // always returns true if the countDownInterval is set to 1000.
-            // It is somewhere in between 500 to a 1000.
-            mBluetoothHeadset.startVoiceRecognition(mConnectedHeadset);
-
-            Log.d(TAG, "onTick startVoiceRecognition"); //$NON-NLS-1$
-        }
-
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public void onFinish()
-        {
-            // Calls to startVoiceRecognition in onStick are not successful.
-            // Should implement something to inform user of this failure
-            mIsCountDownOn = false;
             Log.d(TAG, "\nonFinish fail to connect to headset audio"); //$NON-NLS-1$
         }
     };
