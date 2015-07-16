@@ -799,6 +799,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public void analyseMessageSent(String prevText, Sticker sticker, String nextText)
 	{
+		if (sticker == null)
+		{
+			return;
+		}
+
 		Cursor c = null;
 		String stickerCode = StickerManager.getInstance().getStickerSetString(sticker);
 		ArrayList<Long> rowIdList = null;
@@ -953,7 +958,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				ArrayList<Long> rowIdList = new ArrayList<Long>();
 				ArrayList<Integer> ageList = new ArrayList<Integer>();
 				double thresholdFrequency = 0.4 * maxFrequency + 0.6 * minFrequency;
-				double standardDeviation = Math.sqrt(Math.pow((maxFrequency - thresholdFrequency), 2) + Math.pow((thresholdFrequency - minFrequency), 2));
+				double standardDeviation = Math.sqrt((Math.pow((maxFrequency - thresholdFrequency), 2) + Math.pow((thresholdFrequency - minFrequency), 2)) / 2);
 				int cuttOffFrequency = (int) (thresholdFrequency - standardDeviation + 0.5);
 				int frequency;
 				remainingCount = count;
