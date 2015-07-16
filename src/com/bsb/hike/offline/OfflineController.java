@@ -496,6 +496,11 @@ public class OfflineController
 	{
 		offlineManager.deleteMsgs(msgIds);
 		
+	}
+
+	public String getConnectingDevice() 
+	{
+		return offlineManager.getConnectingDevice();
 	}	
 
 }
