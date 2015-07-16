@@ -543,11 +543,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		this.savedState = savedState;
 		init();
+		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
-		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 	}
 	
 	/**
@@ -1075,7 +1075,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return;
 		}
-		StickerSearchManager.getInstance().sentMessage(message, null, null);
+		StickerSearchManager.getInstance().sentMessage(message, null, null, null);
 	}
 	
 	protected void audioRecordClicked()
@@ -1764,7 +1764,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void stickerSelected(Sticker sticker, String sourceOfSticker)
 	{
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
-		StickerSearchManager.getInstance().sentMessage(null, sticker, null);
+		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		sendSticker(sticker, sourceOfSticker);
 	}
 
@@ -3534,7 +3534,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeViewWatcher.setBtnEnabled();
 			mComposeView.requestFocus();
 		}
-
 	}
 
 	public void onRestart()

@@ -16,6 +16,7 @@ import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
+import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
@@ -79,6 +80,12 @@ public class StickerSearchManager
 			throw new IllegalStateException("removeStickerSearchListener(), Some listner remains.");
 		}
 		this.listener = null;
+	}
+
+	public void loadChatProfile(String msidn, boolean isGroupChat, long lastMessageTimestamp)
+	{
+		LoadChatProfileTask loadChatProfileTask = new LoadChatProfileTask(msidn, isGroupChat, lastMessageTimestamp);
+		searchEngine.runOnSearchThread(loadChatProfileTask, 0);
 	}
 
 	public void onTextChanged(CharSequence s, int start, int before, int count)
@@ -263,7 +270,7 @@ public class StickerSearchManager
 
 	public void insertStickerTags(JSONObject json, int trialValue)
 	{
-		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, trialValue, 1);
+		StickerTagInsertTask stickerInsertTask = new StickerTagInsertTask(json, trialValue);
 		searchEngine.runOnQueryThread(stickerInsertTask);
 	}
 
@@ -279,9 +286,9 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
 	}
 	
-	public void sentMessage(String prevText, Sticker sticker, String nextText)
+	public void sentMessage(String prevText, Sticker sticker, String nextText, String currentText)
 	{
-		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText);
+		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText, currentText);
 		searchEngine.runOnQueryThread(newMessageSentTask);
 	}
 	
