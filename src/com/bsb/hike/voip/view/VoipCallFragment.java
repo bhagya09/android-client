@@ -209,8 +209,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
-		updateCallStatus();
 		initProximityWakelock();
+		updateCallStatus();
 		super.onResume();
 	}
 
@@ -431,7 +431,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void initProximityWakelock() 
 	{
-		Logger.w(tag, "Initializing proximity sensor.");
 		if(activity.isShowingCallFailedFragment() || proximityWakeLock != null)
 			return;
 
@@ -443,7 +442,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void releaseProximityWakelock()
 	{
-		Logger.w(tag, "Releasing proximity sensor.");
 		if (proximityWakeLock != null)
 		{
 			proximityWakeLock.release();
