@@ -2361,7 +2361,7 @@ public class Utils
 				HikeConstants.GOOGLE_PLUS_PREFIX)|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
 	}
 
-	public static Uri makePicasaUri(Uri uri)
+	public static Uri makePicasaUriIfRequired(Uri uri)
 	{
 		if (uri.toString().startsWith("content://com.android.gallery3d.provider"))
 		{
@@ -2635,8 +2635,17 @@ public class Utils
 		{
 			return;
 		}
-		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.showSoftInput(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+		showSoftKeyboard(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+	}
+	
+	public static void showSoftKeyboard(View v,int flags)
+	{
+		if (v == null)
+		{
+			return;
+		}
+		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInput(v, flags);
 	}
 	
 //	public static void showSoftKeyboard(Context context)
@@ -3297,6 +3306,16 @@ public class Utils
 	public static boolean isJELLY_BEAN_MR2OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
+	}
+	
+	public static boolean isJellybeanOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+	}
+
+	public static boolean isJellybeanMR1OrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
 	}
 
 	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
