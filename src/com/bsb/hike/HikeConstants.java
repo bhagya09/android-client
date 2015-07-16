@@ -2874,6 +2874,8 @@ public class HikeConstants
 
 	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
 
+	public static final String KEYBOARD_CONFIGURATION = "kc";
+
 	public static final String GET="get";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";

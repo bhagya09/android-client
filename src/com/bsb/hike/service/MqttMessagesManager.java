@@ -2091,6 +2091,15 @@ public class MqttMessagesManager
 			}
 		}
 		
+		if (data.has(HikeConstants.KEYBOARD_CONFIGURATION))
+		{
+			int kc = data.getInt(HikeConstants.KEYBOARD_CONFIGURATION);
+			if (kc>=0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KEYBOARD_CONFIGURATION, kc);
+			}
+		}
+
 		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
 		{
 			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
