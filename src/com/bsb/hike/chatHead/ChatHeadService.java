@@ -38,14 +38,17 @@ import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 
 public class ChatHeadService extends Service
 {
 	private static final int ANIMATION_TIME = 300;
+	
+	private static final int RECT_CONST = 4;
 
-	private static final int RECT_CONST = 10;
+	private static int RECT_CONST_DP;
 
 	private static final int DRAG_CONST = 20;
 
@@ -256,7 +259,7 @@ public class ChatHeadService extends Service
 					startActivity(intent);
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
-					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp);
+					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp, true);
 					if (intent != null && ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(foregroundApp))
 					{
 						startActivity(intent);
@@ -337,10 +340,10 @@ public class ChatHeadService extends Service
 
 		chatHead.getLocationOnScreen(chatHeadLocations);
 		closeHead.getLocationOnScreen(closeHeadLocations);
-		rectChatHead = new Rect(chatHeadLocations[0] - RECT_CONST, chatHeadLocations[1] - RECT_CONST, chatHeadLocations[0] + chatHead.getWidth() + RECT_CONST, chatHeadLocations[1]
-				+ chatHead.getHeight() + RECT_CONST);
-		rectCloseHead = new Rect(closeHeadLocations[0] - RECT_CONST, closeHeadLocations[1] - RECT_CONST, closeHeadLocations[0] + closeHead.getWidth() + RECT_CONST,
-				closeHeadLocations[1] + closeHead.getHeight() + RECT_CONST);
+		rectChatHead = new Rect(chatHeadLocations[0] - RECT_CONST_DP, chatHeadLocations[1] - RECT_CONST_DP, chatHeadLocations[0] + chatHead.getWidth() + RECT_CONST_DP, chatHeadLocations[1]
+				+ chatHead.getHeight() + RECT_CONST_DP);
+		rectCloseHead = new Rect(closeHeadLocations[0] - RECT_CONST_DP, closeHeadLocations[1] - RECT_CONST_DP, closeHeadLocations[0] + closeHead.getWidth() + RECT_CONST_DP,
+				closeHeadLocations[1] + closeHead.getHeight() + RECT_CONST_DP);
 		if (Rect.intersects(rectChatHead, rectCloseHead))
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD_DISMISS, ChatHeadService.foregroundAppName);
@@ -438,10 +441,10 @@ public class ChatHeadService extends Service
 			chatHead.getLocationOnScreen(chatHeadLocations);
 			closeHead.getLocationOnScreen(closeHeadLocations);
 
-			rectChatHead = new Rect(chatHeadLocations[0] - RECT_CONST, chatHeadLocations[1] - RECT_CONST, chatHeadLocations[0] + chatHead.getWidth() + RECT_CONST,
-					chatHeadLocations[1] + chatHead.getHeight() + RECT_CONST);
-			rectCloseHead = new Rect(closeHeadLocations[0] - RECT_CONST, closeHeadLocations[1] - RECT_CONST, closeHeadLocations[0] + closeHead.getWidth() + RECT_CONST,
-					closeHeadLocations[1] + closeHead.getHeight() + RECT_CONST);
+			rectChatHead = new Rect(chatHeadLocations[0] - RECT_CONST_DP, chatHeadLocations[1] - RECT_CONST_DP, chatHeadLocations[0] + chatHead.getWidth() + RECT_CONST_DP,
+					chatHeadLocations[1] + chatHead.getHeight() + RECT_CONST_DP);
+			rectCloseHead = new Rect(closeHeadLocations[0] - RECT_CONST_DP, closeHeadLocations[1] - RECT_CONST_DP, closeHeadLocations[0] + closeHead.getWidth() + RECT_CONST_DP,
+					closeHeadLocations[1] + closeHead.getHeight() + RECT_CONST_DP);
 
 			if (Rect.intersects(rectChatHead, rectCloseHead))
 			{
@@ -556,7 +559,9 @@ public class ChatHeadService extends Service
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 		
 		UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.START);
-
+		
+		RECT_CONST_DP = (int)(RECT_CONST * Utils.densityMultiplier);
+		
 	}
 
 	@Override
