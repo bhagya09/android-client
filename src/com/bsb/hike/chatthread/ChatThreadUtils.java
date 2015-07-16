@@ -399,7 +399,8 @@ public class ChatThreadUtils
 		return null;
 	}
 	
-	protected static void publishReadByForMessage(ConvMessage message, HikeConversationsDatabase mConversationDb, String msisdn)
+	//Adding Channel Seletor to take decision based on Online or Offline message
+	protected static void publishReadByForMessage(ConvMessage message, HikeConversationsDatabase mConversationDb, String msisdn,IChannelSelector channelSelector)
 	{
 		message.setState(ConvMessage.State.RECEIVED_READ);
 		mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), msisdn);
@@ -407,11 +408,14 @@ public class ChatThreadUtils
 		
 		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
-			if(OfflineUtils.isConnectedToSameMsisdn(message.getMsisdn())&&!message.isFileTransferMessage())
+			// For Offline Messaging
+			// We are sending MR for text messages and contact transfer here and not for other file transfer 
+			if((channelSelector instanceof OfflineChannel) && 
+					(OfflineUtils.isContactTransferMessage(message.serialize()) ||  !message.isFileTransferMessage()))
 			{
 				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
 			}
-			else
+			else if(channelSelector instanceof OnlineChannel)
 			{
 				HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
 			}
@@ -588,7 +592,7 @@ public class ChatThreadUtils
 	 * Sends nmr/mr as per pd is present in convmessage or not.Not sending MR for Offline conversation
 	 * @param msisdn
 	 */
-	public static void sendMR(String msisdn)
+	public static void sendMR(String msisdn,IChannelSelector  channelSelector)
 	{
 
 		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
@@ -646,7 +650,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, ids);
 
-				postMR(object);
+				channelSelector.postMR(object);
 			}
 
 			if (dataMR != null && dataMR.length() > 0)
@@ -656,7 +660,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, dataMR);
 
-				postMR(object);
+				channelSelector.postMR(object);
 			}
 			Logger.d(TAG, "Unread Count event triggered");
 
@@ -675,18 +679,7 @@ public class ChatThreadUtils
 
 	}
 	
-	private static void postMR(JSONObject object) throws JSONException {
-		String msisdn=object.getString(HikeConstants.TO);
-		if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
-		{
-			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);	
-		}
-		else
-		{
-			OfflineController.getInstance().sendMR(object);
-		}
-	}
-
+	
 	/**
 	 * Utility method for returning msisdn from action:SendTo intent which is invoked from outside the application
 	 * 

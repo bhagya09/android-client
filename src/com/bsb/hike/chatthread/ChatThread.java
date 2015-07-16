@@ -596,7 +596,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				offlineController.addListener(this);
 			}
 			channelSelector = new OfflineChannel(offlineController);
-			//activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+		}
+		else if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+		{
+			if(offlineController==null)
+			{
+				offlineController = OfflineController.getInstance();
+				offlineController.addListener(this);
+			}
+			// When connecting we still keep channel as Online . This will only be changed when connected
+			channelSelector = new OnlineChannel();
 		}
 		else
 		{
@@ -3226,7 +3235,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (activity.hasWindowFocus())
 			{
-				publishReadByForMessage(message, mConversationDb, msisdn);
+				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn,channelSelector);
 
 				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 				{
@@ -3251,30 +3260,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			sendUIMessage(MESSAGE_RECEIVED, message);
 
 		}
-	}
-
-	protected void publishReadByForMessage(ConvMessage message, HikeConversationsDatabase mConversationDb, String msisdn)
-	{
-		message.setState(ConvMessage.State.RECEIVED_READ);
-		mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), msisdn);
-		
-		
-		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
-		{
-			
-			
-			if((channelSelector instanceof OfflineChannel) && 
-					(OfflineUtils.isContactTransferMessage(message.serialize()) ||  !message.isFileTransferMessage()))
-			{
-				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
-			}
-			else if(channelSelector instanceof OnlineChannel)
-			{
-				HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
-			}
-		}
-
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 	}
 	
 	protected boolean onMessageDelivered(Object object)
@@ -3413,11 +3398,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		releaseOfflineListeners();
 	}
 	
-	private void releaseOfflineListeners() {
+	private void releaseOfflineListeners() 
+	{
 		if (offlineController != null)
 		{
 			offlineController.removeListener(this);
 		}
+		offlineController = null;
 	}
 
 
@@ -4256,101 +4243,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
-			sendMR(msisdn);
+			ChatThreadUtils.sendMR(msisdn,channelSelector);
 		}
 
 	}
 	
-	/**
-	 * Sends nmr/mr as per pd is present in convmessage or not.Not sending MR for Offline conversation
-	 * @param msisdn
-	 */
-	protected  void sendMR(String msisdn)
-	{
-
-		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
-
-		if (pairList == null)
-		{
-			return;
-		}
-		
-		try
-		{
-
-			JSONObject dataMR = new JSONObject();
-
-			JSONArray ids = new JSONArray();
-
-			for (int i = 0; i < pairList.size(); i++)
-			{
-				Pair<Long, JSONObject> pair = pairList.get(i);
-				JSONObject object = pair.second;
-				if (object.has(HikeConstants.PRIVATE_DATA))
-				{
-					String pdString = object.optString(HikeConstants.PRIVATE_DATA);
-					JSONObject pd = new JSONObject(pdString);
-					if (pd != null)
-					{
-						String trackId = pd.optString(HikeConstants.MSG_REL_UID);
-						if (trackId != null)
-						{
-							dataMR.putOpt(String.valueOf(pair.first), pd);
-							// Logs for Msg Reliability
-							MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN, msisdn);
-						}
-						else
-						{
-							ids.put(String.valueOf(pair.first));
-						}
-					}
-				}
-				else
-				{
-					ids.put(String.valueOf(pair.first));
-				}
-			}
-
-			Logger.d("UnreadBug", "Unread count event triggered");
-
-			/*
-			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
-			 */
-			if (ids != null && ids.length() > 0)
-			{
-				JSONObject object = new JSONObject();
-				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
-				object.put(HikeConstants.TO, msisdn);
-				object.put(HikeConstants.DATA, ids);
-
-				channelSelector.postMR(object);
-			}
-
-			if (dataMR != null && dataMR.length() > 0)
-			{
-				JSONObject object = new JSONObject();
-				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ);
-				object.put(HikeConstants.TO, msisdn);
-				object.put(HikeConstants.DATA, dataMR);
-
-				channelSelector.postMR(object);
-			}
-			Logger.d(TAG, "Unread Count event triggered");
-
-			/**
-			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
-			 * 
-			 */
-			ChatThreadUtils.publishMessagesRead(ids, msisdn);
-
-		}
-		catch (JSONException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
 	
 	
 
@@ -5272,19 +5169,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 	}
 	
-	public void toggleChannel()
+	public void changeChannel(Boolean setOfflineChannel)
 	{
-		if(channelSelector instanceof OnlineChannel)
+		if(setOfflineChannel)
 		{
-				channelSelector = new OfflineChannel(offlineController);
+			channelSelector = new OfflineChannel(offlineController);
 		}
 		else
 		{
-				channelSelector = new OnlineChannel();
-				releaseOfflineListeners();
-				offlineController.postSendPendingMessagesToMQTT(msisdn);
-				offlineController = null;
-			//Move offline messages to online persistance
+			channelSelector = new OnlineChannel();
+			releaseOfflineListeners();
 		}
 		
 	}

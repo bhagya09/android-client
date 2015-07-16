@@ -590,4 +590,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 
+	public String getConnectingDevice() 
+	{
+		return connectinMsisdn;
+	}
+
+
 }

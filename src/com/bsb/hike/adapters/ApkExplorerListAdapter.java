@@ -126,16 +126,7 @@ public class ApkExplorerListAdapter extends BaseAdapter{
 			@Override
 			public void onClick(View v) {
 				
-				boolean  isChecked = ((CheckBox)v).isChecked();
-				appInfo.get(position).setApplicationSelectionStatus(isChecked);
-				if(isChecked)
-				{
-					((ApkSelectionActivity)mContext).incrementSelectedItems();
-				}
-				else
-				{
-					((ApkSelectionActivity)mContext).decrementSelectedItems();
-				}
+				((ApkSelectionActivity)mContext).toggleSelection(position);
 			}
 		});
 		

@@ -183,23 +183,25 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onResume() 
 	{
 		super.onResume();
-		if(offlineController!=null)
-			setStatusWhenConnectedOffline();
+		checkOfflineConnectionStatus();
 	};
 	
 	
-	private void setStatusWhenConnectedOffline()
+	private void checkOfflineConnectionStatus()
 	{
-		switch (offlineController.getOfflineState())
+		switch (OfflineController.getInstance().getOfflineState())
 		{
 		case CONNECTED:
-			if (mConversation.getMsisdn().equals(offlineController.getConnectedDevice()))
+			if (OfflineUtils.isConnectedToSameMsisdn(TAG))
 			{
 				sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
 			}
 			break;
 		case CONNECTING:
-
+			if (OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.awaiting_response));
+			}
 			break;
 		case NOT_CONNECTED:
 			break;
@@ -2841,7 +2843,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		//TODO  - Handle Animation 
 		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
-		toggleChannel();
+		changeChannel(true);
 		clearAttachmentPicker();
 	}
 
@@ -2871,10 +2873,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case OUT_OF_RANGE:
 			break;
 		case TIMEOUT:
-			//sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_failed));
+			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_failed));
 			break;
 		case USERDISCONNECTED:
 			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_deestablished));
+			
 			break;
 		case COULD_NOT_CONNECT:
 			break;
@@ -2882,7 +2885,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		}
 		//TODO Setup online UI 
-		toggleChannel();
+		changeChannel(false);
 		clearAttachmentPicker();
 	}
 }

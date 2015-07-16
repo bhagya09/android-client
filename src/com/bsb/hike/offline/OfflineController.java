@@ -516,4 +516,9 @@ public class OfflineController
 		return senderConsignment;
 	}
 
+	public String getConnectingDevice() 
+	{
+		return offlineManager.getConnectingDevice();
+	}	
+
 }
