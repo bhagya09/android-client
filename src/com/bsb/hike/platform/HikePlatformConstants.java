@@ -80,6 +80,7 @@ public interface HikePlatformConstants
      * Analytics for Platform
      */
 	public static final String BOT_OPEN = "bot_open";
+	public static final String BOT_OPEN_MQTT = "bot_open_m";
     public static final String BOT_LONG_PRESS = "bot_lp";
     public static final String BOT_VIEW_PROFILE = "bot_vp";
     public static final String BOT_ADD_SHORTCUT = "bot_as";
@@ -108,7 +109,9 @@ public interface HikePlatformConstants
 	public static final String APP_VERSION = "appVersion";
 	public static final String OVERFLOW_MENU_CLICKED = "om_click";
 	public static final String BOT_CREATED = "cbot";
+	public static final String BOT_CREATED_MQTT = "cbot_m";
 	public static final String BOT_CREATION_FAILED = "cbot_err";
+	public static final String BOT_CREATION_FAILED_MQTT = "cbot_err_m";
 	public static final String MICROAPP_DOWNLOADED = "mapp";
 	public static final String MICROAPP_DOWNLOAD_FAILED = "mapp_err";
 

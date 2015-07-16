@@ -20,6 +20,7 @@ public class NonMessagingBotMetadata
 	JSONObject cardObj;
 	String appPackage;
     private String unReadCountShowType;
+	private int targetPlatform;
 
 	private static final String DEFAULT_UNREAD_COUNT = "1+";
 	private String nonMessagingBotType;
@@ -61,6 +62,7 @@ public class NonMessagingBotMetadata
 	{
 
 		setNonMessagingBotType(json.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE, HikePlatformConstants.MICROAPP_MODE));
+		setTargetPlatform(json.optInt(HikePlatformConstants.TARGET_PLATFORM));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -136,6 +138,16 @@ public class NonMessagingBotMetadata
 	public void setCardObj(JSONObject cardObj)
 	{
 		this.cardObj = cardObj;
+	}
+
+	public int getTargetPlatform()
+	{
+		return targetPlatform;
+	}
+
+	public void setTargetPlatform(int target_platform)
+	{
+		this.targetPlatform = targetPlatform < 0 || targetPlatform > HikePlatformConstants.CURRENT_VERSION ? HikePlatformConstants.CURRENT_VERSION : targetPlatform;
 	}
 
 	public JSONObject getJson()
