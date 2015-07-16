@@ -5014,15 +5014,9 @@ public class Utils
 	{
 		try
 		{
-
 			if (timestampInSeconds < 0)
 			{
 				return "";
-			}
-			
-			if(true)
-			{
-				throw new Exception();
 			}
 
 			long givenTimeStampInMillis = timestampInSeconds * 1000;
