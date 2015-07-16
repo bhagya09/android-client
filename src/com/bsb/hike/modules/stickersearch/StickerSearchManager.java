@@ -16,6 +16,7 @@ import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
+import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
 import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
@@ -79,6 +80,12 @@ public class StickerSearchManager
 			throw new IllegalStateException("removeStickerSearchListener(), Some listner remains.");
 		}
 		this.listener = null;
+	}
+
+	public void loadChatProfile(String msidn, boolean isGroupChat, long lastMessageTimestamp)
+	{
+		LoadChatProfileTask loadChatProfileTask = new LoadChatProfileTask(msidn, isGroupChat, lastMessageTimestamp);
+		searchEngine.runOnSearchThread(loadChatProfileTask, 0);
 	}
 
 	public void onTextChanged(CharSequence s, int start, int before, int count)
