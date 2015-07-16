@@ -335,10 +335,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected IChannelSelector channelSelector;
 	
-	protected OnlineChannel onlineChannel;
-	
-	protected OfflineChannel offlineChannel;
-	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -601,14 +597,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				offlineController = OfflineController.getInstance();
 				offlineController.addListener(this);
 			}
-			offlineChannel = new OfflineChannel(offlineController);
-			channelSelector = offlineChannel;
-			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+			channelSelector = new OfflineChannel(offlineController);
+			//activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 		}
 		else
 		{
-			onlineChannel = new OnlineChannel();
-			channelSelector = onlineChannel;
+			channelSelector = new OnlineChannel();
 		}
 	}
 
@@ -5272,19 +5266,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if(channelSelector instanceof OnlineChannel)
 		{
-			if(offlineChannel==null)
-				offlineChannel = new OfflineChannel(offlineController);
-			channelSelector = offlineChannel;
+				channelSelector = new OfflineChannel(offlineController);
 		}
 		else
 		{
-			if(onlineChannel==null)
-				onlineChannel = new OnlineChannel();
-			channelSelector = onlineChannel;
-			releaseOfflineListeners();
-			offlineController = null;
+				channelSelector = new OnlineChannel();
+				releaseOfflineListeners();
+				offlineController.postSendPendingMessagesToMQTT(msisdn);
+				offlineController = null;
 			//Move offline messages to online persistance
-		    OfflineController.getInstance().postSendPendingMessagesToMQTT(msisdn);
 		}
 		
 	}

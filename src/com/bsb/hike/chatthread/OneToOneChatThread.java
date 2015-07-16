@@ -1336,8 +1336,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void startFreeHikeConversation()
 	{
 		showToast(R.string.scan_process_started);
-		offlineController = OfflineController.getInstance();
-		offlineController.addListener(this);
+		if(offlineController==null)
+		{
+			offlineController = OfflineController.getInstance();
+			offlineController.addListener(this);
+		}
 		offlineController.connectAsPerMsisdn(mConversation.getMsisdn());
 		setupOfflineUI();
 	}
@@ -2868,6 +2871,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case OUT_OF_RANGE:
 			break;
 		case TIMEOUT:
+			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_failed));
 			break;
 		case USERDISCONNECTED:
 			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_deestablished));
