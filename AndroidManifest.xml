@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1276"
-    android:versionName="3.9.8.81.2.voip" >
+    android:versionName="3.9.8.81.3.voip" >
 
     <uses-sdk
         android:minSdkVersion="9"
