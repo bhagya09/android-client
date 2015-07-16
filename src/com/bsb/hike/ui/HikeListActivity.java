@@ -687,7 +687,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 			else
 			{
-				if(Utils.areIdenticalSets(selectedContacts, alreadyBlockedContacts))
+				if(alreadyBlockedContacts.equals(selectedContacts))
 				{
 					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);					
 				}
