@@ -272,7 +272,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(tag, "There is no active call.");
-			getSherlockActivity().finish();	// Bugfix AND-354
+//			getSherlockActivity().finish();	// Bugfix AND-354
 			return;
 		}
 
@@ -431,6 +431,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void initProximityWakelock() 
 	{
+		Logger.w(tag, "Initializing proximity sensor.");
 		if(activity.isShowingCallFailedFragment() || proximityWakeLock != null)
 			return;
 
@@ -442,6 +443,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void releaseProximityWakelock()
 	{
+		Logger.w(tag, "Releasing proximity sensor.");
 		if (proximityWakeLock != null)
 		{
 			proximityWakeLock.release();
