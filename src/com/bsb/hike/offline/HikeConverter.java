@@ -362,9 +362,4 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		return consignment;
 	}
 
-	public JSONObject getConvmessageJsonFromSenderConsignment(
-			SenderConsignment senderConsignment) throws JSONException
-	{
-		return new JSONObject(senderConsignment.message);
-	}
 }

@@ -95,8 +95,6 @@ public class OfflineController
 		case OfflineConstants.HandlerConstants.SHUTDOWN:
 			shutdownProcess((OfflineException) msg.obj);
 			break;
-		case OfflineConstants.HandlerConstants.MOVE_MESSAGES_TO_MQTT:
-			sendPendingMessagesToMQTT((String)msg.obj);
 		default:
 			break;
 		}
@@ -492,37 +490,6 @@ public class OfflineController
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		offlineManager.sendConnectedCallback();
 		offlineManager.sendInfoPacket();
-	}
-
-	private void sendPendingMessagesToMQTT(String msisdn)
-	{
-		List<SenderConsignment> unDeliveredMessages = offlineManager.movePendingMessagesToMQTT(msisdn);
-		if(unDeliveredMessages!=null && unDeliveredMessages.size()>0)
-		{
-			for(SenderConsignment senderConsignment: unDeliveredMessages)
-			{
-				JSONObject msgJSON;
-				try 
-				{
-					msgJSON = hikeConverter.getConvmessageJsonFromSenderConsignment(senderConsignment);
-					HikeMqttManagerNew.getInstance().sendMessage(msgJSON,MqttConstants.MQTT_QOS_ONE);
-				}
-				catch (JSONException e)
-				{
-					Logger.d(TAG, "Error in Json");
-				}
-			
-			}
-			offlineManager.removeMessageFromOfflinePersistance(msisdn);
-		}
-	}
-	
-	public void postSendPendingMessagesToMQTT(String msisdn) {
-		
-		Message msg = Message.obtain();
-		msg.what = OfflineConstants.HandlerConstants.MOVE_MESSAGES_TO_MQTT;
-		msg.obj = msisdn;
-		mHandler.sendMessage(msg);
 	}
 
 	public void deleteMessages(ArrayList<Long> msgIds)
