@@ -1,6 +1,5 @@
 package com.bsb.hike.media;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -24,12 +23,10 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.ChatHeadActivity;
 import com.bsb.hike.chatHead.ChatHeadConstants;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.TabClickListener;
-import com.bsb.hike.models.ProfileItem.ProfileContactItem.contactType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
@@ -44,8 +41,6 @@ import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
 public class StickerPicker implements OnClickListener, ShareablePopup, StickerPickerListener,TabClickListener
 {
 	private StickerPickerListener listener;
-
-	private Activity mActivity;
 
 	private KeyboardPopupLayout popUpLayout;
 
@@ -83,9 +78,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param activity
 	 * @param listener
 	 */
-	public StickerPicker(Activity activity, StickerPickerListener listener)
+	public StickerPicker(Context context, StickerPickerListener listener)
 	{
-		this.mActivity = activity;
+		this.mContext = context;
 		this.listener = listener;
 	}
 
@@ -96,9 +91,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param listener
 	 * @param popUpLayout
 	 */
-	public StickerPicker(int layoutResId, Activity activity, StickerPickerListener listener, KeyboardPopupLayout popUpLayout)
+	public StickerPicker(int layoutResId, Context context, StickerPickerListener listener, KeyboardPopupLayout popUpLayout)
 	{
-		this(activity, listener);
+		this(context, listener);
 		this.mLayoutResId = layoutResId;
 		this.popUpLayout = popUpLayout;
 	}
@@ -111,9 +106,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param listener
 	 * @param popUpLayout
 	 */
-	public StickerPicker(View view, Activity activity, StickerPickerListener listener, KeyboardPopupLayout popUpLayout)
+	public StickerPicker(View view, Context context, StickerPickerListener listener, KeyboardPopupLayout popUpLayout)
 	{
-		this(activity, listener);
+		this(context, listener);
 		this.viewToDisplay = view;
 		this.popUpLayout = popUpLayout;
 		initViewComponents(viewToDisplay);
@@ -130,10 +125,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param eatTouchEventViewIds
 	 */
 
-	public StickerPicker(Activity activity, StickerPickerListener listener, View mainView, int firstTimeHeight, int[] eatTouchEventViewIds)
+	public StickerPicker(Context context, StickerPickerListener listener, View mainView, int firstTimeHeight, int[] eatTouchEventViewIds)
 	{
-		this(activity, listener);
-		popUpLayout = new KeyboardPopupLayout(mainView, firstTimeHeight, activity.getApplicationContext(), eatTouchEventViewIds, null);
+		this(context, listener);
+		popUpLayout = new KeyboardPopupLayout(mainView, firstTimeHeight, context.getApplicationContext(), eatTouchEventViewIds, null);
 	}
 
 	/**
@@ -144,9 +139,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 *            this is your activity Or fragment root view which gets resized when keyboard toggles
 	 * @param firstTimeHeight
 	 */
-	public StickerPicker(Activity activity, StickerPickerListener listener, View mainView, int firstTimeHeight)
+	public StickerPicker(Context context, StickerPickerListener listener, View mainView, int firstTimeHeight)
 	{
-		this(activity, listener, mainView, firstTimeHeight, null);
+		this(context, listener, mainView, firstTimeHeight, null);
 	}
 
 	public void showStickerPicker(int screenOrietentation)
@@ -190,7 +185,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		mLayoutResId = (mLayoutResId == -1) ? R.layout.sticker_layout : mLayoutResId;
 
-		viewToDisplay = (ViewGroup) LayoutInflater.from(mActivity.getApplicationContext()).inflate(mLayoutResId, null);
+		viewToDisplay = (ViewGroup) LayoutInflater.from(mContext.getApplicationContext()).inflate(mLayoutResId, null);
 
 		initViewComponents(viewToDisplay);
 	}
@@ -209,7 +204,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			throw new IllegalArgumentException("View Pager was not found in the view passed.");
 		}
 
-		stickerAdapter = new StickerAdapter(mActivity, this);
+		stickerAdapter = new StickerAdapter(mContext, this);
 
 		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
 		
@@ -234,7 +229,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		 */
 		if ((Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
-			Toast.makeText(mActivity.getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext.getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
 			return null;
 		}
 		
@@ -250,7 +245,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			/**
 			 * Defensive null check
 			 */
-			if (mActivity == null)
+			if (mContext == null)
 			{
 				String errorMsg = "Inside method : getView of StickerPicker. Context is null";
 				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
@@ -353,8 +348,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		setStickerIntroPrefs();
 		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
-		Intent i = IntentFactory.getStickerShopIntent(mActivity);
-		mActivity.startActivity(i);
+		Intent i = IntentFactory.getStickerShopIntent(mContext);
+		mContext.startActivity(i);
 	}
 
 	public void updateDimension(int width, int height)
@@ -409,7 +404,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 */
 	public void releaseResources()
 	{
-		this.mActivity = null;
+		this.mContext = null;
 		this.listener = null;
 		if (stickerAdapter != null)
 		{
@@ -418,10 +413,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 	}
 	
-	public void updateListener(StickerPickerListener mListener, Activity activity)
+	public void updateListener(StickerPickerListener mListener, Context context)
 	{
 		this.listener = mListener;
-		this.mActivity = activity;
+		this.mContext = context;
 		if (stickerAdapter != null)
 		{
 			stickerAdapter.registerListener();
@@ -495,10 +490,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			View animatedBackground = view.findViewById(R.id.animated_backgroud);
 			
 			animatedBackground.setVisibility(View.VISIBLE);
-			Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_out_from_mid);
+			Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.scale_out_from_mid);
 			animatedBackground.startAnimation(anim);
 
-			view.findViewById(R.id.shop_icon_image).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
+			view.findViewById(R.id.shop_icon_image).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mContext));
 		}
 	}
 	
