@@ -343,6 +343,7 @@ public class UploadFileTask extends FileTransferBase
 				
 				// 1) user clicked Media file and sending it
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
+				msgId = ((ConvMessage) userContext).getMsgID();
 				
 				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
@@ -395,7 +396,7 @@ public class UploadFileTask extends FileTransferBase
 	 * 
 	 * @throws Exception
 	 */
-	private void initFileUpload() throws FileTransferCancelledException, Exception
+	private void initFileUpload(boolean isFileKeyValid) throws FileTransferCancelledException, Exception
 	{
 		HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 		hikeFileType = hikeFile.getHikeFileType();
@@ -418,7 +419,7 @@ public class UploadFileTask extends FileTransferBase
 			else
 			{
 				mFile = new File(hikeFile.getSourceFilePath());
-				if (mFile.exists() && hikeFileType == HikeFileType.IMAGE && !mFile.getPath().startsWith(Utils.getFileParent(hikeFileType, true)))
+				if (!isFileKeyValid && mFile.exists() && hikeFileType == HikeFileType.IMAGE && !mFile.getPath().startsWith(Utils.getFileParent(hikeFileType, true)))
 				{
 					selectedFile = Utils.getOutputMediaFile(hikeFileType, fileName, true);
 					if (selectedFile == null)
@@ -452,7 +453,7 @@ public class UploadFileTask extends FileTransferBase
 				{
 					File compFile = null;
 					VideoEditedInfo info = null;
-					if(android.os.Build.VERSION.SDK_INT >= 18 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))
+					if(!isFileKeyValid && android.os.Build.VERSION.SDK_INT >= 18 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))
 					{
 						info = VideoUtilities.processOpenVideo(mFile.getPath());
 						if(info != null)
@@ -618,7 +619,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				try
 				{
-					initFileUpload();
+					initFileUpload(isValidKey);
 				}
 				catch (Exception e)
 				{
@@ -632,7 +633,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 			else
 			{
-				initFileUpload();
+				initFileUpload(isValidKey);
 			}
 		}
 		catch (FileTransferCancelledException e)
