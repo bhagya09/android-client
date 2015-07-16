@@ -22,6 +22,7 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import android.content.Context;
 import android.util.Pair;
@@ -614,20 +615,35 @@ public class StickerSearchHostManager
 		return new Pair<CharSequence, int[][]>(wholeString, result);
 	}
 
-	public void onMessageSent(String prevText, Sticker sticker, String nextText)
+	public void onMessageSent(String prevText, Sticker sticker, String nextText, String currentText)
 	{
 		Logger.i(TAG, "onMessageSent()");
 
-		if (pwords != null)
+		if (Utils.isBlank(currentText))
 		{
-			pwords.clear();
-			pstarts.clear();
-			pends.clear();
+			if (pwords != null)
+			{
+				pwords.clear();
+				pwords = null;
+			}
+
+			if (pstarts != null)
+			{
+				pstarts.clear();
+				pstarts = null;
+			}
+
+			if (pends != null)
+			{
+				pends.clear();
+				pends = null;
+			}
+
+			pResult = null;
+			history.clear();
+			mIndexLimit = 0;
 		}
 
-		pResult = null;
-		history.clear();
-		mIndexLimit = 0;
 		mMomentCode = StickerSearchUtility.getMomentCode();
 	}
 

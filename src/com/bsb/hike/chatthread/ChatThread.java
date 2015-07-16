@@ -1074,7 +1074,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return;
 		}
-		StickerSearchManager.getInstance().sentMessage(message, null, null);
+		StickerSearchManager.getInstance().sentMessage(message, null, null, null);
 	}
 	
 	protected void audioRecordClicked()
@@ -1772,7 +1772,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void stickerSelected(Sticker sticker, String sourceOfSticker)
 	{
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
-		StickerSearchManager.getInstance().sentMessage(null, sticker, null);
+		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		sendSticker(sticker, sourceOfSticker);
 	}
 

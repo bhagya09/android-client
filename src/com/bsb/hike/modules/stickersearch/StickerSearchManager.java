@@ -286,9 +286,9 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
 	}
 	
-	public void sentMessage(String prevText, Sticker sticker, String nextText)
+	public void sentMessage(String prevText, Sticker sticker, String nextText, String currentText)
 	{
-		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText);
+		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText, currentText);
 		searchEngine.runOnQueryThread(newMessageSentTask);
 	}
 	
