@@ -639,12 +639,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				mDb.beginTransaction();
 
 				deleteSearchData();
-
-				mDb.endTransaction();
+				
+				mDb.setTransactionSuccessful();
 			}
 			finally
 			{
-				mDb.setTransactionSuccessful();
+				mDb.endTransaction();
 			}
 			return;
 		}

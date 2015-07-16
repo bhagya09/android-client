@@ -6349,4 +6349,20 @@ public class Utils {
 				.build();
 		return formedUri;
 	}
+	
+	/**
+	  * Checks that an Iterable is both non-null and non-empty.  This method does not check individual
+	  * elements in the Iterable, it just checks that the Iterable has at least one element.
+	  *
+	  * @param argument the argument to validate
+	  * @return true is argument is empty. false otherwise
+	  */
+	public static <S, T extends Iterable<S>> boolean isEmpty(T argument) 
+	{
+		if( argument == null || !argument.iterator().hasNext())
+		{
+			return true;
+		}
+		return false;
+	}
 }

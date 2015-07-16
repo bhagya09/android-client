@@ -202,7 +202,9 @@ public class StickerManager
 	
 	public static final String FROM_FORWARD = "f";
 	
-	public static final String FROM_RECOMMENDATION = "r";
+	public static final String FROM_AUTO_RECOMMENDATION_PANEL = "ar";
+	
+	public static final String FROM_BLUE_TAP_RECOMMENDATION_PANEL = "br";
 	
 	public static final String FROM_OTHER = "o";
 	
@@ -1898,6 +1900,99 @@ public class StickerManager
 				cache.putInCache(key, drawable);
 			}
 			
+		}
+	}
+	
+	/**
+	 * Send sticker button click analytics one time in day
+	 */
+	public void sendStickerButtonClickAnalytics()
+	{
+		long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, 0l);
+		long currentTime = System.currentTimeMillis();
+		
+		if((currentTime - lastStickerButtonClickAnalticsTime) >= 24 * 60 * 60 * 1000) // greater than one day
+		{
+			HAManager.getInstance().record(HikeConstants.LogEvent.STICKER_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
+		}
+	}
+	
+	/**
+	 * Send sticker pack id and its order for analytics one time in day
+	 */
+	public void sendStickerPackAndOrderListForAnalytics()
+	{
+		try
+		{
+			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, 0l);
+			long currentTime = System.currentTimeMillis();
+
+			if((currentTime - lastPackAndOrderingSentTime) >= 24 * 60 * 60 * 1000) // greater than one day
+			{
+				List<StickerCategory> stickerCategories = getMyStickerCategoryList();
+				
+				if(Utils.isEmpty(stickerCategories))
+				{
+					return ;
+				}
+				
+				JSONArray stickerPackAndOrderList = new JSONArray();
+				
+				for(StickerCategory stickerCategory : stickerCategories)
+				{
+					int index;
+					if(stickerCategory.isVisible())
+					{
+						index = stickerCategory.getCategoryIndex();
+					}
+					else
+					{
+						index = -1;
+					}
+					stickerPackAndOrderList.put(stickerCategory.getCategoryId() + ":" + index);
+				}
+
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.PACK_DATA_ANALYTIC_EVENT);
+				metadata.put(HikeConstants.NUMBER_OF_PACKS, stickerCategories.size());
+				metadata.put(HikeConstants.PACK_DATA, stickerPackAndOrderList);
+				
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
+			}
+		}
+		catch(JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+	
+	/**
+	 * Send recommendation panel settings button click analytics
+	 */
+	public void sendRecommendationPanelSettingsButtonClickAnalytics()
+	{
+		HAManager.getInstance().record(HikeConstants.LogEvent.STICKER_RECOMMENDATION_PANEL_SETTINGS_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
+	}
+	
+	/**
+	 * Send recommendation settings state analytics
+	 */
+	public void sendRecommendationlSettingsStateAnalytics(boolean state)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_SETTING_STATE);
+			metadata.put("src", "cs");
+			metadata.put("st", (state ? 1 : 0));
+			
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
 		}
 	}
 }

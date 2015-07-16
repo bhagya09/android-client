@@ -149,6 +149,7 @@ import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
@@ -1093,6 +1094,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		initStickerPicker();
 		
 		closeStickerTip();
+		StickerManager.getInstance().sendStickerButtonClickAnalytics();
 		
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
@@ -1115,7 +1117,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_TIP) || (!mTips.seenTip(ChatThreadTips.STICKER_TIP)))
 		{
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
-			recordFirstTimeStickerClick();
 		}
 	}
 	
@@ -1132,16 +1133,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void recordFirstTimeStickerClick()
-	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKED_BTN_CLICKED_FIRST_TIME, false))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKED_BTN_CLICKED_FIRST_TIME, true);
-
-			HAManager.getInstance().record(HikeConstants.LogEvent.STICKER_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
-		}
-	}
-	
 	private void setStickerButtonSelected(boolean selected)
 	{
 		activity.findViewById(R.id.sticker_btn).setSelected(selected);
@@ -1460,7 +1451,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void setupStickerSearch()
 	{
-		if(!(sharedPreference.getData(HikeMessengerApp.STICKER_SEARCH_ENABLED, true) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)))
+		
+		if(!(sharedPreference.getData(HikeMessengerApp.STICKER_SEARCH_ENABLED, true) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
 			return;
 		}
