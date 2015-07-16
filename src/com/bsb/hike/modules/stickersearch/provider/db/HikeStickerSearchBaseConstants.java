@@ -284,7 +284,7 @@ public class HikeStickerSearchBaseConstants
 	public static final String STORY_DEFAULT = "generic";
 
 	// Default theme
-	public static final String THEME_DEFAULT = "generic";
+	public static final String THEME_DEFAULT = "GENERIC";
 
 	// Default moment
 	public static final int MOMENT_DEFAULT = -1;
