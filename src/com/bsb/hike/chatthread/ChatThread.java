@@ -83,8 +83,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
 import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -132,9 +132,9 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -162,8 +162,6 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import com.google.android.gms.internal.cn;
-import com.hike.transporter.Transporter;
 
 /**
  * 
@@ -1727,7 +1725,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 			ArrayList<Long> selectedMsgIdsToDelete = new ArrayList<Long>(mAdapter.getSelectedMessageIds());
 			// TODO if last message is typing notification we will get wrong result here
-			ChatThreadUtils.deleteMessagesFromDb(selectedMsgIdsToDelete, ((CustomAlertDialog) dialog).isChecked(), messages.get(messages.size() - 1).getMsgID(), msisdn);
+			ConvMessage message=null;
+			boolean isOfflineMessagePresent=false;
+			for(long id:selectedMsgIdsToDelete)
+			{
+				message = findMessageById(id);
+				if (message.isOfflineMessage())
+				{
+					isOfflineMessagePresent = true;
+					break;
+				}
+
+			}
+			ChatThreadUtils.deleteMessagesFromDb(selectedMsgIdsToDelete, ((CustomAlertDialog) dialog).isChecked(), messages.get(messages.size() - 1).getMsgID(), msisdn,isOfflineMessagePresent);
 			dialog.dismiss();
 			mActionMode.finish();
 			break;

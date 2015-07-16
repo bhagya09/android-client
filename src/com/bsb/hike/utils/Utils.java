@@ -5844,10 +5844,6 @@ public class Utils
 		}
 	}
 	
-	public static boolean isOfflineConversation(String msisdn)
-	{
-		return msisdn != null &&  msisdn.startsWith("o:");
-	}
 	public static boolean moveFile(File inputFile, File outputFile) {
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
 		Logger.d("Utils", "Output file path - " + outputFile.getPath());

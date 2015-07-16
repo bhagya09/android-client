@@ -590,4 +590,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 
+	public void deleteMsgs(List<Long> msgIds)
+	{
+		transporter.deleteFromPersistance(msgIds);
+	}
+
+
 }

@@ -48,6 +48,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -307,11 +308,17 @@ public class ChatThreadUtils
 
 	public static void deleteMessagesFromDb(ArrayList<Long> msgIds, boolean deleteMediaFromPhone, long lastMsgId, String msisdn)
 	{
+		deleteMessagesFromDb(msgIds, deleteMediaFromPhone, lastMsgId, msisdn,false);
+	}
+	
+	public static void deleteMessagesFromDb(ArrayList<Long> msgIds, boolean deleteMediaFromPhone, long lastMsgId, String msisdn,boolean isOfflineMessagePresent)
+	{
 		boolean isLastMessage = (msgIds.contains(lastMsgId));
 		Bundle bundle = new Bundle();
 		bundle.putBoolean(HikeConstants.Extras.IS_LAST_MESSAGE, isLastMessage);
 		bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
 		bundle.putBoolean(HikeConstants.Extras.DELETE_MEDIA_FROM_PHONE, deleteMediaFromPhone);
+		bundle.putBoolean(HikeConstants.OFFLINE_MESSAGE_PRESENT, isOfflineMessagePresent);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
 	}
 
@@ -400,7 +407,7 @@ public class ChatThreadUtils
 		
 		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
-			if(Utils.isOfflineConversation(message.getMsisdn())&&!message.isFileTransferMessage())
+			if(OfflineUtils.isConnectedToSameMsisdn(message.getMsisdn())&&!message.isFileTransferMessage())
 			{
 				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
 			}
@@ -574,11 +581,6 @@ public class ChatThreadUtils
 			return HikeConstants.Extras.BOT_CHAT_THREAD;
 		}
 		
-		else if(Utils.isOfflineConversation(msisdn))
-		{
-			return HikeConstants.Extras.OFFLINE_CHAT_THREAD;
-		}
-	
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
 	}
 
@@ -675,7 +677,7 @@ public class ChatThreadUtils
 	
 	private static void postMR(JSONObject object) throws JSONException {
 		String msisdn=object.getString(HikeConstants.TO);
-		if(!Utils.isOfflineConversation(msisdn))
+		if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);	
 		}

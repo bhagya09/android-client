@@ -42,6 +42,7 @@ import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -142,7 +143,7 @@ public class DbConversationListener implements Listener
 				mPubSub.publish(HikePubSub.RECENT_CONTACTS_UPDATED, convMessage.getMsisdn());
 			}
 
-			if (!Utils.isOfflineConversation(convMessage.getMsisdn())&&(convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
+			if ((convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
 					&& (!convMessage.isFileTransferMessage() || shouldSendMessage))
 			{
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
@@ -189,13 +190,10 @@ public class DbConversationListener implements Listener
 			String msisdn = bundle.getString(HikeConstants.Extras.MSISDN);
 
 			mConversationDb.deleteMessages(msgIds, msisdn, containsLastMessage);
-			if (Utils.isOfflineConversation(msisdn))
+			persistence.removeMessages(msgIds);
+			if(bundle.getBoolean(HikeConstants.OFFLINE_MESSAGE_PRESENT))
 			{
-				HikeOfflinePersistence.getInstance().removeMessages(msgIds);
-			}
-			else
-			{
-				persistence.removeMessages(msgIds);
+				OfflineController.getInstance().deleteMessages(msgIds);
 			}
 		}
 		else if (HikePubSub.MESSAGE_FAILED.equals(type)) // server got msg

@@ -287,7 +287,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			{
 				holder.status.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
 				holder.status.setText(OneToNConversationUtils.isGroupConversation(contactInfo.getMsisdn()) ? contactInfo.getPhoneNum():contactInfo.getMsisdn());
-				holder.status.setText(Utils.isOfflineConversation(contactInfo.getMsisdn()) ? contactInfo.getMsisdn().replace("o:", ""):contactInfo.getMsisdn());
+				holder.status.setText(contactInfo.getMsisdn());
 				
 				holder.statusMood.setVisibility(View.GONE);
 				holder.onlineIndicator.setVisibility(View.GONE);
@@ -697,11 +697,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	public int getItemViewType(int position)
 	{
 		ContactInfo info = getItem(position);
-		if(Utils.isOfflineConversation(info.getMsisdn()))
-		{
-			return ViewType.FRIEND.ordinal();
-				
-		}
 		if(OneToNConversationUtils.isGroupConversation(info.getMsisdn()))
 		{
 			return super.getItemViewType(position);

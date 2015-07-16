@@ -631,27 +631,19 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	public String getNotificationTitle()
 	{
-		String returingValue=null;
 		if (isFromSingleMsisdn())
 		{
 			String title = mMessagesMap.get(lastAddedMsisdn).getLast().getTitle();
 			
 			if(getNewMessages() <=1 && !TextUtils.isEmpty(title))
 			{
-				if(Utils.isOfflineConversation(title))
-				{
-					title=title.replace("o:","");
-				}
-				returingValue=title;
+				return title;
 			}
-			else
-			{
-				returingValue= HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
-			}
-			return returingValue;
+			
+			return HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
 		}
 
-		return String.format(mContext.getString(R.string.num_new_messages), getNewMessages());
+		return mContext.getString(R.string.app_name);
 	}
 
 	public boolean forceBlockNotificationSound()

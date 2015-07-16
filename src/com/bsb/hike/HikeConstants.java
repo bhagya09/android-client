@@ -1568,8 +1568,6 @@ public class HikeConstants
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
-
-		public static final String OFFLINE_CHAT_THREAD = "offlineChatThread";
 	}
 
 	public static final class LogEvent
@@ -2827,4 +2825,6 @@ public class HikeConstants
 	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
 	
 	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
+
+	public static final String OFFLINE_MESSAGE_PRESENT = "offlineMsg";
 }
