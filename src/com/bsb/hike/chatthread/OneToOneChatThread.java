@@ -2871,10 +2871,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case OUT_OF_RANGE:
 			break;
 		case TIMEOUT:
-			//sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_failed));
+			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_failed));
 			break;
 		case USERDISCONNECTED:
 			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_deestablished));
+			
 			break;
 		case COULD_NOT_CONNECT:
 			break;
