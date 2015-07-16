@@ -1872,8 +1872,9 @@ public class VoIPService extends Service {
 	}
 
 	public void startReconnectBeeps() {
-		if (reconnectingBeeps)
+		if (reconnectingBeeps || hostingConference())
 			return;
+		
 		reconnectingBeeps = true;
 		
 		reconnectingBeepsThread = new Thread(new Runnable() {
