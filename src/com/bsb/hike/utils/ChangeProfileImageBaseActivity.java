@@ -335,6 +335,11 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	public void onClick(DialogInterface dialog, int item)
 	{
+		if(dialog!=null)
+		{
+			dialog.dismiss();
+		}
+		
 		switch (item)
 		{
 		case HikeConstants.NEW_PROFILE_PICTURE:
