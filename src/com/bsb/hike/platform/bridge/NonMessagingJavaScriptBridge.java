@@ -148,9 +148,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Calling this function will initiate forward of the message to a friend or group.
 	 * 
 	 * @param json
-	 *            : if the data has changed , then send the updated fields and it will update the metadata. If the key is already present, it will be replaced else it will be added
-	 *            to the existent metadata. If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already
-	 *            present and will add the key-value pair if the key is not present in the existent metadata.
+	 *            : the card object data for the forwarded card. This data will be the card object for the new forwarded card
+	 *            that'll be created. The platform version of the card should be same as the bot, that is defined by the server. The
+	 *            app name and app package will also be added from the card object of the bot metadata.
 	 *@param hikeMessage : the hike message to be included in notif tupple and conversation tupple.
 	 */
 	@JavascriptInterface
@@ -177,6 +177,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
 
 			JSONObject webMetadata = new JSONObject();
+			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
 			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
 			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
 			
@@ -196,6 +197,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Data is encoded with URL Encoded Scheme. Decode it before using.
 	 * The json contains:
 	 * hd: helper data
+	 * target_platform: the platform version that this bot and associated microapp targets
 	 * notifData: notif data
 	 * block: whether the bot is blocked
 	 * mute: whether the bot is muted
@@ -212,7 +214,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		JSONObject jsonObject = new JSONObject();
 		try
 		{
+			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			getInitJson(jsonObject, mBotInfo.getMsisdn());
+			jsonObject.put(HikePlatformConstants.TARGET_PLATFORM, botMetadata.getTargetPlatform());
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, mBotInfo.getHelperData());
 			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifDataJSON());
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));

@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
@@ -218,6 +219,21 @@ public class IntentFactory
 		if (intent != null)
 		{
 			context.startActivity(intent);
+			helpOpenedAnalytics();
+		}
+	}
+
+	private static void helpOpenedAnalytics()
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.HELP_CLICKED);
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
 		}
 	}
 
