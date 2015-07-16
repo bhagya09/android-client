@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
@@ -60,6 +61,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
+		Logger.i(TAG, "Initialising sticker tag watcher");
+		
 		this.activity = activity;
 		this.editText = editText;
 		this.color = color;
@@ -96,6 +99,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		if(activity == null)
 		{
+			Logger.wtf(TAG, "highlightText text acivity is null");
 			return;
 		}
 		activity.runOnUiThread(new Runnable()
@@ -117,6 +121,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		if(activity == null)
 		{
+			Logger.wtf(TAG, "unHighlightText text acivity is null");
 			return;
 		}
 		activity.runOnUiThread(new Runnable()
@@ -150,6 +155,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		if(activity == null)
 		{
+			Logger.wtf(TAG, "showStickerSearchPopup text acivity is null");
 			return ;
 		}
 		activity.runOnUiThread(new Runnable()
@@ -170,22 +176,19 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 				if(stickerRecommendView == null)
 				{
+					Logger.i(StickerTagWatcher.TAG, "sticker recommnd view is null initialising ..");
+					
 					stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
 					android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
 					params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
 					stickerRecommendView.setLayoutParams(params);
 					stickerRecommendView.setOnTouchListener(onTouchListener);
 					
-					fragment = activity.getSupportFragmentManager().findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
-					
-					if (fragment == null)
-					{
-						Logger.d(StickerTagWatcher.TAG, "sticker recommnd fragment is null");
+					Logger.i(StickerTagWatcher.TAG, "initialising fragment");
 						
-						fragment = StickerRecommendationFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
-						activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
+					fragment = StickerRecommendationFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
+					activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
 								.commitAllowingStateLoss();
-					}
 				}
 
 				((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
@@ -270,12 +273,20 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		}
 		StickerManager.getInstance().addRecentStickerToPallete(sticker);
 		stickerPickerListener.stickerSelected(sticker, StickerManager.FROM_RECOMMENDATION);
+		
+		/*
+		 * dismiss sticker search popup
+		 */
 		dismissStickerSearchPopup();
+		
+		/*
+		 * if its first word or first phrase clear edit text
+		 */
 		if (StickerSearchManager.getInstance().getFirstContinuousMatchFound())
 		{
 			clearSearchText();
 		}
-		else
+		else //  highlight search text
 		{
 			highlightSearchText();
 		}
@@ -306,8 +317,10 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		if (activity != null && fragment != null)
 		{
-			activity.getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
-			activity.getSupportFragmentManager().executePendingTransactions();
+			FragmentManager fragmentManager = activity.getSupportFragmentManager();
+			fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
+			fragmentManager.executePendingTransactions();
+			
 		}
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
@@ -315,10 +328,12 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		
 		colorSpanPool.releaseResources();
 		colorSpanPool = null;
+		stickerPickerListener = null;
+		activity = null;
 	}
 
 	/**
-	 * Consuming touch event on this view
+	 * Consuming touch event on sticker recommendation view
 	 */
 	private OnTouchListener onTouchListener = new OnTouchListener()
 	{
