@@ -1,8 +1,28 @@
 package com.bsb.hike.voip;
 
+import java.util.ArrayList;
+
 
 public class VoIPDataPacket implements Cloneable {
 
+	public class BroadcastListItem {
+		private String ip;
+		private int port;
+
+		public String getIp() {
+			return ip;
+		}
+		public void setIp(String ip) {
+			this.ip = ip;
+		}
+		public int getPort() {
+			return port;
+		}
+		public void setPort(int port) {
+			this.port = port;
+		}
+	}
+	
 	private boolean encrypted = false; 
 	private PacketType packetType;
 	private byte[] data;
@@ -13,6 +33,7 @@ public class VoIPDataPacket implements Cloneable {
 	private int voicePacketNumber;
 	private long timestamp;
 	private boolean isVoice;
+	private ArrayList<BroadcastListItem> broadcastList = null;
 	
 	int length = 0;		// Used to indicate length of actual data in "data"
 
@@ -269,7 +290,19 @@ public class VoIPDataPacket implements Cloneable {
 	protected Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
-	
-	
+
+	public ArrayList<BroadcastListItem> getBroadcastList() {
+		return broadcastList;
+	}
+
+	public void setBroadcastList(ArrayList<BroadcastListItem> broadcastList) {
+		this.broadcastList = broadcastList;
+	}
+
+	public void addToBroadcastList(BroadcastListItem item) {
+		if (broadcastList == null)
+			broadcastList = new ArrayList<BroadcastListItem>();
+		broadcastList.add(item);
+	}
 
 }

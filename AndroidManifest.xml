@@ -434,11 +434,6 @@
             android:theme="@style/TranslucentBlack" >
         </activity>
 
-        <receiver android:name=".voip.IncomingCallListener" >
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
