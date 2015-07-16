@@ -36,6 +36,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -2154,6 +2155,22 @@ public class MqttMessagesManager
 		{
 			boolean msgingLogging = data.getBoolean(HikeConstants.MESSAGING_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, msgingLogging);
+		}
+		if(data.has(HikeConstants.NOTIFICATIONS_PRIORITY))
+		{
+			int priority = data.getInt(HikeConstants.NOTIFICATIONS_PRIORITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);			
+		}
+		
+		if (data.has(MqttConstants.MQTT_PING_SENDER))
+		{
+			int pingSender = data.getInt(MqttConstants.MQTT_PING_SENDER);
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.MQTT_PING_SENDER, pingSender);
+		}
+		if (data.has(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT))
+		{
+			int alarmPingWakeLockTimeout = data.getInt(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT, alarmPingWakeLockTimeout);
 		}
 
 		editor.commit();

@@ -100,7 +100,7 @@ public class ChatHeadService extends Service
 		public void run()
 		{   
 			chatHeadIconExist = true;
-			Set<String> foregroundPackages = ChatHeadUtils.getForegroundedPackages();
+			Set<String> foregroundPackages = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS);
 			UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
 			
 			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
@@ -250,7 +250,7 @@ public class ChatHeadService extends Service
 				switch (flag)
 				{
 				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
-					if(!ChatHeadUtils.getForegroundedPackages().contains(foregroundApp))
+					if(!ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(foregroundApp))
 					{
 						break;
 					}
@@ -260,7 +260,7 @@ public class ChatHeadService extends Service
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
 					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp, true);
-					if (intent != null && ChatHeadUtils.getForegroundedPackages().contains(foregroundApp))
+					if (intent != null && ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(foregroundApp))
 					{
 						startActivity(intent);
 					}
@@ -558,7 +558,7 @@ public class ChatHeadService extends Service
 		
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 		
-		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(), UserLogInfo.START);
+		UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.START);
 		
 		RECT_CONST_DP = (int)(RECT_CONST * Utils.densityMultiplier);
 		
@@ -598,7 +598,7 @@ public class ChatHeadService extends Service
 	{
 		chatHeadHandler.removeCallbacks(chatHeadRunnable);
 
-		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(), UserLogInfo.STOP);
+		UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.STOP);
 		chatHeadIconExist = false;
 		if (chatHead.isShown())
 			windowManager.removeView(chatHead);

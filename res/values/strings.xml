@@ -1550,6 +1550,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="cont_desc_photos_tab_filter">TabFilter</string>
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
 	<string name="now">Now</string>
+	<string name="unknown_server_error">Unable to download the file.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
     <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
