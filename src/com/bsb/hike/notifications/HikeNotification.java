@@ -114,10 +114,13 @@ public class HikeNotification
 	
 	private static HashMap<String, Long> lastNotificationTimeMap=new HashMap<String, Long>();//For now HashMap<groupId, LastNotifiactionTimeInMillis>()
 	
-	private static final int GROUP_NOTIFICATION_DELAY_IN_SEC = 15;
+	private static final int DEFAULT_NOTIFICATION_DELAY_FOR_GROUP_IN_SEC = 15;
+
+	private static final int DEFAULT_NOTIFICATION_DELAY_FOR_ONE_TO_ONE_IN_SEC = 0;//one to one
 
 	private static HikeNotification hikeNotificationInstance=new HikeNotification();
 	
+	private static long lastNotificationPlayedTimeForOneToOne;
 
 
 	private HikeNotification()
@@ -504,21 +507,38 @@ public class HikeNotification
 	/**
 	 * This method will also update last Notification Time 
 	 * Message will be silent for t (Server configurable) interval for Each Group independently
+	 * and all oneToOne will be silent for t (Server configurable) for all oneToOne 
 	 */
 	public boolean isSilentNotification(String  msisdn){
-		if (!OneToNConversationUtils.isGroupConversation(msisdn))
+		if (TextUtils.isEmpty(msisdn))
 		{
 			return false;
 		}
-		long timeIntervalInMillis = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.GROUP_NOTIFIACTION_DELAY,GROUP_NOTIFICATION_DELAY_IN_SEC)*1000;
-		Long lastNotificationTime = lastNotificationTimeMap.get(msisdn);
 		
+		long timeIntervalInMillis;
+		Long lastNotificationTime ;
+		boolean isGroupMessage=OneToNConversationUtils.isGroupConversation(msisdn);
+		if (isGroupMessage)
+		{
+			timeIntervalInMillis = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFIACTION_DELAY_GROUP,DEFAULT_NOTIFICATION_DELAY_FOR_GROUP_IN_SEC)*1000;
+			lastNotificationTime = lastNotificationTimeMap.get(msisdn);
+		}else{
+			//for one to one
+			timeIntervalInMillis = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFIACTION_DELAY_ONE_TO_ONE,DEFAULT_NOTIFICATION_DELAY_FOR_ONE_TO_ONE_IN_SEC)*1000;
+			lastNotificationTime = lastNotificationPlayedTimeForOneToOne;
+		}
 		if (lastNotificationTime!=null && (System.currentTimeMillis() - lastNotificationTime) < timeIntervalInMillis)
-		{	
+		{
 			return true;
 		}
-	
-		lastNotificationTimeMap.put(msisdn, System.currentTimeMillis());
+
+		if (isGroupMessage)
+		{
+			lastNotificationTimeMap.put(msisdn, System.currentTimeMillis());
+		}else{
+			lastNotificationPlayedTimeForOneToOne = System.currentTimeMillis();
+		}
+
 		return false;
 	}
 
@@ -1126,11 +1146,6 @@ public class HikeNotification
 		notificationBuilderPostWork();
 	}
 
-	private void notifyNotification(int notificationId, Builder builder)
- 	{
-		notificationManager.notify(notificationId, builder.build());
-	}
-
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound)
 	{
@@ -1197,8 +1212,16 @@ public class HikeNotification
 		String vibrate = preferenceManager.getString(HikeConstants.VIBRATE_PREF_LIST, VIB_DEF);
 		final Bitmap avatarBitmap = HikeBitmapFactory.getCircularBitmap(HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(avatarDrawable, Bitmap.Config.RGB_565)), context));
 		
+		// Check the current notification priority
+		// notifPriority(0) = PRIORITY_DEFAULT
+		// notifPriority(-2) = PRIORITY_MIN
+		// notifPriority(2) = PRIORITY_MAX
+		// notifPriority(-1) = PRIORITY_LOW
+		// notifPriority(1) = PRIORITY_HIGH
+		int notifPriority = HikeSharedPreferenceUtil.getInstance().getPref().getInt(HikeConstants.NOTIFICATIONS_PRIORITY, NotificationCompat.PRIORITY_DEFAULT);		
+		
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setContentTitle(contentTitle).setSmallIcon(smallIconId).setLargeIcon(avatarBitmap)
-				.setContentText(contentText).setAutoCancel(true).setPriority(NotificationCompat.PRIORITY_DEFAULT)
+				.setContentText(contentText).setAutoCancel(true).setPriority(notifPriority)
 				.setCategory(NotificationCompat.CATEGORY_MESSAGE).setColor(context.getResources().getColor(R.color.blue_hike));
 		
 		
@@ -1281,6 +1304,11 @@ public class HikeNotification
 			}
 		}
 		return mBuilder;
+	}
+
+	private void notifyNotification(int notificationId, Builder builder)
+ 	{
+		notificationManager.notify(notificationId, builder.build());
 	}
 
 	public boolean isAudioServiceBusy(){
