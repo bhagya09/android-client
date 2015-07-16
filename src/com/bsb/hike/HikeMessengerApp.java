@@ -869,6 +869,7 @@ public void onTrimMemory(int level)
 		
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
+		StickerSearchManager.getInstance().removeDeletedStickerTags();
 	}
 	
 	private void initImportantAppComponents(SharedPreferences prefs)
