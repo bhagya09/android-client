@@ -60,16 +60,16 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		ConvMessage convMessage = getConvMessageForFileTransfer(filePath,
 				fileKey, hikeFileType, fileType, isRecording,
 				recordingDuration, attachmentType, msisdn, apkLabel);
-		return getFileConsignment(convMessage);
+		return getFileConsignment(convMessage, true);
 	}
 
-	public SenderConsignment getFileConsignment(ConvMessage convMessage) 
+	public SenderConsignment getFileConsignment(ConvMessage convMessage, boolean persistence) 
 	{
 		String filePath = OfflineUtils.getFilePathFromJSON(convMessage.serialize());
 		File file = new File(filePath);
 		SenderConsignment senderConsignment = new SenderConsignment.Builder(
 				convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC)
-				.file(file).persistance(false).ackRequired(true).build();
+				.file(file).persistance(persistence).ackRequired(true).build();
 		senderConsignment.setTag(convMessage);
 		senderConsignment.setAwb(convMessage.getMsgID());
 		
@@ -287,7 +287,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		fileManager.onFileCompleted((ConvMessage)receiver.getTag(), receiver.getFile());
 	}
 
-	public SenderConsignment getMessageConsignment(ConvMessage convMessage) 
+	public SenderConsignment getMessageConsignment(ConvMessage convMessage, boolean persistence) 
 	{
 		JSONObject messageJSON = convMessage.serialize();
 		SenderConsignment senderConsignment = null;
@@ -299,18 +299,18 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			OfflineUtils.putStkLenInPkt(messageJSON, stickerFile.length());
 			senderConsignment = new SenderConsignment.Builder(
 					messageJSON.toString(), OfflineConstants.TEXT_TOPIC).file(
-					stickerFile).ackRequired(true).persistance(true).build();
+					stickerFile).ackRequired(true).persistance(persistence).build();
 		} 
 		else 
 		{
 			senderConsignment = new SenderConsignment.Builder(
-					messageJSON.toString(), OfflineConstants.TEXT_TOPIC)
-					.build();
+					messageJSON.toString(), OfflineConstants.TEXT_TOPIC).ackRequired(true).persistance(persistence).build();
 		}
 		senderConsignment.setAwb(convMessage.getMsgID());
 		senderConsignment.setTag(convMessage);
 		return senderConsignment;
 	}
+	
 
 	public SenderConsignment getDisconnectConsignment(String connectedDevice) 
 	{
@@ -335,6 +335,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		{
 		case NOT_CONNECTED:
 			// TODO: SHift properly
+			Logger.d(TAG,"in Not Connected");
 			Transporter.getInstance().publishWhenConnected(senderConsignment);
 			break;
 		case NOT_ENOUGH_MEMORY:
@@ -356,15 +357,9 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	{
 	}
 
-	public SenderConsignment getMRConsignement(JSONObject object) {
-	
+	public SenderConsignment getMRConsignement(JSONObject object) 
+	{
 		SenderConsignment consignment=new SenderConsignment.Builder(object.toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false).persistance(false).build();
 		return consignment;
-	}
-
-	public JSONObject getConvmessageJsonFromSenderConsignment(
-			SenderConsignment senderConsignment) throws JSONException
-	{
-		return new JSONObject(senderConsignment.message);
 	}
 }

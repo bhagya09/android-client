@@ -2350,6 +2350,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return muteInt == 0 ? false : true;
 	}
+	
 
 	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxMsgId)
 	{
@@ -2378,6 +2379,32 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	
+	public List<ConvMessage> getUnDeliveredMessages(String msisdn)
+	{
+		String selection = DBConstants.MSISDN + " = ?" + " AND " + DBConstants.MSG_STATUS + " < " + State.SENT_DELIVERED.ordinal();
+		Cursor c = null;
+		try
+		{
+			/* TODO this should be ORDER BY timestamp */
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE, DBConstants.MSG_STATUS, DBConstants.TIMESTAMP, DBConstants.MESSAGE_ID,
+					DBConstants.MAPPED_MSG_ID, DBConstants.MESSAGE_METADATA, DBConstants.GROUP_PARTICIPANT, DBConstants.IS_HIKE_MESSAGE, DBConstants.READ_BY,
+					DBConstants.MESSAGE_TYPE,DBConstants.HIKE_CONTENT.CONTENT_ID, HIKE_CONTENT.NAMESPACE,DBConstants.MESSAGE_ORIGIN_TYPE}, selection, new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + " DESC");
+
+
+			List<ConvMessage> elements = getMessagesFromDB(c,true,msisdn);
+			Collections.reverse(elements);
+
+			return elements;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
 	public Conversation getConversation(String msisdn, int limit, boolean getMetadata)
 	{
 
@@ -5579,6 +5606,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	private List<ConvMessage> getMessagesFromDB(Cursor c, Conversation conversation)
 	{
+		 return getMessagesFromDB(c,conversation.isOnHike(),conversation.getMsisdn());
+	}
+	
+	private List<ConvMessage> getMessagesFromDB(Cursor c,boolean isOnHike,String msisdn)
+	{
 		final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
 		final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
 		final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
@@ -5599,9 +5631,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		while (c.moveToNext())
 		{
 			int hikeMessage = c.getInt(isHikeMessageColumn);
-			boolean isHikeMessage = hikeMessage == -1 ? conversation.isOnHike() : (hikeMessage == 0 ? false : true);
+			boolean isHikeMessage = hikeMessage == -1 ?isOnHike : (hikeMessage == 0 ? false : true);
 
-			ConvMessage message = new ConvMessage(c.getString(msgColumn), conversation.getMsisdn(), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+			ConvMessage message = new ConvMessage(c.getString(msgColumn),msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
 					c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), !isHikeMessage, c.getInt(typeColumn),c.getInt(contentIdColumn), c.getString(nameSpaceColumn));
 			//if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
 //				int loveId = c.getInt(loveIdColumn);

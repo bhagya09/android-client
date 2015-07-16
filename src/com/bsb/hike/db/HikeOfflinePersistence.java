@@ -4,16 +4,15 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.models.OfflineHikePacket;
-import com.bsb.hike.utils.Logger;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikePacket;
+import com.bsb.hike.offline.OfflineController;
+import com.hike.transporter.interfaces.IPersistanceInterface;
+import com.hike.transporter.models.SenderConsignment;
+import com.hike.transporter.utils.Logger;
 
 /**
  * 
@@ -21,13 +20,15 @@ import com.bsb.hike.utils.Logger;
  *
  *	Contains Persistence related functions for Offline related messaging based on HikeMqttPersistence
  */
-public class HikeOfflinePersistence 
+public class HikeOfflinePersistence implements IPersistanceInterface
 {
 	private static final String TAG = "HikeOfflinePersistence";
 
 	private SQLiteDatabase mDb;
 	
 	private static HikeOfflinePersistence hikeOfflinePersistence;
+	
+	private HikeMqttPersistence hikeMqttPersistence;
 	
 	public static HikeOfflinePersistence getInstance()
 	{
@@ -40,148 +41,97 @@ public class HikeOfflinePersistence
 	
 	private HikeOfflinePersistence()
 	{
-		mDb = HikeMqttPersistence.getInstance().getDb();
+		hikeMqttPersistence = HikeMqttPersistence.getInstance();
+		mDb = hikeMqttPersistence.getDb();
 	}
 
-	public static void onCreate(SQLiteDatabase db) 
+	@Override
+	public void addToPersistance(String nameSpace, String message, long awb)
 	{
-		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " ( " + DBConstants.HIKE_PERSISTENCE.OFFLINE_PACKET_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID + " INTEGER,"
-				+ DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE + " BLOB," + DBConstants.HIKE_PERSISTENCE.OFFLINE_TIME_STAMP + " INTEGER," +  DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + " TEXT," + 
-				DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_TRACK_ID + " TEXT) ";
-		db.execSQL(sql);
-		Logger.d(TAG, "Creating Offline Persistence table in MQTT Persistence Table");
-		
-		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_ID_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + ")";
-		Logger.d(TAG, "Creating Offline Persistence table index on msgId");
-		db.execSQL(sql);
-	}
-
-	public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
-	{
-		if (oldVersion < 4)
+		HikePacket hikePacket = getHikePacket(nameSpace, awb, message);
+		if (hikePacket == null)
 		{
-			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " ( " + DBConstants.HIKE_PERSISTENCE.OFFLINE_PACKET_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID + " INTEGER,"
-					+ DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE + " BLOB," + DBConstants.HIKE_PERSISTENCE.OFFLINE_TIME_STAMP + " INTEGER," +  DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + " TEXT," + 
-					DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_TRACK_ID + " TEXT) ";
-			db.execSQL(sql);
-			Logger.d(TAG, "Creating Offline Persistence table in MQTT Persistence Table in OnUpgrade");
-			
-			sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_ID_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + ")";
-			db.execSQL(sql);
-			Logger.d(TAG, "Creating Offline Persistence table index on msgId in OnUpgrade");
-		}
-	}
-	
-	private void addSentMessage(OfflineHikePacket packet) throws MqttPersistenceException
-	{
-		ContentValues cv = new ContentValues();
-		
-		cv.put(DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID, packet.getMsgId());
-		cv.put(DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE, packet.getMessage());
-		cv.put(DBConstants.HIKE_PERSISTENCE.OFFLINE_TIME_STAMP, packet.getTimeStamp());
-		cv.put(DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN, packet.getMsisdn());
-		cv.put(DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_TRACK_ID, packet.getTrackId());
-		
-		long rowId = mDb.insertWithOnConflict(DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-		if (rowId < 0)
-		{
-			throw new MqttPersistenceException("Unable to persist message");
-		}
-		packet.setPacketId(rowId);
-	}
-	
-	public List<JSONObject> getAllSentMessages(String msisdn)
-	{
-		Cursor c = mDb.rawQuery("SELECT "+ DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE +" FROM " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " WHERE " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + "='" + msisdn + "'", null);
-		List<JSONObject> vals = null;
-		try
-		{
-			vals = new ArrayList<JSONObject>(c.getCount());
-			int dataIdx = c.getColumnIndexOrThrow(DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE);
-
-			while (c.moveToNext())
-			{
-				try 
-				{
-					JSONObject jsonObject = new JSONObject(new String(c.getBlob(dataIdx), "UTF-8"));
-					vals.add(jsonObject);
-				}
-				catch (UnsupportedEncodingException e) 
-				{
-					e.printStackTrace();
-				} 
-				catch (JSONException e) 
-				{
-					e.printStackTrace();
-				}
-				
-			}
-		}
-		catch (IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			c.close();
-		}
-		return vals;
-	}
-
-	public void removeMessage(long msgId)
-	{
-		String[] bindArgs = new String[] { Long.toString(msgId) };
-		int numRows = mDb.delete(DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE, DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID + "=?", bindArgs);
-		Logger.d("HikeOFFLINEPersistence", "Removed " + numRows + " Rows from " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " with Msg ID: " + msgId);
-	}
-	
-	public void removeMessageForPacketId(long packetId)
-	{
-		String[] bindArgs = new String[] { Long.toString(packetId) };
-		int numRows = mDb.delete(DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE, DBConstants.HIKE_PERSISTENCE.OFFLINE_PACKET_ID + "=?", bindArgs);
-		Logger.d("HikeOFFLINEPersistence", "Removed " + numRows + " Rows from " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " with Packet ID: " + packetId);
-	}
-	
-	public void removeMessages(ArrayList<Long> msgIds)
-	{
-		if(msgIds.isEmpty())
-		{
+			Logger.d(TAG, "HikePacket is null");
 			return;
 		}
-		StringBuilder inSelection = new StringBuilder("("+msgIds.get(0));
-		for (int i=0; i<msgIds.size(); i++)
+		else
 		{
-			inSelection.append("," + Long.toString(msgIds.get(i)));
+			try 
+			{
+				hikeMqttPersistence.addSentMessage(hikePacket);
+				Logger.d(TAG, "Inserted in to Db with AWB number is "+awb);
+			} 
+			catch (MqttPersistenceException e) 
+			{
+				Logger.e(TAG, "Unable to Persist message!!", e);
+				e.printStackTrace();
+			}
 		}
-		inSelection.append(")");
-		
-		mDb.execSQL("DELETE FROM " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " WHERE " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID + " IN "+ inSelection.toString());
-		Logger.d("HikeOFFLINEPersistence", "Removed "+" Rows from " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " with Msgs ID: " + inSelection.toString());
+	}
+
+	@Override
+	public void deleteFromPersistance(long awb)
+	{
+		hikeMqttPersistence.removeMessage(awb);
+		Logger.d(TAG, "Deleted  in to Db with awb Number "+awb);
+	}
+
+	@Override
+	public void deleteFromPersistance(String nameSpace)
+	{
+		Logger.d(TAG, "Persistence contains no column for namespace/msisdn!");
 	}
 	
-	public void addMessage(JSONObject jsonObject)
-	{
-		long msgId = 0;
-		String msisdn = null;
-		try
-		{
-			msgId = jsonObject.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-			msisdn = jsonObject.getString(HikeConstants.TO);
-			OfflineHikePacket hikePacket = new OfflineHikePacket(jsonObject.toString().getBytes("UTF-8"), msgId, System.currentTimeMillis() / 1000, msisdn);
-			addSentMessage(hikePacket);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			e.printStackTrace();
-		}
-		catch (MqttPersistenceException e)
-		{
-			e.printStackTrace();
-		}
-
+	@Override
+	public void deleteFromPersistance(List<Long> listAwbNumber) {
+		hikeMqttPersistence.removeMessages(listAwbNumber);
 	}
+
+	@Override
+	public void deleteAll()
+	{
+		hikeMqttPersistence.removeMessage(HikeConstants.OFFLINE_MESSAGE_TYPE);
+		Logger.d(TAG, "Deleted  in to Db with type "+ HikeConstants.OFFLINE_MESSAGE_TYPE);
+	}
+
+	@Override
+	public List<SenderConsignment> getAllPendingMsgs(String nameSpace)
+	{
+		Logger.d(TAG, "Get all pending messages for msisdn: " + nameSpace);
+		List<ConvMessage> unreceivedConvMessages = HikeConversationsDatabase.getInstance().getUnDeliveredMessages(nameSpace);
+		if (unreceivedConvMessages == null || unreceivedConvMessages.isEmpty())
+			return null;
+		
+		List<SenderConsignment> senderConsignments = new ArrayList<>();
+		SenderConsignment senderConsignment=null;
+		for(ConvMessage convMessage : unreceivedConvMessages)
+		{
+			senderConsignment = getSenderConsignment(convMessage);
+			if(senderConsignment!=null)
+			{
+				senderConsignments.add(senderConsignment);
+			}
+		}
+		return senderConsignments;
+	}
+	
+	private HikePacket getHikePacket(String msisdn, long msgId, String message)
+	{
+		HikePacket hikePacket = null;
+		try 
+		{
+			hikePacket = new HikePacket(message.getBytes("UTF-8"), msgId, System.currentTimeMillis(), HikeConstants.OFFLINE_MESSAGE_TYPE);
+		} 
+		catch (UnsupportedEncodingException e) 
+		{
+			e.printStackTrace();
+		}
+		return hikePacket;
+	}
+	
+	private SenderConsignment getSenderConsignment(ConvMessage convMessage) 
+	{
+		return OfflineController.getInstance().getSenderConsignment(convMessage, false);
+	}
+
 }

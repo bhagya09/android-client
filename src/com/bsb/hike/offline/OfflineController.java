@@ -95,8 +95,6 @@ public class OfflineController
 		case OfflineConstants.HandlerConstants.SHUTDOWN:
 			shutdownProcess((OfflineException) msg.obj);
 			break;
-		case OfflineConstants.HandlerConstants.MOVE_MESSAGES_TO_MQTT:
-			sendPendingMessagesToMQTT((String)msg.obj);
 		default:
 			break;
 		}
@@ -156,7 +154,7 @@ public class OfflineController
 	private void saveToDb(ConvMessage convMessage)
 	{
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-		SenderConsignment msgConsignment = hikeConverter.getMessageConsignment(convMessage);
+		SenderConsignment msgConsignment = hikeConverter.getMessageConsignment(convMessage, true);
 		offlineManager.sendConsignment(msgConsignment);
 	}
 	
@@ -416,10 +414,14 @@ public class OfflineController
 				+ hikeFile.getHikeFileType().ordinal());
 
 		File f = hikeFile.getFile();
-		if (f.exists()) {
-			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage);
+		if (f.exists()) 
+		{
+			//TODO: Check if true is really required here
+			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage, true);
 			offlineManager.sendConsignment(fileConsignment);
-		} else {
+		} 
+		else 
+		{
 			HikeMessengerApp.getInstance().showToast("File not found.!!");
 		}
 	}
@@ -494,41 +496,24 @@ public class OfflineController
 		offlineManager.sendInfoPacket();
 	}
 
-	private void sendPendingMessagesToMQTT(String msisdn)
-	{
-		List<SenderConsignment> unDeliveredMessages = offlineManager.movePendingMessagesToMQTT(msisdn);
-		if(unDeliveredMessages!=null && unDeliveredMessages.size()>0)
-		{
-			for(SenderConsignment senderConsignment: unDeliveredMessages)
-			{
-				JSONObject msgJSON;
-				try 
-				{
-					msgJSON = hikeConverter.getConvmessageJsonFromSenderConsignment(senderConsignment);
-					HikeMqttManagerNew.getInstance().sendMessage(msgJSON,MqttConstants.MQTT_QOS_ONE);
-				}
-				catch (JSONException e)
-				{
-					Logger.d(TAG, "Error in Json");
-				}
-			
-			}
-			offlineManager.removeMessageFromOfflinePersistance(msisdn);
-		}
-	}
-	
-	public void postSendPendingMessagesToMQTT(String msisdn) {
-		
-		Message msg = Message.obtain();
-		msg.what = OfflineConstants.HandlerConstants.MOVE_MESSAGES_TO_MQTT;
-		msg.obj = msisdn;
-		mHandler.sendMessage(msg);
-	}
-
 	public void deleteMessages(ArrayList<Long> msgIds)
 	{
 		offlineManager.deleteMsgs(msgIds);
-		
-	}	
+	}
+
+	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)
+	{
+		SenderConsignment senderConsignment = null;
+		if (convMessage.isFileTransferMessage())
+		{
+			senderConsignment = hikeConverter.getFileConsignment(convMessage, persistence);
+		}
+		else
+		{
+			senderConsignment = hikeConverter.getMessageConsignment(convMessage, persistence);
+		}
+			
+		return senderConsignment;
+	}
 
 }

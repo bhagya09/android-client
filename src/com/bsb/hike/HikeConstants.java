@@ -2558,6 +2558,8 @@ public class HikeConstants
 	
 	public static final int BROADCAST_MESSAGE_TYPE = 3;
 	
+	public static final int OFFLINE_MESSAGE_TYPE = 4;
+	
 	public static final String SHOWN_MULTI_FORWARD_TIP = "shownMultiForwardTip";
 
 	public static final String VISIBLITY = "visibility";
