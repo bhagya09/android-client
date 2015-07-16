@@ -308,7 +308,7 @@ public interface DBConstants
 	{
 		public static final String DATABASE_NAME = "mqttpersistence";
 
-		public static final int DATABASE_VERSION = 4;
+		public static final int DATABASE_VERSION = 3;
 
 		public static final String MQTT_DATABASE_TABLE = "messages";
 
