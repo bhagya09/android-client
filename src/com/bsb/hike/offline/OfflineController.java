@@ -475,9 +475,8 @@ public class OfflineController
 			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 			
-			offlineManager.updateListeners(getOfflineState());
 		}
-	
+		offlineManager.updateListeners(getOfflineState());
 	}
 
 	public void onConnect() 
