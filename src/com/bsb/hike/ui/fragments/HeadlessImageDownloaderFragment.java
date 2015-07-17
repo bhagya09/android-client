@@ -115,12 +115,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	@Override
 	public void onRequestProgressUpdate(float progress)
 	{
-		if(taskCallbacks.get() != null)
-		{
-			taskCallbacks.get().onProgressUpdate(progress);
-		}
 		
-		removeHeadlessFragement();
 	}
 	
 	@Override
