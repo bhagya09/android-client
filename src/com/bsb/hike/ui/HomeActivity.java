@@ -1,9 +1,7 @@
 package com.bsb.hike.ui;
 
 
-import java.io.File;
 import java.lang.reflect.Field;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +20,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.support.annotation.ColorRes;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -31,10 +27,15 @@ import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
@@ -54,14 +55,6 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-
-
-import android.support.v7.app.ActionBar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
 
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
@@ -105,9 +98,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
-
-	private static final boolean TEST = false; // TODO: Test flag only, turn off
-												// for Production
 
 	private OverflowAdapter overflowAdapter;
 	
@@ -171,11 +161,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private String[] homePubSubListeners = { HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
-			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION  };
+			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
-
-	private boolean photosEnabled;
 
 	private static MenuItem searchMenuItem;
 
@@ -228,7 +216,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		if(isShareIntent(getIntent()))
+		//Make sure we are not launching share intent if our activity is restarted by OS
+		if(isShareIntent(getIntent()) && savedInstanceState == null)
 		{
 			handleFileShareIntent(getIntent());
 		}
@@ -295,6 +284,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private void handleFileShareIntent(Intent intent)
 	{
+
+		//If launching from android history, do not process 
+		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0)
+		{
+			return;
+		}
+		
 		if (Intent.ACTION_SEND.equals(intent.getAction()) ) 
 		{
 			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
@@ -721,6 +717,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				
 				View takePhotoActionView = (View)MenuItemCompat.getActionView(menu.findItem(R.id.take_pic));
+				Logger.d("ph_en", "inside API setupMenuOptions, enabling photo inside actionbar");
 				((ImageView) takePhotoActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
 				takePhotoActionView.findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
 				takePhotoActionView.setOnClickListener(new OnClickListener()
@@ -742,6 +739,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 			else
 			{
+				Logger.d("ph_en", "inside setupMenuOptions, disabling photo inside actionbar");
 				menu.removeItem(R.id.take_pic);
 			}
 
@@ -1091,7 +1089,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.clearJar(this);
 		t2 = System.currentTimeMillis();
 		Logger.d("clearJar", "time : " + (t2 - t1));
-		photosEnabled = Utils.isPhotosEditEnabled();
 	}
 
 	
@@ -1570,6 +1567,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						flashStealthIndicatorView();
 					}
+				}
+			});
+		}
+		else if (HikePubSub.UPDATE_OF_PHOTOS_ICON.equals(type))
+		{
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					invalidateOptionsMenu();
 				}
 			});
 		}

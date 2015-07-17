@@ -64,6 +64,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
@@ -72,22 +73,18 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.Birthday;
-import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.tasks.FinishableEvent;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -2415,6 +2412,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
+			
+			if (mActivityState.destFilePath == null)
+			{
+				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			
+			applyCompression(mActivityState.destFilePath);
 			setProfileImage();
 			break;
 		case HikeConstants.ResultCodes.SELECT_COUNTRY:	

@@ -109,6 +109,8 @@ public class BroadcastChatThread extends OneToNChatThread
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
 		switch (item.id)
 		{
 		case R.string.broadcast_profile:
@@ -118,8 +120,6 @@ public class BroadcastChatThread extends OneToNChatThread
 			Utils.createShortcut(activity, oneToNConversation.getConvInfo());
 			break;
 		default:
-			Logger.d(TAG, "Calling super Class' itemClicked");
-			super.itemClicked(item);
 		}
 	}
 	

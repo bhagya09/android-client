@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import android.support.v4.app.Fragment;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
@@ -133,12 +134,18 @@ public class CallFailedFragment extends Fragment
 		switch(callFailedCode)
 		{
 			case VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT:
-			case VoIPConstants.CallFailedCodes.PARTNER_BUSY:
-			case VoIPConstants.CallFailedCodes.PARTNER_ANSWER_TIMEOUT:
 			case VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL:
 				view.setText(getString(R.string.voip_not_reachable, partnerName));
 				break;
 
+			case VoIPConstants.CallFailedCodes.PARTNER_ANSWER_TIMEOUT:
+				view.setText(getString(R.string.voip_callee_no_response, partnerName));
+				break;
+
+			case VoIPConstants.CallFailedCodes.PARTNER_BUSY:
+				view.setText(getString(R.string.voip_callee_busy, partnerName));
+				break;
+				
 			case VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT:
 				view.setText(getString(R.string.voip_incompat_platform));
 				enableRedial = false;

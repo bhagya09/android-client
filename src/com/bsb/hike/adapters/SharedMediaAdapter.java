@@ -34,16 +34,16 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	private Context context;
 
 	private PhotoViewerFragment photoViewerFragment;
-	
+
 	private Handler mHandler;
 	
-	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, PhotoViewerFragment photoViewerFragment)
+	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, ViewPager viewPager, PhotoViewerFragment photoViewerFragment)
 	{
 		this.context = context;
 		this.layoutInflater = LayoutInflater.from(this.context);
 		this.sharedMediaLoader = new SharedFileImageLoader(context, size_image);
 		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
-		sharedMediaLoader.setImageToBeCached(false);
+		sharedMediaLoader.setImageToBeCached(true);
 		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
@@ -81,14 +81,26 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	public Object instantiateItem(ViewGroup container, int position)
 	{
 		View page = layoutInflater.inflate(R.layout.gallery_layout_item, container, false);
+		bindView(page, position);
+		((ViewPager) container).addView(page);
+		return page;
+	}
+
+	public View bindView(View argView, int position)
+	{
 		final HikeSharedFile sharedMediaItem = sharedMediaItems.get(position);
 
-		TouchImageView galleryImageView = (TouchImageView) page.findViewById(R.id.album_image);
-		ImageView videPlayButton = (ImageView)  page.findViewById(R.id.play_media);
-		ProgressBar progressBar = (ProgressBar)  page.findViewById(R.id.progress_bar);
+		TouchImageView galleryImageView = (TouchImageView) argView.findViewById(R.id.album_image);
+		ImageView videPlayButton = (ImageView) argView.findViewById(R.id.play_media);
+		ProgressBar progressBar = (ProgressBar) argView.findViewById(R.id.progress_bar);
 		galleryImageView.setZoom(1.0f);
 		galleryImageView.setScaleType(ScaleType.FIT_CENTER);
 		
+		progressBar.setVisibility(View.VISIBLE);
+		videPlayButton.setVisibility(View.VISIBLE);
+		galleryImageView.setVisibility(View.VISIBLE);
+		argView.findViewById(R.id.file_missing_layout).setVisibility(View.GONE);
+
 		if (sharedMediaItem.getHikeFileType() == HikeFileType.VIDEO)
 		{
 			progressBar.setVisibility(View.GONE);
@@ -108,15 +120,14 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 			progressBar.setVisibility(View.GONE);
 			videPlayButton.setVisibility(View.GONE);
 			galleryImageView.setVisibility(View.GONE);
-			page.findViewById(R.id.file_missing_layout).setVisibility(View.VISIBLE);
+			argView.findViewById(R.id.file_missing_layout).setVisibility(View.VISIBLE);
 		}
 
 		galleryImageView.setTag(sharedMediaItem);
-		galleryImageView.setOnClickListener(this);
-		((ViewPager) container).addView(page);
-		return page;
+		galleryImageView.setOnClickListener(SharedMediaAdapter.this);
+		return argView;
 	}
-
+	
 	@Override
 	public void onClick(View v)
 	{
@@ -134,11 +145,6 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		}
 	}
 	
-	public SharedFileImageLoader getSharedFileImageLoader()
-	{
-		return sharedMediaLoader;
-	}
-
 	/**
 	 * This is done via post runnable so that this "removing loader"
 	 * gets queued into loop and is performed after image is shown in view pager
@@ -192,4 +198,10 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 			mHandler.removeCallbacksAndMessages(null);
 		}
 	}
+	
+	public SharedFileImageLoader getSharedFileImageLoader()
+	{
+		return sharedMediaLoader;
+	}
+
 }
