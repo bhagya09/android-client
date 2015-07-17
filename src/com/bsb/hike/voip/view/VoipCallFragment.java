@@ -18,6 +18,7 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -158,7 +159,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_QUALITY:
 				CallQuality quality = voipService.getQuality();
 				showSignalStrength(quality);
-				// Logger.d(tag, "Updating call quality to: " + quality);
 				break;
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
@@ -181,6 +181,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				showMessage(msisdn + " has left the conference.");
 			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
 				setContactDetails();
+				break;
+			case VoIPConstants.MSG_UPDATE_SPEAKING:
+				if (voipService.hostingConference())
+					updateConferenceList();
 				break;
 			default:
 				super.handleMessage(msg);
@@ -774,7 +778,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			nameOrMsisdn = getString(R.string.voip_conference_label);
 			contactMsisdnView.setVisibility(View.VISIBLE);
-			contactMsisdnView.setText(voipService.getClientNames());
+			contactMsisdnView.setText(voipService.getClientCount() + " " + getString(R.string.participants));
+			updateConferenceList();
 		}
 
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
@@ -783,6 +788,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 		
 		contactNameView.setText(nameOrMsisdn);
+	}
+	
+	private void updateConferenceList() {
+	
+		TextView contactNameView = (TextView) getView().findViewById(R.id.conference_list);
+		contactNameView.setVisibility(View.VISIBLE);
+		contactNameView.setText(Html.fromHtml(voipService.getClientNames()));
+
 	}
 	
 	public void showCallActionsView()

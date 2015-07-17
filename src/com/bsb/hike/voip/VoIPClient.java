@@ -331,6 +331,7 @@ public class VoIPClient  {
 		if (this.isSpeaking != isSpeaking) {
 			Logger.d(tag, "Speaking: " + isSpeaking);
 			this.isSpeaking = isSpeaking;
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
 		}
 	}
 
