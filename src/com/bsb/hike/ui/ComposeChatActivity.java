@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.provider.ContactsContract.Data;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -293,9 +294,42 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 		}
 		
-		if (Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
-				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
+		//Make sure we are not launching share intent if our activity is restarted by OS
+		if (savedInstanceState == null && (Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
+				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction())))
 		{
+			
+			if (Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
+			{
+				if(HikeFileType.fromString(getIntent().getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
+				{ 
+					String fileName = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
+					startActivityForResult(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false),HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+				}
+			} 
+			
+			else if(Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
+			{
+				
+				//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
+				
+				/*
+				ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+				ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
+				if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
+				{
+					Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
+					multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
+					multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
+					startActivity(multiIntent);
+				}
+				else
+				{
+					handleShareIntent(intent);
+				}
+				*/
+			}
+			
 			isForwardingMessage = true;
 		}
 
@@ -1029,6 +1063,31 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					oneToNConvName = broadcastBundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
 					oneToNConvId = broadcastBundle.getString(HikeConstants.Extras.CONVERSATION_ID);
 					OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
+					break;
+					
+				case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+					String sharedFilepath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
+					if(sharedFilepath !=null && (new File(sharedFilepath)).exists())
+					{
+						Intent intent = getIntent();
+						intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(sharedFilepath)));
+						setIntent(intent);
+					}
+					else
+					{
+						Toast.makeText(getApplicationContext(), R.string.unable_to_open, Toast.LENGTH_LONG).show();
+						ComposeChatActivity.this.finish();
+					}
+					break;
+			}
+			
+		}
+		else 
+		{
+			switch(requestCode)
+			{
+				case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+					ComposeChatActivity.this.finish();
 					break;
 			}
 			
