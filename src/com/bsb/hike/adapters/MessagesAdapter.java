@@ -79,6 +79,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -3317,6 +3318,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		if (convMessage.isFileTransferMessage())
 		{
+			
 			// @GM
 			MessageMetadata messageMetadata = convMessage.getMetadata();
 			HikeFile hikeFile = messageMetadata.getHikeFiles().get(0);
@@ -3331,14 +3333,35 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				Logger.d(getClass().getSimpleName(), "Hike File name: " + hikeFile.getFileName() + " File key: " + hikeFile.getFileKey());
 				
+				FileSavedState fileState;
 				if (convMessage.isOfflineMessage())
 				{
-					FileSavedState offlineFss = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
-					if (offlineFss.getFTState() == FTState.ERROR)
+					fileState = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());	
+					if(fileState.getFTState() == FTState.ERROR)
 					{
-						OfflineController.getInstance().handleRetryButton(convMessage);
-						return;
-					}	
+						if(OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
+						{
+							OfflineController.getInstance().handleRetryButton(convMessage);
+							return;
+						}
+						else
+						{
+							convMessage.setMessageOriginType(OriginType.NORMAL);
+						}
+					}
+				}
+				else
+				{
+					fileState = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(),hikeFile.getFile()); 
+					if(fileState.getFTState() == FTState.ERROR)
+					{
+						if(OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
+						{
+							convMessage.setMessageOriginType(OriginType.OFFLINE);
+							OfflineController.getInstance().handleRetryButton(convMessage);
+							return;
+						}
+					}
 				}
 				
 				if (!TextUtils.isEmpty(hikeFile.getFileKey()))
