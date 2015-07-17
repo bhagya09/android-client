@@ -17,6 +17,7 @@ import java.util.Set;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.StickerTagDataContainer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -314,28 +315,29 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, Map<String, ArrayList<Object>> stickerTagData)
+	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
 	{
 		ArrayList<String> tags = new ArrayList<String>();
 		ArrayList<Long> rows = new ArrayList<Long>();
-		Set<String> stickerInfoSet = stickerTagData.keySet();
+
 		try
 		{
 			mDb.beginTransaction();
-			for (String stickerInfo : stickerInfoSet)
+			for (StickerTagDataContainer stickerTagData : stickersTagData)
 			{
-				ArrayList<Object> tagData = stickerTagData.get(stickerInfo);
-				ArrayList<?> stickerTags = (ArrayList<?>) tagData.get(HikeStickerSearchBaseConstants.INDEX_TAG_DATA_TAG_PHRASE);
-				ArrayList<?> tagExactnessPriorities = (ArrayList<?>) tagData.get(HikeStickerSearchBaseConstants.INDEX_TAG_DATA_EXACTNESS_PRIORITY);
-				ArrayList<?> stickerMoments = (ArrayList<?>) tagData.get(HikeStickerSearchBaseConstants.INDEX_TAG_DATA_EXACTNESS_PRIORITY);
+				String stickerCode = stickerTagData.getStickerCode();
+				ArrayList<String> stickerTags = stickerTagData.getTagList();
+				ArrayList<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
+				ArrayList<Integer> stickerMoments = stickerTagData.getMomentCodeList();
+
 				for (int i = 0; i < stickerTags.size(); i++)
 				{
-					tags.add((String) stickerTags.get(i));
+					tags.add(stickerTags.get(i));
 					ContentValues cv = new ContentValues();
-					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, ((String) stickerTags.get(i)));
-					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, ((int) tagExactnessPriorities.get(i)));
-					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, ((int) stickerMoments.get(i)));
-					cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerInfo);
+					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, stickerTags.get(i));
+					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, tagExactnessPriorities.get(i));
+					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoments.get(i));
+					cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerCode);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
 					rows.add(mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv));
 				}
@@ -659,7 +661,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				mDb.beginTransaction();
 
 				deleteSearchData();
-				
+
 				mDb.setTransactionSuccessful();
 			}
 			finally
@@ -763,12 +765,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					int count = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
 							: remainingCount;
 
-					String [] docIds = Arrays.copyOfRange(groupIds, j, (j + count));
+					String[] docIds = Arrays.copyOfRange(groupIds, j, (j + count));
 					StringBuilder sb = new StringBuilder(args.length * 2 - 1);
-					sb.append(docIds [0]);
+					sb.append(docIds[0]);
 					for (int i = 1; i < count; i++)
 					{
-						sb.append(" OR " + docIds [i]);
+						sb.append(" OR " + docIds[i]);
 					}
 
 					for (int i = 0; i < 27; i++)

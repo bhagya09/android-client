@@ -71,7 +71,7 @@ public enum StickerSearchDataController
 			Iterator<String> categories = packsData.keys();
 			HashSet<String> stickerCodeList = new HashSet<String>();
 			Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
-			Map<String, ArrayList<Object>> stickerTagData = new HashMap<String, ArrayList<Object>>();
+			ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
 			Set<String> untaggedSet = new HashSet<String>();
 
 			while (categories.hasNext())
@@ -109,7 +109,7 @@ public enum StickerSearchDataController
 						continue;
 					}
 
-					String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId.trim(), packId.trim());
+					String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId, packId);
 					JSONObject stickerData = stickersData.optJSONObject(stickerId);
 
 					if ((stickerData == null) || (stickerData.length() <= 0))
@@ -223,9 +223,10 @@ public enum StickerSearchDataController
 													tag = tagArray.optString(i);
 													if (!Utils.isBlank(tag))
 													{
-														tag = tag.trim().toUpperCase(Locale.ENGLISH);
+														tag = tag.trim().toLowerCase(Locale.ENGLISH);
 														themeList.add(tag);
 
+														tag = tag.trim().toUpperCase(Locale.ENGLISH);
 														if (!HikeStickerSearchBaseConstants.THEME_DEFAULT.equals(tag))
 														{
 															tagList.add(tag);
@@ -413,11 +414,8 @@ public enum StickerSearchDataController
 								}
 							}
 
-							// build tag data
-							stickerTagData.put(
-									stickerInfo,
-									buildStickerTagData(tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList, tagPriorityList, stickerMomentList,
-											stickerFestivalList));
+							stickersTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
+									tagPriorityList, stickerMomentList, stickerFestivalList));
 							stickerCodeList.add(stickerInfo);
 						}
 						else
@@ -467,8 +465,8 @@ public enum StickerSearchDataController
 			}
 
 			Logger.v(TAG, "setupStickerSearchWizard(), Pack-Story data: " + packStoryData);
-			Logger.v(TAG, "setupStickerSearchWizard(), Sticker-Tag data: " + stickerTagData);
-			HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickerTagData);
+			Logger.v(TAG, "setupStickerSearchWizard(), Sticker-Tag data: " + stickersTagData);
+			HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
 
 			Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
 			if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
@@ -502,34 +500,6 @@ public enum StickerSearchDataController
 		{
 			HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfoSet);
 		}
-	}
-
-	private ArrayList<Object> buildStickerTagData(ArrayList<String> tags, ArrayList<String> languages, ArrayList<String> tagCategories, ArrayList<String> themes,
-			ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities, ArrayList<Integer> moments, ArrayList<String> festivals)
-	{
-		ArrayList<Object> data = new ArrayList<Object>(HikeStickerSearchBaseConstants.INDEX_TAG_DATA_COUNT);
-
-		// Do not change the order of insertion as per indices defined as followed
-		// INDEX_TAG_DATA_TAG_PHRASE = 0;
-		// INDEX_TAG_DATA_PHRASE_LANGUAGE = 1;
-		// INDEX_TAG_DATA_TAG_STATE_CATEGORY = 2;
-		// INDEX_TAG_DATA_CHAT_THEME = 3;
-		// INDEX_TAG_DATA_EXACTNESS_PRIORITY = 4;
-		// INDEX_TAG_DATA_MOMENT_CODE = 5;
-		// INDEX_TAG_DATA_FESTIVALS = 6;
-		// INDEX_TAG_DATA_PRIORITY = 7;
-		// INDEX_TAG_DATA_COUNT = 8;
-
-		data.add(tags);
-		data.add(languages);
-		data.add(tagCategories);
-		data.add(themes);
-		data.add(tagExactMatchPriorities);
-		data.add(moments);
-		data.add(festivals);
-		data.add(tagPriorities);
-
-		return data;
 	}
 
 	public void analyseMessageSent(String prevText, Sticker sticker, String nextText)
