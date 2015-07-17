@@ -790,7 +790,9 @@ public class IntentFactory
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
-		intent.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
+		if (!TextUtils.isEmpty(groupChatMsisdn))
+			intent.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
+		
 		return intent;
 	}
 

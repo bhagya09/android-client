@@ -306,6 +306,7 @@ public class VoIPService extends Service {
 			resampler = new Resampler();
 		
 		startConnectionTimeoutThread();
+		startBluetooth();
 		registerPhoneStateBroadcastReceiver();
 	}
 	
@@ -542,7 +543,7 @@ public class VoIPService extends Service {
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
 				// Group call
 				groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
-				Logger.w(VoIPConstants.TAG, "Initiating a group call for group: " + groupChatMsisdn);
+//				Logger.w(VoIPConstants.TAG, "Initiating a group call for group: " + groupChatMsisdn);
 				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
 				startChrono();
 				
@@ -562,7 +563,8 @@ public class VoIPService extends Service {
 				// One-to-one call
 				initiateOutgoingCall(client, callSource);
 			
-			startBluetooth();
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+			
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -1117,7 +1119,6 @@ public class VoIPService extends Service {
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
 		startRecordingAndPlayback(client.getPhoneNumber());
-		startBluetooth();
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 	

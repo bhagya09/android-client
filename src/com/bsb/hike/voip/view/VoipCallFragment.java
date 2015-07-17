@@ -1,5 +1,7 @@
 package com.bsb.hike.voip.view;
 
+import java.util.ArrayList;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -38,9 +40,11 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
@@ -65,7 +69,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private CallActionsView callActionsView;
 	private Chronometer callDuration;
 
-	private ImageButton holdButton, muteButton, speakerButton;
+	private ImageButton holdButton, muteButton, speakerButton, addButton;
 
 	private boolean isCallActive;
 
@@ -97,10 +101,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle)
 	{
 		View view = inflater.inflate(R.layout.voip_call_fragment, null);
-
+		
 		muteButton = (ImageButton) view.findViewById(R.id.mute_btn);
 		holdButton = (ImageButton) view.findViewById(R.id.hold_btn);
 		speakerButton = (ImageButton) view.findViewById(R.id.speaker_btn);
+		addButton = (ImageButton) view.findViewById(R.id.add_btn);
+		
+		if (VoIPUtils.isConferencingEnabled(getSherlockActivity())) 
+			addButton.setVisibility(View.VISIBLE);
 
 		return view;
 	}
@@ -519,6 +527,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		muteButton.setSelected(voipService.getMute());
 		holdButton.setSelected(voipService.getHold());
 		speakerButton.setSelected(voipService.getSpeaker());
+		addButton.setSelected(false);
 
 		setupActiveCallButtonActions();
 	}
@@ -535,6 +544,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		muteButton.startAnimation(anim);
 		holdButton.startAnimation(anim);
 		speakerButton.startAnimation(anim);
+		addButton.startAnimation(anim);
 		hangupButton.startAnimation(anim);
 	}
 
@@ -611,8 +621,33 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				}
 			}
 		});
+		
+		addButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				releaseProximityWakelock();
+				Intent intent = new Intent(HikeMessengerApp.getInstance(), ComposeChatActivity.class);
+				intent.putExtra(HikeConstants.Extras.ADD_TO_CONFERENCE, true);
+				startActivityForResult(intent, HikeConstants.ADD_TO_CONFERENCE_REQUEST);
+			}
+		});
 	}
 
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == HikeConstants.ADD_TO_CONFERENCE_REQUEST) {
+			if (resultCode == Activity.RESULT_OK) {
+				if (data.hasExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE)) {
+					ArrayList<String> msisdns = data.getStringArrayListExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE);
+					Logger.w(tag, "Adding to conference: " + msisdns.toString());
+					getActivity().startService(IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(),
+							msisdns, null, VoIPUtils.CallSource.ADD_TO_CONFERENCE));
+				}
+			}
+		}
+	};
+	
 	private void updateCallStatus()
 	{
 		if(!isAdded() || voipService == null)
@@ -789,7 +824,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					   			signalStrengthView.setText(getString(R.string.voip_signal_excellent));
 					   			break;
 		default:
-			Logger.w(tag, "Unhandled voice quality: " + quality);
+			Logger.d(tag, "Unhandled voice quality: " + quality + ". Defaulting to good.");
 			gd.setColor(getResources().getColor(R.color.signal_good));
 	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
 			break;
