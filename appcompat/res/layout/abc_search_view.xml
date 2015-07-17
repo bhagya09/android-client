@@ -21,6 +21,8 @@
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingLeft="-16dp"
+        android:paddingRight="-8dp"
         android:orientation="horizontal">
 
     <!-- This is actually used for the badge icon *or* the badge label (or neither) -->
@@ -98,8 +100,6 @@
                     android:id="@+id/search_close_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:paddingLeft="8dip"
-                    android:paddingRight="8dip"
                     android:layout_gravity="center_vertical"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:focusable="true"
