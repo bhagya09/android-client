@@ -116,7 +116,7 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	/**
 	 * This removes current fragment
 	 */
-	protected void removeHeadlessFragement()
+	protected void removeHeadlessFragment()
 	{
 		if(getFragmentManager() != null && isAdded())
 		{
