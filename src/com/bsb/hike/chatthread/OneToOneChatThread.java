@@ -132,7 +132,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private static short H2H_MODE = 1; // Hike to Hike Mode
 
 	/* The waiting time in seconds before scheduling a H20 Tip */
-	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 30;
+	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 60;
 
 	private static final int DEFAULT_SMS_LENGTH = 140;
 	
@@ -687,7 +687,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void onShowSMSSyncDialog()
 	{
-		smsDialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.SMS_SYNC_DIALOG, true);
+		if((activity != null) && !activity.isFinishing())
+		{
+			smsDialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.SMS_SYNC_DIALOG, true);
+		}
 	}
 
 	/**
