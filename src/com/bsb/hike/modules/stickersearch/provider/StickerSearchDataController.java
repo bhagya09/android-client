@@ -132,6 +132,7 @@ public enum StickerSearchDataController
 					}
 
 					JSONObject tagData = stickerData.optJSONObject("tag_data");
+					Logger.v(TAG, "setupStickerSearchWizard(), Sticker: " + stickerInfo + ", tag data: " + tagData);
 
 					if ((tagData != null) && (tagData.length() > 0))
 					{

@@ -36,7 +36,7 @@ import com.bsb.hike.utils.Utils;
 
 public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
-	private String TAG = "MultiStickerDownloadTask";
+	private String TAG = MultiStickerDownloadTask.class.getSimpleName();
 
 	private StickerCategory category;
 
@@ -89,11 +89,11 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			@Override
 			public void intercept(Chain chain)
 			{
-				Logger.d(TAG, "CategoryId: " + category.getCategoryId());
+				Logger.d(TAG, "intercept(), CategoryId: " + category.getCategoryId());
 				String directoryPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(category.getCategoryId());
 				if (directoryPath == null)
 				{
-					Logger.e(TAG, "Sticker download failed directory does not exist");
+					Logger.e(TAG, "intercept(), Sticker download failed directory does not exist");
 					doOnFailure(null);
 					return;
 				}
@@ -110,13 +110,13 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					{
 						existingStickerIds.put(stickerId);
 						existingStickerNumber++;
-						Logger.d(TAG, "Existing id: " + stickerId);
+						Logger.d(TAG, "intercept(), Existing id: " + stickerId);
 					}
 				}
 				else
 				{
 					smallStickerDir.mkdirs();
-					Logger.d(TAG, "No existing sticker");
+					Logger.d(TAG, "intercept(), No existing sticker.");
 				}
 				if (!largeStickerDir.exists())
 					largeStickerDir.mkdirs();
@@ -132,7 +132,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
-					Logger.d(TAG, "Sticker Download Task Request : " + request.toString());
+					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + request.toString());
 
 					IRequestBody body = new JsonBody(request);
 					chain.getRequestFacade().setBody(body);
@@ -140,7 +140,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 				}
 				catch (JSONException e)
 				{
-					Logger.e(TAG, "Json exception during creation of request body", e);
+					Logger.e(TAG, "intercept(), Json exception during creation of request body", e);
 					doOnFailure(new HttpException("json exception", e));
 					return;
 				}
