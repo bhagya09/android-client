@@ -54,6 +54,12 @@ public enum StickerSearchDataController
 	{
 		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
 
+		if (!((state == StickerSearchConstants.STICKER_DATA_FIRST_SETUP) || (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)))
+		{
+			Logger.e(TAG, "setupStickerSearchWizard(), Invalid trial request.");
+			return;
+		}
+
 		synchronized (StickerSearchDataController.class)
 		{
 			JSONObject packsData = json.optJSONObject(HikeConstants.PACKS);
@@ -123,11 +129,6 @@ public enum StickerSearchDataController
 					else if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
 					{
 						Logger.v(TAG, "setupStickerSearchWizard(), No dependency on sticker image data: " + stickerInfo);
-					}
-					else
-					{
-						Logger.e(TAG, "setupStickerSearchWizard(), Invalid trial request: " + stickerInfo);
-						break;
 					}
 
 					JSONObject tagData = stickerData.optJSONObject("tag_data");
