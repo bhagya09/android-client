@@ -1027,7 +1027,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 						for (int j = 0; j < currentCount; j++)
 						{
-							if (deleting && ageList.get(i) == 60)
+							// changed for testing only
+							if (deleting && ageList.get(i) == 15)
 							{
 								String s = tagList.get(i);
 								char[] array = s.toCharArray();
