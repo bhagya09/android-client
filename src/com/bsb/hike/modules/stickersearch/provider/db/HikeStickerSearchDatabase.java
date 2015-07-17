@@ -332,9 +332,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				{
 					tags.add((String) stickerTags.get(i));
 					ContentValues cv = new ContentValues();
-					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, (String) stickerTags.get(i));
-					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, (int) tagExactnessPriorities.get(i));
-					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, (int) stickerMoments.get(i));
+					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, ((String) stickerTags.get(i)));
+					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, ((int) tagExactnessPriorities.get(i)));
+					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, ((int) stickerMoments.get(i)));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerInfo);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
 					rows.add(mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv));
