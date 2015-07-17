@@ -80,19 +80,16 @@
                     android:textColorHint="@color/description_lightgrey"
                     android:textSize="16sp" />
             </RelativeLayout>
-            
+
             <ImageView
                 android:id="@+id/status_image"
-                android:layout_below="@+id/avatar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/avatar"
                 android:layout_marginTop="55dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_launcher" />
-            
         </RelativeLayout>
-
-        
 
         <LinearLayout
             android:id="@+id/mood_tip"
@@ -110,9 +107,10 @@
             android:layout_height="@dimen/emoticon_pallete"
             android:layout_alignParentBottom="true" >
 
-            <include layout="@layout/emoticon_layout"
+            <include
+                layout="@layout/emoticon_layout"
                 android:visibility="gone" />
-            
+
             <include layout="@layout/mood_selector_layout" />
         </LinearLayout>
     </RelativeLayout>

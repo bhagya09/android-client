@@ -99,7 +99,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		mUpdatesList.setAdapter(timelineCardsAdapter);
 
 		QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
-				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 60)).isSnappable(false).build();
+				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(60)).isSnappable(false).build();
 
 		mUpdatesList.setOnScrollListener(scrollListener);
 		

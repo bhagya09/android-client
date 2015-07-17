@@ -1,16 +1,17 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -28,7 +29,9 @@ import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -40,10 +43,11 @@ import com.bsb.hike.utils.Logger;
  */
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
-	
-	private static final int OPEN_FULL_PAGE = 111;
+	private static final int OPEN_FULL_PAGE_WITH_TITLE = 111;
 	
 	private static final int SHOW_OVERFLOW_MENU = 112;
+	
+	private static final int OPEN_FULL_PAGE = 114;
 	
 	private BotInfo mBotInfo;
 	
@@ -476,33 +480,30 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
 	
-	@JavascriptInterface
-	public void openFullPage(String url)
-	{
-		sendMessageToUiThread(OPEN_FULL_PAGE, url);
-	}
-	
 	@Override
 	protected void handleUiMessage(Message msg)
 	{
 		switch (msg.what)
 		{
-		case OPEN_FULL_PAGE:
-			String url = (String) msg.obj;
-			if (mCallback != null)
-			{
-				mCallback.openFullPage(url);
-			}
-			else
-			{
-				super.openFullPage("", url);
-			}
-			break;
-
 		case SHOW_OVERFLOW_MENU:
 			if (mCallback != null)
 			{
 				mCallback.overflowMenuUpdated();
+			}
+			break;
+
+		case OPEN_FULL_PAGE_WITH_TITLE:
+			if (mCallback != null)
+			{
+				String[] params = (String[]) msg.obj;
+				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
+			}
+			break;
+
+		case OPEN_FULL_PAGE:
+			if (mCallback != null)
+			{
+				mCallback.openFullPage((String) msg.obj);
 			}
 			break;
 
@@ -595,6 +596,62 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			Logger.e(tag, "error in JSON");
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Platform bridge Version 1 Call this function to open a full page webView within hike.
+	 * 
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 */
+	@JavascriptInterface
+	@Override
+	public void openFullPage(final String title, final String url)
+	{
+		if (TextUtils.isEmpty(title))
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE, url);
+		}
+		else
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url });
+		}
+	}
+	
+	/**
+	 * Platform bridge Version 1 Call this function to open a full page webView within hike.
+	 * 
+	 * @param url
+	 *            : the url that will be loaded.
+	 */
+	@JavascriptInterface
+	public void openFullPage(final String url)
+	{
+		sendMessageToUiThread(OPEN_FULL_PAGE, url);
+	}
+
+	/**
+	 * Platform Version 2 called by the special packet sent in the bot to delete the conversation of the particular bot
+	 */
+	@JavascriptInterface
+	public void deleteBotConversation()
+	{
+		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
+		final Activity context = weakActivity.get();
+		ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
+		final Intent intent = Utils.getHomeActivityIntent(context);
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				context.finish();
+				context.startActivity(intent);
+			}
+		});
+
 	}
 
 }

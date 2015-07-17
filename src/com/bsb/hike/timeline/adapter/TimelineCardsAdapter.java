@@ -498,7 +498,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		//Done to support Quick Return
 		if (position == 0)
 		{
-			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 60), 0, 0);
+			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(60), 0, 0);
 		}
 		else
 		{

@@ -110,7 +110,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 				{
 					//TODO Support all image formats (same code is present in ChangeProfileImageBaseActivity)
 					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-					Utils.copyFile(imageFilePath, destFilePath, HikeFileType.IMAGE);
+					Utils.copyFile(imageFilePath, destFilePath);
 				}
 				
 				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, suType, time, moodId, timeOfDay);

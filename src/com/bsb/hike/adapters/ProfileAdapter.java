@@ -45,6 +45,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TextDrawable;
 
 public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 {		
@@ -790,7 +791,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				thumbnailLoader.loadImage(galleryItem.getImageLoaderKey(false), image);
 				fileMissing.setVisibility(View.GONE);
-				
+
 				if (galleryItem.getHikeFileType() == HikeFileType.VIDEO)
 				{
 					image_duration.setVisibility(View.VISIBLE);

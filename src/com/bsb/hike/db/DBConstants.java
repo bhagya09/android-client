@@ -72,6 +72,8 @@ public interface DBConstants
 	public static final String GROUP_ID = "groupId";
 
 	public static final String GROUP_NAME = "groupName";
+	
+	public static final String GROUP_CREATION_TIME = "groupCreationTime";
 
 	public static final String GROUP_INDEX = "group_idx";
 
@@ -278,7 +280,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 4;
+		public static final int DB_VERSION = 5;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";

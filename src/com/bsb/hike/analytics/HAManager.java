@@ -1,14 +1,18 @@
 package com.bsb.hike.analytics;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Random;
 
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,12 +20,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
-import com.bsb.hike.media.ShareablePopup;
 import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -70,6 +72,10 @@ public class HAManager
 	private NetworkListener listner;
 	
 	private Session fgSessionInstance;
+	
+	private ArrayList<JSONObject> imageConfigEventsList;
+	
+	private	File imageLogsEventFile;
 	
 	/**
 	 * Constructor
@@ -128,6 +134,7 @@ public class HAManager
 		// set network listener
 		listner = new NetworkListener(this.context);
 		
+		imageConfigEventsList = new ArrayList<JSONObject>();
 	}
 	
 	/**
@@ -631,6 +638,40 @@ public class HAManager
 		fgSessionInstance.setConvType(convType);
 	}
 	
+	
+	public void chatHeadshareAnalytics(String eventKey, String... strings)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.ChatHeadEvents.STICKER_WDGT);
+			if (strings.length >= 1)
+			{
+				metadata.put(HikeConstants.ChatHead.APP_NAME, strings[0]);
+			}
+			if (strings.length >= 2)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.CAT_ID, strings[1]);
+			}
+			if (strings.length >= 3)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.STICKER_ID, strings[2]);
+			}
+			if (strings.length >= 4)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.SOURCE, strings[3]);
+			}
+			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+	
+	
 	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
 	{
 		JSONObject metadata = new JSONObject();
@@ -911,6 +952,30 @@ public class HAManager
 		}
 	}
 
+	
+	/**
+	 * Used for logging DevEvent related to error/invalid state of the app.
+	 */
+	public void logDevEvent(String productArea, String devArea, JSONObject info)
+	{
+		JSONObject metadata = new JSONObject();
+		try 
+		{
+			metadata.put(AnalyticsConstants.DEV_AREA, devArea);
+		
+			if(info !=null)
+			{
+				metadata.put(AnalyticsConstants.DEV_INFO, info);
+			}
+			
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, productArea, EventPriority.HIGH, metadata);
+		} 
+		catch (JSONException e) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",e);
+		}
+
+	}
 	/**
 	 * Used for logging UI click event
 	 * @param eventKey

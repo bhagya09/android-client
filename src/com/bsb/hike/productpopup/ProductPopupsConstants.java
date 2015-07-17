@@ -108,6 +108,8 @@ public class ProductPopupsConstants
 		public static final String CALLTOSERVER="callserver";
 		
 		public static final String DOWNLOAD_STKPK="dwnldstkpk";
+		
+		public static final String ACTIVATE_CHAT_HEAD_APPS = "actvchthdapps";
 	}
 
 	public static enum HIKESCREEN
@@ -373,8 +375,17 @@ public class ProductPopupsConstants
 				return "photos";
 			}
 
+		},
+		CHAT_HEAD
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "chathead";
+			}
+
 		};
-		
 		
 		
 	}

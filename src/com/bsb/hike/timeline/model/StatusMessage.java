@@ -6,7 +6,6 @@ import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ocpsoft.prettytime.PrettyTime;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -16,6 +15,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.Utils;
 
 public class StatusMessage
 {
@@ -204,14 +204,13 @@ public class StatusMessage
 
 	public String getTimestampFormatted(boolean pretty, Context context)
 	{
-		Date date = new Date(timeStamp * 1000);
 		if (pretty)
 		{
-			PrettyTime p = new PrettyTime();
-			return p.format(date);
+			return Utils.getFormattedTime(pretty, context, timeStamp);
 		}
 		else
 		{
+			Date date = new Date(timeStamp * 1000);
 			String format;
 			if (android.text.format.DateFormat.is24HourFormat(context))
 			{

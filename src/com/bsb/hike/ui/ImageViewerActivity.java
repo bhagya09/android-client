@@ -2,12 +2,15 @@ package com.bsb.hike.ui;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
@@ -20,12 +23,17 @@ import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
+import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 
-public class ImageViewerActivity extends FragmentActivity implements OnClickListener, Listener
+public class ImageViewerActivity extends FragmentActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -60,15 +68,21 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	public static final String animFromWidth = "animFromWidth";
 
 	public static final String animFromHeight = "animFromHeight";
-	
+
 	public static final String FILE_TYPE_KEY = "ftk";
 
 	public static final int SHOW_PROFILE_PIC = -11;
-	
+
 	private int fileType;
 
 	private String fileKey;
-	
+
+	private HeadlessImageDownloaderFragment mImageWorkerFragment;
+
+	private boolean hasCustomImage;
+
+	private ProfileImageLoader profileImageLoader;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -85,15 +99,15 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		Bundle extras = getIntent().getExtras();
 
 		mappedId = extras.getString(HikeConstants.Extras.MAPPED_ID);
-		
+
 		fileKey = extras.getString(HikeConstants.Extras.FILE_KEY);
 
 		isStatusImage = extras.getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-		
+
 		fileType = extras.getInt(FILE_TYPE_KEY, SHOW_PROFILE_PIC);
-		
+
 		final int thumbnailTop = extras.getInt(animFromTop);
 
 		final int thumbnailLeft = extras.getInt(animFromLeft);
@@ -132,7 +146,7 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 
 				// Scale factors to make the large version the same size as the thumbnail
 				mWidthScale = (float) thumbnailWidth / imageView.getWidth();
-				
+
 				mHeightScale = (float) thumbnailHeight / imageView.getHeight();
 
 				Logger.d(TAG, "imageViewPos x,y - " + screenLocation[0] + " , " + screenLocation[1]);
@@ -171,27 +185,27 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		// Set starting values for properties we're going to animate. These
 		// values scale and position the full size version down to the thumbnail
 		// size/location, from which we'll animate it back up
-//		imageView.setPivotX(0);
-//		imageView.setPivotY(0);
-//		imageView.setScaleX(mWidthScale);
-//		imageView.setScaleY(mHeightScale < 0.6f ? 0.6f : mHeightScale);
-//		imageView.setTranslationX(mLeftDelta);
-//		imageView.setTranslationY(mTopDelta);
+		// imageView.setPivotX(0);
+		// imageView.setPivotY(0);
+		// imageView.setScaleX(mWidthScale);
+		// imageView.setScaleY(mHeightScale < 0.6f ? 0.6f : mHeightScale);
+		// imageView.setTranslationX(mLeftDelta);
+		// imageView.setTranslationY(mTopDelta);
 		imageView.setTranslationY(20);
 		imageView.setAlpha(0f);
-		
+
 		// Animate scale and translation to go from thumbnail to full size
-//		imageView.animate().setDuration(duration).scaleX(1).scaleY(1).translationX(0).translationY(0).withEndAction(new Runnable()
-//		{
-//			public void run()
-//			{
-//				// Animate the description in after the image animation
-//				// is done. Slide and fade the text in from underneath
-//				// the picture.
-//
-//			}
-//		});
-		
+		// imageView.animate().setDuration(duration).scaleX(1).scaleY(1).translationX(0).translationY(0).withEndAction(new Runnable()
+		// {
+		// public void run()
+		// {
+		// // Animate the description in after the image animation
+		// // is done. Slide and fade the text in from underneath
+		// // the picture.
+		//
+		// }
+		// });
+
 		imageView.animate().setDuration(duration).translationY(0).alpha(1f).withEndAction(new Runnable()
 		{
 			public void run()
@@ -217,39 +231,39 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	public void runExitAnimation(final Runnable endAction)
 	{
 		// Animate image back to thumbnail size/location
-//		imageView.animate().setDuration(300).scaleX(mWidthScale).scaleY(mHeightScale).translationX(mLeftDelta).translationY(mTopDelta).withEndAction(endAction);
+		// imageView.animate().setDuration(300).scaleX(mWidthScale).scaleY(mHeightScale).translationX(mLeftDelta).translationY(mTopDelta).withEndAction(endAction);
 		imageView.animate().setDuration(300).translationY(20).alpha(0f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
 		bgAnim.setDuration(600);
 		bgAnim.addListener(new AnimatorListener()
 		{
-			
+
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void onAnimationRepeat(Animator animation)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
 				endAction.run();
-				
+
 			}
-			
+
 			@Override
 			public void onAnimationCancel(Animator animation)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
 		bgAnim.start();
@@ -290,42 +304,55 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 			}
 		}
 
-		if (fileType == SHOW_PROFILE_PIC)
+		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(key);
+
+		profileImageLoader = new ProfileImageLoader(this, key, imageView, imageSize, isStatusImage, true);
+		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
 		{
-			ProfileImageLoader profileImageLoader = new ProfileImageLoader(ImageViewerActivity.this, key, imageView, imageSize, isStatusImage);
-			profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
+
+			@Override
+			public void onLoaderReset(Loader<Boolean> arg0)
 			{
+				dismissProgressDialog();
+			}
 
-				@Override
-				public void onLoaderReset(Loader<Boolean> arg0)
+			@Override
+			public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
+			{
+				dismissProgressDialog();
+				if (isStatusImage)
 				{
-					// dismissProgressDialog();
+					HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
 				}
+			}
 
-				@Override
-				public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
-				{
-					// dismissProgressDialog();
-					if (isStatusImage)
-					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
-					}
-				}
+			@Override
+			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
+			{
+				showProgressDialog();
+				return null;
+			}
 
-				@Override
-				public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
-				{
-					mDialog = ProgressDialog.show(ImageViewerActivity.this, null, getResources().getString(R.string.downloading_image));
-					mDialog.setCancelable(true);
-					return null;
-				}
-			});
-			profileImageLoader.loadProfileImage(getSupportLoaderManager());
-		}
-		else
-		{
-			
-		}
+			@Override
+			public void startDownloading()
+			{
+				showProgressDialog();
+				loadHeadLessImageDownloadingFragment();
+			}
+		});
+		profileImageLoader.loadProfileImage(getSupportLoaderManager());
+	}
+
+	protected void showProgressDialog()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void dismissProgressDialog()
+	{
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
@@ -367,5 +394,64 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 				});
 			}
 		}
+	}
+
+	private void loadHeadLessImageDownloadingFragment()
+	{
+		Logger.d(TAG, "isnide API loadHeadLessImageDownloadingFragment");
+		FragmentManager fm = getSupportFragmentManager();
+		mImageWorkerFragment = (HeadlessImageDownloaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
+
+		// If the Fragment is non-null, then it is currently being
+		// retained across a configuration change.
+		if (mImageWorkerFragment == null)
+		{
+			Logger.d(TAG, "starting new mImageLoaderFragment");
+			String fileName = Utils.getProfileImageFileName(key);
+			mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
+			mImageWorkerFragment.setTaskCallbacks(this);
+			fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
+		}
+		else
+		{
+			Toast.makeText(this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+			Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+		}
+
+	}
+
+	@Override
+	public void onProgressUpdate(float percent)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onCancelled()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onFailed()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onSuccess(Response result)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void handleUIMessage(Message msg)
+	{
+		// TODO Auto-generated method stub
+
 	}
 }

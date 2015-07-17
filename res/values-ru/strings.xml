@@ -1158,7 +1158,6 @@
     <string name="no_file">Здесь отображаются файлы и булавки</string>
     <string name="no_file_broadcast">Здесь отображаются файлы</string>
     <string name="no_file_profile">Здесь отображаются файлы</string>
-    <string name="num_new_conversations">%1$s чатов</string>
     <string name="notifications_contact_join_title">Контакт присоединяется к hike</string>
     <string name="share_with_names_numbers">Поделиться с пользователем %1$s и %2$d другими?</string>
     <string name="forward_to_names_numbers">Отправить сообщение пользователю %1$s и %2$d другим?</string>
