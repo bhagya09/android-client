@@ -211,11 +211,8 @@ public class UserLogInfo {
 		List<PackageInfo> packInfoList = ctx.getPackageManager().getInstalledPackages(0);
 		Set<String> runningPackageNames = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
 		Set<String> currentRunningtasks = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_FOREGROUND_PROCESSES);
-
-		int appStatus = 0;
-		
-		for(PackageInfo pi : packInfoList){
-			
+        for(PackageInfo pi : packInfoList){
+        	int appStatus = 0;
 			if (pi.versionName == null)
 				continue;
 			if (runningPackageNames.contains(pi.packageName))
@@ -227,7 +224,7 @@ public class UserLogInfo {
 			{
 				appStatus = PhoneSpecUtils.getNumberAfterSettingBit(appStatus, FOREGROUND_TASK_BIT, true);
 				currentRunningtasks.remove(pi.packageName);
-		    }
+			  }
 			AppLogPojo appLog = new AppLogPojo(
 					pi.packageName,
 					pi.applicationInfo.loadLabel(ctx.getPackageManager()).toString(),
