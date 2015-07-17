@@ -52,6 +52,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 {
 	public static final String FROM_DEVICE_GALLERY_SHARE = "from_gallery_share";
 	
+	public static final int MULTI_EDIT_REQUEST_CODE = 12309;
+	
 	private GalleryAdapter gridAdapter;
 
 	private GalleryPagerAdapter pagerAdapter;
@@ -233,9 +235,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			}
 		});
 		
-		//Commenting out Multi-select code. This feature will be enabled in next release.
-		
-		/*
 		if(Utils.isPhotosEditEnabled())
 		{
 			actionsView.setVisibility(View.VISIBLE);
@@ -250,7 +249,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				}
 			});
 		}
-		*/
 		
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
@@ -260,7 +258,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			{
 				if(forGalleryShare)
 				{
-					shareToMultipleContacts();
+					Intent data = new Intent();
+					data.putParcelableArrayListExtra(HikeConstants.IMAGE_PATHS, getSelectedFilesAsUri());
+					setResult(RESULT_OK,data);
+					GallerySelectionViewer.this.finish();
 					return;
 				}
 				
@@ -589,7 +590,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		}
 	}
 	
-	private void shareToMultipleContacts()
+	private ArrayList<Uri> getSelectedFilesAsUri()
 	{
 		ArrayList<Uri> selectedUris = new ArrayList<Uri>(galleryItems.size());
 		for (GalleryItem galleryItem : galleryItems)
@@ -598,7 +599,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			selectedUris.add(Uri.fromFile(file));
 		}
 		
-		startActivity(IntentFactory.getMultipleFileForwardIntent(getApplicationContext(), selectedUris, HikeFileType.IMAGE));
+		return selectedUris;
+		
 	}
 	
 	
