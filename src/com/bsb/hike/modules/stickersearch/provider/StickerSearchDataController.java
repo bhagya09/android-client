@@ -54,6 +54,12 @@ public enum StickerSearchDataController
 	{
 		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
 
+		if (!((state == StickerSearchConstants.STICKER_DATA_FIRST_SETUP) || (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)))
+		{
+			Logger.e(TAG, "setupStickerSearchWizard(), Invalid trial request.");
+			return;
+		}
+
 		synchronized (StickerSearchDataController.class)
 		{
 			JSONObject packsData = json.optJSONObject(HikeConstants.PACKS);
@@ -80,14 +86,14 @@ public enum StickerSearchDataController
 				JSONObject packData = packsData.optJSONObject(packId);
 				if ((packData == null) || (packData.length() <= 0))
 				{
-					Logger.e(TAG, "setupStickerSearchWizard(), Empty pack data: " + packId);
+					Logger.e(TAG, "setupStickerSearchWizard(), Empty json data for pack: " + packId);
 					continue;
 				}
 
 				JSONObject stickersData = packData.optJSONObject(HikeConstants.STICKERS);
 				if ((stickersData == null) || (stickersData.length() <= 0))
 				{
-					Logger.e(TAG, "setupStickerSearchWizard(), No sticker for pack: " + packId);
+					Logger.e(TAG, "setupStickerSearchWizard(), No sticker was found inside pack: " + packId);
 					continue;
 				}
 
@@ -108,7 +114,7 @@ public enum StickerSearchDataController
 
 					if ((stickerData == null) || (stickerData.length() <= 0))
 					{
-						Logger.e(TAG, "setupStickerSearchWizard(), Empty sticker data: " + stickerInfo);
+						Logger.e(TAG, "setupStickerSearchWizard(), Empty json data for sticker: " + stickerInfo);
 						continue;
 					}
 
@@ -116,18 +122,13 @@ public enum StickerSearchDataController
 					{
 						if (TextUtils.isEmpty(stickerData.optString(HikeConstants.IMAGE)))
 						{
-							Logger.e(TAG, "setupStickerSearchWizard(), Empty sticker image data: " + stickerInfo);
+							Logger.e(TAG, "setupStickerSearchWizard(), Empty image data for sticker: " + stickerInfo);
 							continue;
 						}
 					}
 					else if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
 					{
-						Logger.v(TAG, "setupStickerSearchWizard(), No dependency on sticker image data: " + stickerInfo);
-					}
-					else
-					{
-						Logger.e(TAG, "setupStickerSearchWizard(), Invalid trial request: " + stickerInfo);
-						break;
+						Logger.v(TAG, "setupStickerSearchWizard(), No dependency on image data for sticker: " + stickerInfo);
 					}
 
 					JSONObject tagData = stickerData.optJSONObject("tag_data");
@@ -166,7 +167,7 @@ public enum StickerSearchDataController
 								if ((dictionaryData != null) && (dictionaryData.length() > 0))
 								{
 									languageId = languageId.trim().toLowerCase(Locale.ENGLISH);
-									Logger.e(TAG, "setupStickerSearchWizard(), Fetching tag data of sticker: " + stickerInfo + ", language: " + languageId);
+									Logger.v(TAG, "setupStickerSearchWizard(), Fetching tag data of sticker: " + stickerInfo + ", language: " + languageId);
 
 									String key;
 									String formattedKey;
@@ -307,7 +308,7 @@ public enum StickerSearchDataController
 								}
 								else
 								{
-									Logger.e(TAG, "setupStickerSearchWizard(), Empty sticker tag data: " + stickerInfo + ", language: " + languageId);
+									Logger.e(TAG, "setupStickerSearchWizard(), Empty language: " + languageId + " tag data for sticker: " + stickerInfo);
 								}
 							}
 
@@ -325,7 +326,7 @@ public enum StickerSearchDataController
 						}
 						else
 						{
-							Logger.e(TAG, "setupStickerSearchWizard(), Empty sticker tag data: " + stickerInfo);
+							Logger.e(TAG, "setupStickerSearchWizard(), Empty tag data for sticker: " + stickerInfo);
 						}
 
 						int stickerTagDataCount = tagList.size();
@@ -393,7 +394,7 @@ public enum StickerSearchDataController
 							}
 							else
 							{
-								Logger.e(TAG, "setupStickerSearchWizard(), No attribute attached with sticker: " + stickerInfo);
+								Logger.e(TAG, "setupStickerSearchWizard(), No attribute is attached with sticker: " + stickerInfo);
 							}
 
 							if (!momentDataEntered)
@@ -461,7 +462,7 @@ public enum StickerSearchDataController
 				}
 				else
 				{
-					Logger.e(TAG, "setupStickerSearchWizard(), Invalid/ Empty tagging is attached with stickers of pack: " + packId);
+					Logger.w(TAG, "setupStickerSearchWizard(), Invalid/ Empty tagging is attached with stickers of pack: " + packId);
 				}
 			}
 
@@ -541,7 +542,6 @@ public enum StickerSearchDataController
 	public static boolean startRebalancing()
 	{
 		Logger.i(TAG, "startRebalancing()");
-
 
 		return HikeStickerSearchDatabase.getInstance().startRebalancing();
 	}
