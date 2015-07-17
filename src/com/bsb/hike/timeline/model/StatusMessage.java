@@ -10,9 +10,11 @@ import org.ocpsoft.prettytime.PrettyTime;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.Protip;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.EmoticonConstants;
 
 public class StatusMessage
@@ -63,11 +65,38 @@ public class StatusMessage
 		}
 		else if (data.has(HikeConstants.STATUS_MESSAGE))
 		{
-			this.statusMessageType = StatusMessageType.TEXT;
+			if (data.has(HikeConstants.SU_IMAGE_KEY))
+			{
+				this.statusMessageType = StatusMessageType.TEXT_IMAGE;
+				saveImage(mappedId,data);
+			}
+			else
+			{
+				this.statusMessageType = StatusMessageType.TEXT;
+			}
 			this.text = data.optString(HikeConstants.STATUS_MESSAGE);
+		}
+		else if (data.has(HikeConstants.SU_IMAGE_KEY))
+		{
+			this.statusMessageType = StatusMessageType.IMAGE;
+			saveImage(mappedId,data);
 		}
 		this.moodId = data.optInt(HikeConstants.MOOD) - 1;
 		this.timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
+	}
+
+	private void saveImage(String mappedId, JSONObject data)
+	{
+		String iconBase64;
+		try
+		{
+			iconBase64 = data.getString(HikeConstants.THUMBNAIL);
+			ContactManager.getInstance().setIcon(mappedId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public StatusMessage(long id, String mappedId, String msisdn, String name, String text, StatusMessageType statusMessageType, long timeStamp)

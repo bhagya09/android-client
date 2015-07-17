@@ -519,7 +519,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(updateUnLoveLinkUrl())
 				.setRequestListener(requestListener)
-				.delete(body)
+				.post(body)
 				.build();
 		return requestToken;
 	}

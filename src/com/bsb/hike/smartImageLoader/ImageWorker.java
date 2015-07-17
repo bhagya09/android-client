@@ -189,10 +189,6 @@ public abstract class ImageWorker
 			// for more info on what was changed.
 			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, data);
 		}
-		// else
-		// {
-		// imageView.setImageDrawable(null);
-		// }
 	}
 
 	protected void setDefaultAvatar(ImageView imageView, String data)

@@ -314,6 +314,8 @@ public class HikeConstants
 	public static final String PROTIP_TEXT = "t";
 
 	public static final String PROTIP_IMAGE_URL = "img";
+	
+	public static final String SU_IMAGE_KEY = "img";
 
 	public static final String PROTIP_WAIT_TIME = "wt";
 

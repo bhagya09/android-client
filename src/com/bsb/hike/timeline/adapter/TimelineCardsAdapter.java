@@ -3,7 +3,6 @@ package com.bsb.hike.timeline.adapter;
 import java.lang.ref.SoftReference;
 import java.util.List;
 
-import org.acra.util.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,14 +21,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -804,7 +800,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			
 			try
 			{
-				json.put("su_id", statusMessage.getId());
+				json.put("su_id", statusMessage.getMappedId());
 			}
 			catch (JSONException e)
 			{
@@ -839,7 +835,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			else
 			{
-				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
+				RequestToken token = HttpRequests.removeLoveLink(json, new IRequestListener()
 				{
 					@Override
 					public void onRequestSuccess(Response result)

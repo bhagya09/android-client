@@ -17,7 +17,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
@@ -58,7 +60,15 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	public static final String animFromWidth = "animFromWidth";
 
 	public static final String animFromHeight = "animFromHeight";
+	
+	public static final String FILE_TYPE_KEY = "ftk";
 
+	public static final int SHOW_PROFILE_PIC = -11;
+	
+	private int fileType;
+
+	private String fileKey;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -75,11 +85,15 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		Bundle extras = getIntent().getExtras();
 
 		mappedId = extras.getString(HikeConstants.Extras.MAPPED_ID);
+		
+		fileKey = extras.getString(HikeConstants.Extras.FILE_KEY);
 
 		isStatusImage = extras.getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-
+		
+		fileType = extras.getInt(FILE_TYPE_KEY, SHOW_PROFILE_PIC);
+		
 		final int thumbnailTop = extras.getInt(animFromTop);
 
 		final int thumbnailLeft = extras.getInt(animFromLeft);
@@ -275,35 +289,43 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 				key = new String(key.substring(0, idx));
 			}
 		}
-		ProfileImageLoader profileImageLoader = new ProfileImageLoader(ImageViewerActivity.this, key, imageView, imageSize, isStatusImage);
-		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
+
+		if (fileType == SHOW_PROFILE_PIC)
 		{
-
-			@Override
-			public void onLoaderReset(Loader<Boolean> arg0)
+			ProfileImageLoader profileImageLoader = new ProfileImageLoader(ImageViewerActivity.this, key, imageView, imageSize, isStatusImage);
+			profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
 			{
-				// dismissProgressDialog();
-			}
 
-			@Override
-			public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
-			{
-				// dismissProgressDialog();
-				if (isStatusImage)
+				@Override
+				public void onLoaderReset(Loader<Boolean> arg0)
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
+					// dismissProgressDialog();
 				}
-			}
 
-			@Override
-			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
-			{
-				mDialog = ProgressDialog.show(ImageViewerActivity.this, null, getResources().getString(R.string.downloading_image));
-				mDialog.setCancelable(true);
-				return null;
-			}
-		});
-		profileImageLoader.loadProfileImage(getSupportLoaderManager());
+				@Override
+				public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
+				{
+					// dismissProgressDialog();
+					if (isStatusImage)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
+					}
+				}
+
+				@Override
+				public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
+				{
+					mDialog = ProgressDialog.show(ImageViewerActivity.this, null, getResources().getString(R.string.downloading_image));
+					mDialog.setCancelable(true);
+					return null;
+				}
+			});
+			profileImageLoader.loadProfileImage(getSupportLoaderManager());
+		}
+		else
+		{
+			
+		}
 	}
 
 	@Override

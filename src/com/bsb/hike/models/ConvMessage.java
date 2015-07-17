@@ -16,7 +16,6 @@ import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -79,6 +78,7 @@ public class ConvMessage implements Searchable
 	private int  hashMessage= HikeConstants.HASH_MESSAGE_TYPE.DEFAULT_MESSAGE;
 	
 	private int contentId;
+	
 	private String nameSpace;
 	
 	private int notificationType;
