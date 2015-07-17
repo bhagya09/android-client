@@ -777,6 +777,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(alter6);
 		}
 
+        //Add creation time column
+		if (oldVersion < 40) {
+			String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE
+					+ " ADD COLUMN " + DBConstants.GROUP_CREATION_TIME
+					+" LONG DEFAULT -1";
+			db.execSQL(alter);
+		}
+		
 		if (oldVersion < 41)
 		{
 			String dropLoveTable = "DROP TABLE IF EXISTS " + LOVE_TABLE;
@@ -787,13 +795,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			
 			sql = getFeedTableCreateQuery();
 			db.execSQL(sql);
-		}
-        //Add creation time column
-		if (oldVersion < 40) {
-			String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE
-					+ " ADD COLUMN " + DBConstants.GROUP_CREATION_TIME
-					+" LONG DEFAULT -1";
-			db.execSQL(alter);
+			
+			String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.STATUS_FILE_KEY + " TEXT";
+			db.execSQL(alterST);
 		}
 	}
 
@@ -831,7 +835,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.MESSAGE_ID + " INTEGER DEFAULT 0, " // Message id of the message this status generated in the messages table. Only valid if status is received when a one to one conversation exists.
 				+ DBConstants.SHOW_IN_TIMELINE + " INTEGER, " // Whether this status should be shown in the timeline or not.
 				+ DBConstants.MOOD_ID + " INTEGER, " // The mood id of the status
-				+ DBConstants.TIME_OF_DAY + " INTEGER" // Deprecated.
+				+ DBConstants.TIME_OF_DAY + " INTEGER, " // Deprecated.
+				+ DBConstants.STATUS_FILE_KEY + " TEXT" // Text of the status
 				+ " )";
 	}
 
