@@ -5,10 +5,11 @@ import java.io.File;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.tasks.UploadProfileImageTask;
-import com.bsb.hike.tasks.UploadProfileImageTask.UploadProfileImageTaskCallbacks;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -21,7 +22,7 @@ import com.bsb.hike.utils.Utils;
  * 				   2) Rename tmpFile to msisdn.jpg
  *				   3) listener callback
  */
-public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment implements UploadProfileImageTaskCallbacks
+public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 {
 
 	private byte[] bytes;
@@ -68,9 +69,15 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 		readArguments();
 		
 		String filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		UploadProfileImageTask uploadProfileImageTask = new UploadProfileImageTask(filePath, tmpFilePath);
-		uploadProfileImageTask.setUploadProfileImageTaskCallbacks(this);
-		uploadProfileImageTask.execute();
+		File dir = new File(filePath);
+		if (!dir.exists())
+		{
+			Logger.d(TAG, "Directory not present, so returning");
+			return;
+		}
+
+		RequestToken token = HttpRequests.editProfileAvatarRequest(tmpFilePath, requestListener);
+		token.execute();
 	}
 
 	/**
@@ -92,70 +99,69 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 		toDelPreviousMsisdnPic = getArguments().getBoolean(HikeConstants.Extras.DEL_PREV_MSISDN_PIC);
 	}
 
-	@Override
-	public void onRequestSuccess(Response result)
+	private IRequestListener requestListener = new IRequestListener()
 	{
-		Logger.d(TAG, "inside API onRequestSuccess inside HEADLESS IMAGE UPLOAD FRAGMENT");
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		String originqlFilePath = directory + File.separator +  Utils.getProfileImageFileName(msisdn);
-		
-		if(bytes != null)
+		@Override
+		public void onRequestSuccess(Response result)
 		{
-			doContactManagerIconChange(msisdn, bytes, !toDelPreviousMsisdnPic);
-		}
-		
-		doAtomicFileRenaming(originqlFilePath, tmpFilePath);
-		
-		if(taskCallbacks.get() != null)
-		{
-			Logger.d(TAG, "calling onSuccess of listener");
-			taskCallbacks.get().onSuccess(result);
-		}
-		
-		removeHeadlessFragement();
-		
-	}
-
-	@Override
-	public void onRequestCancelled()
-	{
-		Logger.d(TAG, "inside API onRequestCancelled inside HEADLESSIMAGEUPLOAD FRAGMENT");
-		
-		if(toDelTempFileOnCallFail)
-		{
-			doAtomicFileDel(tmpFilePath);
-		}
-		
-		if(taskCallbacks.get() != null)
-		{
-			taskCallbacks.get().onCancelled();
-		}
-		
-		removeHeadlessFragement();
-	}
-
-	@Override
-	public void onRequestProgressUpdate(float progress)
-	{
-		
-	}
-
-	@Override
-	public void onRequestFailure(HttpException httpException)
-	{
-		Logger.d(TAG, "inside API onFailure inside HEADLESSIMAGEUPLOADFRAGMENT");
-		
-		if(toDelTempFileOnCallFail)
-		{
-			doAtomicFileDel(tmpFilePath);
+			Logger.d(TAG, "inside API onRequestSuccess inside HEADLESS IMAGE UPLOAD FRAGMENT");
+			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+			String originqlFilePath = directory + File.separator +  Utils.getProfileImageFileName(msisdn);
+			
+			if(bytes != null)
+			{
+				doContactManagerIconChange(msisdn, bytes, !toDelPreviousMsisdnPic);
+			}
+			
+			doAtomicFileRenaming(originqlFilePath, tmpFilePath);
+			
+			if(taskCallbacks.get() != null)
+			{
+				Logger.d(TAG, "calling onSuccess of listener");
+				taskCallbacks.get().onSuccess(result);
+			}
+			
+			removeHeadlessFragement();
 		}
 
-		if(taskCallbacks.get() != null)
+		@Override
+		public void onRequestProgressUpdate(float progress)
 		{
-			taskCallbacks.get().onFailed();
 		}
-		
-		removeHeadlessFragement();
-	}
 
+		@Override
+		public void onRequestFailure(HttpException httpException)
+		{
+			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
+			{
+				Logger.d(TAG, "inside API onRequestCancelled inside HEADLESSIMAGEUPLOAD FRAGMENT");
+				
+				if(toDelTempFileOnCallFail)
+				{
+					doAtomicFileDel(tmpFilePath);
+				}
+				
+				if(taskCallbacks.get() != null)
+				{
+					taskCallbacks.get().onCancelled();
+				}
+			}
+			else
+			{
+				Logger.d(TAG, "inside API onFailure inside HEADLESSIMAGEUPLOADFRAGMENT");
+				
+				if(toDelTempFileOnCallFail)
+				{
+					doAtomicFileDel(tmpFilePath);
+				}
+
+				if(taskCallbacks.get() != null)
+				{
+					taskCallbacks.get().onFailed();
+				}
+			}
+			
+			removeHeadlessFragement();
+		}
+	};
 }
