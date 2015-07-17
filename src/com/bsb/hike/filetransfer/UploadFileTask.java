@@ -867,7 +867,17 @@ public class UploadFileTask extends FileTransferBase
 			}
 			X_SESSION_ID = fst.getSessionId();
 			if(X_SESSION_ID != null)
-				mStart = AccountUtils.getBytesUploaded(String.valueOf(X_SESSION_ID));
+			{
+				mUrl = new URL(AccountUtils.fileTransferBase + "/user/pft/");
+				try{
+					mStart = AccountUtils.getBytesUploaded(String.valueOf(X_SESSION_ID), mUrl.toString());
+				}catch(Exception ex)
+				{
+					handleException(ex);
+					mUrl = getUpdatedURL(mUrl, "ResumeLength", FTAnalyticEvents.UPLOAD_FILE_TASK);
+					mStart = AccountUtils.getBytesUploaded(String.valueOf(X_SESSION_ID), mUrl.toString());
+				}
+			}
 			else
 				mStart = 0;
 			if (mStart <= 0)
@@ -962,6 +972,7 @@ public class UploadFileTask extends FileTransferBase
 							raf.close();
 							return null;
 						}
+						mUrl = getUpdatedURL(mUrl, "UploadingFile", FTAnalyticEvents.UPLOAD_FILE_TASK);
 						raf.seek(start);
 						setChunkSize();
 						if (chunkSize > length)
@@ -1179,6 +1190,7 @@ public class UploadFileTask extends FileTransferBase
 			try
 			{
 				mUrl = new URL(AccountUtils.fileTransferBaseDownloadUrl + fileKey);
+				mUrl = getUpdatedURL(mUrl, "FileKeyValidation", FTAnalyticEvents.UPLOAD_FILE_TASK);
 				HttpClient client = new DefaultHttpClient();
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
@@ -1215,6 +1227,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				handleException(e);
 				retry++;
 				if(retry == (MAX_RETRY-1))
 					throw e;
@@ -1273,6 +1286,7 @@ public class UploadFileTask extends FileTransferBase
 		}
 		catch (ConnectTimeoutException ex)
 		{
+			handleException(ex);
 			ex.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "FT Upload time out error : " + ex.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "ConnectTimeoutException : " , ex);
@@ -1280,10 +1294,12 @@ public class UploadFileTask extends FileTransferBase
 		}
 		catch (Exception e)
 		{
+			handleException(e);
 			e.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "FT Upload error : " + e.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "Unknown exception : ", e);
-			if(e instanceof UnknownHostException || e instanceof SocketException || e.getMessage() == null)
+
+			if(e.getMessage() == null)
 			{
 				error();
 				res = null;
@@ -1404,6 +1420,7 @@ public class UploadFileTask extends FileTransferBase
 			try
 			{
 				mUrl = new URL(AccountUtils.fastFileUploadUrl + fileMD5);
+				mUrl = getUpdatedURL(mUrl, "VerifyMd5", FTAnalyticEvents.UPLOAD_FILE_TASK);
 				HttpClient client = new DefaultHttpClient();
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
@@ -1443,6 +1460,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				handleException(e);
 				retry++;
 				if (retry == MAX_RETRY)
 					throw e;
