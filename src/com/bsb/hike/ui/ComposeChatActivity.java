@@ -295,8 +295,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		
 		//Make sure we are not launching share intent if our activity is restarted by OS
-		if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
-				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
+		if (savedInstanceState == null && (Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
+				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction())))
 		{
 			
 			if (Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
@@ -1088,6 +1088,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 					ComposeChatActivity.this.finish();
+					break;
 			}
 			
 		}
