@@ -90,13 +90,6 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		// Create and execute the background task.
 		String filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		Logger.d(TAG, "executing DownloadProfileImageTask");
-		//downloadProfileImageTask.execute();
-		
-		
-		
-		
-		
-		
 		filePath = filePath + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		
 		tFilePath = filePath;
