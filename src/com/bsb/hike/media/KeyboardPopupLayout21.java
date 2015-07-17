@@ -17,6 +17,7 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -84,10 +85,6 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 
 	private View lastClickedEditText;// hold EditText through which keyboard opened last time
 
-	private int lastScreenOrientation;
-
-	private boolean disableCalculateKeyboardHeightTask;// we will not store keyboard height if this flag is ture
-
 	/**
 	 * 
 	 * @param mainView
@@ -104,7 +101,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		registerOnPreDrawListener();
 		registerOnGlobalLayoutListener();
 		setOnSoftKeyboardListener(onSoftKeyboardListener);
-		lastScreenOrientation = context.getResources().getConfiguration().orientation;
+		restoreKeyboardHeight();
 	}
 
 	public KeyboardPopupLayout21(View mainView, int firstTimeHeight, Context context, int[] eatTouchEventViewIds, PopupListener listener,
@@ -126,6 +123,16 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		{
 			mainView.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener21);
 		}
+	}
+
+	/**
+	 * restore previous keyboard height
+	 */
+	private void restoreKeyboardHeight()
+	{
+		HikeSharedPreferenceUtil hikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+		possibleKeyboardHeight = hikeSharedPreferenceUtil.getData(HikeMessengerApp.KEYBOARD_HEIGHT_PORTRAIT, 0);
+		possibleKeyboardHeightLand = hikeSharedPreferenceUtil.getData(HikeMessengerApp.KEYBOARD_HEIGHT_LANDSCAPE, 0);
 	}
 
 	private void updatePadding(int bottomPadding)
@@ -152,28 +159,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			Logger.wtf("chatthread", "window token is null or view itself is null! Cannot show sticker/emoticons. Eating this exception");
 			return false;
 		}
-
-		boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
-		if (height == 0 && isKeyboardOpen)
-		{
-			height = calculateKeyboardHeight();
-		}
-		if (height == 0)
-		{
-			if (islandScape)
-			{
-				int maxHeight = mainView.getRootView().getHeight();
-				// giving half height of screen in landscape mode
-				Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
-				height = (maxHeight) / 2;
-			}
-
-			else
-			{
-				height = firstTimeHeight;
-			}
-		}
+		int height = getHeightForStickerNEmojjiPalette();
 
 		if (popup == null)
 		{
@@ -208,7 +194,6 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		}
 		else
 		{
-			enableCalculateKeyboardHeightTask();
 			updatePadding(popup.getHeight());
 			setState(STATE_STICKER);
 		}
@@ -216,9 +201,9 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		if (isKeyboardOpen)
 		{
 			setOnPreDrawTaskFlagOn();
-			hideKeyboard();
-		}
 
+		}
+		hideKeyboard();
 		return true;
 	}
 
@@ -308,7 +293,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 					{
 						// update height when it is confirm that keyboard is not present
 						onSoftKeyboardListener.onShown();
-						updatePadding((popup != null && popup.isShowing()) ? popup.getHeight() : getHeight());
+						updatePadding((popup != null && popup.isShowing()) ? popup.getHeight() : getHeightForStickerNEmojjiPalette());
 						preDrawTaskFlag = false;
 
 					}
@@ -349,41 +334,16 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 				Logger.wtf("chatthread", "Getting null view inside global layout listener");
 				return;
 			}
-			int currentScreenOrientation = context.getResources().getConfiguration().orientation;
-
-			if (lastScreenOrientation != currentScreenOrientation)
-			{
-				lastScreenOrientation = currentScreenOrientation;
-				disableCalculateKeyboardHeightTask();
-				// we are storing keyboard height on orientation change,wait until it will reopen in same orientation
-			}
 			Log.i("chatthread", "global layout listener rootHeight " + mainView.getRootView().getHeight() + " new height " + mainView.getHeight());
 			Rect r = new Rect();
 			mainView.getWindowVisibleDisplayFrame(r);
 			// this is height of view which is visible on screen
 			int rootViewHeight = mainView.getRootView().getHeight();
-			// if (rootViewHeight == r.bottom)
-			// { //TODO we can think on it in future
-			// disableCalculateKeyboardHeightTask = false;
-			// }
+
 			int temp = rootViewHeight - r.bottom;
 			Logger.i("chatthread", "keyboard  height " + temp);
 			if (temp > 0)
 			{
-				boolean shouldNotStoreKeyboardHeight = disableCalculateKeyboardHeightTask || (rootViewHeight * 0.9 < temp || rootViewHeight * 0.1 > temp);
-				// (rootViewHeight * 0.9 < temp || rootViewHeight * 0.1 > temp): we are considering that, this condition can't occur for any condition so we will not store keyboard
-				// height for this condition
-				if (!shouldNotStoreKeyboardHeight)
-				{
-					if (currentScreenOrientation == Configuration.ORIENTATION_LANDSCAPE)
-					{
-						possibleKeyboardHeightLand = temp;
-					}
-					else
-					{
-						possibleKeyboardHeight = temp;
-					}
-				}
 				isKeyboardOpen = true;
 				if (isShowing())
 				{
@@ -433,26 +393,6 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		return false;
 	}
 
-	private int getHeight()
-	{
-		boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
-
-		if (height == 0)
-		{
-			if (islandScape)
-			{
-				int maxHeight = mainView.getRootView().getHeight();
-				height = (maxHeight) / 2;
-			}
-			else
-			{
-				height = firstTimeHeight;
-			}
-		}
-		return height;
-	}
-
 	private void setState(int state)
 	{
 		this.state = state;
@@ -471,7 +411,6 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 
 	private void hideKeyboard()
 	{
-		enableCalculateKeyboardHeightTask();
 		Utils.hideSoftKeyboard(context, mainView);
 	}
 
@@ -504,9 +443,11 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 	 * 
 	 * This method will return keyboard height if keyboard is opened and will not store this value. you must call this method while keyboard is still open
 	 * 
+	 * @param isLandScape
+	 * 
 	 * @return keyboard height
 	 */
-	private int calculateKeyboardHeight()
+	private int calculateKeyboardHeight(boolean isLandScape)
 	{
 		Rect r = new Rect();
 		mainView.getWindowVisibleDisplayFrame(r);
@@ -521,32 +462,61 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			{
 				return 0;
 			}
+			if (isLandScape)
+			{
+				saveKeyboardHeight(HikeMessengerApp.KEYBOARD_HEIGHT_LANDSCAPE, possibleKeyboardHeightLand, temp);
+				possibleKeyboardHeightLand = temp;
+			}
+			else
+			{
+				saveKeyboardHeight(HikeMessengerApp.KEYBOARD_HEIGHT_PORTRAIT, possibleKeyboardHeight, temp);
+				possibleKeyboardHeight = temp;
+			}
+
 			return temp;
 		}
 		return 0;
 	}
 
-	@Override
-	public void onBackPressed()
+	private void saveKeyboardHeight(String keyboardHeightKey, int heightOld, int currentHeight)
 	{
-		enableCalculateKeyboardHeightTask();
+		if (heightOld != currentHeight)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(keyboardHeightKey, currentHeight);
+		}
 	}
 
-	@Override
-	public void onCloseKeyBoard()
+	/**
+	 * @return height for Sticker palette or Emojji palette
+	 */
+	private int getHeightForStickerNEmojjiPalette()
 	{
-		super.onCloseKeyBoard();
-		enableCalculateKeyboardHeightTask();
-	}
-
-	private void disableCalculateKeyboardHeightTask()
-	{
-		disableCalculateKeyboardHeightTask=true;
-	}
-
-	private void enableCalculateKeyboardHeightTask()
-	{
-		disableCalculateKeyboardHeightTask=false;
+		boolean isLandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		int height = 0;
+		if (isKeyboardOpen)
+		{
+			height = calculateKeyboardHeight(isLandScape);
+			Logger.i("chatthread", "calculate keyboard height while keyboard is visible " + height);
+		}
+		if (height == 0)
+		{
+			height = isLandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
+		}
+		if (height == 0)
+		{
+			if (isLandScape)
+			{
+				int maxHeight = mainView.getRootView().getHeight();
+				// giving half height of screen in landscape mode
+				Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
+				height = (maxHeight) / 2;
+			}
+			else
+			{
+				height = firstTimeHeight;
+			}
+		}
+		return height;
 	}
 
 }
