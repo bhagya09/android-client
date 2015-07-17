@@ -3277,6 +3277,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		ConvMessage msg = findMessageById(msgID);
 		if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_DELIVERED.ordinal()))
 		{
+			// Adding file key for file transfer message in offline mode
+			if (msg.isOfflineMessage() && OfflineUtils.isFileTransferMessage(msg.serialize()))
+			{
+				if (TextUtils.isEmpty(msg.getMetadata().getHikeFiles().get(0).getFileKey()))
+				{
+					msg.getMetadata().getHikeFiles().get(0).setFileKey("OfflineFileKey" + System.currentTimeMillis() / 1000);
+				}
+			}
 			msg.setState(ConvMessage.State.SENT_DELIVERED);
 
 			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
