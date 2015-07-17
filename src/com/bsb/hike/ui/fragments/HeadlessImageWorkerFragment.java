@@ -118,6 +118,13 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	 */
 	protected void removeHeadlessFragement()
 	{
-		getFragmentManager().beginTransaction().remove(this).commit();
+		if(getFragmentManager() != null)
+		{
+			getFragmentManager().beginTransaction().remove(this).commit();
+		}
+		else
+		{
+			Logger.d(TAG, "Not able to remove HEADLESS fragment as getFragmentManager was null");
+		}
 	}
 }
