@@ -71,7 +71,7 @@ public enum StickerSearchDataController
 			Iterator<String> categories = packsData.keys();
 			HashSet<String> stickerCodeList = new HashSet<String>();
 			Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
-			ArrayList<StickerTagDataContainer> stickerTagData = new ArrayList<StickerTagDataContainer>();
+			ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
 			Set<String> untaggedSet = new HashSet<String>();
 
 			while (categories.hasNext())
@@ -414,7 +414,7 @@ public enum StickerSearchDataController
 								}
 							}
 
-							stickerTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
+							stickersTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
 									tagPriorityList, stickerMomentList, stickerFestivalList));
 							stickerCodeList.add(stickerInfo);
 						}
@@ -465,8 +465,8 @@ public enum StickerSearchDataController
 			}
 
 			Logger.v(TAG, "setupStickerSearchWizard(), Pack-Story data: " + packStoryData);
-			Logger.v(TAG, "setupStickerSearchWizard(), Sticker-Tag data: " + stickerTagData);
-			HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickerTagData);
+			Logger.v(TAG, "setupStickerSearchWizard(), Sticker-Tag data: " + stickersTagData);
+			HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
 
 			Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
 			if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
