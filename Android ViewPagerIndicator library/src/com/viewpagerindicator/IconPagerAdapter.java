@@ -8,4 +8,6 @@ public interface IconPagerAdapter {
 
     // From PagerAdapter
     int getCount();
+    
+    String getIconContentDescription(int index);
 }

@@ -56,6 +56,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -438,7 +439,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		
 		if (item.getItemId() == R.id.whatsapp_share)
-		{
+		{     
 			if (Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
 			{
 				String str = getIntent().getStringExtra(HikeConstants.Extras.SHARE_CONTENT);
@@ -459,8 +460,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					break;
 
 				}
-				Intent intent = ShareUtils.shareContent(type, str);
-				if (intent != null)
+				Intent intent = ShareUtils.shareContent(type, str, HikeConstants.Extras.WHATSAPP_PACKAGE);
+ 				if (intent != null)
 				{
 					startActivity(intent);
 				}
@@ -1428,6 +1429,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						if(filePath == null)
 						{
 							Logger.e(getClass().getSimpleName(), "filePath was null. Defensive check for play store crash was hit");
+							FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_7_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - 1forwardMessageAsPerType - file path is null.");
 							continue;
 						}
 						
@@ -1452,6 +1454,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 					if (showMaxFileToast)
 					{
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - 1forwardMessageAsPerType - Max limit is reached.");
 						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
 					}
 
@@ -1691,6 +1694,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				} else {
 					if (TextUtils.isEmpty(contactId))
 					{
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - contact id is null.");
 						Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
 						return;
 					}
@@ -1754,6 +1758,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	
 				if (TextUtils.isEmpty(filePath))
 				{
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - file path is null.");
 					Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
 					return;
 				}
@@ -1761,6 +1766,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				File file = new File(filePath);
 				if (file.length() > HikeConstants.MAX_FILE_SIZE)
 				{
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - Max size reached.");
 					Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
 					return;
 				}
@@ -2143,6 +2149,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if (filePath == null)
 		{
 			Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - InitialiseFileTransfer - File path is null.");
 			return null;
 		}
 		File file = new File(filePath);
@@ -2150,6 +2157,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - InitialiseFileTransfer - Max size reached.");
 			Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
 			return null;
 		}

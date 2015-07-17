@@ -439,6 +439,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		IntentFilter filter = new IntentFilter(StickerManager.STICKERS_UPDATED);
 		filter.addAction(StickerManager.STICKERS_FAILED);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
+		filter.addAction(StickerManager.STICKER_PREVIEW_DOWNLOADED);
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, filter);
 	}
 	
@@ -467,7 +468,14 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 					}
 				});
 			}
-			
+			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
+			{
+				if(mAdapter == null)
+				{
+					return ;
+				}
+				mAdapter.notifyDataSetChanged();
+			}
 			else if(intent.getAction().equals(StickerManager.STICKERS_FAILED))
 			{
 				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
