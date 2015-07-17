@@ -450,7 +450,9 @@ public class OfflineController
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED) {
 			// this function uses offline state == connected.
 			// so changing OfflineState after calling this.
+			fileManager.shutDown();
 			sendDisconnectToListeners();
+			
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
 
 			Transporter.getInstance().shutDown();
@@ -459,7 +461,7 @@ public class OfflineController
 					"Disconnected Reason " + exception.getReasonCode());
 		
 			hikeConverter.releaseResources();
-			fileManager.shutDown();
+			
 			offlineManager.releaseResources();
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(
