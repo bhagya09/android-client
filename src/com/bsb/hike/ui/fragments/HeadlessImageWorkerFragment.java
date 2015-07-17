@@ -118,7 +118,7 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	 */
 	protected void removeHeadlessFragement()
 	{
-		if(getFragmentManager() != null)
+		if(getFragmentManager() != null && isAdded())
 		{
 			getFragmentManager().beginTransaction().remove(this).commit();
 		}
