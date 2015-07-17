@@ -219,7 +219,6 @@ public class UploadFileTask extends FileTransferBase
 		JSONArray filesArray = new JSONArray();
 
 		HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);
-		//hikeFile.setFileKey("OfflineMessageFileKey"+System.currentTimeMillis());
 		hikeFile.setFileSize((int)sourceFile.length());
 		hikeFile.setHikeFileType(hikeFileType);
 		hikeFile.setRecordingDuration(recordingDuration);
@@ -228,26 +227,23 @@ public class UploadFileTask extends FileTransferBase
 		hikeFile.setFile(sourceFile);
 		JSONObject fileJSON =  hikeFile.serialize();
 		
-		try {
-			fileJSON.putOpt(HikeConstants.HIKE_FILE_TYPE, hikeFileType.ordinal());
+		try 
+		{
 			filesArray.put(fileJSON);
 			metadata.put(HikeConstants.FILES, filesArray);
 			MessageMetadata messageMetadata = new MessageMetadata(metadata, true);
 			messageMetadata.getHikeFiles().get(0).setFileName(fileName);
 			messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME, fileName);
 			((ConvMessage) userContext).setMetadata(messageMetadata);
-		} catch (JSONException e) {
+		}
+		catch (JSONException e) 
+		{
 			e.printStackTrace();
 		}
 		((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
 		Logger.d("OfflineManager","Message Metadata is "+((ConvMessage) userContext).getMetadata().getJSON());
 		((ConvMessage) userContext).setMessageOriginType(OriginType.OFFLINE);
 		HikeConversationsDatabase.getInstance().addConversationMessages((ConvMessage) userContext, true);
-		//HikeConversationsDatabase.getInstance().updateMessageMetadata(((ConvMessage) userContext).getMsgID(), ((ConvMessage) userContext).getMetadata()); 
-		long msgId = ((ConvMessage) userContext).getMsgID(); 
-		String s =  HikeConversationsDatabase.getInstance().getMetadataOfMessage(((ConvMessage) userContext).getMsgID());
-		Logger.d("OfflineManager","updated msg metadata" + s);
-		// saveFileState(null);
 	}
 
 	protected void setFutureTask(FutureTask<FTResult> fuTask)

@@ -15,6 +15,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
@@ -250,9 +251,14 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	private void setFileVariablesAndUpdateJSON(JSONObject messageJSON) throws JSONException 
 	{
 		JSONObject fileJSON = getFileJSONFromMetadata(messageJSON);
-		int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
-		String fileName = Utils.getFinalFileName(HikeFileType.values()[type], fileJSON.getString(HikeConstants.FILE_NAME));
-		String filePath = OfflineUtils.getFileBasedOnType(type, fileName);
+		Boolean isRecording = false;
+		if (fileJSON.has(HikeConstants.PLAYTIME))
+		{
+			isRecording = true;
+		}
+		HikeFileType hikeFileType = HikeFileType.fromString(fileJSON.getString(HikeConstants.CONTENT_TYPE),isRecording);
+		String fileName = Utils.getFinalFileName(hikeFileType, fileJSON.getString(HikeConstants.FILE_NAME));
+		String filePath = OfflineUtils.getFileBasedOnType(hikeFileType.ordinal(), fileName);
 		updateMessageJSON(messageJSON, filePath, fileName);
 	}
 	
