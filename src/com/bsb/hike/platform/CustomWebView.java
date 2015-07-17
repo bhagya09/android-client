@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.webkit.WebView;
 
+import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -157,11 +158,14 @@ public class CustomWebView extends WebView
 		setVerticalScrollBarEnabled(false);
 		setHorizontalScrollBarEnabled(false);
 		getSettings().setJavaScriptEnabled(true);
+		getSettings().setSupportZoom(true);
+		getSettings().setBuiltInZoomControls(true);
 	}
 
 	public void loadMicroAppData(String data)
 	{
 		this.loadDataWithBaseURL("", data, "text/html", "UTF-8", "");
+		setWebViewClient(new HikeWebClient());
 	}
 
 	@Override

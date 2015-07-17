@@ -1533,10 +1533,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="one_day_button">24 HOURS</string>
     <string name="settings_share_stickers">Stickey</string>
     <string name="settings_share_stickers_hintext">Stickey Settings</string>
-    <string name="sticker_widget_hide">Hide the Stickey from all the apps listed</string>
     <string name="sticker_widget_show">Show the Stickey in all the apps listed</string>
     <string name="settings_select_all">Select all </string>
-    <string name="settings_deselect_all">Deselect all </string>
     <string name="more_stickers">More stickers</string>
 	<string name="add_members">Add Members</string>
 	<string name="created_group_text">You created the group chat</string>
@@ -1553,4 +1551,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="unknown_server_error">Unable to download the file.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
+    <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
+    <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
+    
 </resources>

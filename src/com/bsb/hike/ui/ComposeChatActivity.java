@@ -458,7 +458,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					break;
 
 				}
-				Intent intent = ShareUtils.shareContent(type, str, HikeConstants.Extras.WHATSAPP_PACKAGE);
+				Intent intent = ShareUtils.shareContent(type, str, HikeConstants.Extras.WHATSAPP_PACKAGE, false);
  				if (intent != null)
 				{
 					startActivity(intent);
@@ -1356,7 +1356,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(id);
 						if (botInfo.isNonMessagingBot())
 						{
-							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);
+							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), this);
 						}
 						else
 						{
@@ -1368,12 +1368,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
 					}
 
-				}else{
+				}
+				else
+				{
 					//home activity
 					intent = Utils.getHomeActivityIntent(this);
 				}
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				forwardMessageAsPerType(presentIntent, intent,arrayList);
+				if (intent != null)
+				{
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					forwardMessageAsPerType(presentIntent, intent, arrayList);
+				}
 			}
 		}
 	}
@@ -1821,7 +1826,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			platformAnalyticsJson.put(AnalyticsConstants.TO, contactList);
 			platformAnalyticsJson.put(HikeConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
-			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, platformAnalyticsJson);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, platformAnalyticsJson);
 		}
 		catch (JSONException e)
 		{

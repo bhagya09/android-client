@@ -127,6 +127,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				isCallActive = true;
 				updateCallStatus();
 				activateActiveCallButtons();
+				initProximityWakelock();
 				break;
 			case VoIPConstants.MSG_CONNECTION_FAILURE:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
@@ -309,6 +310,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 		
+		// Ignore intents if we're hosting a conference
+		if (voipService != null && voipService.hostingConference()) {
+			Logger.w(tag, "Ignoring intent with action " + action + " because we're hosting a conference.");
+			return;
+		}
+		
 		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
 		{
 			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
@@ -341,32 +348,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) 
 		{
 			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+			VoIPUtils.sendMissedCallNotificationToPartner(msisdn);
 			if (voipService != null)
 			{
 				voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
 				updateCallStatus();
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BUSY);
-				voipService.stop();
-			}
-		}
-		
-		if (action.equals(VoIPConstants.INCOMING_NATIVE_CALL_HOLD) && voipService != null) 
-		{
-			if (VoIPService.getCallId() > 0) 
-			{
-				if(voipService.isAudioRunning())
-				{
-					showMessage(getString(R.string.voip_call_on_hold));
-					voipService.setHold(true);
-					voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-				}
-				else
-				{
-					voipService.hangUp();
-				}
-			}
-			else
-			{
 				voipService.stop();
 			}
 		}
@@ -602,6 +589,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				speakerButton.setSelected(newSpeaker);
 				voipService.setSpeaker(newSpeaker);
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_SPEAKER, newSpeaker ? 1 : 0);
+				
+				if (newSpeaker == true)
+					releaseProximityWakelock();
+				else
+					initProximityWakelock();
 			}
 		});
 
@@ -658,6 +650,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case INCOMING_CALL:
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_incoming));
+				releaseProximityWakelock();
 				break;
 
 			case PARTNER_BUSY:
@@ -687,6 +680,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					callDuration.setText(getString(R.string.voip_call_ended));
 				}
 				break;
+				
+			case HOSTING_CONFERENCE:
+				startCallDuration();
+				break;
+				
 		default:
 			// Logger.w(tag, "Unhandled status: " + status);
 			callDuration.startAnimation(anim);
@@ -738,7 +736,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 
-		if (voipService.hostingConference() || clientPartner.clientMsisdns != null) {
+		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			nameOrMsisdn = getString(R.string.voip_conference_label);
 			contactMsisdnView.setVisibility(View.VISIBLE);
 			contactMsisdnView.setText(voipService.getClientNames());
@@ -792,6 +790,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					   			break;
 		default:
 			Logger.w(tag, "Unhandled voice quality: " + quality);
+			gd.setColor(getResources().getColor(R.color.signal_good));
+	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
 			break;
 		}
 		signalContainer.startAnimation(anim);
