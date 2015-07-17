@@ -25,15 +25,17 @@ import android.graphics.drawable.BitmapDrawable;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 /**
  * A simple subclass of {@link ImageResizer} that fetches and resizes images fetched from a URL.
  */
-public class TimelineImageLoader extends ImageWorker
+public class TimelineUpdatesImageLoader extends ImageWorker
 {
-	private static final String TAG = "TimelineImageLoader";
+	private static final String TAG = "TimelineUpdatesImageLoader";
 
 	private int mImageWidth;
 
@@ -48,7 +50,7 @@ public class TimelineImageLoader extends ImageWorker
 	 * @param imageWidth
 	 * @param imageHeight
 	 */
-	public TimelineImageLoader(Context ctx, int imageWidth, int imageHeight)
+	private TimelineUpdatesImageLoader(Context ctx, int imageWidth, int imageHeight)
 	{
 		super();
 		this.context = ctx;
@@ -63,7 +65,7 @@ public class TimelineImageLoader extends ImageWorker
 	 * @param context
 	 * @param imageSize
 	 */
-	public TimelineImageLoader(Context ctx, int imageSize)
+	public TimelineUpdatesImageLoader(Context ctx, int imageSize)
 	{
 		this(ctx, imageSize, imageSize);
 	}
@@ -91,14 +93,53 @@ public class TimelineImageLoader extends ImageWorker
 	 *            The data to load the bitmap
 	 * @return The downloaded and resized bitmap
 	 */
-	protected Bitmap processBitmap(String id)
+	protected Bitmap processBitmap(String id, Object statusMessageObj)
+	{
+		if (statusMessageObj != null)
+		{
+			StatusMessage statusMessage = (StatusMessage) statusMessageObj;
+			if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+			{
+				return loadImage(id, false, null);
+			}
+			else
+			{
+				return loadImage(id, true, statusMessage);
+			}
+		}
+		else
+		{
+			return loadImage(id, true, null);
+		}
+	}
+
+	private Bitmap loadImage(String id, boolean loadingProfilePic, StatusMessage statusMessage)
 	{
 		Bitmap bitmap = null;
 		String fileName = Utils.getProfileImageFileName(id);
-		File orgFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, fileName);
+		File orgFile = null;
+
+		if (loadingProfilePic)
+		{
+			orgFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, fileName);
+		}
+		else
+		{
+			orgFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT, fileName);
+		}
+
 		if (!orgFile.exists())
 		{
-			BitmapDrawable b = this.getLruCache().getIconFromCache(id);
+			BitmapDrawable b;
+			if (loadingProfilePic)
+			{
+				b = this.getLruCache().getIconFromCache(id);
+			}
+			else
+			{
+				//TODO replace with file key
+				b = this.getLruCache().getFileIconFromCache(id);
+			}
 			Logger.d(TAG, "Bitmap from icondb");
 			if (b != null)
 				return b.getBitmap();
@@ -121,7 +162,12 @@ public class TimelineImageLoader extends ImageWorker
 	@Override
 	protected Bitmap processBitmapOnUiThread(String data)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return loadImage(data, true, null);
+	}
+
+	@Override
+	protected Bitmap processBitmap(String data)
+	{
+		return loadImage(data, true, null);
 	}
 }

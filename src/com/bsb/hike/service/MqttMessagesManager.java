@@ -2328,7 +2328,7 @@ public class MqttMessagesManager
 			}
 			else
 			{
-				throw new JSONException("Image SU doesnt contain fileKey or Thumbnail");
+				throw new JSONException("saveStatusUpdate() : Image SU doesnt contain fileKey or Thumbnail");
 			}
 		}
 

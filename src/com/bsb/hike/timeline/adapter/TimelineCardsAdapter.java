@@ -47,7 +47,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.smartImageLoader.TimelineImageLoader;
+import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
@@ -173,8 +173,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private IconLoader mIconImageLoader;
 
-	private TimelineImageLoader bigPicImageLoader;
-
+	private TimelineUpdatesImageLoader profileImageLoader;
+	
 	private String mUserMsisdn;
 
 	private int mProtipIndex;
@@ -188,7 +188,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 		mStatusMessages = statusMessages;
 		mUserMsisdn = userMsisdn;
-		bigPicImageLoader = new TimelineImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
+		profileImageLoader = new TimelineUpdatesImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
 		mIconImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(true);
 		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -351,8 +351,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					viewHolder.statusImg.setTag(imageViewerInfo);
 					viewHolder.statusImg.setOnClickListener(imageClickListener);
 					// TODO
-					// bigPicImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, isListFlinging);
-					bigPicImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, false);
+					// profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, isListFlinging);
+					profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, false);
 					viewHolder.statusImg.setVisibility(View.VISIBLE);
 				}
 				else
@@ -414,7 +414,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			/*
 			 * Fetch larger image
 			 */
-			bigPicImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false);
+			profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
 
 			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, mContext));
 
