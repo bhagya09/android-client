@@ -8,6 +8,7 @@ import android.os.Parcelable;
 
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.bsb.hike.utils.Logger;
 
@@ -22,7 +23,7 @@ import com.bsb.hike.utils.Logger;
  * @authors Atul Mittal, Akhil Tripathi
  * 
  */
-public abstract class HikeBaseActivity extends ActionBarActivity
+public abstract class HikeBaseActivity extends AppCompatActivity
 {
 	public static final String DESTINATION_INTENT = "di";
 	
