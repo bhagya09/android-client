@@ -17,6 +17,7 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +41,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		public void themeCancelled();
 	}
 
-	private ActionBarActivity sherlockFragmentActivity;
+	private AppCompatActivity sherlockFragmentActivity;
 
 	private View viewToDisplay;
 
@@ -56,7 +57,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
 	
-	public ThemePicker(ActionBarActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
+	public ThemePicker(AppCompatActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
 	{
 		this.userSelection = currentTheme;
 		this.sherlockFragmentActivity = sherlockFragmentActivity;

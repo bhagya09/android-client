@@ -7,6 +7,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
 import android.view.Menu;
@@ -31,7 +32,7 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 
 	protected ActionMode mActionMode;
 
-	protected ActionBarActivity mActivity;
+	protected AppCompatActivity mActivity;
 
 	private int defaultLayoutId = DEFAULT_LAYOUT_RESID, actionModeId;
 	
@@ -47,17 +48,17 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 	
 	private Menu mMenu;
 
-	public HikeActionMode(ActionBarActivity sherlockFragmentActivity, ActionModeListener listener)
+	public HikeActionMode(AppCompatActivity sherlockFragmentActivity, ActionModeListener listener)
 	{
 		this(sherlockFragmentActivity, "", "", DEFAULT_LAYOUT_RESID, listener);
 	}
 
-	public HikeActionMode(ActionBarActivity sherlockFragmentActivity, int layoutId, ActionModeListener listener)
+	public HikeActionMode(AppCompatActivity sherlockFragmentActivity, int layoutId, ActionModeListener listener)
 	{
 		this(sherlockFragmentActivity, "", "", layoutId, listener);
 	}
 
-	public HikeActionMode(ActionBarActivity sherlockFragmentActivity, String title, String save, int layoutId, ActionModeListener listener)
+	public HikeActionMode(AppCompatActivity sherlockFragmentActivity, String title, String save, int layoutId, ActionModeListener listener)
 	{
 		this.mActivity = sherlockFragmentActivity;
 		this.defaultLayoutId = layoutId;
