@@ -68,7 +68,6 @@ public class StatusMessage
 			if (data.has(HikeConstants.SU_IMAGE_KEY))
 			{
 				this.statusMessageType = StatusMessageType.TEXT_IMAGE;
-				saveImage(mappedId,data);
 			}
 			else
 			{
@@ -79,24 +78,9 @@ public class StatusMessage
 		else if (data.has(HikeConstants.SU_IMAGE_KEY))
 		{
 			this.statusMessageType = StatusMessageType.IMAGE;
-			saveImage(mappedId,data);
 		}
 		this.moodId = data.optInt(HikeConstants.MOOD) - 1;
 		this.timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
-	}
-
-	private void saveImage(String mappedId, JSONObject data)
-	{
-		String iconBase64;
-		try
-		{
-			iconBase64 = data.getString(HikeConstants.THUMBNAIL);
-			ContactManager.getInstance().setIcon(mappedId, Base64.decode(iconBase64, Base64.DEFAULT), false);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	public StatusMessage(long id, String mappedId, String msisdn, String name, String text, StatusMessageType statusMessageType, long timeStamp)

@@ -55,6 +55,7 @@ import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.Protip;
@@ -2270,6 +2271,8 @@ public class MqttMessagesManager
 	{
 		StatusMessage statusMessage = new StatusMessage(jsonObj);
 		ContactManager conMgr = ContactManager.getInstance();
+		
+		JSONObject jsonData = jsonObj.getJSONObject(HikeConstants.DATA);
 		/*
 		 * This would be true for unsupported status message types. We should not be doing anything if we get one.
 		 * 
@@ -2299,13 +2302,34 @@ public class MqttMessagesManager
 
 		if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
-			String iconBase64 = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.THUMBNAIL);
+			String iconBase64 = jsonData.getString(HikeConstants.THUMBNAIL);
 			conMgr.setIcon(statusMessage.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
 			/*
 			 * Removing the thumbnail string from the JSON, since we've already saved it.
 			 */
-			jsonObj.getJSONObject(HikeConstants.DATA).remove(HikeConstants.THUMBNAIL);
+			jsonData.remove(HikeConstants.THUMBNAIL);
 
+		}
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		{
+			final String iconBase64 = jsonData.getString(HikeConstants.THUMBNAIL);
+			final String fileKey = jsonData.getString(HikeConstants.SU_IMAGE_KEY);
+
+			if (!TextUtils.isEmpty(fileKey) && !TextUtils.isEmpty(iconBase64))
+			{
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						HikeConversationsDatabase.getInstance().addFileThumbnail(fileKey, Base64.decode(iconBase64, Base64.DEFAULT));
+					}
+				}, 0);
+			}
+			else
+			{
+				throw new JSONException("Image SU doesnt contain fileKey or Thumbnail");
+			}
 		}
 
 		statusMessage.setName(TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName());
