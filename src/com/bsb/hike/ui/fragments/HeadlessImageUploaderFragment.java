@@ -121,7 +121,7 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 				taskCallbacks.get().onSuccess(result);
 			}
 			
-			removeHeadlessFragement();
+			removeHeadlessFragment();
 		}
 
 		@Override
@@ -161,7 +161,7 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 				}
 			}
 			
-			removeHeadlessFragement();
+			removeHeadlessFragment();
 		}
 	};
 }

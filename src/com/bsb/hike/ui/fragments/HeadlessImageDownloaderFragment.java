@@ -147,7 +147,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 				taskCallbacks.get().onSuccess(result);
 			}
 			
-			removeHeadlessFragement();
+			removeHeadlessFragment();
 		}
 
 		@Override
@@ -167,7 +167,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 					taskCallbacks.get().onCancelled();
 				}
 				
-				removeHeadlessFragement();
+				removeHeadlessFragment();
 			}
 			else
 			{
@@ -178,7 +178,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 					taskCallbacks.get().onFailed();
 				}
 				
-				removeHeadlessFragement();
+				removeHeadlessFragment();
 			}
 		}
 	};
@@ -214,7 +214,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			taskCallbacks.get().onSuccess(result);
 		}
 		
-		removeHeadlessFragement();
+		removeHeadlessFragment();
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			taskCallbacks.get().onFailed();
 		}
 		
-		removeHeadlessFragement();
+		removeHeadlessFragment();
 	}
 
 	@Override
@@ -240,7 +240,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			taskCallbacks.get().onCancelled();
 		}
 		
-		removeHeadlessFragement();
+		removeHeadlessFragment();
 	}
 	
 	private boolean doPostSuccessfulProfilePicDownload()
