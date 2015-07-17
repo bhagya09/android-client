@@ -737,7 +737,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				{
 					continue;
 				}
-
+				
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}

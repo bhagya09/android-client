@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import com.bsb.hike.models.Conversation.BotConversation;
-import com.bsb.hike.view.CustomFontButton;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,7 +48,6 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebView.FindListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
@@ -70,12 +66,9 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatthread.OneToOneChatThread;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -86,7 +79,6 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -99,16 +91,13 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
-import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
-import com.bsb.hike.offline.HikeConverter;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
@@ -125,6 +114,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontButton;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
 
@@ -843,7 +833,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setSenderDetails(convMessage, position, stickerHolder, true);
 			String categoryId = sticker.getCategoryId();
 			String stickerId = sticker.getStickerId();
-			String categoryDirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId) + HikeConstants.LARGE_STICKER_ROOT;
+			String categoryDirPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.LARGE_STICKER_ROOT;
 			File stickerImage = null;
 			if (categoryDirPath != null)
 			{
@@ -884,59 +874,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.image.setVisibility(View.GONE);
 				stickerHolder.image.setImageDrawable(null);
 
-				StickerDownloadManager.getInstance().DownloadSingleSticker(categoryId, stickerId, new IStickerResultListener()
-				{
+				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
+				singleStickerDownloadTask.execute();
 
-					@Override
-					public void onSuccess(Object result)
-					{
-						// Here we update sticker category, if we received a different category in download response.
-						// This is being done to fix a legacy bug, where catId came as "unknown"
-						
-						String newCategoryId = (String) result;
-						
-						if(TextUtils.isEmpty(newCategoryId))
-						{
-							return ;
-						}
-						
-						String oldCategoryId = convMessage.getMetadata().getSticker().getStickerId();
-						if (!oldCategoryId.equals(newCategoryId))
-						{
-							try
-							{
-								MessageMetadata newMetadata = convMessage.getMetadata();
-								newMetadata.updateSticker(newCategoryId);
-								HikeConversationsDatabase.getInstance().updateMessageMetadata(convMessage.getMsgID(), newMetadata);
-							}
-							catch (JSONException e)
-							{
-								Logger.wtf("MessagesAdapter", "Got new categoryId as " + result.toString() + " But failed to update the metadata for : " + convMessage.getMsgID());
-							}
-
-						}
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, null);
-
-					}
-
-					@Override
-					public void onProgressUpdated(double percentage)
-					{
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void onFailure(Object result, StickerException exception)
-					{
-						if (result == null)
-						{
-							return;
-						}
-						String largeStickerPath = (String) result;
-						(new File(largeStickerPath)).delete();
-					}
-				});
 
 			}
 			displayBroadcastIndicator(convMessage, stickerHolder.broadcastIndicator, false);
@@ -2166,7 +2106,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 				
-				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation);
+				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 				
 				String message = OneToNConversationUtils.getParticipantAddedMessage(convMessage, context, highlight);
 				
@@ -2838,9 +2778,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
-				else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
+				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 				{
-					holder.ftAction.setImageResource(playImage);
+					if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+					{
+						holder.ftAction.setImageResource(playImage);
+					}
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
@@ -2874,9 +2817,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;
 		case COMPLETED:
-			if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
+			if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 			{
-				holder.ftAction.setImageResource(playImage);
+				if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+				{
+					holder.ftAction.setImageResource(playImage);
+				}
+
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}
