@@ -1421,7 +1421,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.ACTION_COUNT + " INTEGER DEFAULT 0, " // action count
 				+ DBConstants.ACTORS + " TEXT DEFAULT '{}', " // actor msisdns
 				+ DBConstants.ACTION_METADATA + " TEXT DEFAULT '{}', " // md
-				+ DBConstants.ACTION_LAST_UPDATE + " LONG DEFAULT 0" // last updated
+				+ DBConstants.ACTION_LAST_UPDATE + " INTEGER DEFAULT 0" // last updated
 				+ ")";
 
 		return sql;
@@ -1436,7 +1436,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.FEED_ACTION_ID + " INTEGER, " // action id (love, comment,view,fav)
 				+ DBConstants.FEED_ACTOR + " TEXT, " // actor
 				+ DBConstants.FEED_METADATA + " TEXT DEFAULT '{}', " // md
-				+ DBConstants.FEED_TS + " LONG DEFAULT 0" // timestamp
+				+ DBConstants.FEED_TS + " INTEGER DEFAULT 0" // timestamp
 				+ ")";
 		return sql;
 	}
