@@ -131,7 +131,10 @@ public class HikeOfflinePersistence implements IPersistanceInterface
 	
 	private SenderConsignment getSenderConsignment(ConvMessage convMessage) 
 	{
-		return OfflineController.getInstance().getSenderConsignment(convMessage, false);
+		if (!convMessage.isFileTransferMessage())
+			return OfflineController.getInstance().getSenderConsignment(convMessage, false);
+		else 
+			return null;
 	}
 
 }
