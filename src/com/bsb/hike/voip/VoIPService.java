@@ -306,6 +306,7 @@ public class VoIPService extends Service {
 			resampler = new Resampler();
 		
 		startConnectionTimeoutThread();
+		startBluetooth();
 		registerPhoneStateBroadcastReceiver();
 	}
 	
@@ -542,7 +543,7 @@ public class VoIPService extends Service {
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
 				// Group call
 				groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
-				Logger.w(VoIPConstants.TAG, "Initiating a group call for group: " + groupChatMsisdn);
+//				Logger.w(VoIPConstants.TAG, "Initiating a group call for group: " + groupChatMsisdn);
 				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
 				startChrono();
 				
@@ -562,7 +563,8 @@ public class VoIPService extends Service {
 				// One-to-one call
 				initiateOutgoingCall(client, callSource);
 			
-			startBluetooth();
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+			
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -1117,7 +1119,6 @@ public class VoIPService extends Service {
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
 		startRecordingAndPlayback(client.getPhoneNumber());
-		startBluetooth();
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 	
@@ -1981,27 +1982,51 @@ public class VoIPService extends Service {
 		return conferencingEnabled;
 	}
 
+	public String getClientCount() {
+		int num = 1;
+
+		if (hostingConference())
+			num = clients.size() + 1;
+		else {
+			VoIPClient client = getClient();
+			if (client != null && client.clientMsisdns != null)
+				num = client.clientMsisdns.size();
+		}
+		
+		return String.valueOf(num);
+	}
+	
 	public String getClientNames() {
 		String names = "";
+		String delimiter = "<br/> ";
 		
 		// If in a one-to-one call, or hosting a conference
 		for (VoIPClient client : clients.values()) {
-			names += client.getName() + ", ";
+			if (client.isSpeaking())
+				names += "<b>" + client.getName() + "</b>" + delimiter;
+			else
+				names += client.getName() + delimiter;
 		}
 		
 		// If we are part of a conference, but not hosting it
 		if (getClient() != null && getClient().clientMsisdns != null) {
 			names = "";
+			String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 			for (String msisdn : getClient().clientMsisdns) {
+				
+				// Do not show our own phone number in list of participants
+				if (msisdn.equals(myMsisdn))
+					continue;
+				
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
 				if (contactInfo != null)
-					names += contactInfo.getNameOrMsisdn() + ", ";
+					names += contactInfo.getNameOrMsisdn() + delimiter;
 				else
-					names += msisdn + ", ";
+					names += msisdn + delimiter;
 			}
 		}
 
-		names = names.substring(0, names.length() - 2);
+		names = names.substring(0, names.length() - delimiter.length());
 		return names;
 	}
 	

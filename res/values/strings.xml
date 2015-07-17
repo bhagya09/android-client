@@ -1539,6 +1539,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="settings_deselect_all">Deselect all </string>
     <string name="more_stickers">More stickers</string>
 	<string name="add_members">Add Members</string>
+	<string name="add_members_to_conference">Add To Conference</string>
 	<string name="created_group_text">You created the group chat</string>
 	<string name="group_member_added">added %1$s</string>
 	<string name="num_members">%1$d members</string>
