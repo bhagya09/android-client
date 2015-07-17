@@ -82,7 +82,6 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 				dismissProgressDialog();
 				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.download_failed), Toast.LENGTH_SHORT).show();
 			}
-			removeHeadLessFragment();
 		}
 	};
 	
@@ -98,7 +97,6 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 				dismissProgressDialog();
 				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), getString(R.string.download_failed), Toast.LENGTH_SHORT).show();
 			}
-			removeHeadLessFragment();
 		}
 	};
 	
@@ -114,7 +112,6 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 				dismissProgressDialog();
 				profileImageLoader.loadFromFile();
 			}
-			removeHeadLessFragment();
 		}
 	};
 
@@ -379,16 +376,6 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 
 	}
 	
-	private void removeHeadLessFragment()
-	{
-		Logger.d(TAG, "inside ImageViewerFragment, removing UILessFragment");
-		if(getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT) != null)
-		{
-			mImageWorkerFragment = (HeadlessImageDownloaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
-			getFragmentManager().beginTransaction().remove(mImageWorkerFragment).commit();
-		}
-	}
-
 	@Override
 	public void handleUIMessage(Message msg)
 	{

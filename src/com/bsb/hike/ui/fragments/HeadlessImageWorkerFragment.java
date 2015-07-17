@@ -1,5 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
+import java.lang.ref.WeakReference;
+
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -34,11 +36,11 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 		
 	}
 
-	protected TaskCallbacks taskCallbacks;
+	protected WeakReference<TaskCallbacks> taskCallbacks;
 
 	public void setTaskCallbacks(TaskCallbacks callbacks)
 	{
-		this.taskCallbacks = callbacks;
+		this.taskCallbacks = new WeakReference<TaskCallbacks>(callbacks);
 	}
 
 	/**
@@ -111,4 +113,18 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 		}
 	}
 	
+	/**
+	 * This removes current fragment
+	 */
+	protected void removeHeadlessFragment()
+	{
+		if(getFragmentManager() != null && isAdded())
+		{
+			getFragmentManager().beginTransaction().remove(this).commit();
+		}
+		else
+		{
+			Logger.d(TAG, "Not able to remove HEADLESS fragment as getFragmentManager was null");
+		}
+	}
 }

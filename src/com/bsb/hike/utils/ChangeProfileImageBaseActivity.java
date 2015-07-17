@@ -669,7 +669,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 		profilePictureUploaded();
 
-		removeHeadLessImageUploadFragment();
 	}
 
 	/**
@@ -796,15 +795,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		Logger.d(TAG, "req failed");
 		failureWhileSettingProfilePic();
 		Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
-		removeHeadLessImageUploadFragment();
-	}
-
-	private void removeHeadLessImageUploadFragment()
-	{
-		Logger.d(TAG, "inside ImageViewerFragment, removeHeadLessImageUploadFragment");
-		FragmentManager fm = getSupportFragmentManager();
-		fm.beginTransaction().remove(mActivityState.mImageWorkerFragment).commit();
-		mActivityState.mImageWorkerFragment = null;
 	}
 	
 }

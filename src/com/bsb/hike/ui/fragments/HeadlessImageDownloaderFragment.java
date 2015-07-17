@@ -8,7 +8,11 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.DownloadProfileImageTask;
 import com.bsb.hike.tasks.DownloadProfileImageTask.DownloadProfileImageTaskCallbacks;
@@ -42,6 +46,8 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	private String fileName;
 	
 	private String name;
+	
+	String tFilePath;
 	
 	private static final String TAG = "dp_download";
 
@@ -83,11 +89,13 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		
 		// Create and execute the background task.
 		String filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		downloadProfileImageTask = new DownloadProfileImageTask(id, filePath, fileName, hasCustomIcon, statusImage, url);
-		downloadProfileImageTask.setDownloadProfileImageTaskCallbacks(this);
-		
 		Logger.d(TAG, "executing DownloadProfileImageTask");
-		downloadProfileImageTask.execute();
+		filePath = filePath + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+		
+		tFilePath = filePath;
+		
+		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, filePath, hasCustomIcon, statusImage, url, requestListener);
+		token.execute();
 	}
 
 	/**
@@ -112,13 +120,73 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		name = getArguments().getString(HikeConstants.Extras.NAME);
 	}
 
+	private IRequestListener requestListener = new IRequestListener()
+	{
+		@Override
+		public void onRequestSuccess(Response result)
+		{
+			Logger.d(TAG, "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
+			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+			String filePath = directory + "/" +  Utils.getProfileImageFileName(id);
+			
+			if(!doAtomicFileRenaming(filePath, tFilePath))
+			{
+				return;
+			}
+			
+			if(isProfilePicDownload)
+			{
+				if(!doPostSuccessfulProfilePicDownload())
+				{
+					return ;
+				}
+			}
+			
+			if(taskCallbacks.get() != null)
+			{
+				taskCallbacks.get().onSuccess(result);
+			}
+			
+			removeHeadlessFragment();
+		}
+
+		@Override
+		public void onRequestProgressUpdate(float progress)
+		{
+		}
+
+		@Override
+		public void onRequestFailure(HttpException httpException)
+		{
+			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
+			{
+				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), tFilePath);
+				
+				if(taskCallbacks.get() != null)
+				{
+					taskCallbacks.get().onCancelled();
+				}
+				
+				removeHeadlessFragment();
+			}
+			else
+			{
+				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), tFilePath);
+				
+				if(taskCallbacks.get() != null)
+				{
+					taskCallbacks.get().onFailed();
+				}
+				
+				removeHeadlessFragment();
+			}
+		}
+	};
+	
 	@Override
 	public void onRequestProgressUpdate(float progress)
 	{
-		if(taskCallbacks != null)
-		{
-			taskCallbacks.onProgressUpdate(progress);
-		}
+		
 	}
 	
 	@Override
@@ -141,10 +209,12 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			}
 		}
 		
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onSuccess(result);
+			taskCallbacks.get().onSuccess(result);
 		}
+		
+		removeHeadlessFragment();
 	}
 
 	@Override
@@ -152,10 +222,12 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	{
 		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onFailed();
+			taskCallbacks.get().onFailed();
 		}
+		
+		removeHeadlessFragment();
 	}
 
 	@Override
@@ -163,10 +235,12 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	{
 		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onCancelled();
+			taskCallbacks.get().onCancelled();
 		}
+		
+		removeHeadlessFragment();
 	}
 	
 	private boolean doPostSuccessfulProfilePicDownload()

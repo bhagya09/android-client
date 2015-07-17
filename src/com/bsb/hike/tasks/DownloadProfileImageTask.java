@@ -80,7 +80,7 @@ public class DownloadProfileImageTask
 		{
 			//doOnSuccess();
 			
-			if(downloadProfileImageTaskCallbacks != null)
+			if(downloadProfileImageTaskCallbacks.get() != null)
 			{
 				downloadProfileImageTaskCallbacks.get().onRequestSuccess(result);
 			}
@@ -89,7 +89,7 @@ public class DownloadProfileImageTask
 		@Override
 		public void onRequestProgressUpdate(float progress)
 		{
-			if(downloadProfileImageTaskCallbacks != null)
+			if(downloadProfileImageTaskCallbacks.get() != null)
 			{
 				downloadProfileImageTaskCallbacks.get().onRequestProgressUpdate(progress);
 			}
@@ -102,7 +102,7 @@ public class DownloadProfileImageTask
 			{
 				//doOnCancelled();
 				
-				if(downloadProfileImageTaskCallbacks != null)
+				if(downloadProfileImageTaskCallbacks.get() != null)
 				{
 					downloadProfileImageTaskCallbacks.get().onRequestCancelled();
 				}
@@ -111,7 +111,7 @@ public class DownloadProfileImageTask
 			{
 				//doOnFailure();
 				
-				if(downloadProfileImageTaskCallbacks != null)
+				if(downloadProfileImageTaskCallbacks.get() != null)
 				{
 					downloadProfileImageTaskCallbacks.get().onRequestFailure(httpException);
 				}
