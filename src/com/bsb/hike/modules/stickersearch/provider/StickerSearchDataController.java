@@ -109,7 +109,7 @@ public enum StickerSearchDataController
 						continue;
 					}
 
-					String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId.trim(), packId.trim());
+					String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId, packId);
 					JSONObject stickerData = stickersData.optJSONObject(stickerId);
 
 					if ((stickerData == null) || (stickerData.length() <= 0))

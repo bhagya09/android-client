@@ -332,7 +332,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				for (int i = 0; i < stickerTags.size(); i++)
 				{
-					tags.add((String) stickerTags.get(i));
+					tags.add(stickerTags.get(i));
 					ContentValues cv = new ContentValues();
 					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, stickerTags.get(i));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, tagExactnessPriorities.get(i));
