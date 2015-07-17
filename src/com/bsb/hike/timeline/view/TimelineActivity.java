@@ -253,7 +253,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	}
 
 	@Override
-	protected void openImageViewerFragment(Object object)
+	protected void openImageViewer(Object object)
 	{
 		/*
 		 * Making sure we don't add the fragment if the activity is finishing.
