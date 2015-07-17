@@ -58,7 +58,7 @@ public class UploadProfileImageTask
 		{
 			//doOnSuccess();
 
-			if (uploadProfileImageTaskCallbacks != null)
+			if (uploadProfileImageTaskCallbacks.get() != null)
 			{
 				Logger.d(TAG, "calling onRequestSuccess of listener from UploadImageProfileTask");
 				uploadProfileImageTaskCallbacks.get().onRequestSuccess(result);
@@ -69,7 +69,7 @@ public class UploadProfileImageTask
 		@Override
 		public void onRequestProgressUpdate(float progress)
 		{
-			if (uploadProfileImageTaskCallbacks != null)
+			if (uploadProfileImageTaskCallbacks.get() != null)
 			{
 				uploadProfileImageTaskCallbacks.get().onRequestProgressUpdate(progress);
 			}
@@ -82,7 +82,7 @@ public class UploadProfileImageTask
 			{
 				//doOnCancelled();
 
-				if (uploadProfileImageTaskCallbacks != null)
+				if (uploadProfileImageTaskCallbacks.get() != null)
 				{
 					uploadProfileImageTaskCallbacks.get().onRequestCancelled();
 				}
@@ -91,7 +91,7 @@ public class UploadProfileImageTask
 			{
 				//doOnFailure();
 
-				if (uploadProfileImageTaskCallbacks != null)
+				if (uploadProfileImageTaskCallbacks.get() != null)
 				{
 					uploadProfileImageTaskCallbacks.get().onRequestFailure(httpException);
 				}

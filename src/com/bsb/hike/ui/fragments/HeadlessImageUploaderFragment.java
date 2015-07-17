@@ -106,11 +106,14 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 		
 		doAtomicFileRenaming(originqlFilePath, tmpFilePath);
 		
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
 			Logger.d(TAG, "calling onSuccess of listener");
-			taskCallbacks.onSuccess(result);
+			taskCallbacks.get().onSuccess(result);
 		}
+		
+		removeHeadlessFragement();
+		
 	}
 
 	@Override
@@ -123,10 +126,12 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 			doAtomicFileDel(tmpFilePath);
 		}
 		
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onCancelled();
+			taskCallbacks.get().onCancelled();
 		}
+		
+		removeHeadlessFragement();
 	}
 
 	@Override
@@ -145,10 +150,12 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment i
 			doAtomicFileDel(tmpFilePath);
 		}
 
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onFailed();
+			taskCallbacks.get().onFailed();
 		}
+		
+		removeHeadlessFragement();
 	}
 
 }

@@ -115,10 +115,12 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	@Override
 	public void onRequestProgressUpdate(float progress)
 	{
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onProgressUpdate(progress);
+			taskCallbacks.get().onProgressUpdate(progress);
 		}
+		
+		removeHeadlessFragement();
 	}
 	
 	@Override
@@ -141,10 +143,12 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			}
 		}
 		
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onSuccess(result);
+			taskCallbacks.get().onSuccess(result);
 		}
+		
+		removeHeadlessFragement();
 	}
 
 	@Override
@@ -152,10 +156,12 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	{
 		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onFailed();
+			taskCallbacks.get().onFailed();
 		}
+		
+		removeHeadlessFragement();
 	}
 
 	@Override
@@ -163,10 +169,12 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	{
 		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
-		if(taskCallbacks != null)
+		if(taskCallbacks.get() != null)
 		{
-			taskCallbacks.onCancelled();
+			taskCallbacks.get().onCancelled();
 		}
+		
+		removeHeadlessFragement();
 	}
 	
 	private boolean doPostSuccessfulProfilePicDownload()
