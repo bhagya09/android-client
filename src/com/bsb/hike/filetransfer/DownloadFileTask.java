@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 
@@ -180,6 +181,9 @@ public class DownloadFileTask extends FileTransferBase
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
 					return FTResult.DOWNLOAD_FAILED;
 				}
+				
+				mUrl = getUpdatedURL(mUrl, "Downloading File", FTAnalyticEvents.DOWNLOAD_FILE_TASK);
+
 				conn = initConn();
 				// set the range of byte to download
 				String byteRange = mStart + "-";
@@ -391,6 +395,7 @@ public class DownloadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
+				handleException(e);
 				Logger.e(getClass().getSimpleName(), "FT Download error : " + e.getMessage());
 				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_UNKNOWN_ERROR, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "all", "DOWNLOAD_FAILED ("+ retryAttempts + ")", e);
 				// here we should retry
