@@ -20,9 +20,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
@@ -36,8 +34,6 @@ import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 public class ImageViewerActivity extends FragmentActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	ImageView imageView;
-
-	private ProgressDialog mDialog;
 
 	private String mappedId;
 
@@ -71,10 +67,6 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 
 	public static final String FILE_TYPE_KEY = "ftk";
 
-	public static final int SHOW_PROFILE_PIC = -11;
-
-	private int fileType;
-
 	private String fileKey;
 
 	private HeadlessImageDownloaderFragment mImageWorkerFragment;
@@ -105,8 +97,6 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		isStatusImage = extras.getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-
-		fileType = extras.getInt(FILE_TYPE_KEY, SHOW_PROFILE_PIC);
 
 		final int thumbnailTop = extras.getInt(animFromTop);
 
@@ -181,39 +171,17 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	public void runEnterAnimation()
 	{
 		final long duration = (long) (ANIM_DURATION * 1);
-
-		// Set starting values for properties we're going to animate. These
-		// values scale and position the full size version down to the thumbnail
-		// size/location, from which we'll animate it back up
-		// imageView.setPivotX(0);
-		// imageView.setPivotY(0);
-		// imageView.setScaleX(mWidthScale);
-		// imageView.setScaleY(mHeightScale < 0.6f ? 0.6f : mHeightScale);
-		// imageView.setTranslationX(mLeftDelta);
-		// imageView.setTranslationY(mTopDelta);
 		imageView.setTranslationY(20);
 		imageView.setAlpha(0f);
-
-		// Animate scale and translation to go from thumbnail to full size
-		// imageView.animate().setDuration(duration).scaleX(1).scaleY(1).translationX(0).translationY(0).withEndAction(new Runnable()
-		// {
-		// public void run()
-		// {
-		// // Animate the description in after the image animation
-		// // is done. Slide and fade the text in from underneath
-		// // the picture.
-		//
-		// }
-		// });
 
 		imageView.animate().setDuration(duration).translationY(0).alpha(1f).withEndAction(new Runnable()
 		{
 			public void run()
 			{
+				// TODO
 				// Animate the description in after the image animation
 				// is done. Slide and fade the text in from underneath
 				// the picture.
-
 			}
 		});
 
@@ -230,40 +198,33 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	 */
 	public void runExitAnimation(final Runnable endAction)
 	{
-		// Animate image back to thumbnail size/location
-		// imageView.animate().setDuration(300).scaleX(mWidthScale).scaleY(mHeightScale).translationX(mLeftDelta).translationY(mTopDelta).withEndAction(endAction);
 		imageView.animate().setDuration(300).translationY(20).alpha(0f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
 		bgAnim.setDuration(600);
 		bgAnim.addListener(new AnimatorListener()
 		{
-
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
-				// TODO Auto-generated method stub
-
+				// Do nothing
 			}
 
 			@Override
 			public void onAnimationRepeat(Animator animation)
 			{
-				// TODO Auto-generated method stub
-
+				// Do nothing
 			}
 
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
 				endAction.run();
-
 			}
 
 			@Override
 			public void onAnimationCancel(Animator animation)
 			{
-				// TODO Auto-generated method stub
-
+				// Do nothing
 			}
 		});
 		bgAnim.start();
