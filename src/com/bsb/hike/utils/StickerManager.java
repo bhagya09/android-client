@@ -1771,7 +1771,7 @@ public class StickerManager
 	{
 		return sticker.getCategoryId() + ":" + sticker.getStickerId();
 	}
-	
+
 	public String getStickerSetString(String stkId, String catId)
 	{
 		return catId + ":" + stkId;

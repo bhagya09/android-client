@@ -903,12 +903,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				currentCount = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
 						: (int) remainingCount;
+				i = i + currentCount;
 
 				try
 				{
 					c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + "<=" + i, null, null, null,
 							HikeStickerSearchBaseConstants.UNIQUE_ID + " DESC", String.valueOf(currentCount));
-					if (c != null)
+					if (c != null && c.getCount() > 0)
 					{
 						ArrayList<Integer> frequencies = new ArrayList<Integer>(c.getCount());
 						while (c.moveToNext())
@@ -949,7 +950,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				}
 
 				remainingCount -= currentCount;
-				i = i + currentCount;
 			}
 
 			if (maxFrequency > Integer.MIN_VALUE && minFrequency > Integer.MIN_VALUE)
@@ -967,11 +967,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				{
 					currentCount = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
 							: (int) remainingCount;
-					long currentLimit = i + currentCount;
+					i = i + currentCount;
 
 					try
 					{
-						c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + "<=" + currentLimit, null, null, null,
+						c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + "<=" + i, null, null, null,
 								HikeStickerSearchBaseConstants.UNIQUE_ID + " DESC", String.valueOf(currentCount));
 						if (c != null)
 						{
@@ -1005,7 +1005,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					}
 
 					remainingCount -= currentCount;
-					i = currentLimit;
 				}
 
 				count = rowIdList.size();

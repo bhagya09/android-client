@@ -542,7 +542,6 @@ public enum StickerSearchDataController
 	{
 		Logger.i(TAG, "startRebalancing()");
 
-
 		return HikeStickerSearchDatabase.getInstance().startRebalancing();
 	}
 }
