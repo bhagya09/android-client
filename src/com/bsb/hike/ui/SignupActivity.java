@@ -2415,7 +2415,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				return;
 			}
 			
-			applyCompression(mActivityState.destFilePath);
 			setProfileImage();
 			break;
 		case HikeConstants.ResultCodes.SELECT_COUNTRY:	
