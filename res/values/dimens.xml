@@ -195,5 +195,8 @@
 	<dimen name="sticker_btn_width">60dp</dimen>
 	<dimen name="home_sreen_divider_left_padding">80dp</dimen>
 	<dimen name="home_sreen_divider_right_padding">16dp</dimen>
+	<dimen name="conv_item_height">68dp</dimen>
+	<dimen name="conv_item_padding">16dp</dimen>
+	<dimen name="conv_item_avatar">52dp</dimen>
 	
 </resources>

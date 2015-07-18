@@ -305,7 +305,7 @@
         <item name="android:headerDividersEnabled">false</item>
         <item name="android:footerDividersEnabled">false</item>
         <item name="android:drawSelectorOnTop">false</item>
-        <item name="android:listSelector">#00000000</item>
+        <item name="android:listSelector">@android:color/transparent</item>
     </style>
 
     <style name="Hike.ActionBarTheme" parent="Theme.AppCompat">
