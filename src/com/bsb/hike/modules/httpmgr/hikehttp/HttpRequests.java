@@ -181,20 +181,6 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken postStatusRequest(JSONObject json, IRequestListener requestListener)
-	{
-		JsonBody body = new JsonBody(json);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(getStatusBaseUrl())
-				.setRequestType(Request.REQUEST_TYPE_SHORT)
-				.setRequestListener(requestListener)
-				.setResponseOnUIThread(true)
-				.post(body)
-				.build();
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
-		return requestToken;
-	}
-	
 	public static RequestToken postStatusRequest(String argStatusMessage, int argMood, IRequestListener requestListener, String imageFilePath) throws IOException
 	{
 		final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
@@ -222,6 +208,8 @@ public class HttpRequests
 		MultipartRequestBody body = new MultipartRequestBody(requestBody);
 
 		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(getPostImageSUUrl()).setRequestListener(requestListener).post(body).build();
+		
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 
 		return requestToken;
 	}

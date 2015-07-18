@@ -39,13 +39,6 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 	private String imageFilePath;
 
-	public StatusUpdateTask(String status, int moodId)
-	{
-		this.status = status;
-		this.moodId = moodId;
-		token = HttpRequests.postStatusRequest(getPostData(), getRequestListener());
-	}
-	
 	public StatusUpdateTask(String status, int argMoodId, String imageFilePath) throws IOException
 	{
 		this.status = status;
