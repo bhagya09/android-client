@@ -457,8 +457,7 @@ public abstract class ImageWorker
 				{
 					bitmap = processBitmap(dataString,objectReference.get());
 				}
-				
-				if(bitmap == null)
+				else
 				{
 					bitmap = processBitmap(dataString);
 				}
