@@ -199,12 +199,16 @@ public class HttpRequests
 	{
 		final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
 
-		final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/plain; charset=UTF-8");
+		final MediaType MEDIA_TYPE_TEXTPLAIN = MediaType.parse("text/plain; charset=UTF-8");
 
-		final RequestBody requestBody = new MultipartBuilder().type(MultipartBuilder.FORM)
-				.addPart(Headers.of("Content-Disposition", "form-data; name=\"status-message\""), RequestBody.create(MEDIA_TYPE_MARKDOWN, argStatusMessage))
-				.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_MARKDOWN, String.valueOf(argMood)))
-				.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"abc.png\""), RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath))).build();
+		File imageFile = new File(imageFilePath);
+
+		final RequestBody requestBody = new MultipartBuilder()
+				.type(MultipartBuilder.FORM)
+				.addPart(Headers.of("Content-Disposition", "form-data; name=\"status-message\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, argStatusMessage))
+				.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, String.valueOf(argMood)))
+				.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"" + imageFile.getName() + "\""),
+						RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath))).build();
 
 		MultipartRequestBody body = new MultipartRequestBody(requestBody);
 
@@ -212,6 +216,7 @@ public class HttpRequests
 
 		return requestToken;
 	}
+	
 	public static RequestToken platformZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new FileRequest.Builder()
