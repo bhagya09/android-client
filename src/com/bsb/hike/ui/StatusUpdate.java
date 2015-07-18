@@ -614,7 +614,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					if (statusPosted)
 					{
 						Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
-						finish();
+						Intent in = new Intent(StatusUpdate.this, TimelineActivity.class);
+						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
+						StatusUpdate.this.startActivity(in);
+						StatusUpdate.this.finish();
 					}
 					else
 					{

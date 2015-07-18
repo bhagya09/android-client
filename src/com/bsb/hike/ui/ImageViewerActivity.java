@@ -67,8 +67,6 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 	public static final String animFromHeight = "animFromHeight";
 
-	public static final String FILE_TYPE_KEY = "ftk";
-
 	private String fileKey;
 
 	private HeadlessImageDownloaderFragment mImageWorkerFragment;

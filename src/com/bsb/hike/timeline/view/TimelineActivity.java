@@ -187,7 +187,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public void onBackPressed()
 	{
 		Fragment fragment = getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG);
-		if (!(fragment != null && fragment.isVisible()) && (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false) || getIntent().getBooleanExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, false)))
+		if (!(fragment != null && fragment.isVisible()) && (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false) || getIntent().getBooleanExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, false)))
 		{
 			IntentFactory.openHomeActivity(TimelineActivity.this, true);
 		}
