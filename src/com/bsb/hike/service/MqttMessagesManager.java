@@ -2306,6 +2306,16 @@ public class MqttMessagesManager
 			 */
 			jsonObj.getJSONObject(HikeConstants.DATA).remove(HikeConstants.THUMBNAIL);
 
+			/**
+			 * Problem: on DP upload, Two MQTT packets come IC + SU
+			 * SO if SU comes first then in notification popped old DP was shown
+			 * as inside cache previous DP was there which is corrected in IC packet
+			 * 
+			 * But When IC packets comes first, then there was no problem, as DB was updated in it
+			 * 
+			 * So via making extra DB call, this problem is solved
+			 */
+			conMgr.setIcon(statusMessage.getMsisdn(), Base64.decode(iconBase64, Base64.DEFAULT), false);
 		}
 
 		statusMessage.setName(TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName());
