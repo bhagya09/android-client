@@ -510,8 +510,10 @@ public class OfflineController
 		Logger.d(TAG, "In onConnect");
 		offlineManager.setConnectingDeviceAsConnected();
 		Logger.d(TAG,"Connected Device is "+ offlineManager.getConnectedDevice());
+		
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
+		offlineManager.removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTED);
 		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(offlineManager.getConnectedDevice(), 
 						HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_established), OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);

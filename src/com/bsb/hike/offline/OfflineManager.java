@@ -210,12 +210,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			if (results.containsKey(ssid))
 			{
 				Logger.d(TAG, "Going to connect to Hotspot for msisdn" + ssid);
-				
-				// since we already have the result no need to scan again
-				removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
-				removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
-				Logger.d(TAG, "Removed callback for disconnect");
-				
 				connectionManager.connectToHotspot(connectinMsisdn);
 				startedForChatThread = false;
 			}
