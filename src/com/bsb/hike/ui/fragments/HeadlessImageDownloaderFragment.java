@@ -47,7 +47,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	
 	private String name;
 	
-	String tFilePath;
+	private String pathOfTempFile;
 	
 	private static final String TAG = "dp_download";
 
@@ -87,14 +87,10 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		
 		String fileName = Utils.getProfileImageFileName(id);
 		
-		// Create and execute the background task.
-		String filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		Logger.d(TAG, "executing DownloadProfileImageTask");
-		filePath = filePath + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		
-		tFilePath = filePath;
-		
-		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, filePath, hasCustomIcon, statusImage, url, requestListener);
+		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, pathOfTempFile, hasCustomIcon, statusImage, url, requestListener);
 		token.execute();
 	}
 
@@ -129,7 +125,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 			String filePath = directory + "/" +  Utils.getProfileImageFileName(id);
 			
-			if(!doAtomicFileRenaming(filePath, tFilePath))
+			if(!doAtomicFileRenaming(filePath, pathOfTempFile))
 			{
 				return;
 			}
@@ -138,7 +134,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			{
 				if(!doPostSuccessfulProfilePicDownload())
 				{
-					return ;
+					return;
 				}
 			}
 			
@@ -160,7 +156,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		{
 			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 			{
-				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), tFilePath);
+				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), pathOfTempFile);
 				
 				if(taskCallbacks.get() != null)
 				{
@@ -171,7 +167,7 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			}
 			else
 			{
-				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), tFilePath);
+				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), pathOfTempFile);
 				
 				if(taskCallbacks.get() != null)
 				{
@@ -220,6 +216,8 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
+		Logger.e(TAG, " Request Failed with exception " + httpException);
+		
 		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
 		if(taskCallbacks.get() != null)
@@ -233,6 +231,8 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	@Override
 	public void onRequestCancelled()
 	{
+		Logger.e(TAG, " Request cancelled");
+		
 		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
 		
 		if(taskCallbacks.get() != null)

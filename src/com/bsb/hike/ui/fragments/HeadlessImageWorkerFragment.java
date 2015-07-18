@@ -52,7 +52,7 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	 */
 	protected boolean doAtomicFileDel(String tmpFilePath)
 	{
-		Logger.d(TAG, "inside API doRequestFailAtomicFileIO");
+		Logger.d(TAG, "inside API doAtomicFileDel");
 		synchronized (singleton)
 		{
 			return Utils.removeFile(tmpFilePath);
@@ -69,7 +69,7 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	 */
 	protected boolean doAtomicMultiFileDel(String orignialFilePath, String tmpFilePath)
 	{
-		Logger.d(TAG, "inside API doRequestFailAtomicFileIO");
+		Logger.d(TAG, "inside API doAtomicMultiFileDel");
 		synchronized (singleton)
 		{
 			return (Utils.removeFile(tmpFilePath) && Utils.removeFile(orignialFilePath));
@@ -86,7 +86,7 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 	 */
 	protected boolean doAtomicFileRenaming(String originalFilePath, String tmpFilePath)
 	{
-		Logger.d(TAG, "inside API doRequestSuccAtomicFileIO");
+		Logger.d(TAG, "inside API doAtomicFileRenaming");
 		synchronized (singleton)
 		{
 			return Utils.renameFiles(originalFilePath, tmpFilePath);
