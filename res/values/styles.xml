@@ -302,6 +302,8 @@
         <item name="android:cacheColorHint">#00000000</item>
         <item name="android:divider">@drawable/home_list_divider</item>
         <item name="android:dividerHeight">0.5dp</item>
+        <item name="android:headerDividersEnabled">false</item>
+        <item name="android:footerDividersEnabled">false</item>
         <item name="android:drawSelectorOnTop">false</item>
         <item name="android:listSelector">#00000000</item>
     </style>
@@ -779,5 +781,5 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">false</item>
     </style>
-    	
+    
 </resources>
