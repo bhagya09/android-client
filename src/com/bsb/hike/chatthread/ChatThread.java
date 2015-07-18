@@ -1474,7 +1474,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
 		mComposeView.addTextChangedListener(stickerTagWatcher);
-		mComposeView.setOnTouchListener(stickerTagWatcher);
 	}
 	
 	public boolean dismissStickerRecommendationPopup()
@@ -2929,6 +2928,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		case R.id.msg_compose:
 
+			if(stickerTagWatcher != null)
+			{
+				stickerTagWatcher.onTouch(v, event);
+			}
+			
 			/**
 			 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
 			 * http://code.google.com/p/android/issues/detail?id=2516
@@ -2936,7 +2940,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS)
 			{
 				mComposeView.requestFocusFromTouch();
-
 			}
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 
