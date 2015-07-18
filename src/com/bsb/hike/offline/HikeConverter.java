@@ -365,7 +365,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 
 	public SenderConsignment getMRConsignement(JSONObject object) 
 	{
-		SenderConsignment consignment=new SenderConsignment.Builder(object.toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false).persistance(false).build();
+		SenderConsignment consignment=new SenderConsignment.Builder(object.toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false).persistance(true).build();
+		consignment.setAwb(OfflineUtils.getMsgId(object));
 		return consignment;
 	}
 }

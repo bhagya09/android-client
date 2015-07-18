@@ -224,6 +224,7 @@ public class OfflineFileManager
 					e.printStackTrace();
 				}
 				tempSticker.renameTo(stickerImage);
+				
 			}
 			else 
 			{
@@ -231,6 +232,7 @@ public class OfflineFileManager
 				if (tempSticker != null && tempSticker.exists())
 					tempSticker.delete();
 			}
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		} 
 		else 
 		{
