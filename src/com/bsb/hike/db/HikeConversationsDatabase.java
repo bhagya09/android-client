@@ -152,7 +152,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ " ( "
 				+ DBConstants.MESSAGE + " STRING, " // The message text
 				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
-				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp
+				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp, send or receiving time in seconds
 				+ DBConstants.MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " // The message id (Unique)
 				+ DBConstants.MAPPED_MSG_ID + " INTEGER, " // The message id of the message on the sender's side (Only applicable for received messages)
 				+ DBConstants.CONV_ID + " INTEGER," // Deprecated
@@ -168,7 +168,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.HIKE_CONTENT.CONTENT_ID + " INTEGER DEFAULT -1, " // content id applicable to few messages like content
 				+ DBConstants.HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message',"  //namespace for uniqueness of content
 				+ DBConstants.SERVER_ID + " INTEGER, "
-				+ DBConstants.MESSAGE_ORIGIN_TYPE + " INTEGER DEFAULT 0" //normal/broadcast/multi-forward
+				+ DBConstants.MESSAGE_ORIGIN_TYPE + " INTEGER DEFAULT 0, " //normal/broadcast/multi-forward
+				//This column would contain actual sending time of message in milliseconds. IN CASE OF receiving messages as well, we would have actual SENDING TIME of OTHER CLIENT here.
+				+ DBConstants.SEND_TIMESTAMP + " INTEGER" 
 				+ " ) ";
 
 		db.execSQL(sql);
@@ -799,6 +801,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+ " ADD COLUMN " + DBConstants.GROUP_CREATION_TIME
 					+" LONG DEFAULT -1";
 			db.execSQL(alter);
+		}
+		
+		if (oldVersion < 41)
+		{
+			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
+			{
+				String alter = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SEND_TIMESTAMP + " LONG DEFAULT -1";
+				db.execSQL(alter);
+			}
 		}
 	}
 
