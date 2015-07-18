@@ -1440,6 +1440,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.FEED_OBJECT_ID + " TEXT, " // object id (suid, card id)
 				+ DBConstants.FEED_ACTION_ID + " INTEGER, " // action id (love, comment,view,fav)
 				+ DBConstants.FEED_ACTOR + " TEXT, " // actor
+				+ DBConstants.READ + " INTEGER DEFAULT 0, " // read by
 				+ DBConstants.FEED_METADATA + " TEXT DEFAULT '{}', " // md
 				+ DBConstants.FEED_TS + " INTEGER DEFAULT 0" // timestamp
 				+ ")";

@@ -181,6 +181,8 @@ public interface DBConstants
 	public static final String FILE_THUMBNAIL_TABLE = "fileThumbnailTable";
 
 	public static final String READ_BY = "readBy";
+	
+	public static final String READ = "read";
 
 	public static final String ROUNDED_THUMBNAIL_TABLE = "roundedThumbnailTable";
 
