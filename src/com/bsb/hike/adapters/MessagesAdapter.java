@@ -3353,7 +3353,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					fileState = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(),hikeFile.getFile()); 
-					if(fileState.getFTState() == FTState.ERROR)
+					if(fileState.getFTState() == FTState.ERROR || fileState.getFTState() ==FTState.NOT_STARTED)
 					{
 						if(OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
 						{
