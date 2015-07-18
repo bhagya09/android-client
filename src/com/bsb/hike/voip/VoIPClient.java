@@ -1744,7 +1744,7 @@ public class VoIPClient  {
 			localBitrate = wifiBitrate;
 
 		// Conference override
-		if (isInAHostedConference || isHostingConference)
+		if ((isInAHostedConference || isHostingConference) && localBitrate > conferenceBitrate)
 			localBitrate = conferenceBitrate;
 		
 		if (remoteBitrate > 0 && remoteBitrate < localBitrate)
