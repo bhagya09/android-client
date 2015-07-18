@@ -195,7 +195,7 @@ public class DownloadFileTask extends FileTransferBase
 				}
 				catch (Exception e)
 				{
-
+					Logger.e(getClass().getSimpleName(), "exception while setting connection params", e);
 				}
 				conn.connect();
 				int resCode = ssl ? ((HttpsURLConnection) conn).getResponseCode() : ((HttpURLConnection) conn).getResponseCode();
@@ -477,6 +477,7 @@ public class DownloadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
+				Logger.e(getClass().getSimpleName(), "exception while closing input stream closeStreams", e);
 			}
 		}
 		return FTResult.SUCCESS;
