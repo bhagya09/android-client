@@ -1,13 +1,9 @@
 package com.bsb.hike.media;
 
-import java.io.File;
-import java.net.URI;
-
-import com.bsb.hike.utils.Utils;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
+
+import com.bsb.hike.utils.Utils;
 
 public class PickFileParser
 {
@@ -29,7 +25,7 @@ public class PickFileParser
 			}
 			else
 			{
-				String filePath = parseUri(data, activity);
+				String filePath = Utils.getAbsolutePathFromUri(data.getData(), activity,false);
 				listener.pickFileSuccess(requestCode, filePath);
 			}
 		}
@@ -39,24 +35,4 @@ public class PickFileParser
 		}
 	}
 
-	public static String parseUri(Intent data, Activity activity)
-	{
-		Uri fileURI = data.getData();
-		String fileUriStart = "file://";
-		String fileUriString = fileURI.toString();
-		String filePath = null;
-		if (fileUriString.startsWith(fileUriStart))
-		{
-			/*
-			 * Done to fix the issue in a few Sony devices.
-			 */
-			filePath = new File(URI.create(Utils.replaceUrlSpaces(fileUriString))).getAbsolutePath();
-		}
-		else
-		{
-			// content path/uri returned
-			filePath = Utils.getRealPathFromUri(fileURI, activity);
-		}
-		return filePath;
-	}
 }

@@ -47,7 +47,6 @@ import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.MessagingBridge_Alto;
 import com.bsb.hike.platform.bridge.MessagingBridge_Nano;
 import com.bsb.hike.platform.bridge.MessagingBridge_Nano.WebviewEventsListener;
-import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -159,15 +158,16 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	private void attachJSBridge(ConvMessage convMessage,WebViewHolder holder)
 	{
 		Logger.i(tag, "ataching bridge version "+convMessage.webMetadata.getPlatformJSCompatibleVersion());
-		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_1)
+
+		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO)
 		{
 			holder.platformJavaScriptBridge = new MessagingBridge_Alto(mContext, holder.customWebView, convMessage, adapter);
-			holder.platformJavaScriptBridge.setListener(holder.webViewClient);
 		}
 		else
 		{
 			holder.platformJavaScriptBridge = new MessagingBridge_Nano(mContext, holder.customWebView, convMessage, adapter);
 		}
+		holder.platformJavaScriptBridge.setListener(holder.webViewClient);
 	}
 
 	@SuppressLint("NewApi")
@@ -382,7 +382,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			platformJSON.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_LOADED);
 			platformJSON.put(HikePlatformConstants.CARD_STATE, state);
 			platformJSON.put(AnalyticsConstants.CONTENT_ID, message.getContentId());
-			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, platformJSON);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, platformJSON);
 		}
 		catch (JSONException e)
 		{
@@ -471,7 +471,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				try
 				{
 					showCard(holder);
-					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_0)
+					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_NANO)
 					{
 						holder.platformJavaScriptBridge.setData();
 						String alarmData = convMessage.webMetadata.getAlarmData();

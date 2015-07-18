@@ -74,6 +74,7 @@ public class OpusWrapper {
 		int errors = 0;
 		encoder = opus_encoder_create(samplingRate, channels, errors);
 		setEncoderBitrate(bitrate);
+		setEncoderComplexity(0);
 		return errors;
 	}
 	
@@ -135,6 +136,18 @@ public class OpusWrapper {
 				return 0;
 
 			return opus_decode(decoder, input, input.length, output, output.length / 2, 0);
+		}
+	}
+	
+	public int fec(byte[] input, byte[] output) throws Exception {
+		synchronized (decoderLock) {
+			if (decoder == 0)
+				throw new Exception("No decoder created.");
+			
+			if (input == null || output == null)
+				return 0;
+
+			return opus_decode(decoder, input, input.length, output, output.length / 2, 1);
 		}
 	}
 	

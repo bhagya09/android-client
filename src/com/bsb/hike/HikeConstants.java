@@ -1079,6 +1079,8 @@ public class HikeConstants
 
 	public static final String VOIP_BITRATE_WIFI = "vbw";
 
+	public static final String VOIP_BITRATE_CONFERENCE = "vbc";
+
 	public static final String VOIP_ACTIVATED = "voip";
 
 	public static final String VOIP_CALL_RATE_POPUP_SHOW = "vrmcs";
@@ -2316,6 +2318,10 @@ public class HikeConstants
 		public static final String NUX = "nux";
 
 		public static final String CREATE_MULTIPLE_BOTS = "cbot";
+		
+		public static final String REMOVE_MICRO_APP = "dmapp";
+		
+		public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
@@ -2408,7 +2414,7 @@ public class HikeConstants
 
 	public static enum FTResult
 	{
-		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD
+		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD, UNKNOWN_SERVER_ERROR
 	}
 
 	public static enum SMSSyncState
@@ -2655,6 +2661,8 @@ public class HikeConstants
 	
 	public static final String SESSION_LOG_TRACKING = "stl";
 
+	public static final String PHONE_SPEC = "pl";
+
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";
@@ -2881,8 +2889,12 @@ public class HikeConstants
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
 	public static final String CATEGORY_ID_LIST = "sId_list";
-	
-	public static final String GROUP_NOTIFIACTION_DELAY = "gnt";
+
+	public static final String NOTIFIACTION_DELAY_GROUP = "gnt";
+
+	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
+
+	public static final String KEYBOARD_CONFIGURATION = "kc";
 
 	public static final String GET="get";
 
@@ -2935,4 +2947,8 @@ public class HikeConstants
 	public static final String NUMBER_OF_PACKS = "np";
 	
 	public static final String PACK_DATA = "pd";
+
+	public static final String NOTIFICATIONS_PRIORITY = "npc";
+	
+	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
 }
