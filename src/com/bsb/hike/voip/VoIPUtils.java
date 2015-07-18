@@ -375,8 +375,10 @@ public class VoIPUtils {
 	
 	public static boolean isBluetoothEnabled(Context context) 
 	{
-		boolean bluetoothEnabled = false;
+		boolean bluetoothEnabled = true;
 		
+		/*
+		 * 18 July, 2015: we have BROADCAST_STICKY
 		// Below KitKat startBluetoothSco() requires BROADCAST_STICKY permission
 		// http://stackoverflow.com/questions/8678642/startbluetoothsco-throws-security-exception-broadcast-sticky-on-ics
 		// https://code.google.com/p/android/issues/detail?id=25136
@@ -384,6 +386,7 @@ public class VoIPUtils {
 			bluetoothEnabled = true;
 		else
 			Logger.w(tag, "Bluetooth disabled since phone does not support Kitkat.");
+		 */
 
 		return bluetoothEnabled;
 	}

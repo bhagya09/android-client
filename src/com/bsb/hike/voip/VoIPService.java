@@ -36,15 +36,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
-import android.view.KeyEvent;
 import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
@@ -143,7 +142,6 @@ public class VoIPService extends Service {
 	
 	// Broadcast listeners
 	private BroadcastReceiver phoneStateReceiver = null;
-	private BroadcastReceiver bluetoothButtonReceiver = null;
 	
 	// Support for conference calls
 	private Chronometer chronometer = null;
@@ -151,6 +149,7 @@ public class VoIPService extends Service {
 
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
+	private boolean ignoreBluetoothDisconnect;
 	BluetoothHelper bluetoothHelper = null;
 	private class BluetoothHelper extends BluetoothHeadsetUtils {
 
@@ -172,7 +171,11 @@ public class VoIPService extends Service {
 		public void onScoAudioDisconnected() {
 			Logger.d(tag, "Bluetooth onScoAudioDisconnected()");
 			audioManager.stopBluetoothSco();
-			audioManager.setBluetoothScoOn(false);	
+			audioManager.setBluetoothScoOn(false);
+			if (!ignoreBluetoothDisconnect)
+				hangUp();
+			else
+				ignoreBluetoothDisconnect = false;
 		}
 
 		@Override
@@ -180,8 +183,24 @@ public class VoIPService extends Service {
 			Logger.d(tag, "Bluetooth onScoAudioConnected()");
 			audioManager.startBluetoothSco();
 			audioManager.setBluetoothScoOn(true);
+			sendHandlerMessage(VoIPConstants.MSG_BLUETOOTH_SHOW);
 		}
-		
+	}
+	
+	public boolean isOnHeadsetSco() {
+		if (bluetoothHelper != null && bluetoothHelper.isOnHeadsetSco())
+			return true;
+		else
+			return false;
+	}
+	
+	public void toggleBluetoothFromActivity(boolean enabled) {
+		if (enabled) {
+			audioManager.setBluetoothScoOn(true);
+		} else {
+			ignoreBluetoothDisconnect = true;
+			audioManager.setBluetoothScoOn(false);
+		}
 	}
 	
 	// Handler for messages from VoIP clients
@@ -318,7 +337,6 @@ public class VoIPService extends Service {
 		unregisterPhoneStateBroadcastReceiver();
 		
 		if (bluetoothHelper != null) {
-			unregisterBluetoothButtonsReceiver();
 			bluetoothHelper.stop();
 		}
 		
@@ -1760,12 +1778,19 @@ public class VoIPService extends Service {
 		if(audioManager!=null)
 		{
 			audioManager.setSpeakerphoneOn(speaker);
-			// Logger.d(logTag, "Speaker set to: " + speaker);
 			
 			// Restart recording because the audio source will change 
 			// depending on whether we're on speakerphone or not. 
 			// Fixes Anirban's Nexus 5 bug where his mic works only on speakerphone.
 			startRecording();
+		}
+		
+		// If we have swiched off the speaker and a bluetooth headset is connected
+		// then revert the voice to the headset. 
+		if (bluetoothHelper != null && bluetoothHelper.isOnHeadsetSco()) {
+			if (!this.speaker) {
+				audioManager.setBluetoothScoOn(true);
+			}
 		}
 	}
 
@@ -2112,6 +2137,11 @@ public class VoIPService extends Service {
 		clientListHandler.postDelayed(clientListRunnable, 250);
 	}
 
+	/**
+	 * Used for detecting cellular calls while in a VoIP call. 
+	 * Behaviour is to put the VoIP call on hold when a cellular call comes in, 
+	 * and unhold the call when the cellular call is terminated. 
+	 */
 	private void registerPhoneStateBroadcastReceiver() {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction("android.intent.action.PHONE_STATE");
@@ -2149,34 +2179,9 @@ public class VoIPService extends Service {
 		if (isBluetoothEnabled) {
 			bluetoothHelper = new BluetoothHelper(getApplicationContext());
 			bluetoothHelper.start();
-			registerBluetoothButtonsReceiver();
 		}
 	}
 
-	private void registerBluetoothButtonsReceiver() {
-		IntentFilter filter = new IntentFilter();
-		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-		filter.addAction("android.intent.action.MEDIA_BUTTON");
-
-		bluetoothButtonReceiver = new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				abortBroadcast();
-				KeyEvent key = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-				Logger.w(tag, "Bluetooth key: " + key.getKeyCode());
-			}
-		};
-		
-		Logger.w(tag, "Registering bluetooth key listener.");
-		registerReceiver(bluetoothButtonReceiver, filter);
-	}
-	
-	private void unregisterBluetoothButtonsReceiver() {
-		if (bluetoothButtonReceiver != null)
-			unregisterReceiver(bluetoothButtonReceiver);
-	}
-	
 	public void startChrono() {
 
 		try {
