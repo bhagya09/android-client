@@ -393,7 +393,22 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		case IMAGE:
 		case TEXT_IMAGE:
 		case PROFILE_PIC_CHANGE:
-			setAvatar(statusMessage.getMsisdn(), viewHolder.avatar);
+			RoundedImageView roundAvatar1 = (RoundedImageView) viewHolder.avatar;
+			roundAvatar1.setScaleType(ScaleType.FIT_CENTER);
+			roundAvatar1.setBackgroundResource(0);
+			
+			if (statusMessage.hasMood())
+			{
+				// For moods we dont want to use rounded corners
+				roundAvatar1.setOval(false);
+				roundAvatar1.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
+			}
+			else
+			{
+				roundAvatar1.setOval(true);
+				setAvatar(statusMessage.getMsisdn(), viewHolder.avatar);
+			}
+			
 			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : statusMessage
 					.getNotNullName());
 
@@ -411,9 +426,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.largeProfilePic.setTag(imageViewerInfo);
 			viewHolder.largeProfilePic.setOnClickListener(imageClickListener);
 
-			/*
-			 * Fetch larger image
-			 */
 			profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
 
 			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, mContext));
