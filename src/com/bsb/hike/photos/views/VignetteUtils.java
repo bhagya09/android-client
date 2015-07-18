@@ -128,6 +128,13 @@ public class VignetteUtils
 			sX =eX;
 			eX=0;
 			break;
+		case TIRANGAA:
+			radialGradient = false;
+			isLinearDiagonal = true;
+			colors = new int[] { 0xFFFF7800,0xFFFF7800,0xAAFFFFFF,0xAAFFFFFF,0xFF14C63F, 0xFF14C63F };
+			stops = new float[] { 0.0f,0.35f, 0.48f,0.52f,0.65f, 1.0f };
+			radius = 1f * width;
+			break;
 		default:
 			colors = null;
 			stops = null;

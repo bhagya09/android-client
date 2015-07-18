@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.bool;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -154,7 +157,7 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName)
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName, boolean isFromChatHead)
 	{
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType(mimeType);
@@ -162,7 +165,14 @@ public class IntentFactory
 		{
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		if (isFromChatHead)
+		{
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		else
+		{
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		}
 		if (pkgName != null)
 		{
 			intent.setPackage(pkgName);
@@ -190,10 +200,14 @@ public class IntentFactory
 	}
 
 	
-	public static void openSettingStickerOnOtherApp(Context context)
+	public static void openStickerSettings(Context context)
 	{
-		Intent intent = new Intent(context, StickerShareSettings.class);
-		context.startActivity(intent);
+		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
+		if (Utils.isIceCreamOrHigher())
+		{
+			Intent intent = new Intent(context, StickerShareSettings.class);
+			context.startActivity(intent);
+		}
 	}
 	
 	public static void openSettingHelp(Context context)
@@ -826,12 +840,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, VoIPUtils.CallSource source)
+	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, String groupChatMsisdn, VoIPUtils.CallSource source)
 	{
 		Intent intent = new Intent(context, VoIPService.class);
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		intent.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
 		return intent;
 	}
 
