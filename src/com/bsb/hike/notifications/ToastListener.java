@@ -44,14 +44,14 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
-import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StealthModeManager;
@@ -137,7 +137,7 @@ public class ToastListener implements Listener
 			}
 			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
-				this.toaster.notifyStealthMessage(NotificationType.HIDDEN);
+				this.toaster.notifyStealthMessage(NotificationType.HIDDEN,contactInfo.getMsisdn());
 			}
 			else
 			{
@@ -537,7 +537,7 @@ public class ToastListener implements Listener
 						if (StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 						{
 							notificationType = NotificationType.HIDDEN;
-							this.toaster.notifyStealthMessage(notificationType);
+							this.toaster.notifyStealthMessage(notificationType,msisdn);
 						}
 						else
 						{
@@ -639,9 +639,8 @@ public class ToastListener implements Listener
 
 	public void notifyUser(String text, String title)
 	{
-		Drawable drawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);	
 		Intent intent = new Intent(context, HomeActivity.class);
 		toaster.showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text, title, "",
-				null, drawable, false, 0);
+				null, null, false, 0);
 	}
 }

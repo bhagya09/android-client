@@ -36,7 +36,7 @@ public class ImageParser
 	 * @param listener
 	 *            - listener to which give callback
 	 */
-	public static void parseResult(Context context, int resultCode, Intent data, ImageParserListener listener)
+	public static void parseResult(Context context, int resultCode, Intent data, ImageParserListener listener, boolean showSMO)
 	{
 		Logger.d(TAG, "onactivity result");
 
@@ -59,11 +59,18 @@ public class ImageParser
 
 			if (capturedFilepath != null)
 			{
-				File imageFile = new File(capturedFilepath);
+				final File imageFile = new File(capturedFilepath);
 
 				if (imageFile != null && imageFile.exists())
 				{
-					showSMODialog(context, imageFile, listener);
+					if (showSMO)
+					{
+						showSMODialog(context, imageFile, listener);
+					}
+					else
+					{
+						listener.imageParsed(imageFile.getAbsolutePath());
+					}
 				}
 
 			}

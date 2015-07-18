@@ -1,17 +1,13 @@
 package com.bsb.hike.ui;
 
-import java.util.Calendar;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.IOException;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -36,24 +32,20 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.EmoticonAdapter;
 import com.bsb.hike.adapters.MoodAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.media.EmoticonPickerListener;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeTip;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.HikeTip.TipType;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
@@ -67,14 +59,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int moodId = -1;
 
 		int moodIndex = -1;
-
-		HikeHTTPTask hikeHTTPTask = null;
 		
 		StatusUpdateTask task;
-
-		/*boolean fbSelected = false;
-
-		boolean twitterSelected = false;*/
 
 		boolean emojiShowing = false;
 
@@ -99,8 +85,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private CustomLinearLayout parentLayout;
 
-	private Handler handler;
-
 	private TextView charCounter;
 
 	private View tipView;
@@ -113,9 +97,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private TextView title;
 
-	//private View fb;
+	private String mImagePath;
 
-	//private View twitter;
+	private ImageView statusImage;
+	
+	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
 
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -133,12 +119,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (o instanceof ActivityTask)
 		{
 			mActivityTask = (ActivityTask) o;
-			if (mActivityTask.hikeHTTPTask != null)
-			{
-				progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
-			}
-			
-			if (Utils.isOkHttp() && mActivityTask.task != null)
+			if (mActivityTask.task != null)
 			{
 				progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
 			}
@@ -147,33 +128,28 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mActivityTask = new ActivityTask();
 		}
-
-		handler = new Handler();
-
-		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
-
-		emojiParent = (ViewGroup) findViewById(R.id.emoji_container);
-		moodParent = (ViewGroup) findViewById(R.id.mood_parent);
+		
+		initVarRef();
 
 		setupActionBar();
-
-		parentLayout = (CustomLinearLayout) findViewById(R.id.parent_layout);
+		
+		readArguments(getIntent());
+		
 		parentLayout.setOnSoftKeyboardListener(this);
+		
+		if (!TextUtils.isEmpty(mImagePath))
+		{
+			Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
+			statusImage.setImageBitmap(bmp);
+		}
 
-		avatar = (ImageView) findViewById(R.id.avatar);
-
-		charCounter = (TextView) findViewById(R.id.char_counter);
-
-		statusTxt = (EditText) findViewById(R.id.status_txt);
-
-		String statusHint = getStatusDefaultHint();
-
-		statusTxt.setHint(statusHint);
-
+		//Set edit text hint "Whats up? Atul M"
+		statusTxt.setHint(getString(R.string.whats_up_user, Utils.getFirstName(preferences.getString(HikeMessengerApp.NAME_SETTING, ""))));
+		
 		charCounter.setText(Integer.toString(statusTxt.length()));
 
-		setMood(mActivityTask.moodId, mActivityTask.moodIndex);
-
+		setMood(mActivityTask.moodId, mActivityTask.moodIndex); 
+		
 		statusTxt.addTextChangedListener(new TextWatcher()
 		{
 
@@ -194,13 +170,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				charCounter.setText(Integer.toString(s.length()));
 			}
 		});
+		
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
-
-		/*fb = findViewById(R.id.post_fb_btn);
-		twitter = findViewById(R.id.post_twitter_btn);
-
-		fb.setSelected(mActivityTask.fbSelected);
-		twitter.setSelected(mActivityTask.twitterSelected);*/
 
 		if (mActivityTask.emojiShowing)
 		{
@@ -214,7 +185,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			toggleEnablePostButton();
 		}
 
@@ -240,7 +211,43 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STATUS.ordinal());
 	}
+	
+	private void readArguments(Intent intent)
+	{
+		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
+	}
 
+	/**
+	 * Initialize variables and references
+	 */
+	public void initVarRef()
+	{
+		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
+		emojiParent = (ViewGroup) findViewById(R.id.emoji_container);
+		moodParent = (ViewGroup) findViewById(R.id.mood_parent);
+		avatar = (ImageView) findViewById(R.id.avatar);
+		charCounter = (TextView) findViewById(R.id.char_counter);
+		statusTxt = (EditText) findViewById(R.id.status_txt);
+		parentLayout = (CustomLinearLayout) findViewById(R.id.parent_layout);
+		statusImage = (ImageView)findViewById(R.id.status_image);
+	}
+
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		
+		if (mActivityTask.moodShowing || mActivityTask.emojiShowing)
+		{
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}
+		
+		else
+		{
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}
+	}
+	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -291,18 +298,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		title.setText(moodParent.getVisibility() == View.VISIBLE ? R.string.moods : R.string.status);
 	}
 
-	private Runnable cancelStatusPost = new Runnable()
-	{
-
-		@Override
-		public void run()
-		{
-			Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
-			mActivityTask.hikeHTTPTask = null;
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
-		}
-	};
-
 	public void onTitleIconClick(View v)
 	{
 		if (isEmojiOrMoodLayoutVisible())
@@ -314,117 +309,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			postStatus();
 		}
 	}
-
-	/*public void onTwitterClick(View v)
-	{
-		setSelectionSocialButton(false, !v.isSelected());
-		if (!v.isSelected() || preferences.getBoolean(HikeMessengerApp.TWITTER_AUTH_COMPLETE, false))
-		{
-			return;
-		}
-		startActivity(new Intent(StatusUpdate.this, TwitterAuthActivity.class));
-	}
-
-	public void onFacebookClick(View v)
-	{
-		setSelectionSocialButton(true, !v.isSelected());
-		if (!v.isSelected() || preferences.getBoolean(HikeMessengerApp.FACEBOOK_AUTH_COMPLETE, false))
-		{
-			return;
-		}
-
-		startFbSession();
-	}
-
-	private void startFbSession()
-	{
-		if (ensureOpenSession())
-		{
-			ensurePublishPermissions();
-		}
-	}
-
-	private boolean ensureOpenSession()
-	{
-		Logger.d("StatusUpdate", "entered in ensureOpenSession");
-		if (Session.getActiveSession() == null || !Session.getActiveSession().isOpened())
-		{
-
-			Logger.d("StatusUpdate", "active session is either null or closed");
-			Session.openActiveSession(this, true, new Session.StatusCallback()
-			{
-				@Override
-				public void call(Session session, SessionState state, Exception exception)
-				{
-					onSessionStateChanged(session, state, exception);
-				}
-			});
-			return false;
-		}
-
-		return true;
-	}
-
-	private void onSessionStateChanged(Session session, SessionState state, Exception exception)
-	{
-		Logger.d("StatusUpdate", "inside onSessionStateChanged");
-		Logger.d("StatusUpdate", "state = " + state.toString());
-		if (state.isOpened())
-		{
-			startFbSession();
-		}
-		if (exception != null)
-		{
-			Logger.e("StatusUpdate", "error trying to open the session", exception);
-		}
-	}
-
-	private boolean hasPublishPermission()
-	{
-		Session session = Session.getActiveSession();
-		return session != null && session.getPermissions().contains("publish_stream");
-	}
-
-	private void ensurePublishPermissions()
-	{
-		Session session = Session.getActiveSession();
-		Logger.d("StatusUpdate", "ensurePublishPermissions");
-		if (!hasPublishPermission())
-		{
-			Logger.d("StatusUpdate", "not hasPublishPermission");
-			session.requestNewPublishPermissions(new Session.NewPermissionsRequest(this, Arrays.asList("basic_info", "publish_stream")).setCallback(new StatusCallback()
-			{
-
-				@Override
-				public void call(Session session, SessionState state, Exception exception)
-				{
-					if (exception != null)
-					{
-						Logger.e("StatusUpdate ", "Error Requesting NewPublishPermissions = " + exception.toString());
-						return;
-					}
-					if (hasPublishPermission())
-					{
-						Logger.d("StatusUpdate", session.getExpirationDate().toString());
-						makeMeRequest(session, session.getAccessToken(), session.getExpirationDate().getTime());
-					}
-					else
-					{
-
-					}
-
-				}
-
-			}));
-
-		}
-		else
-		{
-			Logger.d("StatusUpdate", "time = " + Long.valueOf(session.getExpirationDate().getTime()).toString());
-			makeMeRequest(session, session.getAccessToken(), session.getExpirationDate().getTime());
-		}
-	}
-	*/
 
 	public void onEmojiClick(View v)
 	{
@@ -441,11 +325,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	public void onMoodClick(View v)
 	{
-		/*if (findViewById(R.id.post_twitter_btn).isSelected() && statusTxt.length() > HikeConstants.MAX_MOOD_TWITTER_POST_LENGTH)
-		{
-			Toast.makeText(getApplicationContext(), R.string.mood_tweet_error, Toast.LENGTH_LONG).show();
-			return;
-		}*/
 		if (tipView != null)
 		{
 			HikeTip.closeTip(TipType.MOOD, tipView, preferences);
@@ -520,76 +399,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		imm.showSoftInput(statusTxt, InputMethodManager.SHOW_IMPLICIT);
 	}
 
-	private String getStatusDefaultHint()
-	{
-		return getString(R.string.whats_up_user, Utils.getFirstName(preferences.getString(HikeMessengerApp.NAME_SETTING, "")));
-	}
-
 	private void postStatus()
 	{
-		if (Utils.isOkHttp())
-		{
-			postStatusOkHttp();
-		}
-		else
-		{
-			postStatusApacheClient();
-		}
-	}
-
-	private void postStatusApacheClient()
-	{
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/user/status", RequestType.STATUS_UPDATE, new HikeHttpCallback()
-		{
-
-			@Override
-			public void onSuccess(JSONObject response)
-			{
-				mActivityTask = new ActivityTask();
-
-				JSONObject data = response.optJSONObject("data");
-
-				String mappedId = data.optString(HikeConstants.STATUS_ID);
-				String text = data.optString(HikeConstants.STATUS_MESSAGE);
-				int moodId = data.optInt(HikeConstants.MOOD) - 1;
-				int timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
-				String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
-				String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
-				long time = (long) System.currentTimeMillis() / 1000;
-
-				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, StatusMessageType.TEXT, time, moodId, timeOfDay);
-				HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
-
-				int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-				Editor editor = preferences.edit();
-				editor.putString(HikeMessengerApp.LAST_STATUS, text);
-				editor.putInt(HikeMessengerApp.LAST_MOOD, moodId);
-				editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-				editor.commit();
-
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MY_STATUS_CHANGED, text);
-
-				/*
-				 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-				 */
-				if (statusMessage.getId() != -1)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-				}
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, true);
-			}
-
-			@Override
-			public void onFailure()
-			{
-				Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
-				mActivityTask.hikeHTTPTask = null;
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
-			}
-
-		});
 		String status = null;
 		/*
 		 * If the text box is empty, the we take the hint text which is a prefill for moods.
@@ -603,103 +414,20 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			status = statusTxt.getText().toString();
 		}
 
-		//boolean facebook = findViewById(R.id.post_fb_btn).isSelected();
-		//boolean twitter = findViewById(R.id.post_twitter_btn).isSelected();
-
-		Logger.d(getClass().getSimpleName(), "Status: " + status);
-		JSONObject data = new JSONObject();
 		try
 		{
-			data.put(HikeConstants.STATUS_MESSAGE_2, status);
-			//data.put(HikeConstants.FACEBOOK_STATUS, facebook);
-			//data.put(HikeConstants.TWITTER_STATUS, twitter);
-			if (mActivityTask.moodId != -1)
-			{
-				data.put(HikeConstants.MOOD, mActivityTask.moodId + 1);
-				data.put(HikeConstants.TIME_OF_DAY, getTimeOfDay());
-			}
+			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath);
 		}
-		catch (JSONException e)
+		catch (IOException e)
 		{
-			Logger.w(getClass().getSimpleName(), "Invalid JSON", e);
+			Toast.makeText(getApplicationContext(), R.string.could_not_post_pic, Toast.LENGTH_SHORT).show();
+			e.printStackTrace();
+			return;
 		}
-		Logger.d(getClass().getSimpleName(), "JSON: " + data);
-
-		hikeHttpRequest.setJSONData(data);
-		mActivityTask.hikeHTTPTask = new HikeHTTPTask(null, 0);
-		Utils.executeHttpTask(mActivityTask.hikeHTTPTask, hikeHttpRequest);
-
-		/*
-		 * Starting the manual cancel as well.
-		 */
-		handler.removeCallbacks(cancelStatusPost);
-		handler.postDelayed(cancelStatusPost, 60 * 1000);
-
-		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
-	}
-	
-	private void postStatusOkHttp()
-	{
-		String status = null;
-		/*
-		 * If the text box is empty, the we take the hint text which is a prefill for moods.
-		 */
-		if (TextUtils.isEmpty(statusTxt.getText()))
-		{
-			status = statusTxt.getHint().toString();
-		}
-		else
-		{
-			status = statusTxt.getText().toString();
-		}
-		
-		mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId);
 		mActivityTask.task.execute();
-		
+
 		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
 	}
-	
-	/*private void setSelectionSocialButton(boolean facebook, boolean selection)
-	{
-		View v = findViewById(facebook ? R.id.post_fb_btn : R.id.post_twitter_btn);
-		v.setSelected(selection);
-		if (!facebook)
-		{
-			if (mActivityTask.moodId != -1 && statusTxt.length() > HikeConstants.MAX_MOOD_TWITTER_POST_LENGTH)
-			{
-				Toast.makeText(getApplicationContext(), R.string.mood_tweet_error, Toast.LENGTH_LONG).show();
-				v.setSelected(false);
-				return;
-			}
-			if (statusTxt.length() > HikeConstants.MAX_TWITTER_POST_LENGTH)
-			{
-				Toast.makeText(getApplicationContext(), R.string.twitter_length_exceed, Toast.LENGTH_SHORT).show();
-				v.setSelected(false);
-				return;
-			}
-			setCharCountForStatus(v.isSelected());
-			mActivityTask.twitterSelected = v.isSelected();
-		}
-		else
-		{
-			mActivityTask.fbSelected = v.isSelected();
-		}
-	}
-
-	private void setCharCountForStatus(boolean isSelected)
-	{
-		charCounter.setVisibility(View.VISIBLE);
-
-		if (isSelected)
-		{
-			statusTxt.setFilters(new InputFilter[] { new InputFilter.LengthFilter(mActivityTask.moodId != -1 ? HikeConstants.MAX_MOOD_TWITTER_POST_LENGTH
-					: HikeConstants.MAX_TWITTER_POST_LENGTH) });
-		}
-		else
-		{
-			statusTxt.setFilters(new InputFilter[] {});
-		}
-	}*/
 
 	private void showEmojiSelector()
 	{
@@ -764,7 +492,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void setupEmoticonLayout(int whichSubcategory, int[] tabDrawable)
 	{
-
 		EmoticonAdapter statusEmojiAdapter = new EmoticonAdapter(this.getApplicationContext(), this, getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT, tabDrawable,
 				true);
 
@@ -788,6 +515,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		moodParent.setClickable(true);
 		GridView moodPager = (GridView) findViewById(R.id.mood_pager);
 
+		emojiParent.setVisibility(View.VISIBLE);
 		moodParent.setVisibility(View.VISIBLE);
 
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
@@ -826,20 +554,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (moodLayout)
 		{
 		}
-	}
-
-	private int getTimeOfDay()
-	{
-		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-		if (hour >= 4 && hour < 12)
-		{
-			return 1;
-		}
-		else if (hour >= 12 && hour < 20)
-		{
-			return 2;
-		}
-		return 3;
 	}
 
 	@Override
@@ -882,20 +596,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onEventReceived(final String type, Object object)
 	{
-		/*if (HikePubSub.SOCIAL_AUTH_COMPLETED.equals(type) || HikePubSub.SOCIAL_AUTH_FAILED.equals(type))
-		{
-			final boolean facebook = (Boolean) object;
-			runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					setSelectionSocialButton(facebook, HikePubSub.SOCIAL_AUTH_COMPLETED.equals(type));
-				}
-			});
-		}
-		else*/ if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
+	 if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
 		{
 			final boolean statusPosted = (Boolean) object;
 			runOnUiThread(new Runnable()
@@ -904,10 +605,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void run()
 				{
-					if (Utils.isOkHttp())
-					{
-						mActivityTask.task = null;
-					}
+					mActivityTask.task = null;
 					if (progressDialog != null)
 					{
 						progressDialog.dismiss();
@@ -916,16 +614,15 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					if (statusPosted)
 					{
 						Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
-						finish();
+						Intent in = new Intent(StatusUpdate.this, TimelineActivity.class);
+						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
+						StatusUpdate.this.startActivity(in);
+						StatusUpdate.this.finish();
 					}
 					else
 					{
-						if (Utils.isOkHttp())
-						{
-							Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
-						}
+						Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
 					}
-					handler.removeCallbacks(cancelStatusPost);
 				}
 			});
 		}

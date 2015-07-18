@@ -77,7 +77,7 @@ int rSpline[256];
 int gSpline[256];
 int bSpline[256];
 int compositeSpline[256];
-int isThumbnail,imageWidth;
+int isThumbnail,imageHeight;
 int r[3],g[3],b[3];
 
 float preMatrix[20],postMatrix[20];
@@ -529,6 +529,23 @@ uchar4 __attribute__((kernel)) filter_sunlitt(uchar4 in,uint32_t x,uint32_t y)
 
 }
 
+uchar4 __attribute__((kernel)) filter_tirangaa(uchar4 in,uint32_t x,uint32_t y) {
+
+	if(y<imageHeight/3)
+	{
+		in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Overlay,0.9);
+	}
+	else if(y<imageHeight * 2/3)
+	{
+		in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),SoftLight,1);
+	}
+	else
+	{
+		in = applyBlendToRGB(in , getPixelForColor(255,r[2],g[2],b[2]),Overlay,0.9);
+	}
+	
+	return in;
+}
 
 uchar4 __attribute__((kernel)) filter_original(uchar4 in,uint32_t x,uint32_t y) {
 

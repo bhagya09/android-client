@@ -1,59 +1,50 @@
 package com.bsb.hike.tasks;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.widget.Toast;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
+/**
+ * This class Downloads Image from url into file with 
+ * FileName :- {@value fileName} 
+ * Directory:- {@value filePath}
+ * 
+ * Note: if url is null --> creates URL on basis of hasCustomIcon, statusImage
+ *
+ */
 public class DownloadProfileImageTask
 {
-	private Context context;
-
 	private String id;
 
 	private String fileName;
 
 	private String filePath;
 
-	private String msisdn;
-
-	private String name;
-
 	private boolean statusImage;
 	
 	private boolean hasCustomIcon;
 
 	private String urlString;
+	
+	private WeakReference<DownloadProfileImageTaskCallbacks> downloadProfileImageTaskCallbacks;
 
-	public DownloadProfileImageTask(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name)
+	public DownloadProfileImageTask(String id, String filePath, String fileName, boolean hasCustomIcon, boolean statusImage)
 	{
-		this(context, id, fileName, hasCustomIcon, statusImage, msisdn, name, null);
+		this(id, filePath, fileName, hasCustomIcon, statusImage, null);
 	}
 
-	public DownloadProfileImageTask(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
-			String url)
+	public DownloadProfileImageTask(String id, String filePath, String fileName, boolean hasCustomIcon, boolean statusImage, String url)
 	{
-		this.context = context;
 		this.id = id;
-		this.msisdn = msisdn;
 		this.statusImage = statusImage;
-		this.name = name;
-		this.filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		this.filePath = filePath;
 		this.fileName = fileName;
 		this.hasCustomIcon = hasCustomIcon;
 		this.urlString = url;
@@ -66,12 +57,18 @@ public class DownloadProfileImageTask
 		{
 			if (!dir.mkdirs())
 			{
-				doOnFailure();
+				//doOnFailure();
+				
+				if (downloadProfileImageTaskCallbacks != null)
+				{
+					downloadProfileImageTaskCallbacks.get().onRequestCancelled();
+				}
 				return;
 			}
 		}
 
-		filePath = filePath + "/" + Utils.getTempProfileImageFileName(id);
+		filePath = filePath + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+		
 		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, filePath, hasCustomIcon, statusImage, urlString, requestListener);
 		token.execute();
 	}
@@ -81,12 +78,21 @@ public class DownloadProfileImageTask
 		@Override
 		public void onRequestSuccess(Response result)
 		{
-			doOnSuccess();
+			//doOnSuccess();
+			
+			if(downloadProfileImageTaskCallbacks.get() != null)
+			{
+				downloadProfileImageTaskCallbacks.get().onRequestSuccess(result);
+			}
 		}
 
 		@Override
 		public void onRequestProgressUpdate(float progress)
 		{
+			if(downloadProfileImageTaskCallbacks.get() != null)
+			{
+				downloadProfileImageTaskCallbacks.get().onRequestProgressUpdate(progress);
+			}
 		}
 
 		@Override
@@ -94,73 +100,50 @@ public class DownloadProfileImageTask
 		{
 			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 			{
-				doOnCancelled();
+				//doOnCancelled();
+				
+				if(downloadProfileImageTaskCallbacks.get() != null)
+				{
+					downloadProfileImageTaskCallbacks.get().onRequestCancelled();
+				}
 			}
 			else
 			{
-				doOnFailure();
+				//doOnFailure();
+				
+				if(downloadProfileImageTaskCallbacks.get() != null)
+				{
+					downloadProfileImageTaskCallbacks.get().onRequestFailure(httpException);
+				}
 			}
 		}
 	};
 
-	public void cancel()
+	public String getFilePath()
 	{
-		doOnCancelled();
+		return filePath;
 	}
-
-	private void doOnCancelled()
+	
+	public void setDownloadProfileImageTaskCallbacks(DownloadProfileImageTaskCallbacks downloadProfileImageTaskCallbacks)
 	{
-		File file = new File(fileName);
-		file.delete();
-		Utils.removeTempProfileImage(id);
+		this.downloadProfileImageTaskCallbacks = new WeakReference<DownloadProfileImageTaskCallbacks>(downloadProfileImageTaskCallbacks);
 	}
-
-	private void doOnFailure()
+	
+	/**
+	 * 
+	 * Callback interface through which this task will report 
+	 * it's progress and results back to the caller.
+	 * These will run on "http-response" thread
+	 *
+	 */
+	public interface DownloadProfileImageTaskCallbacks
 	{
-		Utils.removeTempProfileImage(id);
-		File file = new File(fileName);
-		file.delete();
-		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, id);
+		public void onRequestSuccess(Response result);
+		
+		public void onRequestCancelled();
+
+		public void onRequestProgressUpdate(float progress);
+
+		public void onRequestFailure(HttpException httpException);
 	}
-
-	private void doOnSuccess()
-	{
-		/*
-		 * Removing the smaller icon in cache.
-		 */
-		Utils.renameTempProfileImage(id);
-
-		String idpp = id;
-
-		if (!statusImage)
-		{
-			idpp = id + ProfileActivity.PROFILE_PIC_SUFFIX;
-		}
-
-		HikeMessengerApp.getLruCache().remove(idpp);
-
-		if (statusImage)
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
-		}
-		else
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_DOWNLOADED, id);
-		}
-
-		if (this.name == null)
-			this.name = this.msisdn; // show the msisdn if its an unsaved contact
-		if (statusImage && !TextUtils.isEmpty(this.fileName) && !TextUtils.isEmpty(this.msisdn))
-		{
-			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-			this.fileName = directory + "/" + Utils.getProfileImageFileName(msisdn);
-
-			Bundle bundle = new Bundle();
-			bundle.putString(HikeConstants.Extras.IMAGE_PATH, this.fileName);
-			bundle.putString(HikeConstants.Extras.MSISDN, this.msisdn);
-			bundle.putString(HikeConstants.Extras.NAME, this.name);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.PUSH_AVATAR_DOWNLOADED, bundle);
-		}
-	}
-
 }

@@ -10,7 +10,6 @@
         android:layout_height="match_parent"
         android:background="@color/white" >
 
-
         <RelativeLayout
             android:id="@+id/content_container"
             android:layout_width="match_parent"
@@ -23,17 +22,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
                 android:onClick="onMoodClick"
-                android:scaleType="centerInside"
+                android:scaleType="fitStart"
                 android:src="@drawable/ic_mood_btn" />
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/char_counter"
                 android:layout_width="35dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
                 android:layout_alignBottom="@+id/content"
-                android:layout_marginLeft="3dp"
+                android:layout_alignParentRight="true"
                 android:layout_marginBottom="8dp"
+                android:layout_marginLeft="3dp"
                 android:gravity="center"
                 android:shadowColor="@color/white"
                 android:shadowDy="0.7"
@@ -57,14 +56,14 @@
 
                 <ImageButton
                     android:id="@+id/emoji_btn"
-                    android:contentDescription="@string/content_des_choose_smiley_while_chatting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@+id/status_txt"
-                    android:scaleType="centerInside"
                     android:layout_alignParentRight="true"
                     android:background="@null"
+                    android:contentDescription="@string/content_des_choose_smiley_while_chatting"
                     android:onClick="onEmojiClick"
+                    android:scaleType="centerInside"
                     android:src="@drawable/smiley_selector" />
 
                 <com.bsb.hike.view.CustomFontEditText
@@ -76,22 +75,28 @@
                     android:gravity="top"
                     android:hint="@string/whats_up_user"
                     android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|"
+                    android:maxLength="@integer/status_text_limit"
                     android:textColor="@color/list_item_header"
                     android:textColorHint="@color/description_lightgrey"
-                    android:textSize="16sp"
-                    android:maxLength="@integer/status_text_limit" />
+                    android:textSize="16sp" />
             </RelativeLayout>
-        </RelativeLayout>
 
-        <include layout="@layout/mood_selector_layout" />
+            <ImageView
+                android:id="@+id/status_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/avatar"
+                android:layout_marginTop="55dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_launcher" />
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/mood_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:layout_marginTop="55dp"
-            android:visibility="gone" >
+            android:layout_marginTop="55dp" >
 
             <include layout="@layout/tool_tip" />
         </LinearLayout>
@@ -100,10 +105,13 @@
             android:id="@+id/emoji_container"
             android:layout_width="match_parent"
             android:layout_height="@dimen/emoticon_pallete"
-            android:layout_alignParentBottom="true"
-            android:visibility="gone" >
+            android:layout_alignParentBottom="true" >
 
-            <include layout="@layout/emoticon_layout" />
+            <include
+                layout="@layout/emoticon_layout"
+                android:visibility="gone" />
+
+            <include layout="@layout/mood_selector_layout" />
         </LinearLayout>
     </RelativeLayout>
 

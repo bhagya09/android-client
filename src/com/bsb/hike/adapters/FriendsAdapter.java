@@ -38,12 +38,11 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
@@ -1613,7 +1612,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				{
 					continue;
 				}
-
+				
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}

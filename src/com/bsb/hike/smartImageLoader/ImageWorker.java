@@ -70,6 +70,10 @@ public abstract class ImageWorker
 	
 	private boolean setDefaultDrawableNull = true;
 	
+	protected boolean isImageToBeCached = true;
+	
+	protected SuccessfulImageLoadingListener successfulImageLoadingListener;
+	
 	/*
 	 * This case is currently being used in very specific scenerio of
 	 * media viewer files for which we could not create thumbnails(ex. tif images)
@@ -111,9 +115,25 @@ public abstract class ImageWorker
 		loadImage(data, imageView, isFlinging, runOnUiThread, false);
 	}
 
-	public void loadImage(String data, ImageView imageView, boolean isFlinging, boolean runOnUiThread, boolean setDefaultAvatarInitially)
+	/**
+	 * Load Image.
+	 * 
+	 * @param key
+	 *            Could be any primary key msisdn, groupid, statusid, etc
+	 * @param imageView
+	 *            ImageView on which the Bitmap is to be set
+	 * @param isFlinging
+	 *            Used in-case if the caller is an AdapterView and is flinging.
+	 * @param runOnUiThread
+	 *            Load image on UI thread (not recommended)
+	 * @param setDefaultAvatarInitially
+	 *            If true, default avatar will be set on provided ImageView until key Bitmap is loaded
+	 * @param refObj
+	 *            Contextual object, passed back to loadImage(key,object) implementation of overriding class.
+	 */
+	public void loadImage(String key, ImageView imageView, boolean isFlinging, boolean runOnUiThread, boolean setDefaultAvatarInitially, Object refObj)
 	{
-		if (data == null)
+		if (key == null)
 		{
 			return;
 		}
@@ -122,7 +142,7 @@ public abstract class ImageWorker
 
 		if (setDefaultAvatarInitially)
 		{
-			setDefaultAvatar(imageView, data);
+			setDefaultAvatar(imageView, key);
 		}
 		else
 		{
@@ -133,38 +153,42 @@ public abstract class ImageWorker
 		}
 		if (mImageCache != null)
 		{
-			value = mImageCache.get(data);
+			value = mImageCache.get(key);
 			// if bitmap is found in cache and is recyclyed, remove this from cache and make thread get new Bitmap
 			if (value != null && value.getBitmap().isRecycled())
 			{
-				mImageCache.remove(data);
+				mImageCache.remove(key);
 				value = null;
 			}
 		}
 		if (value != null)
 		{
-			Logger.d(TAG, data + " Bitmap found in cache and is not recycled.");
+			Logger.d(TAG, key + " Bitmap found in cache and is not recycled.");
 			// Bitmap found in memory cache
 			imageView.setImageDrawable(value);
+			
+			sendImageCallback(imageView);
 		}
 		else if (runOnUiThread)
 		{
-			Bitmap b = processBitmapOnUiThread(data);
+			Bitmap b = processBitmapOnUiThread(key);
 			if (b != null && mImageCache != null)
 			{
 				BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(mResources, b);
 				if (bd != null)
 				{
-					mImageCache.putInCache(data, bd);
+					mImageCache.putInCache(key, bd);
 				}
 				imageView.setImageDrawable(bd);
+				
+				sendImageCallback(imageView);
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
 			{
-				setDefaultAvatar(imageView, data);
+				setDefaultAvatar(imageView, key);
 			}
 		}
-		else if (cancelPotentialWork(data, imageView) && !isFlinging)
+		else if (cancelPotentialWork(key, imageView) && !isFlinging)
 		{
 			Bitmap loadingBitmap = mLoadingBitmap;
 
@@ -181,20 +205,24 @@ public abstract class ImageWorker
 			}
 
 			final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+			if (refObj != null)
+			{
+				task.setContextObject(refObj);
+			}
 			final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, loadingBitmap, task);
 			imageView.setImageDrawable(asyncDrawable);
 
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
 			// for more info on what was changed.
-			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, data);
+			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, key);
 		}
-		// else
-		// {
-		// imageView.setImageDrawable(null);
-		// }
 	}
 
+	public void loadImage(String data, ImageView imageView, boolean isFlinging, boolean runOnUiThread, boolean setDefaultAvatarInitially)
+	{
+		loadImage(data, imageView, isFlinging, runOnUiThread, setDefaultAvatarInitially, null);
+	}
 	protected void setDefaultAvatar(ImageView imageView, String data)
 	{
 		imageView.setBackgroundDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(data, setHiResDefaultAvatar));
@@ -266,6 +294,11 @@ public abstract class ImageWorker
 	{
 		mExitTasksEarly.set(exitTasksEarly);
 	}
+	
+	public boolean getIsExitTasksEarly()
+	{
+		return mExitTasksEarly.get();
+	}
 
 	public void setDefaultAvatarIfNoCustomIcon(boolean b)
 	{
@@ -296,6 +329,12 @@ public abstract class ImageWorker
 	 * @return The processed bitmap
 	 */
 	protected abstract Bitmap processBitmap(String data);
+	
+	protected Bitmap processBitmap(String data,Object refObj)
+	{
+		//Overridden
+		return null;
+	}
 
 	/**
 	 * Subclasses should override this to define any processing or work that must happen to produce the final bitmap. This will be executed in UI thread.
@@ -383,6 +422,13 @@ public abstract class ImageWorker
 
 		private final WeakReference<ImageView> imageViewReference;
 
+		private WeakReference<Object> objectReference;
+
+		public void setContextObject(Object refObject)
+		{
+			objectReference = new WeakReference<Object>(refObject);
+		}
+		
 		public BitmapWorkerTask(ImageView imageView)
 		{
 			imageViewReference = new WeakReference<ImageView>(imageView);
@@ -407,7 +453,14 @@ public abstract class ImageWorker
 			// process method (as implemented by a subclass)
 			if (mImageCache != null && !isCancelled() && getAttachedImageView() != null && !mExitTasksEarly.get())
 			{
-				bitmap = processBitmap(dataString);
+				if (objectReference != null)
+				{
+					bitmap = processBitmap(dataString,objectReference.get());
+				}
+				else
+				{
+					bitmap = processBitmap(dataString);
+				}
 			}
 
 			// If the bitmap was processed and the image cache is available, then add the processed
@@ -419,7 +472,7 @@ public abstract class ImageWorker
 
 				drawable = HikeBitmapFactory.getBitmapDrawable(mResources, bitmap);
 
-				if (mImageCache != null)
+				if (mImageCache != null && isImageToBeCached)
 				{
 					Logger.d(TAG, "Putting data in cache : " + dataString);
 					mImageCache.putInCache(dataString, drawable);
@@ -465,6 +518,7 @@ public abstract class ImageWorker
 					 */
 					setImageDrawable(imageView, defaultDrawable);
 					imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+					sendImageCallback(imageView);
 				}
 
 			}
@@ -545,6 +599,8 @@ public abstract class ImageWorker
 			{
 				imageView.setImageDrawable(drawable);
 			}
+			
+			sendImageCallback(imageView);
 		}
 		catch (Exception e)
 		{
@@ -568,5 +624,37 @@ public abstract class ImageWorker
 	    drawable.draw(canvas);
 
 	    return bitmap;
+	}
+	
+	public void setImageToBeCached(boolean isImageToBeCached)
+	{
+		this.isImageToBeCached = isImageToBeCached;
+	}
+	
+	public boolean isImageToBeCached()
+	{
+		return isImageToBeCached;
+	}
+	
+	public interface SuccessfulImageLoadingListener{
+		
+		public void onSuccessfulImageLoaded(ImageView imageView);
+	}
+	
+	public void setSuccessfulImageLoadingListener(SuccessfulImageLoadingListener successfulImageLoadingListener)
+	{
+		this.successfulImageLoadingListener = successfulImageLoadingListener;
+	}
+	
+	/**
+	 * This is the call back to listener after image is loaded into ImageView
+	 * @param imageView
+	 */
+	private void sendImageCallback(ImageView imageView)
+	{
+		if(successfulImageLoadingListener != null)
+		{
+			successfulImageLoadingListener.onSuccessfulImageLoaded(imageView);
+		}
 	}
 }

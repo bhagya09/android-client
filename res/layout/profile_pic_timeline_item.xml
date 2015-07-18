@@ -1,98 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
-    <RelativeLayout
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/UpdatesContainer"
-        android:padding="6dp" >
-
-        <com.bsb.hike.ui.utils.RecyclingImageView
-            android:id="@+id/profile_pic"
-            android:layout_width="match_parent"
-            android:layout_height="282dp"
-            android:onClick="onViewImageClicked"
-            android:scaleType="centerCrop" />
+        android:layout_margin="3dp"
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="2dp"
+        card_view:cardUseCompatPadding="true"
+        card_view:contentPadding="6dp" >
 
         <RelativeLayout
-            android:id="@+id/info_container"
             android:layout_width="match_parent"
-            android:layout_height="58dp"
-            android:background="#8F323638" >
+            android:layout_height="wrap_content" >
 
             <RelativeLayout
-                android:id="@+id/avatar_container"
-                android:layout_width="@dimen/medium_avatar"
-                android:layout_height="@dimen/medium_avatar"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="10dp" >
+                android:id="@+id/info_container"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_alignParentTop="true"
+                android:background="@color/transparent" >
 
-                <com.bsb.hike.view.RoundedImageView
-                    android:id="@+id/avatar"
-                    style="@style/AvatarStyle.Padding" />
+                <RelativeLayout
+                    android:id="@+id/avatar_container"
+                    android:layout_width="@dimen/medium_avatar"
+                    android:layout_height="@dimen/medium_avatar"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="10dp" >
 
-                <ImageView
-                    android:id="@+id/avatar_frame"
-                    style="@style/AvatarStyle" />
+                    <com.bsb.hike.view.RoundedImageView
+                        android:id="@+id/avatar"
+                        style="@style/AvatarStyle.Padding" />
+
+                    <ImageView
+                        android:id="@+id/avatar_frame"
+                        style="@style/AvatarStyle" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/avatar_container"
+                    android:layout_marginRight="5dp"
+                    android:layout_toRightOf="@id/avatar_container" >
+
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/timestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBottom="@+id/name"
+                        android:layout_alignParentRight="true"
+                        android:paddingBottom="2dp"
+                        android:text="2 mins ago"
+                        android:textColor="@color/black"
+                        android:textSize="12dp" />
+
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_toLeftOf="@id/timestamp"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:text="Rishabh Sharma"
+                        android:textColor="@color/black"
+                        android:textSize="17dp"
+                        android:textStyle="bold|italic" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/details_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="5dp"
+                    android:layout_toRightOf="@id/avatar_container"
+                    android:orientation="vertical" >
+
+                    <com.bsb.hike.view.LinkedTextView
+                        android:id="@+id/main_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Added you as a friend"
+                        android:textColor="@color/black"
+                        android:textSize="16dp"
+                        android:textStyle="italic" />
+                </LinearLayout>
             </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/content"
+            <com.bsb.hike.ui.utils.RecyclingImageView
+                android:id="@+id/profile_pic"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/avatar_container"
-                android:layout_marginRight="5dp"
-                android:layout_toRightOf="@id/avatar_container" >
+                android:layout_height="290dp"
+                android:layout_below="@+id/info_container"
+                android:onClick="onViewImageClicked"
+                android:scaleType="centerCrop" />
 
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/timestamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/name"
-                    android:layout_alignParentRight="true"
-                    android:paddingBottom="2dp"
-                    android:text="2 mins ago"
-                    android:textColor="@color/white"
-                    android:textSize="12dp" />
-
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_toLeftOf="@id/timestamp"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:text="Rishabh Sharma"
-                    android:textColor="@color/white"
-                    android:textSize="17dp"
-                    android:textStyle="bold|italic" />
-            </RelativeLayout>
-
-            <LinearLayout
-                android:id="@+id/details_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:layout_toRightOf="@id/avatar_container"
-                android:orientation="vertical" >
-
-                <com.bsb.hike.view.LinkedTextView
-                    android:id="@+id/main_info"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Added you as a friend"
-                    android:textColor="@color/white"
-                    android:textSize="16dp"
-                    android:textStyle="italic" />
-            </LinearLayout>
+            <CheckBox
+                android:id="@+id/btn_love"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:layout_alignBottom="@+id/profile_pic"
+                android:layout_alignRight="@+id/profile_pic"
+                android:layout_margin="10dp"
+                android:button="@drawable/btn_love_selector"/>
         </RelativeLayout>
-    </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
 </RelativeLayout>

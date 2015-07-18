@@ -1,7 +1,6 @@
 package com.bsb.hike.service;
 
 import java.io.File;
-
 import java.util.Calendar;
 import java.util.List;
 
@@ -16,7 +15,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.ContentObserver;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
@@ -25,29 +23,32 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
+import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -169,9 +170,11 @@ public class HikeService extends Service
 	public static HikeSDKRequestHandler mHikeSDKRequestHandler;
 
 	private Messenger mSDKRequestMessenger;
-
+	
 	private boolean isInitialized;
 
+	private final String TAG_IMG_UPLOAD = "dp_upload";
+	
 	/************************************************************************/
 	/* METHODS - core Service lifecycle methods */
 	/************************************************************************/
@@ -280,7 +283,7 @@ public class HikeService extends Service
 			registerReceiver(postGreenBlueDetails, new IntentFilter(SEND_GB_DETAILS_TO_SERVER_ACTION));
 			sendBroadcast(new Intent(SEND_GB_DETAILS_TO_SERVER_ACTION));
 		}
-
+		
 		if (getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH, null) != null && postSignupProfilePic == null)
 		{
 			postSignupProfilePic = new PostSignupProfilePic();
@@ -294,8 +297,9 @@ public class HikeService extends Service
 			SyncContactExtraInfo syncContactExtraInfo = new SyncContactExtraInfo();
 			Utils.executeAsyncTask(syncContactExtraInfo);
 		}
-
+		
 		setInitialized(true);
+
 	}
 
 	private void assignUtilityThread()
@@ -767,7 +771,7 @@ public class HikeService extends Service
 
 			if (profilePicPath == null)
 			{
-				Logger.d(getClass().getSimpleName(), "Signup profile pic already uploaded");
+				Logger.d(TAG_IMG_UPLOAD, "Signup profile pic already uploaded");
 				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 				return;
 			}
@@ -781,55 +785,75 @@ public class HikeService extends Service
 				return;
 			}
 
-			Logger.d(getClass().getSimpleName(), "profile pic upload started");
+			Logger.d(TAG_IMG_UPLOAD, "profile pic upload started");
 
-			IRequestListener requestListener = new IRequestListener()
-			{
-				@Override
-				public void onRequestSuccess(Response result)
-				{
-					JSONObject response = (JSONObject) result.getBody().getContent();
-					String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
-					Utils.renameTempProfileImage(msisdn);
-					
-					// clearing cache for this msisdn because if user go to profile before rename (above line) executes then icon blurred image will be set in cache
-					HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-					Logger.d(getClass().getSimpleName(), "profile pic upload done");
-
-					StatusMessage sm = Utils.createTimelinePostForDPChange(response);
-					
-					if(sm == null)
-					{
-						return;
-					}					
-				}
-
-				@Override
-				public void onRequestProgressUpdate(float progress)
-				{
-				}
-
-				@Override
-				public void onRequestFailure(HttpException httpException)
-				{
-					Logger.d(getClass().getSimpleName(), "profile pic upload failed");
-					if (f.exists() && f.length() > 0)
-					{
-						scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_SIGNUP_PRO_PIC, sendSignupProfilePicToServer);
-					}
-					else
-					{
-						HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
-						f.delete();
-					}
-				}
-			};
-			RequestToken token = HttpRequests.editProfileAvatarRequest(profilePicPath, requestListener);
-			token.execute();
+			String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+			HeadlessImageUploaderFragment mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(null, profilePicPath, msisdn, false, true);
+			mImageWorkerFragment.setTaskCallbacks(new UploadProfileTaskCallbacksHandler(profilePicPath));
+			mImageWorkerFragment.startUpLoadingTask();
 		}
 	}
 
+	class UploadProfileTaskCallbacksHandler implements HeadlessImageWorkerFragment.TaskCallbacks
+	{
+
+		private String filePath;
+		
+		public UploadProfileTaskCallbacksHandler(String filePath)
+		{
+			this.filePath = filePath;
+		}
+		
+		@Override
+		public void onProgressUpdate(float percent)
+		{
+			
+		}
+
+		@Override
+		public void onCancelled()
+		{
+			
+		}
+
+		@Override
+		public void onFailed()
+		{
+			Logger.d(TAG_IMG_UPLOAD, "profile pic upload failed");
+			File f = new File(filePath);
+			if (f.exists() && f.length() > 0)
+			{
+				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_SIGNUP_PRO_PIC, sendSignupProfilePicToServer);
+			}
+			else
+			{
+				Toast.makeText(HikeService.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+			}
+		}
+
+		@Override
+		public void onSuccess(Response result)
+		{
+			JSONObject response = (JSONObject) result.getBody().getContent();
+			String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+			
+			// clearing cache for this msisdn because if user go to profile before rename (above line) executes then icon blurred image will be set in cache
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+			Logger.d(TAG_IMG_UPLOAD, "profile pic upload done");
+
+			StatusMessage sm = Utils.createTimelinePostForDPChange(response);
+			
+			if(sm == null)
+			{
+				Logger.d(TAG_IMG_UPLOAD, "Timeline post creation was unsuccessfull on signup");
+				return;
+			}	
+		}
+		
+	}
+	
 	public boolean isInitialized()
 	{
 		return isInitialized;

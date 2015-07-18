@@ -20,7 +20,7 @@ public class HostInfo
 {
 	public enum ConnectExceptions
 	{
-		NO_EXCEPTION, DNS_EXCEPTION, SOCKET_TIME_OUT_EXCEPTION
+		NO_EXCEPTION, DNS_EXCEPTION, SOCKET_TIME_OUT_EXCEPTION, OTHER
 	}
 
 	private String protocol;
@@ -181,26 +181,11 @@ public class HostInfo
 			// ssl off and we got an socket timeout than we go to fallback ports
 			else if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION )
 			{
-				/*
-				 * on production for some countries ssl port connection is not allowed at all in these Countries we cannot use 443 as port fallback.
-				 * Logic is 
-				 * 1. 8080 -- fallback to --> 5222
-				 * 2. 5222 -- fallback to --> 443 if ssl is allowed
-				 * 3. again fallback to 8080 -- if tried above
-				 */
-				boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
-				if(previousHostInfo.getPort() == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER)
-				{
-					setPort(MqttConstants.FALLBACK_BROKER_PORT_5222);
-				}
-				else if(previousHostInfo.getPort() == MqttConstants.FALLBACK_BROKER_PORT_5222  && sslPortAllowedAsFallback)
-				{
-					setPort(MqttConstants.FALLBACK_BROKER_PORT_NUMBER_SSL);
-				}
-				else 
-				{
-					setPort(MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
-				}
+				setNextFallBackPort(previousHostInfo);
+			}
+			else if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.OTHER )
+			{
+				setNextFallBackPort(previousHostInfo);
 			}
 			else
 			{
@@ -214,6 +199,30 @@ public class HostInfo
 			// Standard production 8080 and 443 port in case of non-ssl and ssl respectively.
 			setPort(getStanderedProductionPort(isSslOn));
 		}
+	}
+	
+	private void setNextFallBackPort(HostInfo previousHostInfo)
+	{
+		/*
+		 * on production for some countries ssl port connection is not allowed at all in these Countries we cannot use 443 as port fallback.
+		 * Logic is 
+		 * 1. 8080 -- fallback to --> 5222
+		 * 2. 5222 -- fallback to --> 443 if ssl is allowed
+		 * 3. again fallback to 8080 -- if tried above
+		 */
+		boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
+		if(previousHostInfo.getPort() == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER)
+		{
+			setPort(MqttConstants.FALLBACK_BROKER_PORT_5222);
+		}
+		else if(previousHostInfo.getPort() == MqttConstants.FALLBACK_BROKER_PORT_5222  && sslPortAllowedAsFallback)
+		{
+			setPort(MqttConstants.FALLBACK_BROKER_PORT_NUMBER_SSL);
+		}
+		else 
+		{
+			setPort(MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
+		}	
 	}
 	
 	private int getStanderedProductionPort(boolean isSslOn)

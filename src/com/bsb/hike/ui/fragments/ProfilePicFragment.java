@@ -10,6 +10,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
@@ -35,17 +38,21 @@ import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.ui.TimelineActivity;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeUiHandler;
+import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
 
-public class ProfilePicFragment extends SherlockFragment implements FinishableEvent
+public class ProfilePicFragment extends SherlockFragment implements FinishableEvent, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	private View mFragmentView;
 
@@ -60,19 +67,65 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	private Interpolator animInterpolator = new LinearInterpolator();
 
 	private String imagePath;
-
-	private boolean failed;
-
+	
+	private byte mUploadStatus = -1;
+	
+	private final byte UPLOAD_COMPLETE = 1;
+	
+	private final byte UPLOAD_FAILED = 2;
+	
+	private final byte UPLOAD_INPROGRESS = 3;
+	
 	private RoundedImageView mCircularImageView;
-
-	private boolean finished;
 
 	private ImageView mProfilePicBg;
 
 	private Bitmap smallerBitmap;
 
 	private String origImagePath;
+	
+	private HikeUiHandler hikeUiHandler;
+	
+	private HeadlessImageUploaderFragment mImageWorkerFragment;
+	
+	private static final String TAG = "dp_download";
 
+	private Runnable failedRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d(TAG, "inside ImageViewerFragment, onFailed Recv");
+				showErrorState();
+				removeHeadLessFragment();
+			}
+		}
+	};
+	
+	private Runnable successRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+			if(isAdded() && isVisible())
+			{
+				Logger.d(TAG, "inside ImageViewerFragment, onSucecess Recv");
+				updateProgress(90f - mCurrentProgress);
+				removeHeadLessFragment();
+			}
+		}
+	};
+	
+	public void onActivityCreated(Bundle savedInstanceState) 
+	{
+		super.onActivityCreated(savedInstanceState);
+		hikeUiHandler = new HikeUiHandler(this);
+	};
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -94,7 +147,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
-		Bitmap bmp = BitmapFactory.decodeFile(imagePath, options);
+		Bitmap bmp = HikeBitmapFactory.decodeFile(imagePath, options);
 		if (bmp != null)
 		{
 			mCircularImageView.setImageBitmap(bmp);
@@ -137,6 +190,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	private void startUpload()
 	{
 
+		mUploadStatus = UPLOAD_INPROGRESS;
+		
 		changeTextWithAnimation(text1, getString(R.string.photo_dp_saving));
 
 		changeTextWithAnimation(text2, "");
@@ -165,65 +220,46 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 
-			String httpRequestURL = "/account";
+			// User info is saved in shared preferences
+			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+					.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 
-			HikeHttpRequest request = new HikeHttpRequest(httpRequestURL + "/avatar", RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
-			{
-				public void onFailure()
-				{
-					showErrorState();
-				}
+			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
 
-				public void onSuccess(JSONObject response)
-				{
-
-					// User info is saved in shared preferences
-					SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-							.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
-
-					ContactInfo userInfo = Utils.getUserContactInfo(preferences);
-
-					String mLocalMSISDN = userInfo.getMsisdn();
-
-					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
-
-					Utils.renameTempProfileImage(mLocalMSISDN);
-
-					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, false);
-
-					Utils.incrementUnseenStatusCount();
-
-					/*
-					 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-					 */
-
-					if (statusMessage.getId() != -1)
-					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-					}
-
-					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
-					
-					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
-
-					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
-
-					updateProgress(90f - mCurrentProgress);
-				}
-			});
-
-			request.setFilePath(origImagePath);
-
-			Utils.executeHttpTask(new HikeHTTPTask(ProfilePicFragment.this, R.string.delete_status_error), request);
-
+			String mLocalMSISDN = userInfo.getMsisdn();
+			
+			loadHeadLessImageUploadingFragment(bytes, origImagePath, mLocalMSISDN);
+			
 			updateProgressUniformly(80f, 10f);
 		}
 	}
 
+	public void loadHeadLessImageUploadingFragment(byte[] bytes, String origImagePath, String mLocalMSISDN)
+	{
+		Logger.d(TAG, "inside API loadHeadLessImageUploadingFragment");
+		FragmentManager fm = getFragmentManager();
+		mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+
+	    // If the Fragment is non-null, then it is currently being
+	    // retained across a configuration change.
+	    if (mImageWorkerFragment == null) 
+	    {
+	    	Logger.d("dp_upload", "starting new mImageLoaderFragment");
+	    	mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
+	    	mImageWorkerFragment.setTaskCallbacks(this);
+	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
+	    }
+	    else
+	    {
+	    	Toast.makeText(getActivity(), getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+	    }
+
+	}
+	
 	private void updateProgressUniformly(final float total, final float interval)
 	{
-		if (total <= 0.0f || failed || mCurrentProgress >= 100)
+		if (total <= 0.0f || mUploadStatus == UPLOAD_FAILED || mCurrentProgress >= 100)
 		{
 			return;
 		}
@@ -260,7 +296,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 				mCircularProgress.setProgress(value / 100f);
 
-				if (mCircularProgress.getProgress() >= 1f || failed)
+				if (mCircularProgress.getProgress() >= 1f || mUploadStatus == UPLOAD_FAILED)
 				{
 					animation.cancel();
 				}
@@ -270,10 +306,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		mCurrentProgress += i;
 
-		if (mCurrentProgress >= 90f && !failed && !finished)
+		if (mCurrentProgress >= 90f && mUploadStatus == UPLOAD_INPROGRESS)
 		{
-			finished = true;
-
 			changeTextWithAnimation(text1, getString(R.string.photo_dp_finishing));
 
 			new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
@@ -282,6 +316,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				@Override
 				public void run()
 				{
+					mUploadStatus = UPLOAD_COMPLETE;
 					if (!isAdded())
 					{
 						return;
@@ -293,41 +328,44 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 			changeTextWithAnimation(text2, getString(R.string.photo_dp_saved_sub));
 
-			HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+			HikeHandlerUtil.getInstance().postRunnableWithDelay(timelineLauncherRunnable, 3000);
+		}
+
+	}
+	
+	private Runnable timelineLauncherRunnable = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+			if (!isAdded())
+			{
+				return;
+			}
+			ProfilePicFragment.this.getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					if (!isAdded())
+					if (isAdded() && mUploadStatus == UPLOAD_COMPLETE && isResumed())
 					{
-						return;
+						Intent in = new Intent(getActivity(), TimelineActivity.class);
+						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
+						getActivity().startActivity(in);
+						getActivity().finish();
 					}
-					ProfilePicFragment.this.getActivity().runOnUiThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							if (isAdded() && !failed)
-							{
-								Intent in = new Intent(getActivity(), TimelineActivity.class);
-								in.putExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, true);
-								getActivity().startActivity(in);
-							}
-						}
-					});
 				}
-			}, 4000);
+			});
 		}
-
-	}
+	};
 
 	private void showErrorState()
 	{
-
-		failed = true;
+		mUploadStatus = UPLOAD_FAILED;
 
 		if (!isAdded())
 		{
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.profile_pic_failed, Toast.LENGTH_SHORT).show();
 			return;
 		}
 
@@ -349,7 +387,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			public void onClick(View v)
 			{
 				mCurrentProgress = 0.0f;
-				failed = false;
+				mUploadStatus = UPLOAD_INPROGRESS;
 				startUpload();
 			}
 		});
@@ -380,27 +418,97 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void onPause()
 	{
 		super.onPause();
-		try
+		if (mUploadStatus == UPLOAD_INPROGRESS)
 		{
-			getActivity().getSupportFragmentManager().popBackStack();
-			getActivity().getActionBar().show();
-		}
-		catch (NullPointerException npe)
-		{
-			// Do nothing
+			HikeHandlerUtil.getInstance().removeRunnable(null);
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.profile_pic_upload_in_background, Toast.LENGTH_SHORT).show();
 		}
 	}
-
+	
 	@Override
 	public void onResume()
 	{
 		super.onResume();
+		if (mUploadStatus == UPLOAD_COMPLETE)
+		{
+			timelineLauncherRunnable.run();
+		}
 	}
 
 	@Override
 	public void onFinish(boolean success)
 	{
-		// TODO Auto-generated method stub
+		// Do nothing
+	}
 
+	@Override
+	public void onProgressUpdate(float percent)
+	{
+		
+	}
+
+	@Override
+	public void onCancelled()
+	{
+		
+	}
+
+	@Override
+	public void onFailed()
+	{
+		hikeUiHandler.post(failedRunnable);
+	}
+
+	@Override
+	public void onSuccess(Response result)
+	{
+		// User info is saved in shared preferences
+		SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+				.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+
+		ContactInfo userInfo = Utils.getUserContactInfo(preferences);
+
+		String mLocalMSISDN = userInfo.getMsisdn();
+
+		JSONObject response = (JSONObject) result.getBody().getContent();
+		
+		StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, true);
+
+		Utils.incrementUnseenStatusCount();
+
+		/*
+		 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
+		 */
+
+		if (statusMessage.getId() != -1)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+		}
+
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
+		
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+		
+		hikeUiHandler.post(successRunnable);
+	}
+
+	@Override
+	public void handleUIMessage(Message msg)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private void removeHeadLessFragment()
+	{
+		Logger.d(TAG, "inside ImageViewerFragment, removing UILessFragment");
+		if(getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT) != null)
+		{
+			mImageWorkerFragment = (HeadlessImageUploaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+			getFragmentManager().beginTransaction().remove(mImageWorkerFragment).commit();
+		}
 	}
 }

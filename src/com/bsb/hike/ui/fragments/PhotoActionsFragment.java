@@ -20,13 +20,15 @@ public class PhotoActionsFragment extends SherlockFragment
 
 	private String[] mDescription;
 
-	private int itemIcons[] = { R.drawable.set_icon, R.drawable.send_icon };
+	private int itemIcons[] = { R.drawable.set_icon, R.drawable.send_icon, R.drawable.send_icon };
 
 	private ActionListener mListener;
 
 	public static final int ACTION_SET_DP = 1;
 
 	public static final int ACTION_SEND = 2;
+	
+	public static final int ACTION_POST = 3;
 
 	public static interface ActionListener
 	{
@@ -55,18 +57,21 @@ public class PhotoActionsFragment extends SherlockFragment
 		PhotoActionsListAdapter mAdapter = new PhotoActionsListAdapter();
 
 		final View view1 = mAdapter.getView(0, null, null);
+		view1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+		
+		final View view2 = mAdapter.getView(1, null, null);
+		view2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+		
+		final View view3 = mAdapter.getView(2, null, null);
+		view3.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
 
 		View divider = new View(getActivity());
-
-		final View view2 = mAdapter.getView(1, null, null);
-
-		view1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-
 		divider.setBackgroundColor(getResources().getColor(R.color.file_transfer_pop_up_button));
-
 		divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-
-		view2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+		
+		View divider2 = new View(getActivity());
+		divider2.setBackgroundColor(getResources().getColor(R.color.file_transfer_pop_up_button));
+		divider2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
 
 		view1.setOnClickListener(new View.OnClickListener()
 		{
@@ -77,6 +82,7 @@ public class PhotoActionsFragment extends SherlockFragment
 				mListener.onAction(ACTION_SET_DP);
 				view1.setEnabled(false);
 				view2.setEnabled(false);
+				view3.setEnabled(false);
 			}
 		});
 		
@@ -89,6 +95,20 @@ public class PhotoActionsFragment extends SherlockFragment
 				mListener.onAction(ACTION_SEND);
 				view1.setEnabled(false);
 				view2.setEnabled(false);
+				view3.setEnabled(false);
+			}
+		});
+		
+		view3.setOnClickListener(new View.OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				mListener.onAction(ACTION_POST);
+				view1.setEnabled(false);
+				view2.setEnabled(false);
+				view3.setEnabled(false);
 			}
 		});
 
@@ -99,6 +119,10 @@ public class PhotoActionsFragment extends SherlockFragment
 		itemsLayout.addView(divider);
 
 		itemsLayout.addView(view2);
+		
+		itemsLayout.addView(divider2);
+		
+		itemsLayout.addView(view3);
 
 		return mFragmentView;
 	}

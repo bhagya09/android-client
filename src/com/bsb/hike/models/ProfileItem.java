@@ -3,6 +3,7 @@ package com.bsb.hike.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.PairModified;
 
 public abstract class ProfileItem

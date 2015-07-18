@@ -1238,9 +1238,11 @@
     <array name="photos_actions_titles">
         <item>Set as Profile Picture</item>
         <item>Send</item>
+        <item>Post</item>
     </array>
     <array name="photos_actions_description">
         <item>Make the edited photo your Profile Photo</item>
         <item>Send your masterpiece to a friend or two</item>
     </array>
+
 </resources>

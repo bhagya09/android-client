@@ -30,16 +30,15 @@ import com.bsb.hike.models.ProfileItem.ProfileGroupItem;
 import com.bsb.hike.models.ProfileItem.ProfileSharedContent;
 import com.bsb.hike.models.ProfileItem.ProfileSharedMedia;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
-import com.bsb.hike.smartImageLoader.TimelineImageLoader;
+import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.PairModified;
@@ -75,7 +74,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private IconLoader iconLoader;
 
-	private TimelineImageLoader bigPicImageLoader;
+	private TimelineUpdatesImageLoader bigPicImageLoader;
 
 	private ProfilePicImageLoader profileImageLoader;
 	
@@ -123,7 +122,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		this.isContactBlocked = isContactBlocked;
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		int mBigImageSize = context.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-		this.bigPicImageLoader = new TimelineImageLoader(context, mBigImageSize);
+		this.bigPicImageLoader = new TimelineUpdatesImageLoader(context, mBigImageSize);
 		this.profileImageLoader = new ProfilePicImageLoader(context, mBigImageSize);
 		profileImageLoader.setDefaultAvatarIfNoCustomIcon(true);
 		profileImageLoader.setHiResDefaultAvatar(true);
@@ -790,7 +789,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				thumbnailLoader.loadImage(galleryItem.getImageLoaderKey(false), image);
 				fileMissing.setVisibility(View.GONE);
-				
+
 				if (galleryItem.getHikeFileType() == HikeFileType.VIDEO)
 				{
 					image_duration.setVisibility(View.VISIBLE);
@@ -886,7 +885,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		return isContactBlocked;
 	}
 
-	public TimelineImageLoader getTimelineImageLoader()
+	public TimelineUpdatesImageLoader getTimelineImageLoader()
 	{
 		return bigPicImageLoader;
 	}
