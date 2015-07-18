@@ -80,16 +80,6 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 		token.execute();
 	}
 
-	/**
-	 * Set the callback to null so we don't accidentally leak the Activity instance.
-	 */
-	@Override
-	public void onDetach()
-	{
-		super.onDetach();
-		taskCallbacks = null;
-	}
-
 	private void readArguments()
 	{
 		bytes = getArguments().getByteArray(HikeConstants.Extras.BYTES);
