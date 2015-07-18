@@ -796,7 +796,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			sql = getFeedTableCreateQuery();
 			db.execSQL(sql);
 			
-			String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.STATUS_FILE_KEY + " TEXT";
+			String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
 			db.execSQL(alterST);
 		}
 	}
@@ -836,7 +836,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.SHOW_IN_TIMELINE + " INTEGER, " // Whether this status should be shown in the timeline or not.
 				+ DBConstants.MOOD_ID + " INTEGER, " // The mood id of the status
 				+ DBConstants.TIME_OF_DAY + " INTEGER, " // Deprecated.
-				+ DBConstants.STATUS_FILE_KEY + " TEXT" // Text of the status
+				+ DBConstants.FILE_KEY + " TEXT" // Text of the status
 				+ " )";
 	}
 
@@ -4186,6 +4186,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.SHOW_IN_TIMELINE, showInCentralTimeline);
 		values.put(DBConstants.MOOD_ID, statusMessage.getMoodId());
 		values.put(DBConstants.TIME_OF_DAY, statusMessage.getTimeOfDay());
+
+		if (!TextUtils.isEmpty(statusMessage.getFileKey()))
+		{
+			values.put(DBConstants.FILE_KEY, statusMessage.getFileKey());
+		}
 		/*
 		 * Inserting -1 to denote that this status is not a part of any conversation yet.
 		 */
@@ -4205,7 +4210,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int lastStatusId, String... msisdnList)
 	{
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY };
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY};
 
 		StringBuilder selection = new StringBuilder();
 
@@ -4256,6 +4261,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int tsIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
+			int fileKeyIdx = c.getColumnIndex(DBConstants.FILE_KEY);
 
 			List<String> msisdns = new ArrayList<String>();
 
@@ -4264,7 +4270,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String msisdn = c.getString(msisdnIdx);
 
 				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
-						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx));
+						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx),c.getString(fileKeyIdx));
 				statusMessages.add(statusMessage);
 
 				List<StatusMessage> msisdnMessages = statusMessagesMap.get(msisdn);

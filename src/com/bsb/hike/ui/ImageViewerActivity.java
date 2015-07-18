@@ -1,17 +1,18 @@
 package com.bsb.hike.ui;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
@@ -26,12 +27,13 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
 import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 
-public class ImageViewerActivity extends FragmentActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
+public class ImageViewerActivity extends SherlockFragmentActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -74,6 +76,38 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	private boolean hasCustomImage;
 
 	private ProfileImageLoader profileImageLoader;
+	
+	
+	private Runnable failedRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+		}
+	};
+	
+	private Runnable cancelledRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+		}
+	};
+	
+	private Runnable successRunnable = new Runnable()
+	{
+		
+		@Override
+		public void run()
+		{
+				profileImageLoader.loadFromFile();
+		}
+	};
+
+	private HikeUiHandler hikeUiHandler;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -162,8 +196,8 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	{
 		imageView = (ImageView) findViewById(R.id.image);
 		fadeScreen = findViewById(R.id.bg_screen);
-
 		imageView.setOnClickListener(this);
+		hikeUiHandler = new HikeUiHandler(this);
 	}
 
 	private static final int ANIM_DURATION = 300;
@@ -254,32 +288,29 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	private void showImage()
 	{
 		key = mappedId;
-
+		
 		if (!isStatusImage)
 		{
 			int idx = key.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
-
+			
 			if (idx > 0)
 			{
 				key = new String(key.substring(0, idx));
 			}
 		}
-
+		
 		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(key);
-
+		
 		profileImageLoader = new ProfileImageLoader(this, key, imageView, imageSize, isStatusImage, true);
-		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
-		{
+		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
 
 			@Override
-			public void onLoaderReset(Loader<Boolean> arg0)
-			{
+			public void onLoaderReset(Loader<Boolean> arg0) {
 				dismissProgressDialog();
 			}
 
 			@Override
-			public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
-			{
+			public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1) {
 				dismissProgressDialog();
 				if (isStatusImage)
 				{
@@ -288,8 +319,7 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 			}
 
 			@Override
-			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
-			{
+			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
 				showProgressDialog();
 				return null;
 			}
@@ -363,21 +393,21 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		FragmentManager fm = getSupportFragmentManager();
 		mImageWorkerFragment = (HeadlessImageDownloaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
 
-		// If the Fragment is non-null, then it is currently being
-		// retained across a configuration change.
-		if (mImageWorkerFragment == null)
-		{
-			Logger.d(TAG, "starting new mImageLoaderFragment");
-			String fileName = Utils.getProfileImageFileName(key);
-			mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
-			mImageWorkerFragment.setTaskCallbacks(this);
-			fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
-		}
-		else
-		{
-			Toast.makeText(this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-			Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-		}
+	    // If the Fragment is non-null, then it is currently being
+	    // retained across a configuration change.
+	    if (mImageWorkerFragment == null) 
+	    {
+	    	Logger.d(TAG, "starting new mImageLoaderFragment");
+	    	String fileName = Utils.getProfileImageFileName(key);
+	    	mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
+	    	mImageWorkerFragment.setTaskCallbacks(this);
+	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
+	    }
+	    else
+	    {
+	    	Toast.makeText(this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+	    }
 
 	}
 
@@ -388,31 +418,37 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 
 	}
 
-	@Override
 	public void onCancelled()
 	{
-		// TODO Auto-generated method stub
-
+		hikeUiHandler.post(cancelledRunnable);
 	}
 
-	@Override
-	public void onFailed()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void onSuccess(Response result)
 	{
-		// TODO Auto-generated method stub
+		hikeUiHandler.post(successRunnable);
+	}
 
+	public void onFailed()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, key);
+		hikeUiHandler.post(failedRunnable);
 	}
 
 	@Override
 	public void handleUIMessage(Message msg)
 	{
 		// TODO Auto-generated method stub
+	}
 
+	public boolean hasFileKey()
+	{
+		if (!TextUtils.isEmpty(fileKey))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

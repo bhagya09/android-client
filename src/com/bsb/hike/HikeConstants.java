@@ -2776,7 +2776,7 @@ public class HikeConstants
 		
 		public static final int MAX_IMAGE_DIMEN = 1240;
 		
-		public static final String FROM_DP_UPLOAD = "from_dp_upload";
+		public static final String HOME_ON_BACK_PRESS = "from_dp_upload";
 		
 		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 80;
 	}

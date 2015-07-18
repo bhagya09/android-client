@@ -9,11 +9,9 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.Utils;
 
@@ -45,6 +43,8 @@ public class StatusMessage
 
 	private Protip protip;
 
+	private String fileKey;
+	
 	public StatusMessage(JSONObject statusMessageJson) throws JSONException
 	{
 		this.msisdn = statusMessageJson.getString(HikeConstants.FROM);
@@ -67,6 +67,7 @@ public class StatusMessage
 		{
 			if (data.has(HikeConstants.SU_IMAGE_KEY))
 			{
+				this.fileKey = data.optString(HikeConstants.SU_IMAGE_KEY);
 				this.statusMessageType = StatusMessageType.TEXT_IMAGE;
 			}
 			else
@@ -77,9 +78,10 @@ public class StatusMessage
 		}
 		else if (data.has(HikeConstants.SU_IMAGE_KEY))
 		{
+			this.fileKey = data.optString(HikeConstants.SU_IMAGE_KEY);
 			this.statusMessageType = StatusMessageType.IMAGE;
 		}
-		this.moodId = data.optInt(HikeConstants.MOOD) - 1;
+		this.moodId = data.optInt(HikeConstants.MOOD);
 		this.timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
 	}
 
@@ -90,6 +92,11 @@ public class StatusMessage
 
 	public StatusMessage(long id, String mappedId, String msisdn, String name, String text, StatusMessageType statusMessageType, long timeStamp, int moodId, int timeOfDay)
 	{
+		this(id, mappedId, msisdn, name, text, statusMessageType, timeStamp, moodId, timeOfDay, null);
+	}
+	
+	public StatusMessage(long id, String mappedId, String msisdn, String name, String text, StatusMessageType statusMessageType, long timeStamp, int moodId, int timeOfDay, String fileKey)
+	{
 		this.id = id;
 		this.mappedId = mappedId;
 		this.msisdn = msisdn;
@@ -99,6 +106,7 @@ public class StatusMessage
 		this.timeStamp = timeStamp;
 		this.moodId = moodId;
 		this.timeOfDay = timeOfDay;
+		this.fileKey = fileKey;
 	}
 
 	public StatusMessage(Protip protip)
@@ -207,5 +215,15 @@ public class StatusMessage
 			DateFormat df = new SimpleDateFormat(format);
 			return df.format(date);
 		}
+	}
+
+	public String getFileKey()
+	{
+		return fileKey;
+	}
+
+	public void setFileKey(String fileKey)
+	{
+		this.fileKey = fileKey;
 	}
 }

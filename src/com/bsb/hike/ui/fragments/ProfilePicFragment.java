@@ -350,7 +350,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 					if (isAdded() && mUploadStatus == UPLOAD_COMPLETE && isResumed())
 					{
 						Intent in = new Intent(getActivity(), TimelineActivity.class);
-						in.putExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, true);
+						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
 						getActivity().startActivity(in);
 						getActivity().finish();
 					}

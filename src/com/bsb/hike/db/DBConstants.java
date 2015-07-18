@@ -126,8 +126,6 @@ public interface DBConstants
 
 	public static final String STATUS_TEXT = "statusText";
 	
-	public static final String STATUS_FILE_KEY = "statusFile";
-
 	public static final String STATUS_TYPE = "statusType";
 
 	public static final String HIKE_JOIN_TIME = "hikeJoinTime";

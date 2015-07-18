@@ -2302,29 +2302,19 @@ public class MqttMessagesManager
 
 		if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
-			String iconBase64 = jsonData.getString(HikeConstants.THUMBNAIL);
+			String iconBase64 = (String) jsonData.remove(HikeConstants.THUMBNAIL);
 			conMgr.setIcon(statusMessage.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
-			/*
-			 * Removing the thumbnail string from the JSON, since we've already saved it.
-			 */
-			jsonData.remove(HikeConstants.THUMBNAIL);
-
 		}
+		//Check if status message has image other than dp updates
 		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 		{
-			final String iconBase64 = jsonData.getString(HikeConstants.THUMBNAIL);
-			final String fileKey = jsonData.getString(HikeConstants.SU_IMAGE_KEY);
+			final String iconBase64 = jsonData.optString(HikeConstants.THUMBNAIL);
+			final String fileKey = jsonData.optString(HikeConstants.SU_IMAGE_KEY);
 
 			if (!TextUtils.isEmpty(fileKey) && !TextUtils.isEmpty(iconBase64))
 			{
-				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						HikeConversationsDatabase.getInstance().addFileThumbnail(fileKey, Base64.decode(iconBase64, Base64.DEFAULT));
-					}
-				}, 0);
+				// Add to fileThumbnail table viz. fk - thumb
+				HikeConversationsDatabase.getInstance().addFileThumbnail(fileKey, Base64.decode(iconBase64, Base64.DEFAULT));
 			}
 			else
 			{

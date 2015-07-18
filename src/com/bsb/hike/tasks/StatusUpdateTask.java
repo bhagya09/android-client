@@ -11,12 +11,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -92,28 +93,44 @@ public class StatusUpdateTask implements IHikeHTTPTask
 			public void onRequestSuccess(Response result)
 			{
 				JSONObject response = (JSONObject) result.getBody().getContent();
-				Logger.d(getClass().getSimpleName(), " post status request succeeded : " + response);
+				Logger.d(getClass().getSimpleName(), "post status request succeeded : " + response);
 				SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
 						.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 				JSONObject data = response.optJSONObject("data");
 				String mappedId = data.optString(HikeConstants.STATUS_ID);
 				String text = data.optString(HikeConstants.STATUS_MESSAGE);
-				int moodId = data.optInt(HikeConstants.MOOD) - 1;
+				int moodId = data.optInt(HikeConstants.MOOD);
+				
 				int timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
 				String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
 				String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
 				long time = (long) System.currentTimeMillis() / 1000;
 				
+				final String iconBase64 = data.optString(HikeConstants.THUMBNAIL);
+				
+				final String fileKey = data.optString(HikeConstants.SU_IMAGE_KEY);
+				
 				StatusMessageType suType = getStatusMessageType(text, imageFilePath);
 				
 				if(suType == StatusMessageType.TEXT_IMAGE || suType == StatusMessageType.IMAGE)
 				{
-					//TODO Support all image formats (same code is present in ChangeProfileImageBaseActivity)
-					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
+					// TODO Support all image formats (same code is present in ChangeProfileImageBaseActivity)
+					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + "/" + mappedId + ".jpg";
+
 					Utils.copyFile(imageFilePath, destFilePath);
+					
+					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							// Add to fileThumbnail table viz. fk - thumb
+							HikeConversationsDatabase.getInstance().addFileThumbnail(fileKey, Base64.decode(iconBase64, Base64.DEFAULT));
+						}
+					}, 0);
 				}
 				
-				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, suType, time, moodId, timeOfDay);
+				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, suType, time, moodId, timeOfDay,fileKey);
 				HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
 				int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 				Editor editor = preferences.edit();
