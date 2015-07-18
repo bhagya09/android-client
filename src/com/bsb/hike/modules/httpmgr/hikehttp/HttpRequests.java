@@ -569,6 +569,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(updateLoveLinkUrl())
 				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
 				.post(body)
 				.build();
 		return requestToken;
@@ -580,6 +581,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(updateUnLoveLinkUrl())
 				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
 				.post(body)
 				.build();
 		return requestToken;

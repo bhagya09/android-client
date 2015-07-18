@@ -82,6 +82,8 @@ import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
+import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
@@ -3368,6 +3370,36 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
+		else if (HikeConstants.MqttMessageTypes.ACTIVITY_UPDATE.equals(type))
+		{
+			saveActivityUpdate(jsonObj);
+		}
+	}
+
+	private void saveActivityUpdate(final JSONObject jsonObj)
+	{
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					FeedDataModel feedData = new FeedDataModel(jsonObj);
+
+					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
+
+					if (isSuccess)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, feedData);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}, 0);
 	}
 
 	private void uploadGroupProfileImage(final String groupId)
