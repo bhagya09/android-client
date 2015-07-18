@@ -498,11 +498,6 @@ public class OfflineController
 		offlineManager.sendInfoPacket();
 	}
 
-	public void deleteMessages(ArrayList<Long> msgIds)
-	{
-		offlineManager.deleteMsgs(msgIds);
-	}
-
 	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)
 	{
 		SenderConsignment senderConsignment = null;

@@ -311,17 +311,11 @@ public class ChatThreadUtils
 
 	public static void deleteMessagesFromDb(ArrayList<Long> msgIds, boolean deleteMediaFromPhone, long lastMsgId, String msisdn)
 	{
-		deleteMessagesFromDb(msgIds, deleteMediaFromPhone, lastMsgId, msisdn,false);
-	}
-	
-	public static void deleteMessagesFromDb(ArrayList<Long> msgIds, boolean deleteMediaFromPhone, long lastMsgId, String msisdn,boolean isOfflineMessagePresent)
-	{
 		boolean isLastMessage = (msgIds.contains(lastMsgId));
 		Bundle bundle = new Bundle();
 		bundle.putBoolean(HikeConstants.Extras.IS_LAST_MESSAGE, isLastMessage);
 		bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
 		bundle.putBoolean(HikeConstants.Extras.DELETE_MEDIA_FROM_PHONE, deleteMediaFromPhone);
-		bundle.putBoolean(HikeConstants.OFFLINE_MESSAGE_PRESENT, isOfflineMessagePresent);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
 	}
 

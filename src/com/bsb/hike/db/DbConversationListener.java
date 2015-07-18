@@ -191,10 +191,6 @@ public class DbConversationListener implements Listener
 
 			mConversationDb.deleteMessages(msgIds, msisdn, containsLastMessage);
 			persistence.removeMessages(msgIds);
-			if(bundle.getBoolean(HikeConstants.OFFLINE_MESSAGE_PRESENT))
-			{
-				OfflineController.getInstance().deleteMessages(msgIds);
-			}
 		}
 		else if (HikePubSub.MESSAGE_FAILED.equals(type)) // server got msg
 		// from client 1 and

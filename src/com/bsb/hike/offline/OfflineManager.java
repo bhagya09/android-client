@@ -583,13 +583,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		transporter.deleteFromPersistance(msisdn);
 	}
 
-
-	public void deleteMsgs(List<Long> msgIds)
-	{
-		transporter.deleteFromPersistance(msgIds);
-	}
-
-
 	public String getConnectingDevice() 
 	{
 		return connectinMsisdn;
