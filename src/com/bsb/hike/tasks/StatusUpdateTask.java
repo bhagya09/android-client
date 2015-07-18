@@ -46,12 +46,12 @@ public class StatusUpdateTask implements IHikeHTTPTask
 		token = HttpRequests.postStatusRequest(getPostData(), getRequestListener());
 	}
 	
-	public StatusUpdateTask(String status, int moodId, String imageFilePath) throws IOException
+	public StatusUpdateTask(String status, int argMoodId, String imageFilePath) throws IOException
 	{
 		this.status = status;
-		this.moodId = moodId;
+		this.moodId = argMoodId;
 		this.imageFilePath = imageFilePath;
-		token = HttpRequests.postStatusRequest(status, moodId, getRequestListener(), imageFilePath);
+		token = HttpRequests.postStatusRequest(status, argMoodId, getRequestListener(), imageFilePath);
 	}
 
 	@Override
