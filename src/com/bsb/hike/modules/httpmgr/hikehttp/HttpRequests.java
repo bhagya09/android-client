@@ -201,14 +201,23 @@ public class HttpRequests
 
 		final MediaType MEDIA_TYPE_TEXTPLAIN = MediaType.parse("text/plain; charset=UTF-8");
 
-		File imageFile = new File(imageFilePath);
-
-		final RequestBody requestBody = new MultipartBuilder()
+		MultipartBuilder multipartBuilder = new MultipartBuilder()
 				.type(MultipartBuilder.FORM)
 				.addPart(Headers.of("Content-Disposition", "form-data; name=\"status-message\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, argStatusMessage))
-				.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, String.valueOf(argMood)))
-				.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"" + imageFile.getName() + "\""),
-						RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath))).build();
+				.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, String.valueOf(argMood)));
+				
+
+		if(!TextUtils.isEmpty(imageFilePath))
+		{
+			File imageFile = new File(imageFilePath);
+			if (imageFile.exists())
+			{
+				multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"" + imageFile.getName() + "\""),
+						RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath)));
+			}
+		}
+		
+		final RequestBody requestBody = multipartBuilder.build();
 
 		MultipartRequestBody body = new MultipartRequestBody(requestBody);
 
