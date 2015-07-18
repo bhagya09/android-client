@@ -21,6 +21,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
+import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.filetransfer.UploadFileTask;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -413,15 +415,36 @@ public class OfflineController
 		Logger.d(TAG, "Hike File type is: "
 				+ hikeFile.getHikeFileType().ordinal());
 
-		File f = hikeFile.getFile();
-		if (f.exists()) 
+		File selected = hikeFile.getFile();
+		File sourceFile=new File (hikeFile.getSourceFilePath());
+		if (selected.exists()) 
 		{
 			//TODO: Check if true is really required here
 			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage, true);
 			offlineManager.sendConsignment(fileConsignment);
-		} 
+		}
+		else if(sourceFile.exists())
+		{
+			
+			try {
+				(convMessage.serialize().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES))
+				.getJSONObject(0).putOpt(HikeConstants.FILE_PATH, hikeFile.getSourceFilePath());
+//				File x=HikeMessengerApp.getInstance().getApplicationContext().getExternalFilesDir("hiketmp");
+//				File bin = new File(x,selected.getName() + ".bin." + convMessage.getMsgID());
+//				if(bin!=null&&bin.exists())
+//				{
+//					bin.delete();
+//				}
+				
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage, true);
+			offlineManager.sendConsignment(fileConsignment);
+		}
 		else 
 		{
+			
 			HikeMessengerApp.getInstance().showToast("File not found.!!");
 		}
 	}
