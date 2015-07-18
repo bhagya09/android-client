@@ -419,7 +419,7 @@ public class ChatThreadUtils
 			/**
 			 * Do nothing if it's a typing notification
 			 */
-			if (msg.getTypingNotification() != null)
+			if (msg.getTypingNotification() != null || msg.isSent())
 			{
 				continue;
 			}

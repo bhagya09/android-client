@@ -65,6 +65,8 @@ public class MqttConstants
 
 	/* represents max amount of time taken by message to process exceeding which we will send analytics to server */
 	public static final long DEFAULT_MAX_MESSAGE_PROCESS_TIME = 1 * 1000l;
+	
+	public static final int DEFAULT_PING_WAKELOCK_TIMEOUT_IN_SECONDS = 10 ; // 10 seconds
 
 	// constants used to define MQTT connection status, this is used by external classes and hardly of any use internally
 	public enum MQTTConnectionStatus
@@ -80,4 +82,19 @@ public class MqttConstants
 	public static final String EXCEPTION_DEFAULT = "exception_default";
 	
 	public static final String CONNECTION_PROD_AREA = "conn";
+	
+	public static final String MQTT = "com.bsb.hike.mqtt";
+	
+	public static final String PING_SENDER = MQTT + ".pingSender.";
+	  
+	  //Constant for wakelock
+	public static final String PING_WAKELOCK = MQTT + ".client.";
+
+	public static final String MQTT_PING_SENDER = "mqttPingSender";
+
+	public static final int ALARM_PING_SENDER_CONSTANT = 1;
+	
+	public static final int TIMER_PING_SENDER_CONSTANT = 0;
+	
+	public static final String ALARM_PING_WAKELOCK_TIMEOUT = "alarmPingWakeLockTimeout";
 }
