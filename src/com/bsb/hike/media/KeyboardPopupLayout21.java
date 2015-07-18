@@ -347,9 +347,8 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 				isKeyboardOpen = true;
 				if (isShowing())
 				{
-					updatePadding(originalBottomPadding);
+					updatePadding(popup.getHeight());
 				}
-				updateDimension(LayoutParams.MATCH_PARENT, temp);
 			}
 			else
 			{
