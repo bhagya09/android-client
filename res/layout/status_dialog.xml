@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
                 android:onClick="onMoodClick"
-                android:scaleType="centerInside"
+                android:scaleType="fitStart"
                 android:src="@drawable/ic_mood_btn" />
 
             <com.bsb.hike.view.CustomFontTextView
