@@ -101,7 +101,7 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 			StatusMessage statusMessage = (StatusMessage) statusMessageObj;
 			if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 			{
-				return loadImage(id, false, null);
+				return loadImage(id, false, statusMessage);
 			}
 			else
 			{
@@ -131,15 +131,17 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 
 		if (!orgFile.exists())
 		{
-			BitmapDrawable b;
+			BitmapDrawable b = null;
 			if (loadingProfilePic)
 			{
 				b = this.getLruCache().getIconFromCache(id);
 			}
 			else
 			{
-				//TODO replace with file key
-				b = this.getLruCache().getFileIconFromCache(id);
+				if (!TextUtils.isEmpty(statusMessage.getFileKey()))
+				{
+					b = this.getLruCache().getFileIconFromCache(statusMessage.getFileKey());
+				}
 			}
 			Logger.d(TAG, "Bitmap from icondb");
 			if (b != null)
