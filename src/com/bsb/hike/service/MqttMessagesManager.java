@@ -3457,7 +3457,7 @@ public class MqttMessagesManager
 		}
 		
 		String fileName = Utils.getProfileImageFileName(id);
-		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(id, fileName, false, true, null, null, null, true);
+		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(id, fileName, true, false, null, null, null, true);
 		downLoaderFragment.startLoadingTask();
 	}
 
