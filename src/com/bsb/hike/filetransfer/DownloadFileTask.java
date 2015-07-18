@@ -171,7 +171,7 @@ public class DownloadFileTask extends FileTransferBase
 		retry = true;
 		reconnectTime = 0;
 		retryAttempts = 0;
-		while (shouldRetry())
+		do
 		{
 			try
 			{
@@ -439,7 +439,7 @@ public class DownloadFileTask extends FileTransferBase
 //			{
 //				Logger.e(getClass().getSimpleName(), "FT error : " + e.getMessage());
 //			}
-		}
+		} while (shouldRetry());
 		if (res == FTResult.SUCCESS)
 		{
 			res = closeStreams(raf, in);

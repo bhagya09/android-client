@@ -77,7 +77,7 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected int reconnectTime = 0;
 
-	protected int MAX_RECONNECT_TIME = 20; // in seconds
+	protected int MAX_RECONNECT_TIME = 8; // in seconds
 
 	protected Handler handler;
 
@@ -244,14 +244,14 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	{
 		if (retry && retryAttempts < MAX_RETRY_ATTEMPTS)
 		{
-			// make first attempt within first 5 seconds
+			// make first attempt after 1 second
 			if (reconnectTime == 0)
 			{
-				Random random = new Random();
-				reconnectTime = random.nextInt(5) + 1;
+				reconnectTime = 1;
 			}
 			else
 			{
+				// increase wait time exponentially on next retries.
 				reconnectTime *= 2;
 			}
 			reconnectTime = reconnectTime > MAX_RECONNECT_TIME ? MAX_RECONNECT_TIME : reconnectTime;
