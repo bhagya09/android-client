@@ -77,6 +77,7 @@ import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.ChatTheme;
@@ -87,6 +88,7 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -1369,7 +1371,83 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return numRows;
 	}
+	
+	public boolean addActivityUpdate(FeedDataModel feedData)
+	{
+		boolean isUpdated = false;
+		
+		if (feedData.getActionType() == ActionTypes.LIKE)
+		{
+			isUpdated = addActivityLike(feedData);
+		}
+		else if (feedData.getActionType() == ActionTypes.UNLIKE)
+		{
+			isUpdated = deleteActivityLike(feedData);
+		}
+		else if (feedData.getActionType() == ActionTypes.VIEW)
+		{
+			// Later versions
+		}
+		else if (feedData.getActionType() == ActionTypes.COMMENT)
+		{
+			// Later versions
+		}
 
+		return isUpdated;
+	}
+
+	private boolean addActivityLike(FeedDataModel feedData)
+	{
+		boolean isComplete = false;
+		ContentValues conVal = new ContentValues();
+		conVal.put(DBConstants.FEED_OBJECT_TYPE, feedData.getObjType().getTypeString());
+		conVal.put(DBConstants.FEED_OBJECT_ID, feedData.getObjID());
+		conVal.put(DBConstants.FEED_ACTION_ID, feedData.getActionType().getKey());
+		conVal.put(DBConstants.FEED_ACTOR, feedData.getActor());
+		conVal.put(DBConstants.FEED_TS, feedData.getTimestamp());
+
+		long rowID = mDb.insert(DBConstants.FEED_TABLE, null, conVal);
+
+		if (rowID == -1L)
+		{
+			isComplete = false;
+		}
+		else
+		{
+			isComplete = true;
+		}
+
+		return isComplete;
+	}
+
+	private boolean deleteActivityLike(FeedDataModel feedData)
+	{
+		boolean isComplete = false;
+		ContentValues conVal = new ContentValues();
+		conVal.put(DBConstants.FEED_OBJECT_TYPE, feedData.getObjType().getTypeString());
+		conVal.put(DBConstants.FEED_OBJECT_ID, feedData.getObjID());
+		conVal.put(DBConstants.FEED_ACTION_ID, feedData.getActionType().getKey());
+		conVal.put(DBConstants.FEED_ACTOR, feedData.getActor());
+		conVal.put(DBConstants.FEED_TS, feedData.getTimestamp());
+
+		String whereClause = DBConstants.FEED_ACTOR + "=? AND " + DBConstants.FEED_OBJECT_ID + "=? AND " + DBConstants.FEED_ACTION_ID + "=? AND " + DBConstants.FEED_OBJECT_TYPE
+				+ "=?";
+
+		int rowDeleted = mDb.delete(DBConstants.FEED_TABLE, whereClause, new String[] { feedData.getActor(), feedData.getObjID(),
+				String.valueOf(feedData.getActionType().getKey()), feedData.getObjType().getTypeString() });
+
+		if (rowDeleted != 0)
+		{
+			isComplete = true;
+		}
+		else
+		{
+			isComplete = false;
+		}
+
+		return isComplete;
+	}
+	
 	/**
 	 * Extracts the thumbnail string from the metadata to save it in a different table. Returns this extracted string so that it can be set back in the metadata once the insertion
 	 * has been done.
@@ -1440,7 +1518,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.FEED_OBJECT_ID + " TEXT, " // object id (suid, card id)
 				+ DBConstants.FEED_ACTION_ID + " INTEGER, " // action id (love, comment,view,fav)
 				+ DBConstants.FEED_ACTOR + " TEXT, " // actor
-				+ DBConstants.READ + " INTEGER DEFAULT 0, " // read by
+				+ DBConstants.READ + " INTEGER DEFAULT 0, " // read - 1/unread -0
 				+ DBConstants.FEED_METADATA + " TEXT DEFAULT '{}', " // md
 				+ DBConstants.FEED_TS + " INTEGER DEFAULT 0" // timestamp
 				+ ")";

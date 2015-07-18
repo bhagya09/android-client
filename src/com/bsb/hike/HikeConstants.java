@@ -46,6 +46,8 @@ public class HikeConstants
 
 	public static final String SUB_TYPE = "st";
 	
+	public static final String SU_ID = "su_id";
+	
 	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 
 	public static final String HIKE_MESSAGE = "hm";
@@ -2370,6 +2372,8 @@ public class HikeConstants
 		public static final String PRODUCT_POPUP="productpopup";
 		
 		public static final String SESSION = "sess";
+		
+		public static final String ACTIVITY_UPDATE = "ac_up";
 	}
 
 	public static final class SMSNative

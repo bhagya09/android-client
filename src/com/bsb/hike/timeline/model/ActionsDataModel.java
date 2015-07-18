@@ -20,9 +20,40 @@ public class ActionsDataModel
 
 	private ActionsDataModel.ActionTypes type;
 
-	public enum ActionTypes
+	//TODO Move to more generic class
+	public static enum ActionTypes
 	{
-		LIKE, COMMENT, VIEWS
+		LIKE(1), UNLIKE(2), COMMENT(3), VIEW(4);
+		
+		int mKey;
+		
+		ActionTypes(int argKey)
+		{
+			mKey = argKey;
+		}
+		
+		public int getKey()
+		{
+			return mKey;
+		}
+	}
+	
+	//TODO Move to more generic class
+	public static enum ActivityObjectTypes
+	{
+		STATUS_UPDATE("su"), CARD("card"), CHANNEL("channel");
+
+		String mTypeString;
+
+		private ActivityObjectTypes(String typeString)
+		{
+			mTypeString = typeString;
+		}
+
+		public String getTypeString()
+		{
+			return mTypeString;
+		}
 	}
 
 	private ActionsDataModel()

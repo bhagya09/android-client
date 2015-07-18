@@ -400,6 +400,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
 	
+	public static final String ACTIVITY_UPDATE = "activityUpdate";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
