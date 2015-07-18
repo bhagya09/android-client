@@ -2270,6 +2270,7 @@ public class MqttMessagesManager
 	private void saveStatusUpdate(JSONObject jsonObj) throws JSONException
 	{
 		StatusMessage statusMessage = new StatusMessage(jsonObj);
+		
 		ContactManager conMgr = ContactManager.getInstance();
 		
 		JSONObject jsonData = jsonObj.getJSONObject(HikeConstants.DATA);
@@ -2328,7 +2329,8 @@ public class MqttMessagesManager
 		{
 			incrementUnseenStatusCount();
 			pubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE
+					|| statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 			{
 				/*
 				 * Start auto download of the profile image.
