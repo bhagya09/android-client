@@ -496,7 +496,7 @@ public class HikeNotificationMsgStack implements Listener
 		}
 		else
 		{
-			return String.format(mContext.getString(R.string.num_new_conversations), getNewConversations());
+			return String.format(mContext.getString(R.string.num_notification_sub_text_for_multi_msisdn), getNewMessages(), getNewConversations());
 		}
 	}
 

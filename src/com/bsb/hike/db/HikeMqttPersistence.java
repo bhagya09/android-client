@@ -180,10 +180,12 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 	
 	public void removeMessages(List<Long> msgIds)
 	{
-		if(msgIds.isEmpty())
+		if(msgIds == null || msgIds.isEmpty())
 		{
+			Logger.e(HikeMqttPersistence.class.getSimpleName(), "removeMessages :: msgIds not present");
 			return;
 		}
+		
 		StringBuilder inSelection = new StringBuilder("("+msgIds.get(0));
 		for (int i=0; i<msgIds.size(); i++)
 		{

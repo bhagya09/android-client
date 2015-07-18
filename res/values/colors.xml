@@ -350,7 +350,7 @@
     <color name="red_empty_field">#ef554e</color>
     <color name="pin_color">#fff38f</color>    
     <color name="add_fav">#ffa201</color>
-    <color name="missing_thumbnail">#aaaaaa</color>
+    <color name="mid_gray">#aaaaaa</color>
     <color name="header_bg">#f1f2f3</color>
     <color name="status_text_color">#888888</color>
     <color name="group_edit_pressed">#33888888</color>
@@ -420,5 +420,10 @@
     <color name="gallery_camera_tile_bg">#263238</color>
     <color name="no_internet_connection_card_background">#F2fd402d</color>
     <color name="no_internet_card_text">#000000</color>
+    <color name="external_pallete_text_highlight_color">#00D5FF</color>
+    <color name="chat_head_settings_separator">#979797</color>
+    <color name="semi_transparent_grey">#264C4C4C</color>
+    <color name="external_sticker_pallete_background">#1F2122</color>
+    
 </resources>
 	

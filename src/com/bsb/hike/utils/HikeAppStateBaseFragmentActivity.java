@@ -17,6 +17,7 @@ import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.productpopup.DialogPojo;
 import com.bsb.hike.productpopup.HikeDialogFragment;
@@ -159,6 +160,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		catch (ActivityNotFoundException e)
 		{
 			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UNABLE_TO_START_ACTIVITY, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Unable to find activity :" , e);
 			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -173,6 +175,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		catch (ActivityNotFoundException e)
 		{
 			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UNABLE_TO_START_ACTIVITY, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Unable to find activity :", e);
 			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
 		}		
 	}

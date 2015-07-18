@@ -10,7 +10,7 @@
 #define CHANNEL_ID 0
 #define FRAME_SIZE 1920
 
-#define  LOG_TAG    "VoIP NDK"
+#define  LOG_TAG    "VoIP NDK (Solicall)"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
@@ -89,13 +89,13 @@ JNIEXPORT jint JNICALL Java_com_bsb_hike_voip_SolicallWrapper_AECInit
     mySoliCallInit.sOutputAMPIncrease = 0;
     mySoliCallInit.sDelaySize = 6;
     mySoliCallInit.sDetectAggressiveLevel = 2;
-    mySoliCallInit.sCleanAggressiveLevel = 11;
+    mySoliCallInit.sCleanAggressiveLevel = 9;
     mySoliCallInit.bCancelAcousticShock = false;
     mySoliCallInit.bDoNotChangeTheOutput = false;
     mySoliCallInit.bBypassVAD = false;
 
     mySoliCallInit.bActivateAGC = true; // or true to turn ON AGC
-    mySoliCallInit.iDesiredAGCAmp = 32000;
+    mySoliCallInit.iDesiredAGCAmp = 48000;
     mySoliCallInit.iMinAGCCoef = 50;
     mySoliCallInit.iMaxAGCCoef = 500;
 

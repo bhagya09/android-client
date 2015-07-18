@@ -50,6 +50,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.utils.Utils;
 
 /**
  * ListView subclass that mediates drag and drop resorting of items.
@@ -3059,22 +3060,26 @@ R.styleable.DragSortListView_drop_animation_duration,
             }
 
             // save to file on sdcard
+            FileWriter writer = null;
             try {
                 boolean append = true;
                 if (mNumFlushes == 0) {
                     append = false;
                 }
-                FileWriter writer = new FileWriter(mFile, append);
+                writer = new FileWriter(mFile, append);
 
                 writer.write(mBuilder.toString());
                 mBuilder.delete(0, mBuilder.length());
 
                 writer.flush();
-                writer.close();
 
                 mNumFlushes++;
             } catch (IOException e) {
                 // do nothing
+            }
+            finally
+            {
+            	Utils.closeStreams(writer);
             }
         }
 

@@ -11,6 +11,7 @@ import android.util.Pair;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
@@ -78,6 +79,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 			File file = new File(filePath);
 			if (file.length() == 0)
 			{
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_7_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitiateFileTransferFromIntentData - File length is 0.");
 				return;
 			}
 			ArrayList<ContactInfo> list = new ArrayList<ContactInfo>();
