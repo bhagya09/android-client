@@ -247,11 +247,23 @@ public class OfflineFileManager
 	}
 
 	public void handleFileDelivered(long msgId, ConvMessage tempConvMessage) {
+		HikeFile hikeFile = tempConvMessage.getMetadata().getHikeFiles().get(0);
+		removeBinFileIfExists(hikeFile.getFilePath(),tempConvMessage.getMsgID());
 		HikeConversationsDatabase.getInstance().updateMessageMetadata(msgId, OfflineUtils.getUpdatedMessageMetaData(tempConvMessage));
 		HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
 		removeFromCurrentSendingFile(msgId);
 	}
 	
+
+	private void removeBinFileIfExists(String file, long msgId) {
+
+		File x = context.getExternalFilesDir("hiketmp");
+		File bin = new File(x, file + ".bin." + msgId);
+		if (bin != null && bin.exists()) {
+			bin.delete();
+		}
+	}
+
 	public void handleMessageReceived(ConvMessage convMessage) 
 	{
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);

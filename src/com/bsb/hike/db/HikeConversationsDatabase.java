@@ -7230,4 +7230,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return null;
 	}
+	public int updateMessageOriginType(long msgID,int originTypeOrdinal)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.MESSAGE_ORIGIN_TYPE , originTypeOrdinal);
+		return mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.MESSAGE_ID + "=?", new String[] { Long.toString(msgID) });
+	}
 }

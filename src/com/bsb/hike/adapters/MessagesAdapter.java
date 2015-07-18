@@ -69,6 +69,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -3346,7 +3347,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						}
 						else
 						{
-							convMessage.setMessageOriginType(OriginType.NORMAL);
+							updateOriginTypeForConvMessage(convMessage,OriginType.NORMAL);
 						}
 					}
 				}
@@ -3357,7 +3358,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					{
 						if(OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
 						{
-							convMessage.setMessageOriginType(OriginType.OFFLINE);
+							updateOriginTypeForConvMessage(convMessage,OriginType.OFFLINE);
 							OfflineController.getInstance().handleRetryButton(convMessage);
 							return;
 						}
@@ -3443,6 +3444,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			intent.putExtra(HikeConstants.Extras.CONTACT_INFO, convMessage.getMsisdn());
 			context.startActivity(intent);
 		}
+	}
+
+	private void updateOriginTypeForConvMessage(ConvMessage convMessage,OriginType originType) 
+	{
+		convMessage.setMessageOriginType(originType);
+		HikeConversationsDatabase.getInstance().updateMessageOriginType(convMessage.getMsgID(), originType.ordinal());
 	}
 
 	private void openFile(HikeFile hikeFile, ConvMessage convMessage, View parent)
