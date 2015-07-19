@@ -32,6 +32,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.google.android.gms.internal.r;
 
 import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.*;
 
@@ -101,6 +102,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		if (end > editable.length())
 		{
 			end = editable.length();
+			Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
 		}
 
 		if (end > start)
@@ -117,6 +119,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		if (end > editable.length() || end > 75)
 		{
 			end = Math.min(editable.length(), 75);
+			Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 		}
 
 		if (end > start)
@@ -175,7 +178,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 				if (stickerRecommendView == null)
 				{
-					Logger.i(StickerTagWatcher.TAG, "sticker recommnd view is null initialising ..");
+					Logger.i(StickerTagWatcher.TAG, "sticker recommend view is null, initialising ..");
 
 					stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
 					android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
@@ -253,7 +256,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public boolean onTouch(View v, MotionEvent event)
 	{
 		Logger.i(TAG, "onTouch() called " + editText);
-		if (editText == null || (event.getAction() != MotionEvent.ACTION_DOWN))
+		if ((activity == null) || (editText == null) || (event.getAction() != MotionEvent.ACTION_DOWN))
 		{
 			return false;
 		}
@@ -325,14 +328,32 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			fragmentManager.executePendingTransactions();
 
 		}
+
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
 		fragment = null;
 
+		if (activity != null)
+		{
+			activity.runOnUiThread(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					if (editable.length() > 0)
+					{
+						removeAttachedSpans(0, Math.min(editable.length(), 75));
+					}
+				}
+			});
+
+			activity = null;
+		}
+
 		colorSpanPool.releaseResources();
 		colorSpanPool = null;
 		stickerPickerListener = null;
-		activity = null;
 	}
 
 	/**

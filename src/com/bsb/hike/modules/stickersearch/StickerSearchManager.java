@@ -75,11 +75,14 @@ public class StickerSearchManager
 
 	public void removeStickerSearchListener(IStickerSearchListener listener)
 	{
-		if (this.listener != listener)
+		if (this.listener != null)
 		{
-			throw new IllegalStateException("removeStickerSearchListener(), Some listner remains.");
+			if (this.listener != listener)
+			{
+				throw new IllegalStateException("removeStickerSearchListener(), Some listener remains.");
+			}
+			this.listener = null;
 		}
-		this.listener = null;
 	}
 
 	public void loadChatProfile(String msidn, boolean isGroupChat, long lastMessageTimestamp)

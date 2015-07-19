@@ -84,7 +84,6 @@ import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -125,7 +124,6 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -165,7 +163,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
 		OverflowViewListener, OnSoftKeyboardListener
 {
-	private static final String TAG = "chatthread";
+	private static final String TAG = ChatThread.class.getSimpleName();
 
 	protected static final int FETCH_CONV = 1;
 
@@ -541,6 +539,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public void onCreate(Bundle savedState)
 	{
+		Logger.i(TAG, "onCreate(" + savedState + ")");
+
 		this.savedState = savedState;
 		init();
 		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
@@ -1451,12 +1451,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void setupStickerSearch()
 	{
-		
 		if(!(sharedPreference.getData(HikeMessengerApp.STICKER_SEARCH_ENABLED, true) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
 			return;
-		}
-		
+		}	
 		
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
 		mComposeView.addTextChangedListener(stickerTagWatcher);
@@ -1469,7 +1467,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return false;
 		}
-		
+
 		if(stickerTagWatcher.isStickerRecommnedPoupShowing())
 		{
 			stickerTagWatcher.dismissStickerSearchPopup();;
@@ -1966,7 +1964,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 
 		mComposeView.setOnKeyListener(this);
-
 	}
 
 	/*
@@ -3447,13 +3444,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private void releaseStickerSearchResources()
 	{
-		if(stickerTagWatcher == null)
+		if(stickerTagWatcher != null)
 		{
-			return ;
+			stickerTagWatcher.releaseResources();
+			mComposeView.removeTextChangedListener(stickerTagWatcher);
+			stickerTagWatcher = null;
 		}
-		stickerTagWatcher.releaseResources();
-		mComposeView.removeTextChangedListener(stickerTagWatcher);
-		stickerTagWatcher = null;
 	}
 	
 	private void releaseActionBarResources()

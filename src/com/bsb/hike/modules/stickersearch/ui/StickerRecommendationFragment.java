@@ -88,6 +88,7 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 		settings.setOnClickListener(settingsListener);
 		
 	}
+
 	@Override
 	public void onStop()
 	{
