@@ -61,14 +61,14 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
-		Logger.i(TAG, "Initialising sticker tag watcher");
+		Logger.i(TAG, "Initialising sticker tag watcher...");
 
 		this.activity = activity;
 		this.editText = editText;
 		this.color = color;
 		this.chatthread = chathread;
 		this.stickerPickerListener = (StickerPickerListener) chathread;
-		colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
+		this.colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
@@ -95,32 +95,34 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void highlightText(final int start, final int end)
+	public void highlightText(int start, int end)
 	{
-		try
+		Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
+		if (end > editable.length())
 		{
-			Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
+			end = editable.length();
+		}
+
+		if (end > start)
+		{
 			removeAttachedSpans(start, end);
 			editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
-		catch (IndexOutOfBoundsException ex)
-		{
-			Logger.d(TAG, "index out of bounds ex in highlight text ", ex);
 		}
 	}
 
 	@Override
-	public void unHighlightText(final int start, final int end)
+	public void unHighlightText(int start, int end)
 	{
-		try
+		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
+		if (end > editable.length() || end > 75)
 		{
-			Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
+			end = Math.min(editable.length(), 75);
+		}
+
+		if (end > start)
+		{
 			removeAttachedSpans(start, end);
 			editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
-		catch (IndexOutOfBoundsException ex)
-		{
-			Logger.d(TAG, "index out of bounds ex in unhighlight text ", ex);
 		}
 	}
 
@@ -137,9 +139,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				}
 			}
 		}
-		catch (Throwable e) // multiple exceptions in yureka
+		catch (Throwable e)
 		{
-			Logger.e(TAG, "Exception in get spans ", e);
+			Logger.e(TAG, "removeAttachedSpans(), Error in getSpans() ", e);
 		}
 	}
 
@@ -148,9 +150,10 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		if (activity == null)
 		{
-			Logger.wtf(TAG, "showStickerSearchPopup text acivity is null");
+			Logger.wtf(TAG, "showStickerSearchPopup(), text acivity is null");
 			return;
 		}
+
 		activity.runOnUiThread(new Runnable()
 		{
 
@@ -285,9 +288,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			clearSearchText();
 		}
 		else
-		// highlight search text
+		// select complete text
 		{
-			highlightSearchText();
+			selectSearchText();
 		}
 	}
 
@@ -358,7 +361,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void highlightSearchText()
+	public void selectSearchText()
 	{
 		chatthread.selectAllComposeText();
 	}

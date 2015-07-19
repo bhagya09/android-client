@@ -18,5 +18,5 @@ public interface IStickerSearchListener
 	
 	public void clearSearchText();
 	
-	public void highlightSearchText();
+	public void selectSearchText();
 }
