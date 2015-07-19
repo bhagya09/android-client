@@ -384,7 +384,10 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 						possibleKeyboardHeight = temp;
 					}
 				}
-				isKeyboardOpen = true;
+				if(isKeyboardOpen == false)
+				{
+					onKeyboardOpen(temp);
+				}
 				if (isShowing())
 				{
 					updatePadding(originalBottomPadding);
@@ -393,7 +396,10 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			}
 			else
 			{
-				isKeyboardOpen = false;
+				if(isKeyboardOpen == true)
+				{
+					onKeyboardClose();
+				}
 			}
 		}
 	};

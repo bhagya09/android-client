@@ -1,8 +1,10 @@
 package com.bsb.hike.media;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -14,8 +16,12 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_OPEN;
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
 {
@@ -30,7 +36,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	protected int[] mEatTouchEventViewIds;
 
 	protected PopupListener mListener;
-
+	
 	/**
 	 * 
 	 * @param mainView
@@ -281,7 +287,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				{
 					possibleKeyboardHeight = temp;
 				}
-				isKeyboardOpen = true;
+				if(isKeyboardOpen == false)
+				{
+					onKeyboardOpen(temp);
+				}
+				
 				if (isShowing())
 				{
 					updatePadding(0);
@@ -294,7 +304,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				// stabilize
 				if (islandScape)
 					possibleKeyboardHeightLand = 0;
-				isKeyboardOpen = false;
+				if(isKeyboardOpen == true)
+				{
+					onKeyboardClose();
+				}
+				
 			}
 		}
 	};
@@ -324,6 +338,21 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	public void onBackPressed()
 	{
 
+	}
+	
+	protected void onKeyboardOpen(int keyBoardHeight)
+	{
+		isKeyboardOpen = true;
+		Intent intent = new Intent(ACTION_KEYBOARD_OPEN);
+		intent.putExtra(HikeConstants.KEYBOARD_HEIGHT, keyBoardHeight);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
+	}
+	
+	protected void onKeyboardClose()
+	{
+		isKeyboardOpen = false;
+		Intent intent = new Intent(ACTION_KEYBOARD_CLOSED);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
 	}
 
 }

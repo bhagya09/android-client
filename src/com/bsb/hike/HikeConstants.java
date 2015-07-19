@@ -2951,4 +2951,12 @@ public class HikeConstants
 	public static final String NOTIFICATIONS_PRIORITY = "npc";
 	
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+	
+	public static class IntentAction
+	{
+		public static final String ACTION_KEYBOARD_OPEN = "com.bsb.hike.action.keyboardopen";
+		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
+	}
+	
+	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
 }

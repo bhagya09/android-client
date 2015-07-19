@@ -155,6 +155,8 @@ import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+
 /**
  * 
  * @generated
@@ -344,7 +346,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					mStickerPicker.notifyDataSetChanged();
 					mStickerPicker.setRefreshStickers(true);
 				}
+				break;
+			case ACTION_KEYBOARD_CLOSED:
+				dismissStickerRecommendationPopup();
+				break;
 			}
+			
 		}
 	}
 
@@ -1921,6 +1928,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		IntentFilter intentFilter = new IntentFilter(StickerManager.STICKERS_UPDATED);
 		intentFilter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
 		intentFilter.addAction(StickerManager.STICKERS_DOWNLOADED);
+		intentFilter.addAction(ACTION_KEYBOARD_CLOSED);
 
 		LocalBroadcastManager.getInstance(activity.getBaseContext()).registerReceiver(mBroadCastReceiver, intentFilter);
 		
@@ -1981,6 +1989,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		initComposeViewWatcher();
 		initGestureDetector();
+		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(this);
 	}
 
 	protected void initComposeViewWatcher()
@@ -4770,6 +4779,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mShareablePopupLayout.dismiss();
 		}
 		
+		if (stickerTagWatcher != null)
+		{
+			stickerTagWatcher.dismissStickerSearchPopup();
+		}
+		
 		/**
 		 * Handle theme background image change.
 		 */
@@ -5005,11 +5019,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onHidden()
 	{
-		if(stickerTagWatcher == null)
-		{
-			return;
-		}
-		stickerTagWatcher.dismissStickerSearchPopup();
 	}
 
 	public void dismissResidualAcitonMode()
