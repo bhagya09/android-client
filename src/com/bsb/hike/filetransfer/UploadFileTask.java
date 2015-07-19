@@ -622,7 +622,7 @@ public class UploadFileTask extends FileTransferBase
 				}
 				catch (Exception e)
 				{
-
+					Logger.e(getClass().getSimpleName(), "exception while initFileUpload when key is valid", e);
 				}
 				/*
 				 * Setting event in case of forward when file key is validated.
@@ -1071,7 +1071,7 @@ public class UploadFileTask extends FileTransferBase
 		}
 		catch (IOException e)
 		{
-
+			Logger.e(getClass().getSimpleName(), "exception while closing random access file", e);
 		}
 		return responseJson;
 	}
