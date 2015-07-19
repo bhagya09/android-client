@@ -29,7 +29,6 @@ import android.util.Pair;
 
 public class StickerSearchHostManager
 {
-
 	private static final String TAG = StickerSearchHostManager.class.getSimpleName();
 
 	private static final int MAXIMUM_STICKER_CAPACITY = 10;
@@ -245,7 +244,8 @@ public class StickerSearchHostManager
 			int lastIndexInPhraseStartedWithPivot;
 			int maxPermutationSize;
 			StringBuilder searchText = new StringBuilder();
-			boolean suggestionFoundOnLastValidPhrase = false;
+			boolean suggestionFoundOnLastValidPhrase;
+			boolean suggestionFoundOnLastValidWord;
 			int previousBoundary = 0;
 
 			for (int i = 0, j = 0; i < size; i++)
@@ -255,6 +255,7 @@ public class StickerSearchHostManager
 				if (value.length() > 0)
 				{
 					suggestionFoundOnLastValidPhrase = false;
+					suggestionFoundOnLastValidWord = false;
 					searchText.setLength(0);
 					maxPermutationSize = 4;
 					nextWord = null;
@@ -291,7 +292,7 @@ public class StickerSearchHostManager
 								list = phraseResultList;
 								Logger.d(TAG, "Filtering phrase stickers before saving in local cache: " + list);
 
-								if (previousBoundary < startList.get(i) || startList.get(i) == 0)
+								if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
 								{
 									previousBoundary = endList.get(lastIndexInPhraseStartedWithPivot);
 									tempResult.add(new int[] { startList.get(i), previousBoundary });
@@ -373,17 +374,11 @@ public class StickerSearchHostManager
 						if (wordResult != null && wordResult.size() > 0)
 						{
 							list.addAll(wordResult);
-
-							if (!suggestionFoundOnLastValidPhrase && (previousBoundary < startList.get(i) || startList.get(i) == 0))
-							{
-								previousBoundary = endList.get(i);
-								tempResult.add(new int[] { startList.get(i), previousBoundary });
-								Logger.d(TAG, "Making blue due to word \"" + partialSearchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
-							}
+							suggestionFoundOnLastValidWord = true;
 						}
 						else
 						{
-							// remove separator if only one stickers type is present either word or phrase
+							// remove separator if only one search type is present either word or phrase
 							list.remove(null);
 						}
 
@@ -435,7 +430,7 @@ public class StickerSearchHostManager
 									savedStickers = history.get(searchKey);
 									if ((savedStickers != null) && (savedStickers.size() > 0))
 									{
-										if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
+										if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
 										{
 											int marker = savedStickers.indexOf(null);
 											if (marker != 0)
@@ -460,6 +455,14 @@ public class StickerSearchHostManager
 									previousPhrase = currentPhrase;
 								}
 							}
+
+							// handle current word
+							if (!suggestionFoundOnLastValidPhrase && suggestionFoundOnLastValidWord && ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0))))
+							{
+								previousBoundary = endList.get(i);
+								tempResult.add(new int[] { startList.get(i), previousBoundary });
+								Logger.d(TAG, "Making blue due to word \"" + partialSearchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+							}
 						}
 					}
 					else
@@ -467,7 +470,7 @@ public class StickerSearchHostManager
 						ArrayList<ArrayList<Object>> savedStickers = history.get(searchKey);
 						if ((savedStickers != null) && (savedStickers.size() > 0))
 						{
-							if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
+							if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
 							{
 								int marker = savedStickers.indexOf(null);
 								if (marker != 0 && lastIndexInPhraseStartedWithPivot > i)
@@ -525,7 +528,7 @@ public class StickerSearchHostManager
 									savedStickers = history.get(searchKey);
 									if ((savedStickers != null) && (savedStickers.size() > 0))
 									{
-										if ((previousBoundary < startList.get(i)) || (startList.get(i) == 0))
+										if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
 										{
 											int marker = savedStickers.indexOf(null);
 
@@ -556,8 +559,8 @@ public class StickerSearchHostManager
 								previousPhrase = currentPhrase;
 							}
 
-							// handle individual word
-							if (((previousBoundary < startList.get(i)) || (startList.get(i) == 0)) && ((value.length() > 1) || (j == 0)))
+							// handle current word
+							if (((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0))) && ((value.length() > 1) || (j == 0)))
 							{
 								searchKey = value.toUpperCase(Locale.ENGLISH);
 								int actualStartOfWord = startList.get(i);
@@ -579,7 +582,7 @@ public class StickerSearchHostManager
 										// only word searched successfully, may be part of earlier phrase search successfully
 										previousBoundary = endList.get(i);
 										tempResult.add(new int[] { startList.get(i), previousBoundary });
-										Logger.d(TAG, "Making blue due to individual  word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+										Logger.d(TAG, "Making blue due to word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
 									}
 								}
 							}
@@ -958,10 +961,12 @@ public class StickerSearchHostManager
 					}
 					else
 					{
-						matchRankList.add((preScoreWeitage * (count - i) / count)
-								+ (postScoreWeitage * (computeAnalogousScoreForExactMatch(searchKey,
-										(String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE))) / ((int) stData.get(i).get(
-										HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (frequencyWeitage * formattedFrequency));
+						matchRankList
+								.add((preScoreWeitage * (count - i) / count)
+										+ (postScoreWeitage
+												* (computeAnalogousScoreForExactMatch(searchKey,
+														(String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE))) / ((int) stData.get(i).get(
+												HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (frequencyWeitage * formattedFrequency));
 					}
 					stikcerMomentList.add((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE));
 					stikcerCodeList.add((String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE));
