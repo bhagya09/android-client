@@ -77,7 +77,7 @@ public class StickerSearchManager
 	{
 		if (this.listener != listener)
 		{
-			throw new IllegalStateException("removeStickerSearchListener(), Some listner remains.");
+			Logger.wtf(StickerTagWatcher.TAG, "listener mismatch !!");
 		}
 		this.listener = null;
 	}
