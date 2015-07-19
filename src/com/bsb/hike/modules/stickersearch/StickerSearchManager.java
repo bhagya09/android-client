@@ -246,12 +246,13 @@ public class StickerSearchManager
 	public void onClickToSendSticker(int clickPosition)
 	{
 		Logger.i(StickerTagWatcher.TAG, "onClickToSendSticker(" + clickPosition + ")");
-		ArrayList<Sticker> stickerList = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
 
-		if (listener != null)
+		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
+
+		if ((listener != null) && (results != null))
 		{
 			listener.dismissStickerSearchPopup();
-			listener.showStickerSearchPopup(stickerList);
+			listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
 		}
 	}
 	

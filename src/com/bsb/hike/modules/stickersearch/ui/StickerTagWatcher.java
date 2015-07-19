@@ -32,7 +32,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.google.android.gms.internal.r;
 
 import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.*;
 
@@ -149,7 +148,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void showStickerSearchPopup(final List<Sticker> stickerList)
+	public void showStickerSearchPopup(final String word, final String phrase, final List<Sticker> stickerList)
 	{
 		if (activity == null)
 		{
@@ -193,7 +192,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 							.replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG).commitAllowingStateLoss();
 				}
 
-				((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
+				((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, stickerList);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 				showFtueAnimation();
 			}
@@ -267,7 +266,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void stickerSelected(Sticker sticker)
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedPlace)
 	{
 		if (stickerPickerListener == null)
 		{
@@ -275,8 +274,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		}
 
 		StickerManager.getInstance().addRecentStickerToPallete(sticker);
-		stickerPickerListener.stickerSelected(sticker, StickerSearchManager.getInstance().getFirstContinuousMatchFound() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
-				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);
+		stickerPickerListener.stickerSelected(sticker, (StickerSearchManager.getInstance().getFirstContinuousMatchFound() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
+				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL));
 
 		/*
 		 * dismiss sticker search popup
@@ -337,7 +336,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			activity.runOnUiThread(new Runnable()
 			{
-				
+
 				@Override
 				public void run()
 				{

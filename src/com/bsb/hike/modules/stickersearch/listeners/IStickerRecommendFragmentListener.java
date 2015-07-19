@@ -8,5 +8,5 @@ public interface IStickerRecommendFragmentListener
 	
 	public void onSettingsClicked();
 	
-	public void stickerSelected(Sticker sticker);
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedPlace);
 }

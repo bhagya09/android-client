@@ -651,7 +651,7 @@ public class StickerSearchHostManager
 		StickerSearchDataController.getInstance().analyseMessageSent(prevText, sticker, nextText);
 	}
 
-	public ArrayList<Sticker> onClickToSendSticker(int where)
+	public Pair<Pair<String, String>, ArrayList<Sticker>> onClickToSendSticker(int where)
 	{
 		Logger.d(TAG, "onClickToSendSticker(" + where + ")");
 
@@ -662,6 +662,9 @@ public class StickerSearchHostManager
 
 		ArrayList<Sticker> selectedStickers = null;
 		LinkedHashSet<Sticker> stickers = null;
+		Pair<String, LinkedHashSet<Sticker>> results = null;
+		String clickedWord = null;
+		String clickedPhrase = null;
 
 		for (int i = 0, j = 0; i < pwords.size(); i++)
 		{
@@ -673,7 +676,8 @@ public class StickerSearchHostManager
 
 				if (word.length() > 0)
 				{
-					stickers = computeProbableStickers(word, i, (j == 0));
+					results = computeProbableStickers(word, i, (j == 0));
+					clickedWord = word;
 				}
 				else
 				{
@@ -709,13 +713,21 @@ public class StickerSearchHostManager
 					{
 						if (((preInvalidCount <= postInvalidCount) && (preInvalidCount > 0)) || (postInvalidCount <= 0))
 						{
-							stickers = computeProbableStickers(word, preIndex, (j == 0));
+							results = computeProbableStickers(word, preIndex, (j == 0));
 						}
 						else
 						{
-							stickers = computeProbableStickers(word, postIndex, (j == 0));
+							results = computeProbableStickers(word, postIndex, (j == 0));
 						}
+
+						clickedWord = word;
 					}
+				}
+
+				if (results != null)
+				{
+					clickedPhrase = results.first;
+					stickers = results.second;
 				}
 				Logger.d(TAG, "Fetched stickers: " + stickers);
 				break;
@@ -726,19 +738,22 @@ public class StickerSearchHostManager
 			}
 		}
 
-		if (stickers != null && stickers.size() > 0)
+		if ((stickers != null) && (stickers.size() > 0))
 		{
 			selectedStickers = new ArrayList<Sticker>();
 			selectedStickers.addAll(stickers);
 		}
 
-		return selectedStickers;
+		return new Pair<Pair<String,String>, ArrayList<Sticker>>(new Pair<String, String>(clickedWord, clickedPhrase), selectedStickers);
 	}
 
-	private LinkedHashSet<Sticker> computeProbableStickers(String word, int wordIndexInText, boolean isFirstValidWord)
+	private Pair<String, LinkedHashSet<Sticker>> computeProbableStickers(String word, int wordIndexInText, boolean isFirstValidWord)
 	{
 		LinkedHashSet<Sticker> stickers = new LinkedHashSet<Sticker>();
 		LinkedHashSet<Sticker> tempSelectedStickers = null;
+		String preRelatedPhrase = null;
+		String postRelatedPhrase = null;
+		String exactRelatedPhrase;
 
 		int maxPermutationSize = 4;
 		int currentMaxPermutationSize;
@@ -833,6 +848,11 @@ public class StickerSearchHostManager
 
 						marker++;
 					}
+
+					if (preRelatedPhrase == null)
+					{
+						preRelatedPhrase = currentPhrase.replaceAll("\\*", "");
+					}
 				}
 			}
 			else
@@ -900,6 +920,11 @@ public class StickerSearchHostManager
 			if (tempSelectedStickers != null && (tempSelectedStickers.contains(null) ? tempSelectedStickers.size() > 1 : tempSelectedStickers.size() > 0))
 			{
 				stickers.addAll(tempSelectedStickers);
+
+				if (postRelatedPhrase == null)
+				{
+					postRelatedPhrase = currentPhrase.replaceAll("\\*", "");
+				}
 			}
 
 			previousPhrase = currentPhrase;
@@ -907,7 +932,20 @@ public class StickerSearchHostManager
 			maxPermutationSize--;
 		}
 
-		return stickers;
+		if (preRelatedPhrase == null)
+		{
+			exactRelatedPhrase = postRelatedPhrase;
+		}
+		else if (postRelatedPhrase == null)
+		{
+			exactRelatedPhrase = preRelatedPhrase;
+		}
+		else
+		{
+			exactRelatedPhrase = preRelatedPhrase.substring(0, preRelatedPhrase.lastIndexOf(word.toUpperCase(Locale.ENGLISH))).concat(postRelatedPhrase);
+		}
+
+		return new Pair<String, LinkedHashSet<Sticker>>(exactRelatedPhrase, stickers);
 	}
 
 	private LinkedHashSet<Sticker> processStickerData(String searchKey, ArrayList<ArrayList<Object>> stData)
