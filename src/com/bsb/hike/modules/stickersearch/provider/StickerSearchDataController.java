@@ -144,8 +144,8 @@ public enum StickerSearchDataController
 						ArrayList<String> tagCategoryList = new ArrayList<String>();
 						ArrayList<Integer> tagExactMatchPriorityList = new ArrayList<Integer>();
 						ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
-						ArrayList<Integer> stickerMomentList = new ArrayList<Integer>();
-						ArrayList<String> stickerFestivalList = new ArrayList<String>();
+						int stickerMomentCode = HikeStickerSearchBaseConstants.MOMENT_DEFAULT;
+						String stickerFestivals = HikeStickerSearchBaseConstants.STRING_EMPTY;
 
 						ArrayList<String> tempMatchElements = new ArrayList<String>();
 						ArrayList<String> tempRemainingMatchElements = new ArrayList<String>();
@@ -168,7 +168,7 @@ public enum StickerSearchDataController
 								if ((dictionaryData != null) && (dictionaryData.length() > 0))
 								{
 									languageId = languageId.trim().toLowerCase(Locale.ENGLISH);
-									Logger.v(TAG, "setupStickerSearchWizard(), Fetching tag data of sticker: " + stickerInfo + ", language: " + languageId);
+									Logger.v(TAG, "setupStickerSearchWizard(), Fetching language:" + languageId + " tag data for sticker: " + stickerInfo);
 
 									String key;
 									String formattedKey;
@@ -227,9 +227,9 @@ public enum StickerSearchDataController
 														tag = tag.trim().toLowerCase(Locale.ENGLISH);
 														themeList.add(tag);
 
-														tag = tag.trim().toUpperCase(Locale.ENGLISH);
-														if (!HikeStickerSearchBaseConstants.THEME_DEFAULT.equals(tag))
+														if (!HikeStickerSearchBaseConstants.THEME_DEFAULT.equalsIgnoreCase(tag))
 														{
+															tag = tag.trim().toUpperCase(Locale.ENGLISH);
 															tagList.add(tag);
 															tagLanguageList.add(languageId);
 															tagCategoryList.add(formattedKey);
@@ -286,7 +286,7 @@ public enum StickerSearchDataController
 											}
 											else
 											{
-												Logger.w(TAG, "setupStickerSearchWizard(), Unresolved key: " + key + " was found for sticker id: " + stickerInfo);
+												Logger.w(TAG, "setupStickerSearchWizard(), Unresolved key:" + key + " was found for sticker id: " + stickerInfo);
 											}
 										}
 										else
@@ -310,7 +310,7 @@ public enum StickerSearchDataController
 								}
 								else
 								{
-									Logger.e(TAG, "setupStickerSearchWizard(), Empty language: " + languageId + " tag data for sticker: " + stickerInfo);
+									Logger.e(TAG, "setupStickerSearchWizard(), Empty language:" + languageId + " tag data for sticker: " + stickerInfo);
 								}
 							}
 
@@ -334,63 +334,55 @@ public enum StickerSearchDataController
 						int stickerTagDataCount = tagList.size();
 						if (stickerTagDataCount > 0)
 						{
-							boolean momentDataEntered = false;
-							boolean festivalDataEntered = false;
 							JSONObject attributeData = tagData.optJSONObject("attrbs");
 
 							if ((attributeData != null) && (attributeData.length() > 0))
 							{
-								Logger.v(TAG, "setupStickerSearchWizard(), No. of attributes attached with " + stickerInfo + " = " + attributeData.length());
+								Logger.v(TAG, "setupStickerSearchWizard(), No. of attributes attached with sticker:" + stickerInfo + " = " + attributeData.length());
 								Iterator<String> attributeKeys = attributeData.keys();
 								String key;
 
 								while (attributeKeys.hasNext())
 								{
 									key = attributeKeys.next();
-									if (key.equalsIgnoreCase("*atime"))
-									{
-										int momentCode = attributeData.optInt(key, HikeStickerSearchBaseConstants.MOMENT_DEFAULT);
 
-										for (int i = 0; i < stickerTagDataCount; i++)
+									if (key.toLowerCase(Locale.ENGLISH).startsWith("*a"))
+									{
+										if (key.equalsIgnoreCase("*atime"))
 										{
-											stickerMomentList.add(momentCode);
+											stickerMomentCode = attributeData.optInt(key, HikeStickerSearchBaseConstants.MOMENT_DEFAULT);
 										}
-
-										momentDataEntered = true;
-									}
-									else if (key.equalsIgnoreCase("*afestival"))
-									{
-										JSONArray festivalArray = attributeData.optJSONArray(key);
-										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", festivals: " + festivalArray);
-										StringBuilder sb = new StringBuilder();
-										String festivalString;
-
-										if (festivalArray != null)
+										else if (key.equalsIgnoreCase("*afestival"))
 										{
-											for (int i = 0; i < festivalArray.length(); i++)
+											JSONArray festivalArray = attributeData.optJSONArray(key);
+											Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", festivals: " + festivalArray);
+											StringBuilder sb = new StringBuilder();
+
+											if (festivalArray != null)
 											{
-												festivalString = festivalArray.optString(i);
-												if (!Utils.isBlank(festivalString))
+												String festivalString;
+												for (int i = 0; i < festivalArray.length(); i++)
 												{
-													sb.append(festivalString.trim().toUpperCase(Locale.ENGLISH));
-													sb.append(",");
+													festivalString = festivalArray.optString(i);
+													if (!Utils.isBlank(festivalString))
+													{
+														sb.append(festivalString.trim().toUpperCase(Locale.ENGLISH));
+														sb.append(",");
+													}
+												}
+
+												if (sb.length() > 0)
+												{
+													sb.setLength(sb.length() - 1);
 												}
 											}
 
-											if (sb.length() > 0)
-											{
-												sb.setLength(sb.length() - 1);
-											}
+											stickerFestivals = sb.toString();
 										}
-
-										festivalString = sb.toString();
-
-										for (int i = 0; i < stickerTagDataCount; i++)
-										{
-											stickerFestivalList.add(festivalString);
-										}
-
-										festivalDataEntered = true;
+									}
+									else
+									{
+										Logger.w(TAG, "setupStickerSearchWizard(), Unresolved key:" + key + " was found for sticker id: " + stickerInfo);
 									}
 								}
 							}
@@ -399,24 +391,8 @@ public enum StickerSearchDataController
 								Logger.e(TAG, "setupStickerSearchWizard(), No attribute is attached with sticker: " + stickerInfo);
 							}
 
-							if (!momentDataEntered)
-							{
-								for (int i = 0; i < stickerTagDataCount; i++)
-								{
-									stickerMomentList.add(HikeStickerSearchBaseConstants.MOMENT_DEFAULT);
-								}
-							}
-
-							if (!festivalDataEntered)
-							{
-								for (int i = 0; i < stickerTagDataCount; i++)
-								{
-									stickerFestivalList.add("");
-								}
-							}
-
 							stickersTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
-									tagPriorityList, stickerMomentList, stickerFestivalList));
+									tagPriorityList, stickerMomentCode, stickerFestivals));
 							stickerCodeList.add(stickerInfo);
 						}
 						else

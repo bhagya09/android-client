@@ -24,12 +24,12 @@ public class StickerTagDataContainer
 
 	private ArrayList<Integer> mTagPriorities;
 
-	private ArrayList<Integer> mMoments;
+	private int mMomentCode;
 
-	private ArrayList<String> mFestivals;
+	private String mFestivals;
 
 	public StickerTagDataContainer(String stickerCode, ArrayList<String> tags, ArrayList<String> languages, ArrayList<String> tagCategories, ArrayList<String> themes,
-			ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities, ArrayList<Integer> moments, ArrayList<String> festivals)
+			ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities, int moment, String festivals)
 	{
 		mStickerCode = stickerCode;
 		mTags = tags;
@@ -38,7 +38,7 @@ public class StickerTagDataContainer
 		mThemes = themes;
 		mTagExactMatchPriorities = tagExactMatchPriorities;
 		mTagPriorities = tagPriorities;
-		mMoments = moments;
+		mMomentCode = moment;
 		mFestivals = festivals;
 	}
 
@@ -77,13 +77,21 @@ public class StickerTagDataContainer
 		return mTagPriorities;
 	}
 
-	public ArrayList<Integer> getMomentCodeList()
+	public int getMomentCode()
 	{
-		return mMoments;
+		return mMomentCode;
 	}
 
-	public ArrayList<String> getFestivalList()
+	public String getFestivalList()
 	{
 		return mFestivals;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "[sticker_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><language=" + mLanguages + "><category=" + mTagCategories + "><theme=" + mThemes
+				+ "><exact_match_order=" + mTagExactMatchPriorities + "><tag_popularity_order=" + mTagPriorities + ">}, attributes: {<moment_code=" + mMomentCode + "><festival="
+				+ mFestivals + "}]";
 	}
 }

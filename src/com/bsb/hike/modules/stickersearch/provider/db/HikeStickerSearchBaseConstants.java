@@ -226,28 +226,6 @@ public class HikeStickerSearchBaseConstants
 
 	// =============================================Constants used for indexing of sticker data]]
 
-	// Constants used for indexing of sticker tag data=========================================[[
-	// Order of following indices must be maintained iteratively; whenever removal/ addition of new index is taken place
-	public static final int INDEX_TAG_DATA_TAG_PHRASE = 0;
-
-	public static final int INDEX_TAG_DATA_PHRASE_LANGUAGE = 1;
-
-	public static final int INDEX_TAG_DATA_TAG_STATE_CATEGORY = 2;
-
-	public static final int INDEX_TAG_DATA_CHAT_THEME = 3;
-
-	public static final int INDEX_TAG_DATA_EXACTNESS_PRIORITY = 4;
-
-	public static final int INDEX_TAG_DATA_MOMENT_CODE = 5;
-
-	public static final int INDEX_TAG_DATA_FESTIVALS = 6;
-
-	public static final int INDEX_TAG_DATA_PRIORITY = 7;
-
-	public static final int INDEX_TAG_DATA_COUNT = 8;
-
-	// =========================================Constants used for indexing of sticker tag data]]
-
 	// Constants used for indexing of sticker data=============================================[[
 	// Order of following indices must be maintained iteratively; whenever removal/ addition of new index is taken place
 	public static final int INDEX_STICKER_DATA_STICKER_CODE = 0;
