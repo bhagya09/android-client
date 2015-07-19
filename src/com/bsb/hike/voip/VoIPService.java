@@ -558,6 +558,11 @@ public class VoIPService extends Service {
 			
 			// we are making an outgoing call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
+			
+			// In case of conference, verify network
+			if (clients.size() > 0 && !VoIPUtils.checkNetworkForConference(getApplicationContext()))
+				return returnInt;
+			
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
 				// Group call
 				groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
@@ -615,7 +620,6 @@ public class VoIPService extends Service {
 
 		if (clients.size() > 0 && getCallId() > 0) {
 			Logger.d(tag, "We're in a conference. Maintaining call id: " + getCallId());
-			// Disable crypto for clients in conference. 
 			getClient().cryptoEnabled = false;
 			client.isInAHostedConference = true;
 			client.cryptoEnabled = false;

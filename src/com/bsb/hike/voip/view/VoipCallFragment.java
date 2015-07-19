@@ -665,8 +665,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				if (data.hasExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE)) {
 					ArrayList<String> msisdns = data.getStringArrayListExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE);
 					Logger.w(tag, "Adding to conference: " + msisdns.toString());
-					getActivity().startService(IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(),
-							msisdns, null, VoIPUtils.CallSource.ADD_TO_CONFERENCE));
+					Intent intent = IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(),
+							msisdns, null, VoIPUtils.CallSource.ADD_TO_CONFERENCE);
+					if (intent != null)
+						getActivity().startService(intent);
 				}
 			}
 		}
