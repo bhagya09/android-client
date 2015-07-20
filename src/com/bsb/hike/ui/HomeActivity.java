@@ -245,16 +245,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
-	
-		
-		//TODO - REMOVE
-		GsonBuilder gsonBuilder = new GsonBuilder();
-	    gsonBuilder.registerTypeAdapter(ActionsDataModel.class, new ActionsDeserializer());
-	    Gson gson = gsonBuilder.create();
-	    
-	    String sampleJson = "{\"stat\":\"ok\",\"m\":[{\"su_id\":\"<suid1>\",\"l\":[{\"mdn\":\"<msisdn>\"},{\"mdn\":\"<msisdn>\"}],\"lc\":2},{\"su_id\":\"<msisdn>\",\"l\":[{\"mdn\":\"<msisdn>\"},{\"mdn\":\"<msisdn>\"}],\"lc\":2}]}";
-	    TimelineActions adm = gson.fromJson(sampleJson, TimelineActions.class);
-	    System.out.println("");
 	}
 	
 	@Override

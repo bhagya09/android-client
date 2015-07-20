@@ -1,7 +1,7 @@
 package com.bsb.hike.timeline.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.bsb.hike.models.ContactInfo;
 
@@ -26,7 +26,7 @@ public class TimelineActions
 		return timelineActionsMap.get(uuid+actionType);
 	}
 
-	public void addActionDetails(String uuid, ArrayList<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount)
+	public void addActionDetails(String uuid, List<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount)
 	{
 		ActionsDataModel actionDM = timelineActionsMap.get(uuid);
 
@@ -37,7 +37,7 @@ public class TimelineActions
 			newInstance = true;
 		}
 
-		actionDM.addContact(contactInfo);
+		actionDM.addContacts(contactInfo);
 		actionDM.setCount(totalCount);
 
 		if (newInstance)

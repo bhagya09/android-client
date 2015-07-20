@@ -3,6 +3,10 @@ package com.bsb.hike.timeline.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,13 +34,21 @@ import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
+import com.bsb.hike.timeline.ActionsDeserializer;
 import com.bsb.hike.timeline.TimelineConstants;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
+import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HomeActivity;
@@ -45,6 +57,8 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
 import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class UpdatesFragment extends SherlockFragment implements Listener, OnClickListener
 {
@@ -69,6 +83,10 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 	private RecyclerView.LayoutManager mLayoutManager;
 
 	private View actionsView;
+	
+	private TimelineActions actionsData = new TimelineActions();
+
+	private Gson gson;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -89,6 +107,10 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		super.onViewCreated(view, savedInstanceState);
 
 		prefs = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		
+		GsonBuilder gsonBuilder = new GsonBuilder();
+	    gsonBuilder.registerTypeAdapter(ActionsDataModel.class, new ActionsDeserializer());
+	    gson = gsonBuilder.create();
 
 		userMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, "");
 
@@ -294,12 +316,46 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		@Override
 		protected void onPostExecute(List<StatusMessage> result)
 		{
-			if (!isAdded())
+			if (!isAdded() || result == null)
 			{
-				Logger.d(getClass().getSimpleName(), "Not added");
+				Logger.d(getClass().getSimpleName(), "Not added or result null");
 				return;
 			}
 
+			final ArrayList<String> suIDList = new ArrayList<String>();
+			
+			for(StatusMessage suMessage: result)
+			{
+				suIDList.add(suMessage.getMappedId());
+			}
+			
+			if(!suIDList.isEmpty())
+			{
+				// Get actions for SU from HTTP
+				JSONArray suIDArray = new JSONArray(suIDList);
+				JSONObject suUpdateJSON = new JSONObject();
+				try
+				{
+					suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
+					HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				// Get actions for SU from DB
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(),suIDList, actionsData);
+						timelineCardsAdapter.notifyVisibleItems();
+					}
+				}, 0);
+			}
+			
 			String name = Utils.getFirstName(prefs.getString(HikeMessengerApp.NAME_SETTING, null));
 			String lastStatus = prefs.getString(HikeMessengerApp.LAST_STATUS, "");
 
@@ -367,6 +423,32 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		}
 
 	}
+	
+	private IRequestListener actionUpdatesReqListener = new IRequestListener()
+	{
+		@Override
+		public void onRequestSuccess(Response result)
+		{
+			JSONObject response = (JSONObject) result.getBody().getContent();
+			if (response.optString("stat").equals("ok"))
+			{
+				actionsData = gson.fromJson(response.toString(), TimelineActions.class);
+				timelineCardsAdapter.notifyVisibleItems();
+			}
+		}
+
+		@Override
+		public void onRequestProgressUpdate(float progress)
+		{
+			// Do nothing
+		}
+
+		@Override
+		public void onRequestFailure(HttpException httpException)
+		{
+			// Do nothing
+		}
+	};
 
 	private void addProtip(Protip protip)
 	{

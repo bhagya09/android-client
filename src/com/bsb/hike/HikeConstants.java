@@ -48,6 +48,8 @@ public class HikeConstants
 	
 	public static final String SU_ID = "su_id";
 	
+	public static final String SU_ID_LIST = "su_ids";
+	
 	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 
 	public static final String HIKE_MESSAGE = "hm";
