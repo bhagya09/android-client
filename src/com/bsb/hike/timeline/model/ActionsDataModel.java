@@ -5,7 +5,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 
 /**
  * Contains action count and actor contact info objects
@@ -19,22 +22,47 @@ public class ActionsDataModel
 	private LinkedHashSet<ContactInfo> contactInfoList;
 
 	private ActionsDataModel.ActionTypes type;
-
+	
+	private static final int LIKE_ID = 1;
+	
+	private static final int UNLIKE_ID = 2;
+	
+	private static final int COMMENT_ID = 3;
+	
+	private static final int VIEW_ID = 4;
+	
 	//TODO Move to more generic class
 	public static enum ActionTypes
 	{
-		LIKE(1), UNLIKE(2), COMMENT(3), VIEW(4);
-		
+		LIKE(LIKE_ID), UNLIKE(UNLIKE_ID), COMMENT(COMMENT_ID), VIEW(VIEW_ID);
+
 		int mKey;
-		
+
 		ActionTypes(int argKey)
 		{
 			mKey = argKey;
 		}
-		
+
 		public int getKey()
 		{
 			return mKey;
+		}
+
+		public static ActionTypes getType(int type)
+		{
+			switch (type)
+			{
+			case LIKE_ID:
+				return ActionTypes.LIKE;
+			case UNLIKE_ID:
+				return ActionTypes.UNLIKE;
+			case COMMENT_ID:
+				return ActionTypes.COMMENT;
+			case VIEW_ID:
+				return ActionTypes.VIEW;
+			default:
+				throw new IllegalArgumentException("Invalid ActionType key");
+			}
 		}
 	}
 	
@@ -92,7 +120,7 @@ public class ActionsDataModel
 		return contactInfoList;
 	}
 
-	public boolean addContact(Collection<ContactInfo> argContactInfo)
+	public boolean addContacts(Collection<ContactInfo> argContactInfo)
 	{
 		if (argContactInfo == null)
 		{
@@ -105,6 +133,26 @@ public class ActionsDataModel
 		}
 
 		return contactInfoList.addAll(argContactInfo);
+	}
+	
+	public boolean addContact(String msisdn)
+	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			throw new IllegalArgumentException("addContact(argContactInfo) : input msisdn cannot be null");
+		}
+
+		if (contactInfoList == null)
+		{
+			contactInfoList = new LinkedHashSet<ContactInfo>();
+		}
+
+		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+		if (contactInfo != null)
+		{
+			return contactInfoList.add(contactInfo);
+		}
+		return false;
 	}
 
 	public boolean addContact(ContactInfo argContactInfo)

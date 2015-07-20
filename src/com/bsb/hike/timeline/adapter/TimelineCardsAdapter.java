@@ -1,6 +1,7 @@
 package com.bsb.hike.timeline.adapter;
 
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONException;
@@ -36,6 +37,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -48,6 +50,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
+import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
@@ -799,48 +802,57 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			// mContext.finish();
 		}
 	};
-	
+
 	private OnCheckedChangeListener onLoveToggleListener = new OnCheckedChangeListener()
 	{
-		
+
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 		{
-			StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
-			
+			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
+
 			JSONObject json = new JSONObject();
-			
+
 			try
 			{
-				json.put("su_id", statusMessage.getMappedId());
+				json.put(HikeConstants.SU_ID, statusMessage.getMappedId());
 			}
 			catch (JSONException e)
 			{
 				e.printStackTrace();
 			}
-			
-			if(isChecked)
+
+			if (isChecked)
 			{
 				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
 				{
-					
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						Toast.makeText(mContext, "Like success", Toast.LENGTH_SHORT).show();
-						
+						JSONObject response = (JSONObject) result.getBody().getContent();
+						if (response.optString("stat").equals("ok"))
+						{
+							// Increment like count in actions table
+							String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+
+							ArrayList<String> actorList = new ArrayList<String>();
+							actorList.add(selfMsisdn);
+
+							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
+									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
+						}
 					}
-					
+
 					@Override
 					public void onRequestProgressUpdate(float progress)
 					{
-						// TODO Auto-generated method stub
+						// Do nothing
 					}
-					
+
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
-						Toast.makeText(mContext, "Like failure", Toast.LENGTH_SHORT).show();
+						// Do nothing
 					}
 				}, null);
 				token.execute();
@@ -852,19 +864,30 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						Toast.makeText(mContext, "Unlike success", Toast.LENGTH_SHORT).show();
+						JSONObject response = (JSONObject) result.getBody().getContent();
+						if (response.optString("stat").equals("ok"))
+						{
+							// Decrement like count in actions table
+							String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+
+							ArrayList<String> actorList = new ArrayList<String>();
+							actorList.add(selfMsisdn);
+
+							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
+									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
+						}
 					}
-					
+
 					@Override
 					public void onRequestProgressUpdate(float progress)
 					{
-						// TODO Auto-generated method stub
+						// Do nothing
 					}
-					
+
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
-						Toast.makeText(mContext, "Unlike failure", Toast.LENGTH_SHORT).show();
+						// Do nothing
 					}
 				}, null);
 				token.execute();
@@ -883,6 +906,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			mActivity.get().startActivity(argIntent);
 		}
+	}
+
+	public void notifyVisibleItems()
+	{
+		// TODO Auto-generated method stub
+
 	}
 
 }
