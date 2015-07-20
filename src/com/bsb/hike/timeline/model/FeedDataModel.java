@@ -33,7 +33,7 @@ public class FeedDataModel
 
 			String statusId = jsonData.getString(HikeConstants.SU_ID);
 			
-			if(TextUtils.isEmpty(statusId))
+			if(!TextUtils.isEmpty(statusId))
 			{
 				setObjType(ActivityObjectTypes.STATUS_UPDATE);
 				
@@ -54,7 +54,7 @@ public class FeedDataModel
 			}
 		}
 	}
-
+	
 	public int getAction()
 	{
 		return mAction;
