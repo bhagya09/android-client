@@ -795,7 +795,7 @@ public class IntentFactory
 	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, String groupChatMsisdn, VoIPUtils.CallSource source)
 	{
 		// Check if we are on a fast enough network to make a conference call 
-		if (!VoIPUtils.checkNetworkForConference(HikeMessengerApp.getInstance()))
+		if (!VoIPUtils.checkIfConferenceIsAllowed(HikeMessengerApp.getInstance(), msisdns.size()))
 			return null;
 		
 		Intent intent = new Intent(context, VoIPService.class);

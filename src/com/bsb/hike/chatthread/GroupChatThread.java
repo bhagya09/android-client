@@ -279,14 +279,10 @@ public class GroupChatThread extends OneToNChatThread
 			}
 			
 			// Launch VoIP service
-			if (msisdns.size() > VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE) {
-				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.voip_group_too_large), Toast.LENGTH_SHORT).show();
-			} else {
-				Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-						msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
-				if (intent != null)
-					activity.getApplicationContext().startService(intent);
-			}
+			Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+					msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+			if (intent != null)
+				activity.getApplicationContext().startService(intent);
 			break;
 		case R.string.mute_group:
 			toggleMuteGroup();

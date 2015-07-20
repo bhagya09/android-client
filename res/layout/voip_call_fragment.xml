@@ -145,7 +145,7 @@
 			        android:scaleType="centerInside"
 			        android:layout_weight="1"
 			        android:visibility="gone"
-			        android:src="@drawable/voip_add_conf_selector">
+			        android:src="@drawable/voip_bluetooth_selector">
 			    </ImageButton>
 		        		        
 	    		<ImageButton
