@@ -613,7 +613,7 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken getActionUpdates(JSONObject json, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken getActionUpdates(JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
