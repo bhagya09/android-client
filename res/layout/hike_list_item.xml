@@ -108,8 +108,7 @@
 		        <com.bsb.hike.view.CustomFontTextView
 		            android:id="@+id/number"
 		            android:text="Number"
-		            style="@style/ListItemSubHeaderTextView"
-		            />
+		            style="@style/ListItemSubHeaderTextView"/>
         </LinearLayout>
     </LinearLayout>
 

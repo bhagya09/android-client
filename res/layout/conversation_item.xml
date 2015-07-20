@@ -42,13 +42,9 @@
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/last_message_timestamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/ListItemRightSubText"
                     android:layout_alignParentRight="true"
-                    android:text="9:35AM"
-                    android:textColor="@color/conv_item_timestamp_color"
-                    android:textStyle="normal"
-                    android:textSize="12sp" />
+                    android:text="9:35AM"/>
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/contact"
@@ -70,8 +66,8 @@
                     android:layout_width="20.5dp"
                     android:layout_height="8dp"
                     android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
                     android:layout_marginRight="8dp"
+                    android:scaleType="fitCenter"
                     android:visibility="gone" />
 
               
