@@ -22,6 +22,8 @@ public class NonMessagingBotMetadata
     private String unReadCountShowType;
 
 	private static final String DEFAULT_UNREAD_COUNT = "1+";
+	private String nonMessagingBotType;
+	private String url;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -57,6 +59,9 @@ public class NonMessagingBotMetadata
 
 	private void init(JSONObject metadata)
 	{
+
+		setNonMessagingBotType(json.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE, HikePlatformConstants.MICROAPP_MODE));
+
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
 			cardObj = metadata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
@@ -69,6 +74,11 @@ public class NonMessagingBotMetadata
 			if (cardObj.has(HikePlatformConstants.APP_PACKAGE))
 			{
 				setAppPackage(cardObj.optString(HikePlatformConstants.APP_PACKAGE));
+			}
+
+			if (cardObj.has(HikePlatformConstants.URL))
+			{
+				setUrl(cardObj.optString(HikePlatformConstants.URL));
 			}
 		}
 
@@ -131,6 +141,36 @@ public class NonMessagingBotMetadata
 	public JSONObject getJson()
 	{
 		return json;
+	}
+
+	public String getNonMessagingBotType()
+	{
+		return nonMessagingBotType;
+	}
+
+	public void setNonMessagingBotType(String nonMessagingBotType)
+	{
+		this.nonMessagingBotType = nonMessagingBotType;
+	}
+
+	public String getUrl()
+	{
+		return url;
+	}
+
+	public void setUrl(String url)
+	{
+		this.url = url;
+	}
+
+	public boolean isMicroAppMode()
+	{
+		return nonMessagingBotType.equals(HikePlatformConstants.MICROAPP_MODE);
+	}
+
+	public boolean isWebUrlMode()
+	{
+		return nonMessagingBotType.equals(HikePlatformConstants.URL_MODE);
 	}
 
 	@Override

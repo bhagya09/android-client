@@ -179,7 +179,7 @@ public class HttpRequestConstants
 	
 	public static String getStickerTagsUrl()
 	{
-		return BASE_URL + BASE_V3 + BASE_STICKER + "/tagdata";
+		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER + "/tagdata";
 	}
 
 	public static String lastSeenUrl()

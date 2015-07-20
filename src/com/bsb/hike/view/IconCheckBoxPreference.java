@@ -54,7 +54,7 @@ public class IconCheckBoxPreference extends CheckBoxPreference
 			imageView.setVisibility(View.VISIBLE);
 			imageView.setSelected(isChecked());
 		}
-		else 
+		else if(imageView != null)
 		{
 			imageView.setVisibility(View.GONE);
 		}

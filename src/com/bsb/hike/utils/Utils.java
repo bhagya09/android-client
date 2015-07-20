@@ -2365,7 +2365,7 @@ public class Utils {
 				HikeConstants.GOOGLE_PLUS_PREFIX)|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
 	}
 
-	public static Uri makePicasaUri(Uri uri)
+	public static Uri makePicasaUriIfRequired(Uri uri)
 	{
 		if (uri.toString().startsWith("content://com.android.gallery3d.provider"))
 		{
@@ -2639,8 +2639,17 @@ public class Utils {
 		{
 			return;
 		}
-		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.showSoftInput(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+		showSoftKeyboard(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+	}
+	
+	public static void showSoftKeyboard(View v,int flags)
+	{
+		if (v == null)
+		{
+			return;
+		}
+		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInput(v, flags);
 	}
 	
 //	public static void showSoftKeyboard(Context context)
@@ -3303,6 +3312,16 @@ public class Utils {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 	}
 
+	public static boolean isJellybeanOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+	}
+
+	public static boolean isJellybeanMR1OrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
+	}
+
 	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
 	{
 		if (isHoneycombOrHigher())
@@ -3513,7 +3532,7 @@ public class Utils {
 		Intent intent = new Intent();
 		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
 		{
-			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
 		}
 
 		else
@@ -4997,60 +5016,103 @@ public class Utils {
 	
 	public static String getFormattedPrettyTime( Context context, long timestampInSeconds)
 	{
-		if (timestampInSeconds < 0)
+		try
 		{
-			return "";
-		}
-		
-		long givenTimeStampInMillis = timestampInSeconds * 1000; 
-		Calendar givenCalendar = Calendar.getInstance();
-		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
-		
-		long currentTime = System.currentTimeMillis();
-		Calendar currentCalendar = Calendar.getInstance();
-		
-		if(givenCalendar.before(currentCalendar))
-		{
-			long timeDiff = currentTime - givenTimeStampInMillis;
-
-			if (timeDiff < 60 * 1000)
+			if (timestampInSeconds < 0)
 			{
-				// until 1 minute
-				return context.getResources().getString(R.string.now);
+				return "";
 			}
-			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+
+			long givenTimeStampInMillis = timestampInSeconds * 1000;
+			Calendar givenCalendar = Calendar.getInstance();
+			givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+
+			long currentTime = System.currentTimeMillis();
+			Calendar currentCalendar = Calendar.getInstance();
+
+			if (givenCalendar.before(currentCalendar))
 			{
-				//Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+				long timeDiff = currentTime - givenTimeStampInMillis;
+
+				if (timeDiff < 60 * 1000)
+				{
+					// until 1 minute
+					return context.getResources().getString(R.string.now);
+				}
+				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+				{
+					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+				}
+				else
+				{
+					// Shows date in numeric format
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				}
 			}
 			else
 			{
-				//Shows date in numeric format
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+				{
+					if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+					{
+						// Show time in non relate default time format
+						return getFormattedTime(context, givenTimeStampInMillis);
+					}
+					else
+					{
+						// Show date in MMM dd format eg. Apr 21, May 13 etc.
+						return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+								DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+					}
+				}
+				else
+				{
+					// Show date in numeric format
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				}
 			}
 		}
-		else
+		catch (Exception e)
 		{
+			return getFallBackPrettyTime(context, timestampInSeconds);
+		}
+
+	}
+
+	private static String getFallBackPrettyTime(Context context, long timestampInSeconds)
+	{
+		try
+		{
+			long givenTimeStampInMillis = timestampInSeconds * 1000;
+			Calendar givenCalendar = Calendar.getInstance();
+			givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+
+			Calendar currentCalendar = Calendar.getInstance();
+
 			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 			{
 				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
 				{
-					//Show time in non relate default time format
+					// Show time in non relate default time format
 					return getFormattedTime(context, givenTimeStampInMillis);
 				}
 				else
 				{
 					// Show date in MMM dd format eg. Apr 21, May 13 etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+					return DateUtils.formatDateRange(context, givenTimeStampInMillis, givenTimeStampInMillis, DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_YEAR);
 				}
 			}
 			else
 			{
-				//Show date in numeric format
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				// Show date in numeric format
+				return DateUtils.formatDateRange(context, givenTimeStampInMillis, givenTimeStampInMillis, DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_YEAR);
 			}
 		}
-	
+		catch (Exception e)
+		{
+			return "";
+		}
 	}
 
 	public static Pair<String[], String[]> getMsisdnToNameArray(Conversation conversation)
@@ -6028,7 +6090,14 @@ public class Utils {
 
 	public static boolean isSendLogsEnabled()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+		}
+		
+		return false;
 	}
 	
 

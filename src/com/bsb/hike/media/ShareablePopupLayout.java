@@ -3,6 +3,7 @@ package com.bsb.hike.media;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -35,10 +36,10 @@ public class ShareablePopupLayout
 	 * @param eatOuterTouchIds
 	 */
 
-	public ShareablePopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener, OnSoftKeyboardListener keyBoardListener)
+	public ShareablePopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener,OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		initViewToDisplay(context);
-		initPopupLayout(context, mainView, firstTimeHeight, eatOuterTouchIds, listener, keyBoardListener);
+		initPopupLayout(context, mainView, firstTimeHeight, eatOuterTouchIds, listener,onSoftKeyboardListener);
 	}
 
 	private void initViewToDisplay(Context context)
@@ -53,14 +54,23 @@ public class ShareablePopupLayout
 	 * @param mainView
 	 * @param firstTimeHeight
 	 * @param eatOuterTouchIds
+	 * @param editText 
+	 * @param onSoftKeyboardListener 
 	 */
 
-	private void initPopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener, OnSoftKeyboardListener keyBoardListener)
+	private void initPopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener, OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		if (mKeyboardPopupLayout == null)
 		{
-			mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener, keyBoardListener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
-					context, eatOuterTouchIds, listener, keyBoardListener);
+			if (KeyboardPopupLayout21.shouldShow(context))
+			{
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener,onSoftKeyboardListener) : new KeyboardPopupLayout21(mainView, firstTimeHeight,
+						context, eatOuterTouchIds, listener,onSoftKeyboardListener);
+			}else{
+				
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
+					context, eatOuterTouchIds, listener);
+			}
 		}
 	}
 
@@ -95,6 +105,10 @@ public class ShareablePopupLayout
 		{
 			if (mKeyboardPopupLayout.isShowing())
 			{
+				if (mKeyboardPopupLayout instanceof KeyboardPopupLayout21)
+				{
+					((KeyboardPopupLayout21) mKeyboardPopupLayout).showKeyboardAfterPopupDismiss();
+				}
 				dismiss();
 				return true;
 			}
@@ -225,5 +239,18 @@ public class ShareablePopupLayout
 			mKeyboardPopupLayout.onCloseKeyBoard();
 		}
 	}
+	public boolean onEditTextTouch(View v, MotionEvent event){
+		return mKeyboardPopupLayout.onEditTextTouch(v, event);
+	}
+
+	public boolean isBusyInOperations(){
+		return mKeyboardPopupLayout.isBusyInOperations();
+	}
+
+	public void onBackPressed()
+	{
+		mKeyboardPopupLayout.onBackPressed();
+	}
+
 
 }

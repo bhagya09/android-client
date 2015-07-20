@@ -3,10 +3,15 @@ package com.bsb.hike.utils;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.bool;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +29,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -149,7 +156,7 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName)
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName, boolean isFromChatHead)
 	{
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType(mimeType);
@@ -157,7 +164,14 @@ public class IntentFactory
 		{
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		if (isFromChatHead)
+		{
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		else
+		{
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		}
 		if (pkgName != null)
 		{
 			intent.setPackage(pkgName);
@@ -185,18 +199,48 @@ public class IntentFactory
 	}
 
 	
-	public static void openSettingStickerOnOtherApp(Context context)
+	public static void openStickerSettings(Context context)
 	{
-		Intent intent = new Intent(context, StickerShareSettings.class);
-		context.startActivity(intent);
+		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
+		if (Utils.isIceCreamOrHigher())
+		{
+			Intent intent = new Intent(context, StickerShareSettings.class);
+			context.startActivity(intent);
+		}
 	}
 	
 	public static void openSettingHelp(Context context)
 	{
+		Intent intent = null;
+		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN);
+			if (botInfo.isNonMessagingBot())
+			{
+				intent = getNonMessagingBotIntent(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN, context);
+			}
+			else
+			{
+				intent = getSettingHelpIntent(context);
+			}
+		}
+		else
+		{
+			intent = getSettingHelpIntent(context);
+		}
+
+		if (intent != null)
+		{
+			context.startActivity(intent);
+		}
+	}
+
+	private static Intent getSettingHelpIntent(Context context)
+	{
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.help_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.help);
-		context.startActivity(intent);
+		return intent;
 	}
 
 	public static void openSettingChat(Context context)
@@ -295,11 +339,6 @@ public class IntentFactory
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
-		/*
-		 * New task flag is needed as we are opening our activity in another task outside hike existing task and clear task to remove existing activities of hike task so that user
-		 * can return from where he came to this task
-		 */
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
 				HttpRequestConstants.getMorestickersUrl() + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
 		intent.putExtra(HikeConstants.Extras.TITLE, context.getString(R.string.more_stickers));
@@ -309,9 +348,7 @@ public class IntentFactory
 
 	public static Intent getStickerShareSettingsIntent(Context context)
 	{
-		Intent intent = new Intent(context, StickerShareSettings.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		return intent;
+		return new Intent(context, StickerShareSettings.class);
 	}
 	
 
@@ -702,14 +739,24 @@ public class IntentFactory
 		return intent;
 
 	}
-	
-	public static Intent getNonMessagingBotIntent(String msisdn, String url, String title, Context context)
+
+
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
-		Intent intent = getWebViewActivityIntent(context, url, title);
-		intent.putExtra(WebViewActivity.WEBVIEW_MODE, WebViewActivity.MICRO_APP_MODE);
-		intent.putExtra(HikeConstants.MSISDN, msisdn);
-		
-		return intent;
+		if (BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if (botInfo.isNonMessagingBot())
+			{
+				Intent intent = getWebViewActivityIntent(context, "", "");
+				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
+				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+				intent.putExtra(HikeConstants.MSISDN, msisdn);
+				return intent;
+			}
+		}
+
+		return new Intent();
 	}
 
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata)
@@ -754,19 +801,7 @@ public class IntentFactory
 
 	public static Intent getStickerShopIntent(Context context)
 	{
-		return getStickerShopIntent(context, false);
-	}
-	
-	public static Intent getStickerShopIntent(Context context, boolean flags)
-	{
-		Intent intent = new Intent(context, StickerShopActivity.class);
-		
-		if(flags)
-		{  /*New task flag is needed as we are opening our activity in another task outside hike existing task and clear task 
-		 to remove existing activities of hike task so that user can return from where he came to this task*/  
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		}
-		return intent;
+		return new Intent(context, StickerShopActivity.class);
 	}
 
 	public static Intent getStickerSettingIntent(Activity context)
@@ -793,12 +828,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, VoIPUtils.CallSource source)
+	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, String groupChatMsisdn, VoIPUtils.CallSource source)
 	{
 		Intent intent = new Intent(context, VoIPService.class);
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		intent.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
 		return intent;
 	}
 
