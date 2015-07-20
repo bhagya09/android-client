@@ -1535,10 +1535,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="one_day_button">24 HOURS</string>
     <string name="settings_share_stickers">Stickey</string>
     <string name="settings_share_stickers_hintext">Stickey Settings</string>
-    <string name="sticker_widget_hide">Hide the Stickey from all the apps listed</string>
     <string name="sticker_widget_show">Show the Stickey in all the apps listed</string>
     <string name="settings_select_all">Select all </string>
-    <string name="settings_deselect_all">Deselect all </string>
     <string name="more_stickers">More stickers</string>
 	<string name="add_members">Add Members</string>
 	<string name="add_members_to_conference">Add To Conference</string>

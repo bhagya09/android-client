@@ -722,6 +722,8 @@ public class HikeConstants
 	public static final int SHARE_FILE_CODE = 1194;
 	
 	public static final int PLATFORM_REQUEST = 1195; 
+	
+	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
 
 	public static final int ADD_TO_CONFERENCE_REQUEST = 1196; 
 
@@ -2309,6 +2311,10 @@ public class HikeConstants
 		public static final String NUX = "nux";
 
 		public static final String CREATE_MULTIPLE_BOTS = "cbot";
+		
+		public static final String REMOVE_MICRO_APP = "dmapp";
+		
+		public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
@@ -2923,4 +2929,8 @@ public class HikeConstants
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 	
 	public static final String NOTIFICATIONS_PRIORITY = "npc";
+
+	public static final String FT_HOST_IPS = "ftHostIps";
+	
+	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
 }
