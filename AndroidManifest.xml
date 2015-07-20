@@ -320,6 +320,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:noHistory="true"
             android:excludeFromRecents="true"
+            android:autoRemoveFromRecents="true"
             android:taskAffinity="com.bsb.hike.chatHead"
             android:launchMode="singleInstance">
 		</activity>

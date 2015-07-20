@@ -15,6 +15,7 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -27,13 +28,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -77,11 +82,15 @@ public class ChatHeadService extends Service
 	// boolean to show whether the chat head must be shown or not for a particular session
 	private static boolean toShow = true;
 	
-	private WindowManager.LayoutParams chatHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
-			WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+	private LayoutParams chatHeadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_SPLIT_TOUCH, PixelFormat.TRANSLUCENT);
 
-	private WindowManager.LayoutParams closeHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
-			WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+	private LayoutParams closeHeadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+	
+
+	private LayoutParams stickerPickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,
+			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_SPLIT_TOUCH, PixelFormat.TRANSLUCENT);
 
 	public static boolean flagActivityRunning = false;
 
@@ -232,11 +241,22 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
+				if(ChatHeadLayout.getOverlayView() != null)
+				{flagActivityRunning = false;
+					try {
+					windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
+					}
+					catch (Exception e)
+					{
+						Logger.d("UmangX","busted");
+					}
+				}
 				if (flag != ChatHeadConstants.REMAINING_ANIMATION && flagActivityRunning && (mFinishActivityListener != null))
 				{
 					flagActivityRunning = false;
-					mFinishActivityListener.finishActivity();
+					//mFinishActivityListener.finishActivity();
 				}
+				
 			}
 
 			@Override
@@ -254,15 +274,16 @@ public class ChatHeadService extends Service
 					{
 						break;
 					}
-					Intent intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					startActivity(intent);
+					createAndOpenChatHeadPickerLayout(getApplicationContext());
+//					Intent intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
+//					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//					startActivity(intent);
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
-					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp, true);
-					if (intent != null && ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(foregroundApp))
+					Intent sharingIntent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp, true);
+					if (sharingIntent != null && ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(foregroundApp))
 					{
-						startActivity(intent);
+						startActivity(sharingIntent);
 					}
 					break;
 				case ChatHeadConstants.STOPPING_SERVICE_ANIMATION:
@@ -296,6 +317,17 @@ public class ChatHeadService extends Service
 		});
 		animatorSet.start();
 
+	}
+	
+	private void createAndOpenChatHeadPickerLayout(Context context)
+	{
+		windowManager.addView(ChatHeadLayout.attachPicker(context),stickerPickerParams);
+		ChatHeadService.flagActivityRunning = true;
+//		ChatHeadService.registerReceiver(this);
+//		setContentView(R.layout.chat_head);
+		ChatHeadUtils.settingDailySharedPref();
+		ChatHeadUtils.initVariables();
+		//windowManager.addView(chatHeadLayout, stickerPickerParams);
 	}
 	
 	public void insertHomeActivitBeforeStarting(Intent openingIntent)
@@ -481,6 +513,8 @@ public class ChatHeadService extends Service
 			switch (event.getAction())
 			{
 			case MotionEvent.ACTION_DOWN:
+
+				Logger.d("UmangX","down");
 				drag = 0;
 				initialX = chatHeadParams.x;
 				initialY = chatHeadParams.y;
@@ -497,10 +531,12 @@ public class ChatHeadService extends Service
 				return true;
 
 			case MotionEvent.ACTION_UP:
+				Logger.d("UmangX","moving outside");
 				actionUp(drag);
 				return true;
 
 			case MotionEvent.ACTION_MOVE:
+				Logger.d("UmangX","moving");
 				drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
 				return true;
 			}
