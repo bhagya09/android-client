@@ -3,7 +3,6 @@
     android:title="@string/notifications" >
 
     <com.bsb.hike.view.IconListPreference
-        icon="@drawable/preference_vibe"
         android:defaultValue="@string/vib_default"
         android:entries="@array/vibratePrefKeys"
         android:entryValues="@array/vibratePrefValues"
@@ -13,7 +12,6 @@
         android:title="@string/vibrate" />
 
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/preference_sound"
         android:defaultValue="true"
         android:key="tickSoundPref"
         android:layout="@layout/icon_preference"
@@ -24,7 +22,6 @@
 	<com.bsb.hike.view.IconListPreference
         android:entries="@array/ledPrefKeys"
         android:entryValues="@array/ledPrefValues"
-        icon="@drawable/preference_led"
         android:key="colorLedPref"
         android:layout="@layout/list_preference"
         android:summary="@string/led_notification_info"
@@ -32,14 +29,12 @@
 
     <com.bsb.hike.view.NotificationToneListPreference
         android:defaultValue="@string/notif_sound_Hike"
-        icon="@drawable/ic_hike_jingle"
         android:key="notifSoundPref"
         android:layout="@layout/list_preference"
         android:summary="@string/notificationSoundSummary"
         android:title="@string/notificationSoundTitle" />
 
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/ic_status_notification"
         android:defaultValue="true"
         android:key="statusBooleanPref"
         android:layout="@layout/icon_preference"
@@ -48,7 +43,6 @@
         android:widgetLayout="@layout/checkbox_widget" />
     
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/ic_nujrujicon"
         android:defaultValue="true"
         android:key="hikeNUJNotificationPref"
         android:layout="@layout/icon_preference"
@@ -57,7 +51,6 @@
         android:widgetLayout="@layout/checkbox_widget" />
     
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/ic_bolt_yellow"
         android:defaultValue="true"
         android:key="hikeOfflineNotificationPref"
         android:layout="@layout/icon_preference"

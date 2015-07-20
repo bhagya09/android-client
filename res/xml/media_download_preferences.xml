@@ -12,7 +12,6 @@
         android:textColor="@color/auto_download"
         android:title="@string/video_compress" >
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_video"
             android:key="videoCompress"
             android:defaultValue="true"
             android:layout="@layout/icon_preference"
@@ -25,21 +24,18 @@
         android:textColor="@color/auto_download"
         android:title="@string/md_auto_download_media" >
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_image"
             android:defaultValue="true"
             android:key="mdAutoDownloadImagePref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_image_title"
             android:widgetLayout="@layout/checkbox_widget" />
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_video"
             android:defaultValue="false"
             android:key="mdAutoDownloadVideoPref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_video_title"
             android:widgetLayout="@layout/checkbox_widget" />
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_audio"
             android:defaultValue="false"
             android:key="mdAutoDownloadAudioPref"
             android:layout="@layout/icon_preference"
@@ -55,21 +51,18 @@
         android:textColor="@color/auto_download"
         android:title="@string/wf_auto_download_media" >
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_image"
             android:defaultValue="true"
             android:key="wfAutoDownloadImagePref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_image_title"
             android:widgetLayout="@layout/checkbox_widget" />
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_video"
             android:defaultValue="true"
             android:key="wfAutoDownloadVideoPref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_video_title"
             android:widgetLayout="@layout/checkbox_widget" />
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_audio"
             android:defaultValue="true"
             android:key="wfAutoDownloadAudioPref"
             android:layout="@layout/icon_preference"
