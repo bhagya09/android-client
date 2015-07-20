@@ -77,8 +77,9 @@ public class StickerSearchManager
 	{
 		if (this.listener != listener)
 		{
-			throw new IllegalStateException("removeStickerSearchListener(), Some listner remains.");
+			throw new IllegalStateException("removeStickerSearchListener(), Some listener remains.");
 		}
+
 		this.listener = null;
 	}
 
@@ -102,6 +103,34 @@ public class StickerSearchManager
 
 		isFirstPhraseOrWord = false;
 		Pair<CharSequence, int[][]> result = StickerSearchHostManager.getInstance().onTextChange(s, start, before, count);
+
+		HighlightAndShowStickerPopupTask highlightAndShowtask = new HighlightAndShowStickerPopupTask(result);
+		searchEngine.runOnUiThread(highlightAndShowtask, 0);
+	}
+
+	public void highlightSingleCharacterAndShowStickerPopup(String returnedString, int[][] highlightArray)
+	{
+		if (listener == null)
+		{
+			Logger.d(StickerTagWatcher.TAG, "highlightSingleCharacterAndShowStickerPopup(), Resource error, can't do anything ???");
+			return;
+		}
+
+		if (returnedString.equals(currentString))
+		{
+			listener.highlightText(highlightArray[0][0], currentLength);
+			onClickToSendSticker(highlightArray[0][0]);
+		}
+	}
+	
+	public void highlightAndShowStickerPopup(Pair<CharSequence, int[][]> result)
+	{
+		if (listener == null)
+		{
+			Logger.d(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Resource error, can't do anything ???");
+			return;
+		}
+
 		if (result == null)
 		{
 			Logger.e(StickerTagWatcher.TAG, "Unable to find recommendation result, currentTextLength = " + this.currentLength);
@@ -114,10 +143,10 @@ public class StickerSearchManager
 			return;
 		}
 
-		CharSequence charSequence = result.first;
+		CharSequence returnedString = result.first;
 		int highlightArray[][] = result.second;
 
-		if (Utils.isBlank(charSequence) || highlightArray == null)
+		if (Utils.isBlank(returnedString) || (highlightArray == null) || (highlightArray.length <= 0))
 		{
 			Logger.i(StickerTagWatcher.TAG, "No recommendation result, currentTextLength = " + this.currentLength);
 
@@ -129,47 +158,10 @@ public class StickerSearchManager
 			return;
 		}
 
-		HighlightAndShowStickerPopupTask highlightAndShowtask = new HighlightAndShowStickerPopupTask(charSequence, highlightArray);
-		searchEngine.runOnUiThread(highlightAndShowtask, 0);
-	}
-
-	public void highlightSingleCharacterAndShowStickerPopup(String returnedString, int[][] highlightArray)
-	{
-		if (listener == null)
+		String s = returnedString.toString();
+		if (!s.equals(this.currentString))
 		{
-			Logger.d(StickerTagWatcher.TAG, "highlightSingleCharacterAndShowStickerPopup(), Resource error, can't do anything ???");
-			return;
-		}
-
-		if (returnedString != null && highlightArray != null && returnedString.equals(currentString))
-		{
-			listener.highlightText(highlightArray[0][0], currentLength);
-			onClickToSendSticker(highlightArray[0][0]);
-		}
-	}
-	
-	public void highlightAndShowStickerPopup(String returnedString, int[][] highlightArray)
-	{
-		if (listener == null)
-		{
-			Logger.d(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Resource error, can't do anything ???");
-			return;
-		}
-
-		if (Utils.isBlank(returnedString) || Utils.isBlank(this.currentString) || !returnedString.equals(this.currentString))
-		{
-			Logger.d(StickerTagWatcher.TAG, "onTextChanged(), Rapid change in text.");
-			listener.dismissStickerSearchPopup();
-			if (currentLength > 0)
-			{
-				listener.unHighlightText(0, currentLength);
-			}
-			return;
-		}
-
-		if (highlightArray == null || highlightArray.length <= 0)
-		{
-			Logger.d(StickerTagWatcher.TAG, "onTextChanged(), No result for current text.");
+			Logger.d(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Rapid change in text.");
 			listener.dismissStickerSearchPopup();
 			if (currentLength > 0)
 			{
@@ -188,7 +180,7 @@ public class StickerSearchManager
 			if (highlightLength == 1)
 			{
 				listener.dismissStickerSearchPopup();
-				SingleCharacterHighlightTask singleCharacterHighlightTask = new SingleCharacterHighlightTask(returnedString, highlightArray);
+				SingleCharacterHighlightTask singleCharacterHighlightTask = new SingleCharacterHighlightTask(s, highlightArray);
 				searchEngine.runOnUiThread(singleCharacterHighlightTask, 300);
 			}
 			else
@@ -252,12 +244,13 @@ public class StickerSearchManager
 	public void onClickToSendSticker(int clickPosition)
 	{
 		Logger.i(StickerTagWatcher.TAG, "onClickToSendSticker(" + clickPosition + ")");
-		ArrayList<Sticker> stickerList = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
 
-		if (listener != null)
+		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
+
+		if ((listener != null) && (results != null))
 		{
 			listener.dismissStickerSearchPopup();
-			listener.showStickerSearchPopup(stickerList);
+			listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
 		}
 	}
 	

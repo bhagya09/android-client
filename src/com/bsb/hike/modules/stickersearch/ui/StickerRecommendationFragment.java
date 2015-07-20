@@ -21,18 +21,20 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
-import com.bsb.hike.ui.fragments.StickerShopFragment;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 public class StickerRecommendationFragment extends SherlockFragment implements Listener
 {
-	
 	private String[] pubSubListeners = {HikePubSub.STICKER_DOWNLOADED};
 	
 	private StickerRecomendationAdapter mAdapter;
 
 	private IStickerRecommendFragmentListener listener;
+
+	private String word;
+
+	private String phrase;
 
 	private List<Sticker> stickerList;
 
@@ -88,6 +90,7 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 		settings.setOnClickListener(settingsListener);
 		
 	}
+
 	@Override
 	public void onStop()
 	{
@@ -141,11 +144,12 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 	public void onClick(View view) 
 	{
 		
-		
 	}
 	
-	public void setAndNotify(List<Sticker> stickerList)
+	public void setAndNotify(String word, String phrase, List<Sticker> stickerList)
 	{
+		this.word = word;
+		this.phrase = phrase;
 		this.stickerList = stickerList;
 
 		if (mAdapter != null && recyclerView != null)
@@ -172,13 +176,13 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 	public void click(View view)
 	{
 		int position = recyclerView.getChildPosition(view);
-		if (listener == null || stickerList == null || stickerList.size() <= position)
+		if ((listener == null) || (stickerList == null) || (stickerList.size() <= position))
 		{
-			Logger.wtf(StickerTagWatcher.TAG, "sometghing wrong, sticker can't be selected");
+			Logger.wtf(StickerTagWatcher.TAG, "sometghing wrong, sticker can't be selected.");
 			return;
 		}
 		Sticker sticker = stickerList.get(position);
-		listener.stickerSelected(sticker);
+		listener.stickerSelected(word, phrase, sticker, position);
 	}
 	
 	private void refreshStickerList()

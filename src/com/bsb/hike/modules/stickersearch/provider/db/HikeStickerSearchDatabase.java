@@ -328,7 +328,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				String stickerCode = stickerTagData.getStickerCode();
 				ArrayList<String> stickerTags = stickerTagData.getTagList();
 				ArrayList<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
-				ArrayList<Integer> stickerMoments = stickerTagData.getMomentCodeList();
+				int stickerMoment = stickerTagData.getMomentCode();
 
 				for (int i = 0; i < stickerTags.size(); i++)
 				{
@@ -336,7 +336,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					ContentValues cv = new ContentValues();
 					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, stickerTags.get(i));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, tagExactnessPriorities.get(i));
-					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoments.get(i));
+					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoment);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerCode);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
 					rows.add(mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv));
