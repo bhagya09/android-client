@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +21,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
@@ -33,6 +36,7 @@ import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -42,6 +46,8 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -92,7 +98,7 @@ public class FileTransferManager extends BroadcastReceiver
 
 	public static String UNABLE_TO_DOWNLOAD = "unable_to_download";
 
-	public static final int FAKE_PROGRESS_DURATION = 8*1000;
+	List<String> ftHostURIs = null;
 
 	public enum NetworkType
 	{
@@ -260,6 +266,7 @@ public class FileTransferManager extends BroadcastReceiver
 		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 		context.registerReceiver(this, filter);
 		taskLimit = context.getResources().getInteger(R.integer.ft_limit);
+		setFThostURIs();
 	}
 	
 
@@ -579,12 +586,11 @@ public class FileTransferManager extends BroadcastReceiver
 			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
 			if (obj != null)
 			{
-				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred, 
-						((MyFutureTask) obj).getTask().animatedProgress);
+				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred);
 			}
 			else
 			{
-				return new FileSavedState(FTState.IN_PROGRESS, 0, 0, 0);
+				return new FileSavedState(FTState.IN_PROGRESS, 0, 0);
 			}
 		}
 		else
@@ -602,7 +608,7 @@ public class FileTransferManager extends BroadcastReceiver
 		FileSavedState fss = null;
 		if (mFile.exists())
 		{
-			fss = new FileSavedState(FTState.COMPLETED, 100, 100, 100);
+			fss = new FileSavedState(FTState.COMPLETED, 100, 100);
 		}
 		else
 		{
@@ -617,8 +623,6 @@ public class FileTransferManager extends BroadcastReceiver
 				fileIn = new FileInputStream(f);
 				in = new ObjectInputStream(fileIn);
 				fss = (FileSavedState) in.readObject();
-				if(fss.getAnimatedProgress() > 0)
-					setAnimatedProgress(fss.getAnimatedProgress(), msgId);
 			}
 			catch (IOException i)
 			{
@@ -637,31 +641,6 @@ public class FileTransferManager extends BroadcastReceiver
 		return fss != null ? fss : new FileSavedState();
 	}
 
-	public void setAnimatedProgress(int animatedProgress, long msgId)
-	{
-		if (isFileTaskExist(msgId))
-		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
-			if (obj != null)
-			{
-				((MyFutureTask) obj).getTask().animatedProgress = animatedProgress;
-			}
-		}
-	}
-
-	public int getAnimatedProgress(long msgId)
-	{
-		if (isFileTaskExist(msgId))
-		{
-			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
-			if (obj != null)
-			{
-				return ((MyFutureTask) obj).getTask().animatedProgress;
-			}
-		}
-		return 0;
-	}
-
 	// this function gives the state of uploading for a file
 	public FileSavedState getUploadFileState(long msgId, File mFile)
 	{
@@ -672,13 +651,12 @@ public class FileTransferManager extends BroadcastReceiver
 			if (obj != null)
 			{
 				Logger.d(getClass().getSimpleName(), "Returning: " + ((MyFutureTask) obj).getTask()._state.toString());
-				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred, 
-						((MyFutureTask) obj).getTask().animatedProgress);
+				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred);
 			}
 			else
 			{
 				Logger.d(getClass().getSimpleName(), "Returning: in_prog");
-				return new FileSavedState(FTState.IN_PROGRESS, 0, 0, 0);
+				return new FileSavedState(FTState.IN_PROGRESS, 0, 0);
 			}
 		}
 		else
@@ -706,8 +684,6 @@ public class FileTransferManager extends BroadcastReceiver
 			fileIn = new FileInputStream(f);
 			in = new ObjectInputStream(fileIn);
 			fss = (FileSavedState) in.readObject();
-			if(fss.getAnimatedProgress() > 0)
-				setAnimatedProgress(fss.getAnimatedProgress(), msgId);
 		}
 		catch (IOException i)
 		{
@@ -934,5 +910,59 @@ public class FileTransferManager extends BroadcastReceiver
 				break;
 		}
 		return netTypeString;
+	}
+
+	public void setFThostURIs()
+	{
+		String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FT_HOST_IPS, "");
+		JSONArray ipArray = null;
+
+		try
+		{
+			ipArray = new JSONArray(ipString);
+		}
+		catch (JSONException e)
+		{
+			Logger.d("UploadFileTask", "Exception while parsing = " + e);
+			e.printStackTrace();
+		}
+
+		if (null != ipArray && ipArray.length() > 0)
+		{
+			ftHostURIs = new ArrayList<String>(ipArray.length() + 1);
+			int len = ipArray.length();
+
+			ftHostURIs.add(AccountUtils.PRODUCTION_FT_HOST);
+			for (int i = 0; i < len; i++)
+			{
+				if (ipArray.optString(i) != null)
+				{
+					Logger.d("UploadFileTask", "FT host api[" + i + "] = " + ipArray.optString(i));
+					ftHostURIs.add(ipArray.optString(i));
+				}
+			}
+		}
+		else
+		{
+			ftHostURIs = new ArrayList<String>(9);
+
+			ftHostURIs.add(AccountUtils.PRODUCTION_FT_HOST);
+			ftHostURIs.add("54.169.191.114");
+			ftHostURIs.add("54.169.191.115");
+			ftHostURIs.add("54.169.191.116");
+			ftHostURIs.add("54.169.191.113");
+		}
+	}
+
+	public String getHost()
+	{
+		String host = AccountUtils.PRODUCTION_FT_HOST;
+		if(ftHostURIs != null)
+		{
+			Random random = new Random();
+			int index = random.nextInt(ftHostURIs.size() - 2) + 1;
+			host = ftHostURIs.get(index);
+		}
+		return host;
 	}
 }

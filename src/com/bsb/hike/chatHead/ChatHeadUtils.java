@@ -242,5 +242,22 @@ public class ChatHeadUtils
 		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
 		ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION, null);
 	}
+	
+	public static void setAllApps(JSONArray pkgList, boolean toSet)
+	{
+		try
+		{
+			for (int j = 0; j < pkgList.length(); j++)
+			{
+				pkgList.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, toSet);
+			}
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, pkgList.toString());
+			ChatHeadUtils.startOrStopService(true);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 
+	}
 }
