@@ -564,7 +564,8 @@ public abstract class JavascriptBridge
 			{
 				json.put("filePath", filePath);
 				json.put("mimeType", mimeType);
-				callbackToJS(data.getStringExtra("callback"), json.toString());
+				json.put("filesize",  (new File(filepath)).length());
+				callbackToJS(this.id, json.toString());
 			}
 			catch (JSONException e)
 			{
