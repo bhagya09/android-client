@@ -59,6 +59,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private int count;
 
 	private ColorSpanPool colorSpanPool;
+	
+	private boolean shownStickerRecommendFtueTip;
 
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
@@ -71,6 +73,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.stickerPickerListener = (StickerPickerListener) chathread;
 		this.colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
+		this.shownStickerRecommendFtueTip = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
 
@@ -172,8 +175,6 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 					return;
 				}
 
-				chatthread.closeStickerRecommendTip();
-
 				Logger.d(TAG, "showStickerSearchPopup() is called: " + stickerList);
 
 				if (stickerRecommendView == null)
@@ -262,7 +263,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		}
 
 		int clickPosition = StickerSearchUtils.getOffsetForPosition(editText, event.getX(), event.getY());
-		StickerSearchManager.getInstance().onClickToSendSticker(clickPosition);
+		StickerSearchManager.getInstance().onClickToSendSticker(clickPosition, true);
 		return false;
 	}
 
@@ -353,9 +354,30 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	};
 
 	@Override
-	public void showStickerRecommendFtue()
+	public void showStickerRecommendFtueTip()
 	{
-		chatthread.showStickerRecommendTip();
+		if(!shownStickerRecommendFtueTip && chatthread.isKeyboardOpen())
+		{
+			Logger.d(TAG, "show recommend ftue tip");
+			chatthread.showStickerRecommendTip();
+		}
+	}
+	
+	@Override
+	public void setStickerRecommendFtueSeen()
+	{
+		if(chatthread.isKeyboardOpen())
+		{
+			Logger.d(TAG, "set recommend ftue tip seen");
+			chatthread.setStickerRecommendFtueTipSeen();
+		}
+	}
+	
+	@Override
+	public void dismissStickerRecommendFtueTip()
+	{
+		Logger.d(TAG, "dismiss recommend ftue tip");
+		chatthread.dismissStickerRecommendTip();
 	}
 
 	@Override

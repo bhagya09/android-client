@@ -44,12 +44,9 @@ public class StickerSearchManager
 	
 	private boolean isFirstPhraseOrWord = false;
 	
-	private boolean shownFtue;
-
 	private StickerSearchManager()
 	{
 		searchEngine = new StickerSearchEngine();
-		shownFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
 		setAlarmFirstTime();
 	}
 
@@ -119,7 +116,7 @@ public class StickerSearchManager
 		if (returnedString.equals(currentString))
 		{
 			listener.highlightText(highlightArray[0][0], currentLength);
-			onClickToSendSticker(highlightArray[0][0]);
+			onClickToSendSticker(highlightArray[0][0], false);
 		}
 	}
 	
@@ -136,6 +133,7 @@ public class StickerSearchManager
 			Logger.e(StickerTagWatcher.TAG, "Unable to find recommendation result, currentTextLength = " + this.currentLength);
 
 			listener.dismissStickerSearchPopup();
+			listener.dismissStickerRecommendFtueTip();
 			if (this.currentLength > 0)
 			{
 				listener.unHighlightText(0, this.currentLength);
@@ -151,6 +149,7 @@ public class StickerSearchManager
 			Logger.i(StickerTagWatcher.TAG, "No recommendation result, currentTextLength = " + this.currentLength);
 
 			listener.dismissStickerSearchPopup();
+			listener.dismissStickerRecommendFtueTip();
 			if (this.currentLength > 0)
 			{
 				listener.unHighlightText(0, this.currentLength);
@@ -163,6 +162,7 @@ public class StickerSearchManager
 		{
 			Logger.d(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Rapid change in text.");
 			listener.dismissStickerSearchPopup();
+			listener.dismissStickerRecommendFtueTip();
 			if (currentLength > 0)
 			{
 				listener.unHighlightText(0, currentLength);
@@ -186,7 +186,7 @@ public class StickerSearchManager
 			else
 			{
 				listener.highlightText(highlightArray[0][0], currentLength);
-				onClickToSendSticker(highlightArray[0][0]);
+				onClickToSendSticker(highlightArray[0][0], false);
 			}
 
 			isFirstPhraseOrWord = true;
@@ -230,25 +230,24 @@ public class StickerSearchManager
 	
 	private void showStickerRecommendFtue(String preString, int[][] highlightArray)
 	{
-		if(shownFtue)
-		{
-			return;
-		}
-		
 		if((highlightArray.length > 1) || ((highlightArray.length > 0) && !Utils.isBlank(preString))) 
 		{
-			listener.showStickerRecommendFtue();
+			listener.showStickerRecommendFtueTip();
 		}
 	}
 
-	public void onClickToSendSticker(int clickPosition)
+	public void onClickToSendSticker(int clickPosition, boolean onTouch)
 	{
 		Logger.i(StickerTagWatcher.TAG, "onClickToSendSticker(" + clickPosition + ")");
 
 		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
 
-		if ((listener != null) && (results != null))
+		if ((listener != null) && (results != null) && (results.second != null))
 		{
+			if(onTouch)
+			{
+				listener.setStickerRecommendFtueSeen();
+			}
 			listener.dismissStickerSearchPopup();
 			listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
 		}
