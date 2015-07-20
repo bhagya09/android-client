@@ -268,6 +268,7 @@ public class GroupChatThread extends OneToNChatThread
 		switch (item.id)
 		{
 		case R.string.voip_call_chat:
+			
 			Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
 			ArrayList<String> msisdns = new ArrayList<String>();
 			
@@ -278,14 +279,10 @@ public class GroupChatThread extends OneToNChatThread
 			}
 			
 			// Launch VoIP service
-			if (msisdns.size() > VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE) {
-				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.voip_group_too_large), Toast.LENGTH_SHORT).show();
-			} else {
-				activity.getApplicationContext().startService(
-						IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-								msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD)
-						);
-			}
+			Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+					msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+			if (intent != null)
+				activity.getApplicationContext().startService(intent);
 			break;
 		case R.string.mute_group:
 			toggleMuteGroup();

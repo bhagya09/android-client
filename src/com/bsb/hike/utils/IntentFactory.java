@@ -840,13 +840,27 @@ public class IntentFactory
 		return intent;
 	}
 
+	/**
+	 * Retrieves an intent to make an outgoing voip call to multiple recipients (conference) at once. 
+	 * @param context
+	 * @param msisdns
+	 * @param groupChatMsisdn
+	 * @param source
+	 * @return intent if network check is passed. NULL otherwise. 
+	 */
 	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, String groupChatMsisdn, VoIPUtils.CallSource source)
 	{
+		// Check if we are on a fast enough network to make a conference call 
+		if (!VoIPUtils.checkIfConferenceIsAllowed(HikeMessengerApp.getInstance(), msisdns.size()))
+			return null;
+		
 		Intent intent = new Intent(context, VoIPService.class);
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
-		intent.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
+		if (!TextUtils.isEmpty(groupChatMsisdn))
+			intent.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
+		
 		return intent;
 	}
 

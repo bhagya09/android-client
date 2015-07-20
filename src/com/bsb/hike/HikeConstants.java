@@ -725,6 +725,8 @@ public class HikeConstants
 	
 	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
 
+	public static final int ADD_TO_CONFERENCE_REQUEST = 1196; 
+
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
 	public static final int MAX_DURATION_RECORDING_SEC = 360;
@@ -1250,6 +1252,8 @@ public class HikeConstants
 		public static final String EMOTICON_SHOWING = "emoticonShowing";
 
 		public static final String EXISTING_GROUP_CHAT = "existingGroupChat";
+
+		public static final String ADD_TO_CONFERENCE = "addToConference";
 
 		public static final String EXISTING_BROADCAST_LIST = "existingBroadcastList";
 
@@ -2877,6 +2881,7 @@ public class HikeConstants
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
+	public static final String HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE = "contact_pick_result_for_conference";
 
 	public static final String NOTIFIACTION_DELAY_GROUP = "gnt";
 
