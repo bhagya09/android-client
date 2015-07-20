@@ -13,6 +13,8 @@ import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import java.io.File;
+
 /**
  * Created by shobhitmandloi on 27/01/15.
  */
@@ -161,9 +163,18 @@ public class CustomWebView extends WebView
 		getSettings().setJavaScriptEnabled(true);
 		getSettings().setSupportZoom(true);
 		getSettings().setBuiltInZoomControls(true);
-		getSettings().setAppCachePath(getContext().getCacheDir().getAbsolutePath());
-		getSettings().setAppCacheEnabled(true);
-		getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+		enableAppCache();
+	}
+
+	private void enableAppCache()
+	{
+		File cacheDirectoryPath = getContext().getCacheDir();
+		if (cacheDirectoryPath != null && cacheDirectoryPath.exists())
+		{
+			getSettings().setAppCachePath(cacheDirectoryPath.getAbsolutePath());
+			getSettings().setAppCacheEnabled(true);
+			getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+		}
 	}
 
 	public void loadMicroAppData(String data)
