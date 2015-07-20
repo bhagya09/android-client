@@ -263,6 +263,10 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			
 			stickerRecommendFtue.inflate();
 		}
+		else
+		{
+			showHiddenTip();
+		}
 	}
 	
 	private void bindStickerRecommentFtueTipView()
