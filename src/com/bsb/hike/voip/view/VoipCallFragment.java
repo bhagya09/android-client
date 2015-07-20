@@ -333,7 +333,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		// Ignore intents if we're hosting a conference
 		if (voipService != null && voipService.hostingConference()) {
-			Logger.w(tag, "Ignoring intent with action " + action + " because we're hosting a conference.");
+//			Logger.w(tag, "Ignoring intent with action " + action + " because we're hosting a conference.");
+			voipService.processErrorIntent(action, msisdn);
 			return;
 		}
 		
