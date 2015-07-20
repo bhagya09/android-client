@@ -2455,7 +2455,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if (broadcastIndicator == null)
 		{
 			return;
-		}
+		}		
 
 		if (convMessage.isBroadcastMessage() && !convMessage.isBroadcastConversation())
 		{
