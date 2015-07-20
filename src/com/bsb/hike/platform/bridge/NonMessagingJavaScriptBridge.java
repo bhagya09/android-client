@@ -4,11 +4,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -23,7 +25,10 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -597,7 +602,33 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		//do nothing
 	}
+	@JavascriptInterface
+	public void chooseFile(final String id)
+	{	
+		Logger.d("FileUpload","Id in FileChooser is "+ id);
 
+		saveId(id);
+	
+		if (null == mHandler)
+		{
+			Logger.e("FileUpload", "mHandler is null");
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{	Context weakActivityRef=weakActivity.get();
+				if (weakActivityRef != null)
+				{	
+					int galleryFlags =GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
+					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+					}
+			}
+		});
+	}
 	/**
 	 * Platform Version 3
 	 * call this method to change the title of the action bar for the bot.

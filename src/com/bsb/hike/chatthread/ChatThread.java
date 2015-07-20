@@ -824,6 +824,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			break;
 		case HikeConstants.PLATFORM_REQUEST:
+		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
 		}
