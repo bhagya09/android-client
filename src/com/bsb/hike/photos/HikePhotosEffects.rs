@@ -534,6 +534,7 @@ uchar4 __attribute__((kernel)) filter_tirangaa(uchar4 in,uint32_t x,uint32_t y) 
 	int minDimen = (imageWidth<imageHeight)?imageWidth:imageHeight;
 	int maxDimen = (imageWidth>imageHeight)?imageWidth:imageHeight;
 	int offset = (imageWidth==imageHeight)?(minDimen/4):10;
+	uchar4 v = rsGetElementAt_uchar4(input1, x, y);
 	
 	if(isThumbnail)
 	{
@@ -550,10 +551,12 @@ uchar4 __attribute__((kernel)) filter_tirangaa(uchar4 in,uint32_t x,uint32_t y) 
 			in = applyBlendToRGB(in , getPixelForColor(255,r[2],g[2],b[2]),Normal,0.6);
 		}
 	}
+	else if((in.r ==255) && (in.g == 255) && (in.b == 255))
+	{
+		in = applyBlendToRGB(in , v ,Multiply,0.65);
+	}
 	else
 	{
-		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
-	
 		in = applyBlendToRGB(in , v ,Overlay,1);
 	}
 	return in;
