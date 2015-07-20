@@ -2930,7 +2930,8 @@ public enum ChatTheme
 			return R.color.white;
 		}
 	},
-	PINK_CANDY
+	
+	MOUNTAINS
 	{
 
 		@Override
@@ -2938,7 +2939,6 @@ public enum ChatTheme
 		{
 			return "25";
 		}
-
 
 		@Override
 		public int headerBgResId()
@@ -2949,20 +2949,19 @@ public enum ChatTheme
 		@Override
 		public int previewResId()
 		{
-			return R.drawable.ic_ct_pinkcandy_preview;
+			return R.drawable.ic_ct_mountain_preview;
 		}
 
 		@Override
 		public int bgResId()
 		{
-			return R.drawable.bg_ct_pinkcandy;
+			return R.drawable.bg_ct_mountain;
 		}
-
 
 		@Override
 		public int bubbleResId()
 		{
-			return R.drawable.ic_bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
+			return R.drawable.ic_bubble_hikin_couple_mountain;
 		}
 
 		@Override
@@ -2974,7 +2973,7 @@ public enum ChatTheme
 		@Override
 		public int sentNudgeResId()
 		{
-			return R.drawable.ic_nudge_sent_custom_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
+			return R.drawable.ic_nudge_sent_custom_hikin_couple_mountain;
 		}
 
 		@Override
@@ -2992,19 +2991,19 @@ public enum ChatTheme
 		@Override
 		public int inLineUpdateBGResId()
 		{
-			return R.drawable.bg_status_chat_thread_custom_theme;
+			return R.drawable.bg_status_chat_thread_custom_theme_3x;
 		}
 
 		@Override
 		public int systemMessageLayoutId()
 		{
-			return R.layout.participant_info_custom;
+			return R.layout.participant_info_custom_3x;
 		}
-
+		
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
+			return R.color.bubble_hikin_couple_mountain;
 		}
 
 		@Override
@@ -3016,7 +3015,7 @@ public enum ChatTheme
 		@Override
 		public int multiSelectBubbleColor()
 		{
-			return R.color.light_black_transparent;
+			return R.color.action_bar_item_pressed;
 		}
 
 		@Override
@@ -3024,7 +3023,6 @@ public enum ChatTheme
 		{
 			return R.color.white;
 		}
-
 
 	},
 	SEASHORE
