@@ -299,20 +299,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				return;
 			}
 			
-			applyCompression(mActivityState.destFilePath);
-			
 			profileImageCropped();
 			break;
 		
-		}
-	}
-
-	protected void applyCompression(String filename)
-	{
-		if(!Utils.isPhotosEditEnabled())
-		{
-			int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
-			Utils.compressAndCopyImage(filename, filename, ChangeProfileImageBaseActivity.this, Bitmap.Config.RGB_565, imageCompressQuality, ImageQuality.QUALITY_MEDIUM, false);
 		}
 	}
 

@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 
@@ -170,7 +171,7 @@ public class DownloadFileTask extends FileTransferBase
 		retry = true;
 		reconnectTime = 0;
 		retryAttempts = 0;
-		while (shouldRetry())
+		do
 		{
 			try
 			{
@@ -180,6 +181,9 @@ public class DownloadFileTask extends FileTransferBase
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
 					return FTResult.DOWNLOAD_FAILED;
 				}
+				
+				mUrl = getUpdatedURL(mUrl, "Downloading File", FTAnalyticEvents.DOWNLOAD_FILE_TASK);
+
 				conn = initConn();
 				// set the range of byte to download
 				String byteRange = mStart + "-";
@@ -191,7 +195,7 @@ public class DownloadFileTask extends FileTransferBase
 				}
 				catch (Exception e)
 				{
-
+					Logger.e(getClass().getSimpleName(), "exception while setting connection params", e);
 				}
 				conn.connect();
 				int resCode = ssl ? ((HttpsURLConnection) conn).getResponseCode() : ((HttpURLConnection) conn).getResponseCode();
@@ -391,6 +395,7 @@ public class DownloadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
+				handleException(e);
 				Logger.e(getClass().getSimpleName(), "FT Download error : " + e.getMessage());
 				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_UNKNOWN_ERROR, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "all", "DOWNLOAD_FAILED ("+ retryAttempts + ")", e);
 				// here we should retry
@@ -434,7 +439,7 @@ public class DownloadFileTask extends FileTransferBase
 //			{
 //				Logger.e(getClass().getSimpleName(), "FT error : " + e.getMessage());
 //			}
-		}
+		} while (shouldRetry());
 		if (res == FTResult.SUCCESS)
 		{
 			res = closeStreams(raf, in);
@@ -472,6 +477,7 @@ public class DownloadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
+				Logger.e(getClass().getSimpleName(), "exception while closing input stream closeStreams", e);
 			}
 		}
 		return FTResult.SUCCESS;

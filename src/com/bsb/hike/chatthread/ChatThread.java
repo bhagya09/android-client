@@ -824,6 +824,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			break;
 		case HikeConstants.PLATFORM_REQUEST:
+		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
 		}
@@ -2201,7 +2202,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 							json.put(HikePlatformConstants.CARD_TYPE, convMessage.webMetadata.getAppName());
 							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
 							json.put(AnalyticsConstants.TO, msisdn);
-							HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 						}
 						catch (JSONException e)
 						{
@@ -3929,7 +3930,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_DELETE);
 				json.put(AnalyticsConstants.ORIGIN, origin);
 				json.put(AnalyticsConstants.CHAT_MSISDN, msisdn);
-				HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 			}
 			catch (JSONException e)
 			{
@@ -4557,10 +4558,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			StringBuilder msgStr = new StringBuilder();
 			int size = selectedMsgIds.size();
 
-			for (int i = 0; i < size; i++)
+			if (!selectedMsgIds.isEmpty())
 			{
-				msgStr.append(selectedMessagesMap.get(selectedMsgIds.get(i)).getMessage());
-				msgStr.append("\n");
+				msgStr.append(selectedMessagesMap.get(selectedMsgIds.get(0)).getMessage());
+				for (int i = 1; i < size; i++)
+				{
+					msgStr.append("\n");
+					msgStr.append(selectedMessagesMap.get(selectedMsgIds.get(i)).getMessage());
+				}
 			}
 			Utils.setClipboardText(msgStr.toString(), activity.getApplicationContext());
 			Toast.makeText(activity.getApplicationContext(), R.string.copied, Toast.LENGTH_SHORT).show();
