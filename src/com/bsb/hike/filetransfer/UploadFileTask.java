@@ -977,6 +977,8 @@ public class UploadFileTask extends FileTransferBase
 						setChunkSize();
 						if (chunkSize > length)
 							chunkSize = (int) length;
+						if(chunkSize > (length - start))
+							chunkSize = (int) (length - start);
 						if (end != (start + chunkSize - 1))
 						{
 							end = (start + chunkSize - 1);
@@ -1264,6 +1266,7 @@ public class UploadFileTask extends FileTransferBase
 			client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 		}
 		long time = System.currentTimeMillis();
+		Logger.d("UploadFileTask", "Upload URL = " + mUrl.toString());
 		HttpPost post = new HttpPost(mUrl.toString());
 		String res = null;
 		int resCode = 0;
