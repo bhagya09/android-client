@@ -193,5 +193,10 @@
 	<dimen name="sticker_empty_pallete_preview_image_height">178dp</dimen>
 	<dimen name="one_dp">1dp</dimen>
 	<dimen name="sticker_btn_width">60dp</dimen>
+	<dimen name="home_sreen_divider_left_padding">80dp</dimen>
+	<dimen name="home_sreen_divider_right_padding">16dp</dimen>
+	<dimen name="conv_item_height">68dp</dimen>
+	<dimen name="conv_item_padding">16dp</dimen>
+	<dimen name="conv_item_avatar">52dp</dimen>
 	
 </resources>

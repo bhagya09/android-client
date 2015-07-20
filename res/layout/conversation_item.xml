@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
 
-    <LinearLayout
+ 	<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/conversation_item"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="@dimen/conv_item_height"
         android:background="@drawable/list_item"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp" >
+        android:paddingLeft="@dimen/conv_item_padding"
+        android:paddingRight="@dimen/conv_item_padding" >
 
         <FrameLayout
-            android:layout_width="@dimen/larger_avatar"
-            android:layout_height="@dimen/larger_avatar" >
+            android:layout_width="@dimen/conv_item_avatar"
+            android:layout_height="@dimen/conv_item_avatar"
+            android:layout_gravity="center_vertical">
 
             <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
                 style="@style/AvatarStyle.MorePadding" />
+                 
             <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/stealth_badge"
                 android:src="@drawable/stealth_badge"
@@ -33,6 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="11dp"
             android:orientation="vertical" >
 
             <RelativeLayout
@@ -44,9 +45,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
                     android:text="9:35AM"
-                    android:textColor="@color/timestamp"
+                    android:textColor="@color/conv_item_timestamp_color"
+                    android:textStyle="normal"
                     android:textSize="12sp" />
 
                 <com.bsb.hike.view.CustomFontTextView
@@ -54,41 +55,32 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
                     android:layout_marginRight="5dp"
                     android:layout_toLeftOf="@id/last_message_timestamp"
-                    android:drawablePadding="3dp"
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
-                    android:textColor="@color/list_item_header"
-                    android:textSize="18sp"
+                    android:textColor="@color/conv_item_contact_color"
+                    android:textSize="16sp"
                     android:textStyle="bold|italic" />
+                
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp" >
+                android:layout_marginTop="4dp">
 
                 <ImageView
                     android:id="@+id/msg_status_indicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="20.5dp"
+                    android:layout_height="8dp"
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="3dp"
-                    android:paddingTop="1dp"
+                    android:layout_marginRight="8dp"
                     android:visibility="gone" />
 
-                <FrameLayout
-                    android:id="@+id/indicator_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="2dp" >
-
+              
                     <com.bsb.hike.view.CustomFontTextView
                         android:id="@+id/unread_indicator"
                         android:layout_width="wrap_content"
@@ -99,17 +91,17 @@
                         android:paddingRight="2dp"
                         android:text="99"
                         android:textColor="@color/white"
-                        android:textSize="12dp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
-                        android:visibility="gone" />
-                </FrameLayout>
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true" />
 
                 <ImageView
                     android:id="@+id/mute_indicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/indicator_container"
+                    android:layout_toLeftOf="@+id/unread_indicator"
                     android:src="@drawable/ic_mute"
                     android:visibility="gone" />
 
@@ -119,22 +111,16 @@
                     android:layout_height="wrap_content"
                     android:layout_alignWithParentIfMissing="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginTop="1dp"
                     android:layout_toLeftOf="@+id/mute_indicator"
                     android:layout_toRightOf="@id/msg_status_indicator"
                     android:ellipsize="end"
                     android:singleLine="true"
+                    android:layout_marginRight="16dp"
                     android:text="what&apos;s up dude? I really like cookies. They taste so good and fresh. I like pie as well. I&apos;m so fat"
-                    android:textColor="@color/list_item_header"
+                    android:textColor="@color/conv_item_last_msg_color"
                     android:textSize="14sp"
-                    android:textStyle="italic"
+                    android:textStyle="normal"
                     android:visibility="invisible" />
             </RelativeLayout>
         </LinearLayout>
-    </LinearLayout>
-
-    <View
-        style="@style/Divider"
-        android:layout_alignParentBottom="true" />
-
-</RelativeLayout>
+ </LinearLayout>

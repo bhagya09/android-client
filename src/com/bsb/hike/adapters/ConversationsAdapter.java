@@ -994,7 +994,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else
 		{
-			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
+			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
 		}
 	}
 
