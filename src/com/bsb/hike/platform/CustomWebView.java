@@ -161,8 +161,6 @@ public class CustomWebView extends WebView
 		setVerticalScrollBarEnabled(false);
 		setHorizontalScrollBarEnabled(false);
 		getSettings().setJavaScriptEnabled(true);
-		getSettings().setSupportZoom(true);
-		getSettings().setBuiltInZoomControls(true);
 		enableAppCache();
 	}
 
