@@ -773,7 +773,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		VoIPClient clientPartner = voipService.getPartnerClient();
 		if (clientPartner == null) 
 		{
-			getSherlockActivity().finish();
+			// AND-1247
+			// getSherlockActivity().finish();
 			Logger.w(tag, "Partner client info is null. Returning.");
 			return;
 		}
