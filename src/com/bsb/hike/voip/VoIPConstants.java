@@ -3,10 +3,18 @@ package com.bsb.hike.voip;
 
 public class VoIPConstants {
 	public static final String TAG = "VoIP";
+
+	/**
+	 * <p>Current VoIP protocol version.</p>
+	 * <p>Added in <b>v2</b>: <br/>
+	 * - Conference support
+	 * </p>
+	 */
+	public static final int VOIP_VERSION = 2;
 	
 	// Relay and ICE server 
-	public static final String ICEServerName = "relay.hike.in";
-	public static final int ICEServerPort = 9999;
+	public static final String ICEServerName = "relay.hike.in";	 
+	public static final int ICEServerPort = 9998; 
 	final static String[] ICEServerIpAddresses = {"52.74.88.97", "52.74.113.80"};
 
 	public static final int AUDIO_SAMPLE_RATE = 48000; 
@@ -28,6 +36,12 @@ public class VoIPConstants {
 	 */
 	public static final int MAXIMUM_GROUP_CHAT_SIZE = 10;
 	
+	/**
+	 * If a client does not provide audio data continuously this many times, 
+	 * we assume they are not speaking. 
+	 */
+	public static final int PLC_LIMIT = 5;
+	
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions
@@ -35,12 +49,11 @@ public class VoIPConstants {
 	public static final String PARTNER_INCOMPATIBLE = "pi";
 	public static final String PARTNER_IN_CALL = "incall";
 	public static final String PARTNER_HAS_BLOCKED_YOU = "blocked";
-	public static final String INCOMING_NATIVE_CALL_HOLD = "hold";
 	
 	// Default bitrates
 	public static final int BITRATE_2G = 12000;
 	public static final int BITRATE_3G = 16000;
-	public static final int BITRATE_WIFI = 48000;
+	public static final int BITRATE_WIFI = 24000;
 	public static final int BITRATE_CONFERENCE = 16000;
 
 	public static final String CALL_ID = "callId";
@@ -151,6 +164,8 @@ public class VoIPConstants {
 
 		public static final String CALL_SOURCE = "call_source";
 
+		public static final String GROUP_CHAT_MSISDN = "groupChatMsisdn";
+
 		public static final String INTERNAL_IP = "internalIP";
 
 		public static final String INTERNAL_PORT = "internalPort";
@@ -170,6 +185,8 @@ public class VoIPConstants {
 		public static final String CALL_ID = "callId";
 
 		public static final String INCOMING_CALL = "incomingCall";
+		
+		public static final String VOIP_VERSION = "version";
 	}
 
 	
@@ -187,7 +204,16 @@ public class VoIPConstants {
 
 	public static enum CallStatus
 	{
-		OUTGOING_CONNECTING, OUTGOING_RINGING, INCOMING_CALL, PARTNER_BUSY, RECONNECTING, ON_HOLD, ACTIVE, ENDED, UNINITIALIZED
+		OUTGOING_CONNECTING, 
+		OUTGOING_RINGING, 
+		INCOMING_CALL, 
+		PARTNER_BUSY, 
+		RECONNECTING, 
+		ON_HOLD, 
+		ACTIVE, 
+		ENDED, 
+		UNINITIALIZED,
+		HOSTING_CONFERENCE
 	}
 
 	/**
