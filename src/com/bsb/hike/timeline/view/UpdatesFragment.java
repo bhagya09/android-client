@@ -316,9 +316,9 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		@Override
 		protected void onPostExecute(List<StatusMessage> result)
 		{
-			if (!isAdded())
+			if (!isAdded() || result == null)
 			{
-				Logger.d(getClass().getSimpleName(), "Not added");
+				Logger.d(getClass().getSimpleName(), "Not added or result null");
 				return;
 			}
 
@@ -336,7 +336,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				JSONObject suUpdateJSON = new JSONObject();
 				try
 				{
-					suUpdateJSON.put(HikeConstants.SU_IDS, suIDArray);
+					suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
 					HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
 				}
 				catch (JSONException e)
