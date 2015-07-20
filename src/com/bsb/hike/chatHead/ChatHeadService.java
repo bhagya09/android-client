@@ -83,16 +83,14 @@ public class ChatHeadService extends Service
 	private static boolean toShow = true;
 	
 	private LayoutParams chatHeadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE , PixelFormat.TRANSLUCENT);
+			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_SPLIT_TOUCH, PixelFormat.TRANSLUCENT);
 
 	private LayoutParams closeHeadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
 			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
 	
 
-	private LayoutParams stickerPickerParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
-	
-	private ChatHeadLayout chatHeadLayout;
+	private LayoutParams stickerPickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,
+			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_SPLIT_TOUCH, PixelFormat.TRANSLUCENT);
 
 	public static boolean flagActivityRunning = false;
 
@@ -243,11 +241,22 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
+				if(ChatHeadLayout.getOverlayView() != null)
+				{flagActivityRunning = false;
+					try {
+					windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
+					}
+					catch (Exception e)
+					{
+						Logger.d("UmangX","busted");
+					}
+				}
 				if (flag != ChatHeadConstants.REMAINING_ANIMATION && flagActivityRunning && (mFinishActivityListener != null))
 				{
 					flagActivityRunning = false;
-					mFinishActivityListener.finishActivity();
+					//mFinishActivityListener.finishActivity();
 				}
+				
 			}
 
 			@Override
@@ -312,14 +321,13 @@ public class ChatHeadService extends Service
 	
 	private void createAndOpenChatHeadPickerLayout(Context context)
 	{
-		chatHeadLayout = new ChatHeadLayout(context);
-		chatHeadLayout.attachPicker();
+		windowManager.addView(ChatHeadLayout.attachPicker(context),stickerPickerParams);
 		ChatHeadService.flagActivityRunning = true;
 //		ChatHeadService.registerReceiver(this);
 //		setContentView(R.layout.chat_head);
 		ChatHeadUtils.settingDailySharedPref();
 		ChatHeadUtils.initVariables();
-		windowManager.addView(chatHeadLayout, stickerPickerParams);
+		//windowManager.addView(chatHeadLayout, stickerPickerParams);
 	}
 	
 	public void insertHomeActivitBeforeStarting(Intent openingIntent)

@@ -1,5 +1,6 @@
 package com.bsb.hike.chatHead;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -7,33 +8,61 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
-public class ChatHeadLayout extends LinearLayout implements StickerPickerListener
+public class ChatHeadLayout implements StickerPickerListener, OnClickListener
 {
-	private StickerPicker picker;
+	private static StickerPicker picker;
+	private static final ChatHeadLayout chatHeadLayout = new ChatHeadLayout();
+	private static ViewGroup overlayScreenViewGroup;
 	
-	public void attachPicker()
+	private ChatHeadLayout(){}
+	
+	public static ChatHeadLayout getLayout()
 	{
-		picker = new StickerPicker(R.layout.chat_head_sticker_layout, HikeMessengerApp.getInstance(), this, null);
-		picker.onCreatingChatHeadActivity(HikeMessengerApp.getInstance(), this);
+		return chatHeadLayout;
+	}
+
+	public static ViewGroup getOverlayView()
+	{
+		return overlayScreenViewGroup;
+	}
+	
+	public static ViewGroup attachPicker(Context context)
+	{	
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+		overlayScreenViewGroup = (RelativeLayout)inflater.inflate(R.layout.chat_head, null);
+		//overlayScreenViewGroup.setOnClickListener(chatHeadLayout);
+		LinearLayout chatty = (LinearLayout) overlayScreenViewGroup.findViewById(R.id.sticker_pallete_other_app);
+		picker = new StickerPicker(R.layout.chat_head_sticker_layout, context, chatHeadLayout, null);
+		picker.onCreatingChatHeadActivity(context, chatty);
 		picker.setOnClick();
-		this.setVisibility(View.VISIBLE);
+		return overlayScreenViewGroup;
 	}
 	
-	public ChatHeadLayout(Context context)
+	public static ViewGroup detachPicker(Context context)
 	{
-		super(context);
-	}
+
+		if (ChatHeadService.flagActivityRunning)
+		{
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
+		}
+		HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, ChatHeadUtils.shareCount);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, ChatHeadUtils.totalShareCount);
 	
-	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b)
-	{
-		// TODO Auto-generated method stub
-		super.onLayout(changed, l, t, r, b);
+		ChatHeadService.flagActivityRunning = false;
+		picker.stoppingChatHeadActivity();
+		return overlayScreenViewGroup;
+	
 	}
 
 	@Override
@@ -53,6 +82,20 @@ public class ChatHeadLayout extends LinearLayout implements StickerPickerListene
 			picker.infoIconClick();
 		} 
 
+	}
+
+	public static void detacPicker()
+	{
+		Logger.d("UmangX","asdk");
+	}
+	
+	@Override
+	public void onClick(View v)
+	{
+		if(v.getId() != R.id.sticker_pallete_other_app)
+		{
+			detacPicker();
+		}
 	}
 
 }
