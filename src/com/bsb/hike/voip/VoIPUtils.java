@@ -179,7 +179,11 @@ public class VoIPUtils {
 		}    	
     }
 
-	public static void sendMissedCallNotificationToPartner(VoIPClient clientPartner) {
+    /**
+     * Put a missed call notification on the other client's chat thread. 
+     * @param client
+     */
+	public static void sendMissedCallNotificationToPartner(String msisdn) {
 
 		try {
 			JSONObject socketData = new JSONObject();
@@ -191,7 +195,7 @@ public class VoIPUtils {
 			data.put(HikeConstants.METADATA, socketData);
 
 			JSONObject message = new JSONObject();
-			message.put(HikeConstants.TO, clientPartner.getPhoneNumber());
+			message.put(HikeConstants.TO, msisdn);
 			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING);
 			message.put(HikeConstants.DATA, data);
@@ -268,18 +272,11 @@ public class VoIPUtils {
 		return callActive;
 	}
 	
-	public static int getAudioSource() {
+	public static int getAudioSource(boolean speakerPhone) {
 		int source = MediaRecorder.AudioSource.MIC;
-		String model = android.os.Build.MODEL;
 		
-		if (android.os.Build.VERSION.SDK_INT >= 11)
-			source = MediaRecorder.AudioSource.MIC;
-		
-		Logger.d(tag, "Phone model: " + model);
-		
-//		if (model.contains("Nexus 5") || 
-//				model.contains("Nexus 4"))
-//			source = MediaRecorder.AudioSource.VOICE_RECOGNITION;
+		if (speakerPhone == true)
+			source = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
 		
 		return source;
 	}
@@ -389,6 +386,7 @@ public class VoIPUtils {
 		else
 			Logger.w(tag, "Bluetooth disabled since phone does not support Kitkat.");
 		*/
+
 		return bluetoothEnabled;
 	}
 	
@@ -526,6 +524,13 @@ public class VoIPUtils {
 					i.putExtra(VoIPConstants.Extras.RECONNECTING, metadataJSON.getBoolean(VoIPConstants.Extras.RECONNECTING));
 					i.putExtra(VoIPConstants.Extras.INITIATOR, metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR));
 					i.putExtra(VoIPConstants.Extras.CALL_ID, metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
+					
+					if (metadataJSON.has(VoIPConstants.Extras.VOIP_VERSION))
+						i.putExtra(VoIPConstants.Extras.VOIP_VERSION, metadataJSON.getInt(VoIPConstants.Extras.VOIP_VERSION));
+					
+					if (metadataJSON.has(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
+						i.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, metadataJSON.getString(VoIPConstants.Extras.GROUP_CHAT_MSISDN));
+					
 					context.startService(i);
 					return;
 				}
