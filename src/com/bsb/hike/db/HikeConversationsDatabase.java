@@ -6991,16 +6991,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				notifDataJSON = new JSONObject();
 			}
-			JSONObject notifJSON = null;
-			try {
-			 notifJSON = new JSONObject(notifData);
-			}catch(JSONException je) {
-				je.printStackTrace();
-				notifJSON = new JSONObject();
-			}
-			
-			
-			notifDataJSON.put(String.valueOf(System.currentTimeMillis()), notifJSON);
+			notifDataJSON.put(String.valueOf(System.currentTimeMillis()), notifData);
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 			mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });

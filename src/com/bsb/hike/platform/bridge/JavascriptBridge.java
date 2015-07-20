@@ -623,7 +623,7 @@ public abstract class JavascriptBridge
 			Logger.e(tag, "Empty function name when calling the JS back");
 			return;
 		}
-		if (mHandler == null || !mWebView.isAttachedToWindow())
+		if (mHandler == null || !mWebView.isWebViewShowing())
 		{
 			return;
 		}
