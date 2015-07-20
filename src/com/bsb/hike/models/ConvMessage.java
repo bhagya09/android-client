@@ -109,6 +109,8 @@ public class ConvMessage implements Searchable
 	
 	private long serverId = -1;
 
+	private long sendTimestamp = -1;
+	
 	private MessagePrivateData privateData;
 	
 	public int getHashMessage()
@@ -393,6 +395,12 @@ public class ConvMessage implements Searchable
 																										 * represents msg is coming from another client
 																										 */
 		this.groupParticipantMsisdn = obj.has(HikeConstants.TO) && obj.has(HikeConstants.FROM) ? obj.getString(HikeConstants.FROM) : null;
+		
+		if (obj.has(HikeConstants.SEND_TIMESTAMP))
+		{
+			this.sendTimestamp = obj.getLong(HikeConstants.SEND_TIMESTAMP);
+		}
+		
 		JSONObject data = obj.getJSONObject(HikeConstants.DATA);
 		if (data.has(HikeConstants.SMS_MESSAGE))
 		{
@@ -487,6 +495,11 @@ public class ConvMessage implements Searchable
 		else
 		{
 			this.mMsisdn = obj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.MSISDN);
+		}
+		
+		if (obj.has(HikeConstants.SEND_TIMESTAMP))
+		{
+			this.sendTimestamp = obj.getLong(HikeConstants.SEND_TIMESTAMP);
 		}
 
 		this.mMessage = "";
@@ -877,6 +890,7 @@ public class ConvMessage implements Searchable
 				}
 				
 				object.put(HikeConstants.TYPE, mInvite ? HikeConstants.MqttMessageTypes.INVITE : HikeConstants.MqttMessageTypes.MESSAGE);
+				object.put(HikeConstants.SEND_TIMESTAMP, getSendTimestamp());
 			}
 		}
 		catch (JSONException e)
@@ -1314,5 +1328,15 @@ public class ConvMessage implements Searchable
 		{
 			this.privateData = messagePrivateData;
 		}
+	}
+
+	public long getSendTimestamp()
+	{
+		return sendTimestamp;
+	}
+
+	public void setSendTimestamp(long sendTimestamp)
+	{
+		this.sendTimestamp = sendTimestamp;
 	}
 }
