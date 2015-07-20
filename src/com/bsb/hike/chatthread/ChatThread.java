@@ -4557,10 +4557,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			StringBuilder msgStr = new StringBuilder();
 			int size = selectedMsgIds.size();
 
-			for (int i = 0; i < size; i++)
+			if (!selectedMsgIds.isEmpty())
 			{
-				msgStr.append(selectedMessagesMap.get(selectedMsgIds.get(i)).getMessage());
-				msgStr.append("\n");
+				msgStr.append(selectedMessagesMap.get(selectedMsgIds.get(0)).getMessage());
+				for (int i = 1; i < size; i++)
+				{
+					msgStr.append("\n");
+					msgStr.append(selectedMessagesMap.get(selectedMsgIds.get(i)).getMessage());
+				}
 			}
 			Utils.setClipboardText(msgStr.toString(), activity.getApplicationContext());
 			Toast.makeText(activity.getApplicationContext(), R.string.copied, Toast.LENGTH_SHORT).show();
