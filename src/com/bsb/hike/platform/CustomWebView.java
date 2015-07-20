@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.bsb.hike.platform.content.HikeWebClient;
@@ -160,6 +161,9 @@ public class CustomWebView extends WebView
 		getSettings().setJavaScriptEnabled(true);
 		getSettings().setSupportZoom(true);
 		getSettings().setBuiltInZoomControls(true);
+		getSettings().setAppCachePath(getContext().getCacheDir().getAbsolutePath());
+		getSettings().setAppCacheEnabled(true);
+		getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
 	}
 
 	public void loadMicroAppData(String data)
