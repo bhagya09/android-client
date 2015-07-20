@@ -88,6 +88,7 @@ public class VoIPService extends Service {
 	boolean voiceSignalAbsent = false;
 	
 	private boolean conferencingEnabled = false;
+	private boolean hostingConference = false;
 	
 	// Task executors
 	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
@@ -217,7 +218,7 @@ public class VoIPService extends Service {
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
 				Logger.d(tag, msisdn + " has stopped.");
-				if (!hostingConference())
+				if (clients.size() <= 1)
 					stop();
 				else {
 					Logger.d(tag, msisdn + " has quit the conference.");
@@ -559,15 +560,14 @@ public class VoIPService extends Service {
 			// we are making an outgoing call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
 			
-			// In case of conference, verify network
-			if (clients.size() > 0 && !VoIPUtils.checkNetworkForConference(getApplicationContext()))
-				return returnInt;
-			
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
 				// Group call
 				groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
-//				Logger.w(VoIPConstants.TAG, "Initiating a group call for group: " + groupChatMsisdn);
 				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
+				
+				if (!VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + msisdns.size()))
+					return returnInt;
+
 				startChrono();
 				
 				for (String phoneNumber : msisdns) {
@@ -582,9 +582,13 @@ public class VoIPService extends Service {
 					client.groupChatMsisdn = groupChatMsisdn;
 					initiateOutgoingCall(client, callSource);
 				}
-			} else 
-				// One-to-one call
+			} else {
+				// Outgoing call to single recipient
+				if (clients.size() > 0 && !VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + 1))
+					return returnInt;
+				
 				initiateOutgoingCall(client, callSource);
+			}
 			
 			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 			
@@ -773,6 +777,8 @@ public class VoIPService extends Service {
 			builder = new NotificationCompat.Builder(getApplicationContext());
 
 		VoIPClient client = getClient();
+		if (client == null)
+			return;
 		
 		int callDuration = getCallDuration();
 		String durationString = (callDuration == 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
@@ -1939,6 +1945,12 @@ public class VoIPService extends Service {
 	}
 	
 	public CallQuality getQuality() {
+		
+		// Hard coded quality if hosting a conference. 
+		// Actual logic will need to be more complicated. 
+		if (hostingConference())
+			return CallQuality.GOOD;
+		
 		VoIPClient client = getClient();
 		if (client != null)
 			return client.getQuality();
@@ -1999,11 +2011,13 @@ public class VoIPService extends Service {
 	}
 	
 	public boolean hostingConference() {
-		boolean conference = false;
-		if (clients.size() > 1)
-			conference = true;
-		// Logger.d(logTag, "Conference check: " + conference);
-		return conference;
+//		boolean conference = false;
+//		if (clients.size() > 1 || !TextUtils.isEmpty(groupChatMsisdn))
+//			conference = true;
+//		// Logger.d(logTag, "Conference check: " + conference);
+//		return conference;
+		
+		return hostingConference;
 	}
 	
 	public boolean toggleConferencing() {
@@ -2060,13 +2074,21 @@ public class VoIPService extends Service {
 	}
 	
 	private void addToClients(VoIPClient client) {
+
+		Logger.w(tag, "Adding client " + client.getName());
+		
 		synchronized (clients) {
 			clients.put(client.getPhoneNumber(), client);
+			if (clients.size() > 1)
+				hostingConference = true;
 		}
 		sendClientsListToAllClients();
 	}
 
 	private void removeFromClients(String msisdn) {
+		
+		Logger.w(tag, "Removing client " + msisdn);
+
 		synchronized (clients) {
 			VoIPClient client = getClient(msisdn);
 			if (client != null) {
