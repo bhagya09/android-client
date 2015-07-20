@@ -334,9 +334,6 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	public void handleException(Throwable e)
 	{
-		if(retryAttempts == MAX_RETRY_ATTEMPTS)
-			retryAttempts --;
-
 		if(e instanceof UnknownHostException)
 			mExceptionType = FTExceptionReason.UNKNOWN_HOST;
 		else if(e instanceof SocketException)
@@ -349,8 +346,6 @@ public abstract class FileTransferBase implements Callable<FTResult>
 			mExceptionType = FTExceptionReason.CONNECT_TIMEOUT;
 		else if(e instanceof HttpHostConnectException)
 			mExceptionType = FTExceptionReason.HOST_CONNECT_EXCEPTION;
-		else
-			retryAttempts ++;
 	}
 
 	public URL getUpdatedURL(URL mUrl, String logText, String taskType)
