@@ -1423,12 +1423,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private boolean deleteActivityLike(FeedDataModel feedData)
 	{
 		boolean isComplete = false;
-		ContentValues conVal = new ContentValues();
-		conVal.put(DBConstants.FEED_OBJECT_TYPE, feedData.getObjType().getTypeString());
-		conVal.put(DBConstants.FEED_OBJECT_ID, feedData.getObjID());
-		conVal.put(DBConstants.FEED_ACTION_ID, feedData.getActionType().getKey());
-		conVal.put(DBConstants.FEED_ACTOR, feedData.getActor());
-		conVal.put(DBConstants.FEED_TS, feedData.getTimestamp());
 
 		String whereClause = DBConstants.FEED_ACTOR + "=? AND " + DBConstants.FEED_OBJECT_ID + "=? AND " + DBConstants.FEED_ACTION_ID + "=? AND " + DBConstants.FEED_OBJECT_TYPE
 				+ "=?";
