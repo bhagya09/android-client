@@ -218,7 +218,7 @@ public class VoIPService extends Service {
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
 				Logger.d(tag, msisdn + " has stopped.");
-				if (clients.size() <= 1)
+				if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
 					stop();
 				else {
 					Logger.d(tag, msisdn + " has quit the conference.");
@@ -2075,8 +2075,6 @@ public class VoIPService extends Service {
 	
 	private void addToClients(VoIPClient client) {
 
-		Logger.w(tag, "Adding client " + client.getName());
-		
 		synchronized (clients) {
 			clients.put(client.getPhoneNumber(), client);
 			if (clients.size() > 1)
@@ -2087,8 +2085,6 @@ public class VoIPService extends Service {
 
 	private void removeFromClients(String msisdn) {
 		
-		Logger.w(tag, "Removing client " + msisdn);
-
 		synchronized (clients) {
 			VoIPClient client = getClient(msisdn);
 			if (client != null) {
@@ -2116,6 +2112,7 @@ public class VoIPService extends Service {
 					
 					@Override
 					public void run() {
+						sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 						synchronized (clients) {
 							
 							// Form the CSV
@@ -2222,6 +2219,9 @@ public class VoIPService extends Service {
 		}
 	}
 
-	
+	public void processErrorIntent(String error, String msisdn) {
+		Logger.w(tag, msisdn + " returned an error message. Size of clients: " + clients.size());
+		removeFromClients(msisdn);
+	}
 }
 
