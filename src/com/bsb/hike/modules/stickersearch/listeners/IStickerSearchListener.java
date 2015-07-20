@@ -14,7 +14,11 @@ public interface IStickerSearchListener
 	
 	public void dismissStickerSearchPopup();
 	
-	public void showStickerRecommendFtue();
+	public void showStickerRecommendFtueTip();
+	
+	public void dismissStickerRecommendFtueTip();
+	
+	public void setStickerRecommendFtueSeen();
 	
 	public void clearSearchText();
 	
