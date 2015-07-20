@@ -28,6 +28,7 @@ import android.net.wifi.WifiManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -375,8 +376,10 @@ public class VoIPUtils {
 	
 	public static boolean isBluetoothEnabled(Context context) 
 	{
-		boolean bluetoothEnabled = false;
+		boolean bluetoothEnabled = true;
 		
+		/*
+		 * 18 July, 2015: we have BROADCAST_STICKY
 		// Below KitKat startBluetoothSco() requires BROADCAST_STICKY permission
 		// http://stackoverflow.com/questions/8678642/startbluetoothsco-throws-security-exception-broadcast-sticky-on-ics
 		// https://code.google.com/p/android/issues/detail?id=25136
@@ -384,8 +387,25 @@ public class VoIPUtils {
 			bluetoothEnabled = true;
 		else
 			Logger.w(tag, "Bluetooth disabled since phone does not support Kitkat.");
+		 */
 
 		return bluetoothEnabled;
+	}
+	
+	/**
+	 * Check if we are currently connected to a network that supports conference. <br/>
+	 * Currently we do not allow conferencing on 2G and 3G networks. <br/>
+	 * This function will also show a toast if conferencing is not supported on the current network. 
+	 * @param context
+	 * @return
+	 */
+	public static boolean checkNetworkForConference(Context context) {
+		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
+		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
+			return false;
+		}
+		return true;
 	}
 	
 	/**

@@ -70,7 +70,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private CallActionsView callActionsView;
 	private Chronometer callDuration;
 
-	private ImageButton holdButton, muteButton, speakerButton, addButton;
+	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
 
 	private boolean isCallActive;
 
@@ -107,6 +107,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		holdButton = (ImageButton) view.findViewById(R.id.hold_btn);
 		speakerButton = (ImageButton) view.findViewById(R.id.speaker_btn);
 		addButton = (ImageButton) view.findViewById(R.id.add_btn);
+		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
 		
 		if (VoIPUtils.isConferencingEnabled(getSherlockActivity())) 
 			addButton.setVisibility(View.VISIBLE);
@@ -186,6 +187,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				if (voipService.hostingConference())
 					updateConferenceList();
 				break;
+			case VoIPConstants.MSG_BLUETOOTH_SHOW:
+				toggleBluetoothButton(true);
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -208,6 +212,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			voipService = binder.getService();
 			isBound = true;
 			connectMessenger();
+			
+			// Should we show the bluetooth button?
+			boolean bluetooth = voipService.isOnHeadsetSco();
+			if (bluetooth)
+				toggleBluetoothButton(true);
 		}
 	};
 
@@ -549,6 +558,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		holdButton.startAnimation(anim);
 		speakerButton.startAnimation(anim);
 		addButton.startAnimation(anim);
+		bluetoothButton.startAnimation(anim);
 		hangupButton.startAnimation(anim);
 	}
 
@@ -636,6 +646,16 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				startActivityForResult(intent, HikeConstants.ADD_TO_CONFERENCE_REQUEST);
 			}
 		});
+		
+		bluetoothButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				bluetoothButton.setSelected(!bluetoothButton.isSelected());
+				voipService.toggleBluetoothFromActivity(bluetoothButton.isSelected());
+			}
+		});
+		
 	}
 
 	@Override
@@ -645,8 +665,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				if (data.hasExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE)) {
 					ArrayList<String> msisdns = data.getStringArrayListExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE);
 					Logger.w(tag, "Adding to conference: " + msisdns.toString());
-					getActivity().startService(IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(),
-							msisdns, null, VoIPUtils.CallSource.ADD_TO_CONFERENCE));
+					Intent intent = IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(),
+							msisdns, null, VoIPUtils.CallSource.ADD_TO_CONFERENCE);
+					if (intent != null)
+						getActivity().startService(intent);
 				}
 			}
 		}
@@ -932,5 +954,13 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				return;
 			}
 		easter = 0;
+	}
+	
+	private void toggleBluetoothButton(boolean show) {
+		if (show) {
+			bluetoothButton.setSelected(true);
+			bluetoothButton.setVisibility(View.VISIBLE);
+		} else
+			bluetoothButton.setVisibility(View.GONE);
 	}
 }
