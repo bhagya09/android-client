@@ -200,5 +200,8 @@
 	<dimen name="conv_item_avatar">52dp</dimen>
 	<dimen name="compose_item_height">63dp</dimen>
 	<dimen name="compose_avatar_dimen">40dp</dimen>
+	<dimen name="settings_item_height">57dp</dimen>
+	<dimen name="settings_screen_divider_left_padding">64dp</dimen>
+	<dimen name="settings_screen_divider_right_padding">16dp</dimen>
 	
 </resources>
