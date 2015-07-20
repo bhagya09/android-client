@@ -163,7 +163,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
-	private static MenuItem searchMenuItem;
+	private MenuItem searchMenuItem;
 
 	private boolean showingSearchModeActionBar = false;
 	
@@ -785,15 +785,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	public static void setSearchOptionAccess(boolean setVisible)
-	{
-		if (searchMenuItem != null)
-		{
-			searchMenuItem.setEnabled(setVisible);
-			searchMenuItem.setVisible(setVisible);
-		}
-	}
-
 	private void toggleMenuItems(Menu menu, boolean value)
 	{
 		menu.findItem(R.id.overflow_menu).setVisible(value);
@@ -1059,6 +1050,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		checkNShowNetworkError();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+	}
+
+	@Override
+	public void onBackPressed()
+	{
+		// In android 5.0(and higher) when back is pressed, sherlock action mode does not exit.
+		// Instead the activity was exiting.
+		// The following change checks if search mode is still there, and take s action accordingly
+		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
+		{
+			searchMenuItem.collapseActionView();
+			return;
+		}
+		super.onBackPressed();
 	}
 
 	@Override

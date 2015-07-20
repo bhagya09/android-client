@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
@@ -130,5 +131,23 @@ public class HttpUtils
 			e.printStackTrace();
 		}
 		return output;
+	}
+	
+	public static boolean removeHeader(List<Header> headers, String name, String value)
+	{
+		if(headers == null)
+		{
+			return false;
+		}
+		
+		for (Iterator<Header> iterator = headers.iterator(); iterator.hasNext();) {
+		    Header header = iterator.next();
+		    if (header.getName().equals(name) && header.getValue().equals(value)) {
+		        // Remove the current element from the iterator and the list.
+		        iterator.remove();
+		        return true;
+		    }
+		}
+		return false;
 	}
 }
