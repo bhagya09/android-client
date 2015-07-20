@@ -593,6 +593,12 @@ public final class HikeEffectsFactory
 			int[] ro, ri, go, gi, bo, bi, ci, co;
 			Splines red, green, blue, composite;
 			Bitmap temp = null;
+			
+			if(mInAllocation == null || mOutAllocations == null)
+			{
+				return;
+			}
+			
 			if (!blurImage)
 			{
 				mScript.set_input1(mBlendAllocation);
@@ -604,7 +610,7 @@ public final class HikeEffectsFactory
 				mScript.set_isThumbnail(1);
 				mScript.set_imageHeight(inBitmapOut.getHeight());
 			}
-
+			
 			switch (effect)
 			{
 			case CLASSIC:
