@@ -137,7 +137,7 @@
 	<dimen name="chat_thread_margin_top">46.5dp</dimen>	
 	<dimen name="alp_42447968_textview_info_padding_top">13dp</dimen>
 	<dimen name="platform_icon_margin_bottom">24dp</dimen>
-	<dimen name="favorites_star_icon_drawable_padding">7dp</dimen>
+	<dimen name="favorites_star_icon_drawable_padding">8dp</dimen>
 	<dimen name="medium_avatar_2">52dp</dimen>
 	<dimen name="overflow_menu_right_margin">8dp</dimen>
 	<dimen name="ftue_card_text_header_font">32dp</dimen>
@@ -198,5 +198,10 @@
 	<dimen name="conv_item_height">68dp</dimen>
 	<dimen name="conv_item_padding">16dp</dimen>
 	<dimen name="conv_item_avatar">52dp</dimen>
+	<dimen name="compose_item_height">63dp</dimen>
+	<dimen name="compose_avatar_dimen">40dp</dimen>
+	<dimen name="settings_item_height">57dp</dimen>
+	<dimen name="settings_screen_divider_left_padding">64dp</dimen>
+	<dimen name="settings_screen_divider_right_padding">16dp</dimen>
 	
 </resources>

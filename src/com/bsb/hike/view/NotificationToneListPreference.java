@@ -7,7 +7,6 @@ import java.util.Map;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -17,7 +16,6 @@ import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -27,8 +25,6 @@ import com.bsb.hike.utils.SoundUtils;
 
 public class NotificationToneListPreference extends ListPreference implements DialogInterface.OnClickListener
 {
-	private Drawable mIcon;
-
 	private Context mContext;
 
 	private int mClickedDialogEntryIndex;
@@ -48,7 +44,6 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		super(context, attrs);
 		this.mContext = context;
 		this.ringtonesNameURIMap = new LinkedHashMap<String, Uri>();
-		setIcon(context, attrs);
 		//this.setValueIndex(HIKE_JINNGLE_INDEX);
 		String defaultTone = mContext.getResources().getString(R.string.notif_sound_Hike);
 		String selectedRingtone = PreferenceManager.getDefaultSharedPreferences(mContext).getString(HikeConstants.NOTIF_SOUND_PREF, defaultTone);
@@ -56,25 +51,11 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		setTitle(mContext.getString(R.string.notificationSoundTitle) + " - " + selectedRingtone);
 	}
 
-	private void setIcon(Context context, AttributeSet attrs)
-	{
-		String iconName = attrs.getAttributeValue(null, "icon");
-		iconName = iconName.split("/")[1];
-		int id = context.getResources().getIdentifier(iconName, "drawable", context.getPackageName());
-
-		this.mIcon = context.getResources().getDrawable(id);
-	}
 
 	@Override
 	protected void onBindView(View view)
 	{
 		super.onBindView(view);
-		final ImageView imageView = (ImageView) view.findViewById(R.id.icon);
-		if ((imageView != null) && (this.mIcon != null))
-		{
-			imageView.setImageDrawable(this.mIcon);
-			imageView.setVisibility(View.VISIBLE);
-		}
 	}
 
 	private int getValueIndex()

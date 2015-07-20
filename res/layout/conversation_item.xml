@@ -42,27 +42,17 @@
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/last_message_timestamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/ListItemRightSubText"
                     android:layout_alignParentRight="true"
-                    android:text="9:35AM"
-                    android:textColor="@color/conv_item_timestamp_color"
-                    android:textStyle="normal"
-                    android:textSize="12sp" />
+                    android:text="9:35AM"/>
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/contact"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_marginRight="5dp"
                     android:layout_toLeftOf="@id/last_message_timestamp"
-                    android:ellipsize="end"
-                    android:singleLine="true"
                     android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
-                    android:textColor="@color/conv_item_contact_color"
-                    android:textSize="16sp"
-                    android:textStyle="bold|italic" />
+                    style="@style/ListItemHeaderTextView" />
                 
             </RelativeLayout>
 
@@ -76,8 +66,8 @@
                     android:layout_width="20.5dp"
                     android:layout_height="8dp"
                     android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
                     android:layout_marginRight="8dp"
+                    android:scaleType="fitCenter"
                     android:visibility="gone" />
 
               
@@ -107,19 +97,12 @@
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/last_message"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_alignWithParentIfMissing="true"
-                    android:layout_centerVertical="true"
                     android:layout_toLeftOf="@+id/mute_indicator"
                     android:layout_toRightOf="@id/msg_status_indicator"
-                    android:ellipsize="end"
-                    android:singleLine="true"
                     android:layout_marginRight="16dp"
                     android:text="what&apos;s up dude? I really like cookies. They taste so good and fresh. I like pie as well. I&apos;m so fat"
-                    android:textColor="@color/conv_item_last_msg_color"
-                    android:textSize="14sp"
-                    android:textStyle="normal"
+                    style="@style/ListItemSubHeaderTextView"
                     android:visibility="invisible" />
             </RelativeLayout>
         </LinearLayout>

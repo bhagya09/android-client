@@ -307,7 +307,7 @@
         <item name="android:drawSelectorOnTop">false</item>
         <item name="android:listSelector">@android:color/transparent</item>
     </style>
-
+    
     <style name="Hike.ActionBarTheme" parent="Theme.AppCompat">
         <item name="actionBarSize">@dimen/st__action_bar_default_height</item>
         <item name="actionBarTabStyle">@style/Hike.ActionBar.TabView</item>
@@ -781,5 +781,79 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">false</item>
     </style>
+    
+	<style name="compose_name_container_margins">
+	     <item name="android:layout_marginLeft">16dp</item>
+	     <item name="android:layout_marginRight">5dp</item>
+	     <item name="android:layout_marginTop">11dp</item>
+	     <item name="android:layout_marginBottom">8dp</item>
+	</style>
+	
+    <style name="BaseStyleTextView">
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    
+	<style name="ListItemHeaderTextView" parent="BaseStyleTextView">
+        <item name="android:textColor">@color/conv_item_contact_color</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    
+	<style name="ListItemSubHeaderTextView" parent="BaseStyleTextView">
+        <item name="android:textColor">@color/conv_item_last_msg_color</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    
+	<style name="ListSectionHeaderMargins">
+	    <item name="android:layout_marginLeft">16dp</item>
+	    <item name="android:layout_marginRight">16dp</item>
+	    <item name="android:layout_marginTop">30dp</item>
+	    <item name="android:layout_marginBottom">8dp</item>
+	</style>
+	
+	<style name="ListSectionTextView" parent="BaseStyleTextView">
+	    <item name="android:textColor">#1DA8E8</item>
+	    <item name="android:textSize">14sp</item>
+	    <item name="android:textStyle">bold|italic</item>
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	</style>
+	
+	<style name="ListItemRightSubText" parent="BaseStyleTextView">
+	    <item name="android:textColor">@color/conv_item_timestamp_color</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+	</style>
+	
+	<style name="SettingsItemHeader" parent="BaseStyleTextView">
+	    <item name="android:textColor">@color/settings_text_header_color</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+	</style>
+	
+	<style name="SettingsItemSubHeader" parent="BaseStyleTextView">
+	    <item name="android:textColor">@color/settings_text_subheader_color</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+	</style>
+	
+	<style name="SettingList" parent = "HomeList">
+	    <item name="android:divider">@drawable/setting_list_divider</item>
+	</style>
     
 </resources>
