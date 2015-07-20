@@ -242,7 +242,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	}	
 	
 	/**
-	 * Used to set up sticker recommend ftue views
+	 * Used to set up sticker recommendation ftue views
 	 */
 	private void setupStickerRecommendFTUETip()
 	{

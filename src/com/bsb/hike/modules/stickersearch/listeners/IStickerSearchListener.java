@@ -10,7 +10,7 @@ public interface IStickerSearchListener
 	
 	public void unHighlightText(int start, int end);
 	
-	public void showStickerSearchPopup(List<Sticker> stickerList);
+	public void showStickerSearchPopup(String word, String phrase, List<Sticker> stickerList);
 	
 	public void dismissStickerSearchPopup();
 	
@@ -18,5 +18,5 @@ public interface IStickerSearchListener
 	
 	public void clearSearchText();
 	
-	public void highlightSearchText();
+	public void selectSearchText();
 }

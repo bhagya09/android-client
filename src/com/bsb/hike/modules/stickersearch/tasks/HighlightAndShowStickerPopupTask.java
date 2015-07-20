@@ -1,22 +1,21 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
+import android.util.Pair;
+
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 
 public class HighlightAndShowStickerPopupTask implements Runnable
 {
-	private CharSequence s;
+	private Pair<CharSequence, int[][]> result;
 
-	private int[][] startEndPair;
-
-	public HighlightAndShowStickerPopupTask(CharSequence s, int[][] whereToWhere)
+	public HighlightAndShowStickerPopupTask(Pair<CharSequence, int[][]> result)
 	{
-		this.s = s;
-		this.startEndPair = whereToWhere;
+		this.result = result;
 	}
 
 	@Override
 	public void run()
 	{
-		StickerSearchManager.getInstance().highlightAndShowStickerPopup(s.toString(), startEndPair);
+		StickerSearchManager.getInstance().highlightAndShowStickerPopup(result);
 	}
 }
