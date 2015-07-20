@@ -196,6 +196,8 @@ public class AnalyticsConstants
 	public static final String NETWORK_TYPE = "networkType";
 
 	public static final String APP_VERSION = "app_version";
+
+	public static final String HELP_CLICKED = "help_click";
 	
 	public static String ERROR_TRACE = "error";
 		
