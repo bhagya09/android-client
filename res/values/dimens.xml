@@ -198,5 +198,7 @@
 	<dimen name="conv_item_height">68dp</dimen>
 	<dimen name="conv_item_padding">16dp</dimen>
 	<dimen name="conv_item_avatar">52dp</dimen>
+	<dimen name="compose_item_height">63dp</dimen>
+	<dimen name="compose_avatar_dimen">40dp</dimen>
 	
 </resources>
