@@ -1945,6 +1945,12 @@ public class VoIPService extends Service {
 	}
 	
 	public CallQuality getQuality() {
+		
+		// Hard coded quality if hosting a conference. 
+		// Actual logic will need to be more complicated. 
+		if (hostingConference())
+			return CallQuality.GOOD;
+		
 		VoIPClient client = getClient();
 		if (client != null)
 			return client.getQuality();
