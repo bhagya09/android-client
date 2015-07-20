@@ -8,12 +8,14 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.platform.HikePlatformConstants;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.R.bool;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -706,14 +708,11 @@ public class IntentFactory
 		context.startActivity(in);
 	}
 	
-	public static void openHomeActivityInOtherTask(Context context, boolean flag)
+	public static Intent getHomeActivityIntentAsLauncher(Context context)
 	{
-		Intent in = new Intent(context, HomeActivity.class);
-		if (flag)
-		{
-			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		}		
-		context.startActivity(in);
+		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
+		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return homeIntent;
 	}
 
 	public static Intent openInviteFriends(Activity context)
