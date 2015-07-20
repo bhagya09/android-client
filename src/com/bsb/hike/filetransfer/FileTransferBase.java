@@ -334,7 +334,8 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	public void handleException(Throwable e)
 	{
-		retryAttempts --; 
+		if(retryAttempts == MAX_RETRY_ATTEMPTS)
+			retryAttempts --;
 
 		if(e instanceof UnknownHostException)
 			mExceptionType = FTExceptionReason.UNKNOWN_HOST;
