@@ -1,12 +1,14 @@
 package com.bsb.hike.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -77,9 +79,11 @@ import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -1402,7 +1406,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues conVal = new ContentValues();
 		conVal.put(DBConstants.FEED_OBJECT_TYPE, feedData.getObjType().getTypeString());
 		conVal.put(DBConstants.FEED_OBJECT_ID, feedData.getObjID());
-		conVal.put(DBConstants.FEED_ACTION_ID, feedData.getActionType().getKey());
+		conVal.put(DBConstants.FEED_ACTION_ID, ActionsDataModel.ActionTypes.LIKE.getKey());
 		conVal.put(DBConstants.FEED_ACTOR, feedData.getActor());
 		conVal.put(DBConstants.FEED_TS, feedData.getTimestamp());
 
@@ -1417,7 +1421,108 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			isComplete = true;
 		}
 
+		if (isComplete)
+		{
+			ArrayList<String> actorList = new ArrayList<String>();
+			actorList.add(feedData.getActor());
+			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
+		}
+
 		return isComplete;
+	}
+	
+	public int changeActionCountForObjID(String objID, String objType, int actionType, List<String> actors, boolean toIncrement)
+	{
+		Cursor c = null;
+
+		try
+		{
+			String whereQuery = DBConstants.ACTION_OBJECT_ID + " = ? AND " + DBConstants.ACTION_OBJECT_TYPE + " = ? AND " + DBConstants.ACTION_ID + " = ?";
+
+			String[] whereArgs = new String[] { objID, objType, String.valueOf(actionType) };
+
+			String[] requiredColumns = new String[] { DBConstants.ACTORS };
+
+			// Update in actions table as well
+			c = mDb.query(DBConstants.ACTIONS_TABLE, requiredColumns, whereQuery, whereArgs, null, null, null);
+
+			int cIdxActors = c.getColumnIndexOrThrow(DBConstants.ACTORS);
+
+			if (c.moveToFirst())
+			{
+				ContentValues cv = new ContentValues();
+
+				StringBuilder actorsCSV = new StringBuilder(c.getString(cIdxActors));
+
+				LinkedHashSet<String> existingActorsSet = new LinkedHashSet<String>();
+
+				if (!TextUtils.isEmpty(actorsCSV.toString()))
+				{
+					String[] existingActors = actorsCSV.toString().split(",");
+					existingActorsSet.addAll(Arrays.asList(existingActors));
+				}
+
+				if (toIncrement)
+				{
+					for (String msisdn : actors)
+					{
+						boolean added = existingActorsSet.add(msisdn);
+
+						if (added)
+						{
+							if (actorsCSV.length() != 0)
+							{
+								actorsCSV.append(",");
+							}
+
+							actorsCSV.append(msisdn);
+						}
+					}
+
+					cv.put(DBConstants.ACTORS, actorsCSV.toString());
+					cv.put(DBConstants.ACTION_COUNT, existingActorsSet.size());
+				}
+				else
+				{
+					if (existingActorsSet.isEmpty())
+					{
+						// Do nothing
+						return -1;
+					}
+					else
+					{
+						for (String msisdn : actors)
+						{
+							existingActorsSet.remove(msisdn);
+						}
+
+						StringBuilder newActors = new StringBuilder();
+
+						for (String msisdn : existingActorsSet)
+						{
+							if (newActors.length() != 0)
+							{
+								newActors.append(",");
+							}
+
+							newActors.append(msisdn);
+						}
+
+						cv.put(DBConstants.ACTORS, newActors.toString());
+						cv.put(DBConstants.ACTION_COUNT, existingActorsSet.size());
+					}
+				}
+
+				return mDb.update(DBConstants.ACTIONS_TABLE, cv, whereQuery, whereArgs);
+			}
+
+		}
+		finally
+		{
+			c.close();
+		}
+
+		return -1;
 	}
 
 	private boolean deleteActivityLike(FeedDataModel feedData)
@@ -1428,7 +1533,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ "=?";
 
 		int rowDeleted = mDb.delete(DBConstants.FEED_TABLE, whereClause, new String[] { feedData.getActor(), feedData.getObjID(),
-				String.valueOf(feedData.getActionType().getKey()), feedData.getObjType().getTypeString() });
+				String.valueOf(ActionsDataModel.ActionTypes.LIKE.getKey()), feedData.getObjType().getTypeString() });
 
 		if (rowDeleted != 0)
 		{
@@ -1437,6 +1542,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		else
 		{
 			isComplete = false;
+		}
+		
+		if(isComplete)
+		{
+			// Update in actions table as well
+			ArrayList<String> actorList = new ArrayList<String>();
+			actorList.add(feedData.getActor());
+			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
 		}
 
 		return isComplete;
@@ -7322,5 +7435,88 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 
 		return null;
+	}
+
+	/**
+	 * Get actions (likes/comments/views) for corresponding UUIDs
+	 * 
+	 * @param actionType
+	 *            {@link ActionsDataModel.ActivityObjectTypes}
+	 * @param uuidList
+	 * @param actionsData
+	 */
+	public void getActionsData(String actionType, List<String> uuidList, TimelineActions actionsData)
+	{
+		//Check input params
+		if (TextUtils.isEmpty(actionType) || uuidList == null || uuidList.isEmpty() || actionsData == null)
+		{
+			throw new IllegalArgumentException(HikeConversationsDatabase.class.getSimpleName() + " getActionsData(): One or more input param is null/empty");
+		}
+
+		//Columns required
+		String[] columns = new String[] { BaseColumns._ID, DBConstants.ACTION_ID, DBConstants.ACTION_COUNT, DBConstants.ACTORS, DBConstants.ACTION_OBJECT_ID };
+
+		//Selection for UUIDs
+		StringBuilder uuidSelection = new StringBuilder("(");
+		for (String uuid : uuidList)
+		{
+			uuidSelection.append(DatabaseUtils.sqlEscapeString(uuid) + ",");
+		}
+		uuidSelection.replace(uuidSelection.lastIndexOf(","), uuidSelection.length(), ")");
+
+		StringBuilder selection = new StringBuilder();
+
+		selection.append(DBConstants.ACTION_OBJECT_ID + " IN " + uuidSelection.toString());
+
+		//Add object type (su,card, channel)
+		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " + actionType);
+
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.ACTIONS_TABLE, columns, selection.toString(), null, null, null, null);
+
+			int cIdxActionId = c.getColumnIndexOrThrow(DBConstants.ACTION_ID);
+			int cIdxActionCount = c.getColumnIndexOrThrow(DBConstants.ACTION_COUNT);
+			int cIdxActors = c.getColumnIndexOrThrow(DBConstants.ACTORS);
+			int cIdxObjId = c.getColumnIndexOrThrow(DBConstants.ACTION_OBJECT_ID);
+
+			if (c.moveToFirst())
+			{
+				do
+				{
+					int count = c.getInt(cIdxActionCount);
+					
+					int actionIDKey = c.getInt(cIdxActionId);
+
+					String objectId = c.getString(cIdxObjId);
+					
+					String msisdnCSV = c.getString(cIdxActors);
+					
+					List<ContactInfo> cInfoList = new ArrayList<ContactInfo>();
+					
+					if (!TextUtils.isEmpty(msisdnCSV))
+					{
+						List<String> myList = new ArrayList<String>(Arrays.asList(msisdnCSV.split(",")));
+
+						for (String msisdn : myList)
+						{
+							ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+							if(contactInfo != null)
+							{
+								cInfoList.add(contactInfo);
+							}
+						}
+					}
+					
+					actionsData.addActionDetails(objectId, cInfoList, ActionTypes.getType(actionIDKey), count);
+				}
+				while (c.moveToNext());
+			}
+		}
+		finally
+		{
+			c.close();
+		}
 	}
 }
