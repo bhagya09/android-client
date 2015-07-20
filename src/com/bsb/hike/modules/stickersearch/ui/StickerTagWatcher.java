@@ -269,6 +269,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedPlace)
 	{
+		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedPlace + ")");
+
 		if (stickerPickerListener == null)
 		{
 			throw new IllegalStateException("sticker picker is null but sticker is selected");
