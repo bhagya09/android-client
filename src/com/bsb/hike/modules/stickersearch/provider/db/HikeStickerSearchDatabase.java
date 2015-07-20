@@ -957,6 +957,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (maxFrequency > Integer.MIN_VALUE && minFrequency > Integer.MIN_VALUE)
 			{
 				ArrayList<String> tagList = new ArrayList<String>();
+				ArrayList<String> stickerList = new ArrayList<String>();
 				ArrayList<Long> rowIdList = new ArrayList<Long>();
 				ArrayList<Integer> ageList = new ArrayList<Integer>();
 				double thresholdFrequency = 0.4 * maxFrequency + 0.6 * minFrequency;
@@ -991,6 +992,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 								if (frequency < cuttOffFrequency)
 								{
 									tagList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
+									stickerList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
 									rowIdList.add(c.getLong(c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID)));
 									ageList.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE)));
 								}
@@ -1030,8 +1032,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							// changed for testing only
 							if (deleting && ageList.get(i) == 15)
 							{
-								String s = tagList.get(i);
-								char[] array = s.toCharArray();
+								Logger.d(TAG, "Deleting tag: " + tagList.get(i) + " w.r.t. sticker: " + stickerList.get(i));
+
+								char[] array = tagList.get(i).toCharArray();
 								table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
 										: HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + array[0];
 
@@ -1041,6 +1044,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							}
 							else
 							{
+								Logger.d(TAG, "Aging tag: " + tagList.get(i) + " with age = " + (ageList.get(i) + 1) + " w.r.t. sticker: " + stickerList.get(i));
+
 								ContentValues cv = new ContentValues();
 								cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, (ageList.get(i) + 1));
 								mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN(?)",
