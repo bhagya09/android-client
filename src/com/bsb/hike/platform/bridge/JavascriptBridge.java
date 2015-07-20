@@ -14,11 +14,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -50,6 +52,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -81,8 +84,8 @@ public abstract class JavascriptBridge
 	
 	private static final int PICK_CONTACT_REQUEST = 1;
 
-	public static final int FILE_SELECT_REQUEST = 2;
-
+	public String id;
+	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
@@ -528,41 +531,49 @@ public abstract class JavascriptBridge
 		}
 	}
 	
-	public void onActivityResult(int resultCode, Intent data)
-	{
-		int requestCode = data.getIntExtra(REQUEST_CODE, -1);
-		if (requestCode != -1)
-		{
-			switch (requestCode)
+	public void onActivityResult(int requestCode,int resultCode, Intent data)
+	{	
+			Logger.d("FileUpload","onactivity result of javascript");
+			if (requestCode != -1)
 			{
-			case PICK_CONTACT_REQUEST:
-				handlePickContactResult(resultCode, data);
-				break;
-			case FILE_SELECT_REQUEST:
+			if(requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
 				handlePickFileResult(resultCode, data);
+			else
+			{
+			
+			requestCode = data.getIntExtra(REQUEST_CODE, -1);
+			
+			
+				switch (requestCode)
+				{
+				case PICK_CONTACT_REQUEST:
+					handlePickContactResult(resultCode, data);
+					break;
+				}
+				}
 			}
-		}
 	}
 	
 	private void handlePickFileResult(int resultCode, Intent data)
-	{
+	{	Logger.d("FileUpload", "handlepickfileresult");
 		if(resultCode == Activity.RESULT_OK)
 		{
-			String filePath = data.getStringExtra(HikeConstants.Extras.FILE_PATH);	
-			if(filePath==null)
+			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);	
+			
+			if(TextUtils.isEmpty(filepath))
 				{
-				Logger.e("fileChoose","Invalid file Path");
+				Logger.e("FileUpload","Invalid file Path");
 				return;
 				}
 			else
 			{
-			Logger.d("FileUpload", "Path of selected file :" + filePath);
-			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+			Logger.d("FileUpload", "Path of selected file :" + filepath);
+			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath);
 			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
 			JSONObject json = new JSONObject();
 			try
 			{
-				json.put("filePath", filePath);
+				json.put("filePath", filepath);
 				json.put("mimeType", mimeType);
 				json.put("filesize",  (new File(filepath)).length());
 				callbackToJS(this.id, json.toString());
@@ -706,31 +717,17 @@ public abstract class JavascriptBridge
 	 * @param id	:	The function id
 	 * returns the absolute path of the selected file in onActivityResult() of WebViewActivity
 	 */
-	@JavascriptInterface
-	public void chooseFile(final String id)
+	
+	
+	/**
+	 * id and requestCode generated at the time of calling chooseFile() and onActivityResult()
+	 */
+	
+	public void saveId(String id)
 	{
-		if (null == mHandler)
-		{
-			Logger.e("FileUpload", "mHandler is null");
-			return;
-		}
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{	Context weakActivityRef=weakActivity.get();
-				if (weakActivityRef != null)
-				{
-					Intent fileChooserIntent = new Intent(IntentFactory.getFileSelectActivityIntent(weakActivityRef, "123123123"));
-					fileChooserIntent.setType("*/*");
-					fileChooserIntent.putExtra("callback", id);
-					fileChooserIntent.putExtra(REQUEST_CODE, FILE_SELECT_REQUEST);
-					fileChooserIntent.putExtra("allowLongPress", true);
-					((WebViewActivity) weakActivityRef).startActivityForResult(Intent.createChooser(fileChooserIntent, "Upload File"),HikeConstants.PLATFORM_REQUEST);
-				}
-			}
-		});
+		this.id=id;
 	}
+	
 	/**
 	 * Platform Bridge Version 3
 	 * call this function to upload multiple files to the server
@@ -741,7 +738,7 @@ public abstract class JavascriptBridge
 	 */
 	@JavascriptInterface
 	public void uploadFile(final String id,String data)
-	{
+	{	Logger.d("FileUpload","UploadFile with ID "+this.id);
 		if(data == null)
 		{
 			callbackToJS(id, "Data field Null");

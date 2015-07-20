@@ -722,6 +722,8 @@ public class HikeConstants
 	public static final int SHARE_FILE_CODE = 1194;
 	
 	public static final int PLATFORM_REQUEST = 1195; 
+	
+	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
