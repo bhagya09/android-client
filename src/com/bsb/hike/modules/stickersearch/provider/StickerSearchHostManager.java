@@ -17,6 +17,7 @@ import java.util.Set;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
@@ -154,15 +155,14 @@ public class StickerSearchHostManager
 			mEnd = end;
 			mIndexLimit = s.length();
 
-			int brokerLimit = 75;
 			boolean isNeedToRemoveLastWord = false;
-			if (mIndexLimit > 70)
+			if (mIndexLimit > StickerSearchConstants.SEARCH_MAX_TEXT_LIMIT)
 			{
-				mIndexLimit = 70;
+				mIndexLimit = StickerSearchConstants.SEARCH_MAX_TEXT_LIMIT;
 				while ((mIndexLimit < s.length()) && (s.charAt(mIndexLimit) != ' '))
 				{
 					mIndexLimit++;
-					if (mIndexLimit >= brokerLimit)
+					if (mIndexLimit >= StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT)
 					{
 						isNeedToRemoveLastWord = true;
 						break;
@@ -950,7 +950,7 @@ public class StickerSearchHostManager
 
 	private LinkedHashSet<Sticker> processStickerData(String searchKey, ArrayList<ArrayList<Object>> stData)
 	{
-		if (stData == null || stData == null)
+		if ((stData == null) || (stData.size() <= 0))
 		{
 			return null;
 		}

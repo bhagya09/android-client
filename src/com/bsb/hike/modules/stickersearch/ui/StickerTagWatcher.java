@@ -22,6 +22,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
@@ -115,9 +116,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void unHighlightText(int start, int end)
 	{
 		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
-		if (end > editable.length() || end > 75)
+		if ((end > editable.length()) || (end > StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT))
 		{
-			end = Math.min(editable.length(), 75);
+			end = Math.min(editable.length(), StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT);
 			Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 		}
 
@@ -255,7 +256,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public boolean onTouch(View v, MotionEvent event)
 	{
 		Logger.i(TAG, "onTouch() called " + editText);
-		if ((activity == null) || (editText == null) || (event.getAction() != MotionEvent.ACTION_DOWN))
+		if ((editText == null) || (event.getAction() != MotionEvent.ACTION_DOWN))
 		{
 			return false;
 		}
@@ -320,7 +321,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public void releaseResources()
 	{
-		if (activity != null && fragment != null)
+		if ((activity != null) && (fragment != null))
 		{
 			FragmentManager fragmentManager = activity.getSupportFragmentManager();
 			fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
@@ -332,27 +333,10 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		stickerRecommendView = null;
 		fragment = null;
 
-		if (activity != null)
-		{
-			activity.runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					if (editable.length() > 0)
-					{
-						removeAttachedSpans(0, Math.min(editable.length(), 75));
-					}
-				}
-			});
-
-			activity = null;
-		}
-
 		colorSpanPool.releaseResources();
 		colorSpanPool = null;
 		stickerPickerListener = null;
+		activity = null;
 	}
 
 	/**

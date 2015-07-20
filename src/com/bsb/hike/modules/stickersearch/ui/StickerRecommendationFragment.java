@@ -103,7 +103,6 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 	{
 		Logger.d(StickerTagWatcher.TAG, "recommend fragment on destroy called");
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
-		removeListener();
 		listener = null;
 		stickerList = null;
 		super.onDestroy();
@@ -228,10 +227,5 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 	public void setListener(IStickerRecommendFragmentListener listener)
 	{
 		this.listener = listener;
-	}
-
-	public void removeListener()
-	{
-		this.listener = null;
 	}
 }
