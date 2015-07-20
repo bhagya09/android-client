@@ -145,7 +145,7 @@ public class NonMessagingBotMetadata
 		return targetPlatform;
 	}
 
-	public void setTargetPlatform(int target_platform)
+	public void setTargetPlatform(int targetPlatform)
 	{
 		this.targetPlatform = targetPlatform < 0 || targetPlatform > HikePlatformConstants.CURRENT_VERSION ? HikePlatformConstants.CURRENT_VERSION : targetPlatform;
 	}
