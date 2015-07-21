@@ -44,6 +44,8 @@ import android.util.Base64;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.platform.bridge.NativeGameBridge;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 import com.google.gson.Gson;
@@ -77,6 +79,9 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 	private Map<String, String> listOfAppsMap;
 	private Gson gson = new Gson();
 	private JSONObject gameDataJsonObject;
+	private String requestId;
+
+	private static NativeGameBridge nativeBridge;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
@@ -114,6 +119,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 		version = getIntent().getStringExtra("version");
 		cocosEngineVersion = getIntent().getStringExtra("cocosEngineVersion");
 		appId = getIntent().getStringExtra("appId");
+		requestId = getIntent().getStringExtra("requestId");
 
 		Logger.d(TAG, "isPortrait : " + isPortrait);
 		String[] appTokens = downloadPathUrl.split("/");
@@ -166,6 +172,10 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 			}
 		}, 250);
 
+	}
+
+	public static NativeGameBridge getNativeBrigde() {
+		return nativeBridge;
 	}
 
 	@Override
@@ -360,6 +370,11 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 				jsonObject.put("appName", appName);
 				listOfAppsMap.put(appId, jsonObject.toString());
 				sharedPrefEditor.putString(LIST_OF_APPS, gson.toJson(listOfAppsMap)).commit();
+				
+				nativeBridge = new NativeGameBridge(CocosGamingActivity.this, new BotInfo.HikeBotBuilder("+"+appName+"+").build());
+				if (requestId != null && !requestId.equals("")) {
+					nativeBridge.initParams(nativeBridge.getRequestData(requestId));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				Toast.makeText(context, "Can't load game", Toast.LENGTH_SHORT).show();

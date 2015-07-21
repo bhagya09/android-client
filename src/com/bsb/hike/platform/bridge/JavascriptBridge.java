@@ -720,9 +720,19 @@ public abstract class JavascriptBridge {
 	}
 
 	@JavascriptInterface
+	public void launchGameRequest(String requestId, String gameurl, boolean isPortrait, String version, String appId, String cocosEngineVersion) {
+		Intent gameIntent = new Intent(weakActivity.get(), CocosGamingActivity.class);
+		gameIntent.putExtra("downloadPathUrl", gameurl);
+		gameIntent.putExtra("isPortrait", isPortrait);
+		gameIntent.putExtra("version", version);
+		gameIntent.putExtra("appId", appId);
+		gameIntent.putExtra("cocosEngineVersion", cocosEngineVersion);
+		gameIntent.putExtra("requestId", requestId);
+		weakActivity.get().startActivity(gameIntent);
+	}
+
+	@JavascriptInterface
 	public void launchGameActivity(String gameurl, boolean isPortrait, String version, String appId, String cocosEngineVersion) {
-		// callbackToJS(id,
-		// Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 		Intent gameIntent = new Intent(weakActivity.get(), CocosGamingActivity.class);
 		gameIntent.putExtra("downloadPathUrl", gameurl);
 		gameIntent.putExtra("isPortrait", isPortrait);
