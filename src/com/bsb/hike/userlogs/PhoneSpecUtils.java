@@ -99,7 +99,7 @@ public class PhoneSpecUtils
 			phoneSpec.put(CACHE_MEMORY, new JSONObject(getCacheMem()));
 			phoneSpec.put(RAM, new JSONObject(getRamSize(context)));
 			phoneSpec.put(SIM_DETAILS, new JSONObject(getSimDetails(context)));
-			phoneSpec.put(NETWORK_DETAILS, new JSONObject(getSimDetails(context)));
+			phoneSpec.put(NETWORK_DETAILS, new JSONObject(getNetworkDetails(context)));
 			Logger.d(PHONE_SPEC, phoneSpec.toString());
 			return phoneSpecArray.put(phoneSpec);
 		}
