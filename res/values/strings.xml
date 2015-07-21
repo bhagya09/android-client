@@ -1535,7 +1535,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="free_hike">FREE HIKE</string>
 	<string name="free_hike_detail_para_1">Now message,share videos,photos or apps for free.</string>
 	<string name= "free_hike_detail_para_2">Free hike is available with contacts within 80 meters.</string>
-	<string name= "free_hike_connection">Free Hike Connection</string>
+	<string name= "free_hike_connection">Hike Direct Connected</string>
 	<string name= "free_hike_disconnect">Disconnect with %1$s ?</string>
 	<string name= "free_hike_disconnect_message">Your connection will end</string>
 	<string name= "scan_free_hike_connection">Scan <![CDATA[<b>%1$s</b>]]> for free hike connection</string>
