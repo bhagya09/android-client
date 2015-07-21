@@ -587,9 +587,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to upload profile picture to the server, compose related timeline post
-	 * @param msisdn :-  null for case of  User DP upload
-	 * 						  if not null:- group DP upload
-	 *            
+	 * @param msisdn 
 	 */
 	public void uploadProfilePicture(String msisdn)
 	{
