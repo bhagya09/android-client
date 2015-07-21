@@ -713,7 +713,11 @@ public class ConvMessage implements Searchable
 	 */
 	public String getSenderMsisdn()
 	{
-		if(!TextUtils.isEmpty(groupParticipantMsisdn))
+		if(isSent())
+		{
+			return ContactManager.getInstance().getSelfMsisdn();
+		}
+		else if(!TextUtils.isEmpty(groupParticipantMsisdn))
 		{
 			return groupParticipantMsisdn;
 		}
@@ -1338,5 +1342,25 @@ public class ConvMessage implements Searchable
 	public void setSendTimestamp(long sendTimestamp)
 	{
 		this.sendTimestamp = sendTimestamp;
+	}
+	
+	public String createMessageHash()
+	{
+		/*
+		 * ParticipantInfoState == ParticipantInfoState.NO_INFO
+		 * implies, type "m" messages. We can't currently create
+		 * and keep message hash for other message types because
+		 * many of of them don't have certain info. for eg. SU,GCJ etc,  
+		 * don't have msgID. 
+		 */
+		if(getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		{
+			String messageHash = getSenderMsisdn() + "_" + getSendTimestamp() + "_";
+			messageHash += isSent() ? getMsgID() : getMappedMsgID();
+
+			Logger.d(getClass().getSimpleName(), "Message hash: " + messageHash);
+			return messageHash;
+		}
+		return null;
 	}
 }

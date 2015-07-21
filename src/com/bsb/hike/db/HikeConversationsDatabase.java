@@ -1546,10 +1546,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         
 		insertStatement.bindLong(isHikeMessageColumn, conv.isSMS() ? 0 : 1);
 		insertStatement.bindString(groupParticipant, conv.getGroupParticipantMsisdn() != null ? conv.getGroupParticipantMsisdn() : "");
-		String msgHash = createMessageHash(conv);
-		if (msgHash != null)
+		
+		if(!conv.isSent())
 		{
-			insertStatement.bindString(messageHash, msgHash);
+			//Sent messages hash would only be added after message insertion is complete
+			//and message id has been generated. we should not do it from here.
+			String msgHash = conv.createMessageHash();
+			
+			if(msgHash != null)
+			{
+				insertStatement.bindString(messageHash, msgHash);
+			}
 		}
 		insertStatement.bindLong(typeColumn, conv.getMessageType());
 		insertStatement.bindString(msgMsisdnColumn, conv.getMsisdn());
@@ -1557,50 +1564,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		insertStatement.bindString(nameSpaceColumn, conv.getNameSpace() != null ? conv.getNameSpace() : "");
 		insertStatement.bindLong(msgOriginTypeColumn, conv.getMessageOriginType().ordinal());
 		insertStatement.bindLong(sendTimestampColumn, conv.getSendTimestamp());
-	}
-
-	public boolean wasMessageReceived(ConvMessage conv)
-	{
-		String msgHash = createMessageHash(conv);
-		Cursor c = null;
-		try
-		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGES_TABLE + "." + DBConstants.MESSAGE_HASH }, DBConstants.MESSAGES_TABLE + "."
-					+ DBConstants.MESSAGE_HASH + "=?", new String[] { msgHash }, null, null, null);
-			int count = c.getCount();
-			return (count != 0);
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
-
-	/**
-	 * Creates the messages hash for the message object.
-	 *
-	 * @param msg
-	 *            The message for which hash is to be created.
-	 * @return The message hash string .
-	 */
-	private String createMessageHash(ConvMessage msg)
-	{
-		String msgHash = null;
-		if (!msg.isSent() && (msg.getParticipantInfoState() == ParticipantInfoState.NO_INFO))
-		{
-			msgHash = msg.getSenderMsisdn() + msg.getMappedMsgID();
-
-			String message = msg.getMessage();
-			if(message !=null && message.length() > 0)
-			{
-				msgHash = msgHash + message.charAt(0) + message.charAt(message.length() - 1);
-			}
-			Logger.d(getClass().getSimpleName(), "Message hash: " + msgHash);
-		}
-		return msgHash;
 	}
 
 	private String createMessageHash(String msisdn, long mappedMsgId, String message, long ts)
