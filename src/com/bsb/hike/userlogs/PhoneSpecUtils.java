@@ -74,6 +74,8 @@ public class PhoneSpecUtils
 
 	public static final String SIM_DETAILS = "sim";
 
+	public static final String NETWORK_DETAILS = "network";
+
 	private static final String ROAMING = "isRoaming";
 
 	
@@ -97,6 +99,7 @@ public class PhoneSpecUtils
 			phoneSpec.put(CACHE_MEMORY, new JSONObject(getCacheMem()));
 			phoneSpec.put(RAM, new JSONObject(getRamSize(context)));
 			phoneSpec.put(SIM_DETAILS, new JSONObject(getSimDetails(context)));
+			phoneSpec.put(NETWORK_DETAILS, new JSONObject(getSimDetails(context)));
 			Logger.d(PHONE_SPEC, phoneSpec.toString());
 			return phoneSpecArray.put(phoneSpec);
 		}
@@ -305,11 +308,20 @@ public class PhoneSpecUtils
 	 */
     public static Map<String,Object> getSimDetails(Context context)
 	{
-    	Map<String, Object> simDetails = new HashMap<String, Object>();
-    	TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-    	simDetails.put(MCC_MNC, manager.getNetworkOperator());
- 		simDetails.put(OPERATOR, manager.getNetworkOperatorName());
- 		simDetails.put(ROAMING, manager.isNetworkRoaming());
- 		return simDetails;
+		Map<String, Object> simDetails = new HashMap<String, Object>();
+		TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+		simDetails.put(MCC_MNC, manager.getSimOperator());
+		simDetails.put(OPERATOR, manager.getSimOperatorName());
+		return simDetails;
+	}
+
+	public static Map<String, Object> getNetworkDetails(Context context)
+	{
+		Map<String, Object> simDetails = new HashMap<String, Object>();
+		TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+		simDetails.put(MCC_MNC, manager.getNetworkOperator());
+		simDetails.put(OPERATOR, manager.getNetworkOperatorName());
+		simDetails.put(ROAMING, manager.isNetworkRoaming());
+		return simDetails;
 	}
 }
