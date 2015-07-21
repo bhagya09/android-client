@@ -547,13 +547,25 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void updateListeners(OFFLINE_STATE offline_STATE) {
 
-		if (offline_STATE == OFFLINE_STATE.CONNECTED) {
-			for (IOfflineCallbacks offlineListener : listeners) {
+		// to avoid ConcurrentModificationException we use a cloned list of listeners
+		// for traversing.
+		ArrayList<IOfflineCallbacks> clonedListeners = new ArrayList<>();
+		for(IOfflineCallbacks offlineListener : listeners)
+		{
+			clonedListeners.add(offlineListener);
+		}
+		
+		if (offline_STATE == OFFLINE_STATE.CONNECTED)
+		{
+			for (IOfflineCallbacks offlineListener : clonedListeners)
+			{
 				offlineListener.onDisconnect(ERRORCODE.USERDISCONNECTED);
 			}
 		}
-		if (offline_STATE == OFFLINE_STATE.CONNECTING) {
-			for (IOfflineCallbacks offlineListener : listeners) {
+		else if (offline_STATE == OFFLINE_STATE.CONNECTING)
+		{
+			for (IOfflineCallbacks offlineListener : clonedListeners)
+			{
 				offlineListener.onDisconnect(ERRORCODE.TIMEOUT);
 			}
 		}
