@@ -1869,7 +1869,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			String text;
 			if (!messageTextMap.containsKey(convMessage.getMsgID()))
 			{
-				CharSequence markedUp = convMessage.getMessage();
+				CharSequence markedUp = convMessage.getMsgID() +convMessage.getMessage();
 				SmileyParser smileyParser = SmileyParser.getInstance();
 				markedUp = smileyParser.addSmileySpans(markedUp, false);
 				textHolder.text.setText(markedUp);
