@@ -1593,6 +1593,42 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return addConversations(convMessages, contacts,createConvIfNotExist);
 	}
+	
+	private long insertMessage(SQLiteStatement insertStatement, ConvMessage conv) throws Exception
+	{
+		long msgId = -1;
+		try
+		{
+			mDb.beginTransaction();
+			msgId = insertStatement.executeInsert();
+
+			conv.setMsgID(msgId);
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(DBConstants.SERVER_ID, conv.getServerId());
+			if (conv.isSent())
+			{
+				// for recieved messages message hash would directly be added from insertStatement.executeInsert() statement
+				// we don't need to re-insert it here
+				contentValues.put(DBConstants.MESSAGE_HASH, conv.createMessageHash());
+			}
+			mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.MESSAGE_ID + "=?", new String[] { Long.toString(conv.getMsgID()) });
+
+			mDb.setTransactionSuccessful();
+		}
+		catch (Exception e)
+		{
+			conv.setMsgID(-1);
+			Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+			logDuplicateMessageEntry(conv, e);
+			throw e;
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+		return msgId;
+	}
 
 	/**
 	 *
@@ -1648,17 +1684,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					 */
 					try
 					{
-						msgId = insertStatement.executeInsert();
+						msgId = insertMessage(insertStatement, conv);
 					}
 					catch (Exception e)
 					{
 						// duplicate message return false
-						Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
-						
-						logDuplicateMessageEntry(conv, e);
 						return false;
 					}
-
+					
 					addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
 					/*
 					 * Represents we dont have any conversation made for this msisdn. Here we are also checking whether the message is a 1-n message, If it is not and the
@@ -1671,16 +1704,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						bindConversationInsert(insertStatement, conv,createConvIfNotExist);
 						try
 						{
-							msgId = insertStatement.executeInsert();
+							msgId = insertMessage(insertStatement, conv);
 						}
-						catch (Exception e)
+						catch (Exception e1)
 						{
 							// duplicate message return false
-							Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
-							logDuplicateMessageEntry(conv, e);
 							return false;
 						}
-
+						
 						assert (msgId >= 0);
 					}
 					if(baseId==-1){
@@ -1688,7 +1719,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 
 					conv.setMsgID(msgId);
-					insertServerId(conv);
 					com.bsb.hike.chatthread.ChatThread.addtoMessageMap(conv);
 
 					/*
@@ -1802,13 +1832,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 				try
 				{
-					msgId = insertStatement.executeInsert();
+					msgId = insertMessage(insertStatement, conv);
 				}
 				catch (Exception e)
 				{
 					// duplicate message . Skip further processing
-					Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
-					logDuplicateMessageEntry(conv, e);
 					continue;
 				}
 				addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
@@ -1823,20 +1851,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					bindConversationInsert(insertStatement, conv,true);
 					try
 					{
-						msgId = insertStatement.executeInsert();
+						msgId = insertMessage(insertStatement, conv);
 					}
 					catch (Exception e)
 					{
 						// duplicate message . Skip further processing
-						Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
-						logDuplicateMessageEntry(conv, e);
 						continue;
 					}
 
 					assert (msgId >= 0);
 				}
 				conv.setMsgID(msgId);
-				insertServerId(conv);
 				com.bsb.hike.chatthread.ChatThread.addtoMessageMap(conv);
 
 				/*
@@ -1877,15 +1902,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		addConversations(convMessages, contacts, false);
 
 		return contacts;
-	}
-
-    private void insertServerId(ConvMessage convMessage) {
-    	if (convMessage.getMsgID() > 0)
-    	{
-    		ContentValues contentValues = new ContentValues();
-    		contentValues.put(DBConstants.SERVER_ID, convMessage.getServerId());
-    		mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.MESSAGE_ID + "=?", new String[] { Long.toString(convMessage.getMsgID()) });
-    	}
 	}
 
 	private SQLiteStatement getSqLiteStatementToInsertIntoMessagesTable(boolean createConvIfNotExist) {
