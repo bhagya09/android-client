@@ -374,7 +374,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		this.convMessages = objects;
 		mWebViewCardRenderer.updateMessageList(convMessages);
 		notifyDataSetChanged();
-		setLastSentMessagePosition();
 	}
 
 	public void setChatTheme(ChatTheme theme)
@@ -469,7 +468,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				lastSentMessagePosition = -1;
 				for (int i = convMessages.size() - 1; i >= 0; i--)
 				{
-					ConvMessage convMessage = convMessages.get(i);
+					ConvMessage convMessage = convMessages.getRaw(i);
 					if (convMessage == null)
 					{
 						continue;
