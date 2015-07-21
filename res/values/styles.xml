@@ -855,5 +855,37 @@
 	<style name="SettingList" parent = "HomeList">
 	    <item name="android:divider">@drawable/setting_list_divider</item>
 	</style>
-    
+	
+	<style name="SettingsInteriorList" parent="HomeList">
+	    <item name="android:divider">@drawable/settings_list_interior_divider</item>
+	</style>
+	
+	<style name="SettingsItemStyle">
+	    <item name="android:layout_width">match_parent</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:layout_marginLeft">16dp</item>
+	    <item name="android:layout_marginRight">16dp</item>
+	    <item name="android:gravity">center_vertical</item>
+	    <item name="android:orientation">vertical</item>
+	   <item name="android:layout_marginTop">13dp</item>
+	   <item name="android:layout_marginBottom">13dp</item>
+	</style>
+	
+	<style name="SettingsHeaderItemTextView" parent="BaseStyleTextView">
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:textSize">16sp</item>
+	    <item name="android:textColor">@color/settings_text_header_color</item>
+	    <item name="android:textStyle">normal</item>
+	</style>
+	
+	<style name="SettingsHeaderSubItemTextView" parent="BaseStyleTextView">
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:textSize">13sp</item>
+	    <item name="android:textColor">@color/settings_text_subheader_color</item>
+	    <item name="android:textStyle">normal</item>
+	    <item name="android:layout_marginTop">4dp</item>
+	</style>
+	
 </resources>
