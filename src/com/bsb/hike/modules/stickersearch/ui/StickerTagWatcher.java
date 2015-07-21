@@ -59,7 +59,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private int count;
 
 	private ColorSpanPool colorSpanPool;
-	
+
 	private boolean shownStickerRecommendFtueTip;
 
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
@@ -166,12 +166,17 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			@Override
 			public void run()
 			{
-				if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
+				if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen())
 				{
-					Logger.d(
-							TAG,
-							"showStickerSearchPopup(), No sticker list or popup is already shown: " + isStickerRecommnedPoupShowing() + ", isKeyboardOpen(): "
-									+ chatthread.isKeyboardOpen());
+					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or isKeyboardOpen(): " + chatthread.isKeyboardOpen());
+					return;
+				}
+
+				if ((fragment != null) && isStickerRecommnedPoupShowing())
+				{
+					Logger.d(TAG, "showStickerSearchPopup(), Popup is already shown; hence updating sticker lsit...");
+					((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, stickerList);
+					showFtueAnimation();
 					return;
 				}
 
@@ -358,23 +363,23 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void showStickerRecommendFtueTip()
 	{
-		if(!shownStickerRecommendFtueTip && chatthread.isKeyboardOpen())
+		if (!shownStickerRecommendFtueTip && chatthread.isKeyboardOpen())
 		{
 			Logger.d(TAG, "show recommend ftue tip");
 			chatthread.showStickerRecommendTip();
 		}
 	}
-	
+
 	@Override
 	public void setStickerRecommendFtueSeen()
 	{
-		if(chatthread.isKeyboardOpen())
+		if (chatthread.isKeyboardOpen())
 		{
 			Logger.d(TAG, "set recommend ftue tip seen");
 			chatthread.setStickerRecommendFtueTipSeen();
 		}
 	}
-	
+
 	@Override
 	public void dismissStickerRecommendFtueTip()
 	{
