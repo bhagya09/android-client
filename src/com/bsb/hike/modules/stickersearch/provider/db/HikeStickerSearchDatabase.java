@@ -37,6 +37,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
 	private static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
 
+	private static final String TAG_REBALANCING = TAG + "_Rebalancing";
+
 	private Random mRandom;
 
 	private volatile Context mContext;
@@ -1064,7 +1066,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							// changed for testing only
 							if (deleting && ageList.get(i) == 15)
 							{
-								Logger.d(TAG, "Deleting tag: " + tagList.get(i) + " w.r.t. sticker: " + stickerList.get(i));
+								Logger.d(TAG_REBALANCING, "Deleting tag: " + tagList.get(i) + " w.r.t. sticker: " + stickerList.get(i));
 
 								char[] array = tagList.get(i).toCharArray();
 								table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
@@ -1076,10 +1078,20 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							}
 							else
 							{
-								Logger.d(TAG, "Aging tag: " + tagList.get(i) + " with age = " + (ageList.get(i) + 1) + " w.r.t. sticker: " + stickerList.get(i));
+								int updatedAge;
+								if (ageList.get(i) == 15)
+								{
+									updatedAge = 1;
+								}
+								else
+								{
+									updatedAge = ageList.get(i) + 1;
+								}
+
+								Logger.d(TAG_REBALANCING, "Aging tag: " + tagList.get(i) + " with age = " + updatedAge + " w.r.t. sticker: " + stickerList.get(i));
 
 								ContentValues cv = new ContentValues();
-								cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, (ageList.get(i) + 1));
+								cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, updatedAge);
 								mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN(?)",
 										new String[] { String.valueOf(rowIdList.get(i++)) });
 							}
