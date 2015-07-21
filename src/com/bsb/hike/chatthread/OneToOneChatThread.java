@@ -580,17 +580,32 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			onFavoriteToggled(object);
 			break;
 		case HikePubSub.OFFLINE_FILE_COMPLETED:
-			if (isActivityVisible)
-			{
-				ConvMessage message = (ConvMessage) object;
-				OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
-			}
+			onOfflineFileCompleted((ConvMessage) object);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
 			break;
 		}
+	}
+
+	/**
+	 * Sending MR in case of File completed in Offline.In Offline we send offline when we receive the completed file
+	 * 
+	 * @param message
+	 */
+	private void onOfflineFileCompleted(ConvMessage message)
+	{
+// Msisdn of different chat thread ...
+		if (!message.getMsisdn().equals(msisdn))
+		{
+			return;
+		}
+		if (isActivityVisible)
+		{
+			OfflineController.getInstance().sendMR(message.serializeDeliveryReportRead());
+		}
+
 	}
 
 	private void onFavoriteToggled(Object object)
@@ -1335,6 +1350,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		default:
 		}
+	}
+	
+	// if we are in connecting state or connected offline in case of block need to break the connection
+	@Override
+	protected void onBlockUserclicked()
+	{
+		if (OfflineUtils.isConnectedToSameMsisdn(msisdn) || OfflineUtils.isConnectingToSameMsisdn(msisdn))
+		{
+			stopFreeHikeConnection();
+		}
+		super.onBlockUserclicked();
 	}
 	
 	private void stopFreeHikeConnection() 
