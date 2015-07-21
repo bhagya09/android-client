@@ -481,7 +481,7 @@ public enum StickerSearchDataController
 
 	public void analyseMessageSent(String prevText, Sticker sticker, String nextText)
 	{
-		Logger.i(TAG, "analyseMessageSet(" + prevText + ", " + sticker + ", " + nextText + ")");
+		Logger.i(TAG, "analyseMessageSent(" + prevText + ", " + sticker + ", " + nextText + ")");
 
 		HikeStickerSearchDatabase.getInstance().analyseMessageSent(prevText, sticker, nextText);
 	}
