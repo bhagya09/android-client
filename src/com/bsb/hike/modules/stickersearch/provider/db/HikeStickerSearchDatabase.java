@@ -800,32 +800,30 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				for (int j = 0; j < groupIds.length;)
 				{
 					int remainingCount = groupIds.length - j;
-					int count = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
+					int count = ((remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0) ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
 							: remainingCount;
 
-					String[] docIds = Arrays.copyOfRange(groupIds, j, (j + count));
 					StringBuilder sb = new StringBuilder(args.length * 2 - 1);
-					sb.append(docIds[0]);
+					sb.append(groupIds[j++]);
 					for (int i = 1; i < count; i++)
 					{
-						sb.append(" OR " + docIds[i]);
+						sb.append(" OR " + groupIds[j++]);
 					}
 
 					for (int i = 0; i < 27; i++)
 					{
 						mDb.delete(tables[i], HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + " MATCH '" + sb.toString() + "'", null);
 						SQLiteDatabase.releaseMemory();
-						try
-						{
-							Thread.sleep(5);
-						}
-						catch (InterruptedException e)
-						{
-							e.printStackTrace();
-						}
 					}
 
-					j += count;
+					try
+					{
+						Thread.sleep(5);
+					}
+					catch (InterruptedException e)
+					{
+						e.printStackTrace();
+					}
 				}
 
 				mDb.setTransactionSuccessful();
