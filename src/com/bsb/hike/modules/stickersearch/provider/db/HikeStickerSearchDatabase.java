@@ -729,13 +729,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 		removingStickerSetInDatabase.removeAll(stickerInfoSet);
 
+		ArrayList<Long> primaryKeys = new ArrayList<Long>();
 		Iterator<String> iterator = removingStickerSetInDatabase.iterator();
 		String[] args = new String[removingStickerSetInDatabase.size()];
+
 		for (int i = 0; iterator.hasNext(); i++)
 		{
 			args[i] = iterator.next();
 		}
-		ArrayList<Long> primaryKeys = new ArrayList<Long>();
 
 		for (int j = 0; j < args.length;)
 		{
