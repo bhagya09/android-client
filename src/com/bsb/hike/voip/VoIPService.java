@@ -17,9 +17,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
+import android.content.IntentFilter;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -29,7 +30,6 @@ import android.media.RingtoneManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -38,10 +38,13 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
+import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -55,6 +58,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
+import com.bsb.hike.voip.VoIPDataPacket.BroadcastListItem;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.bsb.hike.voip.view.VoIPActivity;
@@ -84,6 +88,7 @@ public class VoIPService extends Service {
 	boolean voiceSignalAbsent = false;
 	
 	private boolean conferencingEnabled = false;
+	private boolean hostingConference = false;
 	
 	// Task executors
 	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
@@ -136,8 +141,16 @@ public class VoIPService extends Service {
 	private Runnable clientListRunnable = null;
 	private Handler clientListHandler;
 	
+	// Broadcast listeners
+	private BroadcastReceiver phoneStateReceiver = null;
+	
+	// Support for conference calls
+	private Chronometer chronometer = null;
+	private String groupChatMsisdn; 
+
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
+	private boolean ignoreBluetoothDisconnect;
 	BluetoothHelper bluetoothHelper = null;
 	private class BluetoothHelper extends BluetoothHeadsetUtils {
 
@@ -159,7 +172,11 @@ public class VoIPService extends Service {
 		public void onScoAudioDisconnected() {
 			Logger.d(tag, "Bluetooth onScoAudioDisconnected()");
 			audioManager.stopBluetoothSco();
-			audioManager.setBluetoothScoOn(false);	
+			audioManager.setBluetoothScoOn(false);
+			if (!ignoreBluetoothDisconnect)
+				hangUp();
+			else
+				ignoreBluetoothDisconnect = false;
 		}
 
 		@Override
@@ -167,8 +184,24 @@ public class VoIPService extends Service {
 			Logger.d(tag, "Bluetooth onScoAudioConnected()");
 			audioManager.startBluetoothSco();
 			audioManager.setBluetoothScoOn(true);
+			sendHandlerMessage(VoIPConstants.MSG_BLUETOOTH_SHOW);
 		}
-		
+	}
+	
+	public boolean isOnHeadsetSco() {
+		if (bluetoothHelper != null && bluetoothHelper.isOnHeadsetSco())
+			return true;
+		else
+			return false;
+	}
+	
+	public void toggleBluetoothFromActivity(boolean enabled) {
+		if (enabled) {
+			audioManager.setBluetoothScoOn(true);
+		} else {
+			ignoreBluetoothDisconnect = true;
+			audioManager.setBluetoothScoOn(false);
+		}
 	}
 	
 	// Handler for messages from VoIP clients
@@ -185,7 +218,7 @@ public class VoIPService extends Service {
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
 				Logger.d(tag, msisdn + " has stopped.");
-				if (!hostingConference())
+				if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
 					stop();
 				else {
 					Logger.d(tag, msisdn + " has quit the conference.");
@@ -293,12 +326,8 @@ public class VoIPService extends Service {
 			resampler = new Resampler();
 		
 		startConnectionTimeoutThread();
-		
-		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
-		if (isBluetoothEnabled) {
-			bluetoothHelper = new BluetoothHelper(getApplicationContext());
-			bluetoothHelper.start();
-		}
+		startBluetooth();
+		registerPhoneStateBroadcastReceiver();
 	}
 	
 	@Override
@@ -306,9 +335,11 @@ public class VoIPService extends Service {
 		super.onDestroy();
 		stop();
 		dismissNotification();
+		unregisterPhoneStateBroadcastReceiver();
 		
-		if (bluetoothHelper != null)
+		if (bluetoothHelper != null) {
 			bluetoothHelper.stop();
+		}
 		
 		Logger.d(tag, "VoIP Service destroyed.");
 	}
@@ -426,7 +457,14 @@ public class VoIPService extends Service {
 			client.setInitiator(intent.getBooleanExtra(VoIPConstants.Extras.INITIATOR, true));
 			client.setRelayAddress(intent.getStringExtra(VoIPConstants.Extras.RELAY));
 			client.setRelayPort(intent.getIntExtra(VoIPConstants.Extras.RELAY_PORT, VoIPConstants.ICEServerPort));
+			client.setVersion(intent.getIntExtra(VoIPConstants.Extras.VOIP_VERSION, 1));
 
+			if (intent.hasExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN)) {
+				client.groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
+				client.isHostingConference = true;
+				Logger.d(tag, "We are going to participate in a group chat conference with msisdn: " + client.groupChatMsisdn);
+			}
+			
 			// Error case: we are receiving a delayed v0 message for a call we 
 			// initiated earlier. 
 			if (!client.isInitiator() && partnerCallId != getCallId()) {
@@ -472,7 +510,6 @@ public class VoIPService extends Service {
 		// We are initiating a VoIP call
 		if (action.equals(VoIPConstants.Extras.OUTGOING_CALL)) 
 		{
-
 			// Edge case. 
 			String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 
@@ -488,18 +525,22 @@ public class VoIPService extends Service {
 			{
 				Logger.w(tag, "We are already in a cellular call.");
 				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL);
+				if (client == null)	// In case of a group call
+					client = new VoIPClient(getApplicationContext(), null);
 				client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
 				return returnInt;
 			}
 
 			// Edge case: call button was hit for someone we are already speaking with. 
-			if (getCallId() > 0 && client.getPhoneNumber()!=null && client.getPhoneNumber().equals(msisdn)) 
+			if (getCallId() > 0 && getClient() != null && getClient().getPhoneNumber() != null && getClient().getPhoneNumber().equals(msisdn)) 
 			{
+				if (!getClient().connected) {
+					Logger.e(tag, "Still trying to connect.");
+					return returnInt;
+				}
+				
 				// Show activity
-				Logger.d(tag, "Restoring activity..");
-				Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
-				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(i);
+				restoreActivity();
 				return returnInt;
 			}
 
@@ -509,20 +550,48 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 			
+			// Check if we are already in a conference call
+			if (getClient() != null && getClient().isHostingConference) {
+				Logger.e(tag, "Cannot place call while in a conference.");
+				restoreActivity();
+				return returnInt;
+			}
+			
 			// we are making an outgoing call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
+			
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
 				// Group call
-				Logger.w(VoIPConstants.TAG, "Initiating a group call");
+				groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
 				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
+				
+				if (!VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + msisdns.size()))
+					return returnInt;
+
+				startChrono();
+				
 				for (String phoneNumber : msisdns) {
+					
+					// Check for own phone number in group members
+					if (phoneNumber.equals(myMsisdn))
+						continue;
+					
 					client = new VoIPClient(getApplicationContext(), handler);
 					client.setPhoneNumber(phoneNumber);
+					client.isInAHostedConference = true;
+					client.groupChatMsisdn = groupChatMsisdn;
 					initiateOutgoingCall(client, callSource);
 				}
-			} else 
-				// One-to-one call
+			} else {
+				// Outgoing call to single recipient
+				if (clients.size() > 0 && !VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + 1))
+					return returnInt;
+				
 				initiateOutgoingCall(client, callSource);
+			}
+			
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+			
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -531,7 +600,21 @@ public class VoIPService extends Service {
 		return returnInt;
 	}
 
+	private void restoreActivity() {
+		Logger.d(tag, "Restoring activity..");
+		Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(i);
+	}
+
 	private void initiateOutgoingCall(VoIPClient client, int callSource) {
+		
+		// Check if a call has already been initiated to the client
+		if (clients.containsKey(client.getPhoneNumber())) {
+			Logger.w(tag, "Client has already been added.");
+			restoreActivity();
+			return;
+		}
 		
 		client.setInitiator(false);
 		client.callSource = callSource;
@@ -541,8 +624,8 @@ public class VoIPService extends Service {
 
 		if (clients.size() > 0 && getCallId() > 0) {
 			Logger.d(tag, "We're in a conference. Maintaining call id: " + getCallId());
-			// Disable crypto for clients in conference. 
 			getClient().cryptoEnabled = false;
+			client.isInAHostedConference = true;
 			client.cryptoEnabled = false;
 			startConferenceBroadcast();			
 		}
@@ -694,8 +777,10 @@ public class VoIPService extends Service {
 			builder = new NotificationCompat.Builder(getApplicationContext());
 
 		VoIPClient client = getClient();
+		if (client == null)
+			return;
 		
-		int callDuration = client.getCallDuration();
+		int callDuration = getCallDuration();
 		String durationString = (callDuration == 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
 
 		String title = null;
@@ -732,6 +817,10 @@ public class VoIPService extends Service {
 
 			case UNINITIALIZED:
 				return;
+		case HOSTING_CONFERENCE:
+			break;
+		default:
+			break;
 		}
 
 		Notification myNotification = builder
@@ -863,16 +952,8 @@ public class VoIPService extends Service {
 			return;
 		}
 		
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			AudioAttributes audioAttributes = new AudioAttributes.Builder()
-			.setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-			.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-			.build();
-
-			soundpool = new SoundPool.Builder()
-			.setMaxStreams(2)
-			.setAudioAttributes(audioAttributes)
-			.build();
+		if (Utils.isLollipopOrHigher()) {
+			soundpool = SoundPoolForLollipop.create();
 		} else {
 			soundpool = new SoundPool(2, AudioManager.STREAM_VOICE_CALL, 0);
 		}
@@ -937,12 +1018,21 @@ public class VoIPService extends Service {
 		Logger.d(tag, "Stopping service..");
 		keepRunning = false;
 
+		if (!TextUtils.isEmpty(groupChatMsisdn) && hostingConference()) {
+			// We were hosting a conference which has now ended. 
+			// Put a call summary in the group chat thread. 
+			VoIPClient client = new VoIPClient(null, null);
+			client.setPhoneNumber(groupChatMsisdn);
+			VoIPUtils.addMessageToChatThread(getApplicationContext(), client, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+			groupChatMsisdn = null;
+		}
+
 		synchronized (clients) {
 			for (VoIPClient client : clients.values())
 				client.close();
 			clients.clear();
 		}
-
+		
 		// Reset variables
 		setCallid(0);
 		isRingingOutgoing = false;
@@ -973,6 +1063,11 @@ public class VoIPService extends Service {
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
 		releaseAudioManager();
+		
+		if (chronometer != null) {
+			chronometer.stop();
+			chronometer = null;
+		}
 		
 		if (solicallAec != null) {
 			solicallAec.destroy();
@@ -1095,11 +1190,12 @@ public class VoIPService extends Service {
 			return;
 		}
 
+		client.audioStarted = true;
+
 		if(client.getPreferredConnectionMethod() == ConnectionMethods.RELAY) 
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_RELAY);
 
 		playFromSoundPool(SOUND_ACCEPT, false);
-		client.audioStarted = true;
 		client.startChrono();
 		client.setCallStatus(VoIPConstants.CallStatus.ACTIVE);
 		stopRingtone();
@@ -1119,15 +1215,26 @@ public class VoIPService extends Service {
 	}
 	
 	private void startRecording() {
+		
+		if (recordingThread != null)
+			recordingThread.interrupt();
+		
 		recordingThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
+				try {
+					// Sleep for a little bit in case the AudioRecord is being initialized
+					// again. Doing it immediately will cause the AudioRecord to fail. 
+					Thread.sleep(500);
+				} catch (InterruptedException e1) {
+					return;
+				}
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				AudioRecord recorder = null;
 				
-				int audioSource = VoIPUtils.getAudioSource();
+				int audioSource = VoIPUtils.getAudioSource(speaker);
 
 				// Start recording audio from the mic
 				// Try different sample rates
@@ -1280,12 +1387,12 @@ public class VoIPService extends Service {
 								// There is no voice signal, bitrate should be lowered
 								if (!voiceSignalAbsent) {
 									voiceSignalAbsent = true;
-									Logger.w(tag, "We stopped speaking.");
+//									Logger.w(tag, "We stopped speaking.");
 									getClient().setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
 								}
 							} else if (voiceSignalAbsent) {
 								// Mic signal is reverting to voice
-								Logger.w(tag, "We started speaking.");
+//								Logger.w(tag, "We started speaking.");
 								voiceSignalAbsent = false;
 								getClient().setEncoderBitrate(getClient().localBitrate);
 							}
@@ -1337,18 +1444,11 @@ public class VoIPService extends Service {
 				setAudioModeInCall();
 				int index = 0, size = 0;
 
-				if (android.os.Build.VERSION.SDK_INT >= 17) {
-					String rate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
-					String framesPerBuffer = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
-					Logger.d(tag, "Device frames/buffer:" + framesPerBuffer + ", sample rate: " + rate);
-				}
-				
-				Logger.d(tag, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
-				if (resamplerEnabled) {
+				if (resamplerEnabled) 
 					playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
-				}
 				else
 					playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
+				
 				minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				Logger.d(tag, "AUDIOTRACK - minBufSizePlayback: " + minBufSizePlayback + ", playbackSampleRate: " + playbackSampleRate);
 			
@@ -1501,31 +1601,32 @@ public class VoIPService extends Service {
 					
 					if (hostingConference()) {
 						VoIPDataPacket dp = processedRecordedSamples.poll();
-						if (dp != null) {
-							byte[] conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
-							dp.setData(conferencePCM);
-							
-							// This is the broadcast
-							conferenceBroadcastSamples.add(conferencePCM);
+						byte[] conferencePCM = null;
+						if (dp != null) 
+							conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
+						else
+							conferencePCM = finalDecodedSample.getData();	// Host is probably on mute
 
-							for (VoIPClient client : clients.values()) {
-								if (!client.isSpeaking() || !client.connected)
-									continue;
-								
-								// Custom streams
-								VoIPDataPacket clientDp = new VoIPDataPacket();
-								byte[] origPCM = clientSample.get(client.getPhoneNumber());
-								byte[] newPCM = null;
-								if (origPCM == null) {
-									newPCM = conferencePCM;
-								} else {
-									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
-								}
-								clientDp.setData(newPCM);
-								clientDp.setVoice(true);
-								client.addSampleToEncode(clientDp); 
-//								Logger.d(tag, "Custom to: " + client.getPhoneNumber());
+						// This is the broadcast
+						conferenceBroadcastSamples.add(conferencePCM);
+
+						for (VoIPClient client : clients.values()) {
+							if (!client.isSpeaking() || !client.connected)
+								continue;
+
+							// Custom streams
+							VoIPDataPacket clientDp = new VoIPDataPacket();
+							byte[] origPCM = clientSample.get(client.getPhoneNumber());
+							byte[] newPCM = null;
+							if (origPCM == null) {
+								newPCM = conferencePCM;
+							} else {
+								newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
 							}
+							clientDp.setData(newPCM);
+							clientDp.setVoice(true);
+							client.addSampleToEncode(clientDp); 
+//							Logger.d(tag, "Custom to: " + client.getName());
 						}
 					}
 
@@ -1555,6 +1656,7 @@ public class VoIPService extends Service {
 
 				// Wait till the broadcast frames start coming in
 				OpusWrapper opusWrapper = null;
+				int voicePacketNumber = 0;
 				try {
 					byte[] broadcastFrame = conferenceBroadcastSamples.take();
 					Logger.w(tag, "Starting conference broadcast.");
@@ -1566,7 +1668,8 @@ public class VoIPService extends Service {
 					int compressedDataLength = 0;
 
 					while (keepRunning) {
-						// Compress and send the audio frame
+//						Logger.d(tag, "Broadcaster running.");
+						// Compress the audio frame
 						if ((compressedDataLength = opusWrapper.encode(broadcastFrame, compressedData)) > 0) {
 							byte[] trimmedCompressedData = new byte[compressedDataLength];
 							System.arraycopy(compressedData, 0, trimmedCompressedData, 0, compressedDataLength);
@@ -1574,27 +1677,38 @@ public class VoIPService extends Service {
 							dp.write(trimmedCompressedData);
 							dp.setVoice(true);
 
-							// Broadcast to each client that is not speaking
+							// Create a broadcast list
+//							String hosts = "";
 							for (VoIPClient client : clients.values()) {
 								if (client.isSpeaking() || !client.connected)
 									continue;
 
-								VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();
-								client.addEncodedFrame(dpClone);
-//								Logger.d(tag, "Broadcasting to: " + client.getPhoneNumber());
+								BroadcastListItem item = dp.new BroadcastListItem();
+								item.setIp(client.getExternalIPAddress());
+								item.setPort(client.getExternalPort());
+								dp.addToBroadcastList(item);
+//								hosts += client.getName() + " (" + item.getIp() + ":" + item.getPort() + ") | ";
 							}
+							
+							if (dp.getBroadcastList() != null) {
+//								Logger.d(tag, "Broadcasting to: " + hosts);
+								
+								// Send the packet
+								dp.setVoicePacketNumber(voicePacketNumber++);
+								getClient().addToSendingQueue(dp);
+							}
+							
 						} else {
-							Logger.w(tag, "Compression error.");
+							Logger.w(tag, "Conference broadcast compression error.");
 						}
-
 						broadcastFrame = conferenceBroadcastSamples.take();
 					}
 				} catch (InterruptedException e) {
 					Logger.d(tag, "Conference broadcast thread interrupted.");
 				} catch (IOException e) {
-					Logger.e(tag, "Codec exception: " + e.toString());
+					Logger.e(tag, "Codec IOException: " + e.toString());
 				} catch (Exception e) {
-					Logger.e(tag, "Codec exception: " + e.toString());
+					Logger.e(tag, "Codec Exception: " + e.toString());
 				} finally {
 					if (opusWrapper != null)
 						opusWrapper.destroy();
@@ -1605,7 +1719,7 @@ public class VoIPService extends Service {
 		conferenceBroadcastThread.start();
 	}
 
-	public void setHold(boolean newHold) {
+	synchronized public void setHold(boolean newHold) {
 		
 		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
 		final VoIPClient client = getClient();
@@ -1639,6 +1753,9 @@ public class VoIPService extends Service {
 	}
 	
 	private void sendHoldStatus() {
+		if (hostingConference())
+			return;
+		
 		final VoIPClient client = getClient();
 		new Thread(new Runnable() {
 			
@@ -1664,11 +1781,26 @@ public class VoIPService extends Service {
 
 	public void setSpeaker(boolean speaker)
 	{
+		if (this.speaker == speaker)
+			return;
+		
 		this.speaker = speaker;
 		if(audioManager!=null)
 		{
 			audioManager.setSpeakerphoneOn(speaker);
-			// Logger.d(logTag, "Speaker set to: " + speaker);
+			
+			// Restart recording because the audio source will change 
+			// depending on whether we're on speakerphone or not. 
+			// Fixes Anirban's Nexus 5 bug where his mic works only on speakerphone.
+			startRecording();
+		}
+		
+		// If we have swiched off the speaker and a bluetooth headset is connected
+		// then revert the voice to the headset. 
+		if (bluetoothHelper != null && bluetoothHelper.isOnHeadsetSco()) {
+			if (!this.speaker) {
+				audioManager.setBluetoothScoOn(true);
+			}
 		}
 	}
 
@@ -1725,27 +1857,25 @@ public class VoIPService extends Service {
 			Logger.d(tag, "Playing ringtone.");
 			Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 			
-			if (ringtone == null)
-				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
-			
 			if (ringtone == null) {
-				Logger.e(tag, "Unable to get ringtone object.");
-				return;
+				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+				
+				if (ringtone == null) {
+					Logger.e(tag, "Unable to get ringtone object.");
+					return;
+				}
+				
+				if (Utils.isLollipopOrHigher()) {
+					RingtoneForLollipop.create(ringtone);
+				} else
+					ringtone.setStreamType(AudioManager.STREAM_RING);
+				ringtone.play();		
 			}
 			
-			if (Utils.isLollipopOrHigher()) {
-				AudioAttributes.Builder attrs = new AudioAttributes.Builder();
-				attrs.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
-				attrs.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
-				ringtone.setAudioAttributes(attrs.build());
-			} else
-				ringtone.setStreamType(AudioManager.STREAM_RING);
-			ringtone.play();		
-
 			// Vibrator
 			if (vibratorEnabled == true) {
-				vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-				if (vibrator != null) {
+				if (vibrator == null) {
+					vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 					long[] pattern = {0, 500, 1000};
 					vibrator.vibrate(pattern, 0);
 				}
@@ -1778,8 +1908,9 @@ public class VoIPService extends Service {
 	}
 
 	public void startReconnectBeeps() {
-		if (reconnectingBeeps)
+		if (reconnectingBeeps || hostingConference())
 			return;
+		
 		reconnectingBeeps = true;
 		
 		reconnectingBeepsThread = new Thread(new Runnable() {
@@ -1814,9 +1945,15 @@ public class VoIPService extends Service {
 	}
 	
 	public CallQuality getQuality() {
+		
+		// Hard coded quality if hosting a conference. 
+		// Actual logic will need to be more complicated. 
+		if (hostingConference())
+			return CallQuality.GOOD;
+		
 		VoIPClient client = getClient();
 		if (client != null)
-			return client.currentCallQuality;
+			return client.getQuality();
 		else
 			return CallQuality.UNKNOWN;
 	}
@@ -1841,6 +1978,9 @@ public class VoIPService extends Service {
 	{
 		VoIPClient client = getClient();
 		
+		if (hostingConference())
+			return CallStatus.HOSTING_CONFERENCE;
+		
 		if (client != null)
 			return getClient().getCallStatus();
 		else
@@ -1853,16 +1993,31 @@ public class VoIPService extends Service {
 		stop();
 	}
 	
-	public int getCallDuration() {
-		return getClient().getCallDuration();
+	public synchronized int getCallDuration() {
+		if (hostingConference()) {
+			int seconds;
+			if (chronometer != null) {
+				seconds = (int) ((SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000);
+			} else
+				seconds = 0;
+			return seconds;
+		} else {
+			VoIPClient client = getClient();
+			if (client != null)
+				return client.getCallDuration();
+			else
+				return 0;
+		}
 	}
 	
 	public boolean hostingConference() {
-		boolean conference = false;
-		if (clients.size() > 1)
-			conference = true;
-		// Logger.d(logTag, "Conference check: " + conference);
-		return conference;
+//		boolean conference = false;
+//		if (clients.size() > 1 || !TextUtils.isEmpty(groupChatMsisdn))
+//			conference = true;
+//		// Logger.d(logTag, "Conference check: " + conference);
+//		return conference;
+		
+		return hostingConference;
 	}
 	
 	public boolean toggleConferencing() {
@@ -1870,41 +2025,72 @@ public class VoIPService extends Service {
 		return conferencingEnabled;
 	}
 
+	public String getClientCount() {
+		int num = 1;
+
+		if (hostingConference())
+			num = clients.size() + 1;
+		else {
+			VoIPClient client = getClient();
+			if (client != null && client.clientMsisdns != null)
+				num = client.clientMsisdns.size();
+		}
+		
+		return String.valueOf(num);
+	}
+	
 	public String getClientNames() {
 		String names = "";
+		String delimiter = "<br/> ";
 		
 		// If in a one-to-one call, or hosting a conference
 		for (VoIPClient client : clients.values()) {
-			names += client.getName() + ", ";
+			if (client.isSpeaking())
+				names += "<b>" + client.getName() + "</b>" + delimiter;
+			else
+				names += client.getName() + delimiter;
 		}
 		
 		// If we are part of a conference, but not hosting it
 		if (getClient() != null && getClient().clientMsisdns != null) {
 			names = "";
+			String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 			for (String msisdn : getClient().clientMsisdns) {
+				
+				// Do not show our own phone number in list of participants
+				if (msisdn.equals(myMsisdn))
+					continue;
+				
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
 				if (contactInfo != null)
-					names += contactInfo.getNameOrMsisdn() + ", ";
+					names += contactInfo.getNameOrMsisdn() + delimiter;
 				else
-					names += msisdn + ", ";
+					names += msisdn + delimiter;
 			}
 		}
 
-		names = names.substring(0, names.length() - 2);
+		names = names.substring(0, names.length() - delimiter.length());
 		return names;
 	}
 	
 	private void addToClients(VoIPClient client) {
+
 		synchronized (clients) {
 			clients.put(client.getPhoneNumber(), client);
+			if (clients.size() > 1)
+				hostingConference = true;
 		}
 		sendClientsListToAllClients();
 	}
 
 	private void removeFromClients(String msisdn) {
+		
 		synchronized (clients) {
-			getClient(msisdn).close();
-			clients.remove(msisdn);
+			VoIPClient client = getClient(msisdn);
+			if (client != null) {
+				client.close();
+				clients.remove(msisdn);
+			}
 		}
 		sendClientsListToAllClients();
 	}
@@ -1926,6 +2112,7 @@ public class VoIPService extends Service {
 					
 					@Override
 					public void run() {
+						sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 						synchronized (clients) {
 							
 							// Form the CSV
@@ -1948,7 +2135,7 @@ public class VoIPService extends Service {
 							if (sb.length() == 0)
 								return;
 							
-							Logger.w(tag, "Sending clients list: " + sb.toString());
+//							Logger.w(tag, "Sending clients list: " + sb.toString());
 							
 							// Build the packet
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.CLIENTS_LIST);
@@ -1972,7 +2159,69 @@ public class VoIPService extends Service {
 		clientListHandler = new Handler();
 		clientListHandler.postDelayed(clientListRunnable, 250);
 	}
+
+	/**
+	 * Used for detecting cellular calls while in a VoIP call. 
+	 * Behaviour is to put the VoIP call on hold when a cellular call comes in, 
+	 * and unhold the call when the cellular call is terminated. 
+	 */
+	private void registerPhoneStateBroadcastReceiver() {
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("android.intent.action.PHONE_STATE");
+
+		phoneStateReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+				if (TelephonyManager.EXTRA_STATE_RINGING.equals(state)) {
+					// We have an incoming call
+					Logger.w(tag, "Incoming call detected.");
+					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
+					setHold(true);
+				}
+				
+				if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
+					// Coming off a call
+					Logger.w(tag, "Call over.");
+					setHold(false);
+				}
+			}
+		};
+		
+		registerReceiver(phoneStateReceiver, filter);
+	}
 	
+	private void unregisterPhoneStateBroadcastReceiver() {
+		if (phoneStateReceiver != null)
+			unregisterReceiver(phoneStateReceiver);
+	}
 	
+	private void startBluetooth() {
+		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
+		if (isBluetoothEnabled) {
+			bluetoothHelper = new BluetoothHelper(getApplicationContext());
+			bluetoothHelper.start();
+		}
+	}
+
+	public void startChrono() {
+
+		try {
+			if (chronometer == null) {
+				Logger.d(tag, "Starting chrono.");
+				chronometer = new Chronometer(getApplicationContext());
+				chronometer.setBase(SystemClock.elapsedRealtime());
+				chronometer.start();
+			}
+		} catch (Exception e) {
+			Logger.w(tag, "Chrono exception: " + e.toString());
+		}
+	}
+
+	public void processErrorIntent(String error, String msisdn) {
+		Logger.w(tag, msisdn + " returned an error message. Size of clients: " + clients.size());
+		removeFromClients(msisdn);
+	}
 }
 

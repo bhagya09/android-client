@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Environment;
 
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 public class HikeConstants
 {
@@ -454,6 +453,10 @@ public class HikeConstants
 	public static final String SEND_ENTER_PREF = "enterSendPref";
 		
 	public static final String DOUBLE_TAP_PREF = "doubleTapPref";
+	
+	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
+	
+	public static final String STICKER_REORDER_PREF = "stickerReOrderPref";
 
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
 
@@ -722,6 +725,10 @@ public class HikeConstants
 	public static final int SHARE_FILE_CODE = 1194;
 	
 	public static final int PLATFORM_REQUEST = 1195; 
+	
+	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
+
+	public static final int ADD_TO_CONFERENCE_REQUEST = 1196; 
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -1039,6 +1046,8 @@ public class HikeConstants
 	public static final int RETRY_WAIT_ADDITION = 2;
 
 	public static final String IMAGE_FRAGMENT_TAG = "imageFragmentTag";
+	
+	public static final String STICKER_RECOMMENDATION_FRAGMENT_TAG = "stickerRecommendationFragmentTag";
 
 	public static final String SHOW_STEALTH_POPUP = "stlthrmd";
 
@@ -1073,6 +1082,8 @@ public class HikeConstants
 	public static final String VOIP_BITRATE_3G = "vb3g";
 
 	public static final String VOIP_BITRATE_WIFI = "vbw";
+
+	public static final String VOIP_BITRATE_CONFERENCE = "vbc";
 
 	public static final String VOIP_ACTIVATED = "voip";
 
@@ -1246,6 +1257,8 @@ public class HikeConstants
 		public static final String EMOTICON_SHOWING = "emoticonShowing";
 
 		public static final String EXISTING_GROUP_CHAT = "existingGroupChat";
+
+		public static final String ADD_TO_CONFERENCE = "addToConference";
 
 		public static final String EXISTING_BROADCAST_LIST = "existingBroadcastList";
 
@@ -1614,6 +1627,8 @@ public class HikeConstants
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
+		
+		public static final String LAST_MESSAGE_TIMESTAMP = "lastMessageTimeStamp";
 
 		public static final String ENABLE_SEND_LOGS = "ulogs_on";
 	}
@@ -1908,11 +1923,21 @@ public class HikeConstants
 
 		public static final String PIN_HISTORY_VIA_PIN_CLICK = "pinHistoryViaPinClick";
 
-		public static final String STICKER_BTN_CLICKED = "stickerBtnClicked";
+		public static final String STICKER_BTN_CLICKED = "sBnc";
 
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
 		public static final String STICKER_SETTING_BTN_CLICKED = "stickerSettingBtnClicked";
+		
+		public static final String STICKER_RECOMMENDATION_PANEL_SETTINGS_BTN_CLICKED = "srps";
+		
+		public static final String STICKER_RECOMMENDATION_SETTING_STATE = "srSTs";
+		
+		public static final String STICKER_RECOMMENDATION_REJECTION_KEY = "srCrP";
+		
+		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
+		
+		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
 		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
 
@@ -2303,6 +2328,10 @@ public class HikeConstants
 		public static final String NUX = "nux";
 
 		public static final String CREATE_MULTIPLE_BOTS = "cbot";
+		
+		public static final String REMOVE_MICRO_APP = "dmapp";
+		
+		public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
@@ -2395,7 +2424,7 @@ public class HikeConstants
 
 	public static enum FTResult
 	{
-		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD
+		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD, UNKNOWN_SERVER_ERROR
 	}
 
 	public static enum SMSSyncState
@@ -2642,6 +2671,8 @@ public class HikeConstants
 	
 	public static final String SESSION_LOG_TRACKING = "stl";
 
+	public static final String PHONE_SPEC = "pl";
+
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";
@@ -2867,10 +2898,15 @@ public class HikeConstants
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
+	public static final String CATEGORY_ID_LIST = "sId_list";
+	
+	public static final String HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE = "contact_pick_result_for_conference";
 
 	public static final String NOTIFIACTION_DELAY_GROUP = "gnt";
 
 	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
+
+	public static final String KEYBOARD_CONFIGURATION = "kc";
 
 	public static final String GET="get";
 
@@ -2897,8 +2933,15 @@ public class HikeConstants
 	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
 	
 	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
+	
+	public static final String PACKS = "packs";
+	
+	public static final String STICKERS = "stkrs";
+	
+	public static final String IMAGE = "img";
 
 	public static final String OTHER_EXCEPTION_LOGGING = "otherExLoging";
+	
 	public static final String HTTP_EXCEPTION_LOGGING = "httpExc";
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
@@ -2910,4 +2953,34 @@ public class HikeConstants
 	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
 
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	
+	public static final String  MODULE_STICKER_SEARCH = "stickersearch";
+	
+	public static final String NUMBER_OF_PACKS = "np";
+	
+	public static final String PACK_DATA = "pd";
+
+	public static final String NOTIFICATIONS_PRIORITY = "npc";
+
+	public static final String FT_HOST_IPS = "ftHostIps";
+	
+	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+	
+	public static class IntentAction
+	{
+		public static final String ACTION_KEYBOARD_OPEN = "com.bsb.hike.action.keyboardopen";
+		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
+	}
+	
+	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
+	
+	public static final String TAGGED_PHRASE = "tg";
+	
+	public static final String TAP_WORD = "tap";
+	
+	public static final String ACCURACY = "ac";
+	
+	public static final String STICKER_ID = "stkId";
+	
+	public static final String CATEGORY_ID = "catId";
 }

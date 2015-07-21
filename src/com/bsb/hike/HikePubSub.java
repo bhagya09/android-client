@@ -396,6 +396,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String UPDATE_LAST_MSG_STATE = "updateLastMsgState";
 	
+	public static final String STICKER_RECOMMEND_PREFERENCE_CHANGED = "stickerRecommendPreferenceChanged";
+
 	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";

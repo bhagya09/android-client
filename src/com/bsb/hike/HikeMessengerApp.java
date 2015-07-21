@@ -43,6 +43,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -449,8 +450,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 	public static final String IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN = "showCategoryReordering";
 	
-	public static final String STICKED_BTN_CLICKED_FIRST_TIME = "stickerBtnClickedFirstTime";
-
 	public static final String STICKER_SETTING_CHECK_BOX_CLICKED = "stickerSettingCheckBoxClicked";
 	
 	public static final String STICKER_SETTING_UNCHECK_BOX_CLICKED = "stickerSettingUnCheckBoxClicked";
@@ -503,7 +502,33 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 	
+	public static final String KEYBOARD_HEIGHT_PORTRAIT = "keyboardHeightPortrait";
+
+	public static final String KEYBOARD_HEIGHT_LANDSCAPE = "keyboardHeightLand";
+
 	public static CurrentState currentState = CurrentState.CLOSED;
+		
+	public static final String STICKER_SEARCH_ENABLED = "stickrSearchEnabled";
+	
+	public static final String TAG_FIRST_TIME_DOWNLOAD = "tagFirstTimeDownload";
+	
+	public static final String STICKER_SET = "stickerSet";
+	
+	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
+	
+	public static final String STICKER_RECOMMEND_SCROLL_FTUE_COUNT = "stickerRecommendScrollFtueCount";
+	
+	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
+	
+	public static final String REBALANCING_TIME = "rebalancingTime";
+	
+	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
+	
+	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
+	
+	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
+	
+	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 
 	//private static Twitter twitter;
 
@@ -845,6 +870,10 @@ public void onTrimMemory(int level)
 		{
 			fetchPlatformIDIfNotPresent();
 		}
+		
+		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
+		StickerManager.getInstance().refreshTagData();
+		StickerSearchManager.getInstance().removeDeletedStickerTags();
 	}
 	
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -884,9 +913,12 @@ public void onTrimMemory(int level)
 		registerReceivers();
 
 		ProductInfoManager.getInstance().init();
+		
 		PlatformContent.init(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true));
 		
 		ChatHeadUtils.startOrStopService(false);
+		
+		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();
 	}
 
 	/**

@@ -24,6 +24,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadActivity;
 import com.bsb.hike.chatHead.ChatHeadConstants;
 import com.bsb.hike.chatHead.ChatHeadService;
@@ -309,11 +310,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 					AnalyticsConstants.ChatHeadEvents.DISABLE_SETTING);
 			onDisableClick();
 			break;
-//		case R.id.get_more_stickers:
-//			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName,
-//					AnalyticsConstants.ChatHeadEvents.MORE_STICKERS);
-//			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.GET_MORE_STICKERS_ANIMATION, null);
-//			break;
+		case R.id.get_more_stickers:
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName,
+					AnalyticsConstants.ChatHeadEvents.MORE_STICKERS);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.GET_MORE_STICKERS_ANIMATION, null);
+			break;
 		case R.id.open_hike:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.OPEN_HIKE);
@@ -338,11 +339,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.BACK, ChatHeadService.foregroundAppName);
 			onBackMainLayoutClick();
 			break;
-//		disabling sticker shop here 
-//		case R.id.shop_icon_external:
-//			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadService.foregroundAppName);
-//			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STICKER_SHOP_ANIMATION, null);
-//			break;
+		case R.id.shop_icon_external:
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadService.foregroundAppName);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STICKER_SHOP_ANIMATION, null);
+			break;
 		case R.id.side_text:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.DISABLE_TEXT, ChatHeadService.foregroundAppName);
 			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.OPEN_SETTINGS_ANIMATION, null);
@@ -353,7 +353,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private void shopIconClicked()
 	{
 		setStickerIntroPrefs();
-		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
+		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
 		Intent i = IntentFactory.getStickerShopIntent(mActivity);
 		mActivity.startActivity(i);
 	}
@@ -572,7 +572,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.SHARE_LIMIT);
-			//chatHeadgetMoreStickersButton.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
+			chatHeadgetMoreStickersButton.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
 		}
 		initLayoutComponentsView();
 		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadActivity.totalShareCount, ChatHeadActivity.noOfDays));
@@ -618,7 +618,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	public void setOnClick()
 	{
 		chatHeadInfoIconButton.setOnClickListener(this);
-		//chatHeadgetMoreStickersButton.setOnClickListener(this);
+		chatHeadgetMoreStickersButton.setOnClickListener(this);
 		chatHeadDisableButton.setOnClickListener(this);
 		chatHeadSideText.setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.open_hike).setOnClickListener(this);
@@ -626,7 +626,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadstickerPickerView.findViewById(R.id.one_day).setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.one_hour).setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.eight_hours).setOnClickListener(this);
-		//chatHeadstickerPickerView.findViewById(R.id.shop_icon_external).setOnClickListener(this);
+		chatHeadstickerPickerView.findViewById(R.id.shop_icon_external).setOnClickListener(this);
 		
 	}
 
@@ -647,7 +647,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private void findindViewById()
 	{
 		chatHeadDisableButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.disable);
-		//chatHeadgetMoreStickersButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.get_more_stickers);
+		chatHeadgetMoreStickersButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.get_more_stickers);
 		chatHeadInfoIconButton = (ImageView) chatHeadstickerPickerView.findViewById(R.id.info_icon);
 		chatHeadInfoIconLayout = (LinearLayout)chatHeadstickerPickerView.findViewById(R.id.info_icon_layout);
 		mViewPager = (ViewPager) chatHeadstickerPickerView.findViewById(R.id.sticker_pager);

@@ -50,10 +50,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private static ArrayList<ListViewItem> mListViewItems;
 
-    private static TextView mainSelectAllText;
-
-	private static TextView sideSelectAllText;
-
 	private static CheckBox selectAllCheckbox;
 	
 	private static ChatHeadSettingsArrayAdapter listAdapter;
@@ -70,7 +66,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	{
 		creatingArrayList();
 		listAdapter = new ChatHeadSettingsArrayAdapter(this, R.layout.settings_sticker_share_item, mListViewItems);
-		initialisingViewsUsingID();
+		selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
 		settingOnClickEvent();
 		settingSelectAllText();
 		ListView listView = (ListView) findViewById(R.id.list_items);
@@ -97,14 +93,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 				onSelectAllCheckboxClick();
 			}
 		});
-	}
-
-	private void initialisingViewsUsingID()
-	{
-		mainSelectAllText = (TextView) findViewById(R.id.main_text_select_all);
-		sideSelectAllText = (TextView) findViewById(R.id.side_text_select_all);
-		selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
-
 	}
 
 	private void creatingArrayList()
@@ -175,22 +163,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private static void settingSelectAllText()
 	{
-		boolean allChecked = areAllItemsCheckedOrUnchecked(true);
-		if (allChecked)
-		{
-			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_deselect_all));
-			sideSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.sticker_widget_hide));
-		}
-		else
-		{
-			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_select_all));
-			sideSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.sticker_widget_show));
-			
-		}
-		selectAllCheckbox.setChecked(allChecked);
+		selectAllCheckbox.setChecked(areAllItemsCheckedOrUnchecked(true));
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, !areAllItemsCheckedOrUnchecked(false));
-		
-
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
 		ChatHeadUtils.startOrStopService(true);

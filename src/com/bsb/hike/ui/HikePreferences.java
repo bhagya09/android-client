@@ -58,9 +58,11 @@ import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.IconListPreference;
+import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
@@ -79,6 +81,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private boolean isDeleting;
 
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
+	
+	private boolean mIsResumed = false;
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -173,6 +177,21 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (doubleTapPreference != null) {
 			doubleTapPreference.setOnPreferenceChangeListener(this);
 		}
+		
+		final IconCheckBoxPreference stickerRecommendPreference = (IconCheckBoxPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
+		if (stickerRecommendPreference != null)
+		{
+			stickerRecommendPreference.setOnPreferenceChangeListener(this);
+		}
+		
+		final IconPreference stickerReOrderPreference = (IconPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_REORDER_PREF);
+		if (stickerReOrderPreference != null)
+		{
+			stickerReOrderPreference.setOnPreferenceClickListener(this);
+		}
+		
 		final IconCheckBoxPreference freeSmsPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.FREE_SMS_PREF);
 		if (freeSmsPreference != null)
 		{
@@ -412,6 +431,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		outState.putInt(HikeConstants.Extras.BLOKING_TASK_TYPE, blockingTaskType.ordinal());
 		super.onSaveInstanceState(outState);
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mIsResumed = true;
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mIsResumed = false;
+	}
 
 	@Override
 	public void onDestroy()
@@ -430,6 +461,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		Logger.d("HikePreferences", "setting task:" + task.isFinished());
 		if (!task.isFinished())
 		{
+			// dismissing any existing dialog before showing the new one
+			dismissProgressDialog();
 			mTask = task;
 			String title = getString(R.string.account);
 			String message = "";
@@ -829,6 +862,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			startActivity(Utils.getIntentForHiddenSettings(HikePreferences.this));
 		}
+		else if(HikeConstants.STICKER_REORDER_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			startActivity(i);
+		}
 		return true;
 	}
 
@@ -994,6 +1032,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		else if(HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
+			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(isChecked);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{
@@ -1458,7 +1502,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		mTask = null;
 		dismissProgressDialog();
 		Preference notificationPreference = getPreferenceScreen().findPreference(HikeConstants.NOTIF_SOUND_PREF);
-		if(notificationPreference != null)
+		if(notificationPreference != null && mIsResumed && !isFinishing())
 		{
 			NotificationToneListPreference notifToneListPref = (NotificationToneListPreference) notificationPreference;
 			notifToneListPref.createAndShowDialog(ringtonesNameURIMap);
