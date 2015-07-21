@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -35,6 +36,8 @@ import android.util.Pair;
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
 	private static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
+
+	private Random mRandom;
 
 	private volatile Context mContext;
 
@@ -64,14 +67,21 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				sHikeStickerSearchDatabase = new HikeStickerSearchDatabase(HikeMessengerApp.getInstance());
 			}
+
 			if (sHikeStickerSearchDatabase.mDb == null)
 			{
 				sHikeStickerSearchDatabase.close();
 				sHikeStickerSearchDatabase.mDb = sHikeStickerSearchDatabase.getWritableDatabase();
 			}
+
 			if (sHikeStickerSearchDatabase.mContext == null)
 			{
 				sHikeStickerSearchDatabase.mContext = HikeMessengerApp.getInstance();
+			}
+
+			if (sHikeStickerSearchDatabase.mRandom == null)
+			{
+				sHikeStickerSearchDatabase.mRandom = new Random();
 			}
 		}
 	}
@@ -79,7 +89,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	/* Get instance of database from outside of this class */
 	public static HikeStickerSearchDatabase getInstance()
 	{
-		if ((sHikeStickerSearchDatabase == null) || (sHikeStickerSearchDatabase.mDb == null) || (sHikeStickerSearchDatabase.mContext == null))
+		if ((sHikeStickerSearchDatabase == null) || (sHikeStickerSearchDatabase.mDb == null) || (sHikeStickerSearchDatabase.mContext == null)
+				|| (sHikeStickerSearchDatabase.mRandom == null))
 		{
 			Logger.w(TAG, "Either database has not been initialized or, reinitializing...");
 			init();
@@ -360,25 +371,30 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		insertIntoFTSTable(tags, rows);
 	}
 
-	private ArrayList<ArrayList<Object>> searchInPrimaryTable(String match, int[] primaryKeys, boolean isExactMatchNeeded)
+	private ArrayList<ArrayList<Object>> searchInPrimaryTable(String match, ArrayList<Long> primaryKeys, boolean isExactMatchNeeded)
 	{
 		ArrayList<ArrayList<Object>> list = null;
-		ArrayList<ArrayList<Object>> tempList = null;
-		ArrayList<Float> matchRankList = null;
+		int size = ((primaryKeys == null) ? 0 : primaryKeys.size());
+		if (size <= 0)
+		{
+			return list;
+		}
+
 		Cursor c = null;
-		if ((primaryKeys == null) || (primaryKeys.length <= 0))
-			return tempList;
 		try
 		{
-			String[] args = new String[primaryKeys.length];
-			for (int i = 0; i < primaryKeys.length; i++)
+			ArrayList<ArrayList<Object>> tempList = null;
+			ArrayList<Float> matchRankList = null;
+			String[] args = new String[size];
+
+			for (int i = 0; i < size; i++)
 			{
-				args[i] = String.valueOf(primaryKeys[i]);
+				args[i] = String.valueOf(primaryKeys.get(i));
 			}
 
-			StringBuilder sb = new StringBuilder(primaryKeys.length * 2 - 1);
+			StringBuilder sb = new StringBuilder(size * 2 - 1);
 			sb.append("?");
-			for (int i = 1; i < primaryKeys.length; i++)
+			for (int i = 1; i < size; i++)
 			{
 				sb.append(",?");
 			}
@@ -604,8 +620,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	public ArrayList<ArrayList<Object>> searchIntoFTSAndFindStickerList(String phrase, boolean isExactMatchNeeded)
 	{
 
-		int[] rows = null;
+		ArrayList<Long> tempRows = null;
+		ArrayList<Long> rows = null;
 		Cursor c = null;
+
 		try
 		{
 			char[] array = phrase.toCharArray();
@@ -622,13 +640,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + phrase + "*'", null);
 			}
 
-			if (c != null)
+			int count = ((c == null) ? 0 : c.getCount());
+			if (count > 0)
 			{
-				int i = 0;
-				rows = new int[c.getCount()];
+				tempRows = new ArrayList<Long>(count);
 				while (c.moveToNext())
 				{
-					rows[i++] = c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID));
+					tempRows.add(c.getLong(c.getColumnIndex(HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID)));
 				}
 			}
 		}
@@ -642,6 +660,20 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				c.close();
 			}
+		}
+
+		if ((tempRows != null) && (tempRows.size() > HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER))
+		{
+			Collections.shuffle(tempRows, mRandom);
+			rows = new ArrayList<Long>(HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER);
+			for (int i = 0; i < HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER; i++)
+			{
+				rows.add(tempRows.get(i));
+			}
+		}
+		else
+		{
+			rows = tempRows;
 		}
 
 		return searchInPrimaryTable(phrase, rows, isExactMatchNeeded);
