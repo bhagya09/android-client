@@ -169,7 +169,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			@Override
 			public void run()
 			{
-				if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen())
+				if ((stickerList == null) || (stickerList.size() == 0) || !chatthread.isKeyboardOpen())
 				{
 					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or isKeyboardOpen(): " + chatthread.isKeyboardOpen());
 					return;

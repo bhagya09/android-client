@@ -330,6 +330,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
 	{
+		Logger.i(TAG, "insertStickerTagData()");
+
 		ArrayList<String> tags = new ArrayList<String>();
 		ArrayList<Long> rows = new ArrayList<Long>();
 
@@ -370,7 +372,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			mDb.endTransaction();
 		}
 
-		insertIntoFTSTable(tags, rows);
+		insertIntoVirtualTable(tags, rows);
 	}
 
 	private ArrayList<ArrayList<Object>> searchInPrimaryTable(String match, ArrayList<Long> primaryKeys, boolean isExactMatchNeeded)
@@ -575,8 +577,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return data;
 	}
 
-	public void insertIntoFTSTable(ArrayList<String> tags, ArrayList<Long> referenceids)
+	public void insertIntoVirtualTable(ArrayList<String> tags, ArrayList<Long> referenceids)
 	{
+		Logger.i(TAG, "insertIntoVirtualTable()");
 
 		int count = tags.size();
 		int remainingCount = count;
@@ -907,6 +910,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public boolean startRebalancing()
 	{
+		Logger.d(TAG, "startRebalancing()");
+
 		Cursor c = null;
 		long count = 0;
 		long currentTime = System.currentTimeMillis();
