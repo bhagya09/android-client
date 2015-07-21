@@ -165,7 +165,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						Toast.makeText(PictureEditer.this, getResources().getString(R.string.photos_image_greater_than_edit_limit), Toast.LENGTH_SHORT).show();
 						if(isStartedForResult())
 						{
-							finishProgress();
 							Bundle bundle = new Bundle();
 							bundle.putString(HikeConstants.Extras.IMAGE_PATH, filename);
 							if(hasDelegateActivities())

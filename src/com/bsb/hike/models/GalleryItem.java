@@ -175,7 +175,8 @@ public class GalleryItem implements Parcelable
 		for(int i=0;i<retFilePaths.size();i++)
 		{
 			//Check file type since only images can be handled
-			if (HikeFileType.fromFilePath(retFilePaths.get(i), false).compareTo(HikeFileType.IMAGE) != 0)
+			//special handling for webp images since some devices cant extract their mime type
+			if (!Utils.getFileExtension(retFilePaths.get(i)).equalsIgnoreCase("webp") && HikeFileType.fromFilePath(retFilePaths.get(i), false).compareTo(HikeFileType.IMAGE) != 0)
 			{
 				return null;
 			}
