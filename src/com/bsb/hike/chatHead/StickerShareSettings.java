@@ -167,7 +167,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, !areAllItemsCheckedOrUnchecked(false));
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
-		ChatHeadUtils.startOrStopService(true);
 	}
 
 	static boolean areAllItemsCheckedOrUnchecked(boolean allItemsExpectedChecked)
@@ -271,5 +270,12 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		}
 
 	}
-
+	
+	
+	@Override
+	protected void onStop()
+	{
+		ChatHeadUtils.startOrStopService(true);
+		super.onStop();
+	}
 }

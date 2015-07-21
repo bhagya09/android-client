@@ -707,7 +707,9 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
-	
+	/*
+	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
+	 */
 	public static Intent getHomeActivityIntentAsLauncher(Context context)
 	{
 		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
