@@ -635,7 +635,7 @@ public abstract class JavascriptBridge
 			Logger.e(tag, "Empty function name when calling the JS back");
 			return;
 		}
-		if (mHandler == null || !mWebView.isWebViewShowing())
+		if (mHandler == null)
 		{
 			return;
 		}
@@ -644,7 +644,10 @@ public abstract class JavascriptBridge
 			@Override
 			public void run()
 			{
-				mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+				if(mWebView.isWebViewShowing())
+				{
+					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+				}
 			}
 		});
 	}
