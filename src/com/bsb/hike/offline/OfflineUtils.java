@@ -630,21 +630,13 @@ public class OfflineUtils
 	public static boolean isConnectedToSameMsisdn(String msisdn)
 	{
 		String connectedMsisdn = OfflineController.getInstance().getConnectedDevice(); 
-		if(TextUtils.isEmpty(connectedMsisdn))
-		{
-			return false;
-		}
-		return connectedMsisdn.equals(msisdn);
+		return !TextUtils.isEmpty(connectedMsisdn) && connectedMsisdn.equals(msisdn);
 	}
 
 	public static boolean isConnectingToSameMsisdn(String msisdn) 
 	{	
 		String connectingMsisdn = OfflineController.getInstance().getConnectingDevice(); 
-		if(TextUtils.isEmpty(connectingMsisdn))
-		{
-			return false;
-		}
-		return connectingMsisdn.equals(msisdn);
+		return !TextUtils.isEmpty(connectingMsisdn) && connectingMsisdn.equals(msisdn);
 	}
 
 }
