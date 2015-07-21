@@ -11,6 +11,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 
@@ -76,7 +77,15 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 			return;
 		}
 
-		RequestToken token = HttpRequests.editProfileAvatarRequest(tmpFilePath, requestListener);
+		RequestToken token;
+		if(OneToNConversationUtils.isGroupConversation(msisdn))
+		{
+			token = HttpRequests.editGroupProfileAvatarRequest(tmpFilePath, requestListener, msisdn);
+		}
+		else
+		{
+			token = HttpRequests.editProfileAvatarRequest(tmpFilePath, requestListener);
+		}
 		token.execute();
 	}
 
