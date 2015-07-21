@@ -394,7 +394,25 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		colorSpanPool.releaseResources();
 		colorSpanPool = null;
 		stickerPickerListener = null;
-		activity = null;
+
+		if (activity != null)
+		{
+			activity.runOnUiThread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					if ((editable != null) && (editable.length() > 0))
+					{
+						removeAttachedSpans(0, Math.min(editable.length(), StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT));
+						editable = null;
+					}
+				}
+			});
+
+			activity = null;
+		}
 	}
 
 	/**
