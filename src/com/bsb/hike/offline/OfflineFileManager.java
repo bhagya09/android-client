@@ -199,9 +199,6 @@ public class OfflineFileManager
 	
 	public void onFileCompleted(ConvMessage message, File file)
 	{
-		if (message == null)
-			return;
-		
 		JSONObject messageJSON = message.serialize();
 		if (OfflineUtils.isStickerMessage(messageJSON)) 
 		{

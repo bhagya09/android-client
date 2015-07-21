@@ -196,7 +196,9 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				setFileVariablesAndUpdateJSON(messageJSON);
 				ConvMessage convMessage = new ConvMessage(messageJSON, context);
 				
-				addToDatabase(convMessage);
+				if (addToDatabase(convMessage))
+					return;
+				
 				fileManager.handleMessageReceived(convMessage);
 				receiverConsignment.setTag(convMessage);
 			}
@@ -228,7 +230,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				{
 					receiverConsignment.setTag(convMessage);
 				}
-				addToDatabase(convMessage);
+				if (addToDatabase(convMessage))
+					return;
 			}
 		} 
 		catch (JSONException jsonException) 
@@ -241,11 +244,13 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		}
 	}
 
-	private void addToDatabase(ConvMessage convMessage)
+	private boolean addToDatabase(ConvMessage convMessage)
 	{
 		convMessage.setMessageOriginType(OriginType.OFFLINE);
-		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED,convMessage);
+		boolean isInserted = HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+		if (isInserted)
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED,convMessage);
+		return isInserted;
 	}
 
 	private void setFileVariablesAndUpdateJSON(JSONObject messageJSON) throws JSONException 
@@ -290,6 +295,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	@Override
 	public void onFileCompleted(ReceiverConsignment receiver) 
 	{
+		if (receiver.getTag() == null)
+			return;
 		fileManager.onFileCompleted((ConvMessage)receiver.getTag(), receiver.getFile());
 	}
 
