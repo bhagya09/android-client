@@ -3,19 +3,16 @@
     android:title="@string/manage_account" >
         
     <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_backup"
             android:key="backupAccount"
             android:layout="@layout/icon_preference"
             android:summary="Last backup:"
             android:title="Backup Account" />
         <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_unlink_account_settings"
             android:key="unlinkAccount"
             android:layout="@layout/icon_preference"
             android:summary="@string/unlink_hinttext"
             android:title="@string/unlink_account" />
         <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_delete_account_settings"
             android:key="deleteAccount"
             android:layout="@layout/icon_preference"
             android:summary="@string/delete_account_msg"
