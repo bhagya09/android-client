@@ -69,7 +69,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 						(OfflineUtils.isOfflineSsid(ssid)))
 				{
 					Log.d(TAG,"inconnected");
-					wifiCallBack.checkConnectedNetwork();
+					wifiCallBack.onConnetionToWifiNetwork();
 				}
 			}
 		}
