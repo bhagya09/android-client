@@ -7469,7 +7469,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		selection.append(DBConstants.ACTION_OBJECT_ID + " IN " + uuidSelection.toString());
 
 		//Add object type (su,card, channel)
-		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " + actionType);
+		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " + DatabaseUtils.sqlEscapeString(actionType));
 
 		Cursor c = null;
 		try
