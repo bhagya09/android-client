@@ -162,7 +162,24 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					@Override
 					public void run()
 					{
-						Toast.makeText(PictureEditer.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
+						Toast.makeText(PictureEditer.this, getResources().getString(R.string.photos_image_greater_than_edit_limit), Toast.LENGTH_SHORT).show();
+						if(isStartedForResult())
+						{
+							finishProgress();
+							Bundle bundle = new Bundle();
+							bundle.putString(HikeConstants.Extras.IMAGE_PATH, filename);
+							if(hasDelegateActivities())
+							{
+								launchNextDelegateActivity(bundle);
+							}
+							else
+							{
+								Intent intent = new Intent();
+								intent.putExtras(bundle);
+								intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
+								setResult(RESULT_OK, intent);
+							}
+						}
 						PictureEditer.this.finish();
 					}
 				});
