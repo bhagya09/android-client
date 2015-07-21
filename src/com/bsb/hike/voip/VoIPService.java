@@ -309,6 +309,7 @@ public class VoIPService extends Service {
 		acquireWakeLock();
 		setCallid(0);
 		initAudioManager();
+		setSpeaker(false);
 		keepRunning = true;
 		isRingingIncoming = false;
 		
@@ -366,8 +367,6 @@ public class VoIPService extends Service {
 			client = new VoIPClient(getApplicationContext(), handler);
 			client.setPhoneNumber(msisdn);
 		}
-
-		setSpeaker(false);
 
 		// Call rejection message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
