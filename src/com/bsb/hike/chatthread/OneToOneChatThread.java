@@ -141,6 +141,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private static final int SHOW_CALL_ICON = 115;
 	
+	private static final int OFFLINE_DISCONNECTED = 116;
+	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
@@ -192,7 +194,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		switch (OfflineController.getInstance().getOfflineState())
 		{
 		case CONNECTED:
-			if (OfflineUtils.isConnectedToSameMsisdn(TAG))
+			if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 			{
 				sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
 			}
@@ -665,7 +667,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		if (messages != null && messages.size() > 0)
 		{
 			ConvMessage convMessage = messages.get(0);
-
 			if (convMessage.isBlockAddHeader())
 			{
 				messages.remove(0);
@@ -730,6 +731,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				}
 			}
 			break;
+		case OFFLINE_DISCONNECTED:
+			onOfflineDisconnection((String)msg.obj);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
 			super.handleUIMessage(msg);
@@ -738,6 +742,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	}
 
+
+	private void onOfflineDisconnection(String obj)
+	{
+		fetchLastSeen();
+	}
 
 	/**
 	 * Method is called from the UI Thread to show the SMS Sync Dialog
@@ -2881,17 +2890,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		
 		switch (errorCode)
 		{
 		case OUT_OF_RANGE:
 			break;
 		case TIMEOUT:
-			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_failed));
+			sendUIMessage(OFFLINE_DISCONNECTED,getString(R.string.connection_failed));
 			break;
 		case USERDISCONNECTED:
-			sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_deestablished));
-			
+			sendUIMessage(OFFLINE_DISCONNECTED,getString(R.string.connection_deestablished));
 			break;
 		case COULD_NOT_CONNECT:
 			break;
