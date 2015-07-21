@@ -33,7 +33,7 @@ import com.bsb.hike.utils.Utils;
 
 public class StickerSearchManager
 {
-	private static StickerSearchManager _instance;
+	private static volatile StickerSearchManager _instance;
 
 	private IStickerSearchListener listener;
 
