@@ -83,8 +83,6 @@ public class ConvMessage implements Searchable
 	private int contentId;
 	private String nameSpace;
 	
-	private boolean isOfflineMessage;
-	
 	private boolean isOfflineFtueHeader;
 	
 	private int notificationType;
@@ -425,7 +423,6 @@ public class ConvMessage implements Searchable
 			mIsSMS = false;
 		}
 		
-		this.isOfflineMessage = obj.has(OfflineConstants.IS_OFFLINE_MESSAGE) ? true : false;
 		this.mTimestamp = data.getLong(HikeConstants.TIMESTAMP);
 		/* prevent us from receiving a message from the future */
 		long now = System.currentTimeMillis() / 1000;
@@ -1325,11 +1322,6 @@ public class ConvMessage implements Searchable
 		}
 	}
 	
-	
-	public void setIsOfflineMessage(boolean  isOfflineMessage) {
-		this.isOfflineMessage = isOfflineMessage;
-  	}
-
 	public boolean isOfflineFtueHeader() {
 		return isOfflineFtueHeader;
 	}
