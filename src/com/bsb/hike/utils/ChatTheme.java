@@ -1703,7 +1703,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "241";
+			return "41";
 		}
 
 		@Override
@@ -1891,7 +1891,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "230";
+			return "30";
 		}
 
 		@Override
