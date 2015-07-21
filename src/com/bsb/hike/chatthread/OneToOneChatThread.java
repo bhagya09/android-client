@@ -1479,7 +1479,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void showNetworkError(boolean isNetworkError) 
 	{
-		/*TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
+		TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
 		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
 		String contactFirstName = msisdn;
 		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
@@ -1488,8 +1488,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
 		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
-		activity.findViewById(R.id.free_hike_no_netwrok_btn).setOnClickListener(this);*/
-		super.showNetworkError(isNetworkError);
+		activity.findViewById(R.id.network_error_card).setOnClickListener(this);
 	};
 
 	/**
@@ -2240,7 +2239,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case R.id.info_layout:
 			updateChatMetadata();
 			break;
-		case R.id.free_hike_no_netwrok_btn:
+		case R.id.network_error_card:
 			startFreeHikeConversation();
 			break;
 		case R.id.free_hike_cancel:
