@@ -821,6 +821,7 @@ public class HAManager
 	{
 		try
 		{
+			metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN_MQTT);
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.CHAT_ANALYTICS);
 			data.put(HikeConstants.METADATA, metadata);

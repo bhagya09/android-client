@@ -268,9 +268,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedPlace)
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectIndex, int size)
 	{
-		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedPlace + ")");
+		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectIndex + ")");
 
 		if (stickerPickerListener == null)
 		{
@@ -298,12 +298,19 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			selectSearchText();
 		}
+		
+		//send Analytics
+		StickerManager.getInstance().sendRecommendationSelectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), sticker.getStickerId(), sticker.getCategoryId(), selectIndex + 1, size, StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
+
 	}
 
 	@Override
-	public void onCloseClicked()
+	public void onCloseClicked(String word, String phrase)
 	{
 		dismissStickerSearchPopup();
+		
+		//send Analyics
+		StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_CROSS, word, phrase);
 	}
 
 	@Override
@@ -312,49 +319,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		IntentFactory.openSettingChat(activity);
 		StickerManager.getInstance().sendRecommendationPanelSettingsButtonClickAnalytics();
 	}
-
-	public boolean isStickerRecommnedPoupShowing()
-	{
-		if (stickerRecommendView == null)
-		{
-			return false;
-		}
-		return stickerRecommendView.getVisibility() == View.VISIBLE;
-	}
-
-	public void releaseResources()
-	{
-		if ((activity != null) && (fragment != null))
-		{
-			FragmentManager fragmentManager = activity.getSupportFragmentManager();
-			fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
-			fragmentManager.executePendingTransactions();
-
-		}
-
-		StickerSearchManager.getInstance().removeStickerSearchListener(this);
-		stickerRecommendView = null;
-		fragment = null;
-
-		colorSpanPool.releaseResources();
-		colorSpanPool = null;
-		stickerPickerListener = null;
-		activity = null;
-	}
-
-	/**
-	 * Consuming touch event on sticker recommendation view
-	 */
-	private OnTouchListener onTouchListener = new OnTouchListener()
-	{
-
-		@Override
-		public boolean onTouch(View v, MotionEvent event)
-		{
-			return true;
-		}
-	};
-
+	
 	@Override
 	public void showStickerRecommendFtueTip()
 	{
@@ -393,4 +358,56 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		chatthread.selectAllComposeText();
 	}
+
+	public boolean isStickerRecommnedPoupShowing()
+	{
+		if (stickerRecommendView == null)
+		{
+			return false;
+		}
+		return stickerRecommendView.getVisibility() == View.VISIBLE;
+	}
+
+	public void releaseResources()
+	{
+		if ((activity != null) && (!activity.isDestroyed()) && (fragment != null))
+		{
+			FragmentManager fragmentManager = activity.getSupportFragmentManager();
+			fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
+			fragmentManager.executePendingTransactions();
+
+		}
+
+		StickerSearchManager.getInstance().removeStickerSearchListener(this);
+		stickerRecommendView = null;
+		fragment = null;
+
+		colorSpanPool.releaseResources();
+		colorSpanPool = null;
+		stickerPickerListener = null;
+		activity = null;
+	}
+
+	/**
+	 * Consuming touch event on sticker recommendation view
+	 */
+	private OnTouchListener onTouchListener = new OnTouchListener()
+	{
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event)
+		{
+			return true;
+		}
+	};
+	
+	public void sendIgnoreAnalytics()
+	{
+		if(isStickerRecommnedPoupShowing() && fragment != null)
+		{
+			StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_IGNORE, ((StickerRecommendationFragment) fragment).getTappedWord(), ((StickerRecommendationFragment) fragment).getTaggedPhrase());
+		}
+	}
+
+	
 }
