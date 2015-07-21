@@ -623,7 +623,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		if(adapter != null)
 		{
 			adapter.getSharedFileImageLoader().setExitTasksEarly(false);
-			adapter.notifyDataSetChanged();
 		}
 	}
 	

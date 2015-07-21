@@ -70,7 +70,7 @@ public abstract class ImageWorker
 	
 	private boolean setDefaultDrawableNull = true;
 	
-	protected boolean isImageToBeCached = true;
+	protected boolean cachingEnabled = true;
 	
 	protected SuccessfulImageLoadingListener successfulImageLoadingListener;
 	
@@ -432,7 +432,7 @@ public abstract class ImageWorker
 
 				drawable = HikeBitmapFactory.getBitmapDrawable(mResources, bitmap);
 
-				if (mImageCache != null && isImageToBeCached)
+				if (mImageCache != null && cachingEnabled)
 				{
 					Logger.d(TAG, "Putting data in cache : " + dataString);
 					mImageCache.putInCache(dataString, drawable);
@@ -586,14 +586,14 @@ public abstract class ImageWorker
 	    return bitmap;
 	}
 	
-	public void setImageToBeCached(boolean isImageToBeCached)
+	public void setCachingEnabled(boolean enableCache)
 	{
-		this.isImageToBeCached = isImageToBeCached;
+		this.cachingEnabled = enableCache;
 	}
 	
-	public boolean isImageToBeCached()
+	public boolean isCachingEnabled()
 	{
-		return isImageToBeCached;
+		return cachingEnabled;
 	}
 	
 	public interface SuccessfulImageLoadingListener{
