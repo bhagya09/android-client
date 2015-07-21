@@ -353,6 +353,7 @@ public class PlatformUtils
 							{
 								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
 							}
 							catch (JSONException e)
 							{
@@ -372,16 +373,25 @@ public class PlatformUtils
 		enableBot(botInfo, enableBot);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
+		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
 	}
 
 	private static void createBotMqttAnalytics(String key, BotInfo botInfo)
 	{
+		createBotMqttAnalytics(key, botInfo, null);
+	}
+
+	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject metadata)
+	{
+		if (metadata == null)
+		{
+			metadata = new JSONObject();
+		}
 		try
 		{
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.NON_UI_EVENT);
 
-			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, key);
 			metadata.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
 			metadata.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
@@ -417,7 +427,6 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
-			createBotMqttAnalytics(key, botInfo);
 		}
 		catch (JSONException e)
 		{

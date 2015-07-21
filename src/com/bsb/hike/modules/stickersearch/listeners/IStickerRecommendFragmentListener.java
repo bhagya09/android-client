@@ -4,9 +4,9 @@ import com.bsb.hike.models.Sticker;
 
 public interface IStickerRecommendFragmentListener
 {
-	public void onCloseClicked();
+	public void onCloseClicked(String word, String phrase);
 	
 	public void onSettingsClicked();
 	
-	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedPlace);
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectIndex, int size);
 }

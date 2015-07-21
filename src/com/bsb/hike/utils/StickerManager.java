@@ -209,6 +209,10 @@ public class StickerManager
 	
 	public static final String FROM_OTHER = "o";
 	
+	public static final String REJECT_FROM_CROSS = "crs";
+	
+	public static final String REJECT_FROM_IGNORE = "ign";
+	
 	public static final long MINIMUM_FREE_SPACE = 10 * 1024 * 1024;
 
 	public static final String SHOW_STICKER_SHOP_BADGE = "showStickerShopBadge";
@@ -1996,8 +2000,53 @@ public class StickerManager
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_SETTING_STATE);
-			metadata.put("src", "cs");
+			metadata.put(HikeConstants.SOURCE, "cs");
 			metadata.put("st", (state ? 1 : 0));
+			
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+	
+	/**
+	 * Send recommendation rejection analytics
+	 */
+	public void sendRecommendationRejectionAnalytics(boolean autoPopup, String rejectionSource, String tappedWord, String taggedPhrase)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REJECTION_KEY);
+			metadata.put(HikeConstants.SOURCE, rejectionSource);
+			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
+			metadata.put(HikeConstants.TAP_WORD, tappedWord);
+			
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+	
+	/**
+	 * Send recommendation selection analytics
+	 */
+	public void sendRecommendationSelectionAnalytics(boolean autoPopup, String stickerId, String categoryId, int selectedIndex, int numTotal, int numVisible, String tappedWord, String taggedPhrase)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_SELECTION_KEY);
+			metadata.put(HikeConstants.SOURCE, (autoPopup ? FROM_AUTO_RECOMMENDATION_PANEL : FROM_BLUE_TAP_RECOMMENDATION_PANEL));
+			metadata.put(HikeConstants.ACCURACY, selectedIndex + ":" + numTotal + ":" + numVisible);
+			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
+			metadata.put(HikeConstants.TAP_WORD, tappedWord);
+			metadata.put(HikeConstants.STICKER_ID, stickerId);
+			metadata.put(HikeConstants.CATEGORY_ID, categoryId);
 			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}

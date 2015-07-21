@@ -36,15 +36,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
-import android.view.KeyEvent;
 import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
@@ -89,6 +88,7 @@ public class VoIPService extends Service {
 	boolean voiceSignalAbsent = false;
 	
 	private boolean conferencingEnabled = false;
+	private boolean hostingConference = false;
 	
 	// Task executors
 	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
@@ -143,7 +143,6 @@ public class VoIPService extends Service {
 	
 	// Broadcast listeners
 	private BroadcastReceiver phoneStateReceiver = null;
-	private BroadcastReceiver bluetoothButtonReceiver = null;
 	
 	// Support for conference calls
 	private Chronometer chronometer = null;
@@ -151,6 +150,7 @@ public class VoIPService extends Service {
 
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
+	private boolean ignoreBluetoothDisconnect;
 	BluetoothHelper bluetoothHelper = null;
 	private class BluetoothHelper extends BluetoothHeadsetUtils {
 
@@ -172,7 +172,11 @@ public class VoIPService extends Service {
 		public void onScoAudioDisconnected() {
 			Logger.d(tag, "Bluetooth onScoAudioDisconnected()");
 			audioManager.stopBluetoothSco();
-			audioManager.setBluetoothScoOn(false);	
+			audioManager.setBluetoothScoOn(false);
+			if (!ignoreBluetoothDisconnect)
+				hangUp();
+			else
+				ignoreBluetoothDisconnect = false;
 		}
 
 		@Override
@@ -180,8 +184,24 @@ public class VoIPService extends Service {
 			Logger.d(tag, "Bluetooth onScoAudioConnected()");
 			audioManager.startBluetoothSco();
 			audioManager.setBluetoothScoOn(true);
+			sendHandlerMessage(VoIPConstants.MSG_BLUETOOTH_SHOW);
 		}
-		
+	}
+	
+	public boolean isOnHeadsetSco() {
+		if (bluetoothHelper != null && bluetoothHelper.isOnHeadsetSco())
+			return true;
+		else
+			return false;
+	}
+	
+	public void toggleBluetoothFromActivity(boolean enabled) {
+		if (enabled) {
+			audioManager.setBluetoothScoOn(true);
+		} else {
+			ignoreBluetoothDisconnect = true;
+			audioManager.setBluetoothScoOn(false);
+		}
 	}
 	
 	// Handler for messages from VoIP clients
@@ -198,7 +218,7 @@ public class VoIPService extends Service {
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
 				Logger.d(tag, msisdn + " has stopped.");
-				if (!hostingConference())
+				if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
 					stop();
 				else {
 					Logger.d(tag, msisdn + " has quit the conference.");
@@ -306,6 +326,7 @@ public class VoIPService extends Service {
 			resampler = new Resampler();
 		
 		startConnectionTimeoutThread();
+		startBluetooth();
 		registerPhoneStateBroadcastReceiver();
 	}
 	
@@ -317,7 +338,6 @@ public class VoIPService extends Service {
 		unregisterPhoneStateBroadcastReceiver();
 		
 		if (bluetoothHelper != null) {
-			unregisterBluetoothButtonsReceiver();
 			bluetoothHelper.stop();
 		}
 		
@@ -539,11 +559,15 @@ public class VoIPService extends Service {
 			
 			// we are making an outgoing call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
+			
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
 				// Group call
 				groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
-				Logger.w(VoIPConstants.TAG, "Initiating a group call for group: " + groupChatMsisdn);
 				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
+				
+				if (!VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + msisdns.size()))
+					return returnInt;
+
 				startChrono();
 				
 				for (String phoneNumber : msisdns) {
@@ -558,11 +582,16 @@ public class VoIPService extends Service {
 					client.groupChatMsisdn = groupChatMsisdn;
 					initiateOutgoingCall(client, callSource);
 				}
-			} else 
-				// One-to-one call
+			} else {
+				// Outgoing call to single recipient
+				if (clients.size() > 0 && !VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + 1))
+					return returnInt;
+				
 				initiateOutgoingCall(client, callSource);
+			}
 			
-			startBluetooth();
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+			
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -595,7 +624,6 @@ public class VoIPService extends Service {
 
 		if (clients.size() > 0 && getCallId() > 0) {
 			Logger.d(tag, "We're in a conference. Maintaining call id: " + getCallId());
-			// Disable crypto for clients in conference. 
 			getClient().cryptoEnabled = false;
 			client.isInAHostedConference = true;
 			client.cryptoEnabled = false;
@@ -749,6 +777,8 @@ public class VoIPService extends Service {
 			builder = new NotificationCompat.Builder(getApplicationContext());
 
 		VoIPClient client = getClient();
+		if (client == null)
+			return;
 		
 		int callDuration = getCallDuration();
 		String durationString = (callDuration == 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
@@ -1117,7 +1147,6 @@ public class VoIPService extends Service {
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
 		startRecordingAndPlayback(client.getPhoneNumber());
-		startBluetooth();
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 	
@@ -1759,12 +1788,19 @@ public class VoIPService extends Service {
 		if(audioManager!=null)
 		{
 			audioManager.setSpeakerphoneOn(speaker);
-			// Logger.d(logTag, "Speaker set to: " + speaker);
 			
 			// Restart recording because the audio source will change 
 			// depending on whether we're on speakerphone or not. 
 			// Fixes Anirban's Nexus 5 bug where his mic works only on speakerphone.
 			startRecording();
+		}
+		
+		// If we have swiched off the speaker and a bluetooth headset is connected
+		// then revert the voice to the headset. 
+		if (bluetoothHelper != null && bluetoothHelper.isOnHeadsetSco()) {
+			if (!this.speaker) {
+				audioManager.setBluetoothScoOn(true);
+			}
 		}
 	}
 
@@ -1909,6 +1945,12 @@ public class VoIPService extends Service {
 	}
 	
 	public CallQuality getQuality() {
+		
+		// Hard coded quality if hosting a conference. 
+		// Actual logic will need to be more complicated. 
+		if (hostingConference())
+			return CallQuality.GOOD;
+		
 		VoIPClient client = getClient();
 		if (client != null)
 			return client.getQuality();
@@ -1959,16 +2001,23 @@ public class VoIPService extends Service {
 			} else
 				seconds = 0;
 			return seconds;
-		} else
-			return getClient().getCallDuration();
+		} else {
+			VoIPClient client = getClient();
+			if (client != null)
+				return client.getCallDuration();
+			else
+				return 0;
+		}
 	}
 	
 	public boolean hostingConference() {
-		boolean conference = false;
-		if (clients.size() > 1)
-			conference = true;
-		// Logger.d(logTag, "Conference check: " + conference);
-		return conference;
+//		boolean conference = false;
+//		if (clients.size() > 1 || !TextUtils.isEmpty(groupChatMsisdn))
+//			conference = true;
+//		// Logger.d(logTag, "Conference check: " + conference);
+//		return conference;
+		
+		return hostingConference;
 	}
 	
 	public boolean toggleConferencing() {
@@ -1976,38 +2025,66 @@ public class VoIPService extends Service {
 		return conferencingEnabled;
 	}
 
+	public String getClientCount() {
+		int num = 1;
+
+		if (hostingConference())
+			num = clients.size() + 1;
+		else {
+			VoIPClient client = getClient();
+			if (client != null && client.clientMsisdns != null)
+				num = client.clientMsisdns.size();
+		}
+		
+		return String.valueOf(num);
+	}
+	
 	public String getClientNames() {
 		String names = "";
+		String delimiter = "<br/> ";
 		
 		// If in a one-to-one call, or hosting a conference
 		for (VoIPClient client : clients.values()) {
-			names += client.getName() + ", ";
+			if (client.isSpeaking())
+				names += "<b>" + client.getName() + "</b>" + delimiter;
+			else
+				names += client.getName() + delimiter;
 		}
 		
 		// If we are part of a conference, but not hosting it
 		if (getClient() != null && getClient().clientMsisdns != null) {
 			names = "";
+			String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 			for (String msisdn : getClient().clientMsisdns) {
+				
+				// Do not show our own phone number in list of participants
+				if (msisdn.equals(myMsisdn))
+					continue;
+				
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
 				if (contactInfo != null)
-					names += contactInfo.getNameOrMsisdn() + ", ";
+					names += contactInfo.getNameOrMsisdn() + delimiter;
 				else
-					names += msisdn + ", ";
+					names += msisdn + delimiter;
 			}
 		}
 
-		names = names.substring(0, names.length() - 2);
+		names = names.substring(0, names.length() - delimiter.length());
 		return names;
 	}
 	
 	private void addToClients(VoIPClient client) {
+
 		synchronized (clients) {
 			clients.put(client.getPhoneNumber(), client);
+			if (clients.size() > 1)
+				hostingConference = true;
 		}
 		sendClientsListToAllClients();
 	}
 
 	private void removeFromClients(String msisdn) {
+		
 		synchronized (clients) {
 			VoIPClient client = getClient(msisdn);
 			if (client != null) {
@@ -2035,6 +2112,7 @@ public class VoIPService extends Service {
 					
 					@Override
 					public void run() {
+						sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 						synchronized (clients) {
 							
 							// Form the CSV
@@ -2082,6 +2160,11 @@ public class VoIPService extends Service {
 		clientListHandler.postDelayed(clientListRunnable, 250);
 	}
 
+	/**
+	 * Used for detecting cellular calls while in a VoIP call. 
+	 * Behaviour is to put the VoIP call on hold when a cellular call comes in, 
+	 * and unhold the call when the cellular call is terminated. 
+	 */
 	private void registerPhoneStateBroadcastReceiver() {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction("android.intent.action.PHONE_STATE");
@@ -2119,34 +2202,9 @@ public class VoIPService extends Service {
 		if (isBluetoothEnabled) {
 			bluetoothHelper = new BluetoothHelper(getApplicationContext());
 			bluetoothHelper.start();
-			registerBluetoothButtonsReceiver();
 		}
 	}
 
-	private void registerBluetoothButtonsReceiver() {
-		IntentFilter filter = new IntentFilter();
-		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-		filter.addAction("android.intent.action.MEDIA_BUTTON");
-
-		bluetoothButtonReceiver = new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				abortBroadcast();
-				KeyEvent key = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-				Logger.w(tag, "Bluetooth key: " + key.getKeyCode());
-			}
-		};
-		
-		Logger.w(tag, "Registering bluetooth key listener.");
-		registerReceiver(bluetoothButtonReceiver, filter);
-	}
-	
-	private void unregisterBluetoothButtonsReceiver() {
-		if (bluetoothButtonReceiver != null)
-			unregisterReceiver(bluetoothButtonReceiver);
-	}
-	
 	public void startChrono() {
 
 		try {
@@ -2161,6 +2219,9 @@ public class VoIPService extends Service {
 		}
 	}
 
-	
+	public void processErrorIntent(String error, String msisdn) {
+		Logger.w(tag, msisdn + " returned an error message. Size of clients: " + clients.size());
+		removeFromClients(msisdn);
+	}
 }
 
