@@ -12,7 +12,7 @@ public interface IWIfiReceiverCallback
 	
 	public void onHotSpotConnected();
 
-	public void checkConnectedNetwork();
+	public void onConnetionToWifiNetwork();
 
 	public void onDiscoveryStarted();
 

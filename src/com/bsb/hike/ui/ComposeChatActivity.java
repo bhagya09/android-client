@@ -78,6 +78,7 @@ import com.bsb.hike.media.PickContactParser;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.PhonebookContact;
@@ -1541,6 +1542,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						if(offlineContact!=null)
 						{
 							ConvMessage offlineConvMessage = new ConvMessage(convMessage);
+							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 							offlineMessageList.add(offlineConvMessage);
 						}
 					}else if(msgExtrasJson.has(HikeConstants.Extras.POKE)){
@@ -1560,6 +1562,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						if(offlineContact!=null)
 						{
 							ConvMessage offlineConvMessage = new ConvMessage(convMessage);
+							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 							offlineMessageList.add(offlineConvMessage);
 						}
 					}
@@ -1620,6 +1623,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							{
 								  //To Do how to check if is OnHike()
 								  ConvMessage offlineConvMessage = OfflineUtils.createOfflineContactConvMessage(offlineContact.getMsisdn(),contactJson,true);
+								  offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 								  offlineMessageList.add(offlineConvMessage);
 							}
 						}
@@ -1647,6 +1651,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							ArrayList<ContactInfo> offlineList = new ArrayList<>();
 							offlineList.add(offlineContact);
 							ConvMessage offlineConvMessage = sendSticker(sticker, categoryId,offlineList, StickerManager.FROM_FORWARD);
+							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 							offlineMessageList.add(offlineConvMessage);
 						}
 					}else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.CONTENT){
@@ -1664,6 +1669,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
                         if(offlineContact!=null)
 						{
                         	ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
+                        	offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
                         	offlineMessageList.add(offlineConvMessage);
 						}
 						multipleMessageList.add(convMessage);
@@ -1688,6 +1694,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						if(offlineContact!=null)
 						{
 							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
+							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
                         	offlineMessageList.add(offlineConvMessage);
 						}
 						multipleMessageList.add(convMessage);
