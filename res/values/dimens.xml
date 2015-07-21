@@ -67,7 +67,7 @@
     <dimen name="overflow_menu_width">189dp</dimen>
 
     <!-- Default height of an action bar. -->
-    <dimen name="st__action_bar_default_height">48dip</dimen>
+    <dimen name="st__action_bar_default_height">56dip</dimen>
     <!-- Text size for action bar titles -->
     <dimen name="ab__action_bar_title_text_size">10dp</dimen>
     <!-- Text size for action bar subtitles -->
@@ -76,6 +76,8 @@
     <dimen name="ab__action_bar_subtitle_top_margin">-3dp</dimen>
     <!-- Bottom margin for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_bottom_margin">5dip</dimen>
+    <dimen name="ab__status_bar_height">24dp</dimen>
+    <dimen name="ab__top_margin_including_status_bar">80dp</dimen>
     <dimen name="share_my_location_drawable_width">13dp</dimen>
     <dimen name="share_my_location_drawable_padding">6dp</dimen>
     <dimen name="gift_box_bottom_width">280dp</dimen>

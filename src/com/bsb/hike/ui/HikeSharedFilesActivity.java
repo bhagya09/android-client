@@ -189,6 +189,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 		actionBarView.setBackgroundResource(android.R.color.transparent);

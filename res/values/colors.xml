@@ -240,6 +240,10 @@
     <color name="selected_country">#566167</color>
     <color name="red_no_network">#ffee5953</color>
     <color name="blue_hike">#0f8fe1</color>
+    <color name="blue_hike_m">#2196F3</color>
+    <color name="blue_hike_status_bar_m">#1976D2</color>
+    <color name="white_hike_m">#F5F5F5</color>
+    <color name="white_hike_status_bar_m">#E0E0E0</color>
     <color name="light_gray_hike">#e7e8e9</color>
     <color name="transparent_white_ab">#3dffffff</color>
     <color name="blue_color_span">#0f8fe1</color>

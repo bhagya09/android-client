@@ -32,7 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
@@ -352,9 +352,9 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		/*
 		 * else part
 		 * */
-		ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();//check if getSupportA
+		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();//check if getSupportA
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		actionBar.setDisplayHomeAsUpEnabled(true);
 		View actionBarView = getActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
 		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header_photo_viewer));
 
@@ -655,7 +655,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 	@Override
 	public void onResume()
 	{
-		if(!((ActionBarActivity) getActivity()).getSupportActionBar().isShowing())
+		if(!((AppCompatActivity) getActivity()).getSupportActionBar().isShowing())
 		{
 			toggleViewsVisibility();
 		}
@@ -691,7 +691,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 	{
 		if (getActivity() != null)
 		{
-			ActionBar actionbar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+			ActionBar actionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 			Animation animation;
 			if (!actionbar.isShowing())
 			{
