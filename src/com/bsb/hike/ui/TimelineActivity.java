@@ -102,8 +102,10 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.timeline);
+		
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
-		backContainer.setOnClickListener(new View.OnClickListener()
+		/*backContainer.setOnClickListener(new View.OnClickListener()
 		{
 
 			@Override
@@ -111,7 +113,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			{
 				onBackPressed();
 			}
-		});
+		});*/
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();

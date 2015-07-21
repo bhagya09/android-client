@@ -48,7 +48,8 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setIcon(R.drawable.ic_top_bar_search);
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
 		View backContainer = actionBarView.findViewById(R.id.back);
@@ -57,7 +58,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.favorites);
 
-		backContainer.setOnClickListener(new View.OnClickListener()
+		/*backContainer.setOnClickListener(new View.OnClickListener()
 		{
 
 			@Override
@@ -65,7 +66,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 			{
 				onBackPressed();
 			}
-		});
+		});*/
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
@@ -91,12 +92,10 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	{
 		
 		final SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-		searchView.setIconifiedByDefault(false);
-		searchView.setIconified(false);
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchView.clearFocus();
 
-		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 1, R.string.search);
+		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 100, R.string.search);
 		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchItem.setIcon(R.drawable.ic_top_bar_search), searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener()
 		{
@@ -118,7 +117,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 
 		return true;
 	}
-
+	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{

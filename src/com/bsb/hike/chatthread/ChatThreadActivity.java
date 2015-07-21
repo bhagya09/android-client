@@ -138,7 +138,8 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	{	
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		Logger.i(TAG, "OnCreate Options Menu Called");
 		return chatThread.onCreateOptionsMenu(menu) ? true : super.onCreateOptionsMenu(menu);
 

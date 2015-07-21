@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -41,6 +42,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -415,12 +418,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}, STEALTH_INDICATOR_DURATION);
 	}
 
-	private void setupSearchActionBar()
-	{
-		showingSearchModeActionBar = true;
-
-	}
-
 	private void initialiseHomeScreen(Bundle savedInstanceState)
 	{
 
@@ -690,7 +687,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		        }
 				toggleMenuItems(menu, false);
 				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
-				setupSearchActionBar();
+				showingSearchModeActionBar = true;
 				return true;
 			}
 
@@ -762,7 +759,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 
-					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
+					Intent intent = new Intent(HomeActivity.this, NewChatActivity.class);
 					intent.putExtra(HikeConstants.Extras.EDIT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);

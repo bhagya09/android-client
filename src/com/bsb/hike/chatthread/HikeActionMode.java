@@ -251,7 +251,6 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 		 * Also hide doneButton containers
 		 */
 		hideView(R.id.done_container);
-		hideView(R.id.done_container_divider);
 	}
 	
 	/**
