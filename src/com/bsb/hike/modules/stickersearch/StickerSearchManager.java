@@ -28,6 +28,7 @@ import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class StickerSearchManager
@@ -44,9 +45,12 @@ public class StickerSearchManager
 	
 	private boolean isFirstPhraseOrWord = false;
 	
+	private int numStickersVisibleAtOneTime;
+	
 	private StickerSearchManager()
 	{
 		searchEngine = new StickerSearchEngine();
+		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
 		setAlarmFirstTime();
 	}
 
@@ -326,5 +330,15 @@ public class StickerSearchManager
 	{
 		RebalancingTask rebalancingTask = new RebalancingTask(intent);
 		searchEngine.runOnQueryThread(rebalancingTask);
+	}
+
+	public int getNumStickersVisibleAtOneTime()
+	{
+		return numStickersVisibleAtOneTime;
+	}
+
+	public void setNumStickersVisibleAtOneTime(int numStickersVisibleAtOneTime)
+	{
+		this.numStickersVisibleAtOneTime = numStickersVisibleAtOneTime;
 	}
 }

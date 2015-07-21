@@ -1927,6 +1927,10 @@ public class HikeConstants
 		
 		public static final String STICKER_RECOMMENDATION_SETTING_STATE = "srSTs";
 		
+		public static final String STICKER_RECOMMENDATION_REJECTION_KEY = "srCrP";
+		
+		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
+		
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
 		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
@@ -2959,4 +2963,14 @@ public class HikeConstants
 	}
 	
 	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
+	
+	public static final String TAGGED_PHRASE = "tg";
+	
+	public static final String TAP_WORD = "tap";
+	
+	public static final String ACCURACY = "ac";
+	
+	public static final String STICKER_ID = "stkId";
+	
+	public static final String CATEGORY_ID = "catId";
 }

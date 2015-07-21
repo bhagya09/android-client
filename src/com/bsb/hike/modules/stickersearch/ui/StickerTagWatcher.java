@@ -268,9 +268,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedPlace)
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectIndex, int size)
 	{
-		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedPlace + ")");
+		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectIndex + ")");
 
 		if (stickerPickerListener == null)
 		{
@@ -298,12 +298,19 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			selectSearchText();
 		}
+		
+		//send Analytics
+		StickerManager.getInstance().sendRecommendationSelectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), sticker.getStickerId(), sticker.getCategoryId(), selectIndex + 1, size, StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
+
 	}
 
 	@Override
-	public void onCloseClicked()
+	public void onCloseClicked(String word, String phrase)
 	{
 		dismissStickerSearchPopup();
+		
+		//send Analyics
+		StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_CROSS, word, phrase);
 	}
 
 	@Override
@@ -311,6 +318,45 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		IntentFactory.openSettingChat(activity);
 		StickerManager.getInstance().sendRecommendationPanelSettingsButtonClickAnalytics();
+	}
+	
+	@Override
+	public void showStickerRecommendFtueTip()
+	{
+		if(!shownStickerRecommendFtueTip && chatthread.isKeyboardOpen())
+		{
+			Logger.d(TAG, "show recommend ftue tip");
+			chatthread.showStickerRecommendTip();
+		}
+	}
+	
+	@Override
+	public void setStickerRecommendFtueSeen()
+	{
+		if(chatthread.isKeyboardOpen())
+		{
+			Logger.d(TAG, "set recommend ftue tip seen");
+			chatthread.setStickerRecommendFtueTipSeen();
+		}
+	}
+	
+	@Override
+	public void dismissStickerRecommendFtueTip()
+	{
+		Logger.d(TAG, "dismiss recommend ftue tip");
+		chatthread.dismissStickerRecommendTip();
+	}
+
+	@Override
+	public void clearSearchText()
+	{
+		chatthread.clearComposeText();
+	}
+
+	@Override
+	public void selectSearchText()
+	{
+		chatthread.selectAllComposeText();
 	}
 
 	public boolean isStickerRecommnedPoupShowing()
@@ -354,43 +400,14 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			return true;
 		}
 	};
-
-	@Override
-	public void showStickerRecommendFtueTip()
+	
+	public void sendIgnoreAnalytics()
 	{
-		if(!shownStickerRecommendFtueTip && chatthread.isKeyboardOpen())
+		if(isStickerRecommnedPoupShowing() && fragment != null)
 		{
-			Logger.d(TAG, "show recommend ftue tip");
-			chatthread.showStickerRecommendTip();
+			StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_IGNORE, ((StickerRecommendationFragment) fragment).getTappedWord(), ((StickerRecommendationFragment) fragment).getTaggedPhrase());
 		}
 	}
-	
-	@Override
-	public void setStickerRecommendFtueSeen()
-	{
-		if(chatthread.isKeyboardOpen())
-		{
-			Logger.d(TAG, "set recommend ftue tip seen");
-			chatthread.setStickerRecommendFtueTipSeen();
-		}
-	}
-	
-	@Override
-	public void dismissStickerRecommendFtueTip()
-	{
-		Logger.d(TAG, "dismiss recommend ftue tip");
-		chatthread.dismissStickerRecommendTip();
-	}
 
-	@Override
-	public void clearSearchText()
-	{
-		chatthread.clearComposeText();
-	}
-
-	@Override
-	public void selectSearchText()
-	{
-		chatthread.selectAllComposeText();
-	}
+	
 }

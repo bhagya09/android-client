@@ -1033,10 +1033,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
-			dismissStickerRecommendationPopup();
-			dismissStickerRecommendTip();
 			sendMessageForStickerRecommendLearning();
 			sendMessage();
+			dismissStickerRecommendationPopup();
+			dismissStickerRecommendTip();
 		}
 	}
 
@@ -1091,6 +1091,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return;
 		}
 		StickerSearchManager.getInstance().sentMessage(message, null, null, null);
+		
+		if(stickerTagWatcher!= null)
+		{
+			stickerTagWatcher.sendIgnoreAnalytics();
+		}
 	}
 	
 	protected void audioRecordClicked()
