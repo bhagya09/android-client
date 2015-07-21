@@ -32,6 +32,7 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -586,11 +587,11 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to upload profile picture to the server, compose related timeline post
-	 * 
-	 * @param httpApi
-	 *            TODO
+	 * @param msisdn :-  null for case of  User DP upload
+	 * 						  if not null:- group DP upload
+	 *            
 	 */
-	public void uploadProfilePicture(String httpApi)
+	public void uploadProfilePicture(String msisdn)
 	{
 		if (mActivityState.destFilePath != null)
 		{
@@ -608,7 +609,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		    {
 		    	Logger.d(TAG, "starting new mImageLoaderFragment");
 		    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-		    	mActivityState.mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, mLocalMSISDN, true, true);
+		    	mActivityState.mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, msisdn, true, true);
 		    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
 		        fm.beginTransaction().add(mActivityState.mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
 		    }
