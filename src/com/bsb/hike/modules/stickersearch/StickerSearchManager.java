@@ -255,6 +255,10 @@ public class StickerSearchManager
 			listener.dismissStickerSearchPopup();
 			listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
 		}
+		else
+		{
+			listener.dismissStickerSearchPopup();
+		}
 	}
 	
 
