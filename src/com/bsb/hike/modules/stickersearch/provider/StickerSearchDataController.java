@@ -227,7 +227,7 @@ public enum StickerSearchDataController
 														tag = tag.trim().toLowerCase(Locale.ENGLISH);
 														themeList.add(tag);
 
-														if (!HikeStickerSearchBaseConstants.THEME_DEFAULT.equalsIgnoreCase(tag))
+														if (!HikeStickerSearchBaseConstants.THEME_TAG_DEFAULT.equalsIgnoreCase(tag))
 														{
 															tag = tag.trim().toUpperCase(Locale.ENGLISH);
 															tagList.add(tag);
@@ -429,7 +429,7 @@ public enum StickerSearchDataController
 					}
 					else
 					{
-						Logger.w(TAG, "setupStickerSearchWizard(), No story is attached for pack: " + packId);
+						Logger.wtf(TAG, "setupStickerSearchWizard(), No story is attached for pack: " + packId);
 						ArrayList<String> stories = new ArrayList<String>();
 						stories.add(HikeStickerSearchBaseConstants.STORY_DEFAULT);
 						packStoryData.put(packId, stories);
@@ -443,7 +443,10 @@ public enum StickerSearchDataController
 
 			Logger.v(TAG, "setupStickerSearchWizard(), Pack-Story data: " + packStoryData);
 			Logger.v(TAG, "setupStickerSearchWizard(), Sticker-Tag data: " + stickersTagData);
-			HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
+			if (stickersTagData.size() > 0)
+			{
+				HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
+			}
 
 			Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
 			if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
