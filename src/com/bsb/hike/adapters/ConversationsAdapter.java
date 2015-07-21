@@ -980,7 +980,7 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			// Using this to differentiate the normal chat and Offline Chat
 			//TODO:set Offline asset here
-			if(convInfo.getLastConversationMsg().isOfflineMessage())
+			if(OfflineUtils.isConnectedToSameMsisdn(convInfo.getMsisdn()))
 			{
 				imgStatus.setVisibility(View.VISIBLE);
 				imgStatus.setImageResource(R.drawable.freehike_logo);
@@ -1009,7 +1009,8 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
 		}
-		if(convInfo.getLastConversationMsg().isOfflineMessage())
+		
+		if(OfflineUtils.isConnectedToSameMsisdn(convInfo.getMsisdn()))
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.welcome_blue));
 		}
