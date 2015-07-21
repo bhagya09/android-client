@@ -1352,6 +1352,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 	}
 	
+	// if we are in connecting state or connected offline in case of block need to break the connection
+	@Override
+	protected void onBlockUserclicked()
+	{
+		if (OfflineUtils.isConnectedToSameMsisdn(msisdn) || OfflineUtils.isConnectingToSameMsisdn(msisdn))
+		{
+			stopFreeHikeConnection();
+		}
+		super.onBlockUserclicked();
+	}
+	
 	private void stopFreeHikeConnection() 
 	{
 		showToast(R.string.user_disconnect);
