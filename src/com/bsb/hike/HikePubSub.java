@@ -403,6 +403,8 @@ public class HikePubSub implements Runnable
 	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
+
+	public static final String OFFLINE_MESSAGE_SENT = "offlineMessageSent";
 	
 	private final Thread mThread;
 

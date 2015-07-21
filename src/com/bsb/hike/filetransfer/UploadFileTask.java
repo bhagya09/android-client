@@ -244,6 +244,7 @@ public class UploadFileTask extends FileTransferBase
 		Logger.d("OfflineManager","Message Metadata is "+((ConvMessage) userContext).getMetadata().getJSON());
 		((ConvMessage) userContext).setMessageOriginType(OriginType.OFFLINE);
 		HikeConversationsDatabase.getInstance().addConversationMessages((ConvMessage) userContext, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_MESSAGE_SENT, (ConvMessage) userContext);
 	}
 
 	protected void setFutureTask(FutureTask<FTResult> fuTask)

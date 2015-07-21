@@ -53,14 +53,10 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		context = HikeMessengerApp.getInstance().getApplicationContext();
 	}
 
-	public SenderConsignment getFileConsignment(String filePath, String fileKey,
-			HikeFileType hikeFileType, String fileType, boolean isRecording,
-			long recordingDuration, int attachmentType, String msisdn,
-			String apkLabel) 
+	public SenderConsignment getFileConsignment(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
+			int attachmentType, String msisdn, String apkLabel)
 	{
-		ConvMessage convMessage = getConvMessageForFileTransfer(filePath,
-				fileKey, hikeFileType, fileType, isRecording,
-				recordingDuration, attachmentType, msisdn, apkLabel);
+		ConvMessage convMessage = getConvMessageForFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, apkLabel);
 		return getFileConsignment(convMessage, true);
 	}
 
@@ -68,15 +64,12 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	{
 		String filePath = OfflineUtils.getFilePathFromJSON(convMessage.serialize());
 		File file = new File(filePath);
-		SenderConsignment senderConsignment = new SenderConsignment.Builder(
-				convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC)
-				.file(file).persistance(persistence).ackRequired(true).build();
+		SenderConsignment senderConsignment = new SenderConsignment.Builder(convMessage.serialize().toString(), OfflineConstants.FILE_TOPIC).file(file).persistance(persistence)
+				.ackRequired(true).build();
 		senderConsignment.setTag(convMessage);
 		senderConsignment.setAwb(convMessage.getMsgID());
-		
-		FileTransferModel fileTransferModel = new FileTransferModel(
-				new TransferProgress(0, OfflineUtils.getTotalChunks((int) file
-						.length())), convMessage);
+
+		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) file.length())), convMessage);
 		fileManager.addToCurrentSendingFile(convMessage.getMsgID(), fileTransferModel);
 		return senderConsignment;
 	}
@@ -91,10 +84,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		String fileName = file.getName();
 		if (type == HikeFileType.APK.ordinal())
 			fileName = apkLabel + ".apk";
-		ConvMessage convMessage = FileTransferManager.getInstance(context)
-				.uploadOfflineFile(msisdn, file, fileKey, fileType,
-						hikeFileType, isRecording, recordingDuration,
-						attachmentType, fileName);
+		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, recordingDuration,
+				attachmentType, fileName);
 		return convMessage;
 	}
 

@@ -57,6 +57,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;

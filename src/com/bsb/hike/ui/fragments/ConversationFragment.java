@@ -124,7 +124,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
 			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
-			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE };
+			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT };
 
 	private ConversationsAdapter mAdapter;
 
@@ -1932,70 +1932,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		Logger.d(getClass().getSimpleName(), "Event received: " + type);
 		
-		if ((HikePubSub.MESSAGE_RECEIVED.equals(type)) || (HikePubSub.MESSAGE_SENT.equals(type)) )
+		if ((HikePubSub.MESSAGE_RECEIVED.equals(type)) || (HikePubSub.MESSAGE_SENT.equals(type)) || HikePubSub.OFFLINE_MESSAGE_SENT.equals(type))
 		{
-			Logger.d(getClass().getSimpleName(), "New msg event sent or received.");
 			ConvMessage message = (ConvMessage) object;
-			/* find the conversation corresponding to this message */
-			String msisdn = message.getMsisdn();
-			final ConvInfo conv = mConversationsByMSISDN.get(msisdn);
-
-			if (conv == null)
-			{
-				// When a message gets sent from a user we don't have a
-				// conversation for, the message gets
-				// broadcasted first then the conversation gets created. It's
-				// okay that we don't add it now, because
-				// when the conversation is broadcasted it will contain the
-				// messages
-				return;
-			}
-			if (Utils.shouldIncrementCounter(message))
-			{
-				conv.setUnreadCount(conv.getUnreadCount() + 1);
-			}
-
-			if (message.getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE)
-			{
-				if (conv.getLastConversationMsg() != null)
-				{
-					ConvMessage prevMessage = conv.getLastConversationMsg();
-					String metadata = message.getMetadata().serialize();
-					message = new ConvMessage(message.getMessage(), message.getMsisdn(), prevMessage.getTimestamp(), prevMessage.getState(), prevMessage.getMsgID(),
-							prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn());
-					try
-					{
-						message.setMetadata(metadata);
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-				}
-			}
-
-			final ConvMessage finalMessage = message;
-
-			if (conv.getLastConversationMsg() != null)
-			{
-				if (finalMessage.getMsgID() < conv.getLastConversationMsg().getMsgID())
-				{
-					return;
-				}
-			}
-			if (!isAdded())
-			{
-				return;
-			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					addMessage(conv, finalMessage, true);
-				}
-			});
-
+			updateUIWithLastMessage(message);
 		}
 		else if (HikePubSub.LAST_MESSAGE_DELETED.equals(type))
 		{
@@ -3613,6 +3553,72 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public void onFilterComplete(int count) {
 		setEmptyState(mAdapter != null && mAdapter.isEmpty());
+	}
+	
+	private void updateUIWithLastMessage(ConvMessage message)
+	{
+		Logger.d(getClass().getSimpleName(), "New msg event sent or received.");
+		/* find the conversation corresponding to this message */
+		String msisdn = message.getMsisdn();
+		final ConvInfo conv = mConversationsByMSISDN.get(msisdn);
+
+		if (conv == null)
+		{
+			// When a message gets sent from a user we don't have a
+			// conversation for, the message gets
+			// broadcasted first then the conversation gets created. It's
+			// okay that we don't add it now, because
+			// when the conversation is broadcasted it will contain the
+			// messages
+			return;
+		}
+		if (Utils.shouldIncrementCounter(message))
+		{
+			conv.setUnreadCount(conv.getUnreadCount() + 1);
+		}
+
+		if (message.getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE)
+		{
+			if (conv.getLastConversationMsg() != null)
+			{
+				ConvMessage prevMessage = conv.getLastConversationMsg();
+				String metadata = message.getMetadata().serialize();
+				message = new ConvMessage(message.getMessage(), message.getMsisdn(), prevMessage.getTimestamp(), prevMessage.getState(), prevMessage.getMsgID(),
+						prevMessage.getMappedMsgID(), message.getGroupParticipantMsisdn());
+				try
+				{
+					message.setMetadata(metadata);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		final ConvMessage finalMessage = message;
+
+		if (conv.getLastConversationMsg() != null)
+		{
+			if (finalMessage.getMsgID() < conv.getLastConversationMsg().getMsgID())
+			{
+				return;
+			}
+		}
+		if (!isAdded())
+		{
+			return;
+		}
+		getActivity().runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				addMessage(conv, finalMessage, true);
+			}
+		});
+
+	
 	}
 
 }

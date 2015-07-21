@@ -156,6 +156,7 @@ public class OfflineController
 	private void saveToDb(ConvMessage convMessage)
 	{
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_MESSAGE_SENT, convMessage);
 		SenderConsignment msgConsignment = hikeConverter.getMessageConsignment(convMessage, true);
 		offlineManager.sendConsignment(msgConsignment);
 	}
@@ -192,21 +193,20 @@ public class OfflineController
 	public void sendFile(Intent intent ,JSONObject msgExtrasJson, String msisdn)
 	{
 		String fileKey = null;
-		try {
-			if (msgExtrasJson.has(HikeConstants.Extras.FILE_KEY)) {
-				fileKey = msgExtrasJson
-						.getString(HikeConstants.Extras.FILE_KEY);
+		try
+		{
+			if (msgExtrasJson.has(HikeConstants.Extras.FILE_KEY))
+			{
+				fileKey = msgExtrasJson.getString(HikeConstants.Extras.FILE_KEY);
 			}
-			String filePath = msgExtrasJson
-					.getString(HikeConstants.Extras.FILE_PATH);
-			String fileType = msgExtrasJson
-					.getString(HikeConstants.Extras.FILE_TYPE);
+			String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
+			String fileType = msgExtrasJson.getString(HikeConstants.Extras.FILE_TYPE);
 
 			boolean isRecording = false;
 			long recordingDuration = -1;
-			if (msgExtrasJson.has(HikeConstants.Extras.RECORDING_TIME)) {
-				recordingDuration = msgExtrasJson
-						.getLong(HikeConstants.Extras.RECORDING_TIME);
+			if (msgExtrasJson.has(HikeConstants.Extras.RECORDING_TIME))
+			{
+				recordingDuration = msgExtrasJson.getLong(HikeConstants.Extras.RECORDING_TIME);
 				isRecording = true;
 				fileType = HikeConstants.VOICE_MESSAGE_CONTENT_TYPE;
 			}
@@ -215,26 +215,26 @@ public class OfflineController
 			/*
 			 * Added to know the attachment type when selected from file.
 			 */
-			if (intent.hasExtra(FTAnalyticEvents.FT_ATTACHEMENT_TYPE)) {
+			if (intent.hasExtra(FTAnalyticEvents.FT_ATTACHEMENT_TYPE))
+			{
 				attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
 
 			}
 
-			HikeFileType hikeFileType = HikeFileType.fromString(fileType,
-					isRecording);
-			if (filePath == null) {
-				Toast.makeText(
-						HikeMessengerApp.getInstance().getApplicationContext(),
-						R.string.unknown_msg, Toast.LENGTH_SHORT).show();
-			} else {
-				SenderConsignment fileConsignment = hikeConverter
-						.getFileConsignment(filePath, fileKey, hikeFileType,
-								fileType, isRecording, recordingDuration,
-								attachmentType, msisdn, null);
+			HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
+			if (filePath == null)
+			{
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			}
+			else
+			{
+				SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType,
+						msisdn, null);
 				offlineManager.sendConsignment(fileConsignment);
 			}
-		} 
-		catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			Logger.e(TAG, "Incorrect JSON");
 		}
 	}
@@ -377,10 +377,11 @@ public class OfflineController
 		}
 	}
 
-	public void sendfile(String filePath , String fileKey, HikeFileType hikeFileType,
-			String fileType, boolean isRecording, long recordingDuration,
-			int attachmentType, String msisdn,String apkLabel) {
-		SenderConsignment  fileConsignment = hikeConverter.getFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, apkLabel);
+	public void sendfile(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration, int attachmentType,
+			String msisdn, String apkLabel)
+	{
+		SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn,
+				apkLabel);
 		offlineManager.sendConsignment(fileConsignment);
 	}
 	
