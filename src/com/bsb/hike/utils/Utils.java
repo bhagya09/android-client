@@ -5953,7 +5953,7 @@ public class Utils {
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
 		int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
-		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, imageCompressQuality);
+		Utils.copyFile(srcFilePath, destFilePath);
 
 		if (setIcon)
 		{
