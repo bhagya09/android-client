@@ -1572,5 +1572,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="now">Now</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
-
+    <string name= "connected_previously">You are connected to <![CDATA[%1$s]]>.Disconnect that connection first</string>
+    <string name= "connecting_previously">You are already connecting to <![CDATA[%1$s]]>. Disconnect that connection first</string>
+    <string name= "connecting_previously_to_same_msisdn">You are already connecting to <![CDATA[%1$s]]> .  Please wait</string>
 </resources>

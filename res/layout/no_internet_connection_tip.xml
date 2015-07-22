@@ -3,9 +3,9 @@
     android:id = "@+id/network_error_chat_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-    android:layout_marginTop="20dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginTop="5dp"
     android:background="@drawable/no_internet_card_background"
     android:orientation="vertical" >
 
@@ -23,10 +23,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:paddingBottom="5dp"
+            android:paddingBottom="3dp"
             android:text="@string/no_internet_connection"
             android:textColor="@color/actionbar_text"
-            android:textSize="15sp"
+            android:textSize="12sp"
           />
 
         <com.bsb.hike.view.CustomFontTextView
@@ -36,7 +36,7 @@
             android:fontFamily="sans-serif"
             android:text="@string/scan_free_hike_connection"
             android:textColor="@color/actionbar_text"
-            android:textSize="17.5sp"
+            android:textSize="13sp"
          />
         
     </LinearLayout>

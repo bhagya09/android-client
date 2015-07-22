@@ -34,7 +34,6 @@ public class ConnectionManager implements ChannelListener
 	private WifiManager wifiManager;
 	private WifiP2pManager wifiP2pManager;
 	private Channel channel;
-    private String myMsisdn =null;
 	private String TAG = ConnectionManager.class.getName();
     private WifiConfiguration prevConfig = null;
 	private int connectedNetworkId = -1;
@@ -52,7 +51,6 @@ public class ConnectionManager implements ChannelListener
         wifiP2pManager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
         channel = wifiP2pManager.initialize(context, looper, this);
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        myMsisdn = OfflineUtils.getMyMsisdn();
 	}
 	
 	public void setDeviceNameAsMsisdn() {
@@ -62,10 +60,10 @@ public class ConnectionManager implements ChannelListener
         try {
 			Method m = wifiP2pManager.getClass().getMethod("setDeviceName", new Class[]{channel.getClass(), String.class,
 						WifiP2pManager.ActionListener.class});
-			m.invoke(wifiP2pManager, channel, myMsisdn, new WifiP2pManager.ActionListener() {
+			m.invoke(wifiP2pManager, channel, OfflineUtils.getMyMsisdn(), new WifiP2pManager.ActionListener() {
 				@Override
 				public void onSuccess() {
-					Log.d(TAG, "Device Name changed to " + myMsisdn);
+					
 				}
 				@Override
 				public void onFailure(int reason) {
@@ -85,7 +83,7 @@ public class ConnectionManager implements ChannelListener
 	
 	public Boolean connectToHotspot(String targetMsisdn) 
 	{
-		String ssid = OfflineUtils.getSsidForMsisdn(myMsisdn,targetMsisdn);
+		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(),targetMsisdn);
 		Log.d("OfflineManager","SSID is "+ssid);
 		WifiConfiguration wifiConfig = new WifiConfiguration();
 		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
@@ -221,7 +219,7 @@ public class ConnectionManager implements ChannelListener
 		{
 			boolean cond = !(TextUtils.isEmpty(scanResult.SSID));
 			scanResult.SSID = OfflineUtils.decodeSsid(scanResult.SSID);
-			if(cond && scanResult.SSID.contains(myMsisdn))
+			if(cond && scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
 			{
 				if(!distinctNetworks.containsKey(scanResult))
 				{
@@ -293,7 +291,7 @@ public class ConnectionManager implements ChannelListener
 			Log.e(TAG,e.toString());
 			return result;
 		}
-		String ssid  =   OfflineUtils.getSsidForMsisdn(targetMsisdn, myMsisdn);
+		String ssid  =   OfflineUtils.getSsidForMsisdn(targetMsisdn,OfflineUtils.getMyMsisdn());
 		Log.d("OfflineManager","SSID is "+ssid);
 		String encryptedSSID = OfflineUtils.encodeSsid(ssid);
 		Log.d(TAG, encryptedSSID);
@@ -427,7 +425,7 @@ public class ConnectionManager implements ChannelListener
 	{
 		boolean isConnected = false;
 		
-		String encodedSSID = OfflineUtils.encodeSsid(OfflineUtils.getSsidForMsisdn(myMsisdn, msisdn));
+		String encodedSSID = OfflineUtils.encodeSsid(OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(), msisdn));
 		String connectedToSSID = wifiManager.getConnectionInfo().getSSID();
 		
 		// removing quotes.

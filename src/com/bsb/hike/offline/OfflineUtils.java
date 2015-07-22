@@ -623,7 +623,7 @@ public class OfflineUtils
 		return HikeConstants.MqttMessageTypes.MESSAGE_READ.equals(messageJSON.optString(HikeConstants.TYPE));
 	}
 
-	public static String getconnectedMsisdn() {
+	public static String getConnectedMsisdn() {
 		return OfflineController.getInstance().getConnectedDevice();
 	}
 
@@ -637,6 +637,11 @@ public class OfflineUtils
 	{	
 		String connectingMsisdn = OfflineController.getInstance().getConnectingDevice(); 
 		return !TextUtils.isEmpty(connectingMsisdn) && connectingMsisdn.equals(msisdn);
+	}
+
+	public static String getConnectingMsisdn()
+	{
+		return OfflineController.getInstance().getConnectingDevice();
 	}
 
 }

@@ -141,7 +141,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private static final int SHOW_CALL_ICON = 115;
 	
-	private static final int OFFLINE_DISCONNECTED = 116;
+	private static final int OFFLINE_CONNECTED = 116;
+	
+	private static final int OFFLINE_DISCONNECTED = 117;
 	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -749,6 +751,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case OFFLINE_DISCONNECTED:
 			onOfflineDisconnection((String)msg.obj);
 			break;
+		case OFFLINE_CONNECTED:
+			onOfflineConnection((String)msg.obj);
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
 			super.handleUIMessage(msg);
@@ -758,10 +762,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 
 
-	private void onOfflineDisconnection(String obj)
+	private void onOfflineConnection(String message)
 	{
-		fetchLastSeen();
+		setLastSeen(message);
+		activity.invalidateOptionsMenu();
 	}
+
+	private void onOfflineDisconnection(String message)
+	{
+		hideLastSeenText();
+		fetchLastSeen();
+		activity.invalidateOptionsMenu();
+	}
+	
 
 	/**
 	 * Method is called from the UI Thread to show the SMS Sync Dialog
@@ -1386,15 +1399,39 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void startFreeHikeConversation()
 	{
-		showToast(R.string.scan_process_started);
-		if(offlineController==null)
+		
+		switch (OfflineController.getInstance().getOfflineState())
 		{
-			offlineController = OfflineController.getInstance();
-			offlineController.addListener(this);
+		case CONNECTED:
+			Toast.makeText(activity, getResources().getString(R.string.connected_previously,
+					OfflineUtils.getConnectedMsisdn()), Toast.LENGTH_SHORT).show();
+			break;
+		case CONNECTING:
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				Toast.makeText(activity, getResources().getString(R.string.connecting_previously_to_same_msisdn,
+						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
+			}
+			else
+			{
+				Toast.makeText(activity, getResources().getString(R.string.connecting_previously,
+						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
+			}
+			break;
+		case NOT_CONNECTED:
+		case DISCONNECTED:
+			showToast(R.string.scan_process_started);
+			if(offlineController==null)
+			{
+				offlineController = OfflineController.getInstance();
+				offlineController.addListener(this);
+			}
+			offlineController.connectAsPerMsisdn(mConversation.getMsisdn());
+			setupOfflineUI();
+			break;
 		}
-		offlineController.connectAsPerMsisdn(mConversation.getMsisdn());
-		setupOfflineUI();
 	}
+	
 
 	@Override
 	protected String getMsisdnMainUser()
@@ -1479,17 +1516,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void showNetworkError(boolean isNetworkError) 
 	{
-		/*TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
-		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
-		String contactFirstName = msisdn;
-		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+		if(isNetworkError && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
-			contactFirstName = contactInfo.getFirstName();
+			TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
+			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+			String contactFirstName = msisdn;
+			if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+			{
+				contactFirstName = contactInfo.getFirstName();
+			}
+			textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
+			activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+			activity.findViewById(R.id.network_error_card).setOnClickListener(this);
 		}
-		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
-		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
-		activity.findViewById(R.id.free_hike_no_netwrok_btn).setOnClickListener(this);*/
-		super.showNetworkError(isNetworkError);
 	};
 
 	/**
@@ -2240,7 +2279,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case R.id.info_layout:
 			updateChatMetadata();
 			break;
-		case R.id.free_hike_no_netwrok_btn:
+		case R.id.network_error_card:
 			startFreeHikeConversation();
 			break;
 		case R.id.free_hike_cancel:
@@ -2777,7 +2816,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike();
+		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !OfflineUtils.isConnectedToSameMsisdn(msisdn);
 	}
 	
 	/*
@@ -2814,7 +2853,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				}
 				else
 				{
-					overFlowMenuItem.enabled = !mConversation.isBlocked();
+					overFlowMenuItem.enabled = ( !mConversation.isBlocked() && !OfflineUtils.isConnectedToSameMsisdn(msisdn) );
 				}
 				break;
 				
@@ -2835,7 +2874,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				{
 					overFlowMenuItem.text = getString(R.string.disconnect_offline);
 				}
-				
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
 			}
 		}
@@ -2890,8 +2929,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		//TODO  - Handle Animation 
-		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
+		//TODO  - Handle Animation
+		sendUIMessage(OFFLINE_CONNECTED,getString(R.string.connection_established));
 		changeChannel(true);
 		clearAttachmentPicker();
 	}
