@@ -61,7 +61,6 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
-import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
@@ -148,7 +147,7 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, DefaultRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(lastSeenUrl() + "/" + msisdn)
@@ -160,7 +159,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken BulkLastSeenRequest(IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken BulkLastSeenRequest(IRequestListener requestListener, DefaultRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(bulkLastSeenUrl())
