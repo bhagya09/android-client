@@ -876,4 +876,14 @@
 	    <item name="android:layout_marginTop">4dp</item>
 	</style>
 	
+	<style name="SettingsSectionHeaderText" parent="ListSectionTextView">
+	    <item name="android:layout_marginTop">30dp</item>
+	    <item name="android:layout_marginBottom">8dp</item>
+	    <item name="android:layout_marginLeft">16dp</item>
+	    <item name="android:layout_marginRight">16dp</item>
+	    <item name="android:ellipsize">end</item>
+	    <item name="android:gravity">center_vertical</item>
+	    
+	</style>
+	
 </resources>
