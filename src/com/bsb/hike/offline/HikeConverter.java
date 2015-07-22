@@ -187,7 +187,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				setFileVariablesAndUpdateJSON(messageJSON);
 				ConvMessage convMessage = new ConvMessage(messageJSON, context);
 				
-				if (addToDatabase(convMessage))
+				if (!addToDatabase(convMessage))
 					return;
 				
 				fileManager.handleMessageReceived(convMessage);
@@ -221,7 +221,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				{
 					receiverConsignment.setTag(convMessage);
 				}
-				if (addToDatabase(convMessage))
+				if (!addToDatabase(convMessage))
 					return;
 			}
 		} 
