@@ -1557,6 +1557,46 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 	
 	/**
+	 * Updates all rows of Feed_Table to 1 (i.e marks all Feeds as read)
+	 * @return
+	 */
+	public boolean updateActivityFeedReadStatus()
+	{
+		boolean isComplete = false;
+		ContentValues conVal = new ContentValues();
+		conVal.put(DBConstants.READ, 1);
+		
+		String where = DBConstants.READ + " = 0 ";
+		long rowID = mDb.update(DBConstants.FEED_TABLE, conVal, where, null);
+
+		if (rowID == -1L)
+		{
+			isComplete = false;
+		}
+		else
+		{
+			isComplete = true;
+		}
+
+		return isComplete;
+	}
+	
+	/**
+	 * 
+	 * @param currentPage 
+	 * @return
+	 */
+	public Cursor getActivityFeedsCursor()
+	{
+		 String selectQuery = "SELECT  * FROM " + FEED_TABLE + " ft, "
+		            + STATUS_TABLE + " st " + " WHERE ft." + FEED_OBJECT_ID
+		            + " = " + "st." + STATUS_MAPPED_ID + " AND ft." 
+		            + FEED_OBJECT_TYPE + " = '" +  ActivityObjectTypes.STATUS_UPDATE.getTypeString()
+		            + "' ORDER BY ft." + FEED_TS + " DESC";
+		 return mDb.rawQuery(selectQuery, null);
+	}
+	
+	/**
 	 * Extracts the thumbnail string from the metadata to save it in a different table. Returns this extracted string so that it can be set back in the metadata once the insertion
 	 * has been done.
 	 *

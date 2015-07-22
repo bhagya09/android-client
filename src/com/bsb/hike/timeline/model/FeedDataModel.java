@@ -1,13 +1,21 @@
 package com.bsb.hike.timeline.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.utils.Utils;
 
 public class FeedDataModel
 {
@@ -22,11 +30,15 @@ public class FeedDataModel
 	private ActionTypes mActionType;
 	
 	private ActivityObjectTypes mObjType;
+	
+	private int readStatus;
 
 	public FeedDataModel(JSONObject jsonObj) throws JSONException
 	{
 		if (jsonObj.has(HikeConstants.DATA))
 		{
+			setTimestamp(jsonObj.getLong(HikeConstants.TIMESTAMP));
+			
 			final JSONObject jsonData = jsonObj.getJSONObject(HikeConstants.DATA);
 
 			setAction(jsonData.getInt(HikeConstants.SUB_TYPE));
@@ -39,8 +51,6 @@ public class FeedDataModel
 				
 				setObjID(statusId);
 			}
-
-//			setTimestamp(jsonData.getLong(HikeConstants.TIMESTAMP));
 
 			setActor(jsonData.getString(HikeConstants.FROM));
 
@@ -55,6 +65,26 @@ public class FeedDataModel
 		}
 	}
 	
+	public FeedDataModel(Cursor cursor)
+	{
+		if(cursor != null)
+		{
+			setTimestamp(cursor.getInt(cursor.getColumnIndex(DBConstants.FEED_TS)));
+			setReadStatus(cursor.getInt(cursor.getColumnIndex(DBConstants.READ)));
+			setActor(cursor.getString(cursor.getColumnIndex(DBConstants.FEED_ACTOR)));
+			setActionType(cursor.getInt(cursor.getColumnIndex(DBConstants.FEED_ACTION_ID)));
+		}
+		else
+		{
+			throw new IllegalArgumentException("Cursor passed to feed model was null");
+		}
+	}
+	
+	private void setActionType(int actionType)
+	{
+		this.mActionType = ActionTypes.getType(actionType);
+	}
+
 	public int getAction()
 	{
 		return mAction;
@@ -113,5 +143,15 @@ public class FeedDataModel
 	public void setObjType(ActivityObjectTypes mObjType)
 	{
 		this.mObjType = mObjType;
+	}
+	
+	public int getReadStatus()
+	{
+		return readStatus;
+	}
+	
+	public void setReadStatus(int readStatus)
+	{
+		this.readStatus = readStatus;
 	}
 }

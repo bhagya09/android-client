@@ -8,9 +8,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.Utils;
@@ -20,7 +22,48 @@ public class StatusMessage
 
 	public static enum StatusMessageType
 	{
-		TEXT, IMAGE, TEXT_IMAGE, PROFILE_PIC, FRIEND_REQUEST, FRIEND_REQUEST_ACCEPTED, NO_STATUS, USER_ACCEPTED_FRIEND_REQUEST, PROTIP, JOINED_HIKE
+		TEXT(0), IMAGE(1), TEXT_IMAGE(2), PROFILE_PIC(3), FRIEND_REQUEST(4), FRIEND_REQUEST_ACCEPTED(5), NO_STATUS(6), USER_ACCEPTED_FRIEND_REQUEST(7), PROTIP(8), JOINED_HIKE(9); 
+	
+		int mKey;
+
+		StatusMessageType(int argKey)
+		{
+			mKey = argKey;
+		}
+
+		public int getKey()
+		{
+			return mKey;
+		}
+
+		public static StatusMessageType getType(int type)
+		{
+			switch (type)
+			{
+			case 0:
+				return StatusMessageType.TEXT;
+			case 1:
+				return StatusMessageType.IMAGE;
+			case 2:
+				return StatusMessageType.TEXT_IMAGE;
+			case 3:
+				return StatusMessageType.PROFILE_PIC;
+			case 4:
+				return StatusMessageType.FRIEND_REQUEST;
+			case 5:
+				return StatusMessageType.FRIEND_REQUEST_ACCEPTED;
+			case 6:
+				return StatusMessageType.NO_STATUS;
+			case 7:
+				return StatusMessageType.USER_ACCEPTED_FRIEND_REQUEST;
+			case 8:
+				return StatusMessageType.PROTIP;
+			case 9:
+				return StatusMessageType.JOINED_HIKE;
+			default:
+				throw new IllegalArgumentException("Invalid ActionType key");
+			}
+		}
 	}
 
 	private long id;
@@ -119,6 +162,20 @@ public class StatusMessage
 		this.statusMessageType = StatusMessageType.PROTIP;
 	}
 
+	public StatusMessage(Cursor cursor)
+	{
+		if(cursor == null)
+		{
+			throw new IllegalArgumentException("Cursor passed to StatusMessage was null");
+		}
+		this.msisdn = cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN));
+		this.statusMessageType = StatusMessageType.getType(cursor.getInt(cursor.getColumnIndex(DBConstants.STATUS_TYPE)));
+		this.text = cursor.getString(cursor.getColumnIndex(DBConstants.STATUS_TEXT));
+		this.moodId = cursor.getInt(cursor.getColumnIndex(DBConstants.MOOD_ID));
+		this.fileKey = cursor.getString(cursor.getColumnIndex(DBConstants.FILE_KEY));
+		this.mappedId = cursor.getString(cursor.getColumnIndex(DBConstants.STATUS_MAPPED_ID));
+	}
+	
 	public void setId(long id)
 	{
 		this.id = id;
