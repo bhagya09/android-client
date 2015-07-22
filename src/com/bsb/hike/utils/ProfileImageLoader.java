@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
@@ -84,7 +85,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 	{
 		
 		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(msisdn);
-		
+		Log.v("Sriram", "loadProfileImage:::::::::::::::hasCustomImage:::"+hasCustomImage);
 		if (hasCustomImage)
 		{
 			String fileName = Utils.getProfileImageFileName(msisdn);
@@ -114,6 +115,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 					}
 				}
 				Logger.d(getClass().getSimpleName(), "setting image from cache...downloadImage = " + downloadImage);
+				Log.v("Sriram", "loadProfileImage:::::::::::::::setting image from cache.:::");
 				setImageDrawable(drawable);
 			}
 			else
@@ -134,6 +136,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 					
 					BitmapDrawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 					setImageDrawable(drawable);
+					Log.v("Sriram", "loadProfileImage:::::::::::::::setting image from cache Tempo cache.:::");
 				}
 				else
 				{
@@ -144,6 +147,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 			if (downloadImage)
 			{
 				BitmapDrawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+				Log.v("Sriram", "loadProfileImage:::::::::::::::downloadImage.:::");
 				setImageDrawable(drawable);
 
 				loaderManager.initLoader(0, null, this);
@@ -151,6 +155,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		}
 		else
 		{
+			Log.v("Sriram", "loadProfileImage:::::else.:::");
 			setImageDrawable(defaultDrawable);
 		}
 		return hasCustomImage;
@@ -165,6 +170,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		BitmapDrawable drawable = null;
 		if (file.exists())
 		{
+			Log.v("Sriram", "loadProfileImage:::::loadFromFile.:::");
 			Logger.d(getClass().getSimpleName(),"setting final downloaded image...");
 			drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(),
 					HikeBitmapFactory.scaleDownBitmap(basePath + "/" + fileName, imageSize, imageSize, Bitmap.Config.RGB_565,true,false));
@@ -220,6 +226,13 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 
 	private void setImageDrawable(Drawable drawable)
 	{
+		Log.v("Sriram", "Setting image bitmap:::::::::::::::::::");
+		if((drawable != null) && drawable instanceof BitmapDrawable){
+			if(((BitmapDrawable) drawable).getBitmap().isRecycled()){
+				Log.v("Sriram", "Setting image bitmap:::recycled bitmap hence returning it::::::::::::::::");
+				return;
+			}
+		}
 		if(imageView.get() != null)
 		{
 			imageView.get().setImageDrawable(drawable);
