@@ -2910,4 +2910,17 @@ public class HikeConstants
 	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
 
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	
+	public static final class SMS_SETTINGS
+	{
+		public static final String KEY_HIKE_OFFLINE = "hikeOffline";
+
+		public static final String KEY_RECEIVE_SMS_PREF = "receiveSmsPref";
+
+		public static final String FREE_SMS_PREF = "freeSmsPref";
+
+		public static final String KEY_EARN_FREE_SMS = "earnFreeSms";
+		
+		public static final String KEY_INVITE_VIA_SMS = "inviteViaSms";
+	}
 }
