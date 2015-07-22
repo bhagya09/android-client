@@ -80,6 +80,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
@@ -1553,6 +1554,45 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 
 		return isComplete;
+	}
+	
+	/**
+	 * Updates all rows of Feed_Table to 1 (i.e marks all Feeds as read)
+	 * @return
+	 */
+	public boolean updateActivityFeedReadStatus()
+	{
+		boolean isComplete = false;
+		ContentValues conVal = new ContentValues();
+		conVal.put(DBConstants.READ, 1);
+		
+		long rowID = mDb.update(DBConstants.FEED_TABLE, conVal, null, null);
+
+		if (rowID == -1L)
+		{
+			isComplete = false;
+		}
+		else
+		{
+			isComplete = true;
+		}
+
+		return isComplete;
+	}
+	
+	/**
+	 * 
+	 * @param currentPage 
+	 * @return
+	 */
+	public Cursor getActivityFeedsCursor()
+	{
+		 String selectQuery = "SELECT  * FROM " + FEED_TABLE + " ft, "
+		            + STATUS_TABLE + " st " + " WHERE ft." + FEED_OBJECT_ID
+		            + " = " + "st." + STATUS_MAPPED_ID + " AND ft." 
+		            + FEED_OBJECT_TYPE + " = '" +  ActivityObjectTypes.STATUS_UPDATE.getTypeString()
+		            + "' ORDER BY ft." + FEED_TS + " DESC LIMIT 20";
+		 return mDb.rawQuery(selectQuery, null);
 	}
 	
 	/**
