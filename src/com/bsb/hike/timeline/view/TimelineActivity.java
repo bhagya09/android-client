@@ -43,6 +43,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED };
 
+	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -155,8 +156,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		Intent intent = null;
 
-		if (item.getItemId() == R.id.new_update)
+		switch (item.getItemId())
 		{
+		case R.id.new_update:
 			intent = new Intent(this, StatusUpdate.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
@@ -170,17 +172,20 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			{
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
-		}
+			if (intent != null)
+			{
+				startActivity(intent);
+				return true;
+			}
 
-		if (intent != null)
-		{
-			startActivity(intent);
+		case R.id.activity_feed:
+			openActivityFeedFragment();
 			return true;
+
+		default:
+			break;
 		}
-		else
-		{
-			return super.onOptionsItemSelected(item);
-		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -191,8 +196,19 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			IntentFactory.openHomeActivity(TimelineActivity.this, true);
 		}
-
-		super.onBackPressed();
+		else
+		{
+			fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
+			if(!!(fragment != null && fragment.isVisible()))
+			{
+				setupMainFragment(null);
+			}
+			else
+			{
+				super.onBackPressed();
+			}
+		}
+		
 	}
 
 	@Override
@@ -268,5 +284,17 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		Intent intent = new Intent(this, ImageViewerActivity.class);
 		intent.putExtras(arguments);
 		startActivity(intent);
+	}
+	
+	private void openActivityFeedFragment()
+	{
+		ActivityFeedFragment activityFeedFragment = new ActivityFeedFragment();
+
+		getSupportFragmentManager().
+		beginTransaction().
+		add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).
+		addToBackStack(null).
+		commit();
+
 	}
 }
