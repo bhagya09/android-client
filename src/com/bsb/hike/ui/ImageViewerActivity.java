@@ -2,7 +2,6 @@ package com.bsb.hike.ui;
 
 import android.os.Bundle;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -49,23 +48,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 	private View fadeScreen;
 
-	int mLeftDelta;
-
-	int mTopDelta;
-
-	float mWidthScale;
-
-	float mHeightScale;
-
 	private final String TAG = ImageViewerActivity.class.getSimpleName();
-
-	public static final String animFromLeft = "animFromLeft";
-
-	public static final String animFromTop = "animFromTop";
-
-	public static final String animFromWidth = "animFromWidth";
-
-	public static final String animFromHeight = "animFromHeight";
 
 	private String fileKey;
 
@@ -130,22 +113,6 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
-		final int thumbnailTop = extras.getInt(animFromTop);
-
-		final int thumbnailLeft = extras.getInt(animFromLeft);
-
-		final int thumbnailWidth = extras.getInt(animFromWidth);
-
-		final int thumbnailHeight = extras.getInt(animFromHeight);
-
-		Logger.d(TAG, "thumbnailTop " + thumbnailTop);
-
-		Logger.d(TAG, "thumbnailLeft " + thumbnailLeft);
-
-		Logger.d(TAG, "thumbnailWidth " + thumbnailWidth);
-
-		Logger.d(TAG, "thumbnailHeight " + thumbnailHeight);
-
 		ViewTreeObserver observer = imageView.getViewTreeObserver();
 
 		observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
@@ -155,31 +122,6 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 			public boolean onPreDraw()
 			{
 				imageView.getViewTreeObserver().removeOnPreDrawListener(this);
-
-				// Figure out where the thumbnail and full size versions are, relative
-				// to the screen and each other
-				int[] screenLocation = new int[2];
-
-				imageView.getLocationOnScreen(screenLocation);
-
-				mLeftDelta = thumbnailLeft - screenLocation[0];
-
-				mTopDelta = thumbnailTop - screenLocation[1];
-
-				// Scale factors to make the large version the same size as the thumbnail
-				mWidthScale = (float) thumbnailWidth / imageView.getWidth();
-
-				mHeightScale = (float) thumbnailHeight / imageView.getHeight();
-
-				Logger.d(TAG, "imageViewPos x,y - " + screenLocation[0] + " , " + screenLocation[1]);
-
-				Logger.d(TAG, "mLeftDelta " + mLeftDelta);
-
-				Logger.d(TAG, "mTopDelta " + mTopDelta);
-
-				Logger.d(TAG, "mWidthScale " + mWidthScale);
-
-				Logger.d(TAG, "mHeightScale " + mHeightScale);
 
 				runEnterAnimation();
 

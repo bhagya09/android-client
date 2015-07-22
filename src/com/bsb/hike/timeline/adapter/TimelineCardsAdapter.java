@@ -598,15 +598,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			arguments.putString(HikeConstants.Extras.URL, url);
 			arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, true);
 			
-            int[] screenLocation = new int[2];
-            v.getLocationOnScreen(screenLocation);
-			arguments.putInt(ImageViewerActivity.animFromLeft, screenLocation[0]);
-			arguments.putInt(ImageViewerActivity.animFromTop , screenLocation[1]);
-			arguments.putInt(ImageViewerActivity.animFromWidth , v.getWidth());
-			arguments.putInt(ImageViewerActivity.animFromHeight , v.getHeight());
-
 			HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
-
 		}
 	};
 
