@@ -331,6 +331,7 @@ public class VoIPClient  {
 		if (this.isSpeaking != isSpeaking) {
 			Logger.d(tag, "Speaking: " + isSpeaking);
 			this.isSpeaking = isSpeaking;
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
 		}
 	}
 
@@ -498,9 +499,8 @@ public class VoIPClient  {
 			socketData.put(VoIPConstants.Extras.RECONNECTING, reconnecting);
 			socketData.put(VoIPConstants.Extras.VOIP_VERSION, VoIPConstants.VOIP_VERSION);
 			
-			if (!TextUtils.isEmpty(groupChatMsisdn))
+			if (!TextUtils.isEmpty(groupChatMsisdn) && !isInitiator())
 				socketData.put(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
-				
 			
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
@@ -832,10 +832,12 @@ public class VoIPClient  {
 			setCallStatus(VoIPConstants.CallStatus.ENDED);
 		}
 
-		if (TextUtils.isEmpty(groupChatMsisdn))
+		if (TextUtils.isEmpty(groupChatMsisdn)) {
 			VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+		}
 		else {
 			if (isHostingConference) {
+				Logger.w(tag, "Putting call summary!!!");
 				// Hack!
 				// Replacing the client msisdn with group chat msisdn, so that the call summary
 				// goes in the right place
@@ -1743,7 +1745,7 @@ public class VoIPClient  {
 			localBitrate = wifiBitrate;
 
 		// Conference override
-		if (isInAHostedConference || isHostingConference)
+		if ((isInAHostedConference || isHostingConference) && localBitrate > conferenceBitrate)
 			localBitrate = conferenceBitrate;
 		
 		if (remoteBitrate > 0 && remoteBitrate < localBitrate)
@@ -1928,11 +1930,11 @@ public class VoIPClient  {
 	
 	private void updateClientsList(String csv) {
 		clientMsisdns = Arrays.asList(csv.split("\\s*,\\s*"));
-//		Logger.w(tag, "Received clients list: " + clientMsisdns.toString());
+		Logger.w(tag, "Received clients list: " + clientMsisdns.toString());
 		if (clientMsisdns.size() <= 2) {
 			Logger.w(tag, "Conference over?");
-			clientMsisdns = null;
-			isHostingConference = false;
+//			clientMsisdns = null;
+//			isHostingConference = false;
 		} else
 			isHostingConference = true;
 		
