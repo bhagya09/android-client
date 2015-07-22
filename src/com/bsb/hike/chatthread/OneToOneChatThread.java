@@ -2792,7 +2792,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike();
+		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !OfflineUtils.isConnectedToSameMsisdn(msisdn);
 	}
 	
 	/*
