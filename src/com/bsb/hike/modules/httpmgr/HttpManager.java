@@ -73,24 +73,20 @@ public class HttpManager
 	{
 		setProductionHostUris();
 		setPlatformProductionHostUris();
-		setStickersProductionHostUris();
 	}
 
 	private void setProductionHostUris()
 	{
 		productionHostUris = new ArrayList<String>();
-		// TODO
+		productionHostUris.add("54.169.191.114");
+		productionHostUris.add("54.169.191.115");
+		productionHostUris.add("54.169.191.116");
+		productionHostUris.add("54.169.191.113");
 	}
 
 	private void setPlatformProductionHostUris()
 	{
 		platformProductionHostUris = new ArrayList<String>();
-		// TODO
-	}
-
-	private void setStickersProductionHostUris()
-	{
-		stickersProductionHostUris = new ArrayList<String>();
 		// TODO
 	}
 

@@ -85,14 +85,12 @@ public class BasicRetryPolicy
 	{
 		switch (url.getHost())
 		{
+		case STICKERS_PRODUCTION_API:
 		case PRODUCTION_API:
 			this.hostUris = HttpManager.getProductionHostUris();
 			break;
 		case PLATFORM_PRODUCTION_API:
 			this.hostUris = HttpManager.getPlatformProductionHostUris();
-			break;
-		case STICKERS_PRODUCTION_API:
-			this.hostUris = HttpManager.getStickersProductionHostUris();
 			break;
 		default:
 			break;
