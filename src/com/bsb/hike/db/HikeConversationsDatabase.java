@@ -1591,7 +1591,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		            + STATUS_TABLE + " st " + " WHERE ft." + FEED_OBJECT_ID
 		            + " = " + "st." + STATUS_MAPPED_ID + " AND ft." 
 		            + FEED_OBJECT_TYPE + " = '" +  ActivityObjectTypes.STATUS_UPDATE.getTypeString()
-		            + "' ORDER BY ft." + FEED_TS + " DESC LIMIT 20";
+		            + "' ORDER BY ft." + FEED_TS + " DESC";
 		 return mDb.rawQuery(selectQuery, null);
 	}
 	

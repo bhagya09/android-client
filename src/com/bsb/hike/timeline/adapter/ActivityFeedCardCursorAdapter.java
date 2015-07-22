@@ -143,8 +143,6 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 
 	private static final String TAG = "ActivityFeedCardCursorAdapter";
 	
-	private Cursor mCursor;
-	
     public ActivityFeedCardCursorAdapter(Activity activity, Cursor c, int flags) 
     {
         super(HikeMessengerApp.getInstance().getApplicationContext(), c, flags);
@@ -155,7 +153,6 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mProtipIndex = -1;
 		mActivity = new SoftReference<Activity>(activity);
-		mCursor = c;
 		mUserMsisdn = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
     }
 
@@ -470,6 +467,5 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 	{
 		
 	}
-
 
 }
