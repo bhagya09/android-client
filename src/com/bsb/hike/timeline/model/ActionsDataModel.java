@@ -123,7 +123,14 @@ public class ActionsDataModel
 
 	public void setCount(int count)
 	{
-		this.count = count;
+		if (count < 0)
+		{
+			this.count = 0;
+		}
+		else
+		{
+			this.count = count;
+		}
 	}
 
 	public LinkedHashSet<ContactInfo> getContactInfoList()
@@ -180,31 +187,22 @@ public class ActionsDataModel
 		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
 		if (contactInfo != null)
 		{
-			return contactInfoList.add(contactInfo);
+			boolean isAdded = contactInfoList.add(contactInfo);
+			if (isAdded)
+			{
+				setCount(getCount() + 1);
+			}
+
+			return isAdded;
 		}
 		return false;
 	}
 
-	public boolean addContact(ContactInfo argContactInfo)
+	public boolean removeContact(String msisdn)
 	{
-		if (argContactInfo == null)
+		if (TextUtils.isEmpty(msisdn))
 		{
-			throw new IllegalArgumentException("addContact(argContactInfo) : input ContactInfo cannot be null");
-		}
-
-		if (contactInfoList == null)
-		{
-			contactInfoList = new LinkedHashSet<ContactInfo>();
-		}
-
-		return contactInfoList.add(argContactInfo);
-	}
-
-	public boolean removeContact(ContactInfo argContactInfo)
-	{
-		if (argContactInfo == null)
-		{
-			throw new IllegalArgumentException("removeContact(argContactInfo) : input ContactInfo cannot be null");
+			throw new IllegalArgumentException("removeContact(argContactInfo) : input msisdn cannot be null");
 		}
 
 		if (contactInfoList == null || contactInfoList.isEmpty())
@@ -212,7 +210,17 @@ public class ActionsDataModel
 			return false;
 		}
 
-		return contactInfoList.remove(argContactInfo);
+		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+		if (contactInfo != null)
+		{
+			boolean isRemoved = contactInfoList.remove(contactInfo);
+			if (isRemoved)
+			{
+				setCount(getCount() - 1);
+			}
+			return isRemoved;
+		}
+		return false;
 	}
 
 	/**
