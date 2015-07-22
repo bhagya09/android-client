@@ -9,7 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.CountDownTimer;
-import android.util.Log;
+
+import com.bsb.hike.utils.Logger;
 
 
 // http://stackoverflow.com/questions/14991158/using-the-android-recognizerintent-with-a-bluetooth-headset
@@ -110,7 +111,7 @@ public abstract class BluetoothHeadsetUtils
     @SuppressWarnings("deprecation")
     private boolean startBluetooth()
     {
-        Log.d(TAG, "startBluetooth"); //$NON-NLS-1$
+        Logger.d(TAG, "startBluetooth"); //$NON-NLS-1$
 
         // Device support bluetooth
         if (mBluetoothAdapter != null)
@@ -148,7 +149,7 @@ public abstract class BluetoothHeadsetUtils
      */
     private void stopBluetooth()
     {
-        Log.d(TAG, "stopBluetooth"); //$NON-NLS-1$
+        Logger.d(TAG, "stopBluetooth"); //$NON-NLS-1$
 
         if (mIsCountDownOn)
         {
@@ -200,11 +201,11 @@ public abstract class BluetoothHeadsetUtils
                     }
                 }
 
-                Log.d(TAG, mConnectedHeadset.getName() + " connected"); //$NON-NLS-1$
+                Logger.d(TAG, mConnectedHeadset.getName() + " connected"); //$NON-NLS-1$
             }
             else if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED))
             {
-                Log.d(TAG, "Headset disconnected"); //$NON-NLS-1$
+                Logger.d(TAG, "Headset disconnected"); //$NON-NLS-1$
 
                 if (mIsCountDownOn)
                 {
@@ -243,11 +244,11 @@ public abstract class BluetoothHeadsetUtils
                     // override this if you want to do other thing when Sco audio is connected.
                     onScoAudioConnected();
 
-                    Log.d(TAG, "Sco connected"); //$NON-NLS-1$
+                    Logger.d(TAG, "Sco connected"); //$NON-NLS-1$
                 }
                 else if (state == AudioManager.SCO_AUDIO_STATE_DISCONNECTED)
                 {
-                    Log.d(TAG, "Sco disconnected"); //$NON-NLS-1$
+                    Logger.d(TAG, "Sco disconnected"); //$NON-NLS-1$
 
                     // Always receive SCO_AUDIO_STATE_DISCONNECTED on call to startBluetooth()
                     // which at that stage we do not want to do anything. Thus the if condition.
@@ -281,7 +282,7 @@ public abstract class BluetoothHeadsetUtils
             // When this call is successful, this count down timer will be canceled.
             mAudioManager.startBluetoothSco();
 
-            Log.d(TAG, "\nonTick start bluetooth Sco"); //$NON-NLS-1$
+//            Logger.d(TAG, "\nonTick start bluetooth Sco"); //$NON-NLS-1$
         }
 
         @SuppressWarnings("synthetic-access")
@@ -293,7 +294,7 @@ public abstract class BluetoothHeadsetUtils
             mIsCountDownOn = false;
             mAudioManager.setMode(AudioManager.MODE_NORMAL);
 
-            Log.d(TAG, "\nonFinish fail to connect to headset audio"); //$NON-NLS-1$
+//            Logger.d(TAG, "\nonFinish fail to connect to headset audio"); //$NON-NLS-1$
         }
     };
 

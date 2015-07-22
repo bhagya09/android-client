@@ -744,7 +744,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				break;
 				
 			case HOSTING_CONFERENCE:
-				startCallDuration();
+				callDuration.setText("");
+				if (voipService.recordingAndPlaybackRunning)
+					startCallDuration();
 				break;
 				
 		default:
