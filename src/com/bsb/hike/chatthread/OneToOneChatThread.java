@@ -1399,15 +1399,39 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void startFreeHikeConversation()
 	{
-		showToast(R.string.scan_process_started);
-		if(offlineController==null)
+		
+		switch (OfflineController.getInstance().getOfflineState())
 		{
-			offlineController = OfflineController.getInstance();
-			offlineController.addListener(this);
+		case CONNECTED:
+			Toast.makeText(activity, getResources().getString(R.string.connected_previously,
+					OfflineUtils.getConnectedMsisdn()), Toast.LENGTH_SHORT).show();
+			break;
+		case CONNECTING:
+			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				Toast.makeText(activity, getResources().getString(R.string.connecting_previously_to_same_msisdn,
+						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
+			}
+			else
+			{
+				Toast.makeText(activity, getResources().getString(R.string.connecting_previously,
+						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
+			}
+			break;
+		case NOT_CONNECTED:
+		case DISCONNECTED:
+			showToast(R.string.scan_process_started);
+			if(offlineController==null)
+			{
+				offlineController = OfflineController.getInstance();
+				offlineController.addListener(this);
+			}
+			offlineController.connectAsPerMsisdn(mConversation.getMsisdn());
+			setupOfflineUI();
+			break;
 		}
-		offlineController.connectAsPerMsisdn(mConversation.getMsisdn());
-		setupOfflineUI();
 	}
+	
 
 	@Override
 	protected String getMsisdnMainUser()
