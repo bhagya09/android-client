@@ -865,7 +865,6 @@ public class VoIPClient  {
 		}
 		else {
 			if (isHostingConference) {
-				Logger.w(tag, "Putting call summary!!!");
 				// Hack!
 				// Replacing the client msisdn with group chat msisdn, so that the call summary
 				// goes in the right place
@@ -1921,7 +1920,7 @@ public class VoIPClient  {
 
 		int cardinality = playbackTrackingBits.cardinality();
 		packetLoss = (100 - (cardinality*100 / (playbackFeederCounter < playbackTrackingBits.size() ? playbackFeederCounter : playbackTrackingBits.size())));
-		Logger.d(tag, "Loss: " + packetLoss + ", playbackFeederCounter: " + playbackFeederCounter);
+//		Logger.d(tag, "Loss: " + packetLoss + ", playbackFeederCounter: " + playbackFeederCounter);
 		
 		CallQuality newQuality;
 		
