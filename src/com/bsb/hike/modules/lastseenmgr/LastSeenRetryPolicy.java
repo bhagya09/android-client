@@ -3,9 +3,9 @@ package com.bsb.hike.modules.lastseenmgr;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
-import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 
-public class LastSeenRetryPolicy extends DefaultRetryPolicy
+public class LastSeenRetryPolicy extends BasicRetryPolicy
 {
 
 	/** The default number of retry attempts. */

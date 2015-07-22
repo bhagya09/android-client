@@ -34,7 +34,7 @@ import com.bsb.hike.modules.httpmgr.request.RequestCall;
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
-import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -333,7 +333,7 @@ public class RequestExecuter
 		HttpException httpException = new HttpException(responseCode, ex);
 		if (null != request.getRetryPolicy())
 		{
-			DefaultRetryPolicy retryPolicy = request.getRetryPolicy();
+			BasicRetryPolicy retryPolicy = request.getRetryPolicy();
 			retryPolicy.retry(new RequestFacade(request), httpException);
 			if (retryPolicy.getRetryCount() >= 0)
 			{

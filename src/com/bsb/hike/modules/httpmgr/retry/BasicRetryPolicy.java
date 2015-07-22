@@ -16,7 +16,7 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
  * @author sidharth
  * 
  */
-public class DefaultRetryPolicy
+public class BasicRetryPolicy
 {
 	/** The default number of retry attempts. */
 	private static final int DEFAULT_RETRY_COUNT = 1;
@@ -43,7 +43,7 @@ public class DefaultRetryPolicy
 	 * @see #DEFAULT_RETRY_DELAY
 	 * @see #DEFAULT_BACKOFF_MULTIPLIER
 	 */
-	public DefaultRetryPolicy()
+	public BasicRetryPolicy()
 	{
 		this.retryCount = DEFAULT_RETRY_COUNT;
 		this.retryDelay = DEFAULT_RETRY_DELAY;
@@ -60,7 +60,7 @@ public class DefaultRetryPolicy
 	 * @param backOffMultiplier
 	 *            back off multiplier used to change delay between each retry
 	 */
-	public DefaultRetryPolicy(int retryCount, int retryDelay, float backOffMultiplier)
+	public BasicRetryPolicy(int retryCount, int retryDelay, float backOffMultiplier)
 	{
 		this.retryCount = retryCount;
 		this.retryDelay = retryDelay;
