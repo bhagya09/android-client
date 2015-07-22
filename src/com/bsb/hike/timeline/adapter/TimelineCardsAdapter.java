@@ -29,7 +29,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -51,8 +50,11 @@ import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
 import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ImageViewerActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -87,6 +89,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public static final long EMPTY_STATUS_NO_STATUS_RECENTLY_ID = -5;
 
 	public static final long FTUE_ITEM_ID = -6;
+	
+	private TimelineActions mActionsData;
 
 	class ViewHolder extends RecyclerView.ViewHolder
 	{
@@ -124,6 +128,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		CheckBox checkBoxLove;
 
+		TextView loveCount;
+
 		public ViewHolder(View convertView, int viewType)
 		{
 			super(convertView);
@@ -133,6 +139,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			name = (TextView) convertView.findViewById(R.id.name);
 			mainInfo = (TextView) convertView.findViewById(R.id.main_info);
 			checkBoxLove = (CheckBox)convertView.findViewById(R.id.btn_love);
+			loveCount = (TextView)convertView.findViewById(R.id.love_count);
 
 			//Grab view references
 			switch (viewType)
@@ -236,6 +243,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void onBindViewHolder(ViewHolder viewHolder, int position)
 	{
 		StatusMessage statusMessage = mStatusMessages.get(position);
+		
+		ActionsDataModel likesData = mActionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE,ActivityObjectTypes.STATUS_UPDATE);
 
 		int viewType = getItemViewType(position);
 
@@ -437,6 +446,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.infoContainer.setOnClickListener(onProfileInfoClickListener);
 			viewHolder.checkBoxLove.setTag(statusMessage);
 			viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
+
+			if (likesData != null)
+			{
+				viewHolder.loveCount.setText(""+likesData.getCount());
+			}
+			else
+			{
+				// TODO remove
+				viewHolder.loveCount.setText("likesNull");
+			}
 			break;
 
 		case FTUE_ITEM:
@@ -908,10 +927,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 	}
 
-	public void notifyVisibleItems()
+	public void setActionsData(TimelineActions actionsData)
 	{
-		// TODO Auto-generated method stub
-
+		mActionsData = actionsData;
 	}
 
 }

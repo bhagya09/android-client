@@ -7,6 +7,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -42,6 +43,9 @@ public class ActionsDeserializer implements JsonDeserializer<TimelineActions>
 					{
 						JsonObject msgObj = msgArray.get(i).getAsJsonObject();
 						String uuid = null;
+
+						ActivityObjectTypes objType = ActivityObjectTypes.UNKNOWN;
+
 						if (msgObj.has("uuid"))
 						{
 							uuid = msgObj.get("uuid").getAsString();
@@ -49,6 +53,7 @@ public class ActionsDeserializer implements JsonDeserializer<TimelineActions>
 						else if (msgObj.has("su_id"))
 						{
 							uuid = msgObj.get("su_id").getAsString();
+							objType = ActivityObjectTypes.STATUS_UPDATE;
 						}
 
 						if (uuid == null)
@@ -84,7 +89,7 @@ public class ActionsDeserializer implements JsonDeserializer<TimelineActions>
 							count = msgObj.get("lc").getAsInt();
 						}
 
-						timelineActions.addActionDetails(uuid, contactInfoList, actionType, count);
+						timelineActions.addActionDetails(uuid, contactInfoList, actionType, count, objType);
 					}
 				}
 

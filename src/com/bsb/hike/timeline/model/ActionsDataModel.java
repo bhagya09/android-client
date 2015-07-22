@@ -69,7 +69,7 @@ public class ActionsDataModel
 	//TODO Move to more generic class
 	public static enum ActivityObjectTypes
 	{
-		STATUS_UPDATE("su"), CARD("card"), CHANNEL("channel");
+		STATUS_UPDATE("su"), CARD("card"), CHANNEL("channel"), UNKNOWN("unknown");
 
 		String mTypeString;
 
@@ -81,6 +81,17 @@ public class ActionsDataModel
 		public String getTypeString()
 		{
 			return mTypeString;
+		}
+		
+		public static ActivityObjectTypes getTypeFromString(String inputStr)
+		{
+			ActivityObjectTypes type = UNKNOWN;
+			
+			if(inputStr.equals(STATUS_UPDATE.getTypeString())){
+				type = STATUS_UPDATE;
+			}
+			
+			return type;
 		}
 	}
 
@@ -120,6 +131,25 @@ public class ActionsDataModel
 		return contactInfoList;
 	}
 
+	public String getContactsMsisdnCSV()
+	{
+		StringBuilder sb = new StringBuilder();
+
+		for (ContactInfo contact : contactInfoList)
+		{
+			if (sb.length() == 0)
+			{
+				sb.append(contact.getMsisdn());
+			}
+			else
+			{
+				sb.append(contact.getMsisdn() + ",");
+			}
+		}
+		
+		return sb.toString();
+	}
+	
 	public boolean addContacts(Collection<ContactInfo> argContactInfo)
 	{
 		if (argContactInfo == null)
@@ -237,5 +267,4 @@ public class ActionsDataModel
 
 		return allMsisdnList;
 	}
-
 }
