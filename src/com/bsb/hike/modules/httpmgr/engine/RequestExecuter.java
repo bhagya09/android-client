@@ -71,7 +71,7 @@ public class RequestExecuter
 
 	private void checkAndInitializeAnalyticsFields()
 	{
-		if (HttpAnalyticsLogger.shouldSendLog(request.getUrl()))
+		if (HttpAnalyticsLogger.shouldSendLog(request.getUrl().toString()))
 		{
 			this.trackId = UUID.randomUUID().toString();
 			this.request.addHeader(HttpAnalyticsConstants.TRACK_ID_HEADER_KEY, trackId);

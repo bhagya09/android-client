@@ -7,6 +7,8 @@ import static com.bsb.hike.modules.httpmgr.request.RequestConstants.GET;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,11 +18,12 @@ import java.util.concurrent.Future;
 import android.text.TextUtils;
 
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.Pipeline;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.facade.IRequestFacade;
 import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
@@ -45,7 +48,7 @@ public abstract class Request<T> implements IRequestFacade
 	
 	private String method;
 
-	private String url;
+	private URL url;
 
 	private List<Header> headers;
 
@@ -96,7 +99,7 @@ public abstract class Request<T> implements IRequestFacade
 
 	private void ensureSaneDefaults()
 	{
-		if (TextUtils.isEmpty(url))
+		if (url == null)
 		{
 			throw new IllegalStateException("Url must not be null and its length must be greater than 0");
 		}
@@ -184,7 +187,7 @@ public abstract class Request<T> implements IRequestFacade
 	 * 
 	 * @return
 	 */
-	public String getUrl()
+	public URL getUrl()
 	{
 		return url;
 	}
@@ -319,6 +322,11 @@ public abstract class Request<T> implements IRequestFacade
 	public void setId(String id)
 	{
 		this.md5Id = id;
+	}
+
+	public void setUrl(URL url)
+	{
+		this.url = url;
 	}
 	
 	/**
@@ -537,7 +545,7 @@ public abstract class Request<T> implements IRequestFacade
 		
 		private String method;
 
-		private String url;
+		private URL url;
 
 		private List<Header> headers;
 
@@ -641,8 +649,29 @@ public abstract class Request<T> implements IRequestFacade
 		 * Sets the url of the request
 		 * 
 		 * @param url
+		 * @return
+		 * @throws MalformedURLException
 		 */
 		public S setUrl(String url)
+		{
+			try
+			{
+				this.url = new URL(url);
+			}
+			catch (MalformedURLException ex)
+			{
+				LogFull.e("exception while setting url ", ex);
+			}
+			return self();
+		}
+
+		/**
+		 * Sets the url of the request
+		 * 
+		 * @param url
+		 * @return
+		 */
+		public S setUrl(URL url)
 		{
 			this.url = url;
 			return self();
