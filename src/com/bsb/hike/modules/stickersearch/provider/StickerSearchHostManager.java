@@ -322,6 +322,12 @@ public class StickerSearchHostManager
 									tempResult.add(new int[] { startList.get(i), previousBoundary });
 									Logger.d(TAG, "Making blue due to phrase \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
 								}
+								else if ((previousBoundary > startList.get(i)) && (previousBoundary < startList.get(lastWordIndexInPhraseStartedWithPivot)) && (tempResult.size() > 0))
+								{
+									previousBoundary = endList.get(lastWordIndexInPhraseStartedWithPivot);
+									tempResult.get(tempResult.size() - 1) [1] = previousBoundary;
+									Logger.d(TAG, "Making blue due to remaining phrase \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+								}
 
 								suggestionFoundOnLastValidPhrase = true;
 							}
@@ -456,25 +462,38 @@ public class StickerSearchHostManager
 									savedStickers = history.get(searchKey);
 									if ((savedStickers != null) && (savedStickers.size() > 0))
 									{
-										if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
+										int marker = savedStickers.indexOf(null);
+										if (marker != 0)
 										{
-											int marker = savedStickers.indexOf(null);
-											if (marker != 0)
+											// word + phrase both searched successfully
+											if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
 											{
-												// word + phrase both searched successfully
 												previousBoundary = endList.get(lastWordIndexInPhraseStartedWithPivot);
 												tempResult.add(new int[] { startList.get(i), previousBoundary });
 												Logger.d(TAG, "Making blue due to partial phrase \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+
+												break;
 											}
-											else
+											else if ((previousBoundary > startList.get(i)) && (previousBoundary < startList.get(lastWordIndexInPhraseStartedWithPivot)) && (tempResult.size() > 0))
 											{
-												// only word searched successfully
+												previousBoundary = endList.get(lastWordIndexInPhraseStartedWithPivot);
+												tempResult.get(tempResult.size() - 1) [1] = previousBoundary;
+												Logger.d(TAG, "Making blue due to remaining partial phrase \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+
+												break;
+											}
+										}
+										else
+										{
+											// only word searched successfully
+											if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
+											{
 												previousBoundary = endList.get(i);
 												tempResult.add(new int[] { startList.get(i), previousBoundary });
 												Logger.d(TAG, "Making blue due to individual word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
-											}
 
-											break;
+												break;
+											}
 										}
 									}
 
@@ -497,19 +516,28 @@ public class StickerSearchHostManager
 						ArrayList<ArrayList<Object>> savedStickers = history.get(searchKey);
 						if ((savedStickers != null) && (savedStickers.size() > 0))
 						{
-							if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
+							int marker = savedStickers.indexOf(null);
+							if (marker != 0 && lastWordIndexInPhraseStartedWithPivot > i)
 							{
-								int marker = savedStickers.indexOf(null);
-								if (marker != 0 && lastWordIndexInPhraseStartedWithPivot > i)
+								// word + phrase both searched successfully
+								if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
 								{
-									// word + phrase both searched successfully
 									previousBoundary = endList.get(lastWordIndexInPhraseStartedWithPivot);
 									tempResult.add(new int[] { startList.get(i), previousBoundary });
 									Logger.d(TAG, "Making blue due to phrase \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
 								}
-								else if ((searchKey.length() > 1) || (j == 0))
+								else if ((previousBoundary > startList.get(i)) && (previousBoundary < startList.get(lastWordIndexInPhraseStartedWithPivot)) && (tempResult.size() > 0))
 								{
-									// only word searched successfully
+									previousBoundary = endList.get(lastWordIndexInPhraseStartedWithPivot);
+									tempResult.get(tempResult.size() - 1) [1] = previousBoundary;
+									Logger.d(TAG, "Making blue due to remaining partial phrase \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+								}
+							}
+							else if ((searchKey.length() > 1) || (j == 0))
+							{
+								// only word searched successfully
+								if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
+								{
 									previousBoundary = endList.get(i);
 									tempResult.add(new int[] { startList.get(i), previousBoundary });
 									Logger.d(TAG, "Making blue due to word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
@@ -575,6 +603,20 @@ public class StickerSearchHostManager
 												previousBoundary = endList.get(i);
 												tempResult.add(new int[] { startList.get(i), previousBoundary });
 												Logger.d(TAG, "Making blue due to individual word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
+											}
+
+											break;
+										}
+										else if ((previousBoundary > startList.get(i)) && (previousBoundary < startList.get(lastWordIndexInPhraseStartedWithPivot)) && (tempResult.size() > 0))
+										{
+											int marker = savedStickers.indexOf(null);
+
+											if (marker != 0)
+											{
+												// word + phrase both searched successfully
+												previousBoundary = endList.get(lastWordIndexInPhraseStartedWithPivot);
+												tempResult.get(tempResult.size() - 1) [1] = previousBoundary;
+												Logger.d(TAG, "Making blue due to remaining partial phrase \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
 											}
 
 											break;
