@@ -1393,7 +1393,7 @@ public class VoIPService extends Service {
 								// Mic signal is reverting to voice
 //								Logger.w(tag, "We started speaking.");
 								voiceSignalAbsent = false;
-								getClient().setEncoderBitrate(getClient().localBitrate);
+								getClient().setEncoderBitrate(getClient().getBitrate());
 							}
 						}
 					} else

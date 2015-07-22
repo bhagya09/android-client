@@ -8,9 +8,11 @@ public class VoIPConstants {
 	 * <p>Current VoIP protocol version.</p>
 	 * <p>Added in <b>v2</b>: <br/>
 	 * - Conference support
+	 * <p>Added in <b>v3</b>: <br/>
+	 * - Congestion control
 	 * </p>
 	 */
-	public static final int VOIP_VERSION = 2;
+	public static final int VOIP_VERSION = 3;
 	
 	// Relay and ICE server 
 	public static final String ICEServerName = "relay.hike.in";	 
@@ -41,7 +43,18 @@ public class VoIPConstants {
 	 * we assume they are not speaking. 
 	 */
 	public static final int PLC_LIMIT = 5;
-	
+
+	/**
+	 * If packet loss increases beyond this threshold, congestion control
+	 * will be triggered. 
+	 */
+	public static final int ACCEPTABLE_PACKET_LOSS = 10;
+
+	/**
+	 * Number of seconds to wait for before triggering congestion control again.
+	 */
+	public static final int CONGESTION_CONTROL_REPEAT_THRESHOLD = 3;
+
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions

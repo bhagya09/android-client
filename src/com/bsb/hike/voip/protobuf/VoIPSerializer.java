@@ -43,6 +43,12 @@ public class VoIPSerializer {
     		}
     	}
     	
+    	// Multiple audio packets
+    	if (dp.getDataList() != null) {
+    		for (byte[] data : dp.getDataList())
+    			protoBufBuilder.addDataList(ByteString.copyFrom(data));
+    	}
+    	
     	DataPacket dataPacket = protoBufBuilder.build();
     	return dataPacket.toByteArray();
 	}
@@ -65,6 +71,12 @@ public class VoIPSerializer {
 			dp.setVoicePacketNumber(protoBuf.getVoicePacketNumber());
 			dp.setTimestamp(protoBuf.getTimestamp());
 			dp.setVoice(protoBuf.getIsVoice());
+
+			if (protoBuf.getDataListCount() > 0) {
+				for (ByteString data : protoBuf.getDataListList()) {
+					dp.addToDataList(data.toByteArray());
+				}
+			}
 			
 		} catch (InvalidProtocolBufferException e) {
 			Log.e("VoIP Serializer", "Error decoding protocol buffer packet");
