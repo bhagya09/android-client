@@ -330,6 +330,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
 	{
+		Logger.i(TAG, "insertStickerTagData()");
+
 		ArrayList<String> tags = new ArrayList<String>();
 		ArrayList<Long> rows = new ArrayList<Long>();
 
@@ -370,7 +372,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			mDb.endTransaction();
 		}
 
-		insertIntoFTSTable(tags, rows);
+		insertIntoVirtualTable(tags, rows);
 	}
 
 	private ArrayList<ArrayList<Object>> searchInPrimaryTable(String match, ArrayList<Long> primaryKeys, boolean isExactMatchNeeded)
@@ -575,8 +577,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return data;
 	}
 
-	public void insertIntoFTSTable(ArrayList<String> tags, ArrayList<Long> referenceids)
+	public void insertIntoVirtualTable(ArrayList<String> tags, ArrayList<Long> referenceids)
 	{
+		Logger.i(TAG, "insertIntoVirtualTable()");
 
 		int count = tags.size();
 		int remainingCount = count;
@@ -729,13 +732,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 		removingStickerSetInDatabase.removeAll(stickerInfoSet);
 
+		ArrayList<Long> primaryKeys = new ArrayList<Long>();
 		Iterator<String> iterator = removingStickerSetInDatabase.iterator();
 		String[] args = new String[removingStickerSetInDatabase.size()];
+
 		for (int i = 0; iterator.hasNext(); i++)
 		{
 			args[i] = iterator.next();
 		}
-		ArrayList<Long> primaryKeys = new ArrayList<Long>();
 
 		for (int j = 0; j < args.length;)
 		{
@@ -796,32 +800,30 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				for (int j = 0; j < groupIds.length;)
 				{
 					int remainingCount = groupIds.length - j;
-					int count = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
+					int count = ((remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0) ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
 							: remainingCount;
 
-					String[] docIds = Arrays.copyOfRange(groupIds, j, (j + count));
 					StringBuilder sb = new StringBuilder(args.length * 2 - 1);
-					sb.append(docIds[0]);
+					sb.append(groupIds[j++]);
 					for (int i = 1; i < count; i++)
 					{
-						sb.append(" OR " + docIds[i]);
+						sb.append(" OR " + groupIds[j++]);
 					}
 
 					for (int i = 0; i < 27; i++)
 					{
 						mDb.delete(tables[i], HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + " MATCH '" + sb.toString() + "'", null);
 						SQLiteDatabase.releaseMemory();
-						try
-						{
-							Thread.sleep(5);
-						}
-						catch (InterruptedException e)
-						{
-							e.printStackTrace();
-						}
 					}
 
-					j += count;
+					try
+					{
+						Thread.sleep(5);
+					}
+					catch (InterruptedException e)
+					{
+						e.printStackTrace();
+					}
 				}
 
 				mDb.setTransactionSuccessful();
@@ -906,6 +908,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public boolean startRebalancing()
 	{
+		Logger.d(TAG, "startRebalancing()");
+
 		Cursor c = null;
 		long count = 0;
 		long currentTime = System.currentTimeMillis();
