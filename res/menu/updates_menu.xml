@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/activity_feed"
+        android:icon="@drawable/ic_new_status"
+        android:showAsAction="always"
+        android:title="@string/actionbar_activity_feed_title"/>
+    <item
         android:id="@+id/new_update"
         android:icon="@drawable/ic_new_status"
         android:showAsAction="always"

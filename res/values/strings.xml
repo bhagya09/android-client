@@ -1554,4 +1554,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
 	<string name="task_already_running">Task is already Running, so not starting new one</string>
+	<string name="actionbar_activity_feed_title">See Activity Feeds</string>
+	<string name="photo_like_text">Liked your photo.</string>
+	<string name="status_update_like_text">Liked your status update %1$s.</string>
 </resources>
