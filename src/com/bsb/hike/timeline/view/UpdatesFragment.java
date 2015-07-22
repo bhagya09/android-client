@@ -437,7 +437,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		public void onRequestSuccess(Response result)
 		{
 			final JSONObject response = (JSONObject) result.getBody().getContent();
-			if (response.optString("stat").equals("ok"))
+			if (Utils.isResponseValid(response))
 			{
 				actionsData = gson.fromJson(response.toString(), TimelineActions.class);
 				

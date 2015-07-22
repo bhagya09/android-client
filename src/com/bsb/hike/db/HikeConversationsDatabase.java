@@ -86,7 +86,6 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.EqualsPair;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -7533,20 +7532,20 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			return;
 		}
 
-		final HashMap<EqualsPair<String, String>, ArrayList<ActionsDataModel>> actionsDataMap = actionsData.getTimelineActionsMap();
+		final HashMap<Pair<String, String>, ArrayList<ActionsDataModel>> actionsDataMap = actionsData.getTimelineActionsMap();
 
 		if (actionsDataMap == null || actionsDataMap.isEmpty())
 		{
 			return;
 		}
 
-		Set<EqualsPair<String, String>> uuidObjSet = actionsDataMap.keySet();
+		Set<Pair<String, String>> uuidObjSet = actionsDataMap.keySet();
 
 		try
 		{
 			mDb.beginTransaction();
 
-			for (EqualsPair<String, String> uuidObjType : uuidObjSet)
+			for (Pair<String, String> uuidObjType : uuidObjSet)
 			{
 				ArrayList<ActionsDataModel> actionsDataListForUUID = actionsDataMap.get(uuidObjType);
 				for (ActionsDataModel actionDM : actionsDataListForUUID)

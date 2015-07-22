@@ -6,29 +6,29 @@ import java.util.List;
 
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
-import com.bsb.hike.utils.EqualsPair;
 
 import android.text.TextUtils;
+import android.util.Pair;
 
 public class TimelineActions
 {
-	private HashMap<EqualsPair<String, String>, ArrayList<ActionsDataModel>> timelineActionsMap;
+	private HashMap<Pair<String, String>, ArrayList<ActionsDataModel>> timelineActionsMap;
 
 	@SuppressWarnings("serial")
 	public TimelineActions()
 	{
-		timelineActionsMap = new HashMap<EqualsPair<String, String>, ArrayList<ActionsDataModel>>()
+		timelineActionsMap = new HashMap<Pair<String, String>, ArrayList<ActionsDataModel>>()
 		{
 			@Override
 			public ArrayList<ActionsDataModel> get(Object key)
 			{
-				if (key instanceof EqualsPair)
+				if (key instanceof Pair)
 				{
 					return super.get(key);
 				}
 				else
 				{
-					throw new IllegalArgumentException("Can only get by EqualsPair<uuid,objType>");
+					throw new IllegalArgumentException("Can only get by Pair<uuid,objType>");
 				}
 			}
 		};
@@ -41,7 +41,7 @@ public class TimelineActions
 			return null;
 		}
 		
-		EqualsPair<String, String> uuidObjType = new EqualsPair<String, String>(uuid, objType.getTypeString());
+		Pair<String, String> uuidObjType = new Pair<String, String>(uuid, objType.getTypeString());
 
 		ArrayList<ActionsDataModel> listForUUID = timelineActionsMap.get(uuidObjType);
 
@@ -63,7 +63,7 @@ public class TimelineActions
 
 	public void addActionDetails(String uuid, List<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount, ActivityObjectTypes objType)
 	{
-		EqualsPair<String, String> uuidObjType = new EqualsPair<String, String>(uuid, objType.getTypeString());
+		Pair<String, String> uuidObjType = new Pair<String, String>(uuid, objType.getTypeString());
 		
 		ArrayList<ActionsDataModel> actionDMList = timelineActionsMap.get(uuidObjType);
 
@@ -89,6 +89,7 @@ public class TimelineActions
 				if (adm.getType() == type)
 				{
 					actionDM = adm;
+					break;
 				}
 			}
 			if (actionDM == null)
@@ -107,7 +108,7 @@ public class TimelineActions
 		}
 	}
 
-	public HashMap<EqualsPair<String, String>, ArrayList<ActionsDataModel>> getTimelineActionsMap()
+	public HashMap<Pair<String, String>, ArrayList<ActionsDataModel>> getTimelineActionsMap()
 	{
 		return timelineActionsMap;
 	}
