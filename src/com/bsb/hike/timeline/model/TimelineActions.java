@@ -114,7 +114,7 @@ public class TimelineActions
 		return timelineActionsMap;
 	}
 
-	public void updateActivityFeed(FeedDataModel feedData)
+	public void updateByActivityFeed(FeedDataModel feedData)
 	{
 		if (feedData == null)
 		{

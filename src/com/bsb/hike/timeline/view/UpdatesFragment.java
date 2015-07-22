@@ -242,19 +242,12 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
-			getActivity().runOnUiThread(new Runnable()
+			if (object != null && object instanceof FeedDataModel)
 			{
-				@Override
-				public void run()
-				{
-					if (object != null && object instanceof FeedDataModel)
-					{
-						FeedDataModel feedData = (FeedDataModel) object;
-						actionsData.updateActivityFeed(feedData);
-						timelineCardsAdapter.notifyDataSetChanged();
-					}
-				}
-			});
+				FeedDataModel feedData = (FeedDataModel) object;
+				actionsData.updateByActivityFeed(feedData);
+				notifyVisibleItems();
+			}
 		}
 	}
 	
