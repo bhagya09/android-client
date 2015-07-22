@@ -73,7 +73,7 @@ public class ActionsDataModel
 
 		String mTypeString;
 
-		private ActivityObjectTypes(String typeString)
+		ActivityObjectTypes(String typeString)
 		{
 			mTypeString = typeString;
 		}
