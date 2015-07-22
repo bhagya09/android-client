@@ -49,6 +49,7 @@ import com.bsb.hike.timeline.TimelineConstants;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
@@ -77,7 +78,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED,
-			HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED };
+			HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE };
 
 	private String[] friendMsisdns;
 
@@ -239,8 +240,24 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				}
 			});
 		}
+		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
+		{
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if (object != null && object instanceof FeedDataModel)
+					{
+						FeedDataModel feedData = (FeedDataModel) object;
+						actionsData.updateActivityFeed(feedData);
+						timelineCardsAdapter.notifyDataSetChanged();
+					}
+				}
+			});
+		}
 	}
-
+	
 	private int getStartIndex()
 	{
 		int startIndex = 0;
@@ -437,6 +454,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		public void onRequestSuccess(Response result)
 		{
 			final JSONObject response = (JSONObject) result.getBody().getContent();
+			
 			if (Utils.isResponseValid(response))
 			{
 				actionsData = gson.fromJson(response.toString(), TimelineActions.class);

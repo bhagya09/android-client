@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 
 import android.text.TextUtils;
@@ -40,7 +41,7 @@ public class TimelineActions
 		{
 			return null;
 		}
-		
+
 		Pair<String, String> uuidObjType = new Pair<String, String>(uuid, objType.getTypeString());
 
 		ArrayList<ActionsDataModel> listForUUID = timelineActionsMap.get(uuidObjType);
@@ -64,7 +65,7 @@ public class TimelineActions
 	public void addActionDetails(String uuid, List<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount, ActivityObjectTypes objType)
 	{
 		Pair<String, String> uuidObjType = new Pair<String, String>(uuid, objType.getTypeString());
-		
+
 		ArrayList<ActionsDataModel> actionDMList = timelineActionsMap.get(uuidObjType);
 
 		boolean newInstance = false;
@@ -111,6 +112,35 @@ public class TimelineActions
 	public HashMap<Pair<String, String>, ArrayList<ActionsDataModel>> getTimelineActionsMap()
 	{
 		return timelineActionsMap;
+	}
+
+	public void updateActivityFeed(FeedDataModel feedData)
+	{
+		if (feedData == null)
+		{
+			throw new IllegalArgumentException("updateActivityFeed(): input FeedDataModel cannot be null");
+		}
+
+		ActionTypes actionType = feedData.getActionType();
+
+		ActionsDataModel actions = getActions(feedData.getObjID(), actionType == ActionTypes.UNLIKE ? ActionTypes.LIKE : actionType, feedData.getObjType());
+
+		if (actionType == ActionTypes.UNLIKE)
+		{
+			actions.removeContact(feedData.getActor());
+		}
+		else if (actionType == ActionTypes.LIKE)
+		{
+			actions.addContact(feedData.getActor());
+		}
+		else if (actionType == ActionTypes.COMMENT)
+		{
+			// Later versions
+		}
+		else if (actionType == ActionTypes.VIEW)
+		{
+			// Later versions
+		}
 	}
 
 }

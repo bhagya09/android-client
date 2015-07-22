@@ -40,7 +40,7 @@ public class FeedDataModel
 				setObjID(statusId);
 			}
 
-			setTimestamp(jsonData.getLong(HikeConstants.TIMESTAMP));
+//			setTimestamp(jsonData.getLong(HikeConstants.TIMESTAMP));
 
 			setActor(jsonData.getString(HikeConstants.FROM));
 
