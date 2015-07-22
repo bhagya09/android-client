@@ -7542,25 +7542,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		Set<EqualsPair<String, String>> uuidObjSet = actionsDataMap.keySet();
 
-		mDb.beginTransaction();
-
-		for (EqualsPair<String, String> uuidObjType : uuidObjSet)
+		try
 		{
-			ArrayList<ActionsDataModel> actionsDataListForUUID = actionsDataMap.get(uuidObjType);
-			for (ActionsDataModel actionDM : actionsDataListForUUID)
-			{
-				ContentValues cv = new ContentValues();
-				cv.put(ACTION_OBJECT_TYPE, activityType.getTypeString());
-				cv.put(ACTION_OBJECT_ID, uuidObjType.first);
-				cv.put(ACTION_ID, actionDM.getType().getKey());
-				cv.put(ACTION_COUNT, actionDM.getCount());
-				cv.put(ACTORS, actionDM.getContactsMsisdnCSV());
-				mDb.insertWithOnConflict(ACTIONS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-			}
-		}
+			mDb.beginTransaction();
 
-		mDb.setTransactionSuccessful();
-		mDb.endTransaction();
+			for (EqualsPair<String, String> uuidObjType : uuidObjSet)
+			{
+				ArrayList<ActionsDataModel> actionsDataListForUUID = actionsDataMap.get(uuidObjType);
+				for (ActionsDataModel actionDM : actionsDataListForUUID)
+				{
+					ContentValues cv = new ContentValues();
+					cv.put(ACTION_OBJECT_TYPE, activityType.getTypeString());
+					cv.put(ACTION_OBJECT_ID, uuidObjType.first);
+					cv.put(ACTION_ID, actionDM.getType().getKey());
+					cv.put(ACTION_COUNT, actionDM.getCount());
+					cv.put(ACTORS, actionDM.getContactsMsisdnCSV());
+					mDb.insertWithOnConflict(ACTIONS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+				}
+			}
+
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
 
 	}
 }
