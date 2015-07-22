@@ -48,6 +48,18 @@ public class StatusMessage
 				return StatusMessageType.TEXT_IMAGE;
 			case 3:
 				return StatusMessageType.PROFILE_PIC;
+			case 4:
+				return StatusMessageType.FRIEND_REQUEST;
+			case 5:
+				return StatusMessageType.FRIEND_REQUEST_ACCEPTED;
+			case 6:
+				return StatusMessageType.NO_STATUS;
+			case 7:
+				return StatusMessageType.USER_ACCEPTED_FRIEND_REQUEST;
+			case 8:
+				return StatusMessageType.PROTIP;
+			case 9:
+				return StatusMessageType.JOINED_HIKE;
 			default:
 				throw new IllegalArgumentException("Invalid ActionType key");
 			}
