@@ -28,6 +28,7 @@ import android.net.wifi.WifiManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -59,7 +60,7 @@ public class VoIPUtils {
 
 	public static enum CallSource
 	{
-		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG
+		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE
 	}
 	
     public static boolean isWifiConnected(Context context) {
@@ -376,18 +377,52 @@ public class VoIPUtils {
 	public static boolean isBluetoothEnabled(Context context) 
 	{
 		boolean bluetoothEnabled = false;
-		
-		/*
-		// Below KitKat startBluetoothSco() requires BROADCAST_STICKY permission
-		// http://stackoverflow.com/questions/8678642/startbluetoothsco-throws-security-exception-broadcast-sticky-on-ics
-		// https://code.google.com/p/android/issues/detail?id=25136
-		if (Utils.isKitkatOrHigher())
-			bluetoothEnabled = true;
-		else
-			Logger.w(tag, "Bluetooth disabled since phone does not support Kitkat.");
-		*/
-
 		return bluetoothEnabled;
+	}
+	
+	/**
+	 * <p>Check if we can host a conference or not. </p>
+	 * <p>
+	 * Following is checked - <br/>
+	 * 1. If the device supports KitKat or above. <br/>
+	 * 2. If we are currently connected to a network that supports conference. <br/>
+	 * 3. If the conference group size is under the defined limit. <br/>
+	 * 4. If user is online. <br/>
+	 * </p>
+	 * A toast will be shown if any error is encountered. 
+	 * @param context
+	 * @return
+	 */
+	public static boolean checkIfConferenceIsAllowed(Context context, int newSize) {
+		
+		// OS check
+		if (!Utils.isIceCreamOrHigher()) {
+			Toast.makeText(context, context.getString(R.string.voip_conference_os_support), Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
+		// Network check
+		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
+		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
+		// Conference size check
+		if (newSize > VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE) {
+			Toast.makeText(context, context.getString(R.string.voip_group_too_large, VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE), Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
+		// User online check
+		if (!Utils.isUserOnline(context))
+		{
+			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		
+		
+		return true;
 	}
 	
 	/**
