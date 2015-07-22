@@ -178,7 +178,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(getArguments().containsKey(HikeConstants.FROM_CHAT_THREAD))
 			fromChatThread = getArguments().getBoolean(HikeConstants.FROM_CHAT_THREAD);
 		
-		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
+		smAdapter = new SharedMediaAdapter(getChildFragmentManager(), getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
 		selectedPager.setAdapter(smAdapter);
 		selectedPager.setOnPageChangeListener(this);
 		
@@ -270,6 +270,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPageScrollStateChanged(int arg0)
 	{
+		smAdapter.clearInitialFragment();
 	}
 
 	@Override
@@ -283,14 +284,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if (!reachedEndRight && !loadingMoreItems && position == (getCount() - PAGER_LIMIT))
 		{
 			loadingMoreItems = true;
-			//Logger.d(TAG,"loading items from right : " + maxMsgId);
+			Logger.d(TAG,"loading items from right : " + maxMsgId);
 			loadItems(reachedEndRight, maxMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, true);
 		}
 
 		if (!reachedEndLeft && !loadingMoreItems && position == PAGER_LIMIT)
 		{
 			loadingMoreItems = true;
-			//Logger.d(TAG, "loading items from left : " + minMsgId);
+			Logger.d(TAG, "loading items from left : " + minMsgId);
 			loadItems(reachedEndLeft, minMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, false, true, position);
 
 		}
