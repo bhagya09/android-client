@@ -15,6 +15,7 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -38,7 +39,6 @@ import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 
@@ -274,7 +274,7 @@ public class ChatHeadService extends Service
 					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.OPEN_HIKE_ANIMATION:
-					IntentFactory.openHomeActivityInOtherTask(getApplicationContext(), true);
+					startActivity(IntentFactory.getHomeActivityIntentAsLauncher(getApplicationContext()));
 					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.STICKER_SHOP_ANIMATION:
@@ -305,7 +305,7 @@ public class ChatHeadService extends Service
 		//its also a product call to take user inside hike after exploring stickers deeply
 		//This code may be removed in case some better strategy replaces the FSM to handle FG-BG-lastseen use cases
 		TaskStackBuilder.create(getApplicationContext())
-		.addNextIntent(IntentFactory.getHomeActivityIntent(getApplicationContext()))
+		.addNextIntent(IntentFactory.getHomeActivityIntentAsLauncher(getApplicationContext()))
 		.addNextIntent(openingIntent)
 		.startActivities();
 	}
