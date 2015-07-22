@@ -1492,16 +1492,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void showNetworkError(boolean isNetworkError) 
 	{
-		TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
-		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
-		String contactFirstName = msisdn;
-		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+		if(isNetworkError && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
-			contactFirstName = contactInfo.getFirstName();
+			TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
+			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+			String contactFirstName = msisdn;
+			if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+			{
+				contactFirstName = contactInfo.getFirstName();
+			}
+			textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
+			activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
+			activity.findViewById(R.id.network_error_card).setOnClickListener(this);
 		}
-		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
-		activity.findViewById(R.id.network_error_card).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
-		activity.findViewById(R.id.network_error_card).setOnClickListener(this);
 	};
 
 	/**
