@@ -26,7 +26,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.RecyclerViewCursorAdapter;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
-import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
@@ -38,7 +37,6 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.RoundedImageView;
 
 public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<ActivityFeedCardCursorAdapter.ViewHolder>
@@ -46,17 +44,11 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 
 	private final int PROFILE_PIC_CHANGE = 3;
 
-	private final int OTHER_UPDATE = -12;
-
 	private final int IMAGE = 1;
 	
-	private final int TEXT_IMAGE = 0;
-
-	public static final long EMPTY_STATUS_NO_STATUS_ID = -3;
-
-	public static final long EMPTY_STATUS_NO_STATUS_RECENTLY_ID = -5;
-
-	public static final long FTUE_ITEM_ID = -6;
+	private final int TEXT_IMAGE = 2;
+	
+	private final int TEXT = 0;
 
 	class ViewHolder extends RecyclerView.ViewHolder
 	{
@@ -84,8 +76,6 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 		
 		ImageView moodImage;
 
-		ViewGroup moodsContainer;
-		
 		ImageView loveStatus;
 
 		public ViewHolder(View convertView, int viewType)
@@ -100,15 +90,6 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 			//Grab view references
 			switch (viewType)
 			{
-			case OTHER_UPDATE:
-				avatar = (ImageView) convertView.findViewById(R.id.avatar);
-				avatarFrame = (ImageView) convertView.findViewById(R.id.avatar_frame);
-				extraInfo = (TextView) convertView.findViewById(R.id.details);
-				timeStamp = (TextView) convertView.findViewById(R.id.timestamp);
-				statusImg = (ImageView) convertView.findViewById(R.id.status_pic);
-				infoContainer = convertView.findViewById(R.id.btn_container);
-				moodsContainer = (ViewGroup) convertView.findViewById(R.id.moods_container);
-				break;
 			
 			case PROFILE_PIC_CHANGE:
 			case IMAGE:
@@ -173,7 +154,7 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 		{
 			return TEXT_IMAGE;
 		}
-		return OTHER_UPDATE;
+		return TEXT;
 	}
 
 	@Override
@@ -187,130 +168,7 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 				
 		switch (viewType)
 		{
-		case OTHER_UPDATE:
-			RoundedImageView roundAvatar = (RoundedImageView) viewHolder.avatar;
-			roundAvatar.setScaleType(ScaleType.FIT_CENTER);
-			roundAvatar.setBackgroundResource(0);
-
-			if (statusMessage.getStatusMessageType() == StatusMessageType.PROTIP)
-			{
-				roundAvatar.setImageResource(R.drawable.ic_protip);
-				viewHolder.avatarFrame.setVisibility(View.GONE);
-			}
-			else if (statusMessage.hasMood())
-			{
-				// For moods we dont want to use rounded corners
-				roundAvatar.setOval(false);
-				roundAvatar.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
-				viewHolder.avatarFrame.setVisibility(View.GONE);
-			}
-			else
-			{
-				roundAvatar.setOval(true);
-				setAvatar(statusMessage.getMsisdn(), viewHolder.avatar);
-			}
-			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getString(R.string.me) : statusMessage.getNotNullName());
-
-			viewHolder.mainInfo.setText(statusMessage.getText());
-
-			viewHolder.timeStamp.setVisibility(View.VISIBLE);
-			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, mContext));
-
-			viewHolder.statusImg.setVisibility(View.GONE);
-
-			int padding = mContext.getResources().getDimensionPixelSize(R.dimen.status_btn_padding);
-
-			viewHolder.infoContainer.setVisibility(View.GONE);
-			viewHolder.moodsContainer.setVisibility(View.GONE);
-
-			switch (statusMessage.getStatusMessageType())
-			{
-			case NO_STATUS:
-				viewHolder.infoContainer.setVisibility(View.VISIBLE);
-				viewHolder.extraInfo.setVisibility(View.VISIBLE);
-				break;
-			case FRIEND_REQUEST:
-				viewHolder.extraInfo.setVisibility(View.VISIBLE);
-
-				viewHolder.extraInfo.setText(mContext.getString(R.string.added_as_hike_friend_info, Utils.getFirstName(statusMessage.getNotNullName())));
-				break;
-			case TEXT:
-				viewHolder.extraInfo.setVisibility(View.GONE);
-
-				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
-				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
-				viewHolder.mainInfo.setMovementMethod(null);
-				viewHolder.parent.setTag(statusMessage);
-				viewHolder.parent.setOnClickListener(onProfileInfoClickListener);
-				break;
-			case FRIEND_REQUEST_ACCEPTED:
-			case USER_ACCEPTED_FRIEND_REQUEST:
-				viewHolder.extraInfo.setVisibility(View.GONE);
-
-				boolean friendRequestAccepted = statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST_ACCEPTED;
-
-				int infoMainResId = friendRequestAccepted ? R.string.accepted_your_favorite_request_details : R.string.you_accepted_favorite_request_details;
-				String infoSubText = mContext.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-				viewHolder.mainInfo.setText(mContext.getString(infoMainResId, Utils.getFirstName(statusMessage.getNotNullName()), infoSubText));
-				break;
-			case PROTIP:
-				Protip protip = statusMessage.getProtip();
-
-				viewHolder.infoContainer.setVisibility(View.VISIBLE);
-
-				viewHolder.timeStamp.setVisibility(View.GONE);
-
-				if (!TextUtils.isEmpty(protip.getText()))
-				{
-					viewHolder.extraInfo.setVisibility(View.VISIBLE);
-					viewHolder.extraInfo.setText(protip.getText());
-
-				}
-				else
-				{
-					viewHolder.extraInfo.setVisibility(View.GONE);
-				}
-
-				if (!TextUtils.isEmpty(protip.getImageURL()))
-				{
-
-					ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), protip.getImageURL(), true);
-					viewHolder.statusImg.setTag(imageViewerInfo);
-					//viewHolder.statusImg.setOnClickListener(imageClickListener);
-					// TODO
-					// profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, isListFlinging);
-					profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, false);
-					viewHolder.statusImg.setVisibility(View.VISIBLE);
-				}
-				else
-				{
-					viewHolder.statusImg.setVisibility(View.GONE);
-				}
-				if (!TextUtils.isEmpty(protip.getGameDownlodURL()))
-				{
-					//viewHolder.buttonDivider.setVisibility(View.VISIBLE);
-				}
-				else
-				{
-				}
-
-				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
-				viewHolder.mainInfo.setMovementMethod(null);
-
-				Linkify.addLinks(viewHolder.extraInfo, Linkify.ALL);
-				viewHolder.mainInfo.setMovementMethod(null);
-				break;
-			case JOINED_HIKE:
-				break;
-			default:
-				break;
-			}
-
-			viewHolder.avatar.setTag(statusMessage);
-
-			break;
-
+		case TEXT:
 		case IMAGE:
 		case TEXT_IMAGE:
 		case PROFILE_PIC_CHANGE:
@@ -338,7 +196,14 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 				viewHolder.moodImage.setVisibility(View.VISIBLE);
 			}
 				
-			if (TextUtils.isEmpty(statusMessage.getText()))
+			if(viewType == TEXT)
+			{
+				SmileyParser smileyParser = SmileyParser.getInstance();
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
+				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
+				viewHolder.mainInfo.setMovementMethod(null);
+			}
+			else if (TextUtils.isEmpty(statusMessage.getText()))
 			{
 				viewHolder.mainInfo.setText(R.string.status_profile_pic_notification);
 			}
@@ -387,8 +252,8 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 
 		switch (viewType)
 		{
-		case OTHER_UPDATE:
-			convertView = mInflater.inflate(R.layout.timeline_item, parent, false);
+		case TEXT:
+			convertView = mInflater.inflate(R.layout.activity_feed_item, parent, false);
 			return new ViewHolder(convertView, viewType);
 		case PROFILE_PIC_CHANGE:
 			convertView = mInflater.inflate(R.layout.activity_feed_item, parent, false);

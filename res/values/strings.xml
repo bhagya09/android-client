@@ -1557,4 +1557,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="actionbar_activity_feed_title">See Activity Feeds</string>
 	<string name="photo_like_text">Liked your photo.</string>
 	<string name="status_update_like_text">Liked your status update %1$s.</string>
+	<string name="activity_feed_actionbar_title">Activity Feed</string>
 </resources>

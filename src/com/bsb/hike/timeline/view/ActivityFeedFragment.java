@@ -225,11 +225,12 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setText("Activity Feed");
+		title.setText(getResources().getString(R.string.activity_feed_actionbar_title));
 
 		TextView subText = (TextView) actionBarView.findViewById(R.id.subtext);
 		subText.setVisibility(View.GONE);
 
+		
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		backContainer.setOnClickListener(new OnClickListener()
@@ -238,11 +239,17 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 			@Override
 			public void onClick(View v)
 			{
-				//getSherlockActivity().onBackPressed();
-				//getFragmentManager().beginTransaction().remove(ActivityFeedFragment.this).commit();
-				if(isAdded() && isVisible())
+				if (isAdded() && isVisible())
 				{
-					((TimelineActivity)getActivity()).getSupportFragmentManager().beginTransaction().remove(ActivityFeedFragment.this).commit();//.setupMainFragment(null);
+					int count = getFragmentManager().getBackStackEntryCount();
+					if (count == 0)
+					{
+						getActivity().onBackPressed();
+					}
+					else
+					{
+						getFragmentManager().popBackStack();
+					}
 				}
 			}
 		});
