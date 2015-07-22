@@ -1026,12 +1026,15 @@ public class StickerSearchHostManager
 
 		if ((relatedPhraseStartWordIndex > -1) && (relatedPhraseEndWordIndex >= relatedPhraseStartWordIndex) && (mCurrentText != null))
 		{
-			int firstCharIndex = pstarts.get(relatedPhraseStartWordIndex);
-			int lastCharIndex = pends.get(relatedPhraseEndWordIndex);
-
-			if (lastCharIndex <= mCurrentText.length())
+			if ((relatedPhraseStartWordIndex < pstarts.size()) && (relatedPhraseEndWordIndex < pends.size()))
 			{
-				relatedPhrase = mCurrentText.substring(firstCharIndex, lastCharIndex);
+				int firstCharIndex = pstarts.get(relatedPhraseStartWordIndex);
+				int lastCharIndex = pends.get(relatedPhraseEndWordIndex);
+
+				if ((firstCharIndex < lastCharIndex) && (lastCharIndex <= mCurrentText.length()))
+				{
+					relatedPhrase = mCurrentText.substring(firstCharIndex, lastCharIndex);
+				}
 			}
 		}
 
@@ -1447,11 +1450,11 @@ public class StickerSearchHostManager
 		}
 	}
 
-	private static ArrayList<String> pwords = null;
+	private static volatile ArrayList<String> pwords = null;
 
-	private static ArrayList<Integer> pstarts = null;
+	private static volatile ArrayList<Integer> pstarts = null;
 
-	private static ArrayList<Integer> pends = null;
+	private static volatile ArrayList<Integer> pends = null;
 
 	private static HashMap<String, ArrayList<ArrayList<Object>>> history = new HashMap<String, ArrayList<ArrayList<Object>>>();
 
