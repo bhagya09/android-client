@@ -20,4 +20,5 @@ project(':google-play').projectDir = new File('./google-play-services_lib')
 project(':facebook').projectDir = new File('./facebook-android-sdk/facebook')
 project(':actionbar-sherlock').projectDir = new File('./actionbarsherlock library')
 project(':viewpager-indicator-library').projectDir = new File('./Android ViewPagerIndicator library')
+project(':cardview').projectDir = new File('./cardview')
 rootProject.name = 'android-client'

@@ -42,6 +42,9 @@ android {
         compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
+        compile(project(':cardview')) {
+            exclude module: 'support-v4'
+        }
         compile fileTree(dir: 'libs', include: ['*.jar'])
     }
 
