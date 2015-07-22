@@ -253,7 +253,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 		catch (SQLException e)
 		{
-			Logger.d(TAG, "Error in executing sql: " + e.getMessage());
+			Logger.d(TAG, "Error in executing sql: ", e);
 		}
 	}
 
@@ -697,9 +697,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				mDb.beginTransaction();
 
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
 				deleteSearchData();
 
 				mDb.setTransactionSuccessful();
+			}
+			catch(SQLException e)
+			{
+				Logger.d(TAG, "Error in executing sql delete queries: ", e);
 			}
 			finally
 			{
