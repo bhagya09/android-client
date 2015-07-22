@@ -2829,7 +2829,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				}
 				else
 				{
-					overFlowMenuItem.enabled = !mConversation.isBlocked();
+					overFlowMenuItem.enabled = ( !mConversation.isBlocked() && !OfflineUtils.isConnectedToSameMsisdn(msisdn) );
 				}
 				break;
 				
@@ -2850,7 +2850,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				{
 					overFlowMenuItem.text = getString(R.string.disconnect_offline);
 				}
-				
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
 			}
 		}
