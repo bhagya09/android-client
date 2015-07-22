@@ -36,6 +36,7 @@ import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
@@ -601,7 +602,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			if (!TextUtils.isEmpty(mContactInfo.getMsisdnType()))
 				viewHolder.subText.setText(" (" + mContactInfo.getMsisdnType().toLowerCase() + ")");
 
-			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context))
+			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context) ||
+					OfflineUtils.isConnectedToSameMsisdn(mContactInfo.getMsisdn()))
 			{
 				viewHolder.phoneIcon.setVisibility(View.GONE);
 				viewHolder.divider.setVisibility(View.GONE);
