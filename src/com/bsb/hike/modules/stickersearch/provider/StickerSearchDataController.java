@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -66,11 +67,11 @@ public enum StickerSearchDataController
 			return;
 		}
 
-		Iterator<String> categories = packsData.keys();
-		HashSet<String> stickerCodeList = new HashSet<String>();
+		Set<String> receivedStickerSet = new HashSet<String>();
+		HashSet<String> stickerCodeSet = new HashSet<String>();
 		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
 		ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
-		Set<String> untaggedSet = new HashSet<String>();
+		Iterator<String> categories = packsData.keys();
 
 		while (categories.hasNext())
 		{
@@ -108,6 +109,8 @@ public enum StickerSearchDataController
 				}
 
 				String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId, packId);
+				receivedStickerSet.add(stickerInfo);
+
 				JSONObject stickerData = stickersData.optJSONObject(stickerId);
 
 				if ((stickerData == null) || (stickerData.length() <= 0))
@@ -391,11 +394,7 @@ public enum StickerSearchDataController
 
 						stickersTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
 								tagPriorityList, stickerMomentCode, stickerFestivals));
-						stickerCodeList.add(stickerInfo);
-					}
-					else
-					{
-						untaggedSet.add(stickerInfo);
+						stickerCodeSet.add(stickerInfo);
 					}
 
 					packTagDataCount += stickerTagDataCount;
@@ -439,18 +438,22 @@ public enum StickerSearchDataController
 			}
 		}
 
+		HashSet<String> untaggedSet = new HashSet<String>();
+		untaggedSet.addAll(receivedStickerSet);
+		untaggedSet.removeAll(stickerCodeSet);
 		Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
+
 		if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
 		{
 			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
 			Set<String> updateRetrySet = new HashSet<String>();
-			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trail list: " + pendingRetrySet);
+			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
 
 			if (pendingRetrySet != null)
 			{
 				for (String stickerCode : pendingRetrySet)
 				{
-					if (!stickerCodeList.contains(stickerCode) && !untaggedSet.contains(stickerCode))
+					if (!receivedStickerSet.contains(stickerCode))
 					{
 						updateRetrySet.add(stickerCode);
 					}
@@ -460,6 +463,10 @@ public enum StickerSearchDataController
 			Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
 			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
 		}
+
+		receivedStickerSet.clear();
+		stickerCodeSet.clear();
+		untaggedSet.clear();
 
 		if (stickersTagData.size() > 0)
 		{
