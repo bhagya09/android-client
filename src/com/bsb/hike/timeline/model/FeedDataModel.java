@@ -154,27 +154,4 @@ public class FeedDataModel
 	{
 		this.readStatus = readStatus;
 	}
-	
-	public String getTimestampFormatted(boolean pretty, Context context)
-	{
-		if (pretty)
-		{
-			return Utils.getFormattedTime(pretty, context, mTimestamp);
-		}
-		else
-		{
-			Date date = new Date(mTimestamp * 1000);
-			String format;
-			if (android.text.format.DateFormat.is24HourFormat(context))
-			{
-				format = "d MMM ''yy 'AT' HH:mm";
-			}
-			else
-			{
-				format = "d MMM ''yy 'AT' h:mm aaa";
-			}
-			DateFormat df = new SimpleDateFormat(format);
-			return df.format(date);
-		}
-	}
 }

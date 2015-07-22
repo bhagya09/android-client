@@ -38,6 +38,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.RoundedImageView;
 
 public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<ActivityFeedCursorAdapter.ViewHolder>
@@ -183,7 +184,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			viewHolder.name.setText(mUserMsisdn.equals(feedDataModel.getActor()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : 
 				ContactManager.getInstance().getContact(feedDataModel.getActor()).getFirstNameAndSurname());
 
-			viewHolder.timeStamp.setText(feedDataModel.getTimestampFormatted(true, mContext));
+			viewHolder.timeStamp.setText(Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 			
 			if(feedDataModel.getReadStatus() == 1)
 			{
