@@ -1435,15 +1435,17 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 							}
 						}
 
-						private void deleteGCAnalyticEvent(boolean confirm) {
-							try {
+						private void deleteGCAnalyticEvent(boolean confirm)
+						{
+							try
+							{
 								JSONObject metadata = new JSONObject();
-								metadata.put(HikeConstants.EVENT_KEY,
-										HikeConstants.LogEvent.DELETE_GC_CONVERSATION);
-								metadata.put(HikeConstants.EVENT_CONFIRM,confirm);
-								HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
-										AnalyticsConstants.CLICK_EVENT, metadata);
-							} catch (JSONException e) {
+								metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.DELETE_GC_CONVERSATION);
+								metadata.put(HikeConstants.EVENT_CONFIRM, confirm);
+								HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+							}
+							catch (JSONException e)
+							{
 								Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 							}
 						}
@@ -1483,28 +1485,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 									OneToNConversationUtils.saveStatusMesg(conv, getActivity().getApplicationContext());
 								}
 							}
-							leaveGCAnalyticEvent(hikeDialog, true);
+							OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_HOME);
 							hikeDialog.dismiss();
 						}
 
-
-						private void leaveGCAnalyticEvent(HikeDialog hikeDialog, boolean confirm) {
-							try {
-								JSONObject metadata = new JSONObject();
-								metadata.put(HikeConstants.EVENT_KEY,
-										HikeConstants.LogEvent.EXIT_GC_CONVERSATION);
-								metadata.put(HikeConstants.EVENT_PATH,
-										HikeConstants.LogEvent.LEAVE_GROUP_VIA_HOME);
-								metadata.put(HikeConstants.EVENT_CHECKED,((CustomAlertDialog) hikeDialog).isChecked());
-								metadata.put(HikeConstants.EVENT_CONFIRM,confirm);
-								HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
-										AnalyticsConstants.CLICK_EVENT, metadata);
-							} catch (JSONException e) {
-								Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-							}
-						}
-						
-					
+	
 						@Override
 						public void neutralClicked(HikeDialog hikeDialog)
 						{
@@ -1514,7 +1499,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void negativeClicked(HikeDialog hikeDialog)
 						{
 							hikeDialog.dismiss();
-							leaveGCAnalyticEvent(hikeDialog, false);
+							OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_HOME);
 						}
 					}, conv.getLabel());
 					

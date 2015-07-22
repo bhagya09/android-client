@@ -1973,65 +1973,52 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		blockBtn.setText(!isBlocked ? R.string.block_user : R.string.unblock_user);
 	}
 	
-	public void leaveGroup(){
+	public void leaveGroup()
+	{
 		HikeDialogFactory.showDialog(ProfileActivity.this, HikeDialogFactory.DELETE_GROUP_DIALOG, new HikeDialogListener()
 		{
-			
+
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.DELETE_CONVERSATION);
 				HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
-	
-				if(((CustomAlertDialog) hikeDialog).isChecked()){
-							HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT,
-									oneToNConversation.getConvInfo());
-							Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
-							intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
-							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-							startActivity(intent);
-							finish();
-				}else {
 
-					if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), false) > 0) {
-						
-						OneToNConversationUtils.saveStatusMesg(oneToNConversation.getConvInfo(),getApplicationContext());
-					 HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_END, oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END));
+				if (((CustomAlertDialog) hikeDialog).isChecked())
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
+					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+					finish();
+				}
+				else
+				{
+
+					if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), false) > 0)
+					{
+
+						OneToNConversationUtils.saveStatusMesg(oneToNConversation.getConvInfo(), getApplicationContext());
+						HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_END, oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END));
 					}
 				}
-				leaveGCAnalyticEvent(hikeDialog,true);
+				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
 				hikeDialog.dismiss();
 			}
 
-
-			private void leaveGCAnalyticEvent(HikeDialog hikeDialog, boolean confirm) {
-				try {
-					JSONObject metadata = new JSONObject();
-					metadata.put(HikeConstants.EVENT_KEY,
-							HikeConstants.LogEvent.EXIT_GC_CONVERSATION);
-					metadata.put(HikeConstants.EVENT_PATH,
-							HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
-					metadata.put(HikeConstants.EVENT_CHECKED,((CustomAlertDialog) hikeDialog).isChecked());
-					metadata.put(HikeConstants.EVENT_CONFIRM,confirm);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
-							AnalyticsConstants.CLICK_EVENT, metadata);
-				} catch (JSONException e) {
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-				}
-			}
-
-			
+		
 			@Override
 			public void neutralClicked(HikeDialog hikeDialog)
 			{
 			}
-			
+
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				hikeDialog.dismiss();
-				leaveGCAnalyticEvent(hikeDialog,false);
-				
+				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
+
 			}
 		}, oneToNConversation.getLabel());
 	}
