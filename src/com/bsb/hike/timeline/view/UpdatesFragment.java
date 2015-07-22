@@ -440,19 +440,12 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 			if (Utils.isResponseValid(response))
 			{
 				actionsData = gson.fromJson(response.toString(), TimelineActions.class);
-				
-				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-				{
-					
-					@Override
-					public void run()
-					{
-						HikeConversationsDatabase.getInstance().updateActionsData(actionsData,ActivityObjectTypes.STATUS_UPDATE);
-					}
-				}, 0);
-				
+
 				timelineCardsAdapter.setActionsData(actionsData);
+				
 				notifyVisibleItems();
+				
+				HikeConversationsDatabase.getInstance().updateActionsData(actionsData,ActivityObjectTypes.STATUS_UPDATE);
 			}
 		}
 
