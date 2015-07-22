@@ -91,6 +91,7 @@ public abstract class Request<T> implements IRequestFacade
 		this.priority = builder.priority;
 		this.requestType = builder.requestType;
 		this.retryPolicy = builder.retryPolicy;
+		this.retryPolicy.setHostUris(url);
 		addRequestListeners(builder.requestListeners);
 		this.responseOnUIThread = builder.responseOnUIThread;
 		this.asynchronous = builder.asynchronous;

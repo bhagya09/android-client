@@ -25,6 +25,12 @@ public class HttpManager
 
 	private static RequestProcessor requestProcessor;
 
+	private static List<String> productionHostUris;
+
+	private static List<String> platformProductionHostUris;
+
+	private static List<String> stickersProductionHostUris;
+
 	private HttpManager(ClientOptions options)
 	{
 		if (HttpLogger.DEBUG)
@@ -43,7 +49,7 @@ public class HttpManager
 		HttpEngine engine = new HttpEngine();
 		RequestListenerNotifier notifier = new RequestListenerNotifier(engine);
 		requestProcessor = new RequestProcessor(options, engine, notifier);
-
+		setHostUris();
 	}
 
 	static HttpManager getInstance()
@@ -61,6 +67,46 @@ public class HttpManager
 	public static void init()
 	{
 		init(null);
+	}
+
+	private void setHostUris()
+	{
+		setProductionHostUris();
+		setPlatformProductionHostUris();
+		setStickersProductionHostUris();
+	}
+
+	private void setProductionHostUris()
+	{
+		productionHostUris = new ArrayList<String>();
+		// TODO
+	}
+
+	private void setPlatformProductionHostUris()
+	{
+		platformProductionHostUris = new ArrayList<String>();
+		// TODO
+	}
+
+	private void setStickersProductionHostUris()
+	{
+		stickersProductionHostUris = new ArrayList<String>();
+		// TODO
+	}
+
+	public static List<String> getProductionHostUris()
+	{
+		return productionHostUris;
+	}
+
+	public static List<String> getPlatformProductionHostUris()
+	{
+		return platformProductionHostUris;
+	}
+
+	public static List<String> getStickersProductionHostUris()
+	{
+		return stickersProductionHostUris;
 	}
 
 	/**
