@@ -26,7 +26,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
-import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 
 /**
  * Encapsulates all of the information necessary to make an HTTP request.
@@ -55,7 +55,7 @@ public abstract class Request<T> implements IRequestFacade
 
 	private short requestType;
 
-	private DefaultRetryPolicy retryPolicy;
+	private BasicRetryPolicy retryPolicy;
 
 	private volatile boolean isCancelled;
 	
@@ -241,7 +241,7 @@ public abstract class Request<T> implements IRequestFacade
 	 * 
 	 * @return
 	 */
-	public DefaultRetryPolicy getRetryPolicy()
+	public BasicRetryPolicy getRetryPolicy()
 	{
 		return retryPolicy;
 	}
@@ -547,7 +547,7 @@ public abstract class Request<T> implements IRequestFacade
 
 		private short requestType = REQUEST_TYPE_LONG;
 
-		private DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy();
+		private BasicRetryPolicy retryPolicy = new BasicRetryPolicy();
 
 		private IRequestListener requestListeners;
 
@@ -727,7 +727,7 @@ public abstract class Request<T> implements IRequestFacade
 		 *            the new retry policy
 		 * @see
 		 */
-		public S setRetryPolicy(DefaultRetryPolicy retryPolicy)
+		public S setRetryPolicy(BasicRetryPolicy retryPolicy)
 		{
 			this.retryPolicy = retryPolicy;
 			return self();
