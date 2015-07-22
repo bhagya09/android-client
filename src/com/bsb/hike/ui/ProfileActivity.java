@@ -1994,31 +1994,33 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}else {
 
 					if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), false) > 0) {
-						saveStatusMesg();
+						
+						OneToNConversationUtils.saveStatusMesg(oneToNConversation.getConvInfo(),getApplicationContext());
 					 HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_END, oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END));
 					}
 				}
+				leaveGCAnalyticEvent(hikeDialog,true);
 				hikeDialog.dismiss();
 			}
 
-					private void saveStatusMesg() {
-						HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
-						Conversation conversation = convDb.getConversationWithLastMessage(oneToNConversation.getMsisdn());
-						ConvMessage convMessage;
-						try {
-							convMessage = new ConvMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END),
-									conversation, getApplicationContext(), false);
-							ContactManager.getInstance().updateGroupRecency(convMessage.getMsisdn(),
-									convMessage.getTimestamp());
 
-							convDb.addConversationMessages(convMessage, true);
+			private void leaveGCAnalyticEvent(HikeDialog hikeDialog, boolean confirm) {
+				try {
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY,
+							HikeConstants.LogEvent.EXIT_GC_CONVERSATION);
+					metadata.put(HikeConstants.EVENT_PATH,
+							HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
+					metadata.put(HikeConstants.EVENT_CHECKED,((CustomAlertDialog) hikeDialog).isChecked());
+					metadata.put(HikeConstants.EVENT_CONFIRM,confirm);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
+							AnalyticsConstants.CLICK_EVENT, metadata);
+				} catch (JSONException e) {
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+			}
 
-							HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-						} catch (JSONException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
+			
 			@Override
 			public void neutralClicked(HikeDialog hikeDialog)
 			{
@@ -2028,6 +2030,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				hikeDialog.dismiss();
+				leaveGCAnalyticEvent(hikeDialog,false);
+				
 			}
 		}, oneToNConversation.getLabel());
 	}

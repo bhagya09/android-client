@@ -30,6 +30,8 @@ import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -331,5 +333,23 @@ public class OneToNConversationUtils
 		SimpleDateFormat df = new SimpleDateFormat(format);
 		return df.format(creationTime);
 
+	}
+	public static void saveStatusMesg(ConvInfo conv, Context ctx) {
+		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+		Conversation conversation = convDb.getConversationWithLastMessage(conv.getMsisdn());
+		ConvMessage convMessage;
+		try {
+			convMessage = new ConvMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END),
+					conversation, ctx, false);
+			ContactManager.getInstance().updateGroupRecency(convMessage.getMsisdn(),
+					convMessage.getTimestamp());
+
+			convDb.addConversationMessages(convMessage, true);
+
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

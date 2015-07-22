@@ -1558,6 +1558,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
     <string name="confirm_delete_group_msg">Are you sure you want to exit Group Chat?</string>
     <string name="delete_conversation">Delete Conversation</string>
-    <string name="delete_group">Delete Group</string>
-    <string name="delete_group_confirm">Are you sure you want to delete this Group Chat?</string>
+    <string name="delete_group_confirm">Are you sure you want to delete \"%1$s\" group?</string>
 </resources>
