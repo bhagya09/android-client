@@ -152,15 +152,16 @@ public class StatusMessage
 
 	public StatusMessage(Cursor cursor)
 	{
-		if(cursor != null)
+		if(cursor == null)
 		{
-			this.msisdn = cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN));
-			this.statusMessageType = StatusMessageType.getType(cursor.getInt(cursor.getColumnIndex(DBConstants.STATUS_TYPE)));
-			this.text = cursor.getString(cursor.getColumnIndex(DBConstants.STATUS_TEXT));
-			this.moodId = cursor.getInt(cursor.getColumnIndex(DBConstants.MOOD_ID));
-			this.fileKey = cursor.getString(cursor.getColumnIndex(DBConstants.FILE_KEY));
-			this.mappedId = cursor.getString(cursor.getColumnIndex(DBConstants.STATUS_MAPPED_ID));
+			throw new IllegalArgumentException("Cursor passed to StatusMessage was null");
 		}
+		this.msisdn = cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN));
+		this.statusMessageType = StatusMessageType.getType(cursor.getInt(cursor.getColumnIndex(DBConstants.STATUS_TYPE)));
+		this.text = cursor.getString(cursor.getColumnIndex(DBConstants.STATUS_TEXT));
+		this.moodId = cursor.getInt(cursor.getColumnIndex(DBConstants.MOOD_ID));
+		this.fileKey = cursor.getString(cursor.getColumnIndex(DBConstants.FILE_KEY));
+		this.mappedId = cursor.getString(cursor.getColumnIndex(DBConstants.STATUS_MAPPED_ID));
 	}
 	
 	public void setId(long id)

@@ -1,6 +1,7 @@
 package com.bsb.hike.timeline.adapter;
 
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -39,7 +40,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.view.RoundedImageView;
 
-public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<ActivityFeedCardCursorAdapter.ViewHolder>
+public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<ActivityFeedCursorAdapter.ViewHolder>
 {
 
 	private final int PROFILE_PIC_CHANGE = 3;
@@ -118,13 +119,13 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 
 	private int mProtipIndex;
 
-	private SoftReference<Activity> mActivity;
+	private WeakReference<Activity> mActivity;
 
 	private int mLastPosition = 3;
 
 	private static final String TAG = "ActivityFeedCardCursorAdapter";
 	
-    public ActivityFeedCardCursorAdapter(Activity activity, Cursor c, int flags) 
+    public ActivityFeedCursorAdapter(Activity activity, Cursor c, int flags) 
     {
         super(HikeMessengerApp.getInstance().getApplicationContext(), c, flags);
         mContext = HikeMessengerApp.getInstance().getApplicationContext();
@@ -133,7 +134,7 @@ public class ActivityFeedCardCursorAdapter extends RecyclerViewCursorAdapter<Act
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(true);
 		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mProtipIndex = -1;
-		mActivity = new SoftReference<Activity>(activity);
+		mActivity = new WeakReference<Activity>(activity);
 		mUserMsisdn = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
     }
 

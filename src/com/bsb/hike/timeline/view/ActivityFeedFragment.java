@@ -21,7 +21,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.timeline.adapter.ActivityFeedCardCursorAdapter;
+import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
@@ -30,7 +30,7 @@ import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOn
 public class ActivityFeedFragment extends SherlockFragment implements Listener
 {
 
-	private ActivityFeedCardCursorAdapter activityFeedCardAdapter;
+	private ActivityFeedCursorAdapter activityFeedCardAdapter;
 
 	private String[] pubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE };
 
@@ -68,12 +68,12 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 
 		mActivityFeedRecyclerView.setOnScrollListener(scrollListener);
 
-		executeActivityFeedFetchTask(true);
+		executeActivityFeedFetchTask();
 	}
 
-	private void executeActivityFeedFetchTask(boolean isFirstTime)
+	private void executeActivityFeedFetchTask()
 	{
-		FetchActivityFeeds fetchUpdates = new FetchActivityFeeds(isFirstTime);
+		FetchActivityFeeds fetchUpdates = new FetchActivityFeeds();
 
 		if (Utils.isHoneycombOrHigher())
 		{
@@ -132,18 +132,12 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
-			executeActivityFeedFetchTask(false);
+			executeActivityFeedFetchTask();
 		}
 	}
 
 	private class FetchActivityFeeds extends AsyncTask<Void, Void, Cursor>
 	{
-		private boolean isFirstTimeLoading;
-		
-		public FetchActivityFeeds(boolean isFirstTimeLoading)
-		{
-			this.isFirstTimeLoading = isFirstTimeLoading;
-		}
 
 		@Override
 		protected Cursor doInBackground(Void... params)
@@ -166,9 +160,9 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 				@Override
 				public void run()
 				{
-					if (isFirstTimeLoading)
+					if (activityFeedCardAdapter == null)
 					{
-						activityFeedCardAdapter = new ActivityFeedCardCursorAdapter(getActivity(), result, 0);
+						activityFeedCardAdapter = new ActivityFeedCursorAdapter(getActivity(), result, 0);
 						mActivityFeedRecyclerView.setAdapter(activityFeedCardAdapter);
 						HikeMessengerApp.getPubSub().addListeners(ActivityFeedFragment.this, pubSubListeners);
 					}
@@ -177,6 +171,10 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 						activityFeedCardAdapter.swapCursor(result);
 					}
 					
+					/**
+					 * Added this check as to ensure that this call for updating read status
+					 * only when screen is shown to user i.e in post execute, fragment is Added and visible
+					 */
 					if(isAdded() && isVisible())
 					{
 						UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
@@ -241,15 +239,7 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 			{
 				if (isAdded() && isVisible())
 				{
-					int count = getFragmentManager().getBackStackEntryCount();
-					if (count == 0)
-					{
-						getActivity().onBackPressed();
-					}
-					else
-					{
-						getFragmentManager().popBackStack();
-					}
+					getActivity().onBackPressed();
 				}
 			}
 		});

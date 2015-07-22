@@ -198,14 +198,14 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 		else
 		{
-			fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
-			if(!!(fragment != null && fragment.isVisible()))
+			int count = getSupportFragmentManager().getBackStackEntryCount();
+			if (count == 0)
 			{
-				setupMainFragment(null);
+				super.onBackPressed();
 			}
 			else
 			{
-				super.onBackPressed();
+				getFragmentManager().popBackStack();
 			}
 		}
 		

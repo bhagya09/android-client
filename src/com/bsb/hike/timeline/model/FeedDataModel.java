@@ -52,8 +52,6 @@ public class FeedDataModel
 				setObjID(statusId);
 			}
 
-			//setTimestamp(jsonData.getLong(HikeConstants.TIMESTAMP));
-
 			setActor(jsonData.getString(HikeConstants.FROM));
 
 			if (mAction == ActionsDataModel.ActionTypes.LIKE.getKey())
@@ -76,7 +74,10 @@ public class FeedDataModel
 			setActor(cursor.getString(cursor.getColumnIndex(DBConstants.FEED_ACTOR)));
 			setActionType(cursor.getInt(cursor.getColumnIndex(DBConstants.FEED_ACTION_ID)));
 		}
-		
+		else
+		{
+			throw new IllegalArgumentException("Cursor passed to feed model was null");
+		}
 	}
 	
 	private void setActionType(int actionType)

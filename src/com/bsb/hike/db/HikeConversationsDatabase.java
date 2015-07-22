@@ -1566,7 +1566,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues conVal = new ContentValues();
 		conVal.put(DBConstants.READ, 1);
 		
-		long rowID = mDb.update(DBConstants.FEED_TABLE, conVal, null, null);
+		String where = DBConstants.READ + " = 0 ";
+		long rowID = mDb.update(DBConstants.FEED_TABLE, conVal, where, null);
 
 		if (rowID == -1L)
 		{
