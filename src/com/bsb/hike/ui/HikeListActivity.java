@@ -149,7 +149,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			postText.setText(getString(R.string.send_invite, selectedContacts.size()));
 		}
-		backIcon.setImageResource(R.drawable.ic_back);
+//		backIcon.setImageResource(R.drawable.ic_back);
 		setLabel();
 	}
 

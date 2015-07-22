@@ -17,7 +17,6 @@ import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.webkit.URLUtil;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -38,7 +37,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
-import com.bsb.hike.ui.CreditsActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
@@ -173,7 +171,10 @@ public class IntentFactory
 
 	public static void openSettingSMS(Context context)
 	{
-		context.startActivity(new Intent(context, CreditsActivity.class));
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.sms_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.free_sms_txt);
+		context.startActivity(intent);
 	}
 
 	public static void openSettingAccount(Context context)
@@ -892,6 +893,13 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
 		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
+		return intent;
+	}
+
+	public static Intent getInviteViaSMSIntent(Context context)
+	{
+		Intent intent = new Intent(context, HikeListActivity.class);
+		intent.putExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, true);
 		return intent;
 	}
 
