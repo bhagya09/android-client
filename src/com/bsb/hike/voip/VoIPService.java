@@ -84,7 +84,7 @@ public class VoIPService extends Service {
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0, recordingSampleRate = 0;
-	private boolean recordingAndPlaybackRunning = false;
+	public boolean recordingAndPlaybackRunning = false;
 	boolean voiceSignalAbsent = false;
 	
 	private boolean conferencingEnabled = false;
@@ -567,8 +567,6 @@ public class VoIPService extends Service {
 				if (!VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + msisdns.size()))
 					return returnInt;
 
-				startChrono();
-				
 				for (String phoneNumber : msisdns) {
 					
 					// Check for own phone number in group members
@@ -1208,6 +1206,10 @@ public class VoIPService extends Service {
 			Logger.d(tag, "Starting audio record / playback.");
 			startRecording();
 			startPlayBack();
+			
+			if (hostingConference())
+				startChrono();
+
 		} else {
 			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
 		}
