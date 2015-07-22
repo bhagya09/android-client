@@ -803,7 +803,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					int count = ((remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0) ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
 							: remainingCount;
 
-					StringBuilder sb = new StringBuilder(args.length * 2 - 1);
+					StringBuilder sb = new StringBuilder(count * 2 - 1);
 					sb.append(groupIds[j++]);
 					for (int i = 1; i < count; i++)
 					{
@@ -816,14 +816,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						SQLiteDatabase.releaseMemory();
 					}
 
-					try
+					sb.setLength(0);
+					sb = new StringBuilder(count * 2 - 1);
+					sb.append("?");
+					for (int i = 1; i < count; i++)
 					{
-						Thread.sleep(5);
+						sb.append(",?");
 					}
-					catch (InterruptedException e)
-					{
-						e.printStackTrace();
-					}
+
+					mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN(" + sb.toString() + ")", Arrays.copyOfRange(groupIds, (j - count), j));
+					SQLiteDatabase.releaseMemory();
 				}
 
 				mDb.setTransactionSuccessful();
