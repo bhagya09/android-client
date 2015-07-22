@@ -38,6 +38,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -47,11 +48,13 @@ import com.bsb.hike.timeline.ActionsDeserializer;
 import com.bsb.hike.timeline.TimelineConstants;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -80,7 +83,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 
 	private RecyclerView mUpdatesList;
 
-	private RecyclerView.LayoutManager mLayoutManager;
+	private LinearLayoutManager mLayoutManager;
 
 	private View actionsView;
 	
@@ -96,6 +99,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		actionsView = parent.findViewById(R.id.new_update_tab); 
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mUpdatesList.setLayoutManager(mLayoutManager);
+		
 		// TODO
 		// mUpdatesList.setEmptyView(parent.findViewById(android.R.id.empty));
 		return parent;
@@ -109,7 +113,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		prefs = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		
 		GsonBuilder gsonBuilder = new GsonBuilder();
-	    gsonBuilder.registerTypeAdapter(ActionsDataModel.class, new ActionsDeserializer());
+	    gsonBuilder.registerTypeAdapter(TimelineActions.class, new ActionsDeserializer());
 	    gson = gsonBuilder.create();
 
 		userMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, "");
@@ -117,6 +121,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		statusMessages = new ArrayList<StatusMessage>();
 
 		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn);
+		timelineCardsAdapter.setActionsData(actionsData);
 
 		mUpdatesList.setAdapter(timelineCardsAdapter);
 
@@ -337,7 +342,8 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				try
 				{
 					suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
-					HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
+					RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
+					requestToken.execute();
 				}
 				catch (JSONException e)
 				{
@@ -351,7 +357,8 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 					public void run()
 					{
 						HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(),suIDList, actionsData);
-						timelineCardsAdapter.notifyVisibleItems();
+						timelineCardsAdapter.setActionsData(actionsData);
+						notifyVisibleItems();
 					}
 				}, 0);
 			}
@@ -429,11 +436,23 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		@Override
 		public void onRequestSuccess(Response result)
 		{
-			JSONObject response = (JSONObject) result.getBody().getContent();
+			final JSONObject response = (JSONObject) result.getBody().getContent();
 			if (response.optString("stat").equals("ok"))
 			{
 				actionsData = gson.fromJson(response.toString(), TimelineActions.class);
-				timelineCardsAdapter.notifyVisibleItems();
+				
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					
+					@Override
+					public void run()
+					{
+						HikeConversationsDatabase.getInstance().updateActionsData(actionsData,ActivityObjectTypes.STATUS_UPDATE);
+					}
+				}, 0);
+				
+				timelineCardsAdapter.setActionsData(actionsData);
+				notifyVisibleItems();
 			}
 		}
 
@@ -536,6 +555,22 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 
 		default:
 			break;
+		}
+	}
+	
+	public void notifyVisibleItems()
+	{
+		if (UpdatesFragment.this.isAdded())
+		{
+			getActivity().runOnUiThread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					timelineCardsAdapter.notifyDataSetChanged();
+				}
+			});
 		}
 	}
 

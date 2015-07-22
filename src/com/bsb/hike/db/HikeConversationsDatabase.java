@@ -7443,15 +7443,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	/**
 	 * Get actions (likes/comments/views) for corresponding UUIDs
 	 * 
-	 * @param actionType
+	 * @param objectType
 	 *            {@link ActionsDataModel.ActivityObjectTypes}
 	 * @param uuidList
 	 * @param actionsData
 	 */
-	public void getActionsData(String actionType, List<String> uuidList, TimelineActions actionsData)
+	public void getActionsData(String objectType, List<String> uuidList, TimelineActions actionsData)
 	{
 		//Check input params
-		if (TextUtils.isEmpty(actionType) || uuidList == null || uuidList.isEmpty() || actionsData == null)
+		if (TextUtils.isEmpty(objectType) || uuidList == null || uuidList.isEmpty() || actionsData == null)
 		{
 			throw new IllegalArgumentException(HikeConversationsDatabase.class.getSimpleName() + " getActionsData(): One or more input param is null/empty");
 		}
@@ -7463,7 +7463,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		StringBuilder uuidSelection = new StringBuilder("(");
 		for (String uuid : uuidList)
 		{
-			uuidSelection.append(DatabaseUtils.sqlEscapeString(uuid) + ",");
+			if (!TextUtils.isEmpty(uuid))
+			{
+				uuidSelection.append(DatabaseUtils.sqlEscapeString(uuid) + ",");
+			}
 		}
 		uuidSelection.replace(uuidSelection.lastIndexOf(","), uuidSelection.length(), ")");
 
@@ -7472,7 +7475,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		selection.append(DBConstants.ACTION_OBJECT_ID + " IN " + uuidSelection.toString());
 
 		//Add object type (su,card, channel)
-		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " + DatabaseUtils.sqlEscapeString(actionType));
+		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " + DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -7512,7 +7515,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						}
 					}
 					
-					actionsData.addActionDetails(objectId, cInfoList, ActionTypes.getType(actionIDKey), count);
+					actionsData.addActionDetails(objectId, cInfoList, ActionTypes.getType(actionIDKey), count,ActivityObjectTypes.getTypeFromString(objectType));
 				}
 				while (c.moveToNext());
 			}
@@ -7521,5 +7524,43 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			c.close();
 		}
+	}
+
+	public void updateActionsData(TimelineActions actionsData, ActivityObjectTypes activityType)
+	{
+		if (actionsData == null)
+		{
+			return;
+		}
+
+		final HashMap<EqualsPair<String, String>, ArrayList<ActionsDataModel>> actionsDataMap = actionsData.getTimelineActionsMap();
+
+		if (actionsDataMap == null || actionsDataMap.isEmpty())
+		{
+			return;
+		}
+
+		Set<EqualsPair<String, String>> uuidObjSet = actionsDataMap.keySet();
+
+		mDb.beginTransaction();
+
+		for (EqualsPair<String, String> uuidObjType : uuidObjSet)
+		{
+			ArrayList<ActionsDataModel> actionsDataListForUUID = actionsDataMap.get(uuidObjType);
+			for (ActionsDataModel actionDM : actionsDataListForUUID)
+			{
+				ContentValues cv = new ContentValues();
+				cv.put(ACTION_OBJECT_TYPE, activityType.getTypeString());
+				cv.put(ACTION_OBJECT_ID, uuidObjType.first);
+				cv.put(ACTION_ID, actionDM.getType().getKey());
+				cv.put(ACTION_COUNT, actionDM.getCount());
+				cv.put(ACTORS, actionDM.getContactsMsisdnCSV());
+				mDb.insertWithOnConflict(ACTIONS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+			}
+		}
+
+		mDb.setTransactionSuccessful();
+		mDb.endTransaction();
+
 	}
 }
