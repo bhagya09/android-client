@@ -1,10 +1,22 @@
 package com.bsb.hike.modules.httpmgr.retry;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.POST;
 import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.PRODUCTION_API;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.PLATFORM_PRODUCTION_API;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.STICKERS_PRODUCTION_API;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Random;
+
+import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
 import com.bsb.hike.modules.httpmgr.request.requestbody.GzipRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
@@ -36,6 +48,8 @@ public class BasicRetryPolicy
 
 	private float backOffMultiplier;
 
+	private List<String> hostUris;
+
 	/**
 	 * This constructor uses default values for retry count , retry delay and back off multiplier
 	 * 
@@ -65,6 +79,24 @@ public class BasicRetryPolicy
 		this.retryCount = retryCount;
 		this.retryDelay = retryDelay;
 		this.backOffMultiplier = backOffMultiplier;
+	}
+
+	public void setHostUris(URL url)
+	{
+		switch (url.getHost())
+		{
+		case PRODUCTION_API:
+			this.hostUris = HttpManager.getProductionHostUris();
+			break;
+		case PLATFORM_PRODUCTION_API:
+			this.hostUris = HttpManager.getPlatformProductionHostUris();
+			break;
+		case STICKERS_PRODUCTION_API:
+			this.hostUris = HttpManager.getStickersProductionHostUris();
+			break;
+		default:
+			break;
+		}
 	}
 
 	/**
@@ -135,6 +167,9 @@ public class BasicRetryPolicy
 		case HTTP_LENGTH_REQUIRED:
 			handle411Error(requestFacade);
 			break;
+		case REASON_CODE_UNKNOWN_HOST_EXCEPTION:
+			handleUnknownHostException(requestFacade);
+			break;
 		default:
 			break;
 		}
@@ -157,5 +192,41 @@ public class BasicRetryPolicy
 				requestFacade.getRequestInterceptors().remove("gzip");
 			}
 		}
+	}
+
+	/**
+	 * Handles {@link UnknownHostException}, retry with hardcoded IP as url host
+	 * 
+	 * @param ex
+	 */
+	protected void handleUnknownHostException(RequestFacade requestFacade)
+	{
+		URL url = requestFacade.getUrl();
+		try
+		{
+			String fallBackHostUri = getFallbackHost();
+			if (fallBackHostUri == null)
+			{
+				// retry with original host in case of null received from getFallbackHost() method
+				return;
+			}
+			requestFacade.setUrl(new URL(url.getProtocol(), fallBackHostUri, url.getPort(), url.getFile()));
+		}
+		catch (MalformedURLException e)
+		{
+			LogFull.e("exception while setting url in case of unknown host exception", e);
+		}
+	}
+
+	private String getFallbackHost()
+	{
+		if (null == hostUris || hostUris.size() == 0)
+		{
+			return null;
+		}
+
+		Random random = new Random();
+		int index = random.nextInt(hostUris.size());
+		return hostUris.get(index);
 	}
 }
