@@ -175,19 +175,11 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 					return;
 				}
 
-				if ((fragment != null) && isStickerRecommnedPoupShowing())
-				{
-					Logger.d(TAG, "showStickerSearchPopup(), Popup is already shown; hence updating sticker lsit...");
-					((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, stickerList);
-					showFtueAnimation();
-					return;
-				}
-
 				Logger.d(TAG, "showStickerSearchPopup() is called: " + stickerList);
 
 				if (stickerRecommendView == null)
 				{
-					Logger.i(StickerTagWatcher.TAG, "sticker recommend view is null, initialising ..");
+					Logger.i(StickerTagWatcher.TAG, "sticker recommend view is null, initialising...");
 
 					stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
 					android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
