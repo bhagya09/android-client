@@ -80,11 +80,13 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.EqualsPair;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -1604,14 +1606,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private String getActionsTableCreateQuery()
 	{
 
-		String sql = CREATE_TABLE + DBConstants.ACTIONS_TABLE + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY, " // auto increment _id
+		String sql = CREATE_TABLE + DBConstants.ACTIONS_TABLE + " (" + BaseColumns._ID + " INTEGER, " // auto increment _id
 				+ DBConstants.ACTION_OBJECT_TYPE + " TEXT NOT NULL, " // object type(su, card)
 				+ DBConstants.ACTION_OBJECT_ID + " TEXT, " // object id (suid, card id)
 				+ DBConstants.ACTION_ID + " INTEGER, " // action id (love, comment,view)
 				+ DBConstants.ACTION_COUNT + " INTEGER DEFAULT 0, " // action count
 				+ DBConstants.ACTORS + " TEXT DEFAULT '{}', " // actor msisdns
 				+ DBConstants.ACTION_METADATA + " TEXT DEFAULT '{}', " // md
-				+ DBConstants.ACTION_LAST_UPDATE + " INTEGER DEFAULT 0" // last updated
+				+ DBConstants.ACTION_LAST_UPDATE + " INTEGER DEFAULT 0, " // last updated
+				+ "PRIMARY KEY ("+DBConstants.ACTION_OBJECT_ID+", "+DBConstants.ACTION_ID+")" // composite primary key - (obj id + action id)
 				+ ")";
 
 		return sql;
