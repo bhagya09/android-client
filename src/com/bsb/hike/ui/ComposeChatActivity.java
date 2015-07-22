@@ -1394,11 +1394,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		// check if this arrayList contains any Offline contact
 		ContactInfo offlineContact = null;
-		for (ContactInfo ci : arrayList)
+		for (ContactInfo contactInfo : arrayList)
 		{
-			if (!TextUtils.isEmpty(OfflineUtils.getconnectedMsisdn())  && OfflineUtils.getconnectedMsisdn().equals(ci.getMsisdn()))
+			if (!TextUtils.isEmpty(OfflineUtils.getConnectedMsisdn())  && OfflineUtils.getConnectedMsisdn().equals(contactInfo.getMsisdn()))
 			{
-				offlineContact = ci;
+				offlineContact = contactInfo;
 			}
 		}
 		
