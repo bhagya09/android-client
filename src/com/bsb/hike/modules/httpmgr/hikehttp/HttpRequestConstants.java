@@ -312,7 +312,7 @@ public class HttpRequestConstants
 	
 	public static String getActionsUpdateUrl()
 	{
-		return BASE_URL + BASE_V1 + "/love/get_counts_with_msisdn";
+		return BASE_URL + BASE_V1 + "/status/love/get_counts_with_msisdn";
 	}
 	
 	public static String getPostImageSUUrl()
