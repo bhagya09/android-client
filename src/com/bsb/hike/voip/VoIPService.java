@@ -2068,7 +2068,9 @@ public class VoIPService extends Service {
 			}
 		}
 
-		names = names.substring(0, names.length() - delimiter.length());
+		if (names.length() > 0)
+			names = names.substring(0, names.length() - delimiter.length());
+		
 		return names;
 	}
 	
