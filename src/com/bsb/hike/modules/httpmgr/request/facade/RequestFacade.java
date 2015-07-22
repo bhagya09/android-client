@@ -25,6 +25,12 @@ public class RequestFacade implements IRequestFacade
 	}
 
 	@Override
+	public String getMethod()
+	{
+		return request.getMethod();
+	}
+
+	@Override
 	public void addHeaders(List<Header> headers)
 	{
 		request.addHeaders(headers);
