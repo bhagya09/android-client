@@ -462,7 +462,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			else
 			{
 				// TODO remove
-				viewHolder.loveCount.setText("likesNull");
+				viewHolder.loveCount.setText("0");
 			}
 			break;
 
