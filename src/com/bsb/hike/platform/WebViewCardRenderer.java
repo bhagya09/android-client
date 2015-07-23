@@ -672,7 +672,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	 * @param resultCode
 	 * @param data
 	 */
-	public void onActivityResult(int resultCode, Intent data)
+	public void onActivityResult(int requestCode,int resultCode, Intent data)
 	{
 		int platformBridgeHashcode = data.getIntExtra(JavascriptBridge.tag, -1);
 		if(platformBridgeHashcode != -1)
@@ -681,7 +681,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			{
 				if(holder.platformJavaScriptBridge.hashCode() == platformBridgeHashcode)
 				{
-					holder.platformJavaScriptBridge.onActivityResult(resultCode, data);
+					holder.platformJavaScriptBridge.onActivityResult(requestCode,resultCode, data);
 					break;
 				}
 			}

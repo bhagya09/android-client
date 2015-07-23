@@ -1535,7 +1535,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.group_info).equals(option) || getString(R.string.broadcast_info).equals(option))
 				{
-					if (!((OneToNConvInfo) conv).isConversationAlive())
+					if(!ContactManager.getInstance().isGroupAlive(((OneToNConvInfo) conv).getMsisdn()))
 					{
 						return;
 					}

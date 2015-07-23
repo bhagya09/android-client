@@ -32,9 +32,11 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -289,8 +291,15 @@ public class PlatformUtils
 				IntentFactory.createBroadcastDefault(context);
 			}
 			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
-			{
-				IntentFactory.openSettingStickerOnOtherApp(context);
+			{   
+				if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
+				{
+					IntentFactory.openStickerSettings(context);
+				}
+				else
+				{
+					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
+				}
 			}
 		}
 		catch (JSONException e)

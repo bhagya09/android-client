@@ -40,7 +40,11 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -225,8 +229,8 @@ import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
 
-public class Utils
-{
+public class Utils {
+
 	public static Pattern shortCodeRegex;
 
 	public static Pattern msisdnRegex;
@@ -2635,8 +2639,17 @@ public class Utils
 		{
 			return;
 		}
-		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.showSoftInput(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+		showSoftKeyboard(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+	}
+	
+	public static void showSoftKeyboard(View v,int flags)
+	{
+		if (v == null)
+		{
+			return;
+		}
+		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInput(v, flags);
 	}
 	
 //	public static void showSoftKeyboard(Context context)
@@ -3284,11 +3297,6 @@ public class Utils
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
 	
-	public static boolean isLollipopOrHigher()
-	{
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-	}
-	
 	public static boolean isIceCreamOrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
@@ -3297,6 +3305,21 @@ public class Utils
 	public static boolean isJELLY_BEAN_MR2OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
+	}
+	
+	public static boolean isLollipopOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+	}
+
+	public static boolean isJellybeanOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+	}
+
+	public static boolean isJellybeanMR1OrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
 	}
 
 	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
@@ -4993,60 +5016,103 @@ public class Utils
 	
 	public static String getFormattedPrettyTime( Context context, long timestampInSeconds)
 	{
-		if (timestampInSeconds < 0)
+		try
 		{
-			return "";
-		}
-		
-		long givenTimeStampInMillis = timestampInSeconds * 1000; 
-		Calendar givenCalendar = Calendar.getInstance();
-		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
-		
-		long currentTime = System.currentTimeMillis();
-		Calendar currentCalendar = Calendar.getInstance();
-		
-		if(givenCalendar.before(currentCalendar))
-		{
-			long timeDiff = currentTime - givenTimeStampInMillis;
-
-			if (timeDiff < 60 * 1000)
+			if (timestampInSeconds < 0)
 			{
-				// until 1 minute
-				return context.getResources().getString(R.string.now);
+				return "";
 			}
-			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+
+			long givenTimeStampInMillis = timestampInSeconds * 1000;
+			Calendar givenCalendar = Calendar.getInstance();
+			givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+
+			long currentTime = System.currentTimeMillis();
+			Calendar currentCalendar = Calendar.getInstance();
+
+			if (givenCalendar.before(currentCalendar))
 			{
-				//Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+				long timeDiff = currentTime - givenTimeStampInMillis;
+
+				if (timeDiff < 60 * 1000)
+				{
+					// until 1 minute
+					return context.getResources().getString(R.string.now);
+				}
+				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+				{
+					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+				}
+				else
+				{
+					// Shows date in numeric format
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				}
 			}
 			else
 			{
-				//Shows date in numeric format
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+				{
+					if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+					{
+						// Show time in non relate default time format
+						return getFormattedTime(context, givenTimeStampInMillis);
+					}
+					else
+					{
+						// Show date in MMM dd format eg. Apr 21, May 13 etc.
+						return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+								DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+					}
+				}
+				else
+				{
+					// Show date in numeric format
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				}
 			}
 		}
-		else
+		catch (Exception e)
 		{
+			return getFallBackPrettyTime(context, timestampInSeconds);
+		}
+
+	}
+
+	private static String getFallBackPrettyTime(Context context, long timestampInSeconds)
+	{
+		try
+		{
+			long givenTimeStampInMillis = timestampInSeconds * 1000;
+			Calendar givenCalendar = Calendar.getInstance();
+			givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+
+			Calendar currentCalendar = Calendar.getInstance();
+
 			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 			{
 				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
 				{
-					//Show time in non relate default time format
+					// Show time in non relate default time format
 					return getFormattedTime(context, givenTimeStampInMillis);
 				}
 				else
 				{
 					// Show date in MMM dd format eg. Apr 21, May 13 etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+					return DateUtils.formatDateRange(context, givenTimeStampInMillis, givenTimeStampInMillis, DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_YEAR);
 				}
 			}
 			else
 			{
-				//Show date in numeric format
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				// Show date in numeric format
+				return DateUtils.formatDateRange(context, givenTimeStampInMillis, givenTimeStampInMillis, DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_YEAR);
 			}
 		}
-	
+		catch (Exception e)
+		{
+			return "";
+		}
 	}
 
 	public static Pair<String[], String[]> getMsisdnToNameArray(Conversation conversation)
@@ -5887,7 +5953,7 @@ public class Utils
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
 		int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
-		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, imageCompressQuality);
+		Utils.copyFile(srcFilePath, destFilePath);
 
 		if (setIcon)
 		{
@@ -5990,6 +6056,37 @@ public class Utils
 			return false;
 		}
 	}
+	
+	public static ThreadFactory threadFactory(final String name, final boolean daemon)
+	{
+		return new ThreadFactory()
+		{
+			private AtomicInteger i = new AtomicInteger(1);
+
+			@Override
+			public Thread newThread(Runnable runnable)
+			{
+				int threadCount = i.getAndIncrement();
+				Thread result = new Thread(runnable);
+				result.setName(name + "-" + threadCount);
+				result.setDaemon(daemon);
+				result.setPriority(android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE + android.os.Process.THREAD_PRIORITY_BACKGROUND);
+				return result;
+			}
+		};
+	}
+	
+	public static RejectedExecutionHandler rejectedExecutionHandler()
+	{
+		return new RejectedExecutionHandler()
+		{
+			@Override
+			public void rejectedExecution(Runnable r, ThreadPoolExecutor executor)
+			{
+				
+			}
+		};
+	}
 
 	public static boolean isSendLogsEnabled()
 	{
@@ -5997,7 +6094,7 @@ public class Utils
 		
 		if (prefs != null)
 		{
-			prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+			return prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
 		}
 		
 		return false;
@@ -6181,6 +6278,29 @@ public class Utils
         return null;
     }
 
+    /**
+     * Determine whether supplied String is actually empty or not.
+     * 
+     * @param String to be checked
+     * @author Ved Prakash Singh [ved@hike.in]
+     */
+    public static boolean isBlank(final CharSequence s) {
+
+    	boolean result = true;
+    	int length = ((s == null) ? 0 : s.length());
+
+    	if (length > 0) {
+        	for (int i = 0; i < length; i++) {
+        		if (!Character.isWhitespace(s.charAt(i))) {
+        			result = false;
+        			break;
+        		}
+        	}
+    	}
+
+    	return result;
+    }
+
     public static void closeStreams(Closeable... closableStreams)
     {
 		for (Closeable closeable : closableStreams) {
@@ -6297,5 +6417,21 @@ public class Utils
 				.appendPath(token)
 				.build();
 		return formedUri;
+	}
+	
+	/**
+	  * Checks that an Iterable is both non-null and non-empty.  This method does not check individual
+	  * elements in the Iterable, it just checks that the Iterable has at least one element.
+	  *
+	  * @param argument the argument to validate
+	  * @return true is argument is empty. false otherwise
+	  */
+	public static <S, T extends Iterable<S>> boolean isEmpty(T argument) 
+	{
+		if( argument == null || !argument.iterator().hasNext())
+		{
+			return true;
+		}
+		return false;
 	}
 }

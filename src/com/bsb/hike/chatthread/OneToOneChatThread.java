@@ -132,7 +132,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private static short H2H_MODE = 1; // Hike to Hike Mode
 
 	/* The waiting time in seconds before scheduling a H20 Tip */
-	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 30;
+	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 60;
 
 	private static final int DEFAULT_SMS_LENGTH = 140;
 	
@@ -299,7 +299,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP }, sharedPreference);
 		mTips.showTip();
 	}
 
@@ -687,7 +687,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void onShowSMSSyncDialog()
 	{
-		smsDialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.SMS_SYNC_DIALOG, true);
+		if((activity != null) && !activity.isFinishing())
+		{
+			smsDialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.SMS_SYNC_DIALOG, true);
+		}
 	}
 
 	/**

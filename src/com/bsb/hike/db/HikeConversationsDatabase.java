@@ -23,6 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.DatabaseUtils.InsertHelper;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -113,7 +114,22 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private HikeConversationsDatabase(Context context)
 	{
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
-		mDb = getWritableDatabase();
+		try
+		{
+			mDb = getWritableDatabase();
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+			/*
+			 * Ref: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/database/sqlite/SQLiteOpenHelper.java
+			 * 
+			 * When mContext.openOrCreateDatabase throws SQLException, in catch it creates a new database using SQLiteDatabase.openDatabase method.
+			 * 
+			 * SQLiteDatabase.openDatabase returns the newly opened database
+			 * 
+			 * */
+		}
 	}
 	
 	public SQLiteDatabase getWriteDatabase()
@@ -1562,7 +1578,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String msgHash = null;
 		if (!msg.isSent() && (msg.getParticipantInfoState() == ParticipantInfoState.NO_INFO))
 		{
-			msgHash = msg.getMsisdn() + msg.getMappedMsgID();
+			msgHash = msg.getSenderMsisdn() + msg.getMappedMsgID();
 
 			String message = msg.getMessage();
 			if(message !=null && message.length() > 0)
@@ -6975,7 +6991,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				notifDataJSON = new JSONObject();
 			}
-			notifDataJSON.put(String.valueOf(System.currentTimeMillis()), notifData);
+			JSONObject notifJSON = null;
+			try {
+			 notifJSON = new JSONObject(notifData);
+			}catch(JSONException je) {
+				je.printStackTrace();
+				notifJSON = new JSONObject();
+			}
+			
+			
+			notifDataJSON.put(String.valueOf(System.currentTimeMillis()), notifJSON);
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 			mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });

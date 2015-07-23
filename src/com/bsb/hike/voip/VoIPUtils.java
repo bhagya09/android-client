@@ -28,6 +28,7 @@ import android.net.wifi.WifiManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -59,7 +60,7 @@ public class VoIPUtils {
 
 	public static enum CallSource
 	{
-		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG
+		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE
 	}
 	
     public static boolean isWifiConnected(Context context) {
@@ -179,7 +180,11 @@ public class VoIPUtils {
 		}    	
     }
 
-	public static void sendMissedCallNotificationToPartner(VoIPClient clientPartner) {
+    /**
+     * Put a missed call notification on the other client's chat thread. 
+     * @param client
+     */
+	public static void sendMissedCallNotificationToPartner(String msisdn) {
 
 		try {
 			JSONObject socketData = new JSONObject();
@@ -191,7 +196,7 @@ public class VoIPUtils {
 			data.put(HikeConstants.METADATA, socketData);
 
 			JSONObject message = new JSONObject();
-			message.put(HikeConstants.TO, clientPartner.getPhoneNumber());
+			message.put(HikeConstants.TO, msisdn);
 			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING);
 			message.put(HikeConstants.DATA, data);
@@ -268,18 +273,11 @@ public class VoIPUtils {
 		return callActive;
 	}
 	
-	public static int getAudioSource() {
+	public static int getAudioSource(boolean speakerPhone) {
 		int source = MediaRecorder.AudioSource.MIC;
-		String model = android.os.Build.MODEL;
 		
-		if (android.os.Build.VERSION.SDK_INT >= 11)
-			source = MediaRecorder.AudioSource.MIC;
-		
-		Logger.d(tag, "Phone model: " + model);
-		
-//		if (model.contains("Nexus 5") || 
-//				model.contains("Nexus 4"))
-//			source = MediaRecorder.AudioSource.VOICE_RECOGNITION;
+		if (speakerPhone == true)
+			source = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
 		
 		return source;
 	}
@@ -379,17 +377,52 @@ public class VoIPUtils {
 	public static boolean isBluetoothEnabled(Context context) 
 	{
 		boolean bluetoothEnabled = false;
-		
-		/*
-		// Below KitKat startBluetoothSco() requires BROADCAST_STICKY permission
-		// http://stackoverflow.com/questions/8678642/startbluetoothsco-throws-security-exception-broadcast-sticky-on-ics
-		// https://code.google.com/p/android/issues/detail?id=25136
-		if (Utils.isKitkatOrHigher())
-			bluetoothEnabled = true;
-		else
-			Logger.w(tag, "Bluetooth disabled since phone does not support Kitkat.");
-		*/
 		return bluetoothEnabled;
+	}
+	
+	/**
+	 * <p>Check if we can host a conference or not. </p>
+	 * <p>
+	 * Following is checked - <br/>
+	 * 1. If the device supports KitKat or above. <br/>
+	 * 2. If we are currently connected to a network that supports conference. <br/>
+	 * 3. If the conference group size is under the defined limit. <br/>
+	 * 4. If user is online. <br/>
+	 * </p>
+	 * A toast will be shown if any error is encountered. 
+	 * @param context
+	 * @return
+	 */
+	public static boolean checkIfConferenceIsAllowed(Context context, int newSize) {
+		
+		// OS check
+		if (!Utils.isIceCreamOrHigher()) {
+			Toast.makeText(context, context.getString(R.string.voip_conference_os_support), Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
+		// Network check
+		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
+		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
+		// Conference size check
+		if (newSize > VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE) {
+			Toast.makeText(context, context.getString(R.string.voip_group_too_large, VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE), Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
+		// User online check
+		if (!Utils.isUserOnline(context))
+		{
+			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		
+		
+		return true;
 	}
 	
 	/**
@@ -526,6 +559,13 @@ public class VoIPUtils {
 					i.putExtra(VoIPConstants.Extras.RECONNECTING, metadataJSON.getBoolean(VoIPConstants.Extras.RECONNECTING));
 					i.putExtra(VoIPConstants.Extras.INITIATOR, metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR));
 					i.putExtra(VoIPConstants.Extras.CALL_ID, metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
+					
+					if (metadataJSON.has(VoIPConstants.Extras.VOIP_VERSION))
+						i.putExtra(VoIPConstants.Extras.VOIP_VERSION, metadataJSON.getInt(VoIPConstants.Extras.VOIP_VERSION));
+					
+					if (metadataJSON.has(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
+						i.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, metadataJSON.getString(VoIPConstants.Extras.GROUP_CHAT_MSISDN));
+					
 					context.startService(i);
 					return;
 				}
@@ -674,11 +714,7 @@ public class VoIPUtils {
 	 */
 	public static InetAddress getRelayIpFromHardcodedAddresses() {
 
-		Set<String> ipSet = null;
-		
-		if (Utils.isHoneycombOrHigher())
-			ipSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.VOIP_RELAY_IPS, null);
-		
+		Set<String> ipSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.VOIP_RELAY_IPS, null);
 		Random random = new Random();
 		int index = 0;
 		InetAddress address = null;
