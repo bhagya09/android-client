@@ -228,35 +228,43 @@ public class MqttMessagesManager
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
-		String newIconIdentifier = null;
-		ContactManager conMgr = ContactManager.getInstance();
-		if (iconBase64.length() < 6)
+		
+		String fromMSISDN = jsonObj.getString(HikeConstants.FROM);
+		
+		boolean proccessMqttRequest = !(fromMSISDN.equals(HikeMessengerApp.getInstance().getMsisdn()));
+		if(proccessMqttRequest)
 		{
-			newIconIdentifier = iconBase64;
+			String newIconIdentifier = null;
+			ContactManager conMgr = ContactManager.getInstance();
+			if (iconBase64.length() < 6)
+			{
+				newIconIdentifier = iconBase64;
+			}
+			else
+			{
+				newIconIdentifier = iconBase64.substring(0, 5) + iconBase64.substring(iconBase64.length() - 6);
+			}
+
+			String oldIconIdentifier = conMgr.getIconIdentifierString(groupId);
+
+			/*
+			 * Same Icon
+			 */
+			if (newIconIdentifier.equals(oldIconIdentifier))
+			{
+				return;
+			}
+
+			HeadlessImageWorkerFragment.doContactManagerIconChange(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+			//conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(groupId);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
+
+			// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
+			autoDownloadGroupImage(groupId);
 		}
-		else
-		{
-			newIconIdentifier = iconBase64.substring(0, 5) + iconBase64.substring(iconBase64.length() - 6);
-		}
-
-		String oldIconIdentifier = conMgr.getIconIdentifierString(groupId);
-
-		/*
-		 * Same Icon
-		 */
-		if (newIconIdentifier.equals(oldIconIdentifier))
-		{
-			return;
-		}
-
-		HeadlessImageWorkerFragment.doContactManagerIconChange(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
-		//conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
-
-		HikeMessengerApp.getLruCache().clearIconForMSISDN(groupId);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
-
-		// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
-		autoDownloadGroupImage(groupId);
+		
 		boolean saveStatusMsg = true;
 		if (jsonObj.has(HikeConstants.METADATA)) {
 			JSONObject mdata = jsonObj.getJSONObject(HikeConstants.METADATA);

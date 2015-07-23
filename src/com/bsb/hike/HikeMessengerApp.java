@@ -33,9 +33,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
-import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -660,12 +660,14 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		return dataBfr.toString();
 	}
-@Override
-public void onTrimMemory(int level)
-{
-	// TODO Auto-generated method stub
-	super.onTrimMemory(level);
-}
+	
+	@Override
+	public void onTrimMemory(int level)
+	{
+		// TODO Auto-generated method stub
+		super.onTrimMemory(level);
+	}
+	
 	public void onCreate()
 	{
 
@@ -1046,6 +1048,10 @@ public void onTrimMemory(int level)
 		}
 	}
 
+	public String getMsisdn() {
+		return msisdn;
+	}
+	
 	private Runnable appStateChangedRunnable = new Runnable()
 	{
 		

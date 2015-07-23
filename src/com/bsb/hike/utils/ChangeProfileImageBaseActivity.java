@@ -672,6 +672,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void failureWhileSettingProfilePic()
 	{
+		
 		dismissDialog();
 		
 		mActivityState.destFilePath = null;

@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Environment;
 
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 public class HikeConstants
 {
