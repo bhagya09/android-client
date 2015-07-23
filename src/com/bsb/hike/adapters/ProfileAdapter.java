@@ -53,7 +53,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private static enum ViewType
 	{
-		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER
+		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, IMAGE_POST, TEXT_IMAGE_POST
 	}
 
 	private Context context;
@@ -179,6 +179,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 			{
 				viewType = ViewType.PROFILE_PIC_UPDATE;
+			}
+			else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+			{
+				viewType = ViewType.IMAGE_POST;
+			}
+			else if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+			{
+				viewType = ViewType.TEXT_IMAGE_POST;
 			}
 			else
 			{
@@ -317,7 +325,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			case ADD_MEMBERS:
 				v = new LinearLayout(context);
 				break;
-
+			
 			case STATUS:
 				v = inflater.inflate(R.layout.profile_timeline_item, null);
 
@@ -330,8 +338,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.parent = v.findViewById(R.id.main_content);
 				break;
 
+			case IMAGE_POST:
 			case PROFILE_PIC_UPDATE:
-				v = inflater.inflate(R.layout.profile_pic_timeline_item, null);
+			case TEXT_IMAGE_POST:
+				v = inflater.inflate(R.layout.contact_timeline_item, null);
 
 				viewHolder.icon = (ImageView) v.findViewById(R.id.avatar);
 
@@ -723,11 +733,22 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			}
 			break;
 
+		case IMAGE_POST:
 		case PROFILE_PIC_UPDATE:
+		case TEXT_IMAGE_POST:
 			StatusMessage profilePicStatusUpdate = ((ProfileStatusItem) profileItem).getStatusMessage();
+			
 			viewHolder.text.setText(myProfile ? context.getString(R.string.me) : profilePicStatusUpdate.getNotNullName());
 
-			viewHolder.subText.setText(R.string.status_profile_pic_notification);
+			if (TextUtils.isEmpty(profilePicStatusUpdate.getText()))
+			{
+				viewHolder.subText.setText(R.string.status_profile_pic_notification);
+			}
+			else
+			{
+				viewHolder.subText.setText(profilePicStatusUpdate.getText());
+			}
+			
 			setAvatar(profilePicStatusUpdate.getMsisdn(), viewHolder.icon);
 
 			ImageViewerInfo imageViewerInfo2 = new ImageViewerInfo(profilePicStatusUpdate.getMappedId(), null, true);
