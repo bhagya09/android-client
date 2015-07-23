@@ -85,6 +85,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private boolean isDeleting;
 	private Toolbar _toolBar;
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
+	
+	public static final float PREF_ENABLED_ALPHA = 1.0f;
+	
+	public static final float PREF_DISABLED_ALPHA = 0.24f;
 
 	@Override
 	public Object onRetainNonConfigurationInstance()

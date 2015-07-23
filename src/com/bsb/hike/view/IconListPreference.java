@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.ui.HikePreferences;
 
 public class IconListPreference extends ListPreference
 {
@@ -27,6 +28,9 @@ public class IconListPreference extends ListPreference
 	protected void onBindView(View view)
 	{
 		super.onBindView(view);
+		
+		view.setAlpha(isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		
 		TextView titleTextView = (TextView) view.findViewById(android.R.id.title);
 		if ((titleTextView != null) && (this.mTitleColor >= 0))
 		{
