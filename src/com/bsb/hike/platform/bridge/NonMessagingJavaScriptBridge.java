@@ -605,9 +605,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void chooseFile(final String id)
 	{	
-		Logger.d("FileUpload","input Id chooseFile is "+ id);
+		Logger.d("FileUpload","Id in FileChooser is "+ id);
 
-		
+		saveId(id);
 	
 		if (null == mHandler)
 		{
@@ -626,7 +626,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 					int galleryFlags =GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
 					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-					galleryPickerIntent.putExtra("callbackid",id);
 					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
 					}
 			}
