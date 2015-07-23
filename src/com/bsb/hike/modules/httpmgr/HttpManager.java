@@ -3,6 +3,10 @@ package com.bsb.hike.modules.httpmgr;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.engine.HttpEngine;
 import com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier;
@@ -12,6 +16,7 @@ import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.log.LogHttp;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
  * This class will be used for initialization by and outside world and for adding or canceling a request by {@link RequestToken}
@@ -75,16 +80,42 @@ public class HttpManager
 		setPlatformProductionHostUris();
 	}
 
-	private void setProductionHostUris()
+	public static void setProductionHostUris()
 	{
-		productionHostUris = new ArrayList<String>();
-		productionHostUris.add("54.169.191.114");
-		productionHostUris.add("54.169.191.115");
-		productionHostUris.add("54.169.191.116");
-		productionHostUris.add("54.169.191.113");
+		String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_HOST_IPS, "");
+		JSONArray ipArray = null;
+		try
+		{
+			ipArray = new JSONArray(ipString);
+		}
+		catch (JSONException e)
+		{
+			LogFull.e("Exception while parsing = ", e);
+		}
+
+		if (null != ipArray && ipArray.length() > 0)
+		{
+			int len = ipArray.length();
+			productionHostUris = new ArrayList<String>(len);
+			for (int i = 0; i < len; i++)
+			{
+				if (ipArray.optString(i) != null)
+				{
+					productionHostUris.add(ipArray.optString(i));
+				}
+			}
+		}
+		else
+		{
+			productionHostUris = new ArrayList<String>();
+			productionHostUris.add("54.169.191.114");
+			productionHostUris.add("54.169.191.115");
+			productionHostUris.add("54.169.191.116");
+			productionHostUris.add("54.169.191.113");
+		}
 	}
 
-	private void setPlatformProductionHostUris()
+	public static void setPlatformProductionHostUris()
 	{
 		platformProductionHostUris = new ArrayList<String>();
 		// TODO
