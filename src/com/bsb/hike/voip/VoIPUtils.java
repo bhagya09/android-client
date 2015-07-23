@@ -479,6 +479,7 @@ public class VoIPUtils {
 				
 				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
 				i.putExtra(VoIPConstants.Extras.ACTION, subType);
+				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
 				i.putExtra(VoIPConstants.Extras.CALL_ID, metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
 				context.startService(i);
 				return;
