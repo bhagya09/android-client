@@ -434,6 +434,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
+			Bundle actionsBundle = new Bundle();
+			actionsBundle.putStringArrayList(HikeConstants.MSISDNS, likesData.getAllMsisdn());
+			actionsBundle.putString(HikeConstants.Extras.IMAGE_CAPTION, viewHolder.mainInfo.getText().toString());
+			imageViewerInfo.setBundle(actionsBundle);
+			
 
 			viewHolder.largeProfilePic.setTag(imageViewerInfo);
 			viewHolder.largeProfilePic.setOnClickListener(imageClickListener);
@@ -597,16 +602,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			arguments.putString(HikeConstants.Extras.MAPPED_ID, mappedId);
 			arguments.putString(HikeConstants.Extras.URL, url);
 			arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, true);
+			arguments.putAll(imageViewerInfo.getBundle());
 			
-            int[] screenLocation = new int[2];
-            v.getLocationOnScreen(screenLocation);
-			arguments.putInt(ImageViewerActivity.animFromLeft, screenLocation[0]);
-			arguments.putInt(ImageViewerActivity.animFromTop , screenLocation[1]);
-			arguments.putInt(ImageViewerActivity.animFromWidth , v.getWidth());
-			arguments.putInt(ImageViewerActivity.animFromHeight , v.getHeight());
-
 			HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
-
 		}
 	};
 

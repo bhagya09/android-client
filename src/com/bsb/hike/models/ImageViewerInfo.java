@@ -1,5 +1,7 @@
 package com.bsb.hike.models;
 
+import android.os.Bundle;
+
 public class ImageViewerInfo
 {
 
@@ -12,6 +14,8 @@ public class ImageViewerInfo
 	public boolean isDefaultImage;
 
 	public String fileKey;
+
+	private Bundle mBundle;
 
 	public ImageViewerInfo(String mappedId, String url, boolean isStatusMessage)
 	{
@@ -30,5 +34,15 @@ public class ImageViewerInfo
 		this.isStatusMessage = isStatusMessage;
 		this.fileKey = fileKey;
 		this.isDefaultImage = isDefaultImage;
+	}
+	
+	public void setBundle(Bundle argBundle)
+	{
+		mBundle = argBundle;
+	}
+	
+	public Bundle getBundle()
+	{
+		return mBundle;
 	}
 }
