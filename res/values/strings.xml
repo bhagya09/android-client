@@ -1560,4 +1560,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="activity_feed_actionbar_title">Activity Feed</string>
 	<string name="post_likes">%1$s people like this photo</string>
 	<string name="posted_photo">Posted a photo</string>
+	<string name="love_failed">Action failed. Please check network and try again.</string>
 </resources>

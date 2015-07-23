@@ -146,6 +146,12 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 			private StatusMessageType getStatusMessageType(String text, String imageFilePath)
 			{
+				// TODO server sends string "null" incase text is not present
+
+				if (text.equals("null"))
+				{
+					text = null;
+				}
 				if (TextUtils.isEmpty(text) && TextUtils.isEmpty(imageFilePath))
 				{
 					throw new IllegalArgumentException("Both text and image cannot be empty");
