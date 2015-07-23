@@ -42,31 +42,17 @@
             android:src="@drawable/ic_default_avatar_group" />
         </FrameLayout>
 
-        <LinearLayout
-            android:id="@+id/divider_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:visibility="visible">
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="1.5dp"
-                android:layout_height="32dp"
-                android:layout_gravity="center"
-                android:background="#d9dbdc" />
-
             <ImageView
                 android:id="@+id/view_profile"
                 android:layout_width="47dp"
                 android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
                 android:contentDescription="View profile"
                 android:background="@drawable/group_edit_selector"
                 android:onClick="openTimeline"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_arrow" />
-        </LinearLayout>
         
         <LinearLayout
             android:id="@+id/name_layout"

@@ -35,34 +35,18 @@
 
         </FrameLayout>
 
-        <LinearLayout
-            android:id="@+id/divider_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp">
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="1.5dp"
-                android:layout_height="35dp"
-                android:layout_centerVertical="true"
-                android:layout_gravity="center"
-                android:background="#d9dbdc" />
-
             <ImageView
                 android:id="@+id/change_profile"
                 android:layout_width="47dp"
                 android:layout_height="match_parent"
-                android:layout_toRightOf="@id/divider"
                 android:onClick="onGroupNameEditClick"
                 android:layout_centerVertical="true"
                 android:contentDescription="Edit Grp Name"
                 android:background="@drawable/group_edit_selector"
+                android:layout_alignParentRight="true"
                 android:scaleType="centerInside"
+                android:layout_marginLeft="12dp"
                 android:src="@drawable/ic_edit" />
-        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/name_layout"
@@ -70,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="12dp"
-            android:layout_toLeftOf="@id/divider_view"
+            android:layout_toLeftOf="@id/change_profile"
             android:layout_toRightOf="@id/avatar_container"
             android:orientation="vertical" >
 
