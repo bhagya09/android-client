@@ -600,6 +600,7 @@ public class VoIPService extends Service {
 	private void restoreActivity() {
 		Logger.d(tag, "Restoring activity..");
 		Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
+		i.putExtra(VoIPConstants.Extras.REMOVE_FAILED_FRAGMENT, true);
 		i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 	}
@@ -640,9 +641,7 @@ public class VoIPService extends Service {
 				getCallId(), true);
 
 		// Show activity
-		Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
-		i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		startActivity(i);
+		restoreActivity();
 		
 		client.retrieveExternalSocket();
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);		

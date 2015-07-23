@@ -202,6 +202,9 @@ public class VoIPConstants {
 		public static final String INCOMING_CALL = "incomingCall";
 		
 		public static final String VOIP_VERSION = "version";
+		
+		public static final String REMOVE_FAILED_FRAGMENT = "removeFailedFrag";
+		
 	}
 
 	

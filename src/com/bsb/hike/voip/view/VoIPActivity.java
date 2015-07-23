@@ -65,7 +65,10 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 	protected void onNewIntent(Intent intent) 
 	{
 		super.onNewIntent(intent);
-		Logger.d(tag, "VoIPActivity onNewIntent().");
+		
+		if (intent.hasExtra(VoIPConstants.Extras.REMOVE_FAILED_FRAGMENT) && isShowingCallFailedFragment())
+			removeCallFailedFragment();
+
 		if(mainFragment instanceof VoipCallFragment)
 		{
 			mainFragment.handleIntent(intent);
@@ -106,7 +109,6 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 			// Let the screen switch off
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-			
 		}
 	}
 
