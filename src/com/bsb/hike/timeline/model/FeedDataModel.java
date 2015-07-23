@@ -1,13 +1,8 @@
 package com.bsb.hike.timeline.model;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
 
@@ -15,7 +10,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
-import com.bsb.hike.utils.Utils;
 
 public class FeedDataModel
 {
@@ -28,27 +22,37 @@ public class FeedDataModel
 	private String mActor;
 
 	private ActionTypes mActionType;
-	
+
 	private ActivityObjectTypes mObjType;
-	
+
 	private int readStatus;
+
+	public FeedDataModel(long timestamp, ActionTypes actionType, String msisdnActor, ActivityObjectTypes acObjType, String objId)
+	{
+		setTimestamp(timestamp);
+		setActionType(actionType);
+		setAction(actionType.getKey());
+		setActor(msisdnActor);
+		setObjType(acObjType);
+		setObjID(objId);
+	}
 
 	public FeedDataModel(JSONObject jsonObj) throws JSONException
 	{
 		if (jsonObj.has(HikeConstants.DATA))
 		{
 			setTimestamp(jsonObj.getLong(HikeConstants.TIMESTAMP));
-			
+
 			final JSONObject jsonData = jsonObj.getJSONObject(HikeConstants.DATA);
 
 			setAction(jsonData.getInt(HikeConstants.SUB_TYPE));
 
 			String statusId = jsonData.getString(HikeConstants.SU_ID);
-			
-			if(!TextUtils.isEmpty(statusId))
+
+			if (!TextUtils.isEmpty(statusId))
 			{
 				setObjType(ActivityObjectTypes.STATUS_UPDATE);
-				
+
 				setObjID(statusId);
 			}
 
