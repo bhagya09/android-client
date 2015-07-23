@@ -205,7 +205,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 			else
 			{
-				getFragmentManager().popBackStack();
+				getSupportFragmentManager().popBackStack();
 			}
 		}
 		
