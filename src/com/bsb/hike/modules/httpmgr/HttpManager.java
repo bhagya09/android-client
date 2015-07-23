@@ -34,8 +34,6 @@ public class HttpManager
 
 	private static List<String> platformProductionHostUris;
 
-	private static List<String> stickersProductionHostUris;
-
 	private HttpManager(ClientOptions options)
 	{
 		if (HttpLogger.DEBUG)
@@ -129,11 +127,6 @@ public class HttpManager
 	public static List<String> getPlatformProductionHostUris()
 	{
 		return platformProductionHostUris;
-	}
-
-	public static List<String> getStickersProductionHostUris()
-	{
-		return stickersProductionHostUris;
 	}
 
 	/**
