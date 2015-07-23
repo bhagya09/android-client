@@ -371,12 +371,11 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public void releaseResources()
 	{
-		if ((activity != null) && (!activity.isDestroyed()) && (fragment != null))
+		if ((activity != null) && (fragment != null))
 		{
 			FragmentManager fragmentManager = activity.getSupportFragmentManager();
 			fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
 			fragmentManager.executePendingTransactions();
-
 		}
 
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
