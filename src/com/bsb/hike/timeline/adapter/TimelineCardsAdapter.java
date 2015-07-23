@@ -733,7 +733,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private OnClickListener addOnClickListener = new OnClickListener()
 	{
-
 		@Override
 		public void onClick(View v)
 		{

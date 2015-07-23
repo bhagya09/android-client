@@ -189,18 +189,21 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 		textViewCaption.setText(imageCaption);
 
-		// TODO Make this generic for all action types
-		textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
-
-		textViewCounts.setOnClickListener(new View.OnClickListener()
+		if (msisdns != null && !msisdns.isEmpty())
 		{
+			// TODO Make this generic for all action types
+			textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
 
-			@Override
-			public void onClick(View v)
+			textViewCounts.setOnClickListener(new View.OnClickListener()
 			{
-				showLikesContactsDialog();
-			}
-		});
+
+				@Override
+				public void onClick(View v)
+				{
+					showLikesContactsDialog();
+				}
+			});
+		}
 	}
 
 	/**
@@ -211,6 +214,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 	 */
 	public void runExitAnimation(final Runnable endAction)
 	{
+		infoContainer.setVisibility(View.GONE);
 		imageView.animate().setDuration(300).translationY(20).alpha(0f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
 		bgAnim.setDuration(600);
