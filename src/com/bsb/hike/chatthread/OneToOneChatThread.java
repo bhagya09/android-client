@@ -2058,7 +2058,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void showH20Tip()
 	{
-		if (!mConversation.isOnHike() || isH20TipShowing())
+		if (!mConversation.isOnHike() || isH20TipShowing() || 
+				OfflineUtils.isConnectedToSameMsisdn(msisdn) || OfflineUtils.isConnectingToSameMsisdn(msisdn))
 		{
 			return;
 		}
