@@ -178,14 +178,14 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						return;
 					}
 
-					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STICKER_DATA_FIRST_SETUP);
-
 					if (!data.has(HikeConstants.PACKS))
 					{
 						Logger.e(TAG, "Sticker download failed null pack data");
 						doOnFailure(null);
 						return;
 					}
+
+					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STICKER_DATA_FIRST_SETUP);
 
 					JSONObject packs = data.getJSONObject(HikeConstants.PACKS);
 					String categoryId = packs.keys().next();
