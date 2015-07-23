@@ -1558,4 +1558,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
     <string name="photos_image_greater_than_edit_limit">File too large to edit!</string>
+    <string name="multi_edit_undo_warning">Discard all image editing changes?</string>
+    <string name="multi_edit_undo_warning_header">Discard Changes?</string>
 </resources>
