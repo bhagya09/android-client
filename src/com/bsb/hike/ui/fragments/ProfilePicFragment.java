@@ -429,6 +429,12 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void onResume()
 	{
 		super.onResume();
+		
+		if(mUploadStatus == UPLOAD_COMPLETE || mUploadStatus == UPLOAD_FAILED)
+		{
+			removeHeadLessFragment();
+		}
+		
 		if (mUploadStatus == UPLOAD_COMPLETE)
 		{
 			timelineLauncherRunnable.run();
@@ -505,9 +511,10 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	private void removeHeadLessFragment()
 	{
 		Logger.d(TAG, "inside ImageViewerFragment, removing UILessFragment");
-		if(getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT) != null)
+		
+		mImageWorkerFragment = (HeadlessImageUploaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
+		if(mImageWorkerFragment !=null && isResumed())
 		{
-			mImageWorkerFragment = (HeadlessImageUploaderFragment)getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
 			getFragmentManager().beginTransaction().remove(mImageWorkerFragment).commit();
 		}
 	}
