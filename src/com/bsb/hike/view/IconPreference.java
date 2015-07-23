@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.ui.HikePreferences;
 
 public class IconPreference extends Preference
 {
@@ -37,6 +38,9 @@ public class IconPreference extends Preference
 	protected void onBindView(View view)
 	{
 		super.onBindView(view);
+		
+		view.setAlpha(isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		
 		final ImageView imageView = (ImageView) view.findViewById(R.id.icon);
 		if ((imageView != null) && (this.mIcon != null))
 		{

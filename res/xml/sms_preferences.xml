@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/free_sms_txt" >
 
-    <Preference
+    <com.bsb.hike.view.IconPreference
         android:key="hikeOffline"
         android:layout="@layout/icon_preference"
         android:summary="@string/undelivered_sms_setting_summary"
@@ -30,7 +30,7 @@
         android:summary="@string/more_hike_more_earn"
         android:title="@string/earn_free_sms" />
     
-     <Preference
+     <com.bsb.hike.view.IconPreference
         android:key="inviteViaSms"
         android:layout="@layout/icon_preference"
         android:summary="@string/invite_subtext"

@@ -20,6 +20,7 @@ import android.view.View;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.SoundUtils;
 
@@ -55,6 +56,8 @@ public class NotificationToneListPreference extends ListPreference implements Di
 	@Override
 	protected void onBindView(View view)
 	{
+		view.setAlpha(isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		
 		super.onBindView(view);
 	}
 
