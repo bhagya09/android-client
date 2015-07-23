@@ -960,7 +960,7 @@ public class FileTransferManager extends BroadcastReceiver
 		if(ftHostURIs != null)
 		{
 			Random random = new Random();
-			int index = random.nextInt(ftHostURIs.size() - 2) + 1;
+			int index = random.nextInt(ftHostURIs.size() - 1) + 1;
 			host = ftHostURIs.get(index);
 		}
 		return host;
