@@ -245,7 +245,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	    if (mImageWorkerFragment == null) 
 	    {
 	    	Logger.d("dp_upload", "starting new mImageLoaderFragment");
-	    	mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
+	    	mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, origImagePath, mLocalMSISDN, false, true);
 	    	mImageWorkerFragment.setTaskCallbacks(this);
 	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
 	    }
