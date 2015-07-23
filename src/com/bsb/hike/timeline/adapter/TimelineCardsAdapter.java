@@ -435,10 +435,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
 			Bundle actionsBundle = new Bundle();
-			actionsBundle.putStringArrayList(HikeConstants.MSISDNS, likesData.getAllMsisdn());
+
+			if (likesData != null)
+			{
+				actionsBundle.putStringArrayList(HikeConstants.MSISDNS, likesData.getAllMsisdn());
+			}
 			actionsBundle.putString(HikeConstants.Extras.IMAGE_CAPTION, viewHolder.mainInfo.getText().toString());
 			imageViewerInfo.setBundle(actionsBundle);
-			
 
 			viewHolder.largeProfilePic.setTag(imageViewerInfo);
 			viewHolder.largeProfilePic.setOnClickListener(imageClickListener);
