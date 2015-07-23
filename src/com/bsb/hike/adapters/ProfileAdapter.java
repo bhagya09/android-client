@@ -423,12 +423,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			int maxMediaToShow = ((ProfileSharedMedia) profileItem).getMaxMediaToShow();
 			viewHolder.subText.setText(Integer.toString(smSizeDb));
 			viewHolder.mediaLayout.setVisibility(View.VISIBLE);
-			if(groupProfile || HikeMessengerApp.hikeBotInfoMap.containsKey(mContactInfo.getMsisdn()))
-			{
-				LinearLayout.LayoutParams ll = (LayoutParams) viewHolder.sharedFiles.getLayoutParams();
-				ll.topMargin = context.getResources().getDimensionPixelSize(R.dimen.shared_media_top_margin_hike_bot);
-				viewHolder.sharedFiles.setLayoutParams(ll);  
-			}
 			
 			if(sharedMedia!= null && !sharedMedia.isEmpty())
 			{	viewHolder.infoContainer.setVisibility(View.VISIBLE);

@@ -45,7 +45,7 @@
 		android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:gravity="center"
-        android:layout_marginRight="8dp"   
+        android:layout_marginRight="16dp"   
         android:visibility="gone"
         android:id="@+id/owner_indicator" >
         
@@ -120,6 +120,7 @@
 
     <View
         style="@style/Divider"
+        android:background="@drawable/setting_list_divider"
         android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
