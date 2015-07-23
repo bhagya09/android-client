@@ -266,32 +266,31 @@ public class RequestExecuter
 		catch (IOException ex)
 		{
 			int statusCode = 0;
-			if (response != null)
+			if (response == null)
 			{
-				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
-				statusCode = response.getStatusCode();
-			}
-			else
-			{
-				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam(), Utils.getStackTrace(ex));
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam(),
+						Utils.getStackTrace(ex));
 				handleRetry(ex, REASON_CODE_NO_NETWORK);
 				return;
 			}
+
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
+			statusCode = response.getStatusCode();
+
 			if (statusCode == HTTP_UNAUTHORIZED || statusCode == HTTP_FORBIDDEN)
 			{
 				handleException(ex, REASON_CODE_AUTH_FAILURE);
 			}
-			/**
-			 * in case of response code == 411 we make a retry without gzip
-			 */
-			else if(statusCode == HTTP_LENGTH_REQUIRED)
+			else if (statusCode == HTTP_LENGTH_REQUIRED)
 			{
+				/*
+				 * in case of response code == 411 we make a retry without gzip
+				 */
 				handleRetry(ex, statusCode);
 			}
 			else
 			{
 				handleException(ex, statusCode);
-				return;
 			}
 		}
 		catch (Throwable ex)
