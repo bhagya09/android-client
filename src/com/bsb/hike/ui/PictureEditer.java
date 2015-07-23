@@ -393,6 +393,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (resultCode)
 			{
 			case RESULT_OK:
+				isWorking = true;
 				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
 				break;
 			case RESULT_CANCELED:
@@ -428,6 +429,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				getSupportFragmentManager().beginTransaction()
 						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
 						.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
+				isWorking = false;
 	}
 
 	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener, OnItemClickListener
