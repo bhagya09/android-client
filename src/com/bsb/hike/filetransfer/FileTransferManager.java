@@ -98,11 +98,8 @@ public class FileTransferManager extends BroadcastReceiver
 
 	public static String UNABLE_TO_DOWNLOAD = "unable_to_download";
 
-<<<<<<< HEAD
-=======
 	List<String> ftHostURIs = null;
-
->>>>>>> in_rel
+	
 	public enum NetworkType
 	{
 		WIFI
