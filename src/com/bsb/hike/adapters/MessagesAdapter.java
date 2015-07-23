@@ -3913,18 +3913,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		statusHolder.messageInfo.setText(statusMessage.getTimestampFormatted(true, context));
 
-		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 		{
 			SmileyParser smileyParser = SmileyParser.getInstance();
-			
 			statusHolder.messageTextView.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
 			checkIfContainsSearchText(statusHolder.messageTextView);
 			Linkify.addLinks(statusHolder.messageTextView, Linkify.ALL);
-
 		}
 		else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
 			statusHolder.messageTextView.setText(R.string.changed_profile);
+		}
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+		{
+			statusHolder.messageTextView.setText(R.string.posted_photo);
 		}
 
 		if (statusMessage.hasMood())
