@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
@@ -10,34 +11,24 @@
         android:clickable="true"
         android:layout_height="100dp" >
 
-        <FrameLayout
-            android:id="@+id/avatar_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="ProfileImage"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="16dp" >
-            
-             <ImageView 
-                android:layout_width="68dp"
-                android:layout_height="68dp"
-                android:src="@drawable/avatar_stroke"/>
-            
             <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/group_profile_image"
                 android:layout_width="@dimen/avatar_profile_size"
                 android:layout_height="@dimen/avatar_profile_size"
                 android:contentDescription="Profile Image"
                 android:layout_gravity="center"
+                android:layout_centerVertical="true"
+                app:riv_border_color="@color/white"
+            	app:riv_border_width="1dp"
                 style="@style/RoundedStyle"
                 android:onClick="onViewImageClicked"
+                android:layout_marginLeft="24dp"
                 android:src="@drawable/ic_default_avatar_group" />
 
-        </FrameLayout>
 
             <ImageView
                 android:id="@+id/change_profile"
-                android:layout_width="47dp"
+                android:layout_width="41dp"
                 android:layout_height="match_parent"
                 android:onClick="onGroupNameEditClick"
                 android:layout_centerVertical="true"
@@ -45,7 +36,6 @@
                 android:background="@drawable/group_edit_selector"
                 android:layout_alignParentRight="true"
                 android:scaleType="centerInside"
-                android:layout_marginLeft="12dp"
                 android:src="@drawable/ic_edit" />
 
         <LinearLayout
@@ -53,9 +43,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:layout_toLeftOf="@id/change_profile"
-            android:layout_toRightOf="@id/avatar_container"
+            android:layout_toRightOf="@id/group_profile_image"
             android:orientation="vertical" >
 
             <FrameLayout
@@ -64,41 +55,21 @@
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:contentDescription="Group Name"
-                    android:ellipsize="end"
-                    android:maxLength="@integer/max_length_group_name"
-                    android:maxLines="2"
-                    android:textColor="@color/chat_color"
-                    android:textSize="18sp"
-                    android:textStyle="normal" />
+                    style="@style/ProfileHeaderText" />
 
                 <com.bsb.hike.view.CustomFontEditText
                     android:id="@+id/name_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:background="#00000000"
                     android:contentDescription="Edit Group Name"
-                    android:maxLength="@integer/max_length_group_name"
-                    android:textColor="@color/chat_color"
-                    android:textSize="18sp"
-                    android:textStyle="normal"
+                    style="@style/ProfileHeaderText"
                     android:visibility="gone" />
             </FrameLayout>
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/creation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/name_layout"
-                android:layout_below="@+id/name_layout"
-                android:layout_toLeftOf="@+id/divider_view"
-                android:ellipsize="end"
-                android:maxLines="2"
-                android:textColor="@color/status_text_color"
-                android:textSize="12sp"
-                android:textStyle="normal" />
+                android:layout_marginTop="2dp"
+				style="@style/ProfileHeaderSubText" />                
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>
