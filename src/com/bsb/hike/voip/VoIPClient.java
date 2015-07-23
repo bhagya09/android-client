@@ -90,7 +90,7 @@ public class VoIPClient  {
 	private boolean establishingConnection = false;
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
-	private int audioPacketsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
+	private int audioPacketsReceivedPerSecond = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
@@ -759,6 +759,7 @@ public class VoIPClient  {
 							{
 								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
+								return;
 							}
 						}
 						stop();
@@ -1339,11 +1340,9 @@ public class VoIPClient  {
 									remotePacketLoss = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
 									remotePacketLossUpdated();
 								}
-								else
-									remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
 
 							} catch (BufferUnderflowException e) {
-								remotePacketsReceivedPerSecond = 0;
+								Logger.w(tag, "BufferUnderflowException exception: " + e.toString());
 							}
 						}
 						

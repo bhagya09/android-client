@@ -293,7 +293,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(tag, "There is no active call.");
-//			getSherlockActivity().finish();	// Bugfix AND-354
+			if (!activity.isShowingCallFailedFragment()) {
+				// Bugfix AND-1315
+				Logger.d(tag, "Finishing activity.");
+				getSherlockActivity().finish();	// Bugfix AND-354
+			}
 			return;
 		}
 
