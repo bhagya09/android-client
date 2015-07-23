@@ -111,6 +111,12 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	@Override
 	public void onMessageDelivered(SenderConsignment senderConsignment) 
 	{
+		if (senderConsignment == null)
+		{
+			Logger.d(TAG, "sender consignment is null in onMessageDelivered in HikeConverter");
+			return;
+		}
+		
 		ConvMessage convMessage = null;
 		JSONObject message = null;
 		
