@@ -651,7 +651,6 @@ public abstract class Request<T> implements IRequestFacade
 		 * 
 		 * @param url
 		 * @return
-		 * @throws MalformedURLException
 		 */
 		public S setUrl(String url)
 		{

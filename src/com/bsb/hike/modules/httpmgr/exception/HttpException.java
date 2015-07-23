@@ -19,8 +19,6 @@ public class HttpException extends Exception
 	
 	public static final short REASON_CODE_MALFORMED_URL = 0x4;
 	
-	//public static final short REASON_CODE_SERVER_ERROR = 0x5;
-	
 	public static final short REASON_CODE_AUTH_FAILURE = 0x6;
 	
 	public static final short REASON_CODE_CANCELLATION = 0x7;
