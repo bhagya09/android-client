@@ -323,6 +323,35 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.mainInfo.setMovementMethod(null);
 				viewHolder.parent.setTag(statusMessage);
 				viewHolder.parent.setOnClickListener(onProfileInfoClickListener);
+				
+				boolean selfLiked = false;
+				
+				if (likesData != null)
+				{
+					viewHolder.loveCount.setText(String.valueOf(likesData.getCount()));
+					selfLiked = likesData.isLikedBySelf();
+				}
+				else
+				{
+					viewHolder.loveCount.setText("0");
+				}
+
+				viewHolder.checkBoxLove.setTag(statusMessage);
+				if (selfLiked)
+				{
+					viewHolder.checkBoxLove.setChecked(true);
+				}
+				else
+				{
+					viewHolder.checkBoxLove.setChecked(false);
+				}
+				
+				viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
+				
+				viewHolder.checkBoxLove.setVisibility(View.VISIBLE);
+				
+				viewHolder.loveCount.setVisibility(View.VISIBLE);
+				
 				break;
 			case FRIEND_REQUEST_ACCEPTED:
 			case USER_ACCEPTED_FRIEND_REQUEST:
@@ -429,7 +458,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			if (TextUtils.isEmpty(statusMessage.getText()) || statusMessage.getText().equals("null"))
 			{
-				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 				{
 					viewHolder.mainInfo.setText(R.string.posted_photo);
 				}
