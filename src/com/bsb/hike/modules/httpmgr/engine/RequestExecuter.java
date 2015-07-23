@@ -1,11 +1,11 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_AUTH_FAILURE;
+
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SERVER_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
@@ -290,7 +290,7 @@ public class RequestExecuter
 			}
 			else
 			{
-				handleException(ex, REASON_CODE_SERVER_ERROR);
+				handleException(ex, statusCode);
 				return;
 			}
 		}
