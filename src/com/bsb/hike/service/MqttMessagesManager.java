@@ -144,6 +144,8 @@ public class MqttMessagesManager
 	
 	private static int lastNotifPacket;
 	
+	private static final String DP_DOWNLOAD_TAG = "dp_download";
+	
 	private MqttMessagesManager(Context context)
 	{
 		Logger.d(getClass().getSimpleName(), "initialising MqttMessagesManager");
@@ -203,6 +205,7 @@ public class MqttMessagesManager
 			FavoriteType favType = ContactManager.getInstance().getFriendshipStatus(msisdn);
 			if (favType == FavoriteType.FRIEND || favType == FavoriteType.REQUEST_SENT || favType == FavoriteType.REQUEST_SENT_REJECTED)
 			{
+				Logger.d(DP_DOWNLOAD_TAG, "Received IC Packet, going to download");
 				autoDownloadGroupImage(msisdn);
 			}
 		}
@@ -2392,6 +2395,7 @@ public class MqttMessagesManager
 				 */
 				if (!isBulkMessage) // do not autodownload in case of bulkmessage
 				{
+					Logger.d(DP_DOWNLOAD_TAG, "Received SU Packet, going to download");
 					autoDownloadProfileImage(statusMessage, true);
 				}
 			}
