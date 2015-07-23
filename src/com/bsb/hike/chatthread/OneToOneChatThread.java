@@ -1378,17 +1378,18 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void onBlockUserclicked()
 	{
-		if (OfflineUtils.isConnectedToSameMsisdn(msisdn) || OfflineUtils.isConnectingToSameMsisdn(msisdn))
-		{
-			stopFreeHikeConnection();
-		}
+		stopFreeHikeConnection();
 		super.onBlockUserclicked();
 	}
 	
 	private void stopFreeHikeConnection() 
 	{
-		showToast(R.string.user_disconnect);
-		offlineController.shutDown();
+		if ((offlineController != null) &&
+			(OfflineUtils.isConnectedToSameMsisdn(msisdn) || OfflineUtils.isConnectingToSameMsisdn(msisdn)))
+		{
+			showToast(R.string.user_disconnect);
+			offlineController.shutDown();
+		}
 	}
 	
 	private void setupOfflineUI()
