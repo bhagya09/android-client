@@ -120,7 +120,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		catch(SQLException e)
 		{
-			e.printStackTrace();
+			logSQLException(e);
 			/*
 			 * Ref: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/database/sqlite/SQLiteOpenHelper.java
 			 * 
@@ -129,6 +129,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			 * SQLiteDatabase.openDatabase returns the newly opened database
 			 * 
 			 * */
+		}
+	}
+	
+	private void logSQLException(Exception exp)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, false))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.PAYLOAD, exp.toString());
+			Logger.d(getClass().getSimpleName(), "User unable to start application due to SQLException. json = " + exp.toString());
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.SEND_DEVICE_DETAILS, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(getClass().getSimpleName(), "invalid json");
 		}
 	}
 	

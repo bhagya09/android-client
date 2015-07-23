@@ -120,7 +120,7 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected final int DEFAULT_CHUNK_SIZE = 100 * 1024;
 
-	protected volatile FTExceptionReason mExceptionType = FTExceptionReason.NO_EXCEPTION ;
+	protected volatile FTExceptionReason mExceptionType = FTExceptionReason.NO_EXCEPTION;
 
 	protected FileTransferBase(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, long msgId, HikeFileType hikeFileType)
 	{
@@ -348,9 +348,11 @@ public abstract class FileTransferBase implements Callable<FTResult>
 			mExceptionType = FTExceptionReason.HOST_CONNECT_EXCEPTION;
 	}
 
-	public URL getUpdatedURL(URL mUrl, String logText, String taskType)
+	public URL getUpdatedURL(URL mUrl, String logText, String taskType, URL baseUrl)
 	{
 		URL resultUrl = mUrl;
+		if(AccountUtils.ssl)
+			return baseUrl;
 		switch (mExceptionType) {
 			case UNKNOWN_HOST:
 			case HOST_CONNECT_EXCEPTION:
