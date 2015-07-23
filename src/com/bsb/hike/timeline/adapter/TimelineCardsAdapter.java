@@ -217,7 +217,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	
 	private HikeUiHandler mHikeUiHandler;
 
-	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<String> ftueFriendList, LoaderManager loaderManager, FragmentManager fragmentManager)
+	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<String> ftueFriendList, LoaderManager loadManager, FragmentManager fragManager)
 	{
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 		mStatusMessages = statusMessages;
@@ -229,8 +229,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		mProtipIndex = -1;
 		mActivity = new SoftReference<Activity>(activity);
 		mFtueFriendList = ftueFriendList;
-		this.loaderManager = loaderManager;
-		this.fragmentManager = fragmentManager;
+		loaderManager = loadManager;
+		fragmentManager = fragManager;
 		mHikeUiHandler = new HikeUiHandler(this);
 	}
 
@@ -268,10 +268,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			return TEXT_IMAGE;
 		}
-		/*else if (EMPTY_STATUS_NO_STATUS_ID == message.getId() || EMPTY_STATUS_NO_STATUS_RECENTLY_ID == message.getId())
-		{
-			return FTUE_CARD;
-		}*/
 		return OTHER_UPDATE;
 	}
 
@@ -804,64 +800,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			// mContext.finish();
 		}
 	};
-/*
-	private OnClickListener addOnClickListener = new OnClickListener()
-	{
-		@Override
-		public void onClick(View v)
-		{
-			ContactInfo contactInfo = (ContactInfo) v.getTag();
-
-			Utils.addFavorite(mContext, contactInfo, true);
-
-			ContactInfo contactInfo2 = new ContactInfo(contactInfo);
-
-			try
-			{
-				JSONObject metadata = new JSONObject();
-
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ADD_UPDATES_CLICK);
-
-				String msisdn = contactInfo2.getMsisdn();
-
-				if (TextUtils.isEmpty(msisdn))
-				{
-					metadata.put(HikeConstants.TO, msisdn);
-				}
-				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
-			}
-			catch (JSONException e)
-			{
-				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-
-			if (!contactInfo.isOnhike())
-				Utils.sendInviteUtil(contactInfo2, mContext, HikeConstants.FTUE_ADD_SMS_ALERT_CHECKED, mContext.getString(R.string.ftue_add_prompt_invite_title),
-						mContext.getString(R.string.ftue_add_prompt_invite), WhichScreen.UPDATES_TAB);
-		}
-	};
-
-	private OnClickListener seeAllBtnClickListener = new OnClickListener()
-	{
-
-		@Override
-		public void onClick(View v)
-		{
-			Intent intent = new Intent(mContext, PeopleActivity.class);
-			startActivity(intent);
-
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_FAV_CARD_SEEL_ALL_CLICKED);
-				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
-			}
-			catch (JSONException e)
-			{
-				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-		}
-	};*/
 
 	private OnClickListener ftueListItemClickListener = new OnClickListener()
 	{
@@ -898,7 +836,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
 				
 				//Set enable FTUE time to false
-				//HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
 				
 				//remove FTUE Exit Card
 				removeFTUEItemIfExists(FTUE_CARD_EXIT);
@@ -909,31 +847,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				break;
 			}
 			
-			/*ContactInfo contactInfo = (ContactInfo) v.getTag();
-
-			Utils.startChatThread(mContext, contactInfo);
-
-			try
-			{
-				JSONObject metadata = new JSONObject();
-
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_FAV_CARD_START_CHAT_CLICKED);
-
-				String msisdn = contactInfo.getMsisdn();
-
-				if (TextUtils.isEmpty(msisdn))
-				{
-					metadata.put(HikeConstants.TO, msisdn);
-				}
-				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
-			}
-			catch (JSONException e)
-			{
-				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-			// TODO
-			// mContext.finish();
-*/		}
+		}
 	};
 
 	private OnCheckedChangeListener onLoveToggleListener = new OnCheckedChangeListener()

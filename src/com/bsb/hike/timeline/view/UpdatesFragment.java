@@ -208,6 +208,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				@Override
 				public void run()
 				{
+					//TODO Discuss if anything to do with it???
 					/*if (!shouldAddFTUEItem())
 					{
 						removeFTUEItemIfExists();
@@ -266,28 +267,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 
 	private boolean shouldAddFTUEItem()
 	{
-		/*if (HomeActivity.ftueContactsData.isEmpty() || statusMessages.size() > HikeConstants.MIN_STATUS_COUNT || prefs.getBoolean(HikeMessengerApp.HIDE_FTUE_SUGGESTIONS, false))
-		{
-			return false;
-		}
-
-		
-		 * To add an ftue item, we need to make sure the user does not have 5 friends.
-		 
-		int friendCounter = 0;
-		for (ContactInfo contactInfo : HomeActivity.ftueContactsData.getCompleteList())
-		{
-			FavoriteType favoriteType = contactInfo.getFavoriteType();
-			if (favoriteType == FavoriteType.FRIEND || favoriteType == FavoriteType.REQUEST_RECEIVED || favoriteType == FavoriteType.REQUEST_SENT
-					|| favoriteType == FavoriteType.REQUEST_SENT_REJECTED)
-			{
-				friendCounter++;
-			}
-		}
-		return friendCounter < HikeConstants.FTUE_LIMIT && friendCounter < HomeActivity.ftueContactsData.getCompleteList().size();*/
-		
-		//TODO Do false
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true);//false);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
 	}
 
 	private void addFTUEItem()
