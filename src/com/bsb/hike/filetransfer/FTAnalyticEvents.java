@@ -173,6 +173,8 @@ public class FTAnalyticEvents
 	public static final String UPLOAD_HTTP_OPERATION = "upload_http_operation";
 
 	public static final String UNABLE_TO_START_ACTIVITY = "unable_to_start_activity";
+
+	public static final String HOST_FALLBACK = "host_fallback";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{

@@ -1597,7 +1597,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String msgHash = null;
 		if (!msg.isSent() && (msg.getParticipantInfoState() == ParticipantInfoState.NO_INFO))
 		{
-			msgHash = msg.getMsisdn() + msg.getMappedMsgID();
+			msgHash = msg.getSenderMsisdn() + msg.getMappedMsgID();
 
 			String message = msg.getMessage();
 			if(message !=null && message.length() > 0)
