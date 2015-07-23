@@ -361,7 +361,10 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 			
 			for(StatusMessage suMessage: result)
 			{
-				suIDList.add(suMessage.getMappedId());
+				if (!TextUtils.isEmpty(suMessage.getMappedId()))
+				{
+					suIDList.add(suMessage.getMappedId());
+				}
 			}
 			
 			if(!suIDList.isEmpty())

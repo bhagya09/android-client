@@ -7,8 +7,10 @@ import java.util.LinkedHashSet;
 
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
  * Contains action count and actor contact info objects
@@ -274,5 +276,16 @@ public class ActionsDataModel
 		}
 
 		return allMsisdnList;
+	}
+
+	public boolean isLikedBySelf()
+	{
+		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+
+		if (getAllMsisdn() == null || getAllMsisdn().isEmpty())
+		{
+			return false;
+		}
+		return getAllMsisdn().contains(selfMsisdn);
 	}
 }

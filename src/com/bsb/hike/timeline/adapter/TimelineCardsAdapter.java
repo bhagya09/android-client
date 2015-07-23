@@ -33,6 +33,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -56,6 +57,7 @@ import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
@@ -354,6 +356,35 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.mainInfo.setMovementMethod(null);
 				viewHolder.parent.setTag(statusMessage);
 				viewHolder.parent.setOnClickListener(onProfileInfoClickListener);
+				
+				boolean selfLiked = false;
+				
+				if (likesData != null)
+				{
+					viewHolder.loveCount.setText(String.valueOf(likesData.getCount()));
+					selfLiked = likesData.isLikedBySelf();
+				}
+				else
+				{
+					viewHolder.loveCount.setText("0");
+				}
+
+				viewHolder.checkBoxLove.setTag(statusMessage);
+				if (selfLiked)
+				{
+					viewHolder.checkBoxLove.setChecked(true);
+				}
+				else
+				{
+					viewHolder.checkBoxLove.setChecked(false);
+				}
+				
+				viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
+				
+				viewHolder.checkBoxLove.setVisibility(View.VISIBLE);
+				
+				viewHolder.loveCount.setVisibility(View.VISIBLE);
+				
 				break;
 			case FRIEND_REQUEST_ACCEPTED:
 			case USER_ACCEPTED_FRIEND_REQUEST:
@@ -458,9 +489,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : statusMessage
 					.getNotNullName());
 
-			if (TextUtils.isEmpty(statusMessage.getText()))
+			if (TextUtils.isEmpty(statusMessage.getText()) || statusMessage.getText().equals("null"))
 			{
-				viewHolder.mainInfo.setText(R.string.status_profile_pic_notification);
+				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+				{
+					viewHolder.mainInfo.setText(R.string.posted_photo);
+				}
+				else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+				{
+					viewHolder.mainInfo.setText(R.string.status_profile_pic_notification);
+				}
 			}
 			else
 			{
@@ -469,10 +507,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
 			Bundle actionsBundle = new Bundle();
-			actionsBundle.putStringArrayList(HikeConstants.MSISDNS, likesData.getAllMsisdn());
+
+			if (likesData != null)
+			{
+				actionsBundle.putStringArrayList(HikeConstants.MSISDNS, likesData.getAllMsisdn());
+			}
 			actionsBundle.putString(HikeConstants.Extras.IMAGE_CAPTION, viewHolder.mainInfo.getText().toString());
 			imageViewerInfo.setBundle(actionsBundle);
-			
 
 			viewHolder.largeProfilePic.setTag(imageViewerInfo);
 			viewHolder.largeProfilePic.setOnClickListener(imageClickListener);
@@ -483,18 +524,29 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			viewHolder.infoContainer.setTag(statusMessage);
 			viewHolder.infoContainer.setOnClickListener(onProfileInfoClickListener);
-			viewHolder.checkBoxLove.setTag(statusMessage);
-			viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 
+			boolean selfLiked = false;
+			
 			if (likesData != null)
 			{
-				viewHolder.loveCount.setText(""+likesData.getCount());
+				viewHolder.loveCount.setText(String.valueOf(likesData.getCount()));
+				selfLiked = likesData.isLikedBySelf();
 			}
 			else
 			{
-				// TODO remove
-				viewHolder.loveCount.setText("likesNull");
+				viewHolder.loveCount.setText("0");
 			}
+
+			viewHolder.checkBoxLove.setTag(statusMessage);
+			if (selfLiked)
+			{
+				viewHolder.checkBoxLove.setChecked(true);
+			}
+			else
+			{
+				viewHolder.checkBoxLove.setChecked(false);
+			}
+			viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 			break;
 
 		case FTUE_CARD_FAV:
@@ -755,7 +807,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 /*
 	private OnClickListener addOnClickListener = new OnClickListener()
 	{
-
 		@Override
 		public void onClick(View v)
 		{
@@ -922,6 +973,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
 									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
+
+							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
+									.getMappedId());
+
+							mActionsData.updateByActivityFeed(newFeed);
+							
+							notifyDataSetChanged();
 						}
 					}
 
@@ -934,7 +992,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
-						// Do nothing
+						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
 					}
 				}, null);
 				token.execute();
@@ -957,6 +1015,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
 									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
+							
+							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
+									.getMappedId());
+
+							mActionsData.updateByActivityFeed(newFeed);
+							
+							notifyDataSetChanged();
 						}
 					}
 
@@ -969,7 +1034,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
-						// Do nothing
+						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
 					}
 				}, null);
 				token.execute();

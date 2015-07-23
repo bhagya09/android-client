@@ -3,10 +3,13 @@ package com.bsb.hike.timeline.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.utils.Logger;
 
 import android.text.TextUtils;
 import android.util.Pair;
@@ -125,21 +128,30 @@ public class TimelineActions
 
 		ActionsDataModel actions = getActions(feedData.getObjID(), actionType == ActionTypes.UNLIKE ? ActionTypes.LIKE : actionType, feedData.getObjType());
 
-		if (actionType == ActionTypes.UNLIKE)
+		if (actions == null)
 		{
-			actions.removeContact(feedData.getActor());
+			ArrayList<ContactInfo> cInfoList = new ArrayList<ContactInfo>();
+			cInfoList.add(ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(feedData.getActor()));
+			addActionDetails(feedData.getObjID(), cInfoList, actionType, 1, feedData.getObjType());
 		}
-		else if (actionType == ActionTypes.LIKE)
+		else
 		{
-			actions.addContact(feedData.getActor());
-		}
-		else if (actionType == ActionTypes.COMMENT)
-		{
-			// Later versions
-		}
-		else if (actionType == ActionTypes.VIEW)
-		{
-			// Later versions
+			if (actionType == ActionTypes.UNLIKE)
+			{
+				actions.removeContact(feedData.getActor());
+			}
+			else if (actionType == ActionTypes.LIKE)
+			{
+				actions.addContact(feedData.getActor());
+			}
+			else if (actionType == ActionTypes.COMMENT)
+			{
+				// Later versions
+			}
+			else if (actionType == ActionTypes.VIEW)
+			{
+				// Later versions
+			}
 		}
 	}
 

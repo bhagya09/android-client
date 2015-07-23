@@ -188,10 +188,17 @@ public class HttpRequests
 		final MediaType MEDIA_TYPE_TEXTPLAIN = MediaType.parse("text/plain; charset=UTF-8");
 
 		MultipartBuilder multipartBuilder = new MultipartBuilder()
-				.type(MultipartBuilder.FORM)
-				.addPart(Headers.of("Content-Disposition", "form-data; name=\"status-message\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, argStatusMessage))
-				.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, String.valueOf(argMood)));
-				
+				.type(MultipartBuilder.FORM);
+		
+		if(!TextUtils.isEmpty(argStatusMessage))
+		{
+			multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"status-message\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, argStatusMessage));
+		}
+		
+		if(argMood != -1)
+		{
+			multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, String.valueOf(argMood)));
+		}
 
 		if(!TextUtils.isEmpty(imageFilePath))
 		{
