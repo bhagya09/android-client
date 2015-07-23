@@ -214,6 +214,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 	 */
 	public void runExitAnimation(final Runnable endAction)
 	{
+		infoContainer.setVisibility(View.GONE);
 		imageView.animate().setDuration(300).translationY(20).alpha(0f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
 		bgAnim.setDuration(600);
