@@ -33,7 +33,6 @@ import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -45,7 +44,6 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.TextDrawable;
 
 public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 {		
@@ -352,7 +350,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.extraInfo = (TextView) v.findViewById(R.id.phone_number);
 				viewHolder.subText = (TextView) v.findViewById(R.id.main_info);
 				viewHolder.phoneIcon = (ImageView) v.findViewById(R.id.call);
-				viewHolder.divider = v.findViewById(R.id.divider);
 				break;
 			}
 
@@ -604,7 +601,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context))
 			{
 				viewHolder.phoneIcon.setVisibility(View.GONE);
-				viewHolder.divider.setVisibility(View.GONE);
 			}
 			break;
 
@@ -839,8 +835,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		ImageView iconFrame;
 
 		ImageView phoneIcon;
-
-		View divider;
 
 		TextView timeStamp;
 
