@@ -186,13 +186,19 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 									HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_WIPE, null);
 								}
 							}, 0);
-							hikeDialog.dismiss();
+							if (hikeDialog != null && hikeDialog.isShowing())
+							{
+								hikeDialog.dismiss();
+							}
 						}
 
 						@Override
 						public void negativeClicked(HikeDialog hikeDialog)
 						{
-							hikeDialog.dismiss();
+							if (hikeDialog != null && hikeDialog.isShowing())
+							{
+								hikeDialog.dismiss();
+							}
 						}
 
 						@Override

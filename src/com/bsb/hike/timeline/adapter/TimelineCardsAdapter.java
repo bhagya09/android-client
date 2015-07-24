@@ -844,7 +844,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 						}
 
 						removeStatusUpdate(statusMessage.getMappedId());
-						hikeDialog.dismiss();
+
+						if (hikeDialog != null && hikeDialog.isShowing())
+						{
+							hikeDialog.dismiss();
+						}
 					}
 
 					@Override
@@ -857,7 +861,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(mContext, R.string.delete_status_error, Toast.LENGTH_LONG);
-						hikeDialog.dismiss();
+						if (hikeDialog != null && hikeDialog.isShowing())
+						{
+							hikeDialog.dismiss();
+						}
 					}
 				}).execute();
 			}
