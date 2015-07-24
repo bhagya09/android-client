@@ -20,7 +20,6 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
