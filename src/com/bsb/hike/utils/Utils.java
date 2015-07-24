@@ -3211,6 +3211,17 @@ public class Utils
 		}
 		file.delete();
 	}
+	
+	public static void deleteFile(Context context,String filename,HikeFileType type)
+	{
+		if(TextUtils.isEmpty(filename))
+		{
+			return;
+		}
+		
+		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
+		temp.delete(context);
+	}
 
 	public static void sendLogEvent(JSONObject data)
 	{
@@ -6420,4 +6431,19 @@ public class Utils
 				.build();
 		return formedUri;
 	}
+	
+	public static void deleteFiles(Context context,ArrayList<String> fileNames,HikeFileType type)
+	{
+		if(fileNames == null || fileNames.isEmpty())
+		{
+			return;
+		}
+		
+		for(String filepath : fileNames)
+		{
+			deleteFile(context, filepath, type);
+		}
+		
+	}
+
 }

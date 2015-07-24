@@ -113,6 +113,8 @@ public class HikeDialogFactory
 	public static final int DELETE_BLOCK = 35;
 	
 	public static final int DELETE_NON_MESSAGING_BOT = 36;
+	
+	public static final int UNDO_MULTI_EDIT_CHANGES_DIALOG = 37;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -172,6 +174,7 @@ public class HikeDialogFactory
 		case DELETE_BROADCAST_DIALOG:
 		case DELETE_BLOCK:
 		case DELETE_NON_MESSAGING_BOT:
+		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
 			return showDeleteMessagesDialog(dialogId, context, listener, data);
 			
 		case GPS_DIALOG:
@@ -928,6 +931,15 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setBody(context.getString(R.string.confirm_delete_block_msg,(String) data[0]));
 			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			break;
+			
+		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
+			deleteConfirmDialog.setHeader(R.string.multi_edit_undo_warning_header);
+			deleteConfirmDialog.setBody(context.getString(R.string.multi_edit_undo_warning));
+			deleteConfirmDialog.setOkButton(R.string.ok, positiveListener);
+			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
+			break;
+			
 		}
 		
 		deleteConfirmDialog.show();
