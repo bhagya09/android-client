@@ -68,6 +68,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -236,6 +237,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     private static final int SHARING_FUNCTIONALITY = 34;
     
 	protected static final int UPDATE_STEALTH_BADGE = 35;
+	
+	protected static final int REMOVE_CHAT_BACKGROUND=0;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -1221,16 +1224,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mAdapter.getChatTheme() == theme && theme == ChatTheme.DEFAULT)
 		{
 			activity.updateActionBarColor(theme.headerBgResId());
+			setChatBackground(R.color.chat_thread_default_bg);
+
 		}
-		
+
 		else if (mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
+			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
+				setChatBackground(REMOVE_CHAT_BACKGROUND);
+			else if (theme == ChatTheme.DEFAULT)
+				setChatBackground(R.color.chat_thread_default_bg);
 
 			setConversationTheme(theme);
 		}
 	}
-
+	protected void setChatBackground(int colorResID){
+		View chatlayout=activity.findViewById(R.id.chatContentlayout);
+		chatlayout.setBackgroundResource(colorResID);
+	}
 	protected void setBackground(ChatTheme theme)
 	{
 		ImageView backgroundImage = (ImageView) activity.findViewById(R.id.background);
@@ -1246,7 +1258,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
-			
 			backgroundImage.setImageDrawable(drawable);
 		}
 	}
@@ -1687,6 +1698,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mAdapter.setChatTheme(theme);
 		// action bar
 		activity.updateActionBarColor(theme.headerBgResId());
+		
 		// background image
 		setBackground(theme);
 	}

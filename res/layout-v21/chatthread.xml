@@ -5,7 +5,7 @@
     android:layout_height="fill_parent" >
     
 <RelativeLayout
-    android:id="@+id/ct_parent_rl" 
+    android:id="@+id/ct_parent_rl"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
@@ -13,7 +13,7 @@
         android:id="@+id/attachment_anchor"
         android:layout_width="1dp"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/st__action_bar_default_height"
+        android:layout_marginTop="@dimen/ab__top_margin_including_status_bar"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true" />
 
@@ -38,7 +38,7 @@
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/st__action_bar_default_height"
+            android:layout_marginTop="@dimen/ab__top_margin_including_status_bar"
             android:layout_weight="30" 
             android:id="@+id/chatContentlayout">
 
