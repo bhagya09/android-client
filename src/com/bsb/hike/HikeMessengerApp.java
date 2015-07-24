@@ -31,6 +31,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import com.bsb.hike.bots.BotInfo;
@@ -1049,6 +1050,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	}
 
 	public String getMsisdn() {
+		if(TextUtils.isEmpty(msisdn))
+		{
+			HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+		}
 		return msisdn;
 	}
 	

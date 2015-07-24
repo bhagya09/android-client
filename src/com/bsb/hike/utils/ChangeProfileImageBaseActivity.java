@@ -783,7 +783,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		Logger.d(TAG, "req failed");
 		failureWhileSettingProfilePic();
-		Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
+		runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.update_profile_failed), Toast.LENGTH_LONG).show();
+			}
+		});
+		
 	}
 	
 }

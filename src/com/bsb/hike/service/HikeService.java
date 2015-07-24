@@ -50,6 +50,7 @@ import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
 import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -827,7 +828,13 @@ public class HikeService extends Service
 			}
 			else
 			{
-				Toast.makeText(HikeService.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					
+					@Override
+					public void run() {
+						Toast.makeText(HikeService.this, getString(R.string.update_profile_failed), Toast.LENGTH_LONG).show();
+					}
+				});
 				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 			}
 		}
