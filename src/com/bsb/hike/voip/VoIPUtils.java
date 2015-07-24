@@ -409,13 +409,6 @@ public class VoIPUtils {
 			return false;
 		}
 		
-		// Network check
-		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
-		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
-			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
-			return false;
-		}
-		
 		// Conference size check
 		if (newSize > VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE) {
 			Toast.makeText(context, context.getString(R.string.voip_group_too_large, VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE), Toast.LENGTH_LONG).show();
@@ -429,6 +422,12 @@ public class VoIPUtils {
 			return false;
 		}
 		
+		// Network check
+		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
+		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
+			return false;
+		}
 		
 		return true;
 	}

@@ -18,7 +18,6 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -36,6 +35,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +55,7 @@ import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
 import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.voip.adapters.ConferenceParticipantsAdapter;
 
 public class VoipCallFragment extends SherlockFragment implements CallActions
 {
@@ -822,10 +823,16 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	
 	private void updateConferenceList() {
 	
-		TextView contactNameView = (TextView) getView().findViewById(R.id.conference_list);
-		contactNameView.setVisibility(View.VISIBLE);
-		contactNameView.setText(Html.fromHtml(voipService.getClientNames()));
-
+		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
+		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getSherlockActivity(), 0, 0, voipService.getConferenceClients());
+		conferenceList.setAdapter(adapter);
+		conferenceList.setVisibility(View.VISIBLE);
+		conferenceList.setFocusable(false);
+		conferenceList.setClickable(false);
+		
+		// Remove profile image
+		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+		profileView.setVisibility(View.INVISIBLE);
 	}
 	
 	public void showCallActionsView()
