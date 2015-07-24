@@ -121,6 +121,7 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	protected final int DEFAULT_CHUNK_SIZE = 100 * 1024;
 
 	protected volatile FTExceptionReason mExceptionType = FTExceptionReason.NO_EXCEPTION;
+	protected int animatedProgress = 0;
 
 	protected FileTransferBase(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, long msgId, HikeFileType hikeFileType)
 	{
@@ -177,25 +178,25 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	
 	private void saveFileState(FTState state, String uuid, JSONObject response)
 	{
-		FileSavedState fss = new FileSavedState(state, _totalSize, _bytesTransferred, uuid, response);
+		FileSavedState fss = new FileSavedState(state, _totalSize, _bytesTransferred, uuid, response, animatedProgress);
 		writeToFile(fss, stateFile);
 	}
 	
 	protected void saveFileState(File stateFile, FTState state, String uuid, JSONObject response)
 	{
-		FileSavedState fss = new FileSavedState(state, _totalSize, _bytesTransferred, uuid, response);
+		FileSavedState fss = new FileSavedState(state, _totalSize, _bytesTransferred, uuid, response, animatedProgress);
 		writeToFile(fss, stateFile);
 	}
 	
 	protected void saveFileKeyState(File stateFile, String mFileKey)
 	{
-		FileSavedState fss = new FileSavedState(_state, mFileKey);
+		FileSavedState fss = new FileSavedState(_state, mFileKey, animatedProgress);
 		writeToFile(fss, stateFile);
 	}
 	
 	protected void saveFileKeyState(String mFileKey)
 	{
-		FileSavedState fss = new FileSavedState(_state, mFileKey);
+		FileSavedState fss = new FileSavedState(_state, mFileKey, animatedProgress);
 		writeToFile(fss, stateFile);
 	}
 
