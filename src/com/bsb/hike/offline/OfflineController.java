@@ -31,6 +31,7 @@ import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
@@ -476,8 +477,9 @@ public class OfflineController
 			// so changing OfflineState after calling this.
 			fileManager.shutDown();
 			sendDisconnectToListeners();
-			
+			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
+			
 
 			Transporter.getInstance().shutDown();
 			Logger.d(TAG, "going to disconnect");
@@ -497,21 +499,32 @@ public class OfflineController
 	{
 		if (getOfflineState() == OFFLINE_STATE.CONNECTED)
 		{
-			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(getConnectedDevice(), HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_deestablished),
-					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
-			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+			sendDisconnectInlineMsg(getConnectedDevice());
 			
 		}
 		offlineManager.updateListeners(getOfflineState());
+	}
+	
+	public void deleteRemainingFiles(ArrayList<Long> msgId,String msisdn)
+	{
+		fileManager.deleteFiles(msgId, msisdn);
+	}
+	
+	public void sendDisconnectInlineMsg(String msisdn)
+	{
+		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(msisdn, HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_deestablished),
+				OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 	}
 
 	public void onConnect() 
 	{
 		Logger.d(TAG, "In onConnect");
+		
 		offlineManager.setConnectingDeviceAsConnected();
 		Logger.d(TAG,"Connected Device is "+ offlineManager.getConnectedDevice());
-		
+		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, offlineManager.getConnectedDevice());
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
@@ -522,6 +535,7 @@ public class OfflineController
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		offlineManager.sendConnectedCallback();
 		offlineManager.sendInfoPacket();
+		
 	}
 
 	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)
