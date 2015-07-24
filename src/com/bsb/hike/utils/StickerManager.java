@@ -2035,13 +2035,13 @@ public class StickerManager
 	/**
 	 * Send recommendation selection analytics
 	 */
-	public void sendRecommendationSelectionAnalytics(boolean autoPopup, String stickerId, String categoryId, int selectedIndex, int numTotal, int numVisible, String tappedWord, String taggedPhrase)
+	public void sendRecommendationSelectionAnalytics(String source, String stickerId, String categoryId, int selectedIndex, int numTotal, int numVisible, String tappedWord, String taggedPhrase)
 	{
 		try
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_SELECTION_KEY);
-			metadata.put(HikeConstants.SOURCE, (autoPopup ? FROM_AUTO_RECOMMENDATION_PANEL : FROM_BLUE_TAP_RECOMMENDATION_PANEL));
+			metadata.put(HikeConstants.SOURCE, source);
 			metadata.put(HikeConstants.ACCURACY, selectedIndex + ":" + numTotal + ":" + numVisible);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
