@@ -149,5 +149,9 @@ public class OfflineConstants
 
 	public static final String DISCONNECT_CLIKED = "Disconnected";
 	
+	public static final String OFFLINE_MSISDN = "offlineState";
+
+	public static final String CURRENT_RECIEVING_MSG_ID = "recMsgID";
+	
 	
 }

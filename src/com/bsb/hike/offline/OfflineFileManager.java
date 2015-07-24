@@ -3,6 +3,7 @@ package com.bsb.hike.offline;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,7 @@ import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 public class OfflineFileManager
 {
@@ -40,28 +42,31 @@ public class OfflineFileManager
 	
 	public void deleteRemainingReceivingFiles()
 	{
-		if (currentReceivingFiles.size() > 0) 
+		if (currentReceivingFiles.size() > 0)
 		{
 			ArrayList<Long> rMsgIds = new ArrayList<>(currentReceivingFiles.size());
 
-			for (Entry<Long, FileTransferModel> itr : currentReceivingFiles
-					.entrySet()) 
+			for (Entry<Long, FileTransferModel> itr : currentReceivingFiles.entrySet())
 			{
 				rMsgIds.add(itr.getKey());
 			}
+			deleteFiles(rMsgIds, OfflineController.getInstance().getConnectedDevice());
 
-			ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), 
-												OfflineController.getInstance().getConnectedDevice());
-			
-			final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage(
-					 OfflineController.getInstance().getConnectedDevice(), context.getString(R.string.files_not_received),
-					OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE);
-			
-			HikeConversationsDatabase.getInstance().addConversationMessages(deleteFilesConvMessage, true);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, deleteFilesConvMessage);
 		}
 	}
 
+	public void deleteFiles(ArrayList<Long> rMsgIds,String msisdn)
+	{
+		ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), msisdn);
+
+		final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage(msisdn, context.getString(R.string.files_not_received),
+				OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE);
+
+		HikeConversationsDatabase.getInstance().addConversationMessages(deleteFilesConvMessage, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, deleteFilesConvMessage);
+	}
+	
+	
 	public void onChunkSend(ConvMessage convMessage) 
 	{
 		if (convMessage == null)
@@ -150,6 +155,7 @@ public class OfflineFileManager
 	public void addToCurrentReceivingFile(long msgId, FileTransferModel fileTransferModel) 
 	{
 		currentReceivingFiles.put(msgId, fileTransferModel);
+		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.CURRENT_RECIEVING_MSG_ID, msgId);
 	}
 
 	public void removeFromCurrentReceivingFile(long msgId) 
@@ -159,6 +165,7 @@ public class OfflineFileManager
 			if (currentReceivingFiles.containsKey(msgId)) 
 			{
 				currentReceivingFiles.remove(msgId);
+				HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.CURRENT_RECIEVING_MSG_ID);
 			}
 		}
 	}
