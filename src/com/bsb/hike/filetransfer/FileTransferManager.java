@@ -603,17 +603,17 @@ public class FileTransferManager extends BroadcastReceiver
 		}
 		else
 		{
+			FileInputStream fileIn = null;
+			ObjectInputStream in = null;
 			try
 			{
 				String fName = mFile.getName() + ".bin." + msgId;
 				File f = new File(HIKE_TEMP_DIR, fName);
 				if (!f.exists())
 					return new FileSavedState();
-				FileInputStream fileIn = new FileInputStream(f);
-				ObjectInputStream in = new ObjectInputStream(fileIn);
+				fileIn = new FileInputStream(f);
+				in = new ObjectInputStream(fileIn);
 				fss = (FileSavedState) in.readObject();
-				in.close();
-				fileIn.close();
 			}
 			catch (IOException i)
 			{
@@ -623,6 +623,10 @@ public class FileTransferManager extends BroadcastReceiver
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+			finally
+			{
+				Utils.closeStreams(in, fileIn);
 			}
 		}
 		return fss != null ? fss : new FileSavedState();
@@ -657,7 +661,8 @@ public class FileTransferManager extends BroadcastReceiver
 			return new FileSavedState();
 
 		FileSavedState fss = null;
-
+		FileInputStream fileIn = null;
+		ObjectInputStream in = null;
 		try
 		{
 			String fName = mFile.getName() + ".bin." + msgId;
@@ -667,11 +672,9 @@ public class FileTransferManager extends BroadcastReceiver
 			{
 				return new FileSavedState();
 			}
-			FileInputStream fileIn = new FileInputStream(f);
-			ObjectInputStream in = new ObjectInputStream(fileIn);
+			fileIn = new FileInputStream(f);
+			in = new ObjectInputStream(fileIn);
 			fss = (FileSavedState) in.readObject();
-			in.close();
-			fileIn.close();
 		}
 		catch (IOException i)
 		{
@@ -686,6 +689,10 @@ public class FileTransferManager extends BroadcastReceiver
 		{
 			e.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "Exception while reading state file : ", e);
+		}
+		finally
+		{
+			Utils.closeStreams(in, fileIn);
 		}
 		return fss != null ? fss : new FileSavedState();
 

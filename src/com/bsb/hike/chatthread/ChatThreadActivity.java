@@ -12,15 +12,13 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
@@ -213,8 +211,16 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	
 	public void backPressed()
 	{
-		Intent intent = IntentFactory.getHomeActivityIntent(this);
-		startActivity(intent);
+		try
+		{
+			// In some phones keyboard is not closing on press of Action bar back button
+			// try catch just for safe side
+			Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView());
+		}
+		catch (Exception e)
+		{
+		}
+		IntentFactory.openHomeActivity(ChatThreadActivity.this, true);
 		super.onBackPressed();
 	}
 	

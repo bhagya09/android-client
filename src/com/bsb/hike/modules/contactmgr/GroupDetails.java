@@ -37,7 +37,7 @@ public class GroupDetails
 		this.timestamp = timestamp;
 	}
 
-	public GroupDetails(String groupId, String grpName, boolean alive, boolean mute)
+	public GroupDetails(String groupId, String grpName, boolean alive, boolean mute, long creationTime)
 	{
 		this(groupId, grpName, null, alive, null, 0);
 		this.isGroupMute = mute;

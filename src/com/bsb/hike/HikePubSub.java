@@ -185,6 +185,8 @@ public class HikePubSub implements Runnable
 	public static final String PROFILE_IMAGE_NOT_DOWNLOADED = "profileImageNotDownloaded";
 
 	public static final String UPDATE_OF_MENU_NOTIFICATION = "updateOfMenuNotification";
+	
+	public static final String UPDATE_OF_PHOTOS_ICON = "updateOfPhotosIcon";
 
 	public static final String TALK_TIME_CHANGED = "talkTimeChanged";
 
@@ -393,6 +395,10 @@ public class HikePubSub implements Runnable
 	public static final String NOTIF_DATA_RECEIVED = "notifDataReceived";
 	
 	public static final String UPDATE_LAST_MSG_STATE = "updateLastMsgState";
+	
+	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
+	
+	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
 	
 	private final Thread mThread;
 
