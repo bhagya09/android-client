@@ -111,6 +111,8 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 	private TextView textViewCounts;
 
+	private View foregroundScreen;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -160,6 +162,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 	{
 		imageView = (ImageView) findViewById(R.id.image);
 		fadeScreen = findViewById(R.id.bg_screen);
+		foregroundScreen = findViewById(R.id.fg_screen);
 		infoContainer = findViewById(R.id.image_info_container);
 		textViewCaption = (TextView) findViewById(R.id.text_view_caption);
 		textViewCounts = (TextView) findViewById(R.id.text_view_count);
@@ -179,7 +182,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 		{
 			public void run()
 			{
-				infoContainer.setVisibility(View.VISIBLE);
+				
 			}
 		});
 
@@ -187,6 +190,10 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 		bgAnim.setDuration(600);
 		bgAnim.start();
 
+
+		infoContainer.setVisibility(View.VISIBLE);
+		foregroundScreen.setVisibility(View.VISIBLE);
+		
 		textViewCaption.setText(imageCaption);
 
 		if (msisdns != null && !msisdns.isEmpty())
@@ -218,6 +225,10 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 		imageView.animate().setDuration(300).translationY(20).alpha(0f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
 		bgAnim.setDuration(600);
+		
+		ObjectAnimator fgAnim = ObjectAnimator.ofFloat(foregroundScreen, "alpha", 0);
+		fgAnim.setDuration(600);
+		
 		bgAnim.addListener(new AnimatorListener()
 		{
 			@Override
@@ -245,6 +256,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 			}
 		});
 		bgAnim.start();
+		fgAnim.start();
 	}
 
 	@Override
