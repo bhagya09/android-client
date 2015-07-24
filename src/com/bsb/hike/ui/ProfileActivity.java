@@ -2710,6 +2710,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void neutralClicked(HikeDialog hikeDialog)
 			{
+				//Do nothing
 			}
 			
 			@Override

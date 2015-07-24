@@ -12,9 +12,11 @@ import android.database.Cursor;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
 public class StatusMessage
@@ -176,6 +178,7 @@ public class StatusMessage
 		this.mappedId = cursor.getString(cursor.getColumnIndex(DBConstants.STATUS_MAPPED_ID));
 	}
 	
+	
 	public void setId(long id)
 	{
 		this.id = id;
@@ -282,5 +285,16 @@ public class StatusMessage
 	public void setFileKey(String fileKey)
 	{
 		this.fileKey = fileKey;
+	}
+	
+	public boolean isMyStatusUpdate()
+	{
+		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+		if (getMsisdn().equals(selfMsisdn))
+		{
+			return true;
+		}
+
+		return false;
 	}
 }

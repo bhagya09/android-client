@@ -21,6 +21,15 @@
         android:layout_centerInParent="true"
         android:background="@color/transparent"
         android:onClick="onClick" />
+    
+     <View
+        android:id="@+id/fg_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:background="@drawable/image_viewer_fg" >
+    </View>
 
     <LinearLayout
         android:id="@+id/image_info_container"

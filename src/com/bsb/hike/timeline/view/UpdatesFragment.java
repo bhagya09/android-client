@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -51,7 +50,6 @@ import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -77,7 +75,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED,
-			HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE };
+			HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE };
 
 	private String[] friendMsisdns;
 
@@ -252,6 +250,18 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				actionsData.updateByActivityFeed(feedData);
 				notifyVisibleItems();
 			}
+		}
+		else if (HikePubSub.TIMELINE_WIPE.equals(type))
+		{
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					statusMessages.clear();
+					timelineCardsAdapter.notifyDataSetChanged();
+				}
+			});
 		}
 	}
 	
@@ -578,5 +588,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 			});
 		}
 	}
+	
 
 }
