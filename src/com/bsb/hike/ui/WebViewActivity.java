@@ -67,6 +67,7 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -589,7 +590,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				menu.findItem(R.id.overflow_menu).setVisible(true);
 			}
-			
+			StatusBarColorChanger.setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_TRANSPARENT);
+		
 			this.mMenu = menu;
 			
 			return true;

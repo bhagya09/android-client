@@ -256,7 +256,7 @@ public class CreditsActivity extends HikeAppStateBaseFragmentActivity implements
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 
-		Intent intent = new Intent(this, ComposeChatActivity.class);
+		Intent intent = new Intent(this, NewChatActivity.class);
 		startActivity(intent);
 	}
 
