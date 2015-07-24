@@ -69,6 +69,8 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HikeImageDownloader;
+import com.bsb.hike.modules.httpmgr.HikeImageWorker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -86,8 +88,6 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
-import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChatTheme;
@@ -144,6 +144,8 @@ public class MqttMessagesManager
 	
 	private static int lastNotifPacket;
 	
+	private static final String DP_DOWNLOAD_TAG = "dp_download";
+	
 	private MqttMessagesManager(Context context)
 	{
 		Logger.d(getClass().getSimpleName(), "initialising MqttMessagesManager");
@@ -189,7 +191,7 @@ public class MqttMessagesManager
 		}
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
 		//ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
-		HeadlessImageWorkerFragment.doContactManagerIconChange(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+		HikeImageWorker.doContactManagerIconChange(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
 		
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
@@ -203,6 +205,7 @@ public class MqttMessagesManager
 			FavoriteType favType = ContactManager.getInstance().getFriendshipStatus(msisdn);
 			if (favType == FavoriteType.FRIEND || favType == FavoriteType.REQUEST_SENT || favType == FavoriteType.REQUEST_SENT_REJECTED)
 			{
+				Logger.d(DP_DOWNLOAD_TAG, "Received IC Packet, going to download");
 				autoDownloadGroupImage(msisdn);
 			}
 		}
@@ -228,35 +231,45 @@ public class MqttMessagesManager
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
-		String newIconIdentifier = null;
-		ContactManager conMgr = ContactManager.getInstance();
-		if (iconBase64.length() < 6)
+		
+		String fromMSISDN = jsonObj.getString(HikeConstants.FROM);
+		
+		boolean proccessMqttRequest = !(fromMSISDN.equals(HikeMessengerApp.getInstance().getMsisdn()));
+		
+		//processing the MQTT request for group DP change only when DP updated by contact or no DP image present for this group(Re-Signup case)
+		if(proccessMqttRequest || !(new File(Utils.getProfileImageFileName(groupId)).exists()))
 		{
-			newIconIdentifier = iconBase64;
+			String newIconIdentifier = null;
+			ContactManager conMgr = ContactManager.getInstance();
+			if (iconBase64.length() < 6)
+			{
+				newIconIdentifier = iconBase64;
+			}
+			else
+			{
+				newIconIdentifier = iconBase64.substring(0, 5) + iconBase64.substring(iconBase64.length() - 6);
+			}
+
+			String oldIconIdentifier = conMgr.getIconIdentifierString(groupId);
+
+			/*
+			 * Same Icon
+			 */
+			if (newIconIdentifier.equals(oldIconIdentifier))
+			{
+				return;
+			}
+
+			HikeImageWorker.doContactManagerIconChange(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+			//conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
+
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(groupId);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
+
+			// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
+			autoDownloadGroupImage(groupId);
 		}
-		else
-		{
-			newIconIdentifier = iconBase64.substring(0, 5) + iconBase64.substring(iconBase64.length() - 6);
-		}
-
-		String oldIconIdentifier = conMgr.getIconIdentifierString(groupId);
-
-		/*
-		 * Same Icon
-		 */
-		if (newIconIdentifier.equals(oldIconIdentifier))
-		{
-			return;
-		}
-
-		HeadlessImageWorkerFragment.doContactManagerIconChange(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
-		//conMgr.setIcon(groupId, Base64.decode(iconBase64, Base64.DEFAULT), false);
-
-		HikeMessengerApp.getLruCache().clearIconForMSISDN(groupId);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
-
-		// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
-		autoDownloadGroupImage(groupId);
+		
 		boolean saveStatusMsg = true;
 		if (jsonObj.has(HikeConstants.METADATA)) {
 			JSONObject mdata = jsonObj.getJSONObject(HikeConstants.METADATA);
@@ -2384,6 +2397,7 @@ public class MqttMessagesManager
 				 */
 				if (!isBulkMessage) // do not autodownload in case of bulkmessage
 				{
+					Logger.d(DP_DOWNLOAD_TAG, "Received SU Packet, going to download");
 					autoDownloadProfileImage(statusMessage, true);
 				}
 			}
@@ -2606,7 +2620,7 @@ public class MqttMessagesManager
 			if (!TextUtils.isEmpty(iconBase64))
 			{
 				//ContactManager.getInstance().setIcon(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
-				HeadlessImageWorkerFragment.doContactManagerIconChange(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
+				HikeImageWorker.doContactManagerIconChange(protip.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
 			}
 			// increment the unseen status count straight away.
 			// we've got a new pro tip.
@@ -3496,7 +3510,7 @@ public class MqttMessagesManager
 		}
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+		HikeImageDownloader downLoaderFragment = HikeImageDownloader.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
 				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true);
 		downLoaderFragment.startLoadingTask();
 	}
@@ -3510,14 +3524,14 @@ public class MqttMessagesManager
 		}
 		
 		String fileName = Utils.getProfileImageFileName(id);
-		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(id, fileName, true, false, null, null, null, true);
+		HikeImageDownloader downLoaderFragment = HikeImageDownloader.newInstance( id, fileName, true, false, null, null, null, true);
 		downLoaderFragment.startLoadingTask();
 	}
 
 	private void autoDownloadProtipImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
-		HeadlessImageDownloaderFragment downLoaderFragment = HeadlessImageDownloaderFragment.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
+		HikeImageDownloader downLoaderFragment = HikeImageDownloader.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
 				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL(), true);
 		downLoaderFragment.startLoadingTask();
 	}

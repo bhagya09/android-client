@@ -494,7 +494,7 @@ public final class HikeEffectsFactory
 		return sepiaMatrix;
 	}
 
-	// UI thread Handler object to make changes to the UI from a seperate threat
+	// UI thread Handler object to make changes to the UI from a seperate thread
 	private static Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	/**
