@@ -1,11 +1,8 @@
-package com.bsb.hike.ui.fragments;
+package com.bsb.hike.modules.httpmgr;
 
 import java.io.File;
 
-import android.content.Context;
-
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -38,14 +35,11 @@ public class HikeImageUploader extends HikeImageWorker
 
 	private static final String TAG = "dp_upload";
 	
-	private Context mContext;
-	
 	private RequestToken token;
 
-	public static HikeImageUploader newInstance(Context context, byte[] bytes, String tmpFilePath, String msisdn, boolean toDelTempFileOnCallFail, boolean toDeletPrevMsisdnPic) {
+	public static HikeImageUploader newInstance(byte[] bytes, String tmpFilePath, String msisdn, boolean toDelTempFileOnCallFail, boolean toDeletPrevMsisdnPic) {
 		
 		HikeImageUploader mHeadLessImageUploaderFragment = new HikeImageUploader();
-		mHeadLessImageUploaderFragment.mContext = context;
 		mHeadLessImageUploaderFragment.bytes = bytes;
 		mHeadLessImageUploaderFragment.tmpFilePath = tmpFilePath;
 		mHeadLessImageUploaderFragment.msisdn = msisdn;
@@ -72,7 +66,7 @@ public class HikeImageUploader extends HikeImageWorker
 		{
 			token = HttpRequests.editProfileAvatarRequest(tmpFilePath, requestListener);
 		}
-		if(!token.isRequestRunning())
+		if(token != null &&!token.isRequestRunning())
 		{
 			token.execute();
 		}
@@ -150,6 +144,11 @@ public class HikeImageUploader extends HikeImageWorker
 	
 	public boolean isTaskRunning()
 	{
+		if(token == null)
+		{
+			return false;
+		}
+		
 		return token.isRequestRunning();
 	}
 }

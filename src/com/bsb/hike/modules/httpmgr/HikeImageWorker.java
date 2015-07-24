@@ -1,4 +1,4 @@
-package com.bsb.hike.ui.fragments;
+package com.bsb.hike.modules.httpmgr;
 
 import java.lang.ref.WeakReference;
 

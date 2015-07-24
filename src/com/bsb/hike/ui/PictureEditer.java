@@ -393,20 +393,34 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (resultCode)
 			{
 			case RESULT_OK:
-				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
+				try
+				{
+					isWorking = true;
+					uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
+				}
+				finally
+				{
+					isWorking = false;
+				}
 				break;
 			case RESULT_CANCELED:
 				//The user returned from crop...deleting temporary profile image if created
-				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-				String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
-				final String destFilePath = directory + File.separator + fileName;
-				File temp = new File(destFilePath);
-				if(temp.exists())
-				{
-					temp.delete();
-				}
+				deleteTempProfilePicIfExists();
 				break;
 			}
+		}
+	}
+	
+	private void deleteTempProfilePicIfExists()
+	{
+		//The user returned from crop...deleting temporary profile image if created
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
+		final String destFilePath = directory + File.separator + fileName;
+		File temp = new File(destFilePath);
+		if(temp.exists())
+		{
+			temp.delete();
 		}
 	}
 

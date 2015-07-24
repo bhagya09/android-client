@@ -1,18 +1,14 @@
-package com.bsb.hike.ui.fragments;
+package com.bsb.hike.modules.httpmgr;
 
 import java.io.File;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -54,13 +50,10 @@ public class HikeImageDownloader extends HikeImageWorker implements DownloadProf
 	
 	private static final String TAG = "dp_download";
 	
-	private Context mContext;
-
-	public static HikeImageDownloader newInstance(Context context, String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
+	public static HikeImageDownloader newInstance(String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
 			String url, boolean isProfilePicDownloaded) {
 		
 		HikeImageDownloader mHeadLessImageDownloaderFragment = new HikeImageDownloader();
-		mHeadLessImageDownloaderFragment.mContext = context;
 		mHeadLessImageDownloaderFragment.id = key;
 		mHeadLessImageDownloaderFragment.hasCustomIcon = hasCustomIcon;
 		mHeadLessImageDownloaderFragment.statusImage = statusImage;
@@ -80,7 +73,7 @@ public class HikeImageDownloader extends HikeImageWorker implements DownloadProf
 		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		
 		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, pathOfTempFile, hasCustomIcon, statusImage, url, requestListener);
-		if(!token.isRequestRunning())
+		if(token != null && !token.isRequestRunning())
 		{
 			token.execute();
 		}

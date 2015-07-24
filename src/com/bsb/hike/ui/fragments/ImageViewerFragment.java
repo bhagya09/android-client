@@ -23,6 +23,8 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HikeImageDownloader;
+import com.bsb.hike.modules.httpmgr.HikeImageWorker;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
@@ -354,7 +356,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	{
     	Logger.d(TAG, "starting new mImageLoaderFragment");
     	String fileName = Utils.getProfileImageFileName(key);
-    	mImageWorkerFragment = HikeImageDownloader.newInstance(getActivity(), key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
+    	mImageWorkerFragment = HikeImageDownloader.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
     	mImageWorkerFragment.setTaskCallbacks(this);
     	mImageWorkerFragment.startLoadingTask();
 	}

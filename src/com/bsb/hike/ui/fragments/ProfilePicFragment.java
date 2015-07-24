@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,15 +33,13 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HikeImageUploader;
+import com.bsb.hike.modules.httpmgr.HikeImageWorker;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.FinishableEvent;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeUiHandler;
@@ -226,17 +223,16 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 			String mLocalMSISDN = userInfo.getMsisdn();
 			
-			loadHeadLessImageUploadingFragment(bytes, origImagePath, mLocalMSISDN);
+			beginDpUpload(bytes, origImagePath, mLocalMSISDN);
 			
 			updateProgressUniformly(80f, 10f);
 		}
 	}
 
-	public void loadHeadLessImageUploadingFragment(byte[] bytes, String origImagePath, String mLocalMSISDN)
+	public void beginDpUpload(byte[] bytes, String origImagePath, String mLocalMSISDN)
 	{
 		Logger.d(TAG, "inside API loadHeadLessImageUploadingFragment");
-    	Logger.d("dp_upload", "starting new mImageLoaderFragment");
-    	mImageWorkerFragment = HikeImageUploader.newInstance(getActivity(), bytes, origImagePath, mLocalMSISDN, true, true);
+    	mImageWorkerFragment = HikeImageUploader.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
     	mImageWorkerFragment.setTaskCallbacks(this);
         mImageWorkerFragment.startUpLoadingTask();
 	}
@@ -413,6 +409,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void onResume()
 	{
 		super.onResume();
+		
 		if (mUploadStatus == UPLOAD_COMPLETE)
 		{
 			timelineLauncherRunnable.run();
