@@ -143,6 +143,7 @@ public class NewChatActivity extends HikeAppStateBaseFragmentActivity implements
 	private TextView title;
 
 	private boolean createGroup;
+	private boolean addToConference;
 
 	private boolean createBroadcast;
 	
@@ -224,6 +225,8 @@ public class NewChatActivity extends HikeAppStateBaseFragmentActivity implements
 			Bundle bundle = getIntent().getBundleExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE);
 			createGroup = bundle.getBoolean(HikeConstants.Extras.CREATE_GROUP);
 		}
+		if (getIntent().hasExtra(HikeConstants.Extras.ADD_TO_CONFERENCE))
+			addToConference = true;
 		isForwardingMessage = getIntent().getBooleanExtra(HikeConstants.Extras.FORWARD_MESSAGE, false);
 		isSharingFile = getIntent().getType() != null;
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
@@ -1615,26 +1618,9 @@ public class NewChatActivity extends HikeAppStateBaseFragmentActivity implements
 				Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
 				ArrayList<FileTransferData> fileTransferList = new ArrayList<NewChatActivity.FileTransferData>();
 				fileUri = Utils.makePicasaUriIfRequired(fileUri);
-				String fileUriStart = "file:";
-				String fileUriString = fileUri.toString();
-				String filePath;
-				if (Utils.isPicasaUri(fileUriString))
-				{
-					filePath = fileUriString;
-				}
-				else if (fileUriString.startsWith(fileUriStart))
-				{
-					File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-					/*
-					 * Done to fix the issue in a few Sony devices.
-					 */
-					filePath = selectedFile.getAbsolutePath();
-				}
-				else
-				{
-					filePath = Utils.getRealPathFromUri(fileUri, this);
-				}
-	
+				
+				String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
+				
 				if (TextUtils.isEmpty(filePath))
 				{
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - file path is null.");
