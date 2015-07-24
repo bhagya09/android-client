@@ -796,7 +796,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				{
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
 							ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(mStatusMessage.getMsisdn()), true);
-					intent.putExtra(HikeConstants.Extras.KEEP_ACTIVITIES, true);
 					startActivity(intent);
 				}
 			}
