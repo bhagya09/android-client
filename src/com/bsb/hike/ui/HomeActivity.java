@@ -656,25 +656,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 		searchMenuItem = menu.findItem(R.id.search);
 		SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
-		//http://wtanaka.com/node/8049
-		/*searchView.setIconifiedByDefault(false);
-		searchView.setIconified(false)*/;
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchView.clearFocus();
 		searchOptionID = searchMenuItem.getItemId();
-		SearchView.SearchAutoComplete theTextArea = (SearchView.SearchAutoComplete)searchView.findViewById(R.id.search_src_text);
-		theTextArea.setTextColor(Color.WHITE);
-		//To show the cursor color in searchview in  versions higher than gingerbread
-		//http://stackoverflow.com/questions/18705185/changing-the-cursor-color-in-searchview-without-actionbarsherlock
-		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.GINGERBREAD) {
-			 try {
-			        Field mCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
-			        mCursorDrawableRes.setAccessible(true);
-			        mCursorDrawableRes.set(theTextArea,0); 
-			    } catch (Exception e) {
-			    	e.printStackTrace();
-			    }
-		}
 		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 		{
@@ -849,12 +833,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (intent != null)
 		{
 			startActivity(intent);
-			return true;
+			
 		}
-		else
-		{
-			return super.onOptionsItemSelected(item);
-		}
+		return true;
 	}
 
 
