@@ -194,6 +194,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 							.replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG).commitAllowingStateLoss();
 				}
 
+				dismissStickerRecommendFtueTip();
 				((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, stickerList);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 				showFtueAnimation();
