@@ -42,11 +42,11 @@ public class StickerSearchManager
 	private volatile String currentString;
 
 	private volatile int currentLength = 0;
-	
+
 	private boolean isFirstPhraseOrWord = false;
-	
+
 	private int numStickersVisibleAtOneTime;
-	
+
 	private StickerSearchManager()
 	{
 		searchEngine = new StickerSearchEngine();
@@ -123,7 +123,7 @@ public class StickerSearchManager
 			onClickToSendSticker(highlightArray[0][0], false);
 		}
 	}
-	
+
 	public void highlightAndShowStickerPopup(Pair<CharSequence, int[][]> result)
 	{
 		if (listener == null)
@@ -203,7 +203,7 @@ public class StickerSearchManager
 		{
 			listener.unHighlightText(0, highlightArray[0][0]);
 		}
-	
+
 		for (int i = 0, start, end; i < highlightArray.length && highlightArray[i] != null; i++)
 		{
 			start = highlightArray[i][0];
@@ -231,10 +231,10 @@ public class StickerSearchManager
 
 		showStickerRecommendFtue(preString, highlightArray);
 	}
-	
+
 	private void showStickerRecommendFtue(String preString, int[][] highlightArray)
 	{
-		if((highlightArray.length > 1) || ((highlightArray.length > 0) && !Utils.isBlank(preString))) 
+		if ((highlightArray.length > 1) || ((highlightArray.length > 0) && !Utils.isBlank(preString)))
 		{
 			listener.showStickerRecommendFtueTip();
 		}
@@ -246,21 +246,24 @@ public class StickerSearchManager
 
 		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
 
-		if ((listener != null) && (results != null) && (results.second != null))
+		if (listener != null)
 		{
-			if(onTouch)
+			if ((results != null) && (results.second != null))
 			{
-				listener.setStickerRecommendFtueSeen();
+				if (onTouch)
+				{
+					listener.setStickerRecommendFtueSeen();
+				}
+
+				listener.dismissStickerSearchPopup();
+				listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
 			}
-			listener.dismissStickerSearchPopup();
-			listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
-		}
-		else
-		{
-			listener.dismissStickerSearchPopup();
+			else
+			{
+				listener.dismissStickerSearchPopup();
+			}
 		}
 	}
-	
 
 	public void downloadStickerTags(boolean firstTime)
 	{
@@ -279,19 +282,19 @@ public class StickerSearchManager
 		StickerSearchSetupTask stickerSearchSetupTask = new StickerSearchSetupTask();
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
 	}
-	
+
 	public void removeDeletedStickerTags()
 	{
 		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
 	}
-	
+
 	public void sentMessage(String prevText, Sticker sticker, String nextText, String currentText)
 	{
 		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText, currentText);
 		searchEngine.runOnQueryThread(newMessageSentTask);
 	}
-	
+
 	public void receivedMessage(String prevText, Sticker sticker, String nextText)
 	{
 		NewMessageReceivedTask newMessageReceivedTask = new NewMessageReceivedTask(prevText, sticker, nextText);
@@ -302,34 +305,36 @@ public class StickerSearchManager
 	{
 		return isFirstPhraseOrWord;
 	}
-	
+
 	public void setAlarmFirstTime()
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SET_ALARM_FIRST_TIME, false))
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SET_ALARM_FIRST_TIME, false))
 		{
 			Logger.d("Rebalancing", "setting alarm first time");
 			setAlarm();
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SET_ALARM_FIRST_TIME, true);
 		}
 	}
-	
+
 	public void setAlarm()
 	{
-		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REBALANCING_TIME, StickerSearchConstants.REBALACING_DEFAULT_TIME), 0, 0, 0);
+		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(),
+				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REBALANCING_TIME, StickerSearchConstants.REBALACING_DEFAULT_TIME), 0, 0, 0);
 		if (scheduleTime < System.currentTimeMillis())
 		{
 			scheduleTime += 24 * 60 * 60 * 1000;
 		}
-		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true, getRebalancingAlarmIntent(), true);
+		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true,
+				getRebalancingAlarmIntent(), true);
 	}
-	
+
 	private Intent getRebalancingAlarmIntent()
 	{
 		Intent intent = new Intent();
 		intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
 		return intent;
 	}
-	
+
 	public void startRebalancing(Intent intent)
 	{
 		RebalancingTask rebalancingTask = new RebalancingTask(intent);
