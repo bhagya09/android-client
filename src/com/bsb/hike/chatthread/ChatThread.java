@@ -1156,8 +1156,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public void setStickerRecommendFtueTipSeen()
 	{
-		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		if (mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
 		{
+			Logger.d(TAG, "set sticker recommend tip seen : " + true);
 			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
 	}

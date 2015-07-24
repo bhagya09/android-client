@@ -389,6 +389,11 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	{
 		return (tipView != null && tipId == whichTip);
 	}
+	
+	public boolean isGivenTipVisible(int whichTip)
+	{
+		return isGivenTipShowing(whichTip) && (tipView.getVisibility() == View.VISIBLE);
+	}
 
 	@Override
 	public void onClick(View v)
