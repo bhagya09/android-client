@@ -28,7 +28,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -351,8 +350,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				break;
 
 			case R.string.settings_share_stickers:
-				HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
-				IntentFactory.openSettingStickerOnOtherApp(this);
+				IntentFactory.openStickerSettings(this);
 				break;
 
 			case R.string.help:

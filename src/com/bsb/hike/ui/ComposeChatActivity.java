@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -148,6 +147,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private boolean createGroup;
 
+	private boolean addToConference;
+
 	private boolean createBroadcast;
 	
 	private boolean isForwardingMessage;
@@ -228,6 +229,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			Bundle bundle = getIntent().getBundleExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE);
 			createGroup = bundle.getBoolean(HikeConstants.Extras.CREATE_GROUP);
 		}
+		
+		if (getIntent().hasExtra(HikeConstants.Extras.ADD_TO_CONFERENCE))
+			addToConference = true;
+		
 		isForwardingMessage = getIntent().getBooleanExtra(HikeConstants.Extras.FORWARD_MESSAGE, false);
 		isSharingFile = getIntent().getType() != null;
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
@@ -460,7 +465,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					break;
 
 				}
-				Intent intent = ShareUtils.shareContent(type, str, HikeConstants.Extras.WHATSAPP_PACKAGE);
+				Intent intent = ShareUtils.shareContent(type, str, HikeConstants.Extras.WHATSAPP_PACKAGE, false);
  				if (intent != null)
 				{
 					startActivity(intent);
@@ -897,6 +902,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 				mode=CREATE_GROUP_MODE;
 		}
+		else if (addToConference) {
+			mode = CREATE_GROUP_MODE;
+		}
 		else
 		{
 				mode=START_CHAT_MODE;
@@ -962,7 +970,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			return;
 		}
 		
-		if (existingGroupOrBroadcastId != null && adapter.getOnHikeContactsCount() == 0)
+		if (adapter.getOnHikeContactsCount() == 0)
 		{
 			return;
 		}
@@ -1089,6 +1097,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			title.setText(R.string.choose_contact);
 		}
+		else if (addToConference) 
+		{
+			title.setText(R.string.add_members_to_conference);
+		}
 		else if (createGroup)
 		{
 			title.setText(R.string.add_members);
@@ -1153,6 +1165,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if (isForwardingMessage||isSharingFile)
 				{
 					forwardConfirmation(adapter.getAllSelectedContacts());
+				}
+				else if (addToConference) {
+					sendAddToConferenceResult();
 				}
 				else if (createBroadcast)
 				{
@@ -1220,6 +1235,31 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
 
 		showingMultiSelectActionBar = true;
+	}
+	
+	/**
+	 * ComposeChatActivity was called to add people to an ongoing VoIP call. 
+	 * Return the list of people selected from the contact picker. 
+	 */
+	private void sendAddToConferenceResult() {
+		int selected = adapter.getCurrentSelection();
+		if (selected < 1)
+		{
+			Toast.makeText(this,R.string.pick_contact_zero,Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
+		Intent intent = getIntent();
+		ArrayList<String> contacts = new ArrayList<>();
+		
+		// We only want the msisdn's of the selected contacts
+		for (ContactInfo contact : adapter.getAllSelectedContacts()) {
+			contacts.add(contact.getMsisdn());
+		}
+		
+		intent.putStringArrayListExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE, contacts);
+		setResult(RESULT_OK, intent);
+		this.finish();
 	}
 
 	private void onDoneClickPickContact()
@@ -1362,7 +1402,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(id);
 						if (botInfo.isNonMessagingBot())
 						{
-							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);
+							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), this);
 						}
 						else
 						{
@@ -1374,12 +1414,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
 					}
 
-				}else{
+				}
+				else
+				{
 					//home activity
 					intent = Utils.getHomeActivityIntent(this);
 				}
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				forwardMessageAsPerType(presentIntent, intent,arrayList);
+				if (intent != null)
+				{
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					forwardMessageAsPerType(presentIntent, intent, arrayList);
+				}
 			}
 		}
 	}
@@ -1405,25 +1450,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					for (Uri fileUri : imageUris)
 					{
 						Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
-						String fileUriStart = "file:";
-						String fileUriString = fileUri.toString();
 
-						String filePath;
-						if (Utils.isPicasaUri(fileUriString))
-						{
-							filePath = fileUriString;
-						}else if (fileUriString.startsWith(fileUriStart))
-						{
-							File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-							/*
-							 * Done to fix the issue in a few Sony devices.
-							 */
-							filePath = selectedFile.getAbsolutePath();
-						}
-						else
-						{
-							filePath = Utils.getRealPathFromUri(fileUri, this);
-						}
+						String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
 
 						// Defensive fix for play store crash. java.lang.NullPointerException in java.io.File.fixSlashes.
 						if(filePath == null)
@@ -1735,27 +1763,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
 				ArrayList<FileTransferData> fileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
-				fileUri = Utils.makePicasaUri(fileUri);
-				String fileUriStart = "file:";
-				String fileUriString = fileUri.toString();
-				String filePath;
-				if (Utils.isPicasaUri(fileUriString))
-				{
-					filePath = fileUriString;
-				}
-				else if (fileUriString.startsWith(fileUriStart))
-				{
-					File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-					/*
-					 * Done to fix the issue in a few Sony devices.
-					 */
-					filePath = selectedFile.getAbsolutePath();
-				}
-				else
-				{
-					filePath = Utils.getRealPathFromUri(fileUri, this);
-				}
-	
+				fileUri = Utils.makePicasaUriIfRequired(fileUri);
+				
+				String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
+				
 				if (TextUtils.isEmpty(filePath))
 				{
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - file path is null.");
@@ -1861,7 +1872,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			platformAnalyticsJson.put(AnalyticsConstants.TO, contactList);
 			platformAnalyticsJson.put(HikeConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
-			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, platformAnalyticsJson);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, platformAnalyticsJson);
 		}
 		catch (JSONException e)
 		{
@@ -2025,7 +2036,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		if (composeMode == CREATE_GROUP_MODE || composeMode == CREATE_BROADCAST_MODE)
 		{
-			if (existingGroupOrBroadcastId != null || createGroup || createBroadcast)
+			if (existingGroupOrBroadcastId != null || createGroup || createBroadcast || addToConference)
 			{
 				ComposeChatActivity.this.finish();
 //				Hiding keyboard on pressing back on "Add members to broadcast list" compose chat

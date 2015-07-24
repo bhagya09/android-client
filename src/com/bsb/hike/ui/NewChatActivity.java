@@ -26,12 +26,17 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Data;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -53,14 +58,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
-import android.view.Menu;
-import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -102,9 +100,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -1245,7 +1241,7 @@ public class NewChatActivity extends HikeAppStateBaseFragmentActivity implements
 						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(id);
 						if (botInfo.isNonMessagingBot())
 						{
-							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);
+							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), this);
 						}
 						else
 						{
@@ -1618,7 +1614,7 @@ public class NewChatActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
 				ArrayList<FileTransferData> fileTransferList = new ArrayList<NewChatActivity.FileTransferData>();
-				fileUri = Utils.makePicasaUri(fileUri);
+				fileUri = Utils.makePicasaUriIfRequired(fileUri);
 				String fileUriStart = "file:";
 				String fileUriString = fileUri.toString();
 				String filePath;
@@ -1744,7 +1740,7 @@ public class NewChatActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			platformAnalyticsJson.put(AnalyticsConstants.TO, contactList);
 			platformAnalyticsJson.put(HikeConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
-			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, platformAnalyticsJson);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, platformAnalyticsJson);
 		}
 		catch (JSONException e)
 		{

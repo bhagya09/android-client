@@ -192,7 +192,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			toggleEnablePostButton();
 		}
 
@@ -219,6 +219,22 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STATUS.ordinal());
 	}
 
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		
+		if (mActivityTask.moodShowing || mActivityTask.emojiShowing)
+		{
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}
+		
+		else
+		{
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}
+	}
+	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();

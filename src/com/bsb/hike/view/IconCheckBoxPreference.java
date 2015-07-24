@@ -1,11 +1,11 @@
 package com.bsb.hike.view;
 
-import com.bsb.hike.ui.HikePreferences;
-
 import android.content.Context;
 import android.preference.CheckBoxPreference;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.bsb.hike.ui.HikePreferences;
 
 public class IconCheckBoxPreference extends CheckBoxPreference
 {
@@ -27,7 +27,7 @@ public class IconCheckBoxPreference extends CheckBoxPreference
 	protected void onBindView(final View view)
 	{
 		view.setAlpha(isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
-		
+
 		super.onBindView(view);
 	}
 
