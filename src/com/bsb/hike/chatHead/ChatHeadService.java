@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
@@ -29,6 +31,7 @@ import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -72,8 +75,8 @@ public class ChatHeadService extends Service
 
 	private int savedPosY = INITIAL_POS_Y;
 	
-	private static boolean chatHeadIconExist = false;
-
+	private String TAG = "ChatHeadService"; 
+	
 	// boolean to show whether the chat head must be shown or not for a particular session
 	private static boolean toShow = true;
 	
@@ -85,14 +88,10 @@ public class ChatHeadService extends Service
 
 	private LayoutParams stickerPickerParams;
 	
-	public static boolean flagActivityRunning = false;
-
 	public static String foregroundAppName = HikeConstants.Extras.WHATSAPP_PACKAGE;
 
 	public static int dismissed = 0;
-
-	public static IFinishActivityListener mFinishActivityListener;
-
+	
 	private final Handler chatHeadHandler = new Handler();
 
 	private Runnable chatHeadRunnable = new Runnable()
@@ -101,7 +100,6 @@ public class ChatHeadService extends Service
 		@Override
 		public void run()
 		{   
-			chatHeadIconExist = true;
 			Set<String> foregroundPackages = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS);
 			UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
 			
@@ -131,7 +129,7 @@ public class ChatHeadService extends Service
 
 			if (!chatHead.isShown())
 			{
-				if ((whiteListAppForegrounded && toShow) || flagActivityRunning)
+				if (whiteListAppForegrounded && toShow) 
 				{
 					chatHead.post(new Runnable()
 					{
@@ -182,23 +180,12 @@ public class ChatHeadService extends Service
 						PackageNameHashMap.put(obj.getString(HikeConstants.ChatHead.PACKAGE_NAME), obj.optString(HikeConstants.ChatHead.APP_NAME, ""));
 					}
 				}
-
 			}
 		}
 		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
-	}
-
-	public static void registerReceiver(IFinishActivityListener finishingActivityListener)
-	{
-		mFinishActivityListener = finishingActivityListener;
-	}
-
-	public static void unregisterReceiver(IFinishActivityListener finishingActivityListener)
-	{
-		mFinishActivityListener = null;
 	}
 
 	public void overlayAnimation(final View view2animate, Integer viewX, Integer endX, Integer viewY, Integer endY, final int flag, final String path)
@@ -221,8 +208,15 @@ public class ChatHeadService extends Service
 			public void onAnimationUpdate(ValueAnimator valueAnimator)
 			{
 				chatHeadParams.y = (Integer) valueAnimator.getAnimatedValue();
-				windowManager.updateViewLayout(view2animate, chatHeadParams);
-
+				// safe check
+				try
+				{
+					windowManager.updateViewLayout(view2animate, chatHeadParams);
+				}
+				catch (Exception e)
+				{
+					Logger.d(TAG, "animation update chatheadparams");
+				}
 			}
 		});
 
@@ -236,23 +230,16 @@ public class ChatHeadService extends Service
 			{
 				if(ChatHeadLayout.getOverlayView() != null)
 				{
-					flagActivityRunning = false;
 					try 
 					{
 						windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
 						chatHeadParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
 						windowManager.updateViewLayout(chatHead, chatHeadParams);
-					
 					}
 					catch (Exception e)
 					{
 						Logger.d("UmangX","busted");
 					}
-				}
-				if (flag != ChatHeadConstants.REMAINING_ANIMATION && flagActivityRunning && (mFinishActivityListener != null))
-				{
-					flagActivityRunning = false;
-					//mFinishActivityListener.finishActivity();
 				}
 			}
 
@@ -272,9 +259,6 @@ public class ChatHeadService extends Service
 						break;
 					}
 					createAndOpenChatHeadPickerLayout(getApplicationContext());
-//					Intent intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
-//					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//					startActivity(intent);
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
 					Intent sharingIntent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp, true);
@@ -318,15 +302,17 @@ public class ChatHeadService extends Service
 	
 	private void createAndOpenChatHeadPickerLayout(Context context)
 	{
-
-		windowManager.addView(ChatHeadLayout.attachPicker(context),stickerPickerParams);
-		chatHeadParams.flags = LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL;
-		windowManager.updateViewLayout(chatHead, chatHeadParams);
-		ChatHeadLayout.getOverlayView().setOnTouchListener(chatHeadOnTouchListener);
-		ChatHeadService.flagActivityRunning = true;
-//		ChatHeadService.registerReceiver(this);
-//		setContentView(R.layout.chat_head);
-		//windowManager.addView(chatHeadLayout, stickerPickerParams);
+		// adding try catch as a safe check
+		try
+		{
+			windowManager.addView(ChatHeadLayout.attachPicker(context), stickerPickerParams);
+			chatHeadParams.flags = LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+			windowManager.updateViewLayout(chatHead, chatHeadParams);
+		}
+		catch (Exception e)
+		{
+			Logger.d(TAG, "create and open chat head picker layout");
+		}
 	}
 	
 	public void insertHomeActivitBeforeStarting(Intent openingIntent)
@@ -395,17 +381,17 @@ public class ChatHeadService extends Service
 			}
 			else
 			{
-				openingChatHeadActivity();
+				openingChatHeadWindow();
 			}
 		}
 		else
 		{
 			if (drag < DRAG_CONST)
-			{
+			{   
 				HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD, ChatHeadService.foregroundAppName);
-				if (!flagActivityRunning)
+				if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
 				{
-					openingChatHeadActivity();
+					openingChatHeadWindow();
 				}
 				else
 				{
@@ -414,6 +400,7 @@ public class ChatHeadService extends Service
 			}
 			else
 			{
+				
 				if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
 				{
 					overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, chatHeadParams.y, ChatHeadConstants.REMAINING_ANIMATION, null);
@@ -431,9 +418,8 @@ public class ChatHeadService extends Service
 		}
 	}
 
-	private void openingChatHeadActivity()
+	private void openingChatHeadWindow()
 	{
-		
 		final float scale = Utils.densityMultiplier;
 		int status_bar_height = ChatThreadUtils.getStatusBarHeight(this);
 		int pixelsX;
@@ -444,7 +430,6 @@ public class ChatHeadService extends Service
 		savedPosX = chatHeadParams.x;
 		savedPosY = chatHeadParams.y;
 		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
-
 	}
 
 	private int actionMove(int drag, int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
@@ -455,7 +440,7 @@ public class ChatHeadService extends Service
 
 		Rect rectChatHead, rectCloseHead;
 
-		if (!flagActivityRunning)
+		if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
 		{
 			drag++;
 			chatHeadParams.x = initialX + (int) (event.getRawX() - initialTouchX);
@@ -468,7 +453,15 @@ public class ChatHeadService extends Service
 				chatHeadParams.y = 0;
 			if (chatHeadParams.y > getResources().getDisplayMetrics().heightPixels - chatHead.getHeight())
 				chatHeadParams.y = getResources().getDisplayMetrics().heightPixels - chatHead.getHeight();
+			//safe check
+			try
+			{
 			windowManager.updateViewLayout(chatHead, chatHeadParams);
+			}
+			catch(Exception e)
+			{
+				Logger.d(TAG, "action move chat head");
+			}
 			chatHead.getLocationOnScreen(chatHeadLocations);
 			closeHead.getLocationOnScreen(closeHeadLocations);
 
@@ -509,46 +502,36 @@ public class ChatHeadService extends Service
 		@Override
 		public boolean onTouch(View v, MotionEvent event)
 		{
-			if (v.getId() == chatHead.getId())
+			switch (event.getAction())
 			{
-				switch (event.getAction())
+			case MotionEvent.ACTION_DOWN:
+				Logger.d("UmangX", "down");
+				drag = 0;
+				initialX = chatHeadParams.x;
+				initialY = chatHeadParams.y;
+				initialTouchX = event.getRawX();
+				initialTouchY = event.getRawY();
+				try
 				{
-				case MotionEvent.ACTION_OUTSIDE:
-					Logger.d("UmangX", "outside");
-					return true;
-				case MotionEvent.ACTION_DOWN:
-
-					Logger.d("UmangX", "down");
-					drag = 0;
-					initialX = chatHeadParams.x;
-					initialY = chatHeadParams.y;
-					initialTouchX = event.getRawX();
-					initialTouchY = event.getRawY();
-					try
-					{
-						windowManager.addView(closeHead, closeHeadParams);
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-					return true;
-
-				case MotionEvent.ACTION_UP:
-					Logger.d("UmangX", "up");
-					actionUp(drag);
-					return true;
-
-				case MotionEvent.ACTION_MOVE:
-					Logger.d("UmangX", "moving");
-					drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
-					return true;
+					windowManager.addView(closeHead, closeHeadParams);
 				}
+				catch (Exception e)
+				{
+					Logger.d(TAG, "action down");
+				}
+				return true;
+
+			case MotionEvent.ACTION_UP:
+				Logger.d("UmangX", "up");
+				actionUp(drag);
+				return true;
+
+			case MotionEvent.ACTION_MOVE:
+				Logger.d("UmangX", "moving");
+				drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
+				return true;
 			}
-			else
-			{
-               Logger.d("ashish","touch");
-			}
+
 			return false;
 
 		}
@@ -556,22 +539,11 @@ public class ChatHeadService extends Service
 	
 	private View.OnKeyListener chatHeadOnKeyListener = new View.OnKeyListener()
 	{
-		
+
 		@Override
 		public boolean onKey(View v, int keyCode, KeyEvent event)
 		{
-			
-			Logger.d("ashish","keylisteber");
-			try
-			{
-			    resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
-			}//
-			catch(Exception e)
-			{
-				
-			}
-			
-			
+			resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
 			return false;
 		}
 	};
@@ -610,20 +582,18 @@ public class ChatHeadService extends Service
 		setStickerPickerParams();
 		
 		createListfromJson();
-		if (!chatHeadIconExist)
+
+		try
 		{
-			try
-			{
-				windowManager.addView(chatHead, chatHeadParams);
-				chatHeadIconExist = true;
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
+			windowManager.addView(chatHead, chatHeadParams);
 		}
+		catch (Exception e)
+		{
+			Logger.d(TAG, "adding chat head");
+		}
+
 		chatHead.setVisibility(View.INVISIBLE);
-		
+
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 		
 		chatHead.setOnKeyListener(chatHeadOnKeyListener);
@@ -635,7 +605,8 @@ public class ChatHeadService extends Service
 
 	private void setStickerPickerParams()
 	{
-		stickerPickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
+		int height = (int)(Utils.densityMultiplier * 248) + ChatThreadUtils.getStatusBarHeight(this) ;
+		stickerPickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, height,
 				LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
 		stickerPickerParams.gravity = Gravity.BOTTOM;
 	}
@@ -657,11 +628,10 @@ public class ChatHeadService extends Service
 		{
 			windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
 			chatHeadParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
-			windowManager.updateViewLayout(chatHead, chatHeadParams);
-		
 		}
 		catch(Exception e)
 		{
+			Logger.d(TAG, "removing chathead windowmanager view");
 		}
 		chatHead.getLocationOnScreen(chatHeadLocations);
 		if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
@@ -674,7 +644,14 @@ public class ChatHeadService extends Service
 			chatHeadParams.x = getResources().getDisplayMetrics().widthPixels - chatHead.getWidth();
 			chatHeadParams.y = chatHeadLocations[1];
 		}
-		windowManager.updateViewLayout(chatHead, chatHeadParams);
+		try
+		{
+			windowManager.updateViewLayout(chatHead, chatHeadParams);
+		}
+		catch (Exception e)
+		{
+			Logger.d(TAG, "configuration changed uodate view");
+		}
 		if (closeHead.isShown())
 		{
 			windowManager.removeView(closeHead);
@@ -685,17 +662,33 @@ public class ChatHeadService extends Service
 	public void onDestroy()
 	{
 		chatHeadHandler.removeCallbacks(chatHeadRunnable);
-
 		UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.STOP);
-		chatHeadIconExist = false;
-		if (chatHead.isShown())
-			windowManager.removeView(chatHead);
-		if (closeHead.isShown())
-			windowManager.removeView(closeHead);
-		if (flagActivityRunning && (mFinishActivityListener != null))
+		try
 		{
-			flagActivityRunning = false;
-			mFinishActivityListener.finishActivity();
+			windowManager.removeView(chatHead);
+		}
+		catch (Exception e)
+		{
+           Logger.d(TAG, "chatHeadRemove");
+		}
+		try
+		{
+			windowManager.removeView(closeHead);
+		}
+		catch (Exception e)
+		{
+			Logger.d(TAG, "closeHeadRemove");
+		}
+		try
+		{
+			if (ChatHeadLayout.getOverlayView() != null)
+			{
+				windowManager.removeView(ChatHeadLayout.getOverlayView());
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.d(TAG, "ChatHeadLayoutRemove");
 		}
 		super.onDestroy();
 	}
