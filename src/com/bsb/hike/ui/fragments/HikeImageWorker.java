@@ -2,7 +2,6 @@ package com.bsb.hike.ui.fragments;
 
 import java.lang.ref.WeakReference;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
@@ -14,7 +13,7 @@ import com.bsb.hike.utils.Utils;
  * It ensures that all File I/O are in in sync as concurrent Del/creating/renaming Files will cause issues.So this does those operations on keeping a lock
  *
  */
-public class HeadlessImageWorkerFragment extends SherlockFragment
+public class HikeImageWorker 
 {
 
 	private static final String TAG = "dp_woker";
@@ -113,18 +112,5 @@ public class HeadlessImageWorkerFragment extends SherlockFragment
 		}
 	}
 	
-	/**
-	 * This removes current fragment
-	 */
-	protected void removeHeadlessFragment()
-	{
-		if(getFragmentManager() != null && isAdded())
-		{
-			getFragmentManager().beginTransaction().remove(this).commit();
-		}
-		else
-		{
-			Logger.d(TAG, "Not able to remove HEADLESS fragment as getFragmentManager was null");
-		}
-	}
+	
 }

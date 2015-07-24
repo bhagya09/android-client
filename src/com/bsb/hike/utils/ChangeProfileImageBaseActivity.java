@@ -51,14 +51,14 @@ import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
-import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
+import com.bsb.hike.ui.fragments.HikeImageUploader;
+import com.bsb.hike.ui.fragments.HikeImageWorker;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, 
-						FinishableEvent, DisplayPictureEditListener, HeadlessImageWorkerFragment.TaskCallbacks
+						FinishableEvent, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks
 {
 	private HikeSharedPreferenceUtil prefs;
 
@@ -94,7 +94,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		
 		public StatusMessageType statusMsgType;
 		
-		public HeadlessImageWorkerFragment mImageWorkerFragment;
+		public HikeImageUploader mImageWorkerFragment;
 	}
 
 	private ActivityState mActivityState;
@@ -121,9 +121,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			}
 			
-			FragmentManager fm = getSupportFragmentManager();
-			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
-			if(mActivityState.mImageWorkerFragment != null)
+			if(mActivityState.mImageWorkerFragment != null &&  (mActivityState.mImageWorkerFragment.isTaskRunning()))
 			{
 				mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
@@ -598,24 +596,13 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			if (bytes == null)
 				return;
 
-			FragmentManager fm = getSupportFragmentManager();
-			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
-
 		    // If the Fragment is non-null, then it is currently being
 		    // retained across a configuration change.
-		    if (mActivityState.mImageWorkerFragment == null) 
-		    {
-		    	Logger.d(TAG, "starting new mImageLoaderFragment");
-		    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-		    	mActivityState.mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, msisdn, true, true);
-		    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
-		        fm.beginTransaction().add(mActivityState.mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
-		    }
-		    else
-		    {
-		    	Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-		    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-		    }
+	    	Logger.d(TAG, "starting new mImageLoaderFragment");
+	    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+	    	mActivityState.mImageWorkerFragment = HikeImageUploader.newInstance(ChangeProfileImageBaseActivity.this, bytes, mActivityState.destFilePath, msisdn, true, true);
+	    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+	    	mActivityState.mImageWorkerFragment.startUpLoadingTask();
 		}
 	}
 	
@@ -782,6 +769,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		Logger.d(TAG, "req failed");
 		failureWhileSettingProfilePic();
+		
+		//TODO on UI
 		Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
 	}
 	
