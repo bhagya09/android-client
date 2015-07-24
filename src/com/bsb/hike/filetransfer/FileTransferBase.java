@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +19,8 @@ import java.util.concurrent.FutureTask;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -33,6 +40,11 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	{
 		NOT_STARTED, INITIALIZED, IN_PROGRESS, // DOWNLOADING OR UPLOADING
 		PAUSED, CANCELLED, COMPLETED, ERROR
+	}
+
+	public enum FTExceptionReason
+	{
+		NO_EXCEPTION, UNKNOWN_HOST, SOCKET_EXCEPTION, SOCKET_TIMEOUT, CONNECT_TIMEOUT, HOST_CONNECT_EXCEPTION, CONNECT_EXCEPTION
 	}
 
 	protected static String NETWORK_ERROR_1 = "timed out";
@@ -65,7 +77,7 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected int reconnectTime = 0;
 
-	protected int MAX_RECONNECT_TIME = 20; // in seconds
+	protected int MAX_RECONNECT_TIME = 8; // in seconds
 
 	protected Handler handler;
 
@@ -107,6 +119,8 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	protected FTAnalyticEvents analyticEvents;
 
 	protected final int DEFAULT_CHUNK_SIZE = 100 * 1024;
+
+	protected volatile FTExceptionReason mExceptionType = FTExceptionReason.NO_EXCEPTION ;
 
 	protected FileTransferBase(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, long msgId, HikeFileType hikeFileType)
 	{
@@ -230,14 +244,14 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	{
 		if (retry && retryAttempts < MAX_RETRY_ATTEMPTS)
 		{
-			// make first attempt within first 5 seconds
+			// make first attempt after 1 second
 			if (reconnectTime == 0)
 			{
-				Random random = new Random();
-				reconnectTime = random.nextInt(5) + 1;
+				reconnectTime = 1;
 			}
 			else
 			{
+				// increase wait time exponentially on next retries.
 				reconnectTime *= 2;
 			}
 			reconnectTime = reconnectTime > MAX_RECONNECT_TIME ? MAX_RECONNECT_TIME : reconnectTime;
@@ -316,5 +330,49 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	public void setPausedProgress(int pausedProgress)
 	{
 		this.pausedProgress = pausedProgress;
+	}
+
+	public void handleException(Throwable e)
+	{
+		if(e instanceof UnknownHostException)
+			mExceptionType = FTExceptionReason.UNKNOWN_HOST;
+		else if(e instanceof SocketException)
+			mExceptionType = FTExceptionReason.SOCKET_EXCEPTION;
+		else if(e instanceof SocketTimeoutException)
+			mExceptionType = FTExceptionReason.SOCKET_TIMEOUT;
+		else if(e instanceof ConnectException)
+			mExceptionType = FTExceptionReason.CONNECT_EXCEPTION;
+		else if(e instanceof ConnectTimeoutException)
+			mExceptionType = FTExceptionReason.CONNECT_TIMEOUT;
+		else if(e instanceof HttpHostConnectException)
+			mExceptionType = FTExceptionReason.HOST_CONNECT_EXCEPTION;
+	}
+
+	public URL getUpdatedURL(URL mUrl, String logText, String taskType, URL baseUrl)
+	{
+		URL resultUrl = mUrl;
+		if(AccountUtils.ssl)
+			return baseUrl;
+		switch (mExceptionType) {
+			case UNKNOWN_HOST:
+			case HOST_CONNECT_EXCEPTION:
+			case CONNECT_EXCEPTION:
+			case CONNECT_TIMEOUT:
+			case SOCKET_EXCEPTION:
+			case SOCKET_TIMEOUT:
+				try {
+					String host = FileTransferManager.getInstance(context).getHost();
+					resultUrl = new URL(mUrl.getProtocol(), host, mUrl.getPort(), mUrl.getFile());
+					Logger.d("FileTransferBase", logText + " , fallback host = " + host);
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.HOST_FALLBACK, 0, taskType, logText, "Fallback Host : " + host);
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			default:
+				break;
+		}
+		return resultUrl;
 	}
 }

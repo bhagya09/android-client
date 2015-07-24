@@ -29,6 +29,7 @@ import android.os.BatteryManager;
 import android.os.Environment;
 import android.os.StatFs;
 import android.os.SystemClock;
+import android.telephony.TelephonyManager;
 
 /**
  * @author ashishagarwal
@@ -67,6 +68,17 @@ public class PhoneSpecUtils
 
 	public static final String LOW = "low";
 
+	public static final String MCC_MNC = "mccMnc";
+
+	public static final String OPERATOR = "operator";
+
+	public static final String SIM_DETAILS = "sim";
+
+	public static final String NETWORK_DETAILS = "network";
+
+	private static final String ROAMING = "isRoaming";
+
+	
 	/**
 	 * retuns the phonespec at the current instance of time
 	 */
@@ -86,6 +98,8 @@ public class PhoneSpecUtils
 			phoneSpec.put(SD_MEMORY, new JSONObject(getSDCardMem()));
 			phoneSpec.put(CACHE_MEMORY, new JSONObject(getCacheMem()));
 			phoneSpec.put(RAM, new JSONObject(getRamSize(context)));
+			phoneSpec.put(SIM_DETAILS, new JSONObject(getSimDetails(context)));
+			phoneSpec.put(NETWORK_DETAILS, new JSONObject(getNetworkDetails(context)));
 			Logger.d(PHONE_SPEC, phoneSpec.toString());
 			return phoneSpecArray.put(phoneSpec);
 		}
@@ -288,4 +302,26 @@ public class PhoneSpecUtils
 		}
     	return null;
 	} 
+    
+    /** 
+	 * getting the sim details of the phone
+	 */
+    public static Map<String,Object> getSimDetails(Context context)
+	{
+		Map<String, Object> simDetails = new HashMap<String, Object>();
+		TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+		simDetails.put(MCC_MNC, manager.getSimOperator());
+		simDetails.put(OPERATOR, manager.getSimOperatorName());
+		return simDetails;
+	}
+
+	public static Map<String, Object> getNetworkDetails(Context context)
+	{
+		Map<String, Object> simDetails = new HashMap<String, Object>();
+		TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+		simDetails.put(MCC_MNC, manager.getNetworkOperator());
+		simDetails.put(OPERATOR, manager.getNetworkOperatorName());
+		simDetails.put(ROAMING, manager.isNetworkRoaming());
+		return simDetails;
+	}
 }
