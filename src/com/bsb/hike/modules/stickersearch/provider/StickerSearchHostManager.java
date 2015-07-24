@@ -1063,14 +1063,18 @@ public class StickerSearchHostManager
 		}
 		else
 		{
+			float preScoreWeitage = HikeStickerSearchBaseConstants.WEITAGE_PRE_SCORE;
+			float postScoreWeitage = HikeStickerSearchBaseConstants.WEITAGE_POST_SCORE;
+			float exactMatchWeitage = HikeStickerSearchBaseConstants.WEITAGE_EXACT_MATCH;
+			float frequencyWeitage = HikeStickerSearchBaseConstants.WEITAGE_FREQUENCY;
+			float contextMomentWeitage = HikeStickerSearchBaseConstants.WEITAGE_CONTEXT_MOMENT;
+
+			int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
 			int count = stData.size();
-			float preScoreWeitage = 0.1f;
-			float postScoreWeitage = 0.3f;
-			float exactMatchScoreWeitage = 0.35f;
-			float frequencyWeitage = 0.25f;
 			ArrayList<String> stikcerCodeList = new ArrayList<String>();
 			ArrayList<Integer> stikcerMomentList = new ArrayList<Integer>();
 			ArrayList<Float> matchRankList = new ArrayList<Float>(count);
+
 			for (int i = 0; i < count; i++)
 			{
 				if (stData.get(i) == null)
@@ -1081,6 +1085,7 @@ public class StickerSearchHostManager
 				}
 				else
 				{
+					int stickerMometCode = (int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE);
 					String frequencyString = (String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY);
 					int frequency;
 					if (Utils.isBlank(frequencyString))
@@ -1105,31 +1110,33 @@ public class StickerSearchHostManager
 
 					if (((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER)) == -1)
 					{
-						matchRankList.add((preScoreWeitage * (count - i) / count) + (postScoreWeitage * phraseMatchScore) + 0f + (frequencyWeitage * formattedFrequency));
+						matchRankList.add((preScoreWeitage * (count - i) / count) + (postScoreWeitage * phraseMatchScore) + 0f + (frequencyWeitage * formattedFrequency)
+								+ ((stickerMometCode == contextMomentCode) ? contextMomentWeitage : 0f));
 					}
 					else
 					{
 						matchRankList.add((preScoreWeitage * (count - i) / count)
 								+ (postScoreWeitage * phraseMatchScore)
-								+ (exactMatchScoreWeitage * (phraseMatchScore > 0.7f ? phraseMatchScore : 0) / ((int) stData.get(i).get(
-										HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (frequencyWeitage * formattedFrequency));
+								+ (exactMatchWeitage * (phraseMatchScore > 0.7f ? phraseMatchScore : 0) / ((int) stData.get(i).get(
+										HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (frequencyWeitage * formattedFrequency)
+								+ ((stickerMometCode == contextMomentCode) ? contextMomentWeitage : 0f));
 					}
-					stikcerMomentList.add((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE));
+					stikcerMomentList.add(stickerMometCode);
 					stikcerCodeList.add((String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE));
 				}
 			}
 
 			LinkedHashSet<Sticker> stickers = new LinkedHashSet<Sticker>();
 			ArrayList<Integer> momentList = new ArrayList<Integer>();
-			float maxMatch = Float.MIN_VALUE;
+			float maxFittingScore = Float.MIN_VALUE;
 			Sticker previousStikcer = null;
 			Sticker currentSticker;
 			int index;
 			int currentSize = 0;
 			for (int i = 0; i < count; i++)
 			{
-				maxMatch = Collections.max(matchRankList);
-				index = matchRankList.indexOf(maxMatch);
+				maxFittingScore = Collections.max(matchRankList);
+				index = matchRankList.indexOf(maxFittingScore);
 				if (stikcerCodeList.get(index) == null)
 				{
 					matchRankList.remove(index);
@@ -1156,25 +1163,29 @@ public class StickerSearchHostManager
 			}
 
 			// Apply time division
-			int currentMomentCode = mMomentCode.getId() + 2;
-			ArrayList<Sticker> timePrioritizedStickerList = new ArrayList<Sticker>();
-			int i = 0;
-			for (Sticker sticker : stickers)
+			if (mMomentCode.getId() != TIME_CODE.UNKNOWN.getId())
 			{
-				if (momentList.get(i) == currentMomentCode)
+				ArrayList<Sticker> timePrioritizedStickerList = new ArrayList<Sticker>();
+				int currentMomentTerminalCode = mMomentCode.getId() + 2;
+				int i = 0;
+
+				for (Sticker sticker : stickers)
 				{
-					timePrioritizedStickerList.add(sticker);
+					if (momentList.get(i) == currentMomentTerminalCode)
+					{
+						timePrioritizedStickerList.add(sticker);
+					}
+
+					i++;
 				}
 
-				i++;
+				// Put prioritized stickers at start of pop-up
+				stickers.removeAll(timePrioritizedStickerList);
+				timePrioritizedStickerList.addAll(stickers);
+				stickers.clear();
+				stickers.addAll(timePrioritizedStickerList);
+				timePrioritizedStickerList.clear();
 			}
-
-			// Put prioritized stickers at start of pop-up
-			stickers.removeAll(timePrioritizedStickerList);
-			timePrioritizedStickerList.addAll(stickers);
-			stickers.clear();
-			stickers.addAll(timePrioritizedStickerList);
-			timePrioritizedStickerList.clear();
 
 			return stickers;
 		}
@@ -1198,7 +1209,7 @@ public class StickerSearchHostManager
 				if (exactWords.get(indexInTag).contains(searchWords.get(indexInSearchKey)))
 				{
 					unmatchedSubString = exactWords.get(indexInTag).replace(searchWords.get(indexInSearchKey), HikeStickerSearchBaseConstants.STRING_EMPTY);
-					localScore = 1f - (((float) unmatchedSubString.length()) / exactWords.get(indexInTag).length());
+					localScore = 1.0f - (((float) unmatchedSubString.length()) / exactWords.get(indexInTag).length());
 
 					if (indexInSearchKey == indexInTag)
 					{

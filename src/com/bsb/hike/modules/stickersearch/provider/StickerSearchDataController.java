@@ -144,7 +144,7 @@ public enum StickerSearchDataController
 					ArrayList<String> tagCategoryList = new ArrayList<String>();
 					ArrayList<Integer> tagExactMatchPriorityList = new ArrayList<Integer>();
 					ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
-					int stickerMomentCode = HikeStickerSearchBaseConstants.MOMENT_DEFAULT;
+					int stickerMomentCode = HikeStickerSearchBaseConstants.DEFAULT_MOMENT_CODE;
 					String stickerFestivals = HikeStickerSearchBaseConstants.STRING_EMPTY;
 
 					ArrayList<String> tempMatchElements = new ArrayList<String>();
@@ -227,7 +227,7 @@ public enum StickerSearchDataController
 													tag = tag.trim().toLowerCase(Locale.ENGLISH);
 													themeList.add(tag);
 
-													if (!HikeStickerSearchBaseConstants.THEME_TAG_DEFAULT.equalsIgnoreCase(tag))
+													if (!HikeStickerSearchBaseConstants.DEFAULT_THEME_TAG.equalsIgnoreCase(tag))
 													{
 														tag = tag.trim().toUpperCase(Locale.ENGLISH);
 														tagList.add(tag);
@@ -350,7 +350,7 @@ public enum StickerSearchDataController
 								{
 									if (key.equalsIgnoreCase("*atime"))
 									{
-										stickerMomentCode = attributeData.optInt(key, HikeStickerSearchBaseConstants.MOMENT_DEFAULT);
+										stickerMomentCode = attributeData.optInt(key, HikeStickerSearchBaseConstants.DEFAULT_MOMENT_CODE);
 									}
 									else if (key.equalsIgnoreCase("*afestival"))
 									{
@@ -427,7 +427,7 @@ public enum StickerSearchDataController
 				{
 					Logger.wtf(TAG, "setupStickerSearchWizard(), No story is attached for pack: " + packId);
 					ArrayList<String> stories = new ArrayList<String>();
-					stories.add(HikeStickerSearchBaseConstants.STORY_DEFAULT);
+					stories.add(HikeStickerSearchBaseConstants.DEFAULT_STORY);
 					packStoryData.put(packId, stories);
 				}
 			}
