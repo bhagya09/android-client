@@ -82,6 +82,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -6359,5 +6360,28 @@ public class Utils
 				.appendPath(token)
 				.build();
 		return formedUri;
+	}
+	
+	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
+	{
+		if (db != null)
+		{
+			Cursor cursor = db.rawQuery("pragma table_info(" + tableName + ")", null);
+			if (cursor != null)
+			{
+				while (cursor.moveToNext())
+				{
+					String columnName = cursor.getString(1);
+					if (givenColumnName.equals(columnName))
+					{
+						Logger.e("Utils", "ifColumnExistsInTable : " + givenColumnName + " column exists in " + tableName + " table");
+						return true;
+					}
+				}
+			}
+		}
+
+		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
+		return false;
 	}
 }
