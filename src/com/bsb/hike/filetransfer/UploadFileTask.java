@@ -868,13 +868,13 @@ public class UploadFileTask extends FileTransferBase
 			X_SESSION_ID = fst.getSessionId();
 			if(X_SESSION_ID != null)
 			{
-				mUrl = new URL(AccountUtils.fileTransferBase + "/user/pft/");
+				URL baseUrl = mUrl = new URL(AccountUtils.fileTransferBase + "/user/pft/");
 				try{
 					mStart = AccountUtils.getBytesUploaded(String.valueOf(X_SESSION_ID), mUrl.toString());
 				}catch(Exception ex)
 				{
 					handleException(ex);
-					mUrl = getUpdatedURL(mUrl, "ResumeLength", FTAnalyticEvents.UPLOAD_FILE_TASK);
+					mUrl = getUpdatedURL(mUrl, "ResumeLength", FTAnalyticEvents.UPLOAD_FILE_TASK, baseUrl);
 					mStart = AccountUtils.getBytesUploaded(String.valueOf(X_SESSION_ID), mUrl.toString());
 				}
 			}
@@ -898,7 +898,7 @@ public class UploadFileTask extends FileTransferBase
 		}
 		// @GM setting transferred bytes if there are any
 		setBytesTransferred(mStart);
-		mUrl = new URL(AccountUtils.fileTransferBase + "/user/pft/");
+		URL baseUrl = mUrl = new URL(AccountUtils.fileTransferBase + "/user/pft/");
 		RandomAccessFile raf = new RandomAccessFile(sourceFile, "r");
 		raf.seek(mStart);
 
@@ -972,7 +972,7 @@ public class UploadFileTask extends FileTransferBase
 							raf.close();
 							return null;
 						}
-						mUrl = getUpdatedURL(mUrl, "UploadingFile", FTAnalyticEvents.UPLOAD_FILE_TASK);
+						mUrl = getUpdatedURL(mUrl, "UploadingFile", FTAnalyticEvents.UPLOAD_FILE_TASK, baseUrl);
 						raf.seek(start);
 						setChunkSize();
 						if (chunkSize > length)
@@ -1187,12 +1187,12 @@ public class UploadFileTask extends FileTransferBase
 		// If we are not able to verify the filekey validity from the server, fall back to uploading the file		
 		final int MAX_RETRY = 3;
 		int retry =0;
+		URL baseUrl = mUrl = new URL(AccountUtils.fileTransferBaseDownloadUrl + fileKey);
 		while(retry < MAX_RETRY)
 		{
 			try
 			{
-				mUrl = new URL(AccountUtils.fileTransferBaseDownloadUrl + fileKey);
-				mUrl = getUpdatedURL(mUrl, "FileKeyValidation", FTAnalyticEvents.UPLOAD_FILE_TASK);
+				mUrl = getUpdatedURL(mUrl, "FileKeyValidation", FTAnalyticEvents.UPLOAD_FILE_TASK, baseUrl);
 				HttpClient client = new DefaultHttpClient();
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
@@ -1418,12 +1418,12 @@ public class UploadFileTask extends FileTransferBase
 		// If we are not able to verify the md5 validity from the server, fall back to uploading the file
 		final int MAX_RETRY = 3;
 		int retry = 0;
+		URL baseUrl = mUrl = new URL(AccountUtils.fastFileUploadUrl + fileMD5);
 		while (retry < MAX_RETRY)
 		{
 			try
 			{
-				mUrl = new URL(AccountUtils.fastFileUploadUrl + fileMD5);
-				mUrl = getUpdatedURL(mUrl, "VerifyMd5", FTAnalyticEvents.UPLOAD_FILE_TASK);
+				mUrl = getUpdatedURL(mUrl, "VerifyMd5", FTAnalyticEvents.UPLOAD_FILE_TASK, baseUrl);
 				HttpClient client = new DefaultHttpClient();
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
