@@ -210,21 +210,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 					break;
 				case R.id.favourites:
-					try
-					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.POST_UPDATE_FROM_TOP_BAR);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					}
-					catch (JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-
-					Intent intent = new Intent(TimelineActivity.this, StatusUpdate.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					Intent intent = new Intent(TimelineActivity.this, ProfileActivity.class);
+					intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 					startActivity(intent);
-
 					break;
 				case R.id.my_profile:
 					Intent intent2 = new Intent(TimelineActivity.this, ProfileActivity.class);
