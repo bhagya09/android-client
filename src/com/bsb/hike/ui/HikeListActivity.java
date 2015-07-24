@@ -671,14 +671,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			adapter.notifyDataSetChanged();
 			String msisdn = pair.second.getMsisdn();
 			
-			if(pair.first.get())
-			{
-				alreadyBlockedContacts.add(msisdn);
-			}
-			else
-			{
-				alreadyBlockedContacts.remove(msisdn);
-			}
 			if (type != Type.BLOCK)
 			{
 				if (selectedContacts.contains(msisdn))
@@ -695,6 +687,15 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 			else
 			{
+
+				if(pair.first.get())
+				{
+					alreadyBlockedContacts.add(msisdn);
+				}
+				else
+				{
+					alreadyBlockedContacts.remove(msisdn);
+				}
 				if(alreadyBlockedContacts.equals(selectedContacts))
 				{
 					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);					
