@@ -38,6 +38,8 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.httpmgr.HikeImageUploader;
+import com.bsb.hike.modules.httpmgr.HikeImageWorker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -46,11 +48,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
-import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
-import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -789,13 +787,13 @@ public class HikeService extends Service
 			Logger.d(TAG_IMG_UPLOAD, "profile pic upload started");
 
 			String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-			HeadlessImageUploaderFragment mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(null, profilePicPath, msisdn, false, true);
+			HikeImageUploader mImageWorkerFragment = HikeImageUploader.newInstance(null, profilePicPath, msisdn, false, true);
 			mImageWorkerFragment.setTaskCallbacks(new UploadProfileTaskCallbacksHandler(profilePicPath));
 			mImageWorkerFragment.startUpLoadingTask();
 		}
 	}
 
-	class UploadProfileTaskCallbacksHandler implements HeadlessImageWorkerFragment.TaskCallbacks
+	class UploadProfileTaskCallbacksHandler implements HikeImageWorker.TaskCallbacks
 	{
 
 		private String filePath;

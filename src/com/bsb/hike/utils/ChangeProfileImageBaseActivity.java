@@ -17,13 +17,11 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -32,7 +30,6 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -44,6 +41,8 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HikeImageUploader;
+import com.bsb.hike.modules.httpmgr.HikeImageWorker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.DownloadImageTask;
@@ -51,19 +50,16 @@ import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
-import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, 
-						FinishableEvent, DisplayPictureEditListener, HeadlessImageWorkerFragment.TaskCallbacks
+						FinishableEvent, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks
 {
 	private HikeSharedPreferenceUtil prefs;
 
 	private String mLocalMSISDN;
-
 	private Dialog mDialog;
 	
 	private static final String TAG = "dp_upload";
@@ -94,7 +90,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		
 		public StatusMessageType statusMsgType;
 		
-		public HeadlessImageWorkerFragment mImageWorkerFragment;
+		public HikeImageUploader mImageWorkerFragment;
 	}
 
 	private ActivityState mActivityState;
@@ -121,9 +117,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			}
 			
-			FragmentManager fm = getSupportFragmentManager();
-			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
-			if(mActivityState.mImageWorkerFragment != null)
+			if(mActivityState.mImageWorkerFragment != null &&  (mActivityState.mImageWorkerFragment.isTaskRunning()))
 			{
 				mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
@@ -598,24 +592,13 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			if (bytes == null)
 				return;
 
-			FragmentManager fm = getSupportFragmentManager();
-			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
-
 		    // If the Fragment is non-null, then it is currently being
 		    // retained across a configuration change.
-		    if (mActivityState.mImageWorkerFragment == null) 
-		    {
-		    	Logger.d(TAG, "starting new mImageLoaderFragment");
-		    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-		    	mActivityState.mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, msisdn, true, true);
-		    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
-		        fm.beginTransaction().add(mActivityState.mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
-		    }
-		    else
-		    {
-		    	Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-		    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-		    }
+	    	Logger.d(TAG, "starting new mImageLoaderFragment");
+	    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+	    	mActivityState.mImageWorkerFragment = HikeImageUploader.newInstance(bytes, mActivityState.destFilePath, msisdn, true, true);
+	    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+	    	mActivityState.mImageWorkerFragment.startUpLoadingTask();
 		}
 	}
 	
@@ -766,7 +749,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		super.onDestroy();
 	}
 	
-	@Override
 	public void onProgressUpdate(float percent)
 	{
 		

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,17 +23,18 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HikeImageDownloader;
+import com.bsb.hike.modules.httpmgr.HikeImageWorker;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
-public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
+public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -62,7 +62,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	
 	private ProfileImageLoader profileImageLoader;
 	
-	private HeadlessImageWorkerFragment mImageWorkerFragment;
+	private HikeImageDownloader mImageWorkerFragment;
 	
 	private boolean hasCustomImage;
 	
@@ -354,26 +354,11 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 
 	private void loadHeadLessImageDownloadingFragment()
 	{
-		Logger.d(TAG, "isnide API loadHeadLessImageDownloadingFragment");
-		FragmentManager fm = getFragmentManager();
-		mImageWorkerFragment = (HeadlessImageDownloaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
-
-	    // If the Fragment is non-null, then it is currently being
-	    // retained across a configuration change.
-	    if (mImageWorkerFragment == null) 
-	    {
-	    	Logger.d(TAG, "starting new mImageLoaderFragment");
-	    	String fileName = Utils.getProfileImageFileName(key);
-	    	mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
-	    	mImageWorkerFragment.setTaskCallbacks(this);
-	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
-	    }
-	    else
-	    {
-	    	Toast.makeText(getActivity(), getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-	    }
-
+    	Logger.d(TAG, "starting new mImageLoaderFragment");
+    	String fileName = Utils.getProfileImageFileName(key);
+    	mImageWorkerFragment = HikeImageDownloader.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
+    	mImageWorkerFragment.setTaskCallbacks(this);
+    	mImageWorkerFragment.startLoadingTask();
 	}
 	
 	@Override
