@@ -2651,7 +2651,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				
 			}
 			if (isAdmin||isGroupOwner) {
-				if (!groupParticipant.isAdmin()) {
+				if (!groupParticipant.isAdmin() && !groupParticipant.getContactInfo().getMsisdn().equals(oneToNConversation.getConversationOwner())) {
 					optionsList.add(getString(R.string.make_admin));
 				}
 				optionsList.add(getString(R.string.remove_from_group));
