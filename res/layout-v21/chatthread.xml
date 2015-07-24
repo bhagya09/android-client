@@ -181,7 +181,7 @@
                 android:layout_marginRight="16dp"
                 android:visibility="gone" >
 
-               <ImageView
+               <com.bsb.hike.ui.utils.RecyclingImageView
                    android:id="@+id/indicator_img"
                    android:layout_width="wrap_content"
                    android:layout_height="match_parent"
