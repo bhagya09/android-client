@@ -7,10 +7,12 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
@@ -57,7 +59,10 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			int attachmentType, String msisdn, String apkLabel)
 	{
 		ConvMessage convMessage = getConvMessageForFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, apkLabel);
-		return getFileConsignment(convMessage, true);
+		if (convMessage != null)
+			return getFileConsignment(convMessage, true);
+		else
+			return null;
 	}
 
 	public SenderConsignment getFileConsignment(ConvMessage convMessage, boolean persistence) 
@@ -74,11 +79,14 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		return senderConsignment;
 	}
 
-	private ConvMessage getConvMessageForFileTransfer(String filePath,
-			String fileKey, HikeFileType hikeFileType, String fileType,
-			boolean isRecording, long recordingDuration, int attachmentType,
-			String msisdn, String apkLabel) 
+	private ConvMessage getConvMessageForFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
+			int attachmentType, String msisdn, String apkLabel)
 	{
+		if (filePath == null)
+		{
+			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			return null;
+		}
 		int type = hikeFileType.ordinal();
 		File file = new File(filePath);
 		String fileName = file.getName();
@@ -111,6 +119,12 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	@Override
 	public void onMessageDelivered(SenderConsignment senderConsignment) 
 	{
+		if (senderConsignment == null)
+		{
+			Logger.d(TAG, "sender consignment is null in onMessageDelivered in HikeConverter");
+			return;
+		}
+		
 		ConvMessage convMessage = null;
 		JSONObject message = null;
 		
