@@ -92,8 +92,9 @@ public class StickerSearchManager
 
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
-		this.currentString = s.toString();
-		this.currentLength = this.currentString.length();
+		currentString = s.toString();
+		currentLength = s.length();
+
 		StickerSearchTask textChangedTask = new StickerSearchTask(s, start, before, count);
 		searchEngine.runOnSearchThread(textChangedTask, 0);
 	}
