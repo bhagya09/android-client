@@ -133,7 +133,6 @@ public class CustomWebView extends WebView
 			{
 				removeJavascriptInterface(javaScriptInterface);
 			}
-			destroy();
 			isDestroyed = true;
 		}
 	}
