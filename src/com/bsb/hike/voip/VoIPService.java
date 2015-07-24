@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -50,7 +51,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -2039,40 +2039,28 @@ public class VoIPService extends Service {
 		return String.valueOf(num);
 	}
 	
-	public String getClientNames() {
-		String names = "";
-		String delimiter = "<br/> ";
-		
-		// If in a one-to-one call, or hosting a conference
-		for (VoIPClient client : clients.values()) {
-			if (client.isSpeaking())
-				names += "<b>" + client.getName() + "</b>" + delimiter;
-			else
-				names += client.getName() + delimiter;
-		}
-		
-		// If we are part of a conference, but not hosting it
-		if (getClient() != null && getClient().clientMsisdns != null) {
-			names = "";
-			String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
-			for (String msisdn : getClient().clientMsisdns) {
-				
-				// Do not show our own phone number in list of participants
-				if (msisdn.equals(myMsisdn))
-					continue;
-				
-				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
-				if (contactInfo != null)
-					names += contactInfo.getNameOrMsisdn() + delimiter;
-				else
-					names += msisdn + delimiter;
-			}
-		}
+	public List<VoIPClient> getConferenceClients() {
+		if (hostingConference())
+			return new ArrayList<VoIPClient>(clients.values());
+		else {
+			List<VoIPClient> clientsList = new ArrayList<>();
+			
+			if (getClient() != null && getClient().clientMsisdns != null) {
+				String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
+				for (String msisdn : getClient().clientMsisdns) {
+					
+					// Do not show our own phone number in list of participants
+					if (msisdn.equals(myMsisdn))
+						continue;
 
-		if (names.length() > 0)
-			names = names.substring(0, names.length() - delimiter.length());
-		
-		return names;
+					VoIPClient client = new VoIPClient(getApplicationContext(), null);
+					client.setPhoneNumber(msisdn);
+					clientsList.add(client);
+				}
+			}
+			
+			return clientsList;
+		}
 	}
 	
 	private void addToClients(VoIPClient client) {

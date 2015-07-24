@@ -73,18 +73,15 @@
 	        android:layout_below="@id/voip_header"
 	        android:layout_centerHorizontal="true"
 	        android:scaleType="centerCrop" />
-	    
-	    <com.bsb.hike.view.CustomFontTextView
-	        android:id="@+id/conference_list"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:textColor="@color/white"
-	        android:layout_below="@id/voip_header"
-		    android:text="Conference list"
-		    android:background="#80555657"
-		    android:visibility="gone"
-		    android:textSize="16dp"/>
 
+		<ListView
+            android:id="@+id/conference_list"
+            style="@style/HomeList"
+	        android:layout_below="@id/voip_header"
+	        android:layout_above="@+id/hang_up_btn"
+	        android:divider="@null"
+            android:visibility="gone" />
+	    	    	    
 		<LinearLayout
 		    android:id="@+id/signal_container"
 		    android:layout_below="@id/voip_header"
