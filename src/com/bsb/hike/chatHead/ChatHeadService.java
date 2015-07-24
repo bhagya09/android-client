@@ -5,11 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
@@ -24,21 +22,18 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.TaskStackBuilder;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -83,15 +78,13 @@ public class ChatHeadService extends Service
 	private static boolean toShow = true;
 	
 	private LayoutParams chatHeadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_SPLIT_TOUCH, PixelFormat.TRANSLUCENT);
+			LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
 
 	private LayoutParams closeHeadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+			LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+
+	private LayoutParams stickerPickerParams;
 	
-
-	private LayoutParams stickerPickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,
-			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_SPLIT_TOUCH, PixelFormat.TRANSLUCENT);
-
 	public static boolean flagActivityRunning = false;
 
 	public static String foregroundAppName = HikeConstants.Extras.WHATSAPP_PACKAGE;
@@ -152,7 +145,7 @@ public class ChatHeadService extends Service
 			}
 			else
 			{
-				if (!whiteListAppForegrounded && !flagActivityRunning)
+				if (!whiteListAppForegrounded)
 				{
 					chatHead.post(new Runnable()
 					{
@@ -160,6 +153,7 @@ public class ChatHeadService extends Service
 						public void run()
 						{
 							chatHead.setVisibility(View.INVISIBLE);
+							resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
 						}
 					});
 				}
@@ -237,14 +231,18 @@ public class ChatHeadService extends Service
 		animatorSet.playTogether(translateX, translateY);
 		animatorSet.addListener(new AnimatorListener()
 		{
-
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
 				if(ChatHeadLayout.getOverlayView() != null)
-				{flagActivityRunning = false;
-					try {
-					windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
+				{
+					flagActivityRunning = false;
+					try 
+					{
+						windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
+						chatHeadParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
+						windowManager.updateViewLayout(chatHead, chatHeadParams);
+					
 					}
 					catch (Exception e)
 					{
@@ -256,7 +254,6 @@ public class ChatHeadService extends Service
 					flagActivityRunning = false;
 					//mFinishActivityListener.finishActivity();
 				}
-				
 			}
 
 			@Override
@@ -321,12 +318,14 @@ public class ChatHeadService extends Service
 	
 	private void createAndOpenChatHeadPickerLayout(Context context)
 	{
+
 		windowManager.addView(ChatHeadLayout.attachPicker(context),stickerPickerParams);
+		chatHeadParams.flags = LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL;
+		windowManager.updateViewLayout(chatHead, chatHeadParams);
+		ChatHeadLayout.getOverlayView().setOnTouchListener(chatHeadOnTouchListener);
 		ChatHeadService.flagActivityRunning = true;
 //		ChatHeadService.registerReceiver(this);
 //		setContentView(R.layout.chat_head);
-		ChatHeadUtils.settingDailySharedPref();
-		ChatHeadUtils.initVariables();
 		//windowManager.addView(chatHeadLayout, stickerPickerParams);
 	}
 	
@@ -510,40 +509,71 @@ public class ChatHeadService extends Service
 		@Override
 		public boolean onTouch(View v, MotionEvent event)
 		{
-			switch (event.getAction())
+			if (v.getId() == chatHead.getId())
 			{
-			case MotionEvent.ACTION_DOWN:
-
-				Logger.d("UmangX","down");
-				drag = 0;
-				initialX = chatHeadParams.x;
-				initialY = chatHeadParams.y;
-				initialTouchX = event.getRawX();
-				initialTouchY = event.getRawY();
-				try
+				switch (event.getAction())
 				{
-					windowManager.addView(closeHead, closeHeadParams);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-				return true;
+				case MotionEvent.ACTION_OUTSIDE:
+					Logger.d("UmangX", "outside");
+					return true;
+				case MotionEvent.ACTION_DOWN:
 
-			case MotionEvent.ACTION_UP:
-				Logger.d("UmangX","moving outside");
-				actionUp(drag);
-				return true;
+					Logger.d("UmangX", "down");
+					drag = 0;
+					initialX = chatHeadParams.x;
+					initialY = chatHeadParams.y;
+					initialTouchX = event.getRawX();
+					initialTouchY = event.getRawY();
+					try
+					{
+						windowManager.addView(closeHead, closeHeadParams);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+					return true;
 
-			case MotionEvent.ACTION_MOVE:
-				Logger.d("UmangX","moving");
-				drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
-				return true;
+				case MotionEvent.ACTION_UP:
+					Logger.d("UmangX", "up");
+					actionUp(drag);
+					return true;
+
+				case MotionEvent.ACTION_MOVE:
+					Logger.d("UmangX", "moving");
+					drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
+					return true;
+				}
 			}
+			else
+			{
+               Logger.d("ashish","touch");
+			}
+			return false;
 
+		}
+	};
+	
+	private View.OnKeyListener chatHeadOnKeyListener = new View.OnKeyListener()
+	{
+		
+		@Override
+		public boolean onKey(View v, int keyCode, KeyEvent event)
+		{
+			
+			Logger.d("ashish","keylisteber");
+			try
+			{
+			    resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
+			}//
+			catch(Exception e)
+			{
+				
+			}
+			
+			
 			return false;
 		}
-
 	};
 
 	public void resetPosition(int flag, String path)
@@ -576,7 +606,9 @@ public class ChatHeadService extends Service
 		setChatHeadParams();
 
 		setCloseHeadParams();
-		  	
+		
+		setStickerPickerParams();
+		
 		createListfromJson();
 		if (!chatHeadIconExist)
 		{
@@ -594,10 +626,18 @@ public class ChatHeadService extends Service
 		
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 		
+		chatHead.setOnKeyListener(chatHeadOnKeyListener);
+		
 		UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.START);
 		
 		RECT_CONST_DP = (int)(RECT_CONST * Utils.densityMultiplier);
-		
+	}
+
+	private void setStickerPickerParams()
+	{
+		stickerPickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
+				LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+		stickerPickerParams.gravity = Gravity.BOTTOM;
 	}
 
 	@Override
@@ -610,7 +650,19 @@ public class ChatHeadService extends Service
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
+
 		int[] chatHeadLocations = new int[2];
+		
+		try
+		{
+			windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
+			chatHeadParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
+			windowManager.updateViewLayout(chatHead, chatHeadParams);
+		
+		}
+		catch(Exception e)
+		{
+		}
 		chatHead.getLocationOnScreen(chatHeadLocations);
 		if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
 		{

@@ -19,11 +19,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-public class ChatHeadLayout implements StickerPickerListener, OnClickListener
+public class ChatHeadLayout implements StickerPickerListener
 {
 	private static StickerPicker picker;
 	private static final ChatHeadLayout chatHeadLayout = new ChatHeadLayout();
-	private static ViewGroup overlayScreenViewGroup;
+	private static View overlayScreenViewGroup;
 	
 	private ChatHeadLayout(){}
 	
@@ -32,13 +32,15 @@ public class ChatHeadLayout implements StickerPickerListener, OnClickListener
 		return chatHeadLayout;
 	}
 
-	public static ViewGroup getOverlayView()
+	public static View getOverlayView()
 	{
 		return overlayScreenViewGroup;
 	}
 	
-	public static ViewGroup attachPicker(Context context)
+	public static View attachPicker(Context context)
 	{	
+		ChatHeadUtils.settingDailySharedPref();
+		ChatHeadUtils.initVariables();
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		overlayScreenViewGroup = (RelativeLayout)inflater.inflate(R.layout.chat_head, null);
 		//overlayScreenViewGroup.setOnClickListener(chatHeadLayout);
@@ -49,7 +51,7 @@ public class ChatHeadLayout implements StickerPickerListener, OnClickListener
 		return overlayScreenViewGroup;
 	}
 	
-	public static ViewGroup detachPicker(Context context)
+	public static View detachPicker(Context context)
 	{
 
 		if (ChatHeadService.flagActivityRunning)
@@ -83,19 +85,4 @@ public class ChatHeadLayout implements StickerPickerListener, OnClickListener
 		} 
 
 	}
-
-	public static void detacPicker()
-	{
-		Logger.d("UmangX","asdk");
-	}
-	
-	@Override
-	public void onClick(View v)
-	{
-		if(v.getId() != R.id.sticker_pallete_other_app)
-		{
-			detacPicker();
-		}
-	}
-
 }
