@@ -20,6 +20,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,9 +39,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -149,7 +148,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			postText.setText(getString(R.string.send_invite, selectedContacts.size()));
 		}
-		backIcon.setImageResource(R.drawable.ic_back);
+//		backIcon.setImageResource(R.drawable.ic_back);
 		setLabel();
 	}
 
@@ -222,7 +221,9 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				{
 					if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, false))
 					{
-						intent = new Intent(HikeListActivity.this, CreditsActivity.class);
+						intent = new Intent(HikeListActivity.this, HikePreferences.class);
+						intent.putExtra(HikeConstants.Extras.PREF, R.xml.sms_preferences);
+						intent.putExtra(HikeConstants.Extras.TITLE, R.string.free_sms_txt);
 					}
 					else
 					{

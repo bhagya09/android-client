@@ -17,7 +17,6 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.models.ContactInfo;
@@ -33,7 +32,6 @@ import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -45,7 +43,6 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.TextDrawable;
 
 public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 {		
@@ -311,7 +308,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.icon  = (ImageView) viewHolder.parent.findViewById(R.id.avatar);
 				viewHolder.iconFrame = (ImageView) viewHolder.parent.findViewById(R.id.avatar_frame);
 				viewHolder.infoContainer = viewHolder.parent.findViewById(R.id.owner_indicator);
-				viewHolder.phoneNumView = viewHolder.parent.findViewById(R.id.unsaved_cont_layout);
+				viewHolder.phoneNumViewDivider = viewHolder.parent.findViewById(R.id.divider);
 				viewHolder.extraInfo = (TextView) viewHolder.parent.findViewById(R.id.telephone);
 				
 				break;
@@ -352,7 +349,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.extraInfo = (TextView) v.findViewById(R.id.phone_number);
 				viewHolder.subText = (TextView) v.findViewById(R.id.main_info);
 				viewHolder.phoneIcon = (ImageView) v.findViewById(R.id.call);
-				viewHolder.divider = v.findViewById(R.id.divider);
 				break;
 			}
 
@@ -426,12 +422,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			int maxMediaToShow = ((ProfileSharedMedia) profileItem).getMaxMediaToShow();
 			viewHolder.subText.setText(Integer.toString(smSizeDb));
 			viewHolder.mediaLayout.setVisibility(View.VISIBLE);
-			if(groupProfile || HikeMessengerApp.hikeBotInfoMap.containsKey(mContactInfo.getMsisdn()))
-			{
-				LinearLayout.LayoutParams ll = (LayoutParams) viewHolder.sharedFiles.getLayoutParams();
-				ll.topMargin = context.getResources().getDimensionPixelSize(R.dimen.shared_media_top_margin_hike_bot);
-				viewHolder.sharedFiles.setLayoutParams(ll);  
-			}
 			
 			if(sharedMedia!= null && !sharedMedia.isEmpty())
 			{	viewHolder.infoContainer.setVisibility(View.VISIBLE);
@@ -604,7 +594,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context))
 			{
 				viewHolder.phoneIcon.setVisibility(View.GONE);
-				viewHolder.divider.setVisibility(View.GONE);
 			}
 			break;
 
@@ -645,11 +634,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			}
 			if(!contactInfo.isUnknownContact())
 			{	viewHolder.text.setText(groupParticipantName);
-				viewHolder.phoneNumView.setVisibility(View.GONE);
+				viewHolder.phoneNumViewDivider.setVisibility(View.GONE);
+				viewHolder.extraInfo.setVisibility(View.GONE);
 			}
 			else
 			{
-				viewHolder.phoneNumView.setVisibility(View.VISIBLE);
+				viewHolder.phoneNumViewDivider.setVisibility(View.VISIBLE);
+				viewHolder.extraInfo.setVisibility(View.VISIBLE);
 				viewHolder.text.setText(contactInfo.getMsisdn());
 				viewHolder.extraInfo.setText(groupParticipantName);
 			}
@@ -840,15 +831,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 		ImageView phoneIcon;
 
-		View divider;
-
 		TextView timeStamp;
 
 		View infoContainer;
 
 		View parent;
 		
-		View phoneNumView;
+		View phoneNumViewDivider;
 		
 		View sharedFiles;
 		

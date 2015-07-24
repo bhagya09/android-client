@@ -9,9 +9,7 @@
         android:id="@+id/shared_media"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
         android:orientation="vertical" >
-    
     
     <include
         android:id="@+id/shared_media_view"
@@ -36,8 +34,8 @@
          android:layout_width="match_parent"
          android:layout_height="wrap_content"
          android:layout_marginLeft="@dimen/sm_leftmargin"
-         android:layout_marginTop="12dp"
-         android:layout_marginBottom="14dp"
+         android:layout_marginTop="10dp"
+         android:layout_marginBottom="12dp"
 		 android:orientation="horizontal"
 		 android:visibility="gone" >
                      

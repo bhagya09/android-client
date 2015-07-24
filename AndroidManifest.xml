@@ -191,7 +191,7 @@
         </activity>
         <activity
             android:name=".ui.HikePreferences"
-            android:label="@string/preferences" >
+            android:label="@string/preferences">
         </activity>
         <activity
             android:name=".ui.HikeListActivity"
@@ -215,8 +215,6 @@
             android:name=".cropimage.CropImage"
             android:configChanges="orientation|screenSize|screenLayout"
             android:theme="@style/AppTheme.Home.Photos" />
-        <activity android:name=".ui.CreditsActivity" >
-        </activity>
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

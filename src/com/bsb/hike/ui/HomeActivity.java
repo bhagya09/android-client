@@ -20,7 +20,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -42,8 +41,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -1820,7 +1817,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				switch (item.getKey())
 				{
 				case HikeConstants.HOME_ACTIVITY_OVERFLOW.CREDITS:
-					intent = new Intent(HomeActivity.this, CreditsActivity.class);
+					intent = new Intent(HomeActivity.this, HikePreferences.class);
+					intent.putExtra(HikeConstants.Extras.PREF, R.xml.sms_preferences);
+					intent.putExtra(HikeConstants.Extras.TITLE, R.string.free_sms_txt);
 					break;
 				case HikeConstants.HOME_ACTIVITY_OVERFLOW.INVITE_FRIENDS:
 					intent = new Intent(HomeActivity.this, TellAFriend.class);

@@ -6,7 +6,7 @@
         android:key="steathPerfCategory"
         android:orderingFromXml="true"
         android:selectable="false"
-        android:textColor="@color/auto_download"
+        android:layout="@layout/settings_section_header"
         android:title="@string/hidden_mode" >
         
         <com.bsb.hike.view.IconPreference
@@ -20,7 +20,7 @@
         android:orderingFromXml="true"
         android:selectable="false"
         android:key="privacySettingsCategory"
-        android:textColor="@color/auto_download"
+        android:layout="@layout/settings_section_header"
         android:title="@string/privacy_settings" >
         <com.bsb.hike.view.IconCheckBoxPreference
             android:defaultValue="false"
@@ -50,7 +50,7 @@
     <PreferenceCategory
         android:orderingFromXml="true"
         android:selectable="false"
-        android:textColor="@color/auto_download"
+        android:layout="@layout/settings_section_header"
         android:title="@string/manage_list" >
 
         <!-- icon="@drawable/ic_blocked_list" -->
