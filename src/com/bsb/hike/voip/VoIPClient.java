@@ -23,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +39,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -67,6 +67,7 @@ public class VoIPClient  {
 	private int ourInternalPort, ourExternalPort;
 	private String name;
 	private boolean initiator, ender;
+	private int version;
 	private volatile ConnectionMethods preferredConnectionMethod = ConnectionMethods.UNKNOWN;
 	private InetAddress cachedInetAddress = null;
 	private String relayAddress;
@@ -88,7 +89,6 @@ public class VoIPClient  {
 	private boolean establishingConnection = false;
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
-	@SuppressWarnings("unused")
 	private int audioPacketsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
@@ -107,23 +107,25 @@ public class VoIPClient  {
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
 	private boolean isSpeaking = true;
-	private int lastPacketReceived = 0;
-	private int voicePacketCount = 1;
-	
+	private int voicePacketCount = 0;
+
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
 	public boolean isHostingConference;
+	public boolean isInAHostedConference;
+	public String groupChatMsisdn;
 	
 	// Audio quality
 	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
 	private final int QUALITY_CALCULATION_FREQUENCY = 4;	// Quality is calculated every 'x' playback samples
 	private BitSet playbackTrackingBits = new BitSet(VoIPConstants.AUDIO_SAMPLE_RATE * QUALITY_BUFFER_SIZE/ OpusWrapper.OPUS_FRAME_SIZE);
 	private int playbackFeederCounter = 0;
-	public CallQuality currentCallQuality = CallQuality.UNKNOWN;
+	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
+	private int plcCounter = 0;
 	
 	private final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> samplesToDecodeQueue     = new LinkedBlockingQueue<VoIPDataPacket>();
-	private final LinkedBlockingQueue<VoIPDataPacket> encodedBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
+	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSendQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final ConcurrentLinkedQueue<VoIPDataPacket> decodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> samplesToEncodeQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	
@@ -166,7 +168,7 @@ public class VoIPClient  {
 			name = contactInfo.getNameOrMsisdn();
 		}
 		
-		tag = VoIPConstants.TAG + " " + phoneNumber;
+		tag = VoIPConstants.TAG + " <" + name + ">";
 	}
 	
 	public String getInternalIPAddress() {
@@ -217,6 +219,14 @@ public class VoIPClient  {
 
 	public void setEnder(boolean ender) {
 		this.ender = ender;
+	}
+	
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
 	public ConnectionMethods getPreferredConnectionMethod() {
@@ -318,10 +328,11 @@ public class VoIPClient  {
 	}
 
 	public synchronized void setSpeaking(boolean isSpeaking) {
-		if (this.isSpeaking != isSpeaking)
-			Logger.w(tag, "Speaking: " + isSpeaking);
-		
-		this.isSpeaking = isSpeaking;
+		if (this.isSpeaking != isSpeaking) {
+			Logger.d(tag, "Speaking: " + isSpeaking);
+			this.isSpeaking = isSpeaking;
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+		}
 	}
 
 	public synchronized void removeExternalSocketInfo() {
@@ -349,6 +360,11 @@ public class VoIPClient  {
 		}
 	}
 	
+	/**
+	 * Initiates a call to this client. <br/>
+	 * Step one of call initiation is to retrieve your public ip:port
+	 * using our version of ICE. 
+	 */
 	public void retrieveExternalSocket() {
 
 		IceSocketTimeout = VoIPConstants.INITIAL_ICE_SOCKET_TIMEOUT;
@@ -472,15 +488,19 @@ public class VoIPClient  {
 		
 		try {
 			JSONObject socketData = new JSONObject();
-			socketData.put("internalIP", getOurInternalIPAddress());
-			socketData.put("internalPort", getOurInternalPort());
-			socketData.put("externalIP", getOurExternalIPAddress());
-			socketData.put("externalPort", getOurExternalPort());
-			socketData.put("relay", getRelayAddress());
-			socketData.put("relayport", getRelayPort());
-			socketData.put("callId", VoIPService.getCallId());
-			socketData.put("initiator", !isInitiator());
-			socketData.put("reconnecting", reconnecting);
+			socketData.put(VoIPConstants.Extras.INTERNAL_IP, getOurInternalIPAddress());
+			socketData.put(VoIPConstants.Extras.INTERNAL_PORT, getOurInternalPort());
+			socketData.put(VoIPConstants.Extras.EXTERNAL_IP, getOurExternalIPAddress());
+			socketData.put(VoIPConstants.Extras.EXTERNAL_PORT, getOurExternalPort());
+			socketData.put(VoIPConstants.Extras.RELAY, getRelayAddress());
+			socketData.put(VoIPConstants.Extras.RELAY_PORT, getRelayPort());
+			socketData.put(VoIPConstants.Extras.CALL_ID, VoIPService.getCallId());
+			socketData.put(VoIPConstants.Extras.INITIATOR, !isInitiator());
+			socketData.put(VoIPConstants.Extras.RECONNECTING, reconnecting);
+			socketData.put(VoIPConstants.Extras.VOIP_VERSION, VoIPConstants.VOIP_VERSION);
+			
+			if (!TextUtils.isEmpty(groupChatMsisdn) && !isInitiator())
+				socketData.put(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
 			
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
@@ -530,7 +550,14 @@ public class VoIPClient  {
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
-						Logger.d(tag, "Giving up on connection.");
+						if (isInAHostedConference) {
+							Logger.w(tag, "Yes, we are in a conf");
+							if (reconnectForConference()) {
+								Thread.currentThread().interrupt();
+								return;
+							}
+						}
+						Logger.w(tag, "Giving up on connection.");
 						hangUp();
 						break;
 					}
@@ -548,9 +575,9 @@ public class VoIPClient  {
 						samplesToDecodeQueue.poll();
 					}
 					
-					while (encodedBuffersQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
+					while (buffersToSendQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
 						Logger.d(tag, "Dropping encoded packet.");
-						encodedBuffersQueue.poll();
+						buffersToSendQueue.poll();
 					}
 
 					while (decodedBuffersQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
@@ -582,7 +609,7 @@ public class VoIPClient  {
 			reconnecting = true;
 
 		reconnectAttempts++;
-		Logger.w(tag, "VoIPService reconnect()");
+		Logger.w(tag, "Reconnecting..");
 
 		// Interrupt the receiving thread since we will make the socket null
 		// and it could throw an NPE.
@@ -637,7 +664,7 @@ public class VoIPClient  {
 						VoIPDataPacket dp = null;
 						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
-							
+
 							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
 							sendPacket(dp, false);
@@ -647,7 +674,7 @@ public class VoIPClient  {
 							setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_RELAY);
 							sendPacket(dp, false);
-							
+
 							setPreferredConnectionMethod(currentMethod);
 						}
 						Thread.sleep(250);
@@ -768,11 +795,10 @@ public class VoIPClient  {
 
 					VoIPDataPacket dp;
 					try {
-						dp = encodedBuffersQueue.take();
-						dp.setVoicePacketNumber(0);
+						dp = buffersToSendQueue.take();
 
 						// Encrypt packet
-						if (encryptionStage == EncryptionStage.STAGE_READY) {
+						if (cryptoEnabled && encryptionStage == EncryptionStage.STAGE_READY) {
 							byte[] origData = dp.getData();
 							dp.write(encryptor.aesEncrypt(origData));
 							dp.setEncrypted(true);
@@ -806,7 +832,19 @@ public class VoIPClient  {
 			setCallStatus(VoIPConstants.CallStatus.ENDED);
 		}
 
-		VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+		if (TextUtils.isEmpty(groupChatMsisdn)) {
+			VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+		}
+		else {
+			if (isHostingConference) {
+				Logger.w(tag, "Putting call summary!!!");
+				// Hack!
+				// Replacing the client msisdn with group chat msisdn, so that the call summary
+				// goes in the right place
+				setPhoneNumber(groupChatMsisdn);
+				VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+			}
+		}
 
 		if (iceThread != null)
 			iceThread.interrupt();
@@ -830,7 +868,7 @@ public class VoIPClient  {
 			codecDecompressionThread.interrupt();
 		
 		synchronized (VoIPClient.this) {
-			if(chronometer != null) {
+			if (chronometer != null) {
 				chronometer.stop();
 				chronometer = null;
 			}
@@ -858,11 +896,12 @@ public class VoIPClient  {
 		stopReconnectBeeps();
 		connected = false;
 		audioStarted = false;
+		reconnecting = false;
 		removeExternalSocketInfo();
 		
 		ackWaitQueue.clear();
 		samplesToDecodeQueue.clear();
-		encodedBuffersQueue.clear();
+		buffersToSendQueue.clear();
 		decodedBuffersQueue.clear();
 		samplesToEncodeQueue.clear();
 	}
@@ -886,19 +925,23 @@ public class VoIPClient  {
 			
 			@Override
 			public void run() {
-				for (int i = 0; i < numLoop || reconnecting; i++) {
+				for (int i = 0; (i < numLoop || reconnecting) && keepRunning; i++) {
 					try {
 						Thread.sleep(VoIPConstants.TIMEOUT_PARTNER_SOCKET_INFO / numLoop);
 						sendSocketInfoToPartner();		// Retry sending socket info. 
 					} catch (InterruptedException e) {
-						// Logger.d(logTag, "Timeout thread interrupted.");
 						return;
 					}
 				}
 
+				if (isInAHostedConference) {
+					if (reconnectForConference()) 
+						return;
+				}
+				
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
-				if (!isInitiator() && !reconnecting) {
-					VoIPUtils.sendMissedCallNotificationToPartner(VoIPClient.this);
+				if (!isInitiator() && !reconnecting && !isInAHostedConference) {
+					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber());
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
 				stop();					
@@ -941,8 +984,14 @@ public class VoIPClient  {
 		if (requiresAck == true)
 			addPacketToAckWaitQueue(dp);
 
-//		if (dp.getType() == PacketType.AUDIO_PACKET)
-//			Logger.d(tag, "sending isVoice: " + dp.isVoice());
+		if (dp.getType() == PacketType.AUDIO_PACKET) {
+			// If the client is in a conference, then the packet numbers will be
+			// set by service since one packet is broadcast to everyone.
+			// Hence, set a voice packet number only if we're not in a hosted conference
+			// and the other client is v2 or above
+			if (!isInAHostedConference && version >= 2)
+				dp.setVoicePacketNumber(voicePacketCount++);
+		}
 		
 		// Serialize everything except for P2P voice data packets
 		byte[] packetData = getUDPDataFromPacket(dp);
@@ -966,6 +1015,8 @@ public class VoIPClient  {
 				packet = new DatagramPacket(packetData, packetData.length, getCachedInetAddress(), getPreferredPort());
 				
 //			Logger.d(logTag, "Sending type: " + dp.getType() + " to: " + packet.getAddress() + ":" + packet.getPort());
+//			if (dp.getBroadcastList() == null)
+//				Logger.d(tag, "Sending to: " + dp.getDestinationIP() + ":" + dp.getDestinationPort());
 			socket.send(packet);
 			totalBytesSent += packet.getLength();
 			totalPacketsSent++;
@@ -1102,6 +1153,7 @@ public class VoIPClient  {
 						socket.receive(packet);
 						totalBytesReceived += packet.getLength();
 						totalPacketsReceived++;
+//						Logger.d(tag, "Received " + packet.getLength() + " bytes.");
 						
 					} catch (IOException e) {
 						break;
@@ -1138,6 +1190,10 @@ public class VoIPClient  {
 
 					switch (dataPacket.getType()) {
 					case COMM_UDP_SYN_PRIVATE:
+						if (isInAHostedConference) {
+							Logger.d(tag, "Ignoring " + dataPacket.getType() + " since we are in conference");
+							break;
+						}
 						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
@@ -1149,6 +1205,10 @@ public class VoIPClient  {
 						break;
 						
 					case COMM_UDP_SYN_PUBLIC:
+						if (isInAHostedConference) {
+							Logger.d(tag, "Ignoring " + dataPacket.getType() + " since we are in conference");
+							break;
+						}
 						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
@@ -1170,9 +1230,13 @@ public class VoIPClient  {
 							setPreferredConnectionMethod(currentMethod);
 						}
 						break;
-						
+
 					case COMM_UDP_SYNACK_PRIVATE:
 					case COMM_UDP_ACK_PRIVATE:
+						if (isInAHostedConference) {
+							Logger.d(tag, "Ignoring " + dataPacket.getType() + " since we are in conference");
+							break;
+						}
 						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
 							if (senderThread != null)
@@ -1188,6 +1252,10 @@ public class VoIPClient  {
 						
 					case COMM_UDP_SYNACK_PUBLIC:
 					case COMM_UDP_ACK_PUBLIC:
+						if (isInAHostedConference) {
+							Logger.d(tag, "Ignoring " + dataPacket.getType() + " since we are in conference");
+							break;
+						}
 						Logger.d(tag, "Received " + dataPacket.getType());
 						synchronized (VoIPClient.this) {
 							if (senderThread != null)
@@ -1236,6 +1304,7 @@ public class VoIPClient  {
 							setSpeaking(false);
 						}
 						
+//						Logger.d(tag, "Received audio.");
 //						Logger.d(tag, "isSpeaking: " + isSpeaking + ", wasVoice: " + dataPacket.isVoice());
 						
 						samplesToDecodeQueue.add(dataPacket);
@@ -1247,7 +1316,7 @@ public class VoIPClient  {
 							try {
 								remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
 //								if (remotePacketsReceivedPerSecond < 12)
-//									Logger.w(logTag, "Remote client is not receiving enough data. Packets/sec: " + remotePacketsReceivedPerSecond);
+//									Logger.w(tag, "Remote client is not receiving enough data. Packets/sec: " + remotePacketsReceivedPerSecond);
 							} catch (BufferUnderflowException e) {
 								remotePacketsReceivedPerSecond = 0;
 							}
@@ -1487,10 +1556,6 @@ public class VoIPClient  {
 			opusWrapper = new OpusWrapper();
 			opusWrapper.getDecoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1);
 			opusWrapper.getEncoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1, localBitrate);
-
-			// Set encoder complexity which directly affects CPU usage
-			opusWrapper.setEncoderComplexity(0);
-
 		}
 		catch (UnsatisfiedLinkError e)
 		{
@@ -1531,7 +1596,7 @@ public class VoIPClient  {
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 							dp.write(trimmedCompressedData);
 							dp.setVoice(packetToEncode.isVoice());
-							encodedBuffersQueue.put(dp);
+							buffersToSendQueue.put(dp);
 						} else {
 							Logger.w(tag, "Compression error.");
 						}
@@ -1557,6 +1622,7 @@ public class VoIPClient  {
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				int uncompressedLength = 0;
+				int lastPacketReceived = 0;
 				while (keepRunning == true) {
 					VoIPDataPacket dpdecode;
 					try {
@@ -1565,37 +1631,44 @@ public class VoIPClient  {
 						break;
 					}
 					
-					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 10];	// Just to be safe, we make a big buffer
-					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() <= lastPacketReceived)
-						continue;	// We received an old packet again
+					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];	
+					
+//					Logger.w(tag, "Decompressing.");
 
-					/*
-					 * TODO: this code apparently freezes older clients if the other client is sending
-					 * packet numbers and there is packet loss detected. 
-					 * 
-					// Handle packet loss (unused as on Dec 16, 2014)
-					if (dpdecode.getVoicePacketNumber() > lastPacketReceived + 1) {
-						Logger.d(tag, "Packet loss! (" + (dpdecode.getVoicePacketNumber() - lastPacketReceived) + ")");
-						lastPacketReceived = dpdecode.getVoicePacketNumber();
+					if (dpdecode.getVoicePacketNumber() > 0 && 
+							lastPacketReceived > 0 &&
+							dpdecode.getVoicePacketNumber() <= lastPacketReceived) {
+						Logger.w(tag, "Old packet received.");
+						continue;	// We received an old packet again
+					}
+
+					if (dpdecode.getVoicePacketNumber() > 0 && dpdecode.getVoicePacketNumber() > lastPacketReceived + 1) {
+//						Logger.w(tag, "Packet loss. Current: " + dpdecode.getVoicePacketNumber() +
+//								", Expected: " + (lastPacketReceived + 1));
 						try {
-							uncompressedLength = opusWrapper.plc(dpdecode.getData(), uncompressedData);
-							uncompressedLength *= 2;	
+							uncompressedLength = opusWrapper.fec(dpdecode.getData(), uncompressedData);
+							uncompressedLength = uncompressedLength * 2;
 							if (uncompressedLength > 0) {
-								VoIPDataPacket dp = new VoIPDataPacket(PacketType.VOICE_PACKET);
-								dp.write(uncompressedData);
-								dp.setLength(uncompressedLength);
+								// We have a decoded packet
+								lastPacketReceived = dpdecode.getVoicePacketNumber();
+
+								VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+								byte[] packetData = new byte[uncompressedLength];
+								System.arraycopy(uncompressedData, 0, packetData, 0, uncompressedLength);
+								dp.write(packetData);
 
 								synchronized (decodedBuffersQueue) {
 									decodedBuffersQueue.add(dp);
 									decodedBuffersQueue.notify();
 								}
+
 							}
 						} catch (Exception e) {
-							Logger.d(tag, "PLC exception: " + e.toString());
+							Logger.d(tag, "Opus decode exception: " + e.toString());
 						}
+						
 					}
-					*/
-
+					
 					// Regular decoding
 					try {
 						// Logger.d(VoIPActivity.logTag, "Decompressing data of length: " + dpdecode.getLength());
@@ -1657,19 +1730,23 @@ public class VoIPClient  {
 		
 		ConnectionClass connection = VoIPUtils.getConnectionClass(context);
 
-		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		int twoGBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_2G, VoIPConstants.BITRATE_2G);
-		int threeGBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_3G, VoIPConstants.BITRATE_3G);
-		int wifiBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_WIFI, VoIPConstants.BITRATE_WIFI);
+		int twoGBitrate = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VOIP_BITRATE_2G, VoIPConstants.BITRATE_2G);
+		int threeGBitrate = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VOIP_BITRATE_3G, VoIPConstants.BITRATE_3G);
+		int wifiBitrate = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VOIP_BITRATE_WIFI, VoIPConstants.BITRATE_WIFI);
+		int conferenceBitrate = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_BITRATE_CONFERENCE, VoIPConstants.BITRATE_CONFERENCE);
 		
 		if (connection == ConnectionClass.TwoG)
 			localBitrate = twoGBitrate;
 		else if (connection == ConnectionClass.ThreeG)
 			localBitrate = threeGBitrate;
-		else if (connection == ConnectionClass.WiFi)
+		else if (connection == ConnectionClass.WiFi || connection == ConnectionClass.FourG)
 			localBitrate = wifiBitrate;
 		else 
 			localBitrate = wifiBitrate;
+
+		// Conference override
+		if ((isInAHostedConference || isHostingConference) && localBitrate > conferenceBitrate)
+			localBitrate = conferenceBitrate;
 		
 		if (remoteBitrate > 0 && remoteBitrate < localBitrate)
 			localBitrate = remoteBitrate;
@@ -1749,25 +1826,37 @@ public class VoIPClient  {
 	
 	public VoIPDataPacket getDecodedBuffer() {
 		
+		if (!connected)
+			return null;
+		
 		playbackFeederCounter++;
 		if (playbackFeederCounter == Integer.MAX_VALUE)
 			playbackFeederCounter = 0;
 
 		VoIPDataPacket dp = decodedBuffersQueue.poll();
 		
-		if (dp == null) {
+		if (dp == null && opusWrapper != null) {
 			// We do not have audio data from the client. 
 			// Use packet loss concealment to extrapolate data.
-			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
-			byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 			try {
-				opusWrapper.plc(data);
+				if (plcCounter++ > VoIPConstants.PLC_LIMIT) {
+					// We have had no data from the client for a while. 
+					// Assume they are not speaking. 
+					setSpeaking(false);
+				} else {
+					// Use the decoder to extrapolate previous samples 
+					// into a current sample.
+					dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+					byte[] data = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
+					opusWrapper.plc(data);
+					dp.setData(data);
+				}
 			} catch (Exception e) {
 				Logger.e(tag, "PLC Exception: " + e.toString());
 			}
-			dp.setData(data);
 			playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
 		} else {
+			plcCounter = 0;
 			playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
 		}
 		
@@ -1801,21 +1890,51 @@ public class VoIPClient  {
 
 	}
 
+	public CallQuality getQuality() {
+
+		// Call quality is usually based on how reliably we are receiving data. 
+		// However, through the client heartbeat we are also sent information
+		// on how many packets the other party is receiving per second. 
+		// So, if the other party is not receiving enough data, show poor quality. 
+		if (version >= 2 && remotePacketsReceivedPerSecond < 10)
+			return CallQuality.WEAK;
+		
+		return currentCallQuality;
+	}
+	
+	private boolean reconnectForConference() {
+		if (version >= 2) {
+			reconnecting = false;
+			
+			// Socket info timeout thread will be running since we will 
+			// already be trying to reconnect.
+			if (partnerSocketInfoTimeoutThread != null)
+				partnerSocketInfoTimeoutThread.interrupt();
+			socketInfoReceived = false;
+			
+			retrieveExternalSocket();
+			Logger.w(tag, "Yup, reconnecting.");
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public void addSampleToEncode(VoIPDataPacket dp) {
 		samplesToEncodeQueue.add(dp);
 	}
 	
-	public void addEncodedFrame(VoIPDataPacket dp) throws InterruptedException {
-		encodedBuffersQueue.put(dp);
+	public void addToSendingQueue(VoIPDataPacket dp) throws InterruptedException {
+		buffersToSendQueue.put(dp);
 	}
 	
 	private void updateClientsList(String csv) {
 		clientMsisdns = Arrays.asList(csv.split("\\s*,\\s*"));
 		Logger.w(tag, "Received clients list: " + clientMsisdns.toString());
-		if (clientMsisdns.size() == 1) {
+		if (clientMsisdns.size() <= 2) {
 			Logger.w(tag, "Conference over?");
-			clientMsisdns = null;
-			isHostingConference = false;
+//			clientMsisdns = null;
+//			isHostingConference = false;
 		} else
 			isHostingConference = true;
 		

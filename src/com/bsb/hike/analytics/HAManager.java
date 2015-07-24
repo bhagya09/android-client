@@ -801,8 +801,9 @@ public class HAManager
 					metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 					metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
 
-					HAManager.getInstance().record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
-						
+					record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
+					botOpenMqttAnalytics(metadata);
+
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :" + chatSession.getChatSessionTotalTime());
 				}
 			}
@@ -813,7 +814,25 @@ public class HAManager
 		}
 		
 	}
-	
+
+	private void botOpenMqttAnalytics(JSONObject metadata)
+	{
+		try
+		{
+			metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN_MQTT);
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.CHAT_ANALYTICS);
+			data.put(HikeConstants.METADATA, metadata);
+
+			Utils.sendLogEvent(data, AnalyticsConstants.NON_UI_EVENT, null);
+		}
+		catch (JSONException e)
+		{
+			Logger.w("LE", "Invalid json");
+		}
+
+	}
+
 	/**
 	 * Sets StartingTime for Bot Chat Session to CurrentTime
 	 */

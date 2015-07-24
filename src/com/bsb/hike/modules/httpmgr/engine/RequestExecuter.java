@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import static com.bsb.hike.modules.httpmgr.request.RequestConstants.POST;
+
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_AUTH_FAILURE;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
@@ -8,8 +10,10 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_R
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SERVER_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONTENT_LENGTH_REQUIRED;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -31,6 +35,8 @@ import com.bsb.hike.modules.httpmgr.network.NetworkChecker;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.RequestCall;
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
+import com.bsb.hike.modules.httpmgr.request.requestbody.GzipRequestBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
@@ -269,10 +275,16 @@ public class RequestExecuter
 				handleRetry(ex, REASON_CODE_NO_NETWORK);
 				return;
 			}
-
 			if (statusCode == HTTP_UNAUTHORIZED || statusCode == HTTP_FORBIDDEN)
 			{
 				handleException(ex, REASON_CODE_AUTH_FAILURE);
+			}
+			/**
+			 * in case of response code == 411 we make a retry without gzip
+			 */
+			else if(statusCode == HTTP_LENGTH_REQUIRED)
+			{
+				handle411Error(ex);
 			}
 			else
 			{
@@ -292,15 +304,36 @@ public class RequestExecuter
 		ResponseBody<?> body = response.getBody();
 		if (null == body || null == body.getContent())
 		{
+			LogFull.d("null response for  " + request.getUrl());
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
 			listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
 		}
 		else
 		{
+			LogFull.d("positive response for : " + request.getUrl());
 			// positive response
 			HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 			listener.onResponse(response, null);
 		}	
+	}
+	
+	/**
+	 * Handles HTTP_LENGTH_REQUIRED response code. In this case we retry request with original body and without "content-encoding":"gzip" header
+	 * @param ex
+	 */
+	private void handle411Error(Exception ex)
+	{
+		if(request.getMethod() == POST && request.getBody() != null)
+		{
+			IRequestBody requestBody = request.getBody();
+			if(requestBody instanceof GzipRequestBody)
+			{
+				request.setBody(((GzipRequestBody) requestBody).getOriginalBody());
+			}
+			HttpUtils.removeHeader(request.getHeaders(), "Content-Encoding", "gzip");
+			request.getRequestInterceptors().remove("gzip");
+			handleRetry(ex, REASON_CODE_CONTENT_LENGTH_REQUIRED);
+		}
 	}
 
 	/**

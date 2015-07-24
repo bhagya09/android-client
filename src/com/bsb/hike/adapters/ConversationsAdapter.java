@@ -1296,7 +1296,7 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				conversationsMsisdns.remove(conv.getMsisdn());
 			}
-			if (phoneBookContacts != null && conv.isOnHike())
+			if (phoneBookContacts != null && conv.isOnHike() && !conv.isStealth())
 			{
 				phoneBookContacts.add(getPhoneContactFakeConv(conv));
 			}

@@ -354,7 +354,6 @@ public final class HikeEffectsFactory
 				filterColorMatrix = getInvertColorsColorMatrix();
 			}
 			break;
-
 		default:
 			filterColorMatrix = null;
 
@@ -597,11 +596,13 @@ public final class HikeEffectsFactory
 			{
 				mScript.set_input1(mBlendAllocation);
 				mScript.set_isThumbnail(0);
+				mScript.set_imageHeight(currentOut.getHeight());
 				mScript.set_imageWidth(currentOut.getWidth());
 			}
 			else
 			{
 				mScript.set_isThumbnail(1);
+				mScript.set_imageHeight(inBitmapOut.getHeight());
 				mScript.set_imageWidth(inBitmapOut.getWidth());
 			}
 
@@ -912,7 +913,14 @@ public final class HikeEffectsFactory
 				mScript.set_bSpline(blue.getInterpolationMatrix());
 				mScript.forEach_filter_sunlitt(mInAllocation, mOutAllocations);
 				break;
-
+		
+			case TIRANGAA:
+				mScript.set_r(new int[] { 0xFF, 0xFF, 0x14 });
+				mScript.set_g(new int[] { 0x78, 0xFF, 0xC6 });
+				mScript.set_b(new int[] { 0x00, 0xFF, 0x3F });
+				mScript.forEach_filter_tirangaa(mInAllocation, mOutAllocations);
+				break;
+				
 			default:
 				mScript.forEach_filter_colorMatrix(mInAllocation, mOutAllocations);
 				break;

@@ -89,6 +89,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	public static final float PREF_ENABLED_ALPHA = 1.0f;
 	
 	public static final float PREF_DISABLED_ALPHA = 0.24f;
+	
+	private boolean mIsResumed = false;
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -524,6 +526,18 @@ private void setupToolBar(int titleRes){
 		outState.putInt(HikeConstants.Extras.BLOKING_TASK_TYPE, blockingTaskType.ordinal());
 		super.onSaveInstanceState(outState);
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mIsResumed = true;
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mIsResumed = false;
+	}
 
 	@Override
 	public void onDestroy()
@@ -542,6 +556,8 @@ private void setupToolBar(int titleRes){
 		Logger.d("HikePreferences", "setting task:" + task.isFinished());
 		if (!task.isFinished())
 		{
+			// dismissing any existing dialog before showing the new one
+			dismissProgressDialog();
 			mTask = task;
 			String title = getString(R.string.account);
 			String message = "";
@@ -1627,7 +1643,7 @@ private void setupToolBar(int titleRes){
 		mTask = null;
 		dismissProgressDialog();
 		Preference notificationPreference = getPreferenceScreen().findPreference(HikeConstants.NOTIF_SOUND_PREF);
-		if(notificationPreference != null)
+		if(notificationPreference != null && mIsResumed && !isFinishing())
 		{
 			NotificationToneListPreference notifToneListPref = (NotificationToneListPreference) notificationPreference;
 			notifToneListPref.createAndShowDialog(ringtonesNameURIMap);
