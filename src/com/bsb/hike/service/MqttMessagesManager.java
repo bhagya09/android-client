@@ -2208,6 +2208,18 @@ public class MqttMessagesManager
 			int alarmPingWakeLockTimeout = data.getInt(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT);
 			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.ALARM_PING_WAKELOCK_TIMEOUT, alarmPingWakeLockTimeout);
 		}
+		if (data.has(HikeConstants.FT_HOST_IPS))
+		{
+			String ftHostIps = data.getString(HikeConstants.FT_HOST_IPS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_HOST_IPS, ftHostIps);
+			FileTransferManager.getInstance(context).setFThostURIs();
+		}
+
+		if (data.has(HikeConstants.SPECIAL_DAY_TRIGGER))
+		{
+			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
