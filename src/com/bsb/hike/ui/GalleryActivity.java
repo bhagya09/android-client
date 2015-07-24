@@ -485,6 +485,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			super.onBackPressed();
 		}
 	}
+	
+	
 
 	private void setupActionBar(String titleString)
 	{
