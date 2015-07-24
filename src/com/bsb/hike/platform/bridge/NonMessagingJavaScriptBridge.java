@@ -614,6 +614,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			Logger.e("FileUpload", "mHandler is null");
 			return;
 		}
+		
+		
 		mHandler.post(new Runnable()
 		{
 			@Override
