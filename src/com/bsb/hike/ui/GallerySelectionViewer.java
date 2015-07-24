@@ -170,7 +170,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		if(editedImages == null)
 		{
 			editedImages = new ArrayList<String>(galleryItems.size());
-			for (int i = 0;i<totalSelections;i++)
+			for (int i = 0;i<galleryItems.size();i++)
 			{
 				editedImages.add(null);
 			}
