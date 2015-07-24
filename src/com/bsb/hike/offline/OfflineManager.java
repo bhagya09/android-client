@@ -524,6 +524,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void sendConsignment(SenderConsignment senderConsignment) 
 	{
+		if (senderConsignment == null)
+			return;
 		Logger.d(TAG, "Going to publish sender consigment " + senderConsignment.toJSONString());
 		transporter.publish(senderConsignment);
 	}
