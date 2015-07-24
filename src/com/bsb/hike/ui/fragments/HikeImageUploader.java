@@ -2,7 +2,7 @@ package com.bsb.hike.ui.fragments;
 
 import java.io.File;
 
-import android.os.Bundle;
+import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -23,7 +23,7 @@ import com.bsb.hike.utils.Utils;
  * 				   2) Rename tmpFile to msisdn.jpg
  *				   3) listener callback
  */
-public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
+public class HikeImageUploader extends HikeImageWorker
 {
 
 	private byte[] bytes;
@@ -37,38 +37,25 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 	private boolean toDelPreviousMsisdnPic;
 
 	private static final String TAG = "dp_upload";
+	
+	private Context mContext;
+	
+	private RequestToken token;
 
-	public static HeadlessImageUploaderFragment newInstance(byte[] bytes, String tmpFilePath, String msisdn, boolean toDelTempFileOnCallFail, boolean toDeletPrevMsisdnPic) {
+	public static HikeImageUploader newInstance(Context context, byte[] bytes, String tmpFilePath, String msisdn, boolean toDelTempFileOnCallFail, boolean toDeletPrevMsisdnPic) {
 		
-		HeadlessImageUploaderFragment mHeadLessImageUploaderFragment = new HeadlessImageUploaderFragment();
-		Bundle arguments = new Bundle();
-    	arguments.putByteArray(HikeConstants.Extras.BYTES, bytes);
-    	arguments.putString(HikeConstants.Extras.FILE_PATH, tmpFilePath);
-    	arguments.putString(HikeConstants.Extras.MSISDN, msisdn);
-    	arguments.putBoolean(HikeConstants.Extras.DEL_SCR_FILE_ON_CALL_FAIL, toDelTempFileOnCallFail);
-    	arguments.putBoolean(HikeConstants.Extras.DEL_PREV_MSISDN_PIC, toDeletPrevMsisdnPic);
-    	mHeadLessImageUploaderFragment.setArguments(arguments);
+		HikeImageUploader mHeadLessImageUploaderFragment = new HikeImageUploader();
+		mHeadLessImageUploaderFragment.mContext = context;
+		mHeadLessImageUploaderFragment.bytes = bytes;
+		mHeadLessImageUploaderFragment.tmpFilePath = tmpFilePath;
+		mHeadLessImageUploaderFragment.msisdn = msisdn;
+		mHeadLessImageUploaderFragment.toDelTempFileOnCallFail = toDelTempFileOnCallFail;
+		mHeadLessImageUploaderFragment.toDelPreviousMsisdnPic = toDeletPrevMsisdnPic;
         return mHeadLessImageUploaderFragment;
     }
 	
-	/**
-	 * This method will only be called once when the retained Fragment is first created.
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-
-		// Retain this fragment across configuration changes.
-		setRetainInstance(true);
-
-		startUpLoadingTask();
-	}
-
 	public void startUpLoadingTask()
 	{
-		readArguments();
-		
 		String filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		File dir = new File(filePath);
 		if (!dir.exists())
@@ -77,7 +64,6 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 			return;
 		}
 
-		RequestToken token;
 		if(OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			token = HttpRequests.editGroupProfileAvatarRequest(tmpFilePath, requestListener, msisdn);
@@ -86,16 +72,16 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 		{
 			token = HttpRequests.editProfileAvatarRequest(tmpFilePath, requestListener);
 		}
-		token.execute();
-	}
-
-	private void readArguments()
-	{
-		bytes = getArguments().getByteArray(HikeConstants.Extras.BYTES);
-		tmpFilePath = getArguments().getString(HikeConstants.Extras.FILE_PATH);
-		msisdn = getArguments().getString(HikeConstants.Extras.MSISDN);
-		toDelTempFileOnCallFail = getArguments().getBoolean(HikeConstants.Extras.DEL_SCR_FILE_ON_CALL_FAIL);
-		toDelPreviousMsisdnPic = getArguments().getBoolean(HikeConstants.Extras.DEL_PREV_MSISDN_PIC);
+		if(!token.isRequestRunning())
+		{
+			token.execute();
+		}
+		else
+		{
+			//TODO on UI
+			//Toast.makeText(mContext, mContext.getResources().getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+		}
 	}
 
 	private IRequestListener requestListener = new IRequestListener()
@@ -104,6 +90,7 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 		public void onRequestSuccess(Response result)
 		{
 			Logger.d(TAG, "inside API onRequestSuccess inside HEADLESS IMAGE UPLOAD FRAGMENT");
+			
 			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 			String originqlFilePath = directory + File.separator +  Utils.getProfileImageFileName(msisdn);
 			
@@ -120,7 +107,6 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 				taskCallbacks.get().onSuccess(result);
 			}
 			
-			removeHeadlessFragment();
 		}
 
 		@Override
@@ -159,8 +145,11 @@ public class HeadlessImageUploaderFragment extends HeadlessImageWorkerFragment
 					taskCallbacks.get().onFailed();
 				}
 			}
-			
-			removeHeadlessFragment();
 		}
 	};
+	
+	public boolean isTaskRunning()
+	{
+		return token.isRequestRunning();
+	}
 }

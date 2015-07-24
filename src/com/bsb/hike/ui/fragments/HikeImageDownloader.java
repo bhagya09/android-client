@@ -2,12 +2,15 @@ package com.bsb.hike.ui.fragments;
 
 import java.io.File;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -27,7 +30,7 @@ import com.bsb.hike.utils.Utils;
  * if isProfilePicDownload = true, means used for DP(User/Group/SU) Download
  *
  */
-public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment implements DownloadProfileImageTaskCallbacks
+public class HikeImageDownloader extends HikeImageWorker implements DownloadProfileImageTaskCallbacks
 {
 	private String id;
 
@@ -50,60 +53,43 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 	private String pathOfTempFile;
 	
 	private static final String TAG = "dp_download";
+	
+	private Context mContext;
 
-	public static HeadlessImageDownloaderFragment newInstance(String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
+	public static HikeImageDownloader newInstance(Context context, String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
 			String url, boolean isProfilePicDownloaded) {
 		
-		HeadlessImageDownloaderFragment mHeadLessImageDownloaderFragment = new HeadlessImageDownloaderFragment();
-		Bundle arguments = new Bundle();
-    	arguments.putString(HikeConstants.Extras.MAPPED_ID, key);
-    	arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, statusImage);
-    	arguments.putBoolean(HikeConstants.Extras.HAS_CUSTOM_ICON, hasCustomIcon); 
-    	arguments.putBoolean(HikeConstants.Extras.IS_PROFILE_PIC_DOWNLOAD, isProfilePicDownloaded);
-    	arguments.putString(HikeConstants.Extras.FILE_NAME, fileName);
-    	arguments.putString(HikeConstants.Extras.MSISDN, msisdn);
-    	arguments.putString(HikeConstants.Extras.NAME, name);
-		mHeadLessImageDownloaderFragment.setArguments(arguments);
+		HikeImageDownloader mHeadLessImageDownloaderFragment = new HikeImageDownloader();
+		mHeadLessImageDownloaderFragment.mContext = context;
+		mHeadLessImageDownloaderFragment.id = key;
+		mHeadLessImageDownloaderFragment.hasCustomIcon = hasCustomIcon;
+		mHeadLessImageDownloaderFragment.statusImage = statusImage;
+		mHeadLessImageDownloaderFragment.url = url;
+		mHeadLessImageDownloaderFragment.isProfilePicDownload = isProfilePicDownloaded;
+		mHeadLessImageDownloaderFragment.msisdn = msisdn;
+		mHeadLessImageDownloaderFragment.fileName = fileName;
+		mHeadLessImageDownloaderFragment.name = name;
         return mHeadLessImageDownloaderFragment;
     }
-	
-	/**
-	 * This method will only be called once when the retained Fragment is first created.
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-
-		// Retain this fragment across configuration changes.
-		setRetainInstance(true);
-
-		startLoadingTask();
-	}
 
 	public void startLoadingTask()
 	{
-		readArguments();
-		
 		String fileName = Utils.getProfileImageFileName(id);
 		
 		Logger.d(TAG, "executing DownloadProfileImageTask");
 		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		
 		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, pathOfTempFile, hasCustomIcon, statusImage, url, requestListener);
-		token.execute();
-	}
-
-	private void readArguments()
-	{
-		id = getArguments().getString(HikeConstants.Extras.MAPPED_ID);
-		hasCustomIcon = getArguments().getBoolean(HikeConstants.Extras.HAS_CUSTOM_ICON, false);
-		statusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, true);
-		url = getArguments().getString(HikeConstants.Extras.URL_TO_LOAD, null);
-		isProfilePicDownload = getArguments().getBoolean(HikeConstants.Extras.IS_PROFILE_PIC_DOWNLOAD, false);
-		msisdn = getArguments().getString(HikeConstants.Extras.MSISDN);
-		fileName = getArguments().getString(HikeConstants.Extras.FILE_NAME);
-		name = getArguments().getString(HikeConstants.Extras.NAME);
+		if(!token.isRequestRunning())
+		{
+			token.execute();
+		}
+		else
+		{
+			//TODO on UI
+			//Toast.makeText(mContext, mContext.getResources().getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+		}
 	}
 
 	private IRequestListener requestListener = new IRequestListener()
@@ -132,8 +118,6 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 			{
 				taskCallbacks.get().onSuccess(result);
 			}
-			
-			removeHeadlessFragment();
 		}
 
 		@Override
@@ -152,8 +136,6 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 				{
 					taskCallbacks.get().onCancelled();
 				}
-				
-				removeHeadlessFragment();
 			}
 			else
 			{
@@ -163,8 +145,6 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 				{
 					taskCallbacks.get().onFailed();
 				}
-				
-				removeHeadlessFragment();
 			}
 		}
 	};
@@ -199,8 +179,6 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		{
 			taskCallbacks.get().onSuccess(result);
 		}
-		
-		removeHeadlessFragment();
 	}
 
 	@Override
@@ -214,8 +192,6 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		{
 			taskCallbacks.get().onFailed();
 		}
-		
-		removeHeadlessFragment();
 	}
 
 	@Override
@@ -229,8 +205,6 @@ public class HeadlessImageDownloaderFragment extends HeadlessImageWorkerFragment
 		{
 			taskCallbacks.get().onCancelled();
 		}
-		
-		removeHeadlessFragment();
 	}
 	
 	private boolean doPostSuccessfulProfilePicDownload()
