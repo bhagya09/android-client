@@ -7,11 +7,15 @@ import java.util.Set;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class RemoveDeletedStickerTagsTask implements Runnable 
 {
-
+	private static final String TAG = RemoveDeletedStickerTagsTask.class.getSimpleName();
+			
 	public RemoveDeletedStickerTagsTask()
 	{
 		
@@ -20,6 +24,12 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 	@Override
 	public void run()
 	{
+		if ((Utils.getExternalStorageState() == ExternalStorageState.NONE)) // if there is no external storage do not delete any tags. In this case we dont show any recommendation
+		{
+			Logger.d(TAG, "external storage state is none");
+			return;
+		}
+		
 		List<StickerCategory> stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
 		Set<String> stickerSet = new HashSet<String>();
 		
@@ -31,7 +41,7 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 			}
 			List<Sticker> stickerList  = stickerCategory.getStickerList();
 			
-			if(stickerList != null)
+			if(!Utils.isEmpty(stickerList))
 			{
 				for(Sticker sticker : stickerList)
 				{
