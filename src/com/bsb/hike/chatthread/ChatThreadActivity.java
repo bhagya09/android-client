@@ -24,6 +24,8 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
 
 	private ChatThread chatThread;
+
+	private boolean keepActivities;
 	
 	private static final String TAG = "ChatThreadActivity";
 
@@ -42,8 +44,14 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 			 */
         	super.onCreate(savedInstanceState);
             return;
-        }
-		
+		}
+
+		if (getIntent() != null)
+		{
+			// To change how chat thread handles back press
+			keepActivities = getIntent().getBooleanExtra(HikeConstants.Extras.KEEP_ACTIVITIES, false);
+		}
+
 		if (filter(getIntent()))
 		{
 			init(getIntent());
@@ -220,7 +228,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		catch (Exception e)
 		{
 		}
-		IntentFactory.openHomeActivity(ChatThreadActivity.this, true);
+		if (!keepActivities)
+		{
+			IntentFactory.openHomeActivity(ChatThreadActivity.this, true);
+		}
 		super.onBackPressed();
 	}
 	

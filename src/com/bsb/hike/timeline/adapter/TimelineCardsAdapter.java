@@ -10,8 +10,10 @@ import org.json.JSONObject;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,8 +27,10 @@ import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -42,6 +46,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.Protip;
@@ -100,6 +107,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private TimelineActions mActionsData;
 	
 	private ProfileImageLoader profileLoader;
+	
+	protected AlertDialog alertDialog;
 
 	class ViewHolder extends RecyclerView.ViewHolder
 	{
@@ -502,6 +511,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
+			imageViewerInfo.setStatusMessage(statusMessage);
+			
 			Bundle actionsBundle = new Bundle();
 
 			if (likesData != null)
@@ -520,6 +531,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			viewHolder.infoContainer.setTag(statusMessage);
 			viewHolder.infoContainer.setOnClickListener(onProfileInfoClickListener);
+			viewHolder.largeProfilePic.setOnLongClickListener(onCardLongPressListener);
+			viewHolder.infoContainer.setOnLongClickListener(onCardLongPressListener);
 
 			boolean selfLiked = false;
 			
@@ -681,6 +694,192 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 	};
 
+	
+	
+	private OnLongClickListener onCardLongPressListener = new OnLongClickListener()
+	{
+		@Override
+		public boolean onLongClick(View v)
+		{
+			Object viewTag = v.getTag();
+
+			if (viewTag != null && mActivity.get() != null)
+			{
+				StatusMessage statusMessage = null;
+
+				if (viewTag instanceof StatusMessage)
+				{
+					statusMessage = (StatusMessage) viewTag;
+				}
+				else if (viewTag instanceof ImageViewerInfo)
+				{
+					ImageViewerInfo imageInfo = (ImageViewerInfo) viewTag;
+					statusMessage = imageInfo.getStatusMessage();
+				}
+
+				if (statusMessage == null)
+				{
+					return false;
+				}
+
+				longPressListClickListener.setStatusMessage(statusMessage);
+
+				AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mActivity.get());
+				ArrayAdapter<String> dialogAdapter = new ArrayAdapter<String>(mActivity.get(), R.layout.alert_item, R.id.item, getLongPressListItemsArray(statusMessage));
+				dialogBuilder.setAdapter(dialogAdapter, longPressListClickListener);
+				alertDialog = dialogBuilder.show();
+				alertDialog.getListView().setDivider(mContext.getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+				return true;
+
+			}
+
+			return false;
+		}
+	};
+	
+	private String[] getLongPressListItemsArray(StatusMessage argStatusMessage)
+	{
+		ArrayList<String> optionsList = new ArrayList<String>();
+
+		if (!argStatusMessage.isMyStatusUpdate())
+		{
+			optionsList.add(String.format(mContext.getString(R.string.message_person), argStatusMessage.getNotNullName()));
+		}
+		
+		optionsList.add(mContext.getString(R.string.copy));
+		
+		optionsList.add(mContext.getString(R.string.delete_post));
+
+		final String[] options = new String[optionsList.size()];
+		optionsList.toArray(options);
+
+		return options;
+	}
+	
+	private DialogListItemClickListener longPressListClickListener = new DialogListItemClickListener();
+	
+	private class DialogListItemClickListener implements DialogInterface.OnClickListener
+	{
+		StatusMessage mStatusMessage;
+
+		public void setStatusMessage(StatusMessage argStatusMessage)
+		{
+			mStatusMessage = argStatusMessage;
+		}
+
+		@Override
+		public void onClick(DialogInterface dialog, int which)
+		{
+			final String[] options = getLongPressListItemsArray(mStatusMessage);
+
+			String option = options[which];
+
+			if (mContext.getString(R.string.copy).equals(option))
+			{
+				Utils.setClipboardText(mStatusMessage.getText(), mContext);
+			}
+			else if (mContext.getString(R.string.delete_post).equals(option))
+			{
+				if (mStatusMessage.isMyStatusUpdate())
+				{
+					showDeleteStatusConfirmationDialog(mStatusMessage);
+				}
+				else
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mStatusMessage.getMappedId());
+					removeStatusUpdate(mStatusMessage.getMappedId());
+				}
+			}
+			else if (String.format(mContext.getString(R.string.message_person), mStatusMessage.getNotNullName()).equals(option))
+			{
+				if (mActivity.get() != null)
+				{
+					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
+							ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(mStatusMessage.getMsisdn()), true);
+					intent.putExtra(HikeConstants.Extras.KEEP_ACTIVITIES, true);
+					startActivity(intent);
+				}
+			}
+		}
+	};
+
+	
+	public void removeStatusUpdate(String statusId)
+	{
+		if (mStatusMessages == null || mStatusMessages.isEmpty())
+		{
+			return;
+		}
+
+		for (StatusMessage statusMessage : mStatusMessages)
+		{
+			if (statusId.equals(statusMessage.getMappedId()))
+			{
+				mStatusMessages.remove(statusMessage);
+				break;
+			}
+		}
+		
+		notifyDataSetChanged();
+	}
+	private void showDeleteStatusConfirmationDialog(final StatusMessage statusMessage)
+	{
+		HikeDialogFactory.showDialog(mActivity.get(), HikeDialogFactory.DELETE_STATUS_TIMELINE_DIALOG, new HikeDialogListener()
+		{
+			@Override
+			public void positiveClicked(final HikeDialog hikeDialog)
+			{
+				HttpRequests.deleteStatusRequest(statusMessage.getMappedId(), new IRequestListener()
+				{
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusMessage.getMappedId());
+
+						// update the preference value used to store latest dp change status update id
+						if (statusMessage.getMappedId().equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DP_CHANGE_STATUS_ID, null))
+								&& statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+						{
+							HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DP_CHANGE_STATUS_ID, "");
+						}
+
+						removeStatusUpdate(statusMessage.getMappedId());
+						hikeDialog.dismiss();
+					}
+
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+						// Do nothing
+					}
+
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						Toast.makeText(mContext, R.string.delete_status_error, Toast.LENGTH_LONG);
+						hikeDialog.dismiss();
+					}
+				}).execute();
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusMessage.getMappedId());
+				removeStatusUpdate(statusMessage.getMappedId());
+				hikeDialog.dismiss();
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+
+			}
+
+		});
+	}
+	
+	
 	private OnClickListener yesBtnClickListener = new OnClickListener()
 	{
 

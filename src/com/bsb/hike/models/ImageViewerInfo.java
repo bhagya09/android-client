@@ -1,5 +1,7 @@
 package com.bsb.hike.models;
 
+import com.bsb.hike.timeline.model.StatusMessage;
+
 import android.os.Bundle;
 
 public class ImageViewerInfo
@@ -16,6 +18,8 @@ public class ImageViewerInfo
 	public String fileKey;
 
 	private Bundle mBundle;
+	
+	private StatusMessage statusMessage;
 
 	public ImageViewerInfo(String mappedId, String url, boolean isStatusMessage)
 	{
@@ -44,5 +48,15 @@ public class ImageViewerInfo
 	public Bundle getBundle()
 	{
 		return mBundle;
+	}
+
+	public StatusMessage getStatusMessage()
+	{
+		return statusMessage;
+	}
+
+	public void setStatusMessage(StatusMessage statusMessage)
+	{
+		this.statusMessage = statusMessage;
 	}
 }
