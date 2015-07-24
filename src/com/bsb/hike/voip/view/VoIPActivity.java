@@ -101,6 +101,10 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 
 			// Using this method to ensure fragment commit happens immediately
 			getSupportFragmentManager().executePendingTransactions();
+			
+			// Let the screen switch off
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 	}
 
@@ -114,13 +118,6 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 	public boolean isShowingCallFailedFragment() 
 	{
 		return isFragmentAdded(HikeConstants.VOIP_CALL_FAILED_FRAGMENT_TAG);
-	}
-
-	@Override
-	protected void onStop() 
-	{
-		super.onStop();
-		removeCallFailedFragment();
 	}
 
 	/**
