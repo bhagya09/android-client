@@ -152,7 +152,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ " ( "
 				+ DBConstants.MESSAGE + " STRING, " // The message text
 				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
-				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp
+				+ DBConstants.TIMESTAMP + " INTEGER, " // Message time stamp, send or receiving time in seconds
 				+ DBConstants.MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " // The message id (Unique)
 				+ DBConstants.MAPPED_MSG_ID + " INTEGER, " // The message id of the message on the sender's side (Only applicable for received messages)
 				+ DBConstants.CONV_ID + " INTEGER," // Deprecated
@@ -168,7 +168,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.HIKE_CONTENT.CONTENT_ID + " INTEGER DEFAULT -1, " // content id applicable to few messages like content
 				+ DBConstants.HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message',"  //namespace for uniqueness of content
 				+ DBConstants.SERVER_ID + " INTEGER, "
-				+ DBConstants.MESSAGE_ORIGIN_TYPE + " INTEGER DEFAULT 0" //normal/broadcast/multi-forward
+				+ DBConstants.MESSAGE_ORIGIN_TYPE + " INTEGER DEFAULT 0, " //normal/broadcast/multi-forward
+				//This column would contain actual sending time of message in milliseconds. IN CASE OF receiving messages as well, we would have actual SENDING TIME of OTHER CLIENT here.
+				+ DBConstants.SEND_TIMESTAMP + " INTEGER" 
 				+ " ) ";
 
 		db.execSQL(sql);
@@ -799,6 +801,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+ " ADD COLUMN " + DBConstants.GROUP_CREATION_TIME
 					+" LONG DEFAULT -1";
 			db.execSQL(alter);
+		}
+		
+		if (oldVersion < 41)
+		{
+			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
+			{
+				String alter = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SEND_TIMESTAMP + " LONG DEFAULT -1";
+				db.execSQL(alter);
+			}
 		}
 	}
 
@@ -1488,22 +1499,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			return;
 		}
-
-		final int msgOriginTypeColumn = 1;
-		final int messageColumn = 2;
-		final int msgStatusColumn = 3;
-		final int timestampColumn = 4;
-		final int mappedMsgIdColumn = 5;
-		final int messageMetadataColumn = 6;
-		final int privateDataColumn = 7;
-		final int groupParticipant = 8;
-		final int isHikeMessageColumn = 9;
-		final int messageHash = 10;
-		final int typeColumn = 11;
-		final int msgMsisdnColumn = 12;
-		final int contentIdColumn = 13;
-		final int nameSpaceColumn = 14;
-		final int msisdnColumn = 15;
+		
+		final int sendTimestampColumn = 1;
+		final int msgOriginTypeColumn = 2;
+		final int messageColumn = 3;
+		final int msgStatusColumn = 4;
+		final int timestampColumn = 5;
+		final int mappedMsgIdColumn = 6;
+		final int messageMetadataColumn = 7;
+		final int privateDataColumn = 8;
+		final int groupParticipant = 9;
+		final int isHikeMessageColumn = 10;
+		final int messageHash = 11;
+		final int typeColumn = 12;
+		final int msgMsisdnColumn = 13;
+		final int contentIdColumn = 14;
+		final int nameSpaceColumn = 15;
+		final int msisdnColumn = 16;
 		
 		insertStatement.clearBindings();
 		insertStatement.bindString(messageColumn, conv.getMessage());
@@ -1534,60 +1546,24 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         
 		insertStatement.bindLong(isHikeMessageColumn, conv.isSMS() ? 0 : 1);
 		insertStatement.bindString(groupParticipant, conv.getGroupParticipantMsisdn() != null ? conv.getGroupParticipantMsisdn() : "");
-		String msgHash = createMessageHash(conv);
-		if (msgHash != null)
+		
+		if(!conv.isSent())
 		{
-			insertStatement.bindString(messageHash, msgHash);
+			//Sent messages hash would only be added after message insertion is complete
+			//and message id has been generated. we should not do it from here.
+			String msgHash = conv.createMessageHash();
+			
+			if(msgHash != null)
+			{
+				insertStatement.bindString(messageHash, msgHash);
+			}
 		}
 		insertStatement.bindLong(typeColumn, conv.getMessageType());
 		insertStatement.bindString(msgMsisdnColumn, conv.getMsisdn());
 		insertStatement.bindLong(contentIdColumn, conv.getContentId());
 		insertStatement.bindString(nameSpaceColumn, conv.getNameSpace() != null ? conv.getNameSpace() : "");
 		insertStatement.bindLong(msgOriginTypeColumn, conv.getMessageOriginType().ordinal());
-	}
-
-	public boolean wasMessageReceived(ConvMessage conv)
-	{
-		String msgHash = createMessageHash(conv);
-		Cursor c = null;
-		try
-		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGES_TABLE + "." + DBConstants.MESSAGE_HASH }, DBConstants.MESSAGES_TABLE + "."
-					+ DBConstants.MESSAGE_HASH + "=?", new String[] { msgHash }, null, null, null);
-			int count = c.getCount();
-			return (count != 0);
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
-
-	/**
-	 * Creates the messages hash for the message object.
-	 *
-	 * @param msg
-	 *            The message for which hash is to be created.
-	 * @return The message hash string .
-	 */
-	private String createMessageHash(ConvMessage msg)
-	{
-		String msgHash = null;
-		if (!msg.isSent() && (msg.getParticipantInfoState() == ParticipantInfoState.NO_INFO))
-		{
-			msgHash = msg.getMsisdn() + msg.getMappedMsgID();
-
-			String message = msg.getMessage();
-			if(message !=null && message.length() > 0)
-			{
-				msgHash = msgHash + message.charAt(0) + message.charAt(message.length() - 1);
-			}
-			Logger.d(getClass().getSimpleName(), "Message hash: " + msgHash);
-		}
-		return msgHash;
+		insertStatement.bindLong(sendTimestampColumn, conv.getSendTimestamp());
 	}
 
 	private String createMessageHash(String msisdn, long mappedMsgId, String message, long ts)
@@ -1617,6 +1593,42 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return addConversations(convMessages, contacts,createConvIfNotExist);
 	}
+	
+	private long insertMessage(SQLiteStatement insertStatement, ConvMessage conv) throws Exception
+	{
+		long msgId = -1;
+		try
+		{
+			mDb.beginTransaction();
+			msgId = insertStatement.executeInsert();
+
+			conv.setMsgID(msgId);
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(DBConstants.SERVER_ID, conv.getServerId());
+			if (conv.isSent())
+			{
+				// for recieved messages message hash would directly be added from insertStatement.executeInsert() statement
+				// we don't need to re-insert it here
+				contentValues.put(DBConstants.MESSAGE_HASH, conv.createMessageHash());
+			}
+			mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.MESSAGE_ID + "=?", new String[] { Long.toString(conv.getMsgID()) });
+
+			mDb.setTransactionSuccessful();
+		}
+		catch (Exception e)
+		{
+			conv.setMsgID(-1);
+			Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+			logDuplicateMessageEntry(conv, e);
+			throw e;
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+		return msgId;
+	}
 
 	/**
 	 *
@@ -1639,6 +1651,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
             Map<String, Pair<List<String>, Long>> map = new HashMap<String, Pair<List<String>, Long>>();
 			int totalMessage = convMessages.size()-1;
 			long baseId = -1;
+			long baseCurrentTime = System.currentTimeMillis();
 			for (ContactInfo contact : contacts)
 			{
 				for (int i=0;i<=totalMessage;i++)
@@ -1646,6 +1659,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					ConvMessage conv  = convMessages.get(i);
 					conv.setSMS(!contact.isOnhike());
 					conv.setMsisdn(contact.getMsisdn());
+					
+					if(conv.isSent())
+					{
+						//We only need to set this in case of sent messages
+						//for recieving messages we should get it inside mqtt packet only
+						conv.setSendTimestamp(baseCurrentTime);
+					}
+					
 					String thumbnailString = extractThumbnailFromMetadata(conv.getMetadata());
 					
 					long sortingTimeStamp = conv.getTimestamp();
@@ -1663,17 +1684,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					 */
 					try
 					{
-						msgId = insertStatement.executeInsert();
+						msgId = insertMessage(insertStatement, conv);
 					}
 					catch (Exception e)
 					{
 						// duplicate message return false
-						Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
-						
-						logDuplicateMessageEntry(conv, e);
 						return false;
 					}
-
+					
 					addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
 					/*
 					 * Represents we dont have any conversation made for this msisdn. Here we are also checking whether the message is a 1-n message, If it is not and the
@@ -1686,16 +1704,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						bindConversationInsert(insertStatement, conv,createConvIfNotExist);
 						try
 						{
-							msgId = insertStatement.executeInsert();
+							msgId = insertMessage(insertStatement, conv);
 						}
-						catch (Exception e)
+						catch (Exception e1)
 						{
 							// duplicate message return false
-							Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
-							logDuplicateMessageEntry(conv, e);
 							return false;
 						}
-
+						
 						assert (msgId >= 0);
 					}
 					if(baseId==-1){
@@ -1703,7 +1719,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 
 					conv.setMsgID(msgId);
-					insertServerId(conv);
 					com.bsb.hike.chatthread.ChatThread.addtoMessageMap(conv);
 
 					/*
@@ -1817,13 +1832,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 				try
 				{
-					msgId = insertStatement.executeInsert();
+					msgId = insertMessage(insertStatement, conv);
 				}
 				catch (Exception e)
 				{
 					// duplicate message . Skip further processing
-					Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
-					logDuplicateMessageEntry(conv, e);
 					continue;
 				}
 				addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
@@ -1838,20 +1851,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					bindConversationInsert(insertStatement, conv,true);
 					try
 					{
-						msgId = insertStatement.executeInsert();
+						msgId = insertMessage(insertStatement, conv);
 					}
 					catch (Exception e)
 					{
 						// duplicate message . Skip further processing
-						Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
-						logDuplicateMessageEntry(conv, e);
 						continue;
 					}
 
 					assert (msgId >= 0);
 				}
 				conv.setMsgID(msgId);
-				insertServerId(conv);
 				com.bsb.hike.chatthread.ChatThread.addtoMessageMap(conv);
 
 				/*
@@ -1894,28 +1904,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return contacts;
 	}
 
-    private void insertServerId(ConvMessage convMessage) {
-    	if (convMessage.getMsgID() > 0)
-    	{
-    		ContentValues contentValues = new ContentValues();
-    		contentValues.put(DBConstants.SERVER_ID, convMessage.getServerId());
-    		mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.MESSAGE_ID + "=?", new String[] { Long.toString(convMessage.getMsgID()) });
-    	}
-	}
-
 	private SQLiteStatement getSqLiteStatementToInsertIntoMessagesTable(boolean createConvIfNotExist) {
         SQLiteStatement insertStatement = null;
         //TODO we need to insert messageOrginType field in both of these queries.
         if(createConvIfNotExist){
-            insertStatement = mDb.compileStatement("INSERT INTO " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MESSAGE_ORIGIN_TYPE + "," + DBConstants.MESSAGE + "," + DBConstants.MSG_STATUS + ","
+            insertStatement = mDb.compileStatement("INSERT INTO " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.SEND_TIMESTAMP + "," + DBConstants.MESSAGE_ORIGIN_TYPE + "," + DBConstants.MESSAGE + "," + DBConstants.MSG_STATUS + ","
                     + DBConstants.TIMESTAMP + "," + DBConstants.MAPPED_MSG_ID + " ," + DBConstants.MESSAGE_METADATA + ","+ DBConstants.PRIVATE_DATA + "," + DBConstants.GROUP_PARTICIPANT + "," + DBConstants.CONV_ID
                     + ", " + DBConstants.IS_HIKE_MESSAGE + "," + DBConstants.MESSAGE_HASH + "," + DBConstants.MESSAGE_TYPE   + "," + DBConstants.MSISDN +  "," + HIKE_CONTENT.CONTENT_ID + "," + HIKE_CONTENT.NAMESPACE + " ) "
-                    + " SELECT ?, ?, ?, ?, ?, ?, ?, ?, " + DBConstants.CONV_ID + ", ?, ?, ?, ?, ?, ? FROM " + DBConstants.CONVERSATIONS_TABLE + " WHERE " + DBConstants.CONVERSATIONS_TABLE + "."
+                    + " SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, " + DBConstants.CONV_ID + ", ?, ?, ?, ?, ?, ? FROM " + DBConstants.CONVERSATIONS_TABLE + " WHERE " + DBConstants.CONVERSATIONS_TABLE + "."
                     + DBConstants.MSISDN + "=?");
         }else{
-            insertStatement = mDb.compileStatement("INSERT INTO " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MESSAGE_ORIGIN_TYPE + "," + DBConstants.MESSAGE + "," + DBConstants.MSG_STATUS + ","
+            insertStatement = mDb.compileStatement("INSERT INTO " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.SEND_TIMESTAMP + "," + DBConstants.MESSAGE_ORIGIN_TYPE + "," + DBConstants.MESSAGE + "," + DBConstants.MSG_STATUS + ","
                     + DBConstants.TIMESTAMP + "," + DBConstants.MAPPED_MSG_ID + " ," + DBConstants.MESSAGE_METADATA + ","+ DBConstants.PRIVATE_DATA + "," + DBConstants.GROUP_PARTICIPANT
-                    + ", " + DBConstants.IS_HIKE_MESSAGE + "," + DBConstants.MESSAGE_HASH + "," + DBConstants.MESSAGE_TYPE  + "," + DBConstants.MSISDN +  "," + HIKE_CONTENT.CONTENT_ID + "," + HIKE_CONTENT.NAMESPACE + " ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                    + ", " + DBConstants.IS_HIKE_MESSAGE + "," + DBConstants.MESSAGE_HASH + "," + DBConstants.MESSAGE_TYPE  + "," + DBConstants.MSISDN +  "," + HIKE_CONTENT.CONTENT_ID + "," + HIKE_CONTENT.NAMESPACE + " ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
         }
         return insertStatement;

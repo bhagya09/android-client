@@ -1674,6 +1674,28 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			// successfully initialized
 		}
 		
+		/*
+		 * Now on, we would be putting Client sending time ("c") in all qos1 packets,
+		 * For all type m packets it should be set from db insert, for all other packets
+		 * we would be putting this from here.
+		 */
+		long currentTime = System.currentTimeMillis();
+		if (qos == MQTT_QOS_ONE)
+		{
+			if(!o.has(HikeConstants.SEND_TIMESTAMP))
+			{
+				try
+				{
+					o.put(HikeConstants.SEND_TIMESTAMP, currentTime);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(TAG, "Error while trying to put SEND_TIMESTAMP", e);
+				}
+			}
+		}
+
+		
 		String data = o.toString();
 
 		long msgId = -1;
@@ -1716,8 +1738,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			type = HikeConstants.NORMAL_MESSAGE_TYPE;
 		}
 
-
-		HikePacket packet = new HikePacket(data.getBytes(), msgId, System.currentTimeMillis(), type);
+		HikePacket packet = new HikePacket(data.getBytes(), msgId, currentTime, type);
 		setTrackIDInPacketForMsgRel(o, packet);
 		addToPersistence(packet, qos);
 

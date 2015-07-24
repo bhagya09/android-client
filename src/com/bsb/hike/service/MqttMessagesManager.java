@@ -85,6 +85,7 @@ import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
@@ -1543,6 +1544,11 @@ public class MqttMessagesManager
 			int bitrate = data.getInt(HikeConstants.VOIP_BITRATE_WIFI);
 			editor.putInt(HikeMessengerApp.VOIP_BITRATE_WIFI, bitrate);
 		}
+		if (data.has(HikeConstants.VOIP_BITRATE_CONFERENCE))
+		{
+			int bitrate = data.getInt(HikeConstants.VOIP_BITRATE_CONFERENCE);
+			editor.putInt(HikeConstants.VOIP_BITRATE_CONFERENCE, bitrate);
+		}
 		if(data.has(HikeConstants.VOIP_ACTIVATED))
 		{
 			int activateVoip = data.getInt(HikeConstants.VOIP_ACTIVATED);
@@ -1770,14 +1776,35 @@ public class MqttMessagesManager
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS))
 		{
-			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
+			JSONArray botsTobeAdded = data.getJSONArray(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
 			for (int i = 0; i< botsTobeAdded.length(); i++){
 				BotUtils.createBot((JSONObject) botsTobeAdded.get(i));
 			}
 		}
+		if(data.has(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP))
+		{
+			JSONArray microAppsTobeRemoved = data.getJSONArray(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP);
+			for (int i = 0; i< microAppsTobeRemoved.length(); i++){
+				BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+			}
+		}
+		if(data.has(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS))
+		{
+			boolean doNotify = data.optBoolean(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS);
+			if(doNotify)
+			{
+				JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
+				String sentData = PlatformUtils.trimFilePath(mArray).toString();
+				JSONObject json = new JSONObject();
+				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
+				json.putOpt(AnalyticsConstants.MICRO_APP_INFO, sentData);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+			}
+				
+		}
 		if(data.has(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS))
 		{
-			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS);
+			JSONArray botsTobeAdded = data.getJSONArray(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS);
 			for (int i = 0; i< botsTobeAdded.length(); i++){
 				BotUtils.deleteBot((String) botsTobeAdded.get(i));
 			}
@@ -1785,7 +1812,7 @@ public class MqttMessagesManager
 
 		if (data.has(HikeConstants.MqttMessageTypes.MICROAPP_DOWNLOAD))
 		{
-			JSONArray appsToBeDownloaded = data.optJSONArray(HikeConstants.MqttMessageTypes.MICROAPP_DOWNLOAD);
+			JSONArray appsToBeDownloaded = data.getJSONArray(HikeConstants.MqttMessageTypes.MICROAPP_DOWNLOAD);
 			for (int i = 0; i< appsToBeDownloaded.length(); i++)
 			{
 				PlatformUtils.downloadZipFromPacket((JSONObject) appsToBeDownloaded.get(i));
@@ -1988,14 +2015,7 @@ public class MqttMessagesManager
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
 			{ 
 				JSONArray list =  stickerWidgetJSONObj.getJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
-				
-				for(int j=0; j<list.length() ; j++)
-				{
-					list.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, serviceUserControl);
-				}
-				
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, list.toString());
-				ChatHeadUtils.startOrStopService(true);
+				ChatHeadUtils.setAllApps(list, serviceUserControl);
 			}
 			
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
@@ -2098,6 +2118,15 @@ public class MqttMessagesManager
 			}
 		}
 		
+		if (data.has(HikeConstants.KEYBOARD_CONFIGURATION))
+		{
+			int kc = data.getInt(HikeConstants.KEYBOARD_CONFIGURATION);
+			if (kc>=0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KEYBOARD_CONFIGURATION, kc);
+			}
+		}
+
 		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
 		{
 			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
@@ -2163,6 +2192,12 @@ public class MqttMessagesManager
 			boolean msgingLogging = data.getBoolean(HikeConstants.MESSAGING_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, msgingLogging);
 		}
+		if(data.has(HikeConstants.NOTIFICATIONS_PRIORITY))
+		{
+			int priority = data.getInt(HikeConstants.NOTIFICATIONS_PRIORITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);			
+		}
+		
 		if (data.has(MqttConstants.MQTT_PING_SENDER))
 		{
 			int pingSender = data.getInt(MqttConstants.MQTT_PING_SENDER);
@@ -2907,7 +2942,7 @@ public class MqttMessagesManager
 			e.printStackTrace();
 		}
 
-		HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, metadata);
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, metadata);
 	}
 
 	private void saveTip(JSONObject jsonObj)
