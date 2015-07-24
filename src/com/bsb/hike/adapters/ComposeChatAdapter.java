@@ -232,7 +232,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				holder.status.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
 				holder.status.setText(statusForEmptyContactInfo);
 				holder.statusMood.setVisibility(View.GONE);
-				holder.onlineIndicator.setVisibility(View.GONE);
 			}
 			else if (contactInfo.getFavoriteType() == FavoriteType.FRIEND || contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
 			{
@@ -286,7 +285,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				holder.status.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
 				holder.status.setText(OneToNConversationUtils.isGroupConversation(contactInfo.getMsisdn()) ? contactInfo.getPhoneNum():contactInfo.getMsisdn());
 				holder.statusMood.setVisibility(View.GONE);
-				holder.onlineIndicator.setVisibility(View.GONE);
 				if (viewType != ViewType.FRIEND && viewType != ViewType.FRIEND_REQUEST)
 				{
 					if (!contactInfo.isOnhike() && !showCheckbox)
@@ -296,7 +294,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 						{
 							holder.inviteIcon.setVisibility(View.VISIBLE);
 							holder.inviteText.setVisibility(View.GONE);
-							holder.divider.setVisibility(View.VISIBLE);
 							holder.inviteIcon.setTag(contactInfo);
 							holder.inviteIcon.setOnClickListener(new OnClickListener()
 							{
@@ -312,10 +309,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 						}
 						else
 						{
-
 							holder.inviteIcon.setVisibility(View.GONE);
 							holder.inviteText.setVisibility(View.VISIBLE);
-							holder.divider.setVisibility(View.GONE);
 						}
 					}
 				}
@@ -404,10 +399,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.status = (TextView) convertView.findViewById(R.id.number);
 			holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
 			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
-			holder.onlineIndicator = (ImageView) convertView.findViewById(R.id.online_indicator);
 			holder.inviteText = (TextView) convertView.findViewById(R.id.invite_Text);
 			holder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
-			holder.divider = (View) convertView.findViewById(R.id.invite_divider);
 			convertView.setTag(holder);
 			break;
 		}
@@ -429,8 +422,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		ImageView onlineIndicator;
 
 		String msisdn;
-
-		View divider;
 
 		TextView inviteText;
 
