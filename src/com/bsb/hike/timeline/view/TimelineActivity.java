@@ -10,10 +10,13 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -22,11 +25,23 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ImageViewerActivity;
-import com.bsb.hike.ui.PeopleActivity;
+import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -37,7 +52,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private Handler mHandler = new Handler();
 
-	private TextView friendsTopBarIndicator;
+	private TextView overflowIndicator;
 
 	private SharedPreferences accountPrefs;
 
@@ -125,23 +140,98 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		getSupportMenuInflater().inflate(R.menu.updates_menu, menu);
 
-		View show_people_view = menu.findItem(R.id.show_people).getActionView();
-		show_people_view.findViewById(R.id.overflow_icon_image).setContentDescription("Favorites in timeline");
-		friendsTopBarIndicator = (TextView) show_people_view.findViewById(R.id.top_bar_indicator_text);
-		((ImageView) show_people_view.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_show_people);
+		final Menu m = menu;
+		final MenuItem menuItem = menu.findItem(R.id.overflow_menu);
+		final View overflowMenuItem = menuItem.getActionView();
+		overflowMenuItem.setContentDescription("Timeline Overflow");
+		overflowIndicator = (TextView) overflowMenuItem.findViewById(R.id.top_bar_indicator_text);
 		updateFriendsNotification(accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0), 0);
 
-		show_people_view.setOnClickListener(new View.OnClickListener()
+		overflowMenuItem.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
 			{
-				Intent intent = new Intent(TimelineActivity.this, PeopleActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
+				showTimelineMenuPopup(overflowMenuItem);
 			}
 		});
 		return super.onCreateOptionsMenu(menu);
+	}
+	
+	public void showTimelineMenuPopup(View v)
+	{
+		PopupMenu popup = new PopupMenu(TimelineActivity.this, v);
+		android.view.MenuInflater inflater = popup.getMenuInflater();
+		inflater.inflate(R.menu.timeline_overflow_menu, popup.getMenu());
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+		{
+			@Override
+			public boolean onMenuItemClick(android.view.MenuItem arg0)
+			{
+				switch (arg0.getItemId())
+				{
+				case R.id.clear_timeline:
+
+					HikeDialogFactory.showDialog(TimelineActivity.this, HikeDialogFactory.WIPE_TIMELINE_DIALOG, new HikeDialogListener()
+					{
+						@Override
+						public void positiveClicked(final HikeDialog hikeDialog)
+						{
+							HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									HikeConversationsDatabase.getInstance().clearTable(DBConstants.STATUS_TABLE);
+									HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_WIPE, null);
+								}
+							}, 0);
+							hikeDialog.dismiss();
+						}
+
+						@Override
+						public void negativeClicked(HikeDialog hikeDialog)
+						{
+							hikeDialog.dismiss();
+						}
+
+						@Override
+						public void neutralClicked(HikeDialog hikeDialog)
+						{
+
+						}
+					});
+
+					break;
+				case R.id.favourites:
+					try
+					{
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.POST_UPDATE_FROM_TOP_BAR);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
+
+					Intent intent = new Intent(TimelineActivity.this, StatusUpdate.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+
+					break;
+				case R.id.my_profile:
+					Intent intent2 = new Intent(TimelineActivity.this, ProfileActivity.class);
+					intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+					startActivity(intent2);
+					break;
+				default:
+					break;
+				}
+				return false;
+			}
+		});
+		popup.show();
 	}
 
 	@Override
@@ -237,7 +327,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		if (count < 1)
 		{
-			friendsTopBarIndicator.setVisibility(View.GONE);
+			overflowIndicator.setVisibility(View.GONE);
 		}
 		else
 		{
@@ -247,20 +337,20 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 				@Override
 				public void run()
 				{
-					if (friendsTopBarIndicator != null)
+					if (overflowIndicator != null)
 					{
 						int count = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
 						if (count > 9)
 						{
-							friendsTopBarIndicator.setVisibility(View.VISIBLE);
-							friendsTopBarIndicator.setText("9+");
-							friendsTopBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+							overflowIndicator.setVisibility(View.VISIBLE);
+							overflowIndicator.setText("9+");
+							overflowIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 						}
 						else if (count > 0)
 						{
-							friendsTopBarIndicator.setVisibility(View.VISIBLE);
-							friendsTopBarIndicator.setText(String.valueOf(count));
-							friendsTopBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+							overflowIndicator.setVisibility(View.VISIBLE);
+							overflowIndicator.setText(String.valueOf(count));
+							overflowIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 						}
 					}
 				}

@@ -402,6 +402,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String ACTIVITY_UPDATE = "activityUpdate";
 	
+	public static final String TIMELINE_WIPE = "timelinewipe";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
