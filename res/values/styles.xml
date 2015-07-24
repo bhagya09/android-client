@@ -344,30 +344,22 @@
     <style name="NoCloseButton" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
     <item name="android:visibility">visible</item>
 	</style>
-
-	 <style name="AppTheme.Overlay" parent="AppTheme">
-	     
-	      <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
-        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
-         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
-        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
-        <item name="windowActionBarOverlay">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        
-        
-	 </style>
-	
-	<style name="AppTheme.ChatThread" parent="AppTheme">
-	   
-	    <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+	<style name="AppTheme.Overlay" parent="AppTheme">
+        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="windowActionBarOverlay">true</item>
-        
-	</style>
-
-    <style name="ActivityAnimation">
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+    <style name="AppTheme.ChatThread" parent="AppTheme">
+        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+	<style name="ActivityAnimation">
         <item name="android:windowExitAnimation">@anim/fade_out_animation</item>
     	<item name="android:windowEnterAnimation">@anim/fade_in_animation</item>
     </style>
@@ -392,8 +384,8 @@
     </style>
     
     <style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@drawable/bg_header</item>
-        <item name="android:background">@drawable/bg_header</item>
+        <item name="background">@color/blue_hike</item>
+        <item name="android:background">@color/blue_hike</item>
         <item name="backgroundSplit">@color/credits_blue</item>
         <item name="android:backgroundSplit">@color/credits_blue</item>
         <item name="titleTextStyle">@style/NoTitleText</item>

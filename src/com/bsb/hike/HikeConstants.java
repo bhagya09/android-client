@@ -1055,6 +1055,8 @@ public class HikeConstants
 	public static final String TO_SHOW = "toShow";
 
 	public static final String PIN_DISPLAYED = "displayed";
+	public static final String STATUS_BAR_BLUE = "blue";
+	public static final String STATUS_BAR_TRANSPARENT = "transparent";
 
 	public static final int MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY = 51;
 

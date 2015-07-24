@@ -35,6 +35,7 @@ import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -2540,5 +2541,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		nextBtn.setEnabled(enabled);
 		arrow.setEnabled(enabled);
 		postText.setEnabled(enabled);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// TODO Auto-generated method stub
+		return true;
 	}
 }

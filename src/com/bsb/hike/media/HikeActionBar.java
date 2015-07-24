@@ -110,6 +110,7 @@ public class HikeActionBar
 		View actionBarView = LayoutInflater.from(mActivity.getApplicationContext()).inflate(layoutResId, null);
 		
 		sherlockActionBar.setCustomView(actionBarView);
+		sherlockActionBar.setDisplayHomeAsUpEnabled(true);
 		//http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
 		//removing space on the left of action bar
 		Toolbar parent=(Toolbar)actionBarView.getParent();
