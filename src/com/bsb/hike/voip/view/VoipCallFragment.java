@@ -813,6 +813,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			updateConferenceList();
 		}
 
+		if (clientPartner.isHostingConference) {
+			addButton.setVisibility(View.GONE);
+		} else
+			addButton.setVisibility(View.VISIBLE);
+			
+		
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
 		{
 			contactNameView.setTextSize(24);
