@@ -941,11 +941,11 @@ public class VoIPService extends Service {
 	
 	@SuppressWarnings("deprecation")
 	@SuppressLint("InlinedApi") 
-	private void initSoundPool() {
+	private boolean initSoundPool() {
 		
 		if (soundpool != null) {
 			Logger.d(tag, "Soundpool already initialized.");
-			return;
+			return true;
 		}
 		
 		if (Utils.isLollipopOrHigher()) {
@@ -955,16 +955,25 @@ public class VoIPService extends Service {
 		}
 
 		soundpoolMap = new SparseIntArray(3);
+		
+		if (soundpool == null || soundpoolMap == null) {
+			Logger.w(tag, "Soundpool initialization failed.");
+			return false;
+		}
+		
 		soundpoolMap.put(SOUND_ACCEPT, soundpool.load(getApplicationContext(), SOUND_ACCEPT, 1));
 		soundpoolMap.put(SOUND_DECLINE, soundpool.load(getApplicationContext(), SOUND_DECLINE, 1));
 		soundpoolMap.put(SOUND_INCOMING_RINGTONE, soundpool.load(getApplicationContext(), SOUND_INCOMING_RINGTONE, 1));
 		soundpoolMap.put(SOUND_RECONNECTING, soundpool.load(getApplicationContext(), SOUND_RECONNECTING, 1));
+		
+		return true;
 	}
 	
 	private int playFromSoundPool(int soundId, boolean loop) {
 		int streamID = 0;
 		if (soundpool == null || soundpoolMap == null) {
-			initSoundPool();
+			if (!initSoundPool())
+				return 0;
 		}
 		
 		if (loop)
