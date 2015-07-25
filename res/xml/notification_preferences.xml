@@ -11,13 +11,13 @@
         android:summary="@string/vibrate_msg"
         android:title="@string/vibrate" />
 
-    <com.bsb.hike.view.IconCheckBoxPreference
+    <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="tickSoundPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/tickSoundSummary"
         android:title="@string/tickSoundTitle"
-        android:widgetLayout="@layout/checkbox_widget" />
+        android:widgetLayout="@layout/switch_widget" />
 
 	<com.bsb.hike.view.IconListPreference
         android:entries="@array/ledPrefKeys"
@@ -34,28 +34,28 @@
         android:summary="@string/notificationSoundSummary"
         android:title="@string/notificationSoundTitle" />
 
-    <com.bsb.hike.view.IconCheckBoxPreference
+    <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="statusBooleanPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/mute_status_notification_subtext"
         android:title="@string/mute_status_notification_header"
-        android:widgetLayout="@layout/checkbox_widget" />
+        android:widgetLayout="@layout/switch_widget" />
     
-    <com.bsb.hike.view.IconCheckBoxPreference
+    <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="hikeNUJNotificationPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/notifications_contact_join_summary"
         android:title="@string/notifications_contact_join_title"
-        android:widgetLayout="@layout/checkbox_widget" />
+        android:widgetLayout="@layout/switch_widget" />
     
-    <com.bsb.hike.view.IconCheckBoxPreference
+    <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="hikeOfflineNotificationPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/h2o_notifications_setting_summary"
         android:title="@string/hike_offline_notifications"
-        android:widgetLayout="@layout/checkbox_widget" />
+        android:widgetLayout="@layout/switch_widget" />
 	
 </PreferenceScreen>
