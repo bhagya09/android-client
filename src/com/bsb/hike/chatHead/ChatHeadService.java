@@ -306,9 +306,12 @@ public class ChatHeadService extends Service
 		// adding try catch as a safe check
 		try
 		{
-			windowManager.addView(ChatHeadLayout.attachPicker(context), stickerPickerParams);
-			chatHeadParams.flags = LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
-			windowManager.updateViewLayout(chatHead, chatHeadParams);
+			if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
+			{
+				windowManager.addView(ChatHeadLayout.attachPicker(context), stickerPickerParams);
+				chatHeadParams.flags = LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+				windowManager.updateViewLayout(chatHead, chatHeadParams);
+			}
 		}
 		catch (Exception e)
 		{
