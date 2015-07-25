@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import android.content.Intent;
 import android.util.Pair;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
@@ -47,9 +48,12 @@ public class StickerSearchManager
 	
 	private int numStickersVisibleAtOneTime;
 	
+	private boolean showAutopopupSettingOn;
+	
 	private StickerSearchManager()
 	{
 		searchEngine = new StickerSearchEngine();
+		showAutopopupSettingOn = isShowAutopopupSettingOn();
 		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
 		setAlarmFirstTime();
 	}
@@ -243,6 +247,12 @@ public class StickerSearchManager
 	public void onClickToSendSticker(int clickPosition, boolean onTouch)
 	{
 		Logger.i(StickerTagWatcher.TAG, "onClickToSendSticker(" + clickPosition + ")");
+		
+		if(!onTouch && !showAutopopupSettingOn)
+		{
+			// if its not because of touch and autopopup setting is off then return
+			return;
+		}
 
 		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
 
@@ -345,4 +355,15 @@ public class StickerSearchManager
 	{
 		this.numStickersVisibleAtOneTime = numStickersVisibleAtOneTime;
 	}
+	
+	public boolean isShowAutopopupSettingOn()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+	}
+
+	public void setShowAutopopupSettingOn(boolean showAutopopupSettingOn)
+	{
+		this.showAutopopupSettingOn = showAutopopupSettingOn;
+	}
+
 }
