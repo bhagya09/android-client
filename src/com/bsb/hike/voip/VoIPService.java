@@ -829,6 +829,8 @@ public class VoIPService extends Service {
 		.build();
 		
 		notificationManager.notify(null, NOTIFICATION_IDENTIFIER, myNotification);
+		
+//		VoIPUtils.showMemoryUsage(getApplicationContext());
 	}
 
 	private VoIPClient getClient() {

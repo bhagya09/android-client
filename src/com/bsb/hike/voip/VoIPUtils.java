@@ -16,6 +16,8 @@ import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -758,6 +760,20 @@ public class VoIPUtils {
 		Logger.d(tag, "Retrieved IP address for relay server: " + address.getHostAddress());
 		return address;
 	}
-	
+
+	/**
+	 * Helper function to display total and available memory using Logger.
+	 * @param context
+	 */
+	public static void showMemoryUsage(Context context) {
+		
+		MemoryInfo mi = new MemoryInfo();
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		activityManager.getMemoryInfo(mi);
+		long availableMegs = mi.availMem / 1048576L;
+		long totalMemory = mi.totalMem / 1048576L;
+		
+		Logger.d(tag, "Memory total: " + totalMemory + " MB, available: " + availableMegs + " MB");
+	}
 	
 }
