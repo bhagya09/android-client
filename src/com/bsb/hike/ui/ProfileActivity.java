@@ -157,7 +157,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
-			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED };
+			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED ,HikePubSub.GROUP_OWNER_CHANGE};
 
 	private String[] contactInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 			HikePubSub.STATUS_MESSAGE_RECEIVED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST,
@@ -2105,6 +2105,23 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							profileAdapter.updateHasCustomPhoto();
 							profileAdapter.notifyDataSetChanged();
 						}
+					}
+				});
+			}
+		}
+		else if (HikePubSub.GROUP_OWNER_CHANGE.equals(type))
+		{
+			if (mLocalMSISDN.equals((String) object))
+			{
+				runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+					    	setupGroupProfileList();
+						    //updateProfileHeaderView();
+							profileAdapter.notifyDataSetChanged();
+					
 					}
 				});
 			}
