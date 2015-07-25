@@ -5,7 +5,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1290"
-    android:versionName="3.9.8.81.5.photos" >
+    android:versionName="3.9.8.81.6.photos5_0" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
