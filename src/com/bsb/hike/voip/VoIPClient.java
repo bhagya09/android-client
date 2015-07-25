@@ -98,7 +98,7 @@ public class VoIPClient  {
 	public VoIPEncryptor encryptor = new VoIPEncryptor();
 	public boolean cryptoEnabled = true;
 	private VoIPEncryptor.EncryptionStage encryptionStage;
-	public boolean remoteHold = false;
+	public boolean remoteHold = false, remoteMute = false;
 	public boolean audioStarted = false;
 	private VoIPConstants.CallStatus currentCallStatus;
 	private int localBitrate = VoIPConstants.BITRATE_WIFI, remoteBitrate = 0;
@@ -759,7 +759,8 @@ public class VoIPClient  {
 							{
 								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
-								return;
+								if (!isInAHostedConference)
+									return;
 							}
 						}
 						stop();
@@ -1417,6 +1418,14 @@ public class VoIPClient  {
 						setRemoteHold(false);
 						break;
 
+					case MUTE_ON:
+						setRemoteMute(true);
+						break;
+
+					case MUTE_OFF:
+						setRemoteMute(false);
+						break;
+						
 					case CLIENTS_LIST:
 						if (dataPacket.getData() != null) {
 							try {
@@ -1585,6 +1594,14 @@ public class VoIPClient  {
 
 		remoteHold = newHold;
 		sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
+	}
+
+	public boolean isRemoteMute() {
+		return remoteMute;
+	}
+
+	public void setRemoteMute(boolean remoteMute) {
+		this.remoteMute = remoteMute;
 	}
 
 	private void startStreaming() {
@@ -1917,6 +1934,9 @@ public class VoIPClient  {
 	
 	private void calculateQuality() {
 
+		if (remoteHold || remoteMute)
+			return;
+		
 		int cardinality = playbackTrackingBits.cardinality();
 		packetLoss = (100 - (cardinality*100 / (playbackFeederCounter < playbackTrackingBits.size() ? playbackFeederCounter : playbackTrackingBits.size())));
 //		Logger.d(tag, "Loss: " + packetLoss + ", playbackFeederCounter: " + playbackFeederCounter);

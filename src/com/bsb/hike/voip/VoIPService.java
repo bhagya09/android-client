@@ -1099,6 +1099,25 @@ public class VoIPService extends Service {
 	public void setMute(boolean mute)
 	{
 		this.mute = mute;
+		
+		// Send mute status to the other party
+		final VoIPClient client = getClient();
+		if (client == null || hostingConference())
+			return;
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				VoIPDataPacket dp = null;
+				if (VoIPService.this.mute == true)
+					dp = new VoIPDataPacket(PacketType.MUTE_ON);
+				else
+					dp = new VoIPDataPacket(PacketType.MUTE_OFF);
+				client.sendPacket(dp, true);
+			}
+		}).start();
+		
 	}
 
 	public boolean getMute()
@@ -1787,7 +1806,7 @@ public class VoIPService extends Service {
 	public String getSessionKeyHash() {
 		String hash = null;
 		VoIPClient client = getClient();
-		if (client.encryptor != null)
+		if (client != null && client.encryptor != null)
 			hash = client.encryptor.getSessionMD5();
 		return hash;
 	}
@@ -1995,7 +2014,7 @@ public class VoIPService extends Service {
 			return CallStatus.HOSTING_CONFERENCE;
 		
 		if (client != null)
-			return getClient().getCallStatus();
+			return client.getCallStatus();
 		else
 			return CallStatus.UNINITIALIZED;
 	}
