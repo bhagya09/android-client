@@ -20,10 +20,7 @@
 
     </LinearLayout>
     
-    <View
-        style="@style/ActionBarDivider"
-        android:background="@color/transparent_white_ab"
-        android:layout_toRightOf="@id/close_container" />
+   
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/title"
