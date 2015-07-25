@@ -3162,7 +3162,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 					@Override
 					public void negativeClicked(HikeDialog hikeDialog) {
-						( (CheckBox) view.findViewById(R.id.checkBox)).setChecked(checked);
+						try {
+							boolean checkedI = false;
+							if(oneToNConversation.getMetadata().getAddMembersRight()==OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ADMIN_CAN_ADD){
+								checkedI = true;
+							}
+							( (CheckBox) view.findViewById(R.id.checkBox)).setChecked(checkedI);
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
 						hikeDialog.dismiss();
 					}
 				}, text);
