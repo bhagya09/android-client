@@ -1,5 +1,6 @@
 package com.bsb.hike.offline;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ public class ConnectionManager implements ChannelListener
     private WifiConfiguration prevConfig = null;
 	private int connectedNetworkId = -1;
 	private Looper looper;
+	private boolean isHTC = false;
 	
 	public ConnectionManager(Context context, Looper looper)
 	{
@@ -51,6 +53,15 @@ public class ConnectionManager implements ChannelListener
         wifiP2pManager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
         channel = wifiP2pManager.initialize(context, looper, this);
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        
+		try
+		{
+	        isHTC = (WifiConfiguration.class.getDeclaredField("mWifiApProfile") != null) ? true : false;
+		}
+		catch (IllegalArgumentException | NoSuchFieldException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public void setDeviceNameAsMsisdn() {
@@ -322,55 +333,81 @@ public class ConnectionManager implements ChannelListener
 	}
 	
 	private void saveCurrentHotspotSSID() 
-	{	
-		Method[] methods = wifiManager.getClass().getDeclaredMethods();
-		for (Method m: methods) 
-		{           
-			if (m.getName().equals("getWifiApConfiguration")) 
-			{
-				WifiConfiguration config;
-				try 
-				{
-					config = (WifiConfiguration)m.invoke(wifiManager);
-					prevConfig = config;
-				} 
-				catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException e) 
-				{
-					Log.e(TAG,e.toString());
-				}
-			}
+	{
+		try 
+		{
+			prevConfig = getWifiApConfiguration();
+		} 
+		catch (IllegalArgumentException e) 
+		{
+			Log.e(TAG,e.toString());
 		}
+		
+	}
+	
+	private WifiConfiguration getWifiApConfiguration()
+	{
+		WifiConfiguration configuration = null;
+		try
+		{
+			Method method = WifiManager.class.getMethod("getWifiApConfiguration");
+			configuration = (WifiConfiguration) method.invoke(wifiManager);
+			if (isHTC)
+				configuration = getHtcWifiApConfiguration(configuration);
+		}
+		catch (NoSuchMethodException | IllegalAccessException |
+				IllegalArgumentException | InvocationTargetException e)
+		{
+			e.printStackTrace();
+		}
+		return configuration;
+	}
+	
+	private WifiConfiguration getHtcWifiApConfiguration(WifiConfiguration standard)
+	{
+		WifiConfiguration htcWifiConfig = standard;
+		try
+		{
+			Object mWifiApProfileValue = getFieldValue(standard, "mWifiApProfile");
+			if (mWifiApProfileValue != null)
+				htcWifiConfig.SSID = (String) getFieldValue(mWifiApProfileValue, "SSID");
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return htcWifiConfig;
 	}
 
+	private Object getFieldValue(Object object, String propertyName) throws IllegalAccessException, NoSuchFieldException
+	{
+		Field field = object.getClass().getDeclaredField(propertyName);
+		field.setAccessible(true);
+		return field.get(object);
+	};    
+	    
 	private boolean setPreviousHotspotConfig()
 	{
 		Method setConfigMethod;
 		boolean result = false;
-		try {
-			Method getConfigMethod = wifiManager.getClass().getMethod("getWifiApConfiguration");
-			WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifiManager);
-
-			wifiConfig = prevConfig;
+		try 
+		{
 			String methodName = "setWifiApConfiguration";
 			String htcMethodName = "setWifiApConfig";
 
-			if (WifiConfiguration.class.getDeclaredField("mWifiApProfile") != null)
+			if (isHTC)
 			{
 				Log.d("OfflineManager", "This is a HTC device");
 				methodName = htcMethodName;
 			}
 			setConfigMethod = wifiManager.getClass().getMethod(methodName, WifiConfiguration.class);
-			setConfigMethod.invoke(wifiManager, wifiConfig);
+			setConfigMethod.invoke(wifiManager, prevConfig);
 			result = true;
 		} 
 		catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) 
 		{
 			Log.e(TAG,e.toString());
 			result = false;
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return result;
 	}
