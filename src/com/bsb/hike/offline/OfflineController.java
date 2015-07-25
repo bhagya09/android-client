@@ -422,7 +422,7 @@ public class OfflineController
 		if (selected.exists()) 
 		{
 			//TODO: Check if true is really required here
-			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage, true);
+			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage, false);
 			offlineManager.sendConsignment(fileConsignment);
 		}
 		else if(sourceFile.exists())

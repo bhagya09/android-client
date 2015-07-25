@@ -60,7 +60,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	{
 		ConvMessage convMessage = getConvMessageForFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, apkLabel);
 		if (convMessage != null)
-			return getFileConsignment(convMessage, true);
+			return getFileConsignment(convMessage, false);
 		else
 			return null;
 	}
