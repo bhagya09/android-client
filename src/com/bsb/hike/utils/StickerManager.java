@@ -328,6 +328,8 @@ public class StickerManager
 		}
 		
 		cachingStickersOnStart();
+		
+		doUpgradeTasks();
 	}
 
 	public List<StickerCategory> getStickerCategoryList()
@@ -1749,6 +1751,10 @@ public class StickerManager
 	{
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, true))
 		{
+			if ((Utils.getExternalStorageState() == ExternalStorageState.NONE))
+			{
+				return ;
+			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 			StickerSearchManager.getInstance().downloadStickerTags(true);
 		}
@@ -1918,6 +1924,26 @@ public class StickerManager
 			}
 			
 		}
+	}
+	
+	public void doUpgradeTasks()
+	{
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
+		{
+			return ;
+		}
+		
+		StickerManager.getInstance().downloadStickerTagData();
+	}
+	
+	public void doSignupTasks()
+	{
+		if(Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
+		{
+			return ;
+		}
+		
+		StickerManager.getInstance().downloadStickerTagData();
 	}
 	
 	/**
