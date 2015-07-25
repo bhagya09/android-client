@@ -245,6 +245,7 @@
                     android:layout_marginRight="8dp"
                     android:background="@drawable/ic_sticker_recommend_background_black"
                     android:layout_alignParentBottom="true"
+                    android:contentDescription="sticker recommendation popup"
                     android:visibility="invisible" >
             </FrameLayout>
 

@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/sticker_recommend_padding"
     android:paddingTop="@dimen/sticker_recommend_padding"
+    android:fillViewport="true"
+	android:fadingEdge="none"
     android:scrollbars="none" >
 
     <LinearLayout
@@ -37,6 +39,7 @@
 
             <FrameLayout
                 android:id="@+id/sticker_recommend_popup_close"
+                android:contentDescription="sticker recommend popup close"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1" >
@@ -50,6 +53,7 @@
 
             <FrameLayout
                 android:id="@+id/sticker_recommend_popup_settings"
+                android:contentDescription="sticker recommend popup settings"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1" >
