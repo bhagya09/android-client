@@ -24,7 +24,7 @@
         <item name="colorPrimary">@color/white_100</item>
         <item name="colorPrimaryDark">@color/white_100</item>
         <item name="colorAccent">@color/white_100</item>
-        
+        <item name="colorControlActivated">#1993CB</item>
     </style>
     <style name="AppTheme.Overlay" parent="AppTheme">
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
