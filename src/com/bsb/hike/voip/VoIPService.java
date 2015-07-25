@@ -835,8 +835,10 @@ public class VoIPService extends Service {
 
 	private VoIPClient getClient() {
 		VoIPClient client = null;
-		if (clients.size() > 0)
-			client = (VoIPClient) clients.entrySet().iterator().next().getValue();
+		synchronized (clients) {
+			if (clients.size() > 0)
+				client = (VoIPClient) clients.entrySet().iterator().next().getValue();
+		}
 		return client;
 	}
 	
