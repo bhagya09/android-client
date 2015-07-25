@@ -596,12 +596,6 @@ public class UploadFileTask extends FileTransferBase
 	@Override
 	public FTResult call()
 	{
-		if(!Utils.isUserOnline(context))
-		{
-			saveStateOnNoInternet();
-			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
-			return FTResult.UPLOAD_FAILED;
-		}
 		mThread = Thread.currentThread();
 		boolean isValidKey = false;
 		try{
@@ -633,6 +627,12 @@ public class UploadFileTask extends FileTransferBase
 			else
 			{
 				initFileUpload();
+			}
+			if(!Utils.isUserOnline(context))
+			{
+				saveStateOnNoInternet();
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
+				return FTResult.UPLOAD_FAILED;
 			}
 		}
 		catch (FileTransferCancelledException e)
@@ -1474,9 +1474,14 @@ public class UploadFileTask extends FileTransferBase
 
 	private void saveStateOnNoInternet()
 	{
-		_state = FTState.ERROR;
-		stateFile = getStateFile((ConvMessage) userContext);
-		saveFileKeyState(fileKey);
-		fileKey = null;
+		HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+		FileSavedState fst = FileTransferManager.getInstance(context).getUploadFileState(hikeFile.getFile(), msgId);
+		if(fst.getSessionId() == null)
+		{
+			_state = FTState.ERROR;
+			stateFile = getStateFile((ConvMessage) userContext);
+			saveFileKeyState(fileKey);
+			fileKey = null;
+		}
 	}
 }
