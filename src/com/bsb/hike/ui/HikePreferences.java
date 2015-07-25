@@ -45,6 +45,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.ActivityCallableTask;
 import com.bsb.hike.tasks.BackupAccountTask;
@@ -83,6 +84,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
 	
 	private boolean mIsResumed = false;
+	
+	public static final float PREF_ENABLED_ALPHA = 1.0f;
+
+	public static final float PREF_DISABLED_ALPHA = 0.24f;
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -178,18 +183,41 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			doubleTapPreference.setOnPreferenceChangeListener(this);
 		}
 		
-		final IconCheckBoxPreference stickerRecommendPreference = (IconCheckBoxPreference) getPreferenceScreen()
-				.findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
-		if (stickerRecommendPreference != null)
-		{
-			stickerRecommendPreference.setOnPreferenceChangeListener(this);
-		}
-		
 		final IconPreference stickerReOrderPreference = (IconPreference) getPreferenceScreen()
 				.findPreference(HikeConstants.STICKER_REORDER_PREF);
 		if (stickerReOrderPreference != null)
 		{
 			stickerReOrderPreference.setOnPreferenceClickListener(this);
+		}
+		
+		final IconCheckBoxPreference stickerRecommendPreference = (IconCheckBoxPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
+		if (stickerRecommendPreference != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true))
+			{
+				stickerRecommendPreference.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(stickerRecommendPreference);
+			}
+		}
+		
+		final IconCheckBoxPreference stickerRecommendAutopopupPreference = (IconCheckBoxPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF);
+		if (stickerRecommendAutopopupPreference != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true))
+			{
+				stickerRecommendAutopopupPreference.setDependency(HikeConstants.STICKER_RECOMMEND_PREF);
+				stickerRecommendAutopopupPreference.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(stickerRecommendAutopopupPreference);
+			}
+			
 		}
 		
 		final IconCheckBoxPreference freeSmsPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.FREE_SMS_PREF);
@@ -1037,7 +1065,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
-			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(isChecked);
+			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
+		}
+		else if(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey()))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, isChecked);
+			StickerSearchManager.getInstance().setShowAutopopupSettingOn(isChecked);
+			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{

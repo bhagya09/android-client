@@ -213,6 +213,8 @@ public class StickerManager
 	
 	public static final String REJECT_FROM_IGNORE = "ign";
 	
+	public static final String FROM_CHAT_SETTINGS = "cs";
+	
 	public static final long MINIMUM_FREE_SPACE = 10 * 1024 * 1024;
 
 	public static final String SHOW_STICKER_SHOP_BADGE = "showStickerShopBadge";
@@ -326,6 +328,8 @@ public class StickerManager
 		}
 		
 		cachingStickersOnStart();
+		
+		doUpgradeTasks();
 	}
 
 	public List<StickerCategory> getStickerCategoryList()
@@ -1747,6 +1751,10 @@ public class StickerManager
 	{
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, true))
 		{
+			if ((Utils.getExternalStorageState() == ExternalStorageState.NONE))
+			{
+				return ;
+			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
 			StickerSearchManager.getInstance().downloadStickerTags(true);
 		}
@@ -1918,6 +1926,26 @@ public class StickerManager
 		}
 	}
 	
+	public void doUpgradeTasks()
+	{
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
+		{
+			return ;
+		}
+		
+		StickerManager.getInstance().downloadStickerTagData();
+	}
+	
+	public void doSignupTasks()
+	{
+		if(Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
+		{
+			return ;
+		}
+		
+		StickerManager.getInstance().downloadStickerTagData();
+	}
+	
 	/**
 	 * Send sticker button click analytics one time in day
 	 */
@@ -1994,13 +2022,33 @@ public class StickerManager
 	/**
 	 * Send recommendation settings state analytics
 	 */
-	public void sendRecommendationlSettingsStateAnalytics(boolean state)
+	public void sendRecommendationlSettingsStateAnalytics(String source, boolean state)
 	{
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_SETTING_STATE);
-			metadata.put(HikeConstants.SOURCE, "cs");
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_MANUAL_SETTING_STATE);
+			metadata.put(HikeConstants.SOURCE, source);
+			metadata.put("st", (state ? 1 : 0));
+			
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+	
+	/**
+	 * Send recommendation autopopup settings state analytics
+	 */
+	public void sendRecommendationAutopopupSettingsStateAnalytics(String source, boolean state)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_AUTOPOPUP_SETTING_STATE);
+			metadata.put(HikeConstants.SOURCE, source);
 			metadata.put("st", (state ? 1 : 0));
 			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
