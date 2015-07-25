@@ -99,30 +99,30 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		editEnabled = Utils.isPhotosEditEnabled();
 		
+		Bundle data = null;
+		
+		if(savedInstanceState == null)
+		{
+			data = getIntent().getExtras();
+		}
+		else
+		{
+			data = savedInstanceState;
+		}
+		
 		forGalleryShare = getIntent().getBooleanExtra(FROM_DEVICE_GALLERY_SHARE, false);
 		
-		galleryItems = getIntent().getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+		galleryItems = data.getParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS);
 		totalSelections = galleryItems.size();
 
 		/**
 		 * Array to maintain list of edited files so that we dont create unnecessary copies
 		 */
-		if(editEnabled)
+		if(editEnabled && (data.containsKey(EDIT_IMAGES_LIST)))
 		{
-			if(savedInstanceState !=null)
-			{
-				editedImages = savedInstanceState.getStringArrayList(EDIT_IMAGES_LIST);
-			}
-			
-			if(editedImages == null)
-			{
-				if(getIntent().hasExtra(EDIT_IMAGES_LIST))
-				{
-					editedImages = getIntent().getStringArrayListExtra(EDIT_IMAGES_LIST);
-				}
+			editedImages = data.getStringArrayList(EDIT_IMAGES_LIST);
 				
-				initiateEditMode();
-			}
+			initiateEditMode();
 		}
 		
 		/*
@@ -638,6 +638,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, galleryItems);
 		if(haveImagesBeenEdited())
 		{
 			outState.putStringArrayList(EDIT_IMAGES_LIST, editedImages);
@@ -762,17 +763,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	
 	private String getFinalFilePathAtPosition(int position)
 	{
-		if(!editEnabled || editedImages == null || editedImages.isEmpty())
-		{
-			return galleryItems.get(position).getFilePath();
-		}
-		
-		if(position >= editedImages.size() || position >= galleryItems.size() || galleryItems == null)
-		{
-			return null;
-		}
-		
-		String filePath = editedImages.get(position) == null?galleryItems.get(position).getFilePath():editedImages.get(position);
+		String filePath = isIndexEdited(position)?editedImages.get(position):galleryItems.get(position).getFilePath();
 		return filePath;
 	}
 	
