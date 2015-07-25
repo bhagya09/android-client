@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    	   xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike" >
 
     <style name="ChatLabelStyle" parent="@android:style/TextAppearance.Medium.Inverse">
         <item name="android:textColor">#ffffff</item>
@@ -902,5 +903,13 @@
 	    <item name="android:maxLines">2</item>
 	</style>
 	
+	<style name="MaterialSwitch">
+	    <item name="sw_trackSize">14dp</item>
+        <item name="sw_trackCap">round</item>
+        <item name="sw_thumbRadius">10dp</item>
+        <item name="sw_thumbElevation">2dp</item>
+        <item name="sw_animDuration">@android:integer/config_shortAnimTime</item>
+        <item name="sw_interpolator">@android:anim/linear_interpolator</item>
+	</style>
 	
 </resources>

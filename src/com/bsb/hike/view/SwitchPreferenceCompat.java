@@ -11,7 +11,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Checkable;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.bsb.hike.R;
@@ -43,24 +42,23 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 
 	private CharSequence mSwitchOff;
 
-	private final Listener mListener = new Listener();
-
-	private class Listener implements CompoundButton.OnCheckedChangeListener
+	private final com.bsb.hike.view.MaterialElements.Switch.OnCheckedChangeListener mListener = new com.bsb.hike.view.MaterialElements.Switch.OnCheckedChangeListener()
 	{
+		
 		@Override
-		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+		public void onCheckedChanged(com.bsb.hike.view.MaterialElements.Switch view, boolean checked)
 		{
-			if (!callChangeListener(isChecked))
+			if (!callChangeListener(checked))
 			{
 				// Listener didn't like it, change it back.
 				// CompoundButton will make sure we don't recurse.
-				buttonView.setChecked(!isChecked);
+				view.setChecked(!checked);
 				return;
 			}
 
-			SwitchPreferenceCompat.this.setChecked(isChecked);
+			SwitchPreferenceCompat.this.setChecked(checked);
 		}
-	}
+	};
 
 	/**
 	 * Construct a new SwitchPreference with the given style options.
@@ -123,11 +121,11 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 
 			sendAccessibilityEvent(checkableView);
 
-			if (checkableView instanceof SwitchCompat)
+			if (checkableView instanceof com.bsb.hike.view.MaterialElements.Switch)
 			{
-				final SwitchCompat switchView = (SwitchCompat) checkableView;
-				switchView.setTextOn(mSwitchOn);
-				switchView.setTextOff(mSwitchOff);
+				final com.bsb.hike.view.MaterialElements.Switch switchView = (com.bsb.hike.view.MaterialElements.Switch) checkableView;
+//				switchView.setTextOn(mSwitchOn);
+//				switchView.setTextOff(mSwitchOff);
 				switchView.setOnCheckedChangeListener(mListener);
 			}
 		}
