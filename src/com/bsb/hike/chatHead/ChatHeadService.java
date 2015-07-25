@@ -23,6 +23,8 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.TaskStackBuilder;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,6 +41,7 @@ import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 
@@ -73,6 +76,8 @@ public class ChatHeadService extends Service
 	private int savedPosY = INITIAL_POS_Y;
 	
 	private static boolean chatHeadIconExist = false;
+	
+	final GestureDetector gestureDetector = new GestureDetector(new GestureListener());
 
 	// boolean to show whether the chat head must be shown or not for a particular session
 	private static boolean toShow = true;
@@ -478,6 +483,10 @@ public class ChatHeadService extends Service
 		@Override
 		public boolean onTouch(View v, MotionEvent event)
 		{
+			 
+			
+				gestureDetector.onTouchEvent(event);
+				
 			switch (event.getAction())
 			{
 			case MotionEvent.ACTION_DOWN:
@@ -562,8 +571,78 @@ public class ChatHeadService extends Service
 		
 		RECT_CONST_DP = (int)(RECT_CONST * Utils.densityMultiplier);
 		
+		
 	}
 
+	
+	 private static final int SWIPE_MIN_DISTANCE = 120;
+	    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+	    private class GestureListener extends SimpleOnGestureListener {
+	    	@Override
+	    	public boolean onDoubleTap(MotionEvent e)
+	    	{
+	    		Logger.d("UmangX","doubletap");
+	    		return super.onDoubleTap(e);
+	    	}
+	    	@Override
+	    	public boolean onDown(MotionEvent e)
+	    	{
+	    		Logger.d("UmangX","down");
+	    		return super.onDown(e);
+	    	}
+	    	@Override
+	    	public boolean onDoubleTapEvent(MotionEvent e)
+	    	{
+	    		Logger.d("UmangX","doubletap event");
+	    		return super.onDoubleTapEvent(e);
+	    	}
+	    	@Override
+	    	public void onLongPress(MotionEvent e)
+	    	{
+	    		Logger.d("UmangX","long press");
+	    		super.onLongPress(e);
+	    	}	
+	    	@Override
+	    	public void onShowPress(MotionEvent e)
+	    	{
+	    		Logger.d("UmangX","show press");
+	    		super.onShowPress(e);
+	    	}
+	    	@Override
+	    	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+	    	{
+	    		Logger.d("UmangX","scrolled");
+	    		return super.onScroll(e1, e2, distanceX, distanceY);
+	    	}
+	        @Override
+	        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+	            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+	                return false; // Right to left
+	            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+	                return false; // Left to right
+	            }
+
+	            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+	                return false; // Bottom to top
+	            }  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+	                return false; // Top to bottom
+	            }
+	            return false;
+	        }
+	        @Override
+	        public boolean onSingleTapConfirmed(MotionEvent e)
+	        {
+	        	Logger.d("UmangX","tapconfirm");
+	        	return false;
+	        }
+	        @Override
+	        public boolean onSingleTapUp(MotionEvent e)
+	        {
+	        	Logger.d("UmangX","tapsingle");
+	        	return false;
+	        }
+	    }
 	@Override
 	public IBinder onBind(Intent intent)
 	{
