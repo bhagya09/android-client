@@ -259,13 +259,27 @@ public class HikeStickerSearchBaseConstants
 	// =============================================Constants used for indexing of sticker data]]
 
 	// Default story
-	public static final String STORY_DEFAULT = "generic";
+	public static final String DEFAULT_STORY = "generic";
 
 	// Default theme
-	public static final String THEME_TAG_DEFAULT = "GENERIC";
+	public static final String DEFAULT_THEME_TAG = "GENERIC";
 
 	// Default moment
-	public static final int MOMENT_DEFAULT = -1;
+	public static final int DEFAULT_MOMENT_CODE = -1;
+
+	// Constants used for calculating score====================================================[[
+
+	public static final float WEITAGE_PRE_SCORE = 0.08f;
+
+	public static final float WEITAGE_POST_SCORE = 0.29f;
+
+	public static final float WEITAGE_EXACT_MATCH = 0.34f;
+
+	public static final float WEITAGE_FREQUENCY = 0.23f;
+
+	public static final float WEITAGE_CONTEXT_MOMENT = 0.06f;
+
+	// ====================================================Constants used for calculating score]]
 
 	// States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY
@@ -349,7 +363,7 @@ public class HikeStickerSearchBaseConstants
 	// States used for day time division=======================================================[[
 	public static enum TIME_CODE
 	{
-		UNKNOWN(-1), MORNING(0), NOON(1), AFTER_NOON(2), EVENING(3), NIGHT(4);
+		INVALID(-1000), UNKNOWN(-1), MORNING(0), NOON(1), AFTER_NOON(2), EVENING(3), NIGHT(4);
 
 		private final int mId;
 
