@@ -53,8 +53,6 @@ public class ChatHeadService extends Service
 
 	private static int RECT_CONST_DP;
 
-	private static final int DRAG_CONST = 20;
-
 	private static final int INITIAL_POS_X = 0;
 
 	private static final int INITIAL_POS_Y = 0;
@@ -334,7 +332,7 @@ public class ChatHeadService extends Service
 		chatHead.setVisibility(View.INVISIBLE);
 	}
 
-	private void actionUp(int drag)
+	private void actionUp(boolean isSingleTap)
 	{
 
 		int[] chatHeadLocations = new int[2];
@@ -374,7 +372,7 @@ public class ChatHeadService extends Service
 		}
 		else
 		{
-			if (drag < DRAG_CONST)
+			if (isSingleTap)
 			{
 				HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD, ChatHeadService.foregroundAppName);
 				if (!flagActivityRunning)
@@ -421,7 +419,7 @@ public class ChatHeadService extends Service
 
 	}
 
-	private int actionMove(int drag, int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
+	private void actionMove(int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
 	{
 		int[] chatHeadLocations = new int[2];
 
@@ -431,7 +429,6 @@ public class ChatHeadService extends Service
 
 		if (!flagActivityRunning)
 		{
-			drag++;
 			chatHeadParams.x = initialX + (int) (event.getRawX() - initialTouchX);
 			chatHeadParams.y = initialY + (int) (event.getRawY() - initialTouchY);
 			if (chatHeadParams.x < 0)
@@ -460,7 +457,7 @@ public class ChatHeadService extends Service
 				closeHead.setImageResource(R.drawable.close_chat_head);
 			}
 		}
-		return drag;
+		return;
 	}
 
 	public static ChatHeadService getInstance()
@@ -470,8 +467,6 @@ public class ChatHeadService extends Service
 	
 	private OnTouchListener chatHeadOnTouchListener = new OnTouchListener()
 	{
-		Integer drag;
-
 		Integer initialX;
 
 		Integer initialY;
@@ -483,14 +478,10 @@ public class ChatHeadService extends Service
 		@Override
 		public boolean onTouch(View v, MotionEvent event)
 		{
-			 
-			
-				gestureDetector.onTouchEvent(event);
-				
+			boolean isSingleTap = gestureDetector.onTouchEvent(event);
 			switch (event.getAction())
 			{
 			case MotionEvent.ACTION_DOWN:
-				drag = 0;
 				initialX = chatHeadParams.x;
 				initialY = chatHeadParams.y;
 				initialTouchX = event.getRawX();
@@ -506,11 +497,11 @@ public class ChatHeadService extends Service
 				return true;
 
 			case MotionEvent.ACTION_UP:
-				actionUp(drag);
+				actionUp(isSingleTap);
 				return true;
 
 			case MotionEvent.ACTION_MOVE:
-				drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
+				actionMove(initialX, initialY, initialTouchX, initialTouchY, event);
 				return true;
 			}
 
@@ -574,75 +565,70 @@ public class ChatHeadService extends Service
 		
 	}
 
-	
-	 private static final int SWIPE_MIN_DISTANCE = 120;
-	    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+	private class GestureListener extends SimpleOnGestureListener
+	{
+		@Override
+		public boolean onDoubleTap(MotionEvent e)
+		{
+			Logger.d("UmangX", "doubletap");
+			return super.onDoubleTap(e);
+		}
 
-	    private class GestureListener extends SimpleOnGestureListener {
-	    	@Override
-	    	public boolean onDoubleTap(MotionEvent e)
-	    	{
-	    		Logger.d("UmangX","doubletap");
-	    		return super.onDoubleTap(e);
-	    	}
-	    	@Override
-	    	public boolean onDown(MotionEvent e)
-	    	{
-	    		Logger.d("UmangX","down");
-	    		return super.onDown(e);
-	    	}
-	    	@Override
-	    	public boolean onDoubleTapEvent(MotionEvent e)
-	    	{
-	    		Logger.d("UmangX","doubletap event");
-	    		return super.onDoubleTapEvent(e);
-	    	}
-	    	@Override
-	    	public void onLongPress(MotionEvent e)
-	    	{
-	    		Logger.d("UmangX","long press");
-	    		super.onLongPress(e);
-	    	}	
-	    	@Override
-	    	public void onShowPress(MotionEvent e)
-	    	{
-	    		Logger.d("UmangX","show press");
-	    		super.onShowPress(e);
-	    	}
-	    	@Override
-	    	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
-	    	{
-	    		Logger.d("UmangX","scrolled");
-	    		return super.onScroll(e1, e2, distanceX, distanceY);
-	    	}
-	        @Override
-	        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-	            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-	                return false; // Right to left
-	            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-	                return false; // Left to right
-	            }
+		@Override
+		public boolean onDown(MotionEvent e)
+		{
+			Logger.d("UmangX", "down");
+			return super.onDown(e);
+		}
 
-	            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-	                return false; // Bottom to top
-	            }  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-	                return false; // Top to bottom
-	            }
-	            return false;
-	        }
-	        @Override
-	        public boolean onSingleTapConfirmed(MotionEvent e)
-	        {
-	        	Logger.d("UmangX","tapconfirm");
-	        	return false;
-	        }
-	        @Override
-	        public boolean onSingleTapUp(MotionEvent e)
-	        {
-	        	Logger.d("UmangX","tapsingle");
-	        	return false;
-	        }
-	    }
+		@Override
+		public boolean onDoubleTapEvent(MotionEvent e)
+		{
+			Logger.d("UmangX", "doubletap event");
+			return super.onDoubleTapEvent(e);
+		}
+
+		@Override
+		public void onLongPress(MotionEvent e)
+		{
+			Logger.d("UmangX", "long press");
+			super.onLongPress(e);
+		}
+
+		@Override
+		public void onShowPress(MotionEvent e)
+		{
+			Logger.d("UmangX", "show press");
+			super.onShowPress(e);
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+		{
+			Logger.d("UmangX", "scrolled");
+			return super.onScroll(e1, e2, distanceX, distanceY);
+		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e)
+		{
+			Logger.d("UmangX", "tapconfirm");
+			return true;
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e)
+		{
+			Logger.d("UmangX", "tapsingle");
+			return true;
+		}
+	}
 	@Override
 	public IBinder onBind(Intent intent)
 	{
