@@ -246,9 +246,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
-		
-		StickerManager.getInstance().downloadStickerTagData();
-	
 	}
 	
 	@Override

@@ -454,10 +454,12 @@ public class HikeConstants
 		
 	public static final String DOUBLE_TAP_PREF = "doubleTapPref";
 	
-	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
-	
 	public static final String STICKER_REORDER_PREF = "stickerReOrderPref";
 
+	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
+	
+	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
+	
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
 
 	public static final String RESET_STEALTH_PREF = "resetStealthPref";
@@ -1931,7 +1933,9 @@ public class HikeConstants
 		
 		public static final String STICKER_RECOMMENDATION_PANEL_SETTINGS_BTN_CLICKED = "srps";
 		
-		public static final String STICKER_RECOMMENDATION_SETTING_STATE = "srSTs";
+		public static final String STICKER_RECOMMENDATION_MANUAL_SETTING_STATE = "srMTs";
+		
+		public static final String STICKER_RECOMMENDATION_AUTOPOPUP_SETTING_STATE = "srATs";
 		
 		public static final String STICKER_RECOMMENDATION_REJECTION_KEY = "srCrP";
 		
@@ -2983,4 +2987,6 @@ public class HikeConstants
 	public static final String STICKER_ID = "stkId";
 	
 	public static final String CATEGORY_ID = "catId";
+	
+	public static final String STICKER_RECOMMENDATION_ENABLED = "sre";
 }

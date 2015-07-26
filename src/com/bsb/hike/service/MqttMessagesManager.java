@@ -2237,6 +2237,12 @@ public class MqttMessagesManager
 			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
 		}
+		
+		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
+		{
+			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
