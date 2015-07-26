@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -155,7 +156,7 @@ public class StickerSearchTableDataController
 		for (String str : mTags)
 		{
 			str = ((str == null) ? str : str.trim().toUpperCase(Locale.ENGLISH));
-			if (TextUtils.isEmpty(str))
+			if (Utils.isBlank(str))
 			{
 				// Handle invalid tag
 				mTags.set(mCurrentWordsOrder, null);
@@ -165,7 +166,7 @@ public class StickerSearchTableDataController
 			else
 			{
 				// Handle special character within the tag
-				str = StickerSearchUtility.formGeneralizedWord(sb, str);
+				str = StickerSearchUtility.formGeneralizedWord(str, sb);
 				if (TextUtils.isEmpty(str))
 				{
 					specialCount++;

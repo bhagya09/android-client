@@ -88,6 +88,30 @@ public class StickerTagDataContainer
 	}
 
 	@Override
+	public boolean equals(Object obj)
+	{
+		boolean result = (obj != null) && (obj instanceof StickerTagDataContainer);
+
+		if (result)
+		{
+			StickerTagDataContainer comparableObject = (StickerTagDataContainer) obj;
+
+			result = ((mStickerCode == null) ? (comparableObject.getStickerCode() == null) : mStickerCode.equals(comparableObject.getStickerCode()))
+					&& ((mTags == null) ? (comparableObject.getTagList() == null) : mTags.equals(comparableObject.getTagList()))
+					&& ((mLanguages == null) ? (comparableObject.getLanguageList() == null) : mLanguages.equals(comparableObject.getLanguageList()))
+					&& ((mTagCategories == null) ? (comparableObject.getTagCategoryList() == null) : mTagCategories.equals(comparableObject.getTagCategoryList()))
+					&& ((mThemes == null) ? (comparableObject.getThemeList() == null) : mThemes.equals(comparableObject.getThemeList()))
+					&& ((mTagExactMatchPriorities == null) ? (comparableObject.getTagExactMatchPriorityList() == null) : mTagExactMatchPriorities.equals(comparableObject
+							.getTagExactMatchPriorityList()))
+					&& ((mTagPriorities == null) ? (comparableObject.getTagPopularityList() == null) : mTagPriorities.equals(comparableObject.getTagPopularityList()))
+					&& (mMomentCode == comparableObject.getMomentCode())
+					&& ((mFestivals == null) ? (comparableObject.getFestivalList() == null) : (mFestivals.equals(comparableObject.getFestivalList())));
+		}
+
+		return result;
+	}
+
+	@Override
 	public String toString()
 	{
 		return "[sticker_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><language=" + mLanguages + "><category=" + mTagCategories + "><theme=" + mThemes

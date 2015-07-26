@@ -146,11 +146,9 @@ public class HikeStickerSearchBaseConstants
 	// =============================Constants used for Sticker-Tag relation and recommendations]]
 
 	// Constants used in calculation===========================================================[[
-	public static final int MAXIMUM_PROBABILITY = 100; // percent
+	public static final long CURRENT_SUMMERY_TIME_WINDOW = 3 * 24 * 60 * 60 * 1000L; // 3 days time period in milliseconds
 
-	public static final int CURRENT_SUMMERY_TIME_WINDOW = 3; // days
-
-	public static final int MAXIMUM_FREQUENCY = 100; // relative count
+	public static final float MAXIMUM_FREQUENCY = 100.0f; // relative count
 
 	// ===========================================================Constants used in calculation]]
 
@@ -170,10 +168,6 @@ public class HikeStickerSearchBaseConstants
 	public static final String STRING_OUTER_SET_OPEN = "[";
 
 	public static final String STRING_OUTER_SET_CLOSE = "]";
-
-	public static final String STRING_ASSOCIATOR = " + ";
-
-	public static final String STRING_DISSOCIATOR = ", ";
 
 	// =======================================================================Generic constants]]
 
@@ -216,7 +210,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_NIGHT_TERMINAL = 6;
 
-	// [[----------------------------Add more in future; if required----------------------------]]
+	// ------------------------------Add more in future; if required-----------------------------
 
 	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = 11;
 
@@ -228,7 +222,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_NIGHT_NON_TERMINAL = 15;
 
-	// =============================================Constants used for indexing of sticker data]]
+	// ===============================================Constants used for coding of time moments]]
 
 	// Constants used for indexing of sticker data=============================================[[
 	// Order of following indices must be maintained iteratively; whenever removal/ addition of new index is taken place
@@ -267,9 +261,6 @@ public class HikeStickerSearchBaseConstants
 
 	// Default theme
 	public static final String DEFAULT_THEME_TAG = "GENERIC";
-
-	// Default moment
-	public static final int DEFAULT_MOMENT_CODE = -1;
 
 	// Constants used for calculating score====================================================[[
 

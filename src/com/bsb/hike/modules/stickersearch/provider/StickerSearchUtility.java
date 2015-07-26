@@ -14,54 +14,157 @@ import java.util.regex.Pattern;
 
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
+import com.bsb.hike.utils.Utils;
 
-import android.text.TextUtils;
 import android.util.Pair;
 
 public class StickerSearchUtility
 {
+	public static final String STRING_REGEX_ASSOCIATOR = " \\+ ";
+
+	public static final String STRING_ASSOCIATOR = " + ";
+
+	public static final String STRING_DISSOCIATOR = ", ";
+
 	/* Determine if given character is special character */
 	public static boolean isSpecialCharacter(char c)
 	{
-
-		return ((c < 'A') || (c > 'Z'));
+		return ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || ((c >= '0') && (c <= '9')) || (c == ' ') || (c == '\t') || (c == '\n');
 	}
 
 	/* Check if given word is of smiley's type */
-	public static boolean isSmiley(String str)
+	public static boolean isSmiley(String string, String generalizedString)
 	{
-
-		boolean result = false;
-		if (!TextUtils.isEmpty(str))
+		if (generalizedString == null)
 		{
-			result = !str.equals(formGeneralizedWord(null, str));
+			generalizedString = formGeneralizedWord(string, null);
 		}
 
-		return result;
+		return Utils.isBlank(string) ? false : !generalizedString.equals(string);
 	}
 
-	/* Eliminate special characters from the given word and form a new word without them */
-	public static String formGeneralizedWord(StringBuilder sb, String str)
+	/* Eliminate special characters from the given word and form a new word with remaining characters */
+	public static String formGeneralizedWord(String str, StringBuilder outputBuilder)
 	{
-		if (sb == null)
+		if (outputBuilder == null)
 		{
-			sb = new StringBuilder();
+			outputBuilder = new StringBuilder();
 		}
-		sb.setLength(0);
-		char[] letters = str.toCharArray();
-		// First, check if word is starting from special character
-		if ((letters.length > 0) && !(StickerSearchUtility.isSpecialCharacter(letters[0])))
+		else
 		{
-			for (char c : letters)
+			outputBuilder.setLength(0);
+		}
+
+		if (Utils.isBlank(str))
+		{
+			char[] letters = str.toCharArray();
+
+			// First, check if word is starting from special character
+			if ((letters.length > 0) && !(StickerSearchUtility.isSpecialCharacter(letters[0])))
 			{
-				if (!StickerSearchUtility.isSpecialCharacter(c))
+				for (char c : letters)
 				{
-					sb.append(c);
+					if (!StickerSearchUtility.isSpecialCharacter(c))
+					{
+						outputBuilder.append(c);
+					}
 				}
 			}
 		}
 
-		return sb.toString();
+		return outputBuilder.toString();
+	}
+
+	/* Get individual values from string composed of 2 values */
+	public static String getCompositeValuesString(StringBuilder outputBuilder, float v1, float v2)
+	{
+		if (outputBuilder == null)
+		{
+			outputBuilder = new StringBuilder();
+		}
+		else
+		{
+			outputBuilder.setLength(0);
+		}
+
+		outputBuilder.append(v1);
+		outputBuilder.append(STRING_ASSOCIATOR);
+		outputBuilder.append(v2);
+
+		return outputBuilder.toString();
+	}
+
+	/* Get individual values from string composed of 2 values */
+	public static String getCompositeValuesString(float v1, float v2)
+	{
+		StringBuilder outputBuilder = new StringBuilder();
+
+		outputBuilder.append(v1);
+		outputBuilder.append(STRING_ASSOCIATOR);
+		outputBuilder.append(v2);
+
+		return outputBuilder.toString();
+	}
+
+	/* Get individual values from string composed of 2 values */
+	public static Pair<Float, Float> getIndividualValues(String s)
+	{
+		Pair<Float, Float> result;
+
+		if (Utils.isBlank(s))
+		{
+			result = new Pair<Float, Float>(0.0f, 0.0f);
+		}
+		else
+		{
+			ArrayList<String> values = split(s, STRING_REGEX_ASSOCIATOR, 0);
+			int length = (values == null) ? 0 : values.size();
+			float v1;
+			float v2;
+
+			if (length == 2)
+			{
+				try
+				{
+					v1 = Float.parseFloat(values.get(0));
+				}
+				catch (NumberFormatException e)
+				{
+					v1 = 0.0f;
+				}
+
+				try
+				{
+					v2 = Float.parseFloat(values.get(1));
+				}
+				catch (NumberFormatException e)
+				{
+					v2 = 0.0f;
+				}
+			}
+			else if (length == 1)
+			{
+				v1 = 0.0f;
+
+				try
+				{
+					v2 = Float.parseFloat(values.get(0));
+				}
+				catch (NumberFormatException e)
+				{
+					v2 = 0.0f;
+				}
+			}
+			else
+			{
+				v1 = 0.0f;
+				v2 = 0.0f;
+			}
+
+			result = new Pair<Float, Float>(v1, v2);
+		}
+
+		return result;
 	}
 
 	/* Get the code w.r.t. moment of time i.e. morning, evening, night etc. */
@@ -101,6 +204,75 @@ public class StickerSearchUtility
 		return momentCode;
 	}
 
+	/* Split charSequence in regular manner */
+	public static ArrayList<String> split(CharSequence input, String regExpression)
+	{
+		return split(input, regExpression, 0);
+	}
+
+	/* Split charSequence in regular manner with limit on splitting */
+	private static ArrayList<String> split(CharSequence input, String regExpression, int limit)
+	{
+		ArrayList<String> matchList = null;
+
+		if ((input != null) && (regExpression != null))
+		{
+			int index = 0;
+			int start = 0;
+			int length = input.length();
+			boolean matchLimited = (limit > 0);
+
+			// All 3 lists are coupled w.r.t. order of insertion of elements in each list
+			matchList = new ArrayList<String>(); // words
+
+			Matcher m = TextMatchManager.getPattern(regExpression).matcher(input);
+
+			// Add segments before each match found
+			while (m.find())
+			{
+				if (!matchLimited || (matchList.size() < (limit - 1)))
+				{
+					start = m.start();
+					matchList.add(input.subSequence(index, start).toString());
+					index = m.end();
+				}
+				else if (matchList.size() == (limit - 1))
+				{
+					// Add last one
+					matchList.add(input.subSequence(index, length).toString());
+					index = m.end();
+				}
+			}
+
+			// If no match was found, return this
+			if (index == 0)
+			{
+				matchList.add(input.toString());
+			}
+			else
+			{
+				// Add remaining segment
+				if (!matchLimited || (matchList.size() < limit))
+				{
+					matchList.add(input.subSequence(index, length).toString());
+				}
+
+				// Construct result
+				if (limit == 0)
+				{
+					int i = matchList.size() - 1;
+
+					while ((i > -1) && matchList.get(i).equals(HikeStickerSearchBaseConstants.STRING_EMPTY))
+					{
+						matchList.remove(i--);
+					}
+				}
+			}
+		}
+
+		return matchList;
+	}
+
 	/* Split charSequence in regular manner with boundary indexing */
 	public static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression)
 	{
@@ -120,6 +292,7 @@ public class StickerSearchUtility
 			int start = 0;
 			int length = input.length();
 			boolean matchLimited = (limit > 0);
+
 			// All 3 lists are coupled w.r.t. order of insertion of elements in each list
 			matchList = new ArrayList<String>(); // words
 			startList = new ArrayList<Integer>(); // start indexes of words (inclusive)
@@ -185,7 +358,6 @@ public class StickerSearchUtility
 
 	private static class TextMatchManager
 	{
-
 		private static final HashMap<String, Pattern> sPatternContainer = new HashMap<String, Pattern>();
 
 		private static Pattern getPattern(String regex)
@@ -198,6 +370,11 @@ public class StickerSearchUtility
 			}
 
 			return pattern;
+		}
+
+		private static void clearResources()
+		{
+			sPatternContainer.clear();
 		}
 	}
 }
