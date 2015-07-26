@@ -409,7 +409,7 @@ public class StickerSearchHostManager
 						}
 						else
 						{
-							// remove separator if only one search type is present either word or phrase
+							// remove separator if only phrase search type is present
 							list.remove(null);
 						}
 

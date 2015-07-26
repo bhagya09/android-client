@@ -119,6 +119,12 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_END = ")";
 
+	public static final String SYNTAX_MATCH_START = " MATCH '";
+
+	public static final String SYNTAX_MATCH_END = "'";
+
+	public static final String SYNTAX_PREDICATE_MATCH_END = "*'";
+
 	// Entity type constants
 	public static final int ENTITY_INIT_MARKER = 0; // Reserved
 
@@ -151,9 +157,7 @@ public class HikeStickerSearchBaseConstants
 	// Generic constants=======================================================================[[
 	public static final String STRING_EMPTY = "";
 
-	public static final String STRING_SPACE = "";
-
-	public static final String STRING_PREDICATE = "";
+	public static final String STRING_SPACE = " ";
 
 	public static final String STRING_TRUE = String.valueOf(true);
 

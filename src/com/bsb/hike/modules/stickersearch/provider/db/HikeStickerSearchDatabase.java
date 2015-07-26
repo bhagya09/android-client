@@ -39,7 +39,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private static final String TAG_REBALANCING = TAG + "_Rebalancing";
 
-	private Random mRandom;
+	private volatile Random mRandom;
 
 	private volatile Context mContext;
 
@@ -56,6 +56,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Logger.i(TAG, "HikeStickerSearchDatabase(" + context + ")");
 		mContext = context;
 		mDb = getWritableDatabase();
+		mRandom = new Random();
 	}
 
 	/* Call to initialize database instance */
@@ -70,15 +71,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sHikeStickerSearchDatabase = new HikeStickerSearchDatabase(HikeMessengerApp.getInstance());
 			}
 
+			if (sHikeStickerSearchDatabase.mContext == null)
+			{
+				sHikeStickerSearchDatabase.mContext = HikeMessengerApp.getInstance();
+			}
+
 			if (sHikeStickerSearchDatabase.mDb == null)
 			{
 				sHikeStickerSearchDatabase.close();
 				sHikeStickerSearchDatabase.mDb = sHikeStickerSearchDatabase.getWritableDatabase();
-			}
-
-			if (sHikeStickerSearchDatabase.mContext == null)
-			{
-				sHikeStickerSearchDatabase.mContext = HikeMessengerApp.getInstance();
 			}
 
 			if (sHikeStickerSearchDatabase.mRandom == null)
@@ -634,15 +635,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			char[] array = phrase.toCharArray();
 			String table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH : HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
 					+ array[0];
-			Logger.d(TAG, "Searching \"" + phrase + "\" in " + table + ", exact search: " + isExactMatchNeeded);
+			Logger.i(TAG, "Searching \"" + phrase + "\" in " + table + ", exact search: " + isExactMatchNeeded);
 
 			if (isExactMatchNeeded)
 			{
-				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + phrase + "'", null);
+				c = mDb.query(table, new String[] { HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID }, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
+						+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + phrase + HikeStickerSearchBaseConstants.SYNTAX_MATCH_END, null, null, null, null);
 			}
 			else
 			{
-				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + phrase + "*'", null);
+				c = mDb.query(table, new String[] { HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID }, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
+						+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + phrase + HikeStickerSearchBaseConstants.SYNTAX_PREDICATE_MATCH_END, null, null, null, null);
 			}
 
 			int count = ((c == null) ? 0 : c.getCount());
@@ -702,7 +705,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				mDb.setTransactionSuccessful();
 			}
-			catch(SQLException e)
+			catch (SQLException e)
 			{
 				Logger.d(TAG, "Error in executing sql delete queries: ", e);
 			}
@@ -817,7 +820,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 					for (int i = 0; i < 27; i++)
 					{
-						mDb.delete(tables[i], HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + " MATCH '" + sb.toString() + "'", null);
+						mDb.delete(tables[i], HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + sb.toString()
+								+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_END, null);
 						SQLiteDatabase.releaseMemory();
 					}
 
@@ -829,7 +833,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						sb.append(",?");
 					}
 
-					mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN(" + sb.toString() + ")", Arrays.copyOfRange(groupIds, (j - count), j));
+					mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN(" + sb.toString() + ")",
+							Arrays.copyOfRange(groupIds, (j - count), j));
 					SQLiteDatabase.releaseMemory();
 				}
 
@@ -1083,7 +1088,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 								table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
 										: HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + array[0];
 
-								mDb.delete(table, HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + " MATCH '" + String.valueOf(rowIdList.get(i)) + "'", null);
+								mDb.delete(table, HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + String.valueOf(rowIdList.get(i)) + HikeStickerSearchBaseConstants.SYNTAX_MATCH_END, null);
 								mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN(?)",
 										new String[] { String.valueOf(rowIdList.get(i++)) });
 							}
