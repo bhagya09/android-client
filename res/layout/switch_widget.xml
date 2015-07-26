@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.SwitchCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<com.bsb.hike.view.Switch xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
     android:id="@+id/switchWidget"
+    style="@style/MaterialSwitch"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@null"
-    android:clickable="false"
+    android:clickable="true"
     android:focusable="false" />
