@@ -215,7 +215,7 @@
         <activity
             android:name=".cropimage.CropImage"
             android:configChanges="orientation|screenSize|screenLayout"
-            android:theme="@style/AppTheme.Home.Photos" />
+            android:theme="@style/AppTheme.Home.PhotoEditor" />
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
