@@ -199,9 +199,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		String[] tables = new String[HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT];
 
 		tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
-		for (int i = 1; i < HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT; i++)
+		int remainingCount = HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT - 1;
+		for (int i = 0; i < remainingCount; i++)
 		{
-			tables[i] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
+			tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
 		}
 
 		Logger.d(TAG, "Starting population first time...");
@@ -261,7 +262,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	/* Do not change the order of deletion as per dependency of foreign keys. */
 	public void deleteDataInTables(boolean isNeedToDeleteAllSearchData)
 	{
-		Logger.d(TAG, "deleteAll(" + isNeedToDeleteAllSearchData + ")");
+		Logger.d(TAG, "deleteDataInTables(" + isNeedToDeleteAllSearchData + ")");
 
 		try
 		{
@@ -302,14 +303,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
 		mDb.delete(tables[0], null, null);
 		SQLiteDatabase.releaseMemory();
-		try
-		{
-			Thread.sleep(5);
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
 
 		int remainingCount = HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT - 1;
 		for (int i = 0; i < remainingCount; i++)
@@ -318,14 +311,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			mDb.delete(tables[i + 1], null, null);
 
 			SQLiteDatabase.releaseMemory();
-			try
-			{
-				Thread.sleep(5);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
 		}
 	}
 
@@ -335,6 +320,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		ArrayList<String> tags = new ArrayList<String>();
 		ArrayList<Long> rows = new ArrayList<Long>();
+		Cursor c = null;
+		long rowId;
+		int existingCount;
 
 		try
 		{
@@ -344,19 +332,54 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				String stickerCode = stickerTagData.getStickerCode();
 				ArrayList<String> stickerTags = stickerTagData.getTagList();
 				ArrayList<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
+				ArrayList<Integer> tagPopularities = stickerTagData.getTagPopularityList();
 				int stickerMoment = stickerTagData.getMomentCode();
 
 				for (int i = 0; i < stickerTags.size(); i++)
 				{
-					tags.add(stickerTags.get(i));
 					ContentValues cv = new ContentValues();
-					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, stickerTags.get(i));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, tagExactnessPriorities.get(i));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoment);
-					cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerCode);
-					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
-					rows.add(mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv));
+					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, tagPopularities.get(i));
+
+					try
+					{
+						c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
+								+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
+								+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER, new String[] { stickerTags.get(i), stickerCode }, null, null, null);
+					}
+					finally
+					{
+						if (c != null)
+						{
+							existingCount = c.getCount();
+							c.close();
+							c = null;
+
+							if (existingCount > 0)
+							{
+								mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
+										+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
+										+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER, new String[] { stickerTags.get(i), stickerCode });
+							}
+							else
+							{
+								cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, stickerTags.get(i));
+								cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerCode);
+								cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
+
+								rowId = mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv);
+
+								if (rowId > 0)
+								{
+									tags.add(stickerTags.get(i));
+									rows.add(rowId);
+								}
+							}
+						}
+					}
 				}
+
 				try
 				{
 					Thread.sleep(5);
@@ -366,6 +389,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					e.printStackTrace();
 				}
 			}
+
 			mDb.setTransactionSuccessful();
 		}
 		finally
@@ -720,8 +744,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Cursor c = null;
 		try
 		{
-			c = mDb.rawQuery("SELECT DISTINCT " + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + " FROM " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING,
-					null);
+			c = mDb.query(true, HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE }, null, null,
+					null, null, null, null);
 			if (c != null)
 			{
 				while (c.moveToNext())
@@ -735,6 +759,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (c != null)
 			{
 				c.close();
+				c = null;
 			}
 			SQLiteDatabase.releaseMemory();
 		}
@@ -779,6 +804,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				if (c != null)
 				{
 					c.close();
+					c = null;
 				}
 				SQLiteDatabase.releaseMemory();
 			}
@@ -940,6 +966,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (c != null)
 			{
 				c.close();
+				c = null;
 			}
 			SQLiteDatabase.releaseMemory();
 		}
@@ -997,6 +1024,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					if (c != null)
 					{
 						c.close();
+						c = null;
 					}
 					SQLiteDatabase.releaseMemory();
 				}
@@ -1054,6 +1082,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						if (c != null)
 						{
 							c.close();
+							c = null;
 						}
 						SQLiteDatabase.releaseMemory();
 					}

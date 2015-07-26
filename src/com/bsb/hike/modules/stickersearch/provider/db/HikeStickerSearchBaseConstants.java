@@ -125,6 +125,10 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_PREDICATE_MATCH_END = "*'";
 
+	public static final String SYNTAX_SINGLE_PARAMETER = "=?";
+
+	public static final String SYNTAX_SINGLE_PARAMETER_NEXT = "=? AND ";
+
 	// Entity type constants
 	public static final int ENTITY_INIT_MARKER = 0; // Reserved
 
