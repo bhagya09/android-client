@@ -46,6 +46,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener
@@ -55,7 +56,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	public static final String EDIT_IMAGES_LIST = "edit_images_list";
 	
 	public static final int MULTI_EDIT_REQUEST_CODE = 12309;
-	
+
 	private GalleryAdapter gridAdapter;
 
 	private GalleryPagerAdapter pagerAdapter;
@@ -83,7 +84,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private boolean forGalleryShare ;
 	
 	private boolean editEnabled;
-
+	
+	private static final String TAG = "GAllerySelectionViewer";
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -108,6 +110,14 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		else
 		{
 			data = savedInstanceState;
+		}
+		
+		if(data == null || !data.containsKey(HikeConstants.Extras.GALLERY_SELECTIONS))
+		{
+			//To Do : Display appropriate toast
+			Logger.e(TAG,"Gallery Selection Viewer started without valid Extras");
+			GallerySelectionViewer.this.finish();
+			return;
 		}
 		
 		forGalleryShare = getIntent().getBooleanExtra(FROM_DEVICE_GALLERY_SHARE, false);

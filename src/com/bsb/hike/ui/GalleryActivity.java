@@ -160,9 +160,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		sendResult = data.getBoolean(START_FOR_RESULT);
 		disableMultiSelect = data.getBoolean(DISABLE_MULTI_SELECT_KEY);
 		
-		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST) )
+		if(editEnabled && data.containsKey(GallerySelectionViewer.EDIT_IMAGES_LIST) && data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST)!=null)
 		{
-			editedImages = new ArrayList<String>(getIntent().getStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST));
+			editedImages = new ArrayList<String>(data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST));
 		}
 
 		if (data.containsKey(FOLDERS_REQUIRED_KEY))
@@ -459,7 +459,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		outState.putAll(getIntent().getExtras());
 		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>)selectedGalleryItems);
-		if(editedImages != null && editEnabled)
+		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
 		{
 			outState.putStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
 		}
@@ -471,7 +471,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		if (multiSelectMode)
 		{
-			if(editedImages != null && editEnabled)
+			if( editEnabled && editedImages != null)
 			{
 				HikeDialog confirmUndo = HikeDialogFactory.showDialog(this, HikeDialogFactory.UNDO_MULTI_EDIT_CHANGES_DIALOG, new HikeDialogListener() {
 					
@@ -507,6 +507,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else
 		{
+			deleteJunkTempFiles();
 			super.onBackPressed();
 		}
 	}
@@ -627,6 +628,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			if(editEnabled && editedImages != null)
 			{
 				intent.putStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
+				editedImages=null;
 			}
 		}
 		
@@ -889,7 +891,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void deleteJunkTempFiles()
 	{
-		if(!editEnabled || !getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
+		if(!editEnabled || !getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST) || editedImages == null)
 		{
 			return;
 		}
