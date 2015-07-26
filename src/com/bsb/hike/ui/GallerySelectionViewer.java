@@ -46,6 +46,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener
@@ -55,7 +56,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	public static final String EDIT_IMAGES_LIST = "edit_images_list";
 	
 	public static final int MULTI_EDIT_REQUEST_CODE = 12309;
-	
+
 	private GalleryAdapter gridAdapter;
 
 	private GalleryPagerAdapter pagerAdapter;
@@ -83,7 +84,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private boolean forGalleryShare ;
 	
 	private boolean editEnabled;
-
+	
+	private static final String TAG = "GAllerySelectionViewer";
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -99,30 +101,38 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		editEnabled = Utils.isPhotosEditEnabled();
 		
+		Bundle data = null;
+		
+		if(savedInstanceState == null)
+		{
+			data = getIntent().getExtras();
+		}
+		else
+		{
+			data = savedInstanceState;
+		}
+		
+		if(data == null || !data.containsKey(HikeConstants.Extras.GALLERY_SELECTIONS))
+		{
+			//To Do : Display appropriate toast
+			Logger.e(TAG,"Gallery Selection Viewer started without valid Extras");
+			GallerySelectionViewer.this.finish();
+			return;
+		}
+		
 		forGalleryShare = getIntent().getBooleanExtra(FROM_DEVICE_GALLERY_SHARE, false);
 		
-		galleryItems = getIntent().getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+		galleryItems = data.getParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS);
 		totalSelections = galleryItems.size();
 
 		/**
 		 * Array to maintain list of edited files so that we dont create unnecessary copies
 		 */
-		if(editEnabled)
+		if(editEnabled && (data.containsKey(EDIT_IMAGES_LIST)))
 		{
-			if(savedInstanceState !=null)
-			{
-				editedImages = savedInstanceState.getStringArrayList(EDIT_IMAGES_LIST);
-			}
-			
-			if(editedImages == null)
-			{
-				if(getIntent().hasExtra(EDIT_IMAGES_LIST))
-				{
-					editedImages = getIntent().getStringArrayListExtra(EDIT_IMAGES_LIST);
-				}
+			editedImages = data.getStringArrayList(EDIT_IMAGES_LIST);
 				
-				initiateEditMode();
-			}
+			initiateEditMode();
 		}
 		
 		/*
@@ -638,6 +648,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, galleryItems);
 		if(haveImagesBeenEdited())
 		{
 			outState.putStringArrayList(EDIT_IMAGES_LIST, editedImages);
@@ -762,17 +773,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	
 	private String getFinalFilePathAtPosition(int position)
 	{
-		if(!editEnabled || editedImages == null || editedImages.isEmpty())
-		{
-			return galleryItems.get(position).getFilePath();
-		}
-		
-		if(position >= editedImages.size() || position >= galleryItems.size() || galleryItems == null)
-		{
-			return null;
-		}
-		
-		String filePath = editedImages.get(position) == null?galleryItems.get(position).getFilePath():editedImages.get(position);
+		String filePath = isIndexEdited(position)?editedImages.get(position):galleryItems.get(position).getFilePath();
 		return filePath;
 	}
 	

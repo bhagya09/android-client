@@ -31,6 +31,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -157,9 +160,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		sendResult = data.getBoolean(START_FOR_RESULT);
 		disableMultiSelect = data.getBoolean(DISABLE_MULTI_SELECT_KEY);
 		
-		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST) )
+		if(editEnabled && data.containsKey(GallerySelectionViewer.EDIT_IMAGES_LIST) && data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST)!=null)
 		{
-			editedImages = new ArrayList<String>(getIntent().getStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST));
+			editedImages = new ArrayList<String>(data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST));
 		}
 
 		if (data.containsKey(FOLDERS_REQUIRED_KEY))
@@ -456,7 +459,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		outState.putAll(getIntent().getExtras());
 		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>)selectedGalleryItems);
-		if(editedImages != null && editEnabled)
+		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
 		{
 			outState.putStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
 		}
@@ -468,20 +471,43 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		if (multiSelectMode)
 		{
-			if(editedImages != null && editEnabled)
+			if( editEnabled && editedImages != null)
 			{
-				Utils.deleteFiles(getApplicationContext(), editedImages, HikeFileType.IMAGE);
-				editedImages.clear();
+				HikeDialog confirmUndo = HikeDialogFactory.showDialog(this, HikeDialogFactory.UNDO_MULTI_EDIT_CHANGES_DIALOG, new HikeDialogListener() {
+					
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog) {
+						
+						Utils.deleteFiles(getApplicationContext(), editedImages, HikeFileType.IMAGE);
+						editedImages.clear();
+						editedImages = null;
+						hikeDialog.dismiss();
+						GalleryActivity.this.onBackPressed();
+					}
+					
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog) {
+					}
+					
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog) {
+						hikeDialog.dismiss();
+					}
+				}, null);
 			}
-			selectedGalleryItems.clear();
-			adapter.notifyDataSetChanged();
-
-			setupActionBar(albumTitle);
-			multiSelectMode = false;
+			else
+			{
+				selectedGalleryItems.clear();
+				adapter.notifyDataSetChanged();
+				
+				setupActionBar(albumTitle);
+				multiSelectMode = false;
+			}
 			
 		}
 		else
 		{
+			deleteJunkTempFiles();
 			super.onBackPressed();
 		}
 	}
@@ -602,6 +628,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			if(editEnabled && editedImages != null)
 			{
 				intent.putStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
+				editedImages=null;
 			}
 		}
 		
@@ -864,7 +891,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void deleteJunkTempFiles()
 	{
-		if(!editEnabled || !getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
+		if(!editEnabled || !getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST) || editedImages == null)
 		{
 			return;
 		}
