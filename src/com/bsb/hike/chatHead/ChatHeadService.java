@@ -486,14 +486,6 @@ public class ChatHeadService extends Service
 				initialY = chatHeadParams.y;
 				initialTouchX = event.getRawX();
 				initialTouchY = event.getRawY();
-				try
-				{
-					windowManager.addView(closeHead, closeHeadParams);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
 				return true;
 
 			case MotionEvent.ACTION_UP:
@@ -606,6 +598,14 @@ public class ChatHeadService extends Service
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
 		{
 			Logger.d("UmangX", "scrolled");
+			try
+			{
+				windowManager.addView(closeHead, closeHeadParams);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
 			return super.onScroll(e1, e2, distanceX, distanceY);
 		}
 
