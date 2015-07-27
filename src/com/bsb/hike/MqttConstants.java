@@ -35,6 +35,8 @@ public class MqttConstants
 
 	public static final int FALLBACK_BROKER_PORT_NUMBER_SSL = 443;
 	
+	public static final int[] PRODUCTION_MQTT_CONNECT_PORTS = {FALLBACK_BROKER_PORT_5222, PRODUCTION_BROKER_PORT_NUMBER};
+
 	// this represents number of msgs published whose callback is not yet arrived
 	public static final short MAX_INFLIGHT_MESSAGES_ALLOWED = 100;
 

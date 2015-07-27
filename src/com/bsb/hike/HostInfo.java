@@ -206,28 +206,28 @@ public class HostInfo
 		/*
 		 * on production for some countries ssl port connection is not allowed at all in these Countries we cannot use 443 as port fallback.
 		 * Logic is 
-		 * 1. 8080 -- fallback to --> 5222
-		 * 2. 5222 -- fallback to --> 443 if ssl is allowed
-		 * 3. again fallback to 8080 -- if tried above
+		 * 1. 5222 -- fallback to --> 8080
+		 * 2. 8080 -- fallback to --> 443 if ssl is allowed
+		 * 3. again fallback to 5222 -- if tried above
 		 */
 		boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
-		if(previousHostInfo.getPort() == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER)
+		if(previousHostInfo.getPort() == PRODUCTION_MQTT_CONNECT_PORTS[0])
 		{
-			setPort(MqttConstants.FALLBACK_BROKER_PORT_5222);
+			setPort(PRODUCTION_MQTT_CONNECT_PORTS[1]);
 		}
-		else if(previousHostInfo.getPort() == MqttConstants.FALLBACK_BROKER_PORT_5222  && sslPortAllowedAsFallback)
+		else if(previousHostInfo.getPort() == PRODUCTION_MQTT_CONNECT_PORTS[1]  && sslPortAllowedAsFallback)
 		{
 			setPort(MqttConstants.FALLBACK_BROKER_PORT_NUMBER_SSL);
 		}
 		else 
 		{
-			setPort(MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
+			setPort(PRODUCTION_MQTT_CONNECT_PORTS[0]);
 		}	
 	}
 	
 	private int getStanderedProductionPort(boolean isSslOn)
 	{
-		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.LAST_MQTT_CONNECT_PORT, MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
+		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.LAST_MQTT_CONNECT_PORT, PRODUCTION_MQTT_CONNECT_PORTS[0]);
 	}
 
 	public int getConnectTimeOut()
