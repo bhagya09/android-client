@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1265"
-    android:versionName="3.9.8.35.SU_emopalette" >
+    android:versionCode="1266"
+    android:versionName="3.9.8.36.SU_emopalette" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
