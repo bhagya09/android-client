@@ -16,6 +16,10 @@ import com.bsb.hike.utils.StickerManager;
 
 public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private String stickerId;
 
@@ -89,14 +93,11 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return category;
 	}
 
-	public String getStickerPath(Context context)
+	public String getStickerPath()
 	{
 		String rootPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId);
-		if (rootPath == null)
-		{
-			return null;
-		}
-		return rootPath + HikeConstants.LARGE_STICKER_ROOT + File.separator + stickerId;
+
+		return (rootPath == null) ? null : (rootPath + HikeConstants.LARGE_STICKER_ROOT + File.separator + stickerId);
 	}
 
 	public String getSmallStickerPath()
