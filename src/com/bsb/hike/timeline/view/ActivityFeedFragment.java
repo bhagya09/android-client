@@ -127,6 +127,7 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 				@Override
 				public void run()
 				{
+					activityFeedCardAdapter.notifyDataSetChanged();
 				}
 			});
 		}
