@@ -13,6 +13,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -50,7 +54,6 @@ import android.widget.Chronometer;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -134,7 +137,7 @@ public class VoIPService extends Service {
 	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> processedRecordedSamples      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> playbackBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
-	private final LinkedBlockingQueue<byte[]> conferenceBroadcastSamples      = new LinkedBlockingQueue<>();
+	private final LinkedBlockingQueue<VoIPDataPacket> conferenceBroadcastPackets      = new LinkedBlockingQueue<>();
 	private final CircularByteBuffer recordBuffer = new CircularByteBuffer();
 	
 	// Runnable for sending clients list to all clients
@@ -267,6 +270,8 @@ public class VoIPService extends Service {
 				
 			case VoIPConstants.MSG_CONNECTED:
 				initializeAEC();
+				if (hostingConference())
+					sendClientsListToAllClients();
 				break;
 				
 			case VoIPConstants.MSG_SHUTDOWN_ACTIVITY:
@@ -1084,7 +1089,7 @@ public class VoIPService extends Service {
 		}
 
 		// Empty the queues
-		conferenceBroadcastSamples.clear();
+		conferenceBroadcastPackets.clear();
 		recordedSamples.clear();
 		buffersToSend.clear();
 		processedRecordedSamples.clear();
@@ -1634,13 +1639,18 @@ public class VoIPService extends Service {
 					if (hostingConference()) {
 						VoIPDataPacket dp = processedRecordedSamples.poll();
 						byte[] conferencePCM = null;
-						if (dp != null) 
+						if (dp != null) {
 							conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
-						else
+							dp.setData(conferencePCM);
+						}
+						else {
+							dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 							conferencePCM = finalDecodedSample.getData();	// Host is probably on mute
+							dp.setData(conferencePCM);
+						}
 
 						// This is the broadcast
-						conferenceBroadcastSamples.add(conferencePCM);
+						conferenceBroadcastPackets.add(dp);
 
 						for (VoIPClient client : clients.values()) {
 							if (!client.isSpeaking() || !client.connected)
@@ -1658,7 +1668,6 @@ public class VoIPService extends Service {
 							clientDp.setData(newPCM);
 							clientDp.setVoice(true);
 							client.addSampleToEncode(clientDp); 
-//							Logger.d(tag, "Custom to: " + client.getName());
 						}
 					}
 
@@ -1690,7 +1699,7 @@ public class VoIPService extends Service {
 				OpusWrapper opusWrapper = null;
 				int voicePacketNumber = 0;
 				try {
-					byte[] broadcastFrame = conferenceBroadcastSamples.take();
+					VoIPDataPacket broadcastPacket = conferenceBroadcastPackets.take();
 					Logger.w(tag, "Starting conference broadcast.");
 
 					opusWrapper = new OpusWrapper();
@@ -1698,42 +1707,55 @@ public class VoIPService extends Service {
 
 					byte[] compressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 10];
 					int compressedDataLength = 0;
+					VoIPClient connectedClient = null;
 
 					while (keepRunning) {
-//						Logger.d(tag, "Broadcaster running.");
-						// Compress the audio frame
-						if ((compressedDataLength = opusWrapper.encode(broadcastFrame, compressedData)) > 0) {
-							byte[] trimmedCompressedData = new byte[compressedDataLength];
-							System.arraycopy(compressedData, 0, trimmedCompressedData, 0, compressedDataLength);
-							VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
-							dp.write(trimmedCompressedData);
-							dp.setVoice(true);
+						connectedClient = null;
+						
+						// If it's an audio packet, then compress it
+						if (broadcastPacket.getType() == PacketType.AUDIO_PACKET) {
+							// Compress the audio frame
+							if ((compressedDataLength = opusWrapper.encode(broadcastPacket.getData(), compressedData)) > 0) {
+								byte[] trimmedCompressedData = new byte[compressedDataLength];
+								System.arraycopy(compressedData, 0, trimmedCompressedData, 0, compressedDataLength);
+								broadcastPacket.write(trimmedCompressedData);
+								broadcastPacket.setVoice(true);
 
-							// Create a broadcast list
-//							String hosts = "";
-							for (VoIPClient client : clients.values()) {
-								if (client.isSpeaking() || !client.connected)
-									continue;
+							} else {
+								Logger.w(tag, "Conference broadcast compression error.");
+							}
+						} 
+							
+						// Create a broadcast list
+						for (VoIPClient client : clients.values()) {
+							
+							if (client.connected)
+								connectedClient = client;
+							else
+								continue;
+							
+							if (client.isSpeaking() && broadcastPacket.getType() == PacketType.AUDIO_PACKET)
+								continue;
 
-								BroadcastListItem item = dp.new BroadcastListItem();
-								item.setIp(client.getExternalIPAddress());
-								item.setPort(client.getExternalPort());
-								dp.addToBroadcastList(item);
-//								hosts += client.getName() + " (" + item.getIp() + ":" + item.getPort() + ") | ";
-							}
-							
-							if (dp.getBroadcastList() != null) {
-//								Logger.d(tag, "Broadcasting to: " + hosts);
-								
-								// Send the packet
-								dp.setVoicePacketNumber(voicePacketNumber++);
-								getClient().addToSendingQueue(dp);
-							}
-							
-						} else {
-							Logger.w(tag, "Conference broadcast compression error.");
+							BroadcastListItem item = broadcastPacket.new BroadcastListItem();
+							item.setIp(client.getExternalIPAddress());
+							item.setPort(client.getExternalPort());
+							broadcastPacket.addToBroadcastList(item);
 						}
-						broadcastFrame = conferenceBroadcastSamples.take();
+						
+						// Send the packet
+						if (broadcastPacket.getBroadcastList() != null) {
+							if (broadcastPacket.getType() == PacketType.AUDIO_PACKET)
+								broadcastPacket.setVoicePacketNumber(voicePacketNumber++);
+							
+							if (connectedClient != null)
+								connectedClient.addToSendingQueue(broadcastPacket);
+							else
+								Logger.w(tag, "Unable to find a connected client to broadcast.");
+						}
+						
+						// Wait for next packet
+						broadcastPacket = conferenceBroadcastPackets.take();
 					}
 				} catch (InterruptedException e) {
 					Logger.d(tag, "Conference broadcast thread interrupted.");
@@ -2075,23 +2097,7 @@ public class VoIPService extends Service {
 		if (hostingConference())
 			return new ArrayList<VoIPClient>(clients.values());
 		else {
-			List<VoIPClient> clientsList = new ArrayList<>();
-			
-			if (getClient() != null && getClient().clientMsisdns != null) {
-				String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
-				for (String msisdn : getClient().clientMsisdns) {
-					
-					// Do not show our own phone number in list of participants
-					if (msisdn.equals(myMsisdn))
-						continue;
-
-					VoIPClient client = new VoIPClient(getApplicationContext(), null);
-					client.setPhoneNumber(msisdn);
-					clientsList.add(client);
-				}
-			}
-			
-			return clientsList;
+			return getClient().clientMsisdns;
 		}
 	}
 	
@@ -2118,7 +2124,7 @@ public class VoIPService extends Service {
 	}
 	
 	/**
-	 * Sends a comma-separated list of MSISDNs of all connected clients, 
+	 * Sends a JSON of all connected clients, 
 	 * to all connected clients.  
 	 */
 	private void sendClientsListToAllClients() {
@@ -2136,41 +2142,47 @@ public class VoIPService extends Service {
 					public void run() {
 						sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 						synchronized (clients) {
-							
-							// Form the CSV
-							StringBuilder sb = new StringBuilder();
-							for (VoIPClient client : clients.values()) {
-								if (!client.connected)
-									continue;
-								if (sb.length() > 0) sb.append(",");
-								sb.append(client.getPhoneNumber());
-							}
-							
-							// Add our own msisdn to the csv
-							if (sb.length() > 0) {
-								ContactInfo contactInfo = Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE));
-								String userContactId = contactInfo.getMsisdn();
-								sb.append(",");
-								sb.append(userContactId);
-							}
-							
-							if (sb.length() == 0)
-								return;
-							
-//							Logger.w(tag, "Sending clients list: " + sb.toString());
-							
-							// Build the packet
-							VoIPDataPacket dp = new VoIPDataPacket(PacketType.CLIENTS_LIST);
+
 							try {
-								dp.setData(sb.toString().getBytes("UTF-8"));
+								JSONArray clientsJson = new JSONArray();
+								
+								for (VoIPClient client : clients.values()) {
+									if (!client.connected) continue;
+									
+									JSONObject clientJson = new JSONObject();
+									clientJson.put(VoIPConstants.Extras.MSISDN, client.getPhoneNumber());
+									clientJson.put(VoIPConstants.Extras.STATUS, client.getCallStatus().ordinal());
+									clientJson.put(VoIPConstants.Extras.SPEAKING, client.isSpeaking());
+									clientsJson.put(clientJson);
+								}
+								
+								// Add our own client
+								JSONObject clientJson = new JSONObject();
+								clientJson.put(VoIPConstants.Extras.MSISDN, Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE)).getMsisdn());
+								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.HOSTING_CONFERENCE.ordinal());
+								clientJson.put(VoIPConstants.Extras.SPEAKING, !voiceSignalAbsent);
+								clientsJson.put(clientJson);
+
+								// Encapsulate the array in another JSON object
+								JSONObject json = new JSONObject();
+								json.put(VoIPConstants.Extras.VOIP_CLIENTS, clientsJson);
+								
+								// Send it
+								VoIPDataPacket dp = new VoIPDataPacket(PacketType.CLIENTS_LIST_JSON);
+								dp.setData(json.toString().getBytes("UTF-8"));
+								
+								conferenceBroadcastPackets.add(dp);	// TODO: Server code needs to be changed to broadcast any type of packet
+								Logger.w(tag, "Sending clients list.");
+								
+//								for (VoIPClient client : clients.values()) {
+//									if (client.connected)
+//										client.sendPacket(dp, true);
+//								}								
+								
+							} catch (JSONException e) {
+								Logger.w(tag, "JSONException: " + e.toString());
 							} catch (UnsupportedEncodingException e) {
 								Logger.e(tag, "UnsupportedEncodingException in sendClientsListToAllClients(): " + e.toString());
-							}
-							
-							// Send it to all clients
-							for (VoIPClient client : clients.values()) {
-								if (client.connected)
-									client.sendPacket(dp, true);
 							}
 						}
 					}

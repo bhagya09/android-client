@@ -15,7 +15,7 @@ public class VoIPConstants {
 	public static final int VOIP_VERSION = 3;
 	
 	// Relay and ICE server 
-	public static final String ICEServerName = "relay.hike.in";	 
+	public static final String ICEServerName = "relay.hike.in";	 // Staging: 54.179.137.97, Production: relay.hike.in 
 	public static final int ICEServerPort = 9998; 
 	final static String[] ICEServerIpAddresses = {"52.74.88.97", "52.74.113.80"};
 
@@ -205,6 +205,12 @@ public class VoIPConstants {
 		
 		public static final String REMOVE_FAILED_FRAGMENT = "removeFailedFrag";
 		
+		public static final String STATUS = "st";
+		
+		public static final String SPEAKING = "sp";
+		
+		public static final String VOIP_CLIENTS = "cl";
+		
 	}
 
 	
@@ -220,6 +226,13 @@ public class VoIPConstants {
 		UNKNOWN
 	}
 
+	/**
+	 * Current status of a VoIP Client. 
+	 * <p>
+	 * <b>IMPORTANT: </b> Do not change the order of this enum. We use the ordinal values.
+	 * </p>
+	 *
+	 */
 	public static enum CallStatus
 	{
 		OUTGOING_CONNECTING, 

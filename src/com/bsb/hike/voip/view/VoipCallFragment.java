@@ -1,6 +1,7 @@
 package com.bsb.hike.voip.view;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -830,7 +831,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private void updateConferenceList() {
 	
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
-		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getSherlockActivity(), 0, 0, voipService.getConferenceClients());
+		List<VoIPClient> clients = voipService.getConferenceClients();
+		if (clients == null)
+			return;
+		
+		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getSherlockActivity(), 0, 0, clients);
 		conferenceList.setAdapter(adapter);
 		conferenceList.setVisibility(View.VISIBLE);
 		conferenceList.setFocusable(false);
