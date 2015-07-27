@@ -8,7 +8,6 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 public class HikeStickerSearchBaseConstants
 {
-
 	public static final int STICKERS_SEARCH_DATABASE_VERSION = 1;
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
@@ -84,6 +83,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String STICKER_WORDS_NOT_USED_WITH_TAG = "frequentWordsForRejectingSticker";
 
 	public static final String STICKER_TAG_POPULARITY = "stickerTagSuitabilityOrder";
+
+	public static final String STICKER_IS_AVAILABLE = "isStickerAvailable";
 
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
@@ -161,10 +162,6 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STRING_SPACE = " ";
 
-	public static final String STRING_TRUE = String.valueOf(true);
-
-	public static final String STRING_FALSE = String.valueOf(false);
-
 	public static final String STRING_INNER_SET_OPEN = "(";
 
 	public static final String STRING_INNER_SET_CLOSE = ")";
@@ -172,6 +169,10 @@ public class HikeStickerSearchBaseConstants
 	public static final String STRING_OUTER_SET_OPEN = "[";
 
 	public static final String STRING_OUTER_SET_CLOSE = "]";
+
+	public static final int DECISION_STATE_YES = 0;
+
+	public static final int DECISION_STATE_NO = 1;
 
 	// =======================================================================Generic constants]]
 
