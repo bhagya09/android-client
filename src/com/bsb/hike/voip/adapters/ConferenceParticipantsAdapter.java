@@ -8,15 +8,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPClient;
-import com.bsb.hike.voip.VoIPConstants;
+
 
 public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 
@@ -24,7 +24,29 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 	private List<VoIPClient> clients;
 	private IconLoader iconLoader;
 	
-	private final String tag = VoIPConstants.TAG + " Conf Adapter";
+	private final String tag = getClass().getSimpleName();
+	
+	private OnClickListener conferencePartitcipantClickListenter = new OnClickListener()
+	{
+		
+		@Override
+		public void onClick(View v)
+		{
+			switch (v.getId())
+			{
+			case R.id.remove_participant_btn:
+				//TODO remove action here
+				Logger.d(tag,"cross clicked");
+				break;
+
+			default:
+				Logger.d(tag,"unrecognized ID");
+				break;
+			}
+		
+		}
+	};
+	
 	
 	public ConferenceParticipantsAdapter(Context context, int resource,
 			int textViewResourceId, List<VoIPClient> objects) {
@@ -46,19 +68,13 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		
 		ImageView avatar = (ImageView) rowView.findViewById(R.id.avatar);
 		TextView contact = (TextView) rowView.findViewById(R.id.contact);
-		ImageButton removeParticipant = (ImageButton) rowView.findViewById(R.id.remove_participant_btn);
+		RecyclingImageView removeParticipant = (RecyclingImageView) rowView.findViewById(R.id.remove_participant_btn);
 		
 		contact.setText(clients.get(position).getName());
 		iconLoader.loadImage(clients.get(position).getPhoneNumber(), 
 				avatar, false, false, true);
 		
-		removeParticipant.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Logger.d(tag, "click!");
-			}
-		});
+		removeParticipant.setOnClickListener(conferencePartitcipantClickListenter);
 		
 		return rowView;
 	}

@@ -9,53 +9,38 @@
     android:paddingLeft="14dp"
     android:paddingRight="14dp" >
 
-    <FrameLayout
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/avatar"
+        style="@style/AvatarStyle.MorePadding"
         android:layout_width="@dimen/small_avatar"
-        android:layout_height="@dimen/small_avatar" >
+        android:layout_height="@dimen/small_avatar"
+        android:src="@drawable/emo_tab_4_selected" />
 
-        <com.bsb.hike.view.RoundedImageView
-            android:id="@+id/avatar"
-            style="@style/AvatarStyle.MorePadding"
-            android:src="@drawable/emo_tab_4_selected" />
-        
-    </FrameLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/contact"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="left|center_vertical"
         android:layout_marginLeft="12dp"
-        android:orientation="vertical" >
+        android:layout_marginRight="5dp"
+        android:layout_weight="0.9"
+        android:drawablePadding="3dp"
+        android:ellipsize="end"
+        android:gravity="left"
+        android:singleLine="true"
+        android:text="Conference participant"
+        android:textColor="@color/almost_white"
+        android:textSize="18sp"
+        android:textStyle="bold|italic" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-			<ImageButton
-				android:id="@+id/remove_participant_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-				android:background="@null"
-				android:src="@drawable/ic_cancel">
-			</ImageButton>
-		            
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:drawablePadding="3dp"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="Conference participant"
-                android:textColor="@color/almost_white"
-                android:textSize="18sp"
-                android:textStyle="bold|italic" />
-        </RelativeLayout>
-
-    </LinearLayout>
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/remove_participant_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_gravity="right|center_vertical"
+        android:layout_weight="0.1"
+        android:gravity="right"
+        android:src="@drawable/ic_cancel" />
 
 </LinearLayout>
