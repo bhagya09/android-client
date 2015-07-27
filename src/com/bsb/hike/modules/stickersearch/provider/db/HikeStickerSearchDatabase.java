@@ -188,7 +188,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_IS_AVAILABLE
+				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_LAST + HikeStickerSearchBaseConstants.SYNTAX_END;
 		db.execSQL(sql);
 	}
@@ -356,7 +356,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, tagExactnessPriorities.get(i));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoment);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, tagPopularities.get(i));
-					cv.put(HikeStickerSearchBaseConstants.STICKER_IS_AVAILABLE, availability);
+					cv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, availability);
 
 					try
 					{
@@ -668,7 +668,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE)));
 		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG)));
 		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG)));
-		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_IS_AVAILABLE)));
+		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY)));
 
 		return data;
 	}

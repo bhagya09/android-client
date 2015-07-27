@@ -84,7 +84,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_TAG_POPULARITY = "stickerTagSuitabilityOrder";
 
-	public static final String STICKER_IS_AVAILABLE = "isStickerAvailable";
+	public static final String STICKER_AVAILABILITY = "stickerAvailability";
 
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
