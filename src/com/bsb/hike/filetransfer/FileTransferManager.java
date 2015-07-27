@@ -99,7 +99,9 @@ public class FileTransferManager extends BroadcastReceiver
 	public static String UNABLE_TO_DOWNLOAD = "unable_to_download";
 
 	List<String> ftHostURIs = null;
-	
+
+	public static final int FAKE_PROGRESS_DURATION = 8 * 1000;
+
 	public enum NetworkType
 	{
 		WIFI
@@ -586,11 +588,12 @@ public class FileTransferManager extends BroadcastReceiver
 			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
 			if (obj != null)
 			{
-				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred);
+				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred, 
+						((MyFutureTask) obj).getTask().animatedProgress);
 			}
 			else
 			{
-				return new FileSavedState(FTState.IN_PROGRESS, 0, 0);
+				return new FileSavedState(FTState.IN_PROGRESS, 0, 0, 0);
 			}
 		}
 		else
@@ -608,7 +611,7 @@ public class FileTransferManager extends BroadcastReceiver
 		FileSavedState fss = null;
 		if (mFile.exists())
 		{
-			fss = new FileSavedState(FTState.COMPLETED, 100, 100);
+			fss = new FileSavedState(FTState.COMPLETED, 100, 100, 100);
 		}
 		else
 		{
@@ -623,6 +626,8 @@ public class FileTransferManager extends BroadcastReceiver
 				fileIn = new FileInputStream(f);
 				in = new ObjectInputStream(fileIn);
 				fss = (FileSavedState) in.readObject();
+				if(fss.getAnimatedProgress() > 0)
+					setAnimatedProgress(fss.getAnimatedProgress(), msgId);
 			}
 			catch (IOException i)
 			{
@@ -641,6 +646,31 @@ public class FileTransferManager extends BroadcastReceiver
 		return fss != null ? fss : new FileSavedState();
 	}
 
+	public void setAnimatedProgress(int animatedProgress, long msgId)
+	{
+		if (isFileTaskExist(msgId))
+		{
+			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
+			if (obj != null)
+			{
+				((MyFutureTask) obj).getTask().animatedProgress = animatedProgress;
+			}
+		}
+	}
+
+	public int getAnimatedProgress(long msgId)
+	{
+		if (isFileTaskExist(msgId))
+		{
+			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
+			if (obj != null)
+			{
+				return ((MyFutureTask) obj).getTask().animatedProgress;
+			}
+		}
+		return 0;
+	}
+
 	// this function gives the state of uploading for a file
 	public FileSavedState getUploadFileState(long msgId, File mFile)
 	{
@@ -651,12 +681,13 @@ public class FileTransferManager extends BroadcastReceiver
 			if (obj != null)
 			{
 				Logger.d(getClass().getSimpleName(), "Returning: " + ((MyFutureTask) obj).getTask()._state.toString());
-				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred);
+				return new FileSavedState(((MyFutureTask) obj).getTask()._state, ((MyFutureTask) obj).getTask()._totalSize, ((MyFutureTask) obj).getTask()._bytesTransferred, 
+						((MyFutureTask) obj).getTask().animatedProgress);
 			}
 			else
 			{
 				Logger.d(getClass().getSimpleName(), "Returning: in_prog");
-				return new FileSavedState(FTState.IN_PROGRESS, 0, 0);
+				return new FileSavedState(FTState.IN_PROGRESS, 0, 0, 0);
 			}
 		}
 		else
@@ -684,6 +715,8 @@ public class FileTransferManager extends BroadcastReceiver
 			fileIn = new FileInputStream(f);
 			in = new ObjectInputStream(fileIn);
 			fss = (FileSavedState) in.readObject();
+			if(fss.getAnimatedProgress() > 0)
+				setAnimatedProgress(fss.getAnimatedProgress(), msgId);
 		}
 		catch (IOException i)
 		{
@@ -960,7 +993,7 @@ public class FileTransferManager extends BroadcastReceiver
 		if(ftHostURIs != null)
 		{
 			Random random = new Random();
-			int index = random.nextInt(ftHostURIs.size() - 2) + 1;
+			int index = random.nextInt(ftHostURIs.size() - 1) + 1;
 			host = ftHostURIs.get(index);
 		}
 		return host;
