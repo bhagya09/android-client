@@ -72,8 +72,10 @@ public class HikeImageUploader extends HikeImageWorker
 		}
 		else
 		{
-			//TODO on UI
-			//Toast.makeText(mContext, mContext.getResources().getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+			if(taskCallbacks.get() != null)
+			{
+				taskCallbacks.get().onTaskAlreadyRunning();
+			}
 	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
 		}
 	}

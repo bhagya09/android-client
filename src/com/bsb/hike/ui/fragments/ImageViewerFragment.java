@@ -366,4 +366,9 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	{
 		
 	}
+
+	@Override
+	public void onTaskAlreadyRunning() {
+		
+	}
 }
