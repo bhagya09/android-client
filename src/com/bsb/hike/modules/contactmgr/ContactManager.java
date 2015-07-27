@@ -78,7 +78,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	private ContactManager()
 	{
 		context = HikeMessengerApp.getInstance().getApplicationContext();
-		selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+		setSelfMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
 		hDb = HikeUserDatabase.getInstance();
 		persistenceCache = new PersistenceCache(hDb);
 		transientCache = new TransientCache(hDb);
@@ -2310,5 +2310,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public String getSelfMsisdn()
 	{
 		return selfMsisdn;
+	}
+
+	public void setSelfMsisdn(String msisdn)
+	{
+		this.selfMsisdn = msisdn;
 	}
 }
