@@ -605,73 +605,26 @@ public class ChatHeadService extends Service
 
 	private class GestureListener extends SimpleOnGestureListener
 	{
-		@Override
-		public boolean onDoubleTap(MotionEvent e)
-		{
-			Logger.d("UmangX", "doubletap");
-			return super.onDoubleTap(e);
-		}
-
-		@Override
-		public boolean onDown(MotionEvent e)
-		{
-			Logger.d("UmangX", "down");
-			return super.onDown(e);
-		}
-
-		@Override
-		public boolean onDoubleTapEvent(MotionEvent e)
-		{
-			Logger.d("UmangX", "doubletap event");
-			return super.onDoubleTapEvent(e);
-		}
-
-		@Override
-		public void onLongPress(MotionEvent e)
-		{
-			Logger.d("UmangX", "long press");
-			super.onLongPress(e);
-		}
-
-		@Override
-		public void onShowPress(MotionEvent e)
-		{
-			Logger.d("UmangX", "show press");
-			super.onShowPress(e);
-		}
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
 		{
-			Logger.d("UmangX", "scrolled");
+			Logger.d("MotionEvent", "scrolled");
 			try
 			{
 				windowManager.addView(closeHead, closeHeadParams);
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
+				Logger.d("Exception","unable to add view on WindowManager");
 			}
 			return super.onScroll(e1, e2, distanceX, distanceY);
 		}
 
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
-		{
-			return false;
-		}
-
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e)
-		{
-			Logger.d("UmangX", "tapconfirm");
-			return true;
-		}
-
-		@Override
 		public boolean onSingleTapUp(MotionEvent e)
 		{
-			Logger.d("UmangX", "tapsingle");
+			Logger.d("MotionEvent", "tapsingle");
 			return true;
 		}
 	}
