@@ -234,10 +234,10 @@ public class MqttMessagesManager
 		
 		String fromMSISDN = jsonObj.getString(HikeConstants.FROM);
 		
-		boolean proccessMqttRequest = !(fromMSISDN.equals(HikeMessengerApp.getInstance().getMsisdn()));
+		boolean groupDpSetByMe = fromMSISDN.equals(HikeMessengerApp.getInstance().getMsisdn());
 		
 		//processing the MQTT request for group DP change only when DP updated by contact or no DP image present for this group(Re-Signup case)
-		if(proccessMqttRequest || !(new File(Utils.getProfileImageFileName(groupId)).exists()))
+		if(!groupDpSetByMe || !(new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT+File.separator+Utils.getProfileImageFileName(groupId)).exists()))
 		{
 			String newIconIdentifier = null;
 			ContactManager conMgr = ContactManager.getInstance();
