@@ -616,6 +616,11 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
+		
+		/*
+		 * Just after pin validation we need to set self msisdn field in ContactManager
+		 */
+		ContactManager.getInstance().setSelfMsisdn(accountInfo.getMsisdn());
 	}
 
 	/*
