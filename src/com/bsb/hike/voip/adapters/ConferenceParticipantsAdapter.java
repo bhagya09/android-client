@@ -47,6 +47,12 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		}
 	};
 	
+	public static class ConferenceParticipantHolder
+	{
+		public ImageView avatarHolder;
+		public TextView contactNameHolder;
+		public RecyclingImageView crossBtn;
+	}
 	
 	public ConferenceParticipantsAdapter(Context context, int resource,
 			int textViewResourceId, List<VoIPClient> objects) {
@@ -63,20 +69,29 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		
+		ConferenceParticipantHolder conferenceParticipantHolder;
+		
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowView = inflater.inflate(R.layout.voip_conference_participant_item, parent, false);
-		
-		ImageView avatar = (ImageView) rowView.findViewById(R.id.avatar);
-		TextView contact = (TextView) rowView.findViewById(R.id.contact);
-		RecyclingImageView removeParticipant = (RecyclingImageView) rowView.findViewById(R.id.remove_participant_btn);
-		
-		contact.setText(clients.get(position).getName());
-		iconLoader.loadImage(clients.get(position).getPhoneNumber(), 
-				avatar, false, false, true);
-		
-		removeParticipant.setOnClickListener(conferencePartitcipantClickListenter);
-		
-		return rowView;
+		if (convertView == null)
+		{
+			conferenceParticipantHolder = new ConferenceParticipantHolder();
+			
+			convertView = inflater.inflate(R.layout.voip_conference_participant_item, parent, false);
+			conferenceParticipantHolder.avatarHolder  = (ImageView) convertView.findViewById(R.id.avatar);
+			conferenceParticipantHolder.contactNameHolder = (TextView) convertView.findViewById(R.id.contact);
+			conferenceParticipantHolder.crossBtn = (RecyclingImageView) convertView.findViewById(R.id.remove_participant_btn);
+			convertView.setTag(conferenceParticipantHolder);
+		}
+		else
+		{
+			conferenceParticipantHolder = (ConferenceParticipantHolder)convertView.getTag();
+		}
+		conferenceParticipantHolder.contactNameHolder.setText(clients.get(position).getName());
+		iconLoader.loadImage(clients.get(position).getPhoneNumber(), conferenceParticipantHolder.avatarHolder, false, false, true);
+
+		conferenceParticipantHolder.crossBtn.setOnClickListener(conferencePartitcipantClickListenter);
+
+		return convertView;
 	}
 
 }
