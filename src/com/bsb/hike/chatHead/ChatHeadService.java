@@ -23,6 +23,8 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.TaskStackBuilder;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,6 +41,7 @@ import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 
@@ -49,8 +52,6 @@ public class ChatHeadService extends Service
 	private static final int RECT_CONST = 4;
 
 	private static int RECT_CONST_DP;
-
-	private static final int DRAG_CONST = 20;
 
 	private static final int INITIAL_POS_X = 0;
 
@@ -73,6 +74,8 @@ public class ChatHeadService extends Service
 	private int savedPosY = INITIAL_POS_Y;
 	
 	private static boolean chatHeadIconExist = false;
+	
+	final GestureDetector gestureDetector = new GestureDetector(new GestureListener());
 
 	// boolean to show whether the chat head must be shown or not for a particular session
 	private static boolean toShow = true;
@@ -329,7 +332,7 @@ public class ChatHeadService extends Service
 		chatHead.setVisibility(View.INVISIBLE);
 	}
 
-	private void actionUp(int drag)
+	private void actionUp(boolean isSingleTap)
 	{
 
 		int[] chatHeadLocations = new int[2];
@@ -369,7 +372,7 @@ public class ChatHeadService extends Service
 		}
 		else
 		{
-			if (drag < DRAG_CONST)
+			if (isSingleTap)
 			{
 				HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD, ChatHeadService.foregroundAppName);
 				if (!flagActivityRunning)
@@ -416,7 +419,7 @@ public class ChatHeadService extends Service
 
 	}
 
-	private int actionMove(int drag, int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
+	private void actionMove(int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
 	{
 		int[] chatHeadLocations = new int[2];
 
@@ -426,7 +429,6 @@ public class ChatHeadService extends Service
 
 		if (!flagActivityRunning)
 		{
-			drag++;
 			chatHeadParams.x = initialX + (int) (event.getRawX() - initialTouchX);
 			chatHeadParams.y = initialY + (int) (event.getRawY() - initialTouchY);
 			if (chatHeadParams.x < 0)
@@ -455,7 +457,7 @@ public class ChatHeadService extends Service
 				closeHead.setImageResource(R.drawable.close_chat_head);
 			}
 		}
-		return drag;
+		return;
 	}
 
 	public static ChatHeadService getInstance()
@@ -465,8 +467,6 @@ public class ChatHeadService extends Service
 	
 	private OnTouchListener chatHeadOnTouchListener = new OnTouchListener()
 	{
-		Integer drag;
-
 		Integer initialX;
 
 		Integer initialY;
@@ -478,30 +478,22 @@ public class ChatHeadService extends Service
 		@Override
 		public boolean onTouch(View v, MotionEvent event)
 		{
+			boolean isSingleTap = gestureDetector.onTouchEvent(event);
 			switch (event.getAction())
 			{
 			case MotionEvent.ACTION_DOWN:
-				drag = 0;
 				initialX = chatHeadParams.x;
 				initialY = chatHeadParams.y;
 				initialTouchX = event.getRawX();
 				initialTouchY = event.getRawY();
-				try
-				{
-					windowManager.addView(closeHead, closeHeadParams);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
 				return true;
 
 			case MotionEvent.ACTION_UP:
-				actionUp(drag);
+				actionUp(isSingleTap);
 				return true;
 
 			case MotionEvent.ACTION_MOVE:
-				drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
+				actionMove(initialX, initialY, initialTouchX, initialTouchY, event);
 				return true;
 			}
 
@@ -562,8 +554,81 @@ public class ChatHeadService extends Service
 		
 		RECT_CONST_DP = (int)(RECT_CONST * Utils.densityMultiplier);
 		
+		
 	}
 
+	private class GestureListener extends SimpleOnGestureListener
+	{
+		@Override
+		public boolean onDoubleTap(MotionEvent e)
+		{
+			Logger.d("UmangX", "doubletap");
+			return super.onDoubleTap(e);
+		}
+
+		@Override
+		public boolean onDown(MotionEvent e)
+		{
+			Logger.d("UmangX", "down");
+			return super.onDown(e);
+		}
+
+		@Override
+		public boolean onDoubleTapEvent(MotionEvent e)
+		{
+			Logger.d("UmangX", "doubletap event");
+			return super.onDoubleTapEvent(e);
+		}
+
+		@Override
+		public void onLongPress(MotionEvent e)
+		{
+			Logger.d("UmangX", "long press");
+			super.onLongPress(e);
+		}
+
+		@Override
+		public void onShowPress(MotionEvent e)
+		{
+			Logger.d("UmangX", "show press");
+			super.onShowPress(e);
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+		{
+			Logger.d("UmangX", "scrolled");
+			try
+			{
+				windowManager.addView(closeHead, closeHeadParams);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			return super.onScroll(e1, e2, distanceX, distanceY);
+		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e)
+		{
+			Logger.d("UmangX", "tapconfirm");
+			return true;
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e)
+		{
+			Logger.d("UmangX", "tapsingle");
+			return true;
+		}
+	}
 	@Override
 	public IBinder onBind(Intent intent)
 	{
