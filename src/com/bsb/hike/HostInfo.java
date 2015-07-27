@@ -34,15 +34,18 @@ public class HostInfo
 	private int connectRetryCount = 0;
 	
 	List<String> serverURIs = null;
+	
+	List<Integer> serverPorts = null;
 
 	private ConnectExceptions exceptionOnConnect = ConnectExceptions.NO_EXCEPTION;
 	
-	public HostInfo(HostInfo previousHostInfo, List<String> serverURIs)
+	public HostInfo(HostInfo previousHostInfo, List<String> serverURIs, List<Integer> serverPorts)
 	{
 		boolean isSslOn = Utils.switchSSLOn(HikeMessengerApp.getInstance());
 		boolean isProduction = Utils.isOnProduction();
 		
 		this.serverURIs = serverURIs;
+		this.serverPorts = serverPorts;
 		
 		setConnectRetryCount(previousHostInfo);
 		this.setHost(previousHostInfo, isProduction);
@@ -211,23 +214,34 @@ public class HostInfo
 		 * 3. again fallback to 5222 -- if tried above
 		 */
 		boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
-		if(previousHostInfo.getPort() == PRODUCTION_MQTT_CONNECT_PORTS[0])
+		
+		int port = 0;
+		for (int i = 1; i < serverPorts.size(); i++)
 		{
-			setPort(PRODUCTION_MQTT_CONNECT_PORTS[1]);
+			if(previousHostInfo.getPort() == serverPorts.get(i-1))
+			{
+				port = serverPorts.get(i);
+				break;
+			}
 		}
-		else if(previousHostInfo.getPort() == PRODUCTION_MQTT_CONNECT_PORTS[1]  && sslPortAllowedAsFallback)
+		
+		if(port != 0)
+		{
+			setPort(port);
+		}
+		else if(previousHostInfo.getPort() == serverPorts.get(serverPorts.size() -1 )  && sslPortAllowedAsFallback)
 		{
 			setPort(MqttConstants.FALLBACK_BROKER_PORT_NUMBER_SSL);
 		}
-		else 
+		else
 		{
-			setPort(PRODUCTION_MQTT_CONNECT_PORTS[0]);
-		}	
+			setPort(serverPorts.get(0));
+		}
 	}
 	
 	private int getStanderedProductionPort(boolean isSslOn)
 	{
-		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.LAST_MQTT_CONNECT_PORT, PRODUCTION_MQTT_CONNECT_PORTS[0]);
+		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.LAST_MQTT_CONNECT_PORT, serverPorts.get(0));
 	}
 
 	public int getConnectTimeOut()

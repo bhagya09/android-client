@@ -103,4 +103,6 @@ public class MqttConstants
 	public static final String LAST_MQTT_CONNECT_PORT = "lastMqttConnectPort";
 
 	public static final String TIME_TAKEN_IN_LAST_SOCKET_CONNECT = "timeTakenInLastSocketConnect";
+
+	public static final String MQTT_PORTS = "mqttPorts";
 }
