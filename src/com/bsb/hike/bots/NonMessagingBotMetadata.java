@@ -1,12 +1,12 @@
 package com.bsb.hike.bots;
 
-import com.bsb.hike.models.OverFlowMenuItem;
-import com.bsb.hike.platform.HikePlatformConstants;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.platform.HikePlatformConstants;
 
 
 /**
