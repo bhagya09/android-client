@@ -164,7 +164,12 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     	Logger.i(TAG,"Destroy Item called : "+position);
     	ImageViewerFragment fragment = (ImageViewerFragment)object;
 
-    	if( !initialised && initFragment != null && fragment.getPathTag().equals(initFragment.getPathTag()) )
+    	if( !initialised && initFragment != null && fragment != null && fragment.getPathTag().equals(initFragment.getPathTag()) )
+    	{
+    		return;
+    	}
+    	
+    	if(position >= mFragments.size())
     	{
     		return;
     	}
