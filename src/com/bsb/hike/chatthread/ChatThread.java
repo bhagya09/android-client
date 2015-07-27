@@ -5545,11 +5545,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public boolean isKeyboardOpen()
 	{
-		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
-		{
-			return false;
-		}
-		return true;
+		return ((mShareablePopupLayout != null) && (mShareablePopupLayout.isKeyboardOpen() || mCustomKeyboard.isCustomKeyboardVisible()));
+//		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
+//		{
+//			return false;
+//		}
+//		return true;
 	}
 	
 	@Override
