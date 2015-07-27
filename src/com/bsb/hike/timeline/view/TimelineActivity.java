@@ -12,11 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -31,17 +29,12 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ImageViewerActivity;
+import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -88,7 +81,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void initialiseTimelineScreen(Bundle savedInstanceState)
 	{
-
 		setContentView(R.layout.timeline);
 		setupMainFragment(savedInstanceState);
 		setupActionBar();
@@ -210,8 +202,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 					break;
 				case R.id.favourites:
-					Intent intent = new Intent(TimelineActivity.this, ProfileActivity.class);
-					intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+					Intent intent = new Intent(TimelineActivity.this, PeopleActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					break;
 				case R.id.my_profile:
