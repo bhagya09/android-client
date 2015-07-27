@@ -170,9 +170,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STRING_OUTER_SET_CLOSE = "]";
 
-	public static final int DECISION_STATE_YES = 0;
+	public static final int DECISION_STATE_NO = 0;
 
-	public static final int DECISION_STATE_NO = 1;
+	public static final int DECISION_STATE_YES = 1;
 
 	// =======================================================================Generic constants]]
 

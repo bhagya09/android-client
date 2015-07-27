@@ -825,9 +825,7 @@ public class StickerSearchHostManager
 
 		if ((stickers != null) && (stickers.size() > 0))
 		{
-			selectedStickers = new ArrayList<Sticker>();
-			selectedStickers.addAll(stickers);
-
+			selectedStickers = new ArrayList<Sticker>(stickers);
 			if (clickedPhrase == null)
 			{
 				clickedPhrase = clickedWord;
@@ -856,7 +854,7 @@ public class StickerSearchHostManager
 		boolean exactSearch = !((actualStartOfWord > mStart) ? ((actualStartOfWord <= mEnd) && (actualEndOfWord == mEnd)) : (actualEndOfWord >= mEnd))
 				|| (isFirstValidWord && (word.length() == 1));
 
-		// phrase part
+		// pre-phrase part
 		int j;
 		int count;
 		ArrayList<Sticker> retainList = new ArrayList<Sticker>(8);
@@ -967,7 +965,7 @@ public class StickerSearchHostManager
 		}
 		retainList.clear();
 
-		// word part
+		// post-phrase and word part
 		maxPermutationSize = 4;
 		String nextWord;
 		int lastIndexInPhraseStartedWithPivot;
@@ -1057,11 +1055,10 @@ public class StickerSearchHostManager
 
 	private LinkedHashSet<Sticker> processStickerData(String searchKey, ArrayList<ArrayList<Object>> stData)
 	{
-		if ((stData == null) || (stData.size() <= 0))
-		{
-			return null;
-		}
-		else
+		LinkedHashSet<Sticker> stickers = null;
+		int count = (stData == null) ? 0 : stData.size();
+
+		if (count > 0)
 		{
 			float preScoreWeitage = HikeStickerSearchBaseConstants.WEITAGE_PRE_SCORE;
 			float postScoreWeitage = HikeStickerSearchBaseConstants.WEITAGE_POST_SCORE;
@@ -1070,9 +1067,10 @@ public class StickerSearchHostManager
 			float contextMomentWeitage = HikeStickerSearchBaseConstants.WEITAGE_CONTEXT_MOMENT;
 
 			int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
-			int count = stData.size();
-			ArrayList<String> stikcerCodeList = new ArrayList<String>();
-			ArrayList<Integer> stikcerMomentList = new ArrayList<Integer>();
+
+			ArrayList<String> stickerCodeList = new ArrayList<String>();
+			ArrayList<Integer> stickerAvailabilityList = new ArrayList<Integer>();
+			ArrayList<Integer> stickerMomentList = new ArrayList<Integer>();
 			ArrayList<Float> matchRankList = new ArrayList<Float>(count);
 
 			for (int i = 0; i < count; i++)
@@ -1080,8 +1078,9 @@ public class StickerSearchHostManager
 				if (stData.get(i) == null)
 				{
 					matchRankList.add(0f);
-					stikcerMomentList.add(TIME_CODE.UNKNOWN.getId());
-					stikcerCodeList.add(null);
+					stickerMomentList.add(TIME_CODE.UNKNOWN.getId());
+					stickerAvailabilityList.add(HikeStickerSearchBaseConstants.DECISION_STATE_NO);
+					stickerCodeList.add(null);
 				}
 				else
 				{
@@ -1121,74 +1120,69 @@ public class StickerSearchHostManager
 										HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) + 1)) + (frequencyWeitage * formattedFrequency)
 								+ ((stickerMometCode == contextMomentCode) ? contextMomentWeitage : 0f));
 					}
-					stikcerMomentList.add(stickerMometCode);
-					stikcerCodeList.add((String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE));
+
+					stickerMomentList.add(stickerMometCode);
+					stickerAvailabilityList.add((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_AVAILABILITY_STATUS));
+					stickerCodeList.add((String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE));
 				}
 			}
 
-			LinkedHashSet<Sticker> stickers = new LinkedHashSet<Sticker>();
-			ArrayList<Integer> momentList = new ArrayList<Integer>();
+			stickers = new LinkedHashSet<Sticker>();
 			float maxFittingScore = Float.MIN_VALUE;
+			LinkedHashSet<Sticker> timePrioritizedStickerList = new LinkedHashSet<Sticker>();
+
+			int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
+
 			Sticker previousStikcer = null;
 			Sticker currentSticker;
 			int index;
-			int currentSize = 0;
+
 			for (int i = 0; i < count; i++)
 			{
 				maxFittingScore = Collections.max(matchRankList);
 				index = matchRankList.indexOf(maxFittingScore);
-				if (stikcerCodeList.get(index) == null)
+				if (stickerCodeList.get(index) == null)
 				{
 					matchRankList.remove(index);
-					stikcerMomentList.remove(index);
-					stikcerCodeList.remove(index);
+					stickerMomentList.remove(index);
+					stickerAvailabilityList.remove(index);
+					stickerCodeList.remove(index);
 					continue;
 				}
 
-				currentSticker = StickerManager.getInstance().getStickerFromSetString(stikcerCodeList.get(index));
+				currentSticker = StickerManager.getInstance().getStickerFromSetString(stickerCodeList.get(index),
+						(stickerAvailabilityList.get(index) == HikeStickerSearchBaseConstants.DECISION_STATE_YES));
+
 				if (!currentSticker.equals(previousStikcer))
 				{
-					stickers.add(currentSticker);
-					if (currentSize < stickers.size())
+					if (currentMomentTerminalCode == stickerMomentList.get(index))
 					{
-						momentList.add(stikcerMomentList.get(index));
-						currentSize++;
+						timePrioritizedStickerList.add(currentSticker);
+					}
+					else
+					{
+						stickers.add(currentSticker);
 					}
 				}
 
 				matchRankList.remove(index);
-				stikcerMomentList.remove(index);
-				stikcerCodeList.remove(index);
+				stickerMomentList.remove(index);
+				stickerAvailabilityList.remove(index);
+				stickerCodeList.remove(index);
 				previousStikcer = currentSticker;
 			}
 
 			// Apply time division
-			if (mMomentCode.getId() != TIME_CODE.UNKNOWN.getId())
+			if (currentMomentTerminalCode != TIME_CODE.INVALID.getId())
 			{
-				ArrayList<Sticker> timePrioritizedStickerList = new ArrayList<Sticker>();
-				int currentMomentTerminalCode = mMomentCode.getId() + 2;
-				int i = 0;
-
-				for (Sticker sticker : stickers)
-				{
-					if (momentList.get(i) == currentMomentTerminalCode)
-					{
-						timePrioritizedStickerList.add(sticker);
-					}
-
-					i++;
-				}
-
 				// Put prioritized stickers at start of pop-up
-				stickers.removeAll(timePrioritizedStickerList);
 				timePrioritizedStickerList.addAll(stickers);
 				stickers.clear();
-				stickers.addAll(timePrioritizedStickerList);
-				timePrioritizedStickerList.clear();
+				stickers = timePrioritizedStickerList;
 			}
-
-			return stickers;
 		}
+
+		return stickers;
 	}
 
 	private float computeAnalogousScoreForExactMatch(String searchKey, String tag)
