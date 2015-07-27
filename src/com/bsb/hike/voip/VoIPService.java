@@ -1406,6 +1406,10 @@ public class VoIPService extends Service {
 						break;
 					}
 
+					VoIPClient client = getClient();
+					if (client == null)
+						continue;
+
 					// AEC
 					if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
 						int ret = solicallAec.processMic(dpencode.getData());
@@ -1425,13 +1429,13 @@ public class VoIPService extends Service {
 								if (!voiceSignalAbsent) {
 									voiceSignalAbsent = true;
 //									Logger.w(tag, "We stopped speaking.");
-									getClient().setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
+									client.setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
 								}
 							} else if (voiceSignalAbsent) {
 								// Mic signal is reverting to voice
 //								Logger.w(tag, "We started speaking.");
 								voiceSignalAbsent = false;
-								getClient().setEncoderBitrate(getClient().getBitrate());
+								client.setEncoderBitrate(client.getBitrate());
 							}
 						}
 					} else
@@ -1458,10 +1462,11 @@ public class VoIPService extends Service {
 							if (processedRecordedSamples.size() < 2)
 								processedRecordedSamples.add(dp);
 						} else {
+							if (voiceSignalAbsent && client.isHostingConference && client.clientMsisdns.size() > VoIPConstants.CONFERENCE_THRESHOLD)
+								continue;
 							buffersToSend.add(dp);
 						}
 					}
-
 				}
 			}
 		}, "PROCESS_RECORDED_SAMPLES_THREAD");

@@ -51,6 +51,13 @@ public class VoIPConstants {
 	public static final int ACCEPTABLE_PACKET_LOSS = 10;
 
 	/**
+	 * If the number of participants in a conference exceeds this threshold, 
+	 * clients will stop transmitting audio completely when they do not
+	 * detect a voice signal from their mic. 
+	 */
+	public static final int CONFERENCE_THRESHOLD = 10;
+
+	/**
 	 * Number of seconds to wait for before triggering congestion control again.
 	 */
 	public static final int CONGESTION_CONTROL_REPEAT_THRESHOLD = 3;
