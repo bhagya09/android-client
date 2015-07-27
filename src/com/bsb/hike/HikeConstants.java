@@ -2942,5 +2942,7 @@ public class HikeConstants
 	public static final String ENABLE_TIMELINE_FTUE = "en_tl_ftue";
 	
 	public static final String TIMELINE_FTUE_FAV_COUNTER = "timeline_ftue_fav_counter";
+	
+	public static final String HISTORICAL_UPDATE = "hsu";
 
 }

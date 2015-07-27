@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -46,10 +47,15 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private Handler mHandler = new Handler();
 
 	private TextView overflowIndicator;
-
+	
+	//private TextView activityFeedTopBarIndicator;
+	private MenuItem activityFeedMenuItem;
+	
 	private SharedPreferences accountPrefs;
+	
+	private int unreadCounter = -1;
 
-	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED };
+	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED, HikePubSub.ACTIVITY_FEED_COUNT_CHANGED };
 
 	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
 	@Override
@@ -67,6 +73,19 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 				}
 			});
 		}
+		if (HikePubSub.ACTIVITY_FEED_COUNT_CHANGED.equals(type))
+		{
+			final int count = ((Integer) object).intValue();
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					unreadCounter = count;
+					invalidateOptionsMenu();
+				}
+			});
+		}
 	}
 
 	@Override
@@ -80,6 +99,17 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		if (getIntent() != null && getIntent().getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false))
 		{
 			loadActivityFeedFragment();
+		}
+		
+		FetchUnreadFeedsTask fetchUnreadFeedsTask = new FetchUnreadFeedsTask();
+
+		if (Utils.isHoneycombOrHigher())
+		{
+			fetchUnreadFeedsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			fetchUnreadFeedsTask.execute();
 		}
 	}
 
@@ -141,14 +171,25 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		final View overflowMenuItem = menuItem.getActionView();
 		overflowMenuItem.setContentDescription("Timeline Overflow");
 		overflowIndicator = (TextView) overflowMenuItem.findViewById(R.id.top_bar_indicator_text);
+		activityFeedMenuItem = menu.findItem(R.id.activity_feed);
+		activityFeedMenuItem.setVisible(false);
 		updateFriendsNotification(accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0), 0);
-
 		overflowMenuItem.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
 			{
 				showTimelineMenuPopup(overflowMenuItem);
+			}
+		});
+		
+		activityFeedMenuItem.getActionView().setOnClickListener(new View.OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				loadActivityFeedFragment();
 			}
 		});
 		return super.onCreateOptionsMenu(menu);
@@ -227,7 +268,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
-
+		updateFeedsNotification(unreadCounter);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -348,6 +389,39 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 	}
 
+	public void updateFeedsNotification(final int count)
+	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				final TextView activityFeedTopBarIndicator = (TextView)activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+				if (activityFeedTopBarIndicator != null)
+				{
+					if(count < 1)
+					{
+						activityFeedMenuItem.setVisible(false);
+					}
+					else
+					{
+						if (count > 9)
+						{
+							activityFeedTopBarIndicator.setText("9+");
+						}
+						else if (count > 0)
+						{
+							activityFeedTopBarIndicator.setText(String.valueOf(count));
+						}
+						activityFeedMenuItem.setVisible(true);
+						activityFeedTopBarIndicator.setVisibility(View.VISIBLE);
+						activityFeedTopBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+					}
+				}
+			}
+		});
+	}
+	
 	@Override
 	protected void openImageViewer(Object object)
 	{
@@ -375,5 +449,23 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		addToBackStack(null).
 		commit();
 
+	}
+	
+	class FetchUnreadFeedsTask extends AsyncTask<Void, Void, Integer>
+	{
+
+		@Override
+		protected Integer doInBackground(Void... params)
+		{
+			return HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+		}
+		
+		@Override
+		protected void onPostExecute(Integer result)
+		{
+			//updateFeedsNotification(result);
+			unreadCounter = result;
+		}
+		
 	}
 }
