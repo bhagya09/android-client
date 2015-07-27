@@ -2159,6 +2159,8 @@ public class HikeConstants
 		
 		public static final String PHOTOS_SEND_TO = "phSend";
 		
+		public static final String PHOTOS_UNABLE_TO_LOAD = "phImgNotLoad";
+		
 		
 		
 		//Broadcast
