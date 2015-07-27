@@ -253,7 +253,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void beginDpUpload(byte[] bytes, String origImagePath, String mLocalMSISDN)
 	{
 		Logger.d(TAG, "inside API loadHeadLessImageUploadingFragment");
-    	mImageWorkerFragment = HikeImageUploader.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
+    	mImageWorkerFragment = HikeImageUploader.newInstance(bytes, origImagePath, mLocalMSISDN, false, true);
     	mImageWorkerFragment.setTaskCallbacks(this);
         mImageWorkerFragment.startUpLoadingTask();
 	}
