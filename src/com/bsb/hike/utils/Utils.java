@@ -1049,11 +1049,17 @@ public class Utils
 		}
 	}
 
+	/**
+	 *  DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
+	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs)
 	{
 		return getUserContactInfo(prefs, false);
 	}
 
+	/**
+	 *  DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
+	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
 		String myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -1067,6 +1073,28 @@ public class Utils
 		else
 		{
 			myName = prefs.getString(HikeMessengerApp.NAME_SETTING, null);
+		}
+
+		ContactInfo contactInfo = new ContactInfo(myName, myMsisdn, myName, myMsisdn, true);
+		contactInfo.setHikeJoinTime(userJoinTime);
+
+		return contactInfo;
+	}
+	
+	public static ContactInfo getUserContactInfo(boolean showNameAsYou)
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		String myMsisdn = prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		long userJoinTime = prefs.getData(HikeMessengerApp.USER_JOIN_TIME, 0L);
+
+		String myName;
+		if (showNameAsYou)
+		{
+			myName = "You";
+		}
+		else
+		{
+			myName = prefs.getData(HikeMessengerApp.NAME_SETTING, null);
 		}
 
 		ContactInfo contactInfo = new ContactInfo(myName, myMsisdn, myName, myMsisdn, true);
@@ -3766,10 +3794,15 @@ public class Utils
 
 	public static Intent getTimelineActivityIntent(Context context)
 	{
+		return getTimelineActivityIntent(context, false);
+	}
+	
+	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed)
+	{
 		final Intent intent = new Intent(context, TimelineActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, true);
-
+		intent.putExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, openActivityFeed);
 		return intent;
 	}
 

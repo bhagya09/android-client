@@ -5,12 +5,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Contains action count and actor contact info objects
@@ -186,7 +188,15 @@ public class ActionsDataModel
 			contactInfoList = new LinkedHashSet<ContactInfo>();
 		}
 
-		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+
+		ContactInfo contactInfo = Utils.getUserContactInfo(true);
+
+		if (!selfMsisdn.equals(contactInfo.getMsisdn()))
+		{
+			contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+		}
+		
 		if (contactInfo != null)
 		{
 			boolean isAdded = contactInfoList.add(contactInfo);
