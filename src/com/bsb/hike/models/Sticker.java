@@ -13,6 +13,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 {
@@ -27,11 +28,14 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	private String categoryId;
 
+	private boolean isAvailable;
+
 	public Sticker(StickerCategory category, String stickerId)
 	{
 		this.category = category;
 		this.stickerId = stickerId;
 		this.categoryId = category.getCategoryId();
+		this.isAvailable = true; /* Default value */
 	}
 
 	public Sticker(String categoryId, String stickerId)
@@ -39,16 +43,12 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.stickerId = stickerId;
 		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
 		this.categoryId = categoryId;
+		this.isAvailable = true; /* Default value */
 	}
 
 	public Sticker()
 	{
 
-	}
-
-	public String getCategoryId()
-	{
-		return categoryId;
 	}
 
 	public void setCategoryId(String categoryId)
@@ -66,9 +66,45 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.category = category;
 	}
 
+	public void setStickerAvailability()
+	{
+		boolean result;
+		String path = getStickerPath();
+
+		if (!Utils.isBlank(path))
+		{
+			File file = new File(path);
+			result = file.isFile() && file.exists();
+		}
+		else
+		{
+			result = false;
+		}
+
+		this.isAvailable = result;
+	}
+
+	public String getCategoryId()
+	{
+		return categoryId;
+	}
+
 	public boolean isUnknownSticker()
 	{
-		return category == null;
+		return this.category == null;
+	}
+
+	public boolean isStickerAvailable()
+	{
+		return this.isAvailable;
+	}
+
+	 /* Call this method, only if one needs current download-status of sticker */
+	public boolean getStickerCurrentAvailability()
+	{
+		setStickerAvailability();
+
+		return this.isAvailable;
 	}
 
 	/**
@@ -200,16 +236,18 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public void clear()
 	{
-		stickerId = null;
-		category = null;
-		categoryId = null;
+		this.stickerId = null;
+		this.category = null;
+		this.categoryId = null;
+		this.isAvailable = false;
 	}
 
 	public Sticker(Parcel in)
 	{
-		stickerId = in.readString();
-		categoryId = in.readString();
-		category = (StickerCategory) in.readSerializable();
+		this.stickerId = in.readString();
+		this.categoryId = in.readString();
+		this.category = (StickerCategory) in.readSerializable();
+		this.isAvailable = true; /* Default value */
 	}
 
 	public static final Parcelable.Creator<Sticker> CREATOR = new Parcelable.Creator<Sticker>()

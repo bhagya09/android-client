@@ -8,8 +8,10 @@ package com.bsb.hike.modules.stickersearch.provider;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 
 public class StickerTagDataContainer
 {
@@ -45,6 +47,11 @@ public class StickerTagDataContainer
 		mTagPriorities = tagPriorities;
 		mMomentCode = moment;
 		mFestivals = festivals;
+	}
+
+	public boolean getStickerAvailabilityStatus()
+	{
+		return (mStickerCode == null) ? false : StickerManager.getInstance().getStickerFromSetString(mStickerCode).getStickerCurrentAvailability();
 	}
 
 	public String getStickerCode()
