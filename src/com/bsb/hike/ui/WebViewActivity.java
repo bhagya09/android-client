@@ -20,6 +20,8 @@ import android.os.Bundle;
 import android.support.v4.view.WindowCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -39,8 +41,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -333,7 +333,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				layoutParams = new LayoutParams((int) getResources().getDimension(R.dimen.one_dp), 0);
 			}
-
+			layoutParams.height = 0;
 			if (botConfig.shouldOverlayActionBar())
 			{
 				//To remove the gap since action bar should overlay the view now 
@@ -341,13 +341,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				FrameLayout.LayoutParams fp=(FrameLayout.LayoutParams)rl.getLayoutParams();
 				fp.setMargins(0, 0, 0, 0);
 				rl.setLayoutParams(fp);
-				layoutParams.height = (int) getResources().getDimension(R.dimen.st__action_bar_default_height);
-				
-			}
-
-			else
-			{
-				layoutParams.height = 0;
 			}
 
 			view.setLayoutParams(layoutParams);
@@ -589,6 +582,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
+		
 	}
 
 	private void overflowMenuClickedAnalytics()

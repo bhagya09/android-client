@@ -31,6 +31,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -504,7 +505,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Utils.blockOrientationChange(HomeActivity.this);
 		dialogShowing = DialogShowing.FESTIVE_POPUP;
-		findViewById(R.id.action_bar_img).setVisibility(View.VISIBLE);
 		getSupportActionBar().hide();
 
 		if(snowFallView == null)
@@ -541,7 +541,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		dialogShowing = null;
 		// Bringing back action bar & unblocking orientation
-		findViewById(R.id.action_bar_img).setVisibility(View.GONE);
 		getSupportActionBar().show();
 		Utils.unblockOrientationChange(this);
 	}
@@ -1895,7 +1894,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		try
 		{
 			int rightMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
+			overFlowWindow.showAtLocation(parentView, Gravity.TOP|Gravity.RIGHT, -rightMargin, 0);
 		}
 		catch (BadTokenException e)
 		{
