@@ -1,5 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
+import java.io.File;
+
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -87,6 +89,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	
 	private static final String TAG = "dp_download";
 
+	private static final String UPLOAD_STATUS_KEY = "u_p_k";
+	
 	private Runnable failedRunnable = new Runnable()
 	{
 		
@@ -139,6 +143,18 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		imagePath = bundle.getString(HikeConstants.HikePhotos.FILENAME);
 		
 		origImagePath = bundle.getString(HikeConstants.HikePhotos.ORIG_FILE);
+		
+		if(savedInstanceState != null)
+		{
+			mUploadStatus = savedInstanceState.getByte(UPLOAD_STATUS_KEY) ;
+			
+			//if upload was statrted before and the file to be uploaded no longer exists, we can assume the file was uploaded
+			if(mUploadStatus == UPLOAD_INPROGRESS && !(new File(imagePath)).exists())
+			{
+				mUploadStatus = UPLOAD_COMPLETE;
+			}
+		}
+
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -184,7 +200,11 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private void startUpload()
 	{
-
+		if(mUploadStatus == UPLOAD_COMPLETE)
+		{
+			return;
+		}
+		
 		mUploadStatus = UPLOAD_INPROGRESS;
 		
 		changeTextWithAnimation(text1, getString(R.string.photo_dp_saving));
@@ -211,6 +231,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			if (smallerBitmap == null)
 			{
 				showErrorState();
+				return;
 			}
 
 			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
@@ -367,7 +388,6 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			public void onClick(View v)
 			{
 				mCurrentProgress = 0.0f;
-				mUploadStatus = UPLOAD_INPROGRESS;
 				startUpload();
 			}
 		});
@@ -438,6 +458,13 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void onFailed()
 	{
 		hikeUiHandler.post(failedRunnable);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		outState.putByte(UPLOAD_STATUS_KEY, mUploadStatus);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
