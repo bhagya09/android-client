@@ -156,13 +156,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			public void onFailure()
 			{
 				Logger.d(TAG, "Image rotation correction failed");
-				
+				sendAnalyticsFileCouldNotLoad();
 				PictureEditer.this.runOnUiThread(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						Toast.makeText(PictureEditer.this, getResources().getString(R.string.photos_image_greater_than_edit_limit), Toast.LENGTH_SHORT).show();
 						if(isStartedForResult())
 						{
 							Bundle bundle = new Bundle();
@@ -837,6 +836,20 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.PHOTOS_GALLERY_PICK);
 			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void sendAnalyticsFileCouldNotLoad()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.PHOTOS_UNABLE_TO_LOAD);
+			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, json);
 		}
 		catch (JSONException e)
 		{
