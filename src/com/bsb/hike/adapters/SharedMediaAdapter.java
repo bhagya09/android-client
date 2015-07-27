@@ -119,18 +119,20 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     	
     	if (initFragment != null && initFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
     	{
-    		Logger.i(TAG,"Match : "+initFragment.getPathTag());
+    		Logger.i(TAG,"Init Match : "+initFragment.getPathTag());
     		return initFragment;
         }
         
     	if (mFragments.size() > position) {
-            Fragment f = mFragments.get(position);
-            if (f != null) {
+    		ImageViewerFragment f = mFragments.get(position);
+            if (f != null && f.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath()))
+            {
+            	Logger.i(TAG,"Match : "+f.getPathTag());
                 return f;
             }
         }
-    	
-        if (mCurTransaction == null) {
+
+    	if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
 
