@@ -1427,6 +1427,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ArrayList<String> actorList = new ArrayList<String>();
 			actorList.add(feedData.getActor());
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
+		
+			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
+			fireUpdateNotificationIconPubsub(-1);
 		}
 
 		return isComplete;
@@ -1551,9 +1554,45 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ArrayList<String> actorList = new ArrayList<String>();
 			actorList.add(feedData.getActor());
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
+		
+			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
+			fireUpdateNotificationIconPubsub(-1);
 		}
 
 		return isComplete;
+	}
+
+	/**
+	 * Updates Icon for ActivityFeedNotification with 
+	 * @param count number of unread feeds
+	 * 
+	 * count = -1 :-  go for DB fetch
+	 * else:- show count value as it is
+	 */
+	private void fireUpdateNotificationIconPubsub(int count)
+	{
+		if(count == -1)
+		{
+			count = getUnreadActivityFeedCount();
+		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_FEED_COUNT_CHANGED, new Integer(count));
+	}
+	
+	/**
+	 * @return count of unreadActivity Feed
+	 */
+	public int getUnreadActivityFeedCount()
+	{
+		String where = DBConstants.READ + " = 0 ";
+		int rowID = -1;
+		
+		Cursor cursor = mDb.query(DBConstants.FEED_TABLE, null, where, null, null, null, null);
+
+		if(cursor != null)
+		{
+			rowID = cursor.getCount();
+		}
+		return rowID;
 	}
 	
 	/**
@@ -1578,6 +1617,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			isComplete = true;
 		}
 
+		if(isComplete)
+		{
+			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
+			fireUpdateNotificationIconPubsub(0);
+		}
+		
 		return isComplete;
 	}
 	

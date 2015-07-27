@@ -3,8 +3,8 @@
 
     <item
         android:id="@+id/activity_feed"
-        android:icon="@drawable/ic_new_status"
         android:showAsAction="always"
+        android:actionLayout="@layout/activity_feed_icon_view"
         android:title="@string/actionbar_activity_feed_title"/>
     <item
         android:id="@+id/overflow_menu"
