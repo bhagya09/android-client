@@ -591,7 +591,7 @@ public class VoIPService extends Service {
 			
 		}
 
-		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
+		if(client != null && client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
 			client.setInitialCallStatus();
 
 		return returnInt;
