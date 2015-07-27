@@ -8,8 +8,13 @@ package com.bsb.hike.modules.stickersearch.provider;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.utils.Logger;
+
 public class StickerTagDataContainer
 {
+	private static final String TAG = StickerTagDataContainer.class.getSimpleName();
+
 	private String mStickerCode;
 
 	private ArrayList<String> mTags;
@@ -85,6 +90,38 @@ public class StickerTagDataContainer
 	public String getFestivalList()
 	{
 		return mFestivals;
+	}
+
+	public boolean isValidData()
+	{
+		boolean result = false;
+		int size = (mTags == null) ? 0 : mTags.size();
+
+		if (size > 0)
+		{
+			result = (mStickerCode != null) && (mLanguages != null) && (mTagCategories != null) && (mThemes != null) && (mTagExactMatchPriorities != null)
+					&& (mTagPriorities != null) && (mFestivals != null);
+
+			if (result)
+			{
+				result = (mLanguages.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size) && (mTagPriorities.size() == size)
+						&& (mThemes.size() > 0);
+			}
+		}
+
+		if (!isValidMomentCode())
+		{
+			Logger.e(TAG, "Moment code is wrong for sticker: " + mStickerCode);
+			result = false;
+		}
+
+		return result;
+	}
+
+	private boolean isValidMomentCode()
+	{
+		return ((mMomentCode >= HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL) && (mMomentCode <= HikeStickerSearchBaseConstants.MOMENT_CODE_NIGHT_TERMINAL))
+				|| ((mMomentCode >= HikeStickerSearchBaseConstants.MOMENT_CODE_MORNING_NON_TERMINAL) && (mMomentCode <= HikeStickerSearchBaseConstants.MOMENT_CODE_NIGHT_NON_TERMINAL));
 	}
 
 	@Override
