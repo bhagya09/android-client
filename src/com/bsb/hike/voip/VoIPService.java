@@ -232,6 +232,7 @@ public class VoIPService extends Service {
 				break;
 
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
+				Logger.d(tag, "Connection established with " + msisdn);
 				if (client == null)
 					return;
 				
@@ -2258,9 +2259,13 @@ public class VoIPService extends Service {
 		}
 	}
 
-	public void processErrorIntent(String error, String msisdn) {
-		Logger.w(tag, msisdn + " returned an error message. Size of clients: " + clients.size());
+	public void processErrorIntent(String action, String msisdn) {
+		Logger.w(tag, msisdn + " returned an error message: " + action);
 		removeFromClients(msisdn);
+		
+		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) {
+			VoIPUtils.sendMissedCallNotificationToPartner(msisdn);
+		}
 	}
 }
 
