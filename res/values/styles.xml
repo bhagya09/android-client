@@ -119,7 +119,8 @@
 	    <item name="android:textColor">#51a8dd</item>
 	</style>
 	
-	<style name="Theme.CustomDialog" parent="@android:style/Theme.Translucent.NoTitleBar">
+	<style name="Theme.CustomDialog" parent="Theme.AppCompat.Dialog.Alert">
+	    <item name="android:maxWidth">@dimen/custom_dialog_width</item>
 	    <item name="android:windowIsFloating">true</item>
 	    <item name="android:windowNoTitle">true</item>
 	</style>

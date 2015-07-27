@@ -25,7 +25,7 @@ public class CustomAlertDialog extends HikeDialog
 	
 	public CustomAlertDialog(Context context, int dialogId)
 	{
-		super(context, R.style.Theme_CustomDialog, dialogId);
+		super(context, dialogId);
 		initViews();
 	}
 

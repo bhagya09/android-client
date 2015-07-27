@@ -203,7 +203,7 @@ public class HikeDialogFactory
 		{
 			throw new IllegalArgumentException("Make sure You are sending one string , that is name to fill with in dialog");
 		}
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
 		hikeDialog.setContentView(R.layout.added_as_favorite_pop_up);
 		hikeDialog.setCancelable(true);
 		TextView heading = (TextView) hikeDialog.findViewById(R.id.addedYouAsFavHeading);
@@ -252,7 +252,7 @@ public class HikeDialogFactory
 
 	private static HikeDialog showStealthResetDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
 		hikeDialog.setContentView(R.layout.stealth_ftue_popup);
 		hikeDialog.setCancelable(true);
 
@@ -301,7 +301,7 @@ public class HikeDialogFactory
 
 	private static HikeDialog showImageQualityDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
 		hikeDialog.setContentView(R.layout.image_quality_popup);
 		hikeDialog.setCancelable(true);
 		hikeDialog.setCanceledOnTouchOutside(true);
@@ -448,7 +448,7 @@ public class HikeDialogFactory
 	private static HikeDialog showSMSClientDialog(int dialogId, final Context context, final HikeDialogListener listener, final boolean triggeredFromToggle,
 			final CompoundButton checkBox, final boolean showingNativeInfoDialog)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
 		hikeDialog.setContentView(R.layout.enable_sms_client_popup);
 		hikeDialog.setCancelable(showingNativeInfoDialog);
 
@@ -515,7 +515,7 @@ public class HikeDialogFactory
 			PhonebookContact contact = (PhonebookContact) data[0];
 			String okText = (String) data[1];
 			Boolean showAccountInfo = (Boolean) data[2];
-			final ContactDialog contactDialog = new ContactDialog(context, R.style.Theme_CustomDialog, dialogId);
+			final ContactDialog contactDialog = new ContactDialog(context, dialogId);
 			contactDialog.setContentView(R.layout.contact_share_info);
 			contactDialog.data = contact;
 			ViewGroup parent = (ViewGroup) contactDialog.findViewById(R.id.parent);
@@ -968,7 +968,7 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showH20Dialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final H20Dialog dialog = new H20Dialog(context, R.style.Theme_CustomDialog, dialogId);
+		final H20Dialog dialog = new H20Dialog(context, dialogId);
 		boolean nativeOnly = (boolean) data[0];
 		int selectedSMSCount = (int) data[1];
 		int mCredits = (int) data[2];
@@ -1062,7 +1062,7 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showSMSSyncDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog dialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog dialog = new HikeDialog(context, dialogId);
 		dialog.setContentView(R.layout.enable_sms_client_popup);
 		
 		boolean syncConfirmation = (boolean) data[0]; 
@@ -1136,7 +1136,7 @@ public class HikeDialogFactory
 	 */
 	private static HikeDialog showHikeUpgradeDialog(int dialogId, Context context, Object[] data)
 	{
-		final HikeDialog dialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog dialog = new HikeDialog(context, dialogId);
 		dialog.setContentView(R.layout.app_update_popup);
 		dialog.setCancelable(false);
 
@@ -1154,7 +1154,7 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showVoipFtuePopUp(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog dialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog dialog = new HikeDialog(context, dialogId);
 		dialog.setContentView(R.layout.voip_ftue_popup);
 		dialog.setCancelable(true);
 		TextView okBtn = (TextView) dialog.findViewById(R.id.awesomeButton);
