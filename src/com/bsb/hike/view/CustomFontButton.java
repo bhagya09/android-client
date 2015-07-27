@@ -16,7 +16,6 @@ public class CustomFontButton extends Button
 	private void setFont(AttributeSet attrs)
 	{
 		fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
-		setTypeface(getTypeface(), getTypeface().getStyle());
 	}
 
 	public CustomFontButton(Context context, AttributeSet attrs, int defStyle)
