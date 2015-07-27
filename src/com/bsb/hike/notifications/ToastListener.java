@@ -47,6 +47,7 @@ import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -74,7 +75,7 @@ public class ToastListener implements Listener
 			HikePubSub.NEW_ACTIVITY, HikePubSub.CONNECTION_STATUS, HikePubSub.FAVORITE_TOGGLED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED,
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
-			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION};
+			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -165,6 +166,16 @@ public class ToastListener implements Listener
 				notificationType = NotificationType.DPUPDATE;
 			}
 			toaster.notifyStatusMessage(statusMessage, notificationType);
+		}
+		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
+		{
+			int notificationType = NotificationType.ACTIVITYUPDATE;
+			Activity activity = (currentActivity != null) ? currentActivity.get() : null;
+			if (!(activity instanceof TimelineActivity))
+			{
+				FeedDataModel activityFeed = (FeedDataModel) object;
+				toaster.notifyActivityMessage(activityFeed, notificationType);
+			}
 		}
 		else if (HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED.equals(type))
 		{

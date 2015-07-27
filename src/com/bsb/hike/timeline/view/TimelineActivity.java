@@ -75,8 +75,12 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		super.onCreate(savedInstanceState);
 		initialiseTimelineScreen(savedInstanceState);
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.TIMELINE.ordinal());
+
+		if (getIntent() != null && getIntent().getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false))
+		{
+			loadActivityFeedFragment();
+		}
 	}
 
 	private void initialiseTimelineScreen(Bundle savedInstanceState)
@@ -255,7 +259,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 
 		case R.id.activity_feed:
-			openActivityFeedFragment();
+			loadActivityFeedFragment();
 			return true;
 
 		default:
@@ -362,10 +366,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		startActivity(intent);
 	}
 	
-	private void openActivityFeedFragment()
+	private void loadActivityFeedFragment()
 	{
 		ActivityFeedFragment activityFeedFragment = new ActivityFeedFragment();
-
 		getSupportFragmentManager().
 		beginTransaction().
 		add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).

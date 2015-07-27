@@ -382,6 +382,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					viewHolder.loveCount.setText("0");
 				}
 
+				viewHolder.checkBoxLove.setOnCheckedChangeListener(null);
+				
 				viewHolder.checkBoxLove.setTag(statusMessage);
 				if (selfLiked)
 				{
@@ -554,6 +556,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.loveCount.setText("0");
 			}
 
+			viewHolder.checkBoxLove.setOnCheckedChangeListener(null);
+			
 			viewHolder.checkBoxLove.setTag(statusMessage);
 			if (selfLiked)
 			{
