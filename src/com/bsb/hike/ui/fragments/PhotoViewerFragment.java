@@ -55,6 +55,7 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -352,6 +353,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		/*
 		 * else part
 		 * */
+		StatusBarColorChanger.changeStatusBarColorifnotInTranslucentState(getActivity(), HikeConstants.STATUS_BAR_TRANSPARENT);
 		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();//check if getSupportA
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 		actionBar.setDisplayHomeAsUpEnabled(true);
@@ -740,8 +742,9 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		if(smAdapter != null)
 		{
 			smAdapter.onDestroy();
+			
 		}
-		
+		StatusBarColorChanger.changeStatusBarColorifnotInTranslucentState(getActivity(), HikeConstants.STATUS_BAR_BLUE);
 		super.onDestroy();
 	}
 }
