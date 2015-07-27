@@ -300,11 +300,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		
 		//Make sure we are not launching share intent if our activity is restarted by OS
-		if (savedInstanceState == null && (Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
+		if ((Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
 				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction())))
 		{
 			
-			if (Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
+			if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
 			{
 				if(HikeFileType.fromString(getIntent().getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
 				{ 
@@ -313,7 +313,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 			} 
 			
-			else if(Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
+			else if(savedInstanceState == null && Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 			{
 				
 				ArrayList<Uri> imageUris = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
