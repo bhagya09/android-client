@@ -802,8 +802,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		Intent intent = null;
-
 		switch (item.getItemId())
 		{
 		case android.R.id.home:
@@ -816,16 +814,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			recordSearchOptionClick();
 		}
 
-		if (intent != null)
-		{
-			startActivity(intent);
-			
-		}
 		return true;
 	}
-
-
-	
 
 	private void showSMSClientDialog()
 	{
