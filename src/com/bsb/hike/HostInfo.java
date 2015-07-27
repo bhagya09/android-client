@@ -242,22 +242,52 @@ public class HostInfo
 
 	public void setConnectTimeOut(HostInfo previousHostInfo, int currentPortNum, boolean isSslOn)
 	{
+		/*
+		 * if it is not null ==> last connect try was a failure ==> we just need to increment time
+		 * in case of socketTimeOutException.  
+		 */
 		if (previousHostInfo != null)
 		{
 			/*
-			 * We might need to increment connect timeout if
+			 * We would need to increment connect timeout if
 			 * 1. Last connect call resulted into socket timeout
-			 * 2. AND we have tried all fallback cases. (i.e. if we trying to connect of a default port 8080 OR 443(if ssl on)) 
 			 */
-			if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION 
-					&& currentPortNum == getStanderedProductionPort(isSslOn))
+			if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION)
 			{
 				incrementConnectRetryCount();
 			}
 		}
+		else
+		{
+			// if it is null ==> this is a fresh try ==> we need to start from last successful connect
+			// try time
+			long timeTakenInLastSuccessfullConnect = HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.TIME_TAKEN_IN_LAST_SOCKET_CONNECT, (long) (CONNECTION_TIMEOUT_SECONDS[0]));
+			
+			/*
+			 * current logic is to increment connect timeout every time by 4
+			 * and timeTakenInLastSuccessfullConnect is in milliseconds So
+			 * devide it by 4000. 
+			 */
+			int index = (int) (timeTakenInLastSuccessfullConnect/4000) ;
+			
+			index = index -1;
+			
+			if(index < 0)
+			{
+				index = 0;
+			}
+			else if (index >= CONNECTION_TIMEOUT_SECONDS.length)
+			{
+				index = CONNECTION_TIMEOUT_SECONDS.length - 1;
+			}
+			
+			connectRetryCount = index;
+		}
 
 		int connectTimeOut = CONNECTION_TIMEOUT_SECONDS[Math.min(CONNECTION_TIMEOUT_SECONDS.length - 1, connectRetryCount)];
 		setConnectTimeOut(connectTimeOut);
+		
+		Logger.e(this.getClass().getSimpleName(), "connectTimeOut " + connectTimeOut);
 	}
 
 	private void incrementConnectRetryCount()

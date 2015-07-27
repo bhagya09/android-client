@@ -40,7 +40,7 @@ public class MqttConstants
 
 	public static final short KEEP_ALIVE_SECONDS = HikeConstants.KEEP_ALIVE; // this is the time for which conn will remain open w/o messages
 
-	public static final short[] CONNECTION_TIMEOUT_SECONDS = {8, 15, 30, 60};
+	public static final short[] CONNECTION_TIMEOUT_SECONDS = {8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60};
 
 	/* Time after which a reconnect on mqtt thread is reattempted (Time in 'ms') */
 	public static final short MQTT_WAIT_BEFORE_RECONNECT_TIME = 10;
@@ -99,4 +99,6 @@ public class MqttConstants
 	public static final String ALARM_PING_WAKELOCK_TIMEOUT = "alarmPingWakeLockTimeout";
 
 	public static final String LAST_MQTT_CONNECT_PORT = "lastMqttConnectPort";
+
+	public static final String TIME_TAKEN_IN_LAST_SOCKET_CONNECT = "timeTakenInLastSocketConnect";
 }
