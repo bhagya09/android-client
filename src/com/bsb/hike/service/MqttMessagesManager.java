@@ -2171,6 +2171,11 @@ public class MqttMessagesManager
 			boolean enableTimelineFTUE = data.getBoolean(HikeConstants.ENABLE_TIMELINE_FTUE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, enableTimelineFTUE);
 		}
+		if (data.has(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER))
+		{
+			int cardCounter = data.getInt(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER, cardCounter);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

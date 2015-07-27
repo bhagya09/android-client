@@ -2936,10 +2936,12 @@ public class HikeConstants
 	
 	public static final String IMAGE_PATHS = "image-paths";
 	
-	public static final String ENABLE_TIMELINE_FTUE = "en_tl_ftue";
-	
-	public static final String TIMELINE_FTUE_FAV_COUNTER = "timeline_ftue_fav_counter";
+	public static final String ENABLE_TIMELINE_FTUE = "tl_ftue";
 	
 	public static final String HISTORICAL_UPDATE = "hsu";
+	
+	public static final String TIMELINE_FTUE_CARD_SHOWN_COUNTER = "timeline_ftue_card_shown_counter";
+	
+	public static final String TIMELINE_FTUE_TOTAL_CARD_COUNTER = "tl_cnt";
 
 }
