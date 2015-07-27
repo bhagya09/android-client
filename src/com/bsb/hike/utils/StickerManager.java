@@ -1789,10 +1789,10 @@ public class StickerManager
 		return catId + ":" + stkId;
 	}
 
-	public Sticker getStickerFromSetString(String info)
+	public Sticker getStickerFromSetString(String info, boolean stickerAvailability)
 	{
 		Pair<String, String> pair = getStickerInfoFromSetString(info);
-		return new Sticker(pair.first, pair.second);
+		return new Sticker(pair.first, pair.second, stickerAvailability);
 	}
 
 	public Pair<String, String> getStickerInfoFromSetString(String info)

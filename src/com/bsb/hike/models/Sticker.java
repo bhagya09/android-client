@@ -46,6 +46,14 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.isAvailable = true; /* Default value */
 	}
 
+	public Sticker(String categoryId, String stickerId, boolean isAvailable)
+	{
+		this.stickerId = stickerId;
+		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
+		this.categoryId = categoryId;
+		this.isAvailable = isAvailable;
+	}
+
 	public Sticker()
 	{
 

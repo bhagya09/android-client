@@ -257,7 +257,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12;
 
-	public static final int INDEX_STICKER_DATA_COUNT = 13;
+	public static final int INDEX_STICKER_AVAILABILITY_STATUS = 13;
+
+	public static final int INDEX_STICKER_DATA_COUNT = 14;
 
 	// =============================================Constants used for indexing of sticker data]]
 

@@ -639,20 +639,21 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		ArrayList<Object> data = new ArrayList<Object>(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_COUNT);
 
 		// Do not change the order of insertion as per indices defined as followed
-		// INDEX_STICKER_DATA_STICKER_CODE = 0;
-		// INDEX_STICKER_DATA_TAG_PHRASE = 1;
-		// INDEX_STICKER_DATA_PHRASE_LANGUAGE = 2;
-		// INDEX_STICKER_DATA_TAG_CATEGORY = 3;
-		// INDEX_STICKER_DATA_OVERALL_FREQUENCY_FOR_TAG = 4;
-		// INDEX_STICKER_DATA_OVERALL_FREQUENCY = 5;
-		// INDEX_STICKER_DATA_STORY_THEMES = 6;
-		// INDEX_STICKER_DATA_EXACTNESS_ORDER = 7;
-		// INDEX_STICKER_DATA_MOMENT_CODE = 8;
-		// INDEX_STICKER_DATA_FESTIVALS = 9;
-		// INDEX_STICKER_DATA_AGE = 10;
-		// INDEX_STICKER_DATA_USED_WITH_STRINGS = 11;
-		// INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12;
-		// INDEX_STICKER_DATA_COUNT = 13;
+		// INDEX_STICKER_DATA_STICKER_CODE = 0
+		// INDEX_STICKER_DATA_TAG_PHRASE = 1
+		// INDEX_STICKER_DATA_PHRASE_LANGUAGE = 2
+		// INDEX_STICKER_DATA_TAG_CATEGORY = 3
+		// INDEX_STICKER_DATA_OVERALL_FREQUENCY_FOR_TAG = 4
+		// INDEX_STICKER_DATA_OVERALL_FREQUENCY = 5
+		// INDEX_STICKER_DATA_STORY_THEMES = 6
+		// INDEX_STICKER_DATA_EXACTNESS_ORDER = 7
+		// INDEX_STICKER_DATA_MOMENT_CODE = 8
+		// INDEX_STICKER_DATA_FESTIVALS = 9
+		// INDEX_STICKER_DATA_AGE = 10
+		// INDEX_STICKER_DATA_USED_WITH_STRINGS = 11
+		// INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12
+		// INDEX_STICKER_AVAILABILITY_STATUS = 13
+		// INDEX_STICKER_DATA_COUNT = 14
 
 		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
 		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
@@ -667,6 +668,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE)));
 		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG)));
 		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG)));
+		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_IS_AVAILABLE)));
 
 		return data;
 	}
