@@ -7,10 +7,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.SwitchCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Checkable;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.bsb.hike.R;
@@ -41,24 +43,25 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 	private CharSequence mSwitchOn;
 
 	private CharSequence mSwitchOff;
+	
+	private final Listener mListener = new Listener();
 
-	private final com.bsb.hike.view.MaterialElements.Switch.OnCheckedChangeListener mListener = new com.bsb.hike.view.MaterialElements.Switch.OnCheckedChangeListener()
+	private class Listener implements CompoundButton.OnCheckedChangeListener
 	{
-		
 		@Override
-		public void onCheckedChanged(com.bsb.hike.view.MaterialElements.Switch view, boolean checked)
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 		{
-			if (!callChangeListener(checked))
+			if (!callChangeListener(isChecked))
 			{
 				// Listener didn't like it, change it back.
 				// CompoundButton will make sure we don't recurse.
-				view.setChecked(!checked);
+				buttonView.setChecked(!isChecked);
 				return;
 			}
 
-			SwitchPreferenceCompat.this.setChecked(checked);
+			SwitchPreferenceCompat.this.setChecked(isChecked);
 		}
-	};
+	}
 
 	/**
 	 * Construct a new SwitchPreference with the given style options.
@@ -112,7 +115,7 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 	{
 		super.onBindView(view);
 		
-		view.setAlpha(isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		ViewCompat.setAlpha(view, isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
 
 		View checkableView = view.findViewById(R.id.switchWidget);
 		if (checkableView != null && checkableView instanceof Checkable)
@@ -121,11 +124,11 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 
 			sendAccessibilityEvent(checkableView);
 
-			if (checkableView instanceof com.bsb.hike.view.MaterialElements.Switch)
+			if (checkableView instanceof SwitchCompat)
 			{
-				final com.bsb.hike.view.MaterialElements.Switch switchView = (com.bsb.hike.view.MaterialElements.Switch) checkableView;
-//				switchView.setTextOn(mSwitchOn);
-//				switchView.setTextOff(mSwitchOff);
+				final SwitchCompat switchView = (SwitchCompat) checkableView;
+				switchView.setTextOn(mSwitchOn);
+				switchView.setTextOff(mSwitchOff);
 				switchView.setOnCheckedChangeListener(mListener);
 			}
 		}
