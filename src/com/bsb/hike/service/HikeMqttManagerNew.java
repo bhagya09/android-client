@@ -855,6 +855,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 						cancelNetworkErrorTimer();
 						HikeMessengerApp.getPubSub().publish(HikePubSub.CONNECTED_TO_MQTT, null);
 						mqttThreadHandler.postAtFrontOfQueue(new RetryFailedMessages());
+						saveSuccessfullMqttConnectPrefs();
 						resetConnectionVariables();
 					}
 
@@ -896,6 +897,15 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		}
 		return listernerConnect;
 	}
+	
+	private void saveSuccessfullMqttConnectPrefs()
+	{
+		if(previousHostInfo != null)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.LAST_MQTT_CONNECT_PORT, previousHostInfo.getPort());
+		}
+	}
+
 
 	/* This call back will be called when message is arrived */
 	private MqttCallback getMqttCallback()

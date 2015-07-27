@@ -97,4 +97,6 @@ public class MqttConstants
 	public static final int TIMER_PING_SENDER_CONSTANT = 0;
 	
 	public static final String ALARM_PING_WAKELOCK_TIMEOUT = "alarmPingWakeLockTimeout";
+
+	public static final String LAST_MQTT_CONNECT_PORT = "lastMqttConnectPort";
 }

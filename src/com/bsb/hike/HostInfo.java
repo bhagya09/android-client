@@ -227,7 +227,7 @@ public class HostInfo
 	
 	private int getStanderedProductionPort(boolean isSslOn)
 	{
-		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : MqttConstants.PRODUCTION_BROKER_PORT_NUMBER;
+		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.LAST_MQTT_CONNECT_PORT, MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
 	}
 
 	public int getConnectTimeOut()
