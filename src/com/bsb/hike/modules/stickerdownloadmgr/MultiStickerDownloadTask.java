@@ -185,8 +185,6 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						return;
 					}
 
-					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STICKER_DATA_FIRST_SETUP);
-
 					JSONObject packs = data.getJSONObject(HikeConstants.PACKS);
 					String categoryId = packs.keys().next();
 
@@ -230,6 +228,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 							}
 						}
 					}
+
+					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STICKER_DATA_FIRST_SETUP);
 
 					if (totalNumber != 0)
 					{
