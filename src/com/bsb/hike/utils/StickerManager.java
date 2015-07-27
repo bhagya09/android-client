@@ -1938,7 +1938,7 @@ public class StickerManager
 	
 	public void doSignupTasks()
 	{
-		if(Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
 		{
 			return ;
 		}
