@@ -5,7 +5,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1293"
-    android:versionName="3.9.8.82.2.chat_head_gesture" >
+    android:versionName="3.9.8.82.3.chat_head_wm" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -316,15 +316,6 @@
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity
-            android:name=".chatHead.ChatHeadActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:noHistory="true"
-            android:excludeFromRecents="true"
-            android:taskAffinity="com.bsb.hike.chatHead"
-            android:launchMode="singleInstance">
-		</activity>
-		<activity
             android:name=".chatHead.StickerShareSettings"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
