@@ -467,7 +467,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		});
 		
-		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
+		actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);

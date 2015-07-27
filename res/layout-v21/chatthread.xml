@@ -2,7 +2,8 @@
 <LinearLayout android:id="@+id/chatThreadParentLayout"
     xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent" 
+    android:background="@color/blue_hike">
     
 <RelativeLayout
     android:id="@+id/ct_parent_rl"
@@ -32,7 +33,7 @@
         <View
             android:id="@+id/bottom_nav_bar_dropshadow"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="0dp"
             android:background="@drawable/dropshadow" />
 
         <RelativeLayout
