@@ -2349,15 +2349,23 @@ public class MqttMessagesManager
 			}
 		}
 		pubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-		String msisdn = jsonObj.getString(HikeConstants.FROM);
-		ConvMessage convMessage = saveStatusMsg(jsonObj, msisdn);
-
-		if (convMessage == null)
+		
+		/**
+		 * Add to Conv DB only if non historical update
+		 * as they are not to be shown inside CT
+		 */
+		if(!statusMessage.isHistoricalUpdate())
 		{
-			return;
-		}
+			String msisdn = jsonObj.getString(HikeConstants.FROM);
+			ConvMessage convMessage = saveStatusMsg(jsonObj, msisdn);
 
-		convDb.setMessageIdForStatus(statusMessage.getMappedId(), convMessage.getMsgID());
+			if (convMessage == null)
+			{
+				return;
+			}
+
+			convDb.setMessageIdForStatus(statusMessage.getMappedId(), convMessage.getMsgID());
+		}
 	}
 
 	private void saveDeleteStatus(JSONObject jsonObj) throws JSONException

@@ -90,6 +90,8 @@ public class StatusMessage
 
 	private String fileKey;
 	
+	private boolean isHistoricalUpdate;
+	
 	public StatusMessage(JSONObject statusMessageJson) throws JSONException
 	{
 		this.msisdn = statusMessageJson.getString(HikeConstants.FROM);
@@ -128,6 +130,11 @@ public class StatusMessage
 		}
 		this.moodId = data.optInt(HikeConstants.MOOD);
 		this.timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
+		
+		if(data.has(HikeConstants.HISTORICAL_UPDATE))
+		{
+			this.isHistoricalUpdate = data.optBoolean(HikeConstants.HISTORICAL_UPDATE);
+		}
 	}
 
 	public StatusMessage(long id, String mappedId, String msisdn, String name, String text, StatusMessageType statusMessageType, long timeStamp)
@@ -297,4 +304,11 @@ public class StatusMessage
 
 		return false;
 	}
+
+	public boolean isHistoricalUpdate()
+	{
+		return isHistoricalUpdate;
+	}
+	
+	
 }
