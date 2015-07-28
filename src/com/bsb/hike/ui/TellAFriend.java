@@ -195,7 +195,6 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		};
 
 		ListView settingsList = (ListView) findViewById(R.id.settings_content);
-		settingsList.setAdapter(listAdapter);
 		settingsList.setOnItemClickListener(this);
 		if (hikeSharedPreferenceUtil.getData(HikeConstants.InviteSection.SHOW_EXTRA_INVITE_SECTION, false)
 				&& hikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, null) != null)
@@ -224,6 +223,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 			settingsList.addHeaderView(extraReferralSection);
 			settingsList.setHeaderDividersEnabled(true);
 		}
+		settingsList.setAdapter(listAdapter);
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 
 		if (savedInstanceState != null)
