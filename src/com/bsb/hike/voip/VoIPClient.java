@@ -12,7 +12,6 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
@@ -20,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,6 +43,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
+import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
@@ -91,6 +92,7 @@ public class VoIPClient  {
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
 	private int audioPacketsReceivedPerSecond = 0;
+	private int lastPacketReceived = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
@@ -98,7 +100,7 @@ public class VoIPClient  {
 	public VoIPEncryptor encryptor = new VoIPEncryptor();
 	public boolean cryptoEnabled = true;
 	private VoIPEncryptor.EncryptionStage encryptionStage;
-	public boolean remoteHold = false;
+	public boolean remoteHold = false, remoteMute = false;
 	public boolean audioStarted = false;
 	private VoIPConstants.CallStatus currentCallStatus;
 	private int localBitrate = VoIPConstants.BITRATE_WIFI, remoteBitrate = 0;
@@ -107,11 +109,12 @@ public class VoIPClient  {
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
-	private boolean isSpeaking = true;
+	private boolean isSpeaking = false;
 	private int voicePacketCount = 0;
+	public boolean isDummy = false;
 
 	// List of client MSISDNs (for conference)
-	public List<String> clientMsisdns = null;
+	public List<VoIPClient> clientMsisdns = new ArrayList<>();
 	public boolean isHostingConference;
 	public boolean isInAHostedConference;
 	public String groupChatMsisdn;
@@ -167,7 +170,7 @@ public class VoIPClient  {
 		// Get name from MSISDN
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(phoneNumber);
 		if (contactInfo == null) {
-			Logger.d(tag, "Unable to retrieve contact info.");
+//			Logger.d(tag, "Unable to retrieve contact info.");
 			name = phoneNumber;
 		} else {
 			name = contactInfo.getNameOrMsisdn();
@@ -719,6 +722,7 @@ public class VoIPClient  {
 				
 				if (connected == true) {
 					Logger.d(tag, "UDP connection established :) " + getPreferredConnectionMethod());
+					lastPacketReceived = 0;
 					connectionEstablished();
 
 					if (reconnecting) {
@@ -759,7 +763,8 @@ public class VoIPClient  {
 							{
 								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
-								return;
+								if (!isInAHostedConference)
+									return;
 							}
 						}
 						stop();
@@ -774,7 +779,7 @@ public class VoIPClient  {
 		responseTimeoutThread.start();
 	}
 
-	private void startSendingAndReceiving() {
+	public void startSendingAndReceiving() {
 		
 		// In case we are reconnecting, current sending and receiving threads
 		// need to be restarted because the sockets would have changed.
@@ -1042,9 +1047,6 @@ public class VoIPClient  {
 			else
 				packet = new DatagramPacket(packetData, packetData.length, getCachedInetAddress(), getPreferredPort());
 				
-//			Logger.d(logTag, "Sending type: " + dp.getType() + " to: " + packet.getAddress() + ":" + packet.getPort());
-//			if (dp.getBroadcastList() == null)
-//				Logger.d(tag, "Sending to: " + dp.getDestinationIP() + ":" + dp.getDestinationPort());
 			socket.send(packet);
 			totalBytesSent += packet.getLength();
 			totalPacketsSent++;
@@ -1417,7 +1419,15 @@ public class VoIPClient  {
 						setRemoteHold(false);
 						break;
 
-					case CLIENTS_LIST:
+					case MUTE_ON:
+						setRemoteMute(true);
+						break;
+
+					case MUTE_OFF:
+						setRemoteMute(false);
+						break;
+						
+					case CLIENTS_LIST_JSON:
 						if (dataPacket.getData() != null) {
 							try {
 								updateClientsList(new String(dataPacket.getData(), "UTF-8"));
@@ -1587,6 +1597,14 @@ public class VoIPClient  {
 		sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 	}
 
+	public boolean isRemoteMute() {
+		return remoteMute;
+	}
+
+	public void setRemoteMute(boolean remoteMute) {
+		this.remoteMute = remoteMute;
+	}
+
 	private void startStreaming() {
 		
 		startCodec(); 
@@ -1671,7 +1689,6 @@ public class VoIPClient  {
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				int uncompressedLength = 0;
-				int lastPacketReceived = 0;
 				while (keepRunning == true) {
 					VoIPDataPacket dpdecode;
 					try {
@@ -1682,8 +1699,6 @@ public class VoIPClient  {
 					
 					byte[] uncompressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];	
 					
-//					Logger.w(tag, "Decompressing.");
-
 					if (dpdecode.getVoicePacketNumber() > 0 && 
 							lastPacketReceived > 0 &&
 							dpdecode.getVoicePacketNumber() <= lastPacketReceived) {
@@ -1917,6 +1932,9 @@ public class VoIPClient  {
 	
 	private void calculateQuality() {
 
+		if (remoteHold || remoteMute)
+			return;
+		
 		int cardinality = playbackTrackingBits.cardinality();
 		packetLoss = (100 - (cardinality*100 / (playbackFeederCounter < playbackTrackingBits.size() ? playbackFeederCounter : playbackTrackingBits.size())));
 //		Logger.d(tag, "Loss: " + packetLoss + ", playbackFeederCounter: " + playbackFeederCounter);
@@ -1955,6 +1973,9 @@ public class VoIPClient  {
 			return;
 		
 		if (getCallDuration() < QUALITY_BUFFER_SIZE + 1)
+			return;
+		
+		if (isHostingConference || isInAHostedConference)
 			return;
 		
 		bitrateAdjustment -= 2000;
@@ -2001,13 +2022,31 @@ public class VoIPClient  {
 		buffersToSendQueue.put(dp);
 	}
 	
-	private void updateClientsList(String csv) {
-		clientMsisdns = Arrays.asList(csv.split("\\s*,\\s*"));
-		Logger.w(tag, "Received clients list: " + clientMsisdns.toString());
+	private void updateClientsList(String json) {
+		
+//		Logger.w(tag, "Updating: " + json);
+		try {
+			clientMsisdns.clear();
+			JSONObject jsonObject = new JSONObject(json);
+			JSONArray jsonArray = jsonObject.getJSONArray(VoIPConstants.Extras.VOIP_CLIENTS);
+			if (jsonArray != null) {
+				for (int i = 0; i < jsonArray.length(); i++) {
+					VoIPClient client = new VoIPClient(null, null);
+					JSONObject clientObject = jsonArray.getJSONObject(i);
+					client.setPhoneNumber(clientObject.getString(VoIPConstants.Extras.MSISDN));
+					client.setSpeaking(clientObject.getBoolean(VoIPConstants.Extras.SPEAKING));
+					client.setCallStatus(CallStatus.values()[clientObject.getInt(VoIPConstants.Extras.STATUS)]);
+					client.isDummy = true;
+					clientMsisdns.add(client);
+				}
+			} else
+				Logger.w(tag, "Clients array is empty.");
+		} catch (JSONException e) {
+			Logger.e(tag, "Error parsing clients JSON: " + e.toString());
+		}
+
 		if (clientMsisdns.size() <= 2) {
 			Logger.w(tag, "Conference over?");
-//			clientMsisdns = null;
-//			isHostingConference = false;
 		} else
 			isHostingConference = true;
 		

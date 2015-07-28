@@ -1,6 +1,7 @@
 package com.bsb.hike.voip.view;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -182,7 +183,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_LEFT_CONFERENCE:
 				Bundle bundle = msg.getData();
 				String msisdn = bundle.getString(VoIPConstants.MSISDN);
-				showMessage(msisdn + " has left the conference.");
+				String name = null;
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
+				if (contactInfo == null) {
+					name = msisdn;
+				} else {
+					name = contactInfo.getNameOrMsisdn();
+				}
+				showMessage(name + " has left the conference.");
 			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
 				setContactDetails();
 				break;
@@ -815,6 +823,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			updateConferenceList();
 		}
 
+		if (clientPartner.isHostingConference) {
+			addButton.setVisibility(View.GONE);
+		} else
+			addButton.setVisibility(View.VISIBLE);
+			
+		
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
 		{
 			contactNameView.setTextSize(24);
