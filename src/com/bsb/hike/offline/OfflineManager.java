@@ -21,6 +21,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.hike.transporter.DefaultRetryPolicy;
 import com.hike.transporter.TException;
@@ -494,6 +495,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		connectinMsisdn = null;
 		removeAllMessages();
 		startedForChatThread = false;
+		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
 	}
 
 	public void setConnectedDevice(String connectedDevice)
@@ -547,7 +549,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 
-	public void updateListeners(OFFLINE_STATE offline_STATE) {
+	public void updateListeners(String connectedDevice,String connectingDevice) {
 
 		// to avoid ConcurrentModificationException we use a cloned list of listeners
 		// for traversing.
@@ -557,14 +559,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			clonedListeners.add(offlineListener);
 		}
 		
-		if (offline_STATE == OFFLINE_STATE.CONNECTED)
+		if (!TextUtils.isEmpty(connectedDevice))
 		{
 			for (IOfflineCallbacks offlineListener : clonedListeners)
 			{
 				offlineListener.onDisconnect(ERRORCODE.USERDISCONNECTED);
 			}
 		}
-		else if (offline_STATE == OFFLINE_STATE.CONNECTING)
+		else if (!TextUtils.isEmpty(connectingDevice))
 		{
 			for (IOfflineCallbacks offlineListener : clonedListeners)
 			{

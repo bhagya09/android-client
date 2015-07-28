@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -472,37 +473,32 @@ public class OfflineController
 	
 	public synchronized void shutdownProcess(TException exception)
 	{
-		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED) {
+		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
+		{
 			// this function uses offline state == connected.
 			// so changing OfflineState after calling this.
+			setOfflineState(OFFLINE_STATE.DISCONNECTED);
+			Transporter.getInstance().shutDown();
 			fileManager.shutDown();
 			sendDisconnectToListeners();
-			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
-			setOfflineState(OFFLINE_STATE.DISCONNECTED);
-			
 
-			Transporter.getInstance().shutDown();
-			Logger.d(TAG, "going to disconnect");
-			HikeMessengerApp.getInstance().showToast(
-					"Disconnected Reason " + exception.getReasonCode());
-		
-			hikeConverter.releaseResources();
 			
+			Logger.d(TAG, "going to disconnect");
+			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
+
+			hikeConverter.releaseResources();
+
 			offlineManager.releaseResources();
 			// if a sending file didn't go change from spinner to retry button
-			HikeMessengerApp.getPubSub().publish(
-					HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
 	}
 	
 	private void sendDisconnectToListeners()
 	{
-		if (getOfflineState() == OFFLINE_STATE.CONNECTED)
-		{
-			sendDisconnectInlineMsg(getConnectedDevice());
-			
-		}
-		offlineManager.updateListeners(getOfflineState());
+		sendDisconnectInlineMsg(getConnectedDevice());
+
+		offlineManager.updateListeners(getConnectedDevice(), getConnectingDevice());
 	}
 	
 	public void deleteRemainingFiles(ArrayList<Long> msgId,String msisdn)
@@ -512,6 +508,8 @@ public class OfflineController
 	
 	public void sendDisconnectInlineMsg(String msisdn)
 	{
+		if(TextUtils.isEmpty(msisdn))
+			return ;
 		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(msisdn, HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_deestablished),
 				OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
