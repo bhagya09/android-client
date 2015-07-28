@@ -119,6 +119,8 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     	
     	if (initFragment != null && initFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
     	{
+    		//Checking address of image in fragment just as an extra safety check
+    		//Storing initFragment in correct position if it is required.
     		Logger.i(TAG,"Init Match : "+initFragment.getPathTag());
     		mFragments.set(initFragment.getPosition(), null);
     		initFragment.setPosition(position);
