@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,6 +17,7 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPClient;
+import com.google.android.gms.internal.co;
 
 
 public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
@@ -51,7 +53,8 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 	{
 		public ImageView avatarHolder;
 		public TextView contactNameHolder;
-		public RecyclingImageView crossBtn;
+		public ImageView isSpeakingHolder;
+		public ImageView crossBtnHolder;
 	}
 	
 	public ConferenceParticipantsAdapter(Context context, int resource,
@@ -79,7 +82,8 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 			convertView = inflater.inflate(R.layout.voip_conference_participant_item, parent, false);
 			conferenceParticipantHolder.avatarHolder  = (ImageView) convertView.findViewById(R.id.avatar);
 			conferenceParticipantHolder.contactNameHolder = (TextView) convertView.findViewById(R.id.contact);
-			conferenceParticipantHolder.crossBtn = (RecyclingImageView) convertView.findViewById(R.id.remove_participant_btn);
+			conferenceParticipantHolder.isSpeakingHolder = (RecyclingImageView) convertView.findViewById(R.id.is_speaking_view);
+			conferenceParticipantHolder.crossBtnHolder = (RecyclingImageView) convertView.findViewById(R.id.remove_participant_btn);
 			convertView.setTag(conferenceParticipantHolder);
 		}
 		else
@@ -89,7 +93,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		conferenceParticipantHolder.contactNameHolder.setText(clients.get(position).getName());
 		iconLoader.loadImage(clients.get(position).getPhoneNumber(), conferenceParticipantHolder.avatarHolder, false, false, true);
 
-		conferenceParticipantHolder.crossBtn.setOnClickListener(conferencePartitcipantClickListenter);
+		//conferenceParticipantHolder.crossBtnHolder.setOnClickListener(conferencePartitcipantClickListenter);
 
 		return convertView;
 	}
