@@ -206,7 +206,7 @@ public class DownloadFileTask extends FileTransferBase
 					// Check for valid content length.
 					int contentLength = conn.getContentLength();
 					String md5Hash = conn.getHeaderField(ETAG);
-					if ((contentLength - raf.length()) > Utils.getFreeSpace())
+					if (contentLength > Utils.getFreeSpace())
 					{
 						closeStreams(raf, in);
 						FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_MEM_CHECK, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "FILE_TOO_LARGE");
