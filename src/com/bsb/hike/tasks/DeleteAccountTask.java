@@ -8,11 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -23,7 +21,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSystemSettingsDBUtil;
@@ -133,7 +131,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 			// DBBackupRestore.getInstance(ctx).deleteAllFiles();
 		}
 		
-		HikeStickerSearchDatabase.getInstance().deleteDataInTables(true);
+		StickerSearchDataController.getInstance().clear(true);
 		if(delete)
 		{
 			HikeSystemSettingsDBUtil.getInstance(true).deleteAllHikeSpecificData();

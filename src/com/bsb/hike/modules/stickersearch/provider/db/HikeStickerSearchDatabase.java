@@ -188,7 +188,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_IS_AVAILABLE
+				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_LAST + HikeStickerSearchBaseConstants.SYNTAX_END;
 		db.execSQL(sql);
 	}
@@ -227,7 +227,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	/* Create virtual table used for searching tags */
 	public void createVirtualTable(String[] tablesName)
 	{
-		Logger.d(TAG, "createVirtualTable(" + Arrays.toString(tablesName) + ")");
+		Logger.i(TAG, "createVirtualTable(" + Arrays.toString(tablesName) + ")");
 
 		// Create fixed virtual table: TABLE_STICKER_TAG_TEXT_SEARCH_PrefixStart_PrefixEnd
 		// Real Tag Word/Phrase : String [Compulsory], Given tag either a single word or a phrase, element of [PrefixStart*, PrefixEnd*)
@@ -264,7 +264,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	/* Do not change the order of deletion as per dependency of foreign keys. */
 	public void deleteDataInTables(boolean isNeedToDeleteAllSearchData)
 	{
-		Logger.d(TAG, "deleteDataInTables(" + isNeedToDeleteAllSearchData + ")");
+		Logger.i(TAG, "deleteDataInTables(" + isNeedToDeleteAllSearchData + ")");
 
 		try
 		{
@@ -297,7 +297,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	/* Delete fts data */
 	private void deleteSearchData()
 	{
-		Logger.d(TAG, "deleteSearchData()");
+		Logger.i(TAG, "deleteSearchData()");
 
 		// Delete dynamically added tables
 		String[] tables = new String[HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT];
@@ -356,7 +356,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, tagExactnessPriorities.get(i));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoment);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, tagPopularities.get(i));
-					cv.put(HikeStickerSearchBaseConstants.STICKER_IS_AVAILABLE, availability);
+					cv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, availability);
 
 					try
 					{
@@ -668,7 +668,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE)));
 		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG)));
 		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG)));
-		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_IS_AVAILABLE)));
+		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY)));
 
 		return data;
 	}
@@ -756,7 +756,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 			catch (SQLException e)
 			{
-				Logger.d(TAG, "Error in executing sql delete queries: ", e);
+				Logger.e(TAG, "Error in executing sql delete queries: ", e);
 			}
 			finally
 			{
@@ -971,7 +971,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public boolean startRebalancing()
 	{
-		Logger.d(TAG, "startRebalancing()");
+		Logger.i(TAG, "startRebalancing()");
 
 		Cursor c = null;
 		long count = 0;
@@ -1136,7 +1136,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							// changed for testing only
 							if (deleting && ageList.get(i) == 15)
 							{
-								Logger.d(TAG_REBALANCING, "Deleting tag: " + tagList.get(i) + " w.r.t. sticker: " + stickerList.get(i));
+								Logger.v(TAG_REBALANCING, "Deleting tag: " + tagList.get(i) + " w.r.t. sticker: " + stickerList.get(i));
 
 								char[] array = tagList.get(i).toCharArray();
 								table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
@@ -1160,7 +1160,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 									updatedAge = ageList.get(i) + 1;
 								}
 
-								Logger.d(TAG_REBALANCING, "Aging tag: " + tagList.get(i) + " with age = " + updatedAge + " w.r.t. sticker: " + stickerList.get(i));
+								Logger.v(TAG_REBALANCING, "Aging tag: " + tagList.get(i) + " with age = " + updatedAge + " w.r.t. sticker: " + stickerList.get(i));
 
 								ContentValues cv = new ContentValues();
 								cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, updatedAge);

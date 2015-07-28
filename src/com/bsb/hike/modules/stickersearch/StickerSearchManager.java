@@ -47,9 +47,9 @@ public class StickerSearchManager
 	private boolean isFirstPhraseOrWord = false;
 
 	private int numStickersVisibleAtOneTime;
-	
+
 	private boolean showAutopopupSettingOn;
-	
+
 	private StickerSearchManager()
 	{
 		searchEngine = new StickerSearchEngine();
@@ -119,12 +119,13 @@ public class StickerSearchManager
 		if (listener == null)
 		{
 			Logger.d(StickerTagWatcher.TAG, "highlightSingleCharacterAndShowStickerPopup(), Resource error, can't do anything ???");
+
 			return;
 		}
 
-		if (returnedString.equals(currentString))
+		if (returnedString.equals(this.currentString))
 		{
-			listener.highlightText(highlightArray[0][0], currentLength);
+			listener.highlightText(highlightArray[0][0], this.currentLength);
 			onClickToSendSticker(highlightArray[0][0], false);
 		}
 	}
@@ -134,6 +135,7 @@ public class StickerSearchManager
 		if (listener == null)
 		{
 			Logger.d(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Resource error, can't do anything ???");
+
 			return;
 		}
 
@@ -143,10 +145,12 @@ public class StickerSearchManager
 
 			listener.dismissStickerSearchPopup();
 			listener.dismissStickerRecommendFtueTip();
+
 			if (this.currentLength > 0)
 			{
 				listener.unHighlightText(0, this.currentLength);
 			}
+
 			return;
 		}
 
@@ -155,81 +159,122 @@ public class StickerSearchManager
 
 		if (Utils.isBlank(returnedString) || (highlightArray == null) || (highlightArray.length <= 0))
 		{
-			Logger.i(StickerTagWatcher.TAG, "No recommendation result, currentTextLength = " + this.currentLength);
+			Logger.i(StickerTagWatcher.TAG, "No recommendation result, current text length = " + this.currentLength);
 
 			listener.dismissStickerSearchPopup();
 			listener.dismissStickerRecommendFtueTip();
+
 			if (this.currentLength > 0)
 			{
 				listener.unHighlightText(0, this.currentLength);
 			}
+
 			return;
 		}
 
 		String s = returnedString.toString();
+
 		if (!s.equals(this.currentString))
 		{
-			Logger.d(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Rapid change in text.");
+			Logger.w(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Rapid change in text.");
+
 			listener.dismissStickerSearchPopup();
 			listener.dismissStickerRecommendFtueTip();
-			if (currentLength > 0)
+
+			if (this.currentLength > 0)
 			{
-				listener.unHighlightText(0, currentLength);
+				listener.unHighlightText(0, this.currentLength);
 			}
+
+			return;
+		}
+
+		// Use local reference to avoid exceptions, if values might change while executing following instructions
+		String currentTextString = this.currentString;
+		int currentTextLength = currentTextString.length();
+
+		if (highlightArray[0][0] >= currentTextLength)
+		{
+			Logger.w(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Exceptional rapid change in text.");
+
+			listener.dismissStickerSearchPopup();
+			listener.dismissStickerRecommendFtueTip();
+
+			if (currentTextLength > 0)
+			{
+				listener.unHighlightText(0, currentTextLength);
+			}
+
 			return;
 		}
 
 		// Only first word/ phrase is typed and searched successfully
 		Logger.i(StickerTagWatcher.TAG, "First highlight pair: [" + highlightArray[0][0] + " - " + highlightArray[0][1] + "]");
-		int highlightLength = highlightArray[0][1] - highlightArray[0][0];
-		String preString = currentString.substring(0, highlightArray[0][0]);
-		String postString = (((highlightArray[0][1] + 1) > currentLength) ? HikeStickerSearchBaseConstants.STRING_EMPTY : currentString.substring(highlightArray[0][1] + 1));
-		if ((highlightLength > 0) && Utils.isBlank(preString) && Utils.isBlank(postString))
+
+		int firstTagHighlightLength = highlightArray[0][1] - highlightArray[0][0];
+		String preString = currentTextString.substring(0, highlightArray[0][0]);
+		String postString = ((highlightArray[0][1] + 1) > currentTextLength) ? HikeStickerSearchBaseConstants.STRING_EMPTY : currentTextString.substring(highlightArray[0][1] + 1);
+
+		if ((firstTagHighlightLength > 0) && Utils.isBlank(preString) && Utils.isBlank(postString))
 		{
-			if (highlightLength == 1)
+			if (firstTagHighlightLength == 1)
 			{
 				listener.dismissStickerSearchPopup();
+
 				SingleCharacterHighlightTask singleCharacterHighlightTask = new SingleCharacterHighlightTask(s, highlightArray);
 				searchEngine.runOnUiThread(singleCharacterHighlightTask, 300);
 			}
 			else
 			{
-				listener.highlightText(highlightArray[0][0], currentLength);
+				listener.highlightText(highlightArray[0][0], currentTextLength);
 				onClickToSendSticker(highlightArray[0][0], false);
 			}
 
 			isFirstPhraseOrWord = true;
 			return;
 		}
+		// Update local reference to avoid exceptions, if values might change while executing following instructions
+		else
+		{
+			currentTextString = this.currentString;
+			currentTextLength = currentTextString.length();
+		}
 
 		// More than one word may be possibly found to be searched
 		listener.dismissStickerSearchPopup();
+
 		if (highlightArray[0][0] > 0)
 		{
 			listener.unHighlightText(0, highlightArray[0][0]);
 		}
 
-		for (int i = 0, start, end; i < highlightArray.length && highlightArray[i] != null; i++)
+		for (int i = 0, start, end; (i < highlightArray.length) && (highlightArray[i] != null); i++)
 		{
 			start = highlightArray[i][0];
 			end = highlightArray[i][1];
 
-			if (end > start && end <= currentLength)
+			if ((end > start) && (end <= currentTextLength))
 			{
 				listener.highlightText(start, end);
 
-				if (i + 1 < highlightArray.length && highlightArray[i + 1] != null && highlightArray[i + 1][0] <= currentLength && highlightArray[i + 1][0] > end)
+				if (((i + 1) < highlightArray.length) && (highlightArray[i + 1] != null) && (highlightArray[i + 1][0] < currentTextLength) && (highlightArray[i + 1][0] > end))
 				{
 					listener.unHighlightText(end, highlightArray[i + 1][0]);
-				} // Handle last phrase/ word highlighting
-				else if (end < currentLength)
-				{
-					listener.unHighlightText(end, currentLength);
 				}
-			} // Handle last partial phrase/ word highlighting
-			else if (start < currentLength)
+				// Handle last possible phrase/ word low-lighting
+				else if (end < currentTextLength)
+				{
+					listener.unHighlightText(end, currentTextLength);
+				}
+			}
+			// Handle last possible partial phrase/ word highlighting
+			else
 			{
-				listener.highlightText(start, currentLength);
+				if (start < currentTextLength)
+				{
+					listener.highlightText(start, currentTextLength);
+				}
+
 				break;
 			}
 		}
@@ -248,10 +293,10 @@ public class StickerSearchManager
 	public void onClickToSendSticker(int clickPosition, boolean onTouch)
 	{
 		Logger.i(StickerTagWatcher.TAG, "onClickToSendSticker(" + clickPosition + ")");
-		
-		if(!onTouch && !showAutopopupSettingOn)
+
+		if (!onTouch && !showAutopopupSettingOn)
 		{
-			// if its not because of touch and autopopup setting is off then return
+			// if its not because of touch and auto pop-up setting is off then return
 			return;
 		}
 
@@ -361,7 +406,7 @@ public class StickerSearchManager
 	{
 		this.numStickersVisibleAtOneTime = numStickersVisibleAtOneTime;
 	}
-	
+
 	public boolean isShowAutopopupSettingOn()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);

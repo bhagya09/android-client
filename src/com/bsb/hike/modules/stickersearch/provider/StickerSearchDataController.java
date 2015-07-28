@@ -50,6 +50,16 @@ public enum StickerSearchDataController
 		}
 	}
 
+	public void clear(boolean isNeedToClearAllData)
+	{
+		Logger.i(TAG, "clear(" + isNeedToClearAllData + ")");
+
+		synchronized (StickerSearchDataController.class)
+		{
+			HikeStickerSearchDatabase.getInstance().deleteDataInTables(isNeedToClearAllData);;
+		}
+	}
+
 	public void setupStickerSearchWizard(JSONObject json, int state)
 	{
 		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
