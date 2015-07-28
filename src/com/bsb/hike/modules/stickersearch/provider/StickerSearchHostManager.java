@@ -1105,7 +1105,8 @@ public class StickerSearchHostManager
 						formattedFrequency = ((float) frequency) / 10f;
 					}
 
-					float phraseMatchScore = computeAnalogousScoreForExactMatch(searchKey, (String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE));
+					String stickerTagText = (String) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE);
+					float phraseMatchScore = computeAnalogousScoreForExactMatch(searchKey, stickerTagText.replaceAll("\'|\\*", HikeStickerSearchBaseConstants.STRING_EMPTY));
 
 					if (((int) stData.get(i).get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER)) == -1)
 					{
