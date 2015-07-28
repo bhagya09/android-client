@@ -32,6 +32,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
@@ -64,8 +65,6 @@ public class FileTransferManager extends BroadcastReceiver
 	private final ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap;
 
 	private String HIKE_TEMP_DIR_NAME = "hikeTmp";
-
-	private final File HIKE_TEMP_DIR;
 
 	// Constant variables
 	private final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
@@ -263,7 +262,6 @@ public class FileTransferManager extends BroadcastReceiver
 		// here choosing TimeUnit in seconds as minutes are added after api level 9
 		pool = new ThreadPoolExecutor(2, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, workQueue, new MyThreadFactory());
 		context = ctx;
-		HIKE_TEMP_DIR = context.getExternalFilesDir(HIKE_TEMP_DIR_NAME);
 		handler = new Handler(context.getMainLooper());
 		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 		context.registerReceiver(this, filter);
@@ -546,7 +544,7 @@ public class FileTransferManager extends BroadcastReceiver
 	public void deleteStateFile(long msgId, File mFile)
 	{
 		String fName = mFile.getName() + ".bin." + msgId;
-		File f = new File(HIKE_TEMP_DIR, fName);
+		File f = new File(getHikeTempDir(), fName);
 		if (f != null)
 			f.delete();
 	}
@@ -555,7 +553,7 @@ public class FileTransferManager extends BroadcastReceiver
 	public void deleteLogFile(long msgId, File mFile)
 	{
 		String fName = mFile.getName() + ".log." + msgId;
-		File f = new File(HIKE_TEMP_DIR, fName);
+		File f = new File(getHikeTempDir(), fName);
 		if (f != null)
 			f.delete();
 	}
@@ -563,8 +561,8 @@ public class FileTransferManager extends BroadcastReceiver
 	// this will be used when user deletes account or unlink account
 	public void deleteAllFTRFiles()
 	{
-		if (HIKE_TEMP_DIR != null && HIKE_TEMP_DIR.listFiles() != null)
-			for (File f : HIKE_TEMP_DIR.listFiles())
+		if (getHikeTempDir() != null && getHikeTempDir().listFiles() != null)
+			for (File f : getHikeTempDir().listFiles())
 			{
 				if (f != null)
 				{
@@ -620,7 +618,7 @@ public class FileTransferManager extends BroadcastReceiver
 			try
 			{
 				String fName = mFile.getName() + ".bin." + msgId;
-				File f = new File(HIKE_TEMP_DIR, fName);
+				File f = new File(getHikeTempDir(), fName);
 				if (!f.exists())
 					return new FileSavedState();
 				fileIn = new FileInputStream(f);
@@ -707,7 +705,7 @@ public class FileTransferManager extends BroadcastReceiver
 		{
 			String fName = mFile.getName() + ".bin." + msgId;
 			Logger.d(getClass().getSimpleName(), fName);
-			File f = new File(HIKE_TEMP_DIR, fName);
+			File f = new File(getHikeTempDir(), fName);
 			if (!f.exists())
 			{
 				return new FileSavedState();
@@ -807,7 +805,21 @@ public class FileTransferManager extends BroadcastReceiver
 
 	public File getHikeTempDir()
 	{
-		return HIKE_TEMP_DIR;
+		File hikeTempDir = new File(context.getExternalFilesDir(null), HIKE_TEMP_DIR_NAME);
+		if(hikeTempDir != null && !hikeTempDir.exists())
+		{
+			if (!hikeTempDir.mkdirs())
+			{
+				Logger.d("FileTransferManager", "failed to create directory");
+				return null;
+			}
+		}
+		else
+		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_HIKE_TEMP_DIR, 0, FTAnalyticEvents.UPLOAD_FILE_TASK + ":" + FTAnalyticEvents.DOWNLOAD_FILE_TASK,
+					"File", "Hike temp dir is null when external storage state is - " + Environment.getExternalStorageState());
+		}
+		return hikeTempDir;
 	}
 
 	/**
