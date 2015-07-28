@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
+import org.apache.http.impl.execchain.MinimalClientExec;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -558,7 +559,7 @@ public abstract class JavascriptBridge
 	{	
 		if(resultCode == Activity.RESULT_OK)
 		{
-			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);	
+			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();	
 			
 			if(TextUtils.isEmpty(filepath))
 				{
@@ -568,21 +569,22 @@ public abstract class JavascriptBridge
 			else
 			{
 			Logger.d("FileUpload", "Path of selected file :" + filepath);
-			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath);
-			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
+			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
+			Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
 			JSONObject json = new JSONObject();
 			try
 			{
 				json.put("filePath", filepath);
 				json.put("mimeType", mimeType);
 				json.put("filesize",  (new File(filepath)).length());
-				String id = data.getStringExtra("callbackid");
+				String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
 				Logger.d("FileUpload",  " Choose File >>calling callbacktoJS "+ id);
 				callbackToJS(id, json.toString());
 			}
 			catch (JSONException e)
 			{
-				e.printStackTrace();
+				Logger.e("FileUpload", "Unable to send in Json");
 			}
 			
 		}
@@ -728,15 +730,7 @@ public abstract class JavascriptBridge
 	 */
 	
 	
-	/**
-	 * id and requestCode generated at the time of calling chooseFile() and onActivityResult()
-	 */
-	
-	public void saveId(String id)
-	{
-		this.id=id;
-	}
-	
+
 	/**
 	 * Platform Bridge Version 3
 	 * call this function to upload multiple files to the server
