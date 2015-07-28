@@ -52,6 +52,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -128,7 +129,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		mUpdatesList.setAdapter(timelineCardsAdapter);
 
 		QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
-				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(60)).isSnappable(false).build();
+				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(45)).isSnappable(false).build();
 
 		mUpdatesList.setOnScrollListener(scrollListener);
 		
@@ -500,72 +501,14 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		switch (arg0.getId())
 		{
 		case R.id.new_photo_tab:
-			Toast.makeText(getActivity().getApplicationContext(), "Clicked new photo", Toast.LENGTH_SHORT).show();
-			boolean editPic = Utils.isPhotosEditEnabled();
-			int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT | GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
-			if (editPic)
-			{
-				galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
-			}
-			Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity().getApplicationContext(), galleryFlags, null);
-			imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-			startActivityForResult(imageIntent, TimelineConstants.TIMELINE_NEW_PHOTO_REQUEST);
+			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
+					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, null);
+			startActivity(galleryPickerIntent);
 			break;
 
 		case R.id.new_status_tab:
-			Toast.makeText(getActivity().getApplicationContext(), "Clicked new status", Toast.LENGTH_SHORT).show();
-			break;
-
-		default:
-			break;
-		}
-	}
-	
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		super.onActivityResult(requestCode, resultCode, data);
-		Toast.makeText(getActivity().getApplicationContext(), "Got result in fragment", Toast.LENGTH_SHORT).show();
-		if (resultCode == Activity.RESULT_CANCELED)
-		{
-			return;
-		}
-		
-		switch (requestCode)
-		{
-		case AttachmentPicker.EDITOR:
-			if(resultCode == Activity.RESULT_OK)
-			{
-				ImageParserListener listener = new ImageParser.ImageParserListener()
-				{
-					
-					@Override
-					public void imageParsed(String imagePath)
-					{
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void imageParsed(Uri uri)
-					{
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void imageParseFailed()
-					{
-						// TODO Auto-generated method stub
-						
-					}
-				};
-				ImageParser.parseResult(getActivity().getApplicationContext(), resultCode, data, listener, false);
-			}
-			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
-			{
-				// This would be executed if photos is not enabled on the device
-			}
+			startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null));
 			break;
 
 		default:

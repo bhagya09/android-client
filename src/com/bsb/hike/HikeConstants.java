@@ -1489,6 +1489,8 @@ public class HikeConstants
 		public static final String SELECTED_SHARABLE_MSGS_MIME_TYPE = "selectedCancelableMsgsMimeType";
 
 		public static final String FROM_NOTIFICATION = "fromNotification";
+		
+		public static final String OPEN_ACTIVITY_FEED = "openAcFeed";
 
 		public static final String LAST_STEALTH_POPUP_ID = "lastStealthPopupId";
 
@@ -2847,7 +2849,8 @@ public class HikeConstants
 		public static final int H2O = 10;
 
 		public static final int OTHER = 11;
-
+		
+		public static final int ACTIVITYUPDATE = 12;
 	}
 	
 	public static final  String NOTIFICATION_RETRY_JSON="notifretry";

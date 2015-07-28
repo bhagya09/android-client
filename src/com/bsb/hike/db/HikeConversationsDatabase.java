@@ -4675,6 +4675,47 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return statusMessagesMap;
 	}
+	
+	public StatusMessage getStatusMessageFromMappedId(String statusID)
+	{
+		StatusMessage statusMessage = null;
+
+		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY };
+
+		String selection = DBConstants.STATUS_MAPPED_ID + " = ?";
+		
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.STATUS_TABLE, columns, selection, new String[]{statusID}, null, null, null);
+
+			int idIdx = c.getColumnIndex(DBConstants.STATUS_ID);
+			int mappedIdIdx = c.getColumnIndex(DBConstants.STATUS_MAPPED_ID);
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+			int textIdx = c.getColumnIndex(DBConstants.STATUS_TEXT);
+			int typeIdx = c.getColumnIndex(DBConstants.STATUS_TYPE);
+			int tsIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
+			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
+			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
+
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(msisdnIdx);
+
+				statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx), StatusMessageType.values()[c.getInt(typeIdx)],
+						c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx));
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+		return statusMessage;
+	}
 
 	public void setMessageIdForStatus(String statusId, long messageId)
 	{

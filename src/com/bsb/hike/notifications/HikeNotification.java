@@ -51,6 +51,9 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -1470,6 +1473,87 @@ public class HikeNotification
 		{
 			notifyStringMessage(msisdn, message, forceNotPlaySound, notifType);
 		}
+	}
+
+
+	public void notifyActivityMessage(FeedDataModel activityFeed, int notificationType)
+	{
+
+		/*
+		 * We only proceed if the current status preference value is 0 which denotes that the user wants immediate notifications. Else we simply return
+		 */
+		if (PreferenceManager.getDefaultSharedPreferences(this.context).getInt(HikeConstants.STATUS_PREF, 0) != 0)
+		{
+			return;
+		}
+
+		final int notificationId = HIKE_SUMMARY_NOTIFICATION_ID;
+
+		final long timeStamp = activityFeed.getTimestamp();
+
+		final Intent notificationIntent = Utils.getTimelineActivityIntent(context, true);
+
+		final int icon = returnSmallIcon();
+
+		String name = ContactManager.getInstance().getName(activityFeed.getActor());
+
+		final String key = TextUtils.isEmpty(name) ? activityFeed.getActor() : name;
+
+		String message = null;
+
+		if (activityFeed.getActionType() == ActionTypes.LIKE)
+		{
+			if (activityFeed.getObjType() == ActivityObjectTypes.STATUS_UPDATE)
+			{
+				StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(activityFeed.getObjID());
+
+				if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+				{
+					message = context.getString(R.string.dp_like_text);
+				}
+				else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+				{
+					message = context.getString(R.string.photo_like_text);
+				}
+				else if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+				{
+					message = context.getString(R.string.status_update_like_text);
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			/*
+			 * Jellybean has added support for emojis so we don't need to add a '*' to replace them
+			 */
+			if (Build.VERSION.SDK_INT < 16)
+			{
+				// Replace emojis with a '*'
+				message = SmileyParser.getInstance().replaceEmojiWithCharacter(message, "*");
+			}
+		}
+		else
+		{
+			return;
+		}
+
+		// if notification message stack is empty, add to it and proceed with single notification display
+		// else add to stack and notify clubbed messages
+		if (hikeNotifMsgStack.isEmpty())
+		{
+			hikeNotifMsgStack.addMessage(activityFeed.getActor(), message, notificationType);
+		}
+		else
+		{
+			notifyStringMessage(activityFeed.getActor(), message, true, notificationType);
+			return;
+		}
+
+		showNotification(notificationIntent, icon, timeStamp, notificationId, message, key, message, activityFeed.getActor(), null, false, true);
+		
+		addNotificationId(notificationId);
 	}
 
 }

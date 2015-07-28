@@ -150,6 +150,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		
 		TextView ftueShow;
 
+		View actionsLayout;
+
+		TextView textBtnLove;
+
 		public ViewHolder(View convertView, int viewType)
 		{
 			super(convertView);
@@ -160,7 +164,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			mainInfo = (TextView) convertView.findViewById(R.id.main_info);
 			checkBoxLove = (CheckBox)convertView.findViewById(R.id.btn_love);
 			loveCount = (TextView)convertView.findViewById(R.id.love_count);
-
+			actionsLayout = convertView.findViewById(R.id.actions_layout);
+			textBtnLove = (TextView)convertView.findViewById(R.id.text_btn_love);
+			
 			//Grab view references
 			switch (viewType)
 			{
@@ -330,6 +336,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			viewHolder.infoContainer.setVisibility(View.GONE);
 			viewHolder.moodsContainer.setVisibility(View.GONE);
+			
+			viewHolder.actionsLayout.setVisibility(View.GONE);
 
 			switch (statusMessage.getStatusMessageType())
 			{
@@ -374,21 +382,23 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					viewHolder.loveCount.setText("0");
 				}
 
+				viewHolder.checkBoxLove.setOnCheckedChangeListener(null);
+				
 				viewHolder.checkBoxLove.setTag(statusMessage);
 				if (selfLiked)
 				{
 					viewHolder.checkBoxLove.setChecked(true);
+					viewHolder.textBtnLove.setText(R.string.liked_it);
 				}
 				else
 				{
 					viewHolder.checkBoxLove.setChecked(false);
+					viewHolder.textBtnLove.setText(R.string.like);
 				}
 				
 				viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 				
-				viewHolder.checkBoxLove.setVisibility(View.VISIBLE);
-				
-				viewHolder.loveCount.setVisibility(View.VISIBLE);
+				viewHolder.actionsLayout.setVisibility(View.VISIBLE);
 				
 				break;
 			case FRIEND_REQUEST_ACCEPTED:
@@ -502,7 +512,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				}
 				else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 				{
-					viewHolder.mainInfo.setText(R.string.status_profile_pic_notification);
+					viewHolder.mainInfo.setText(R.string.changed_profile);
 				}
 			}
 			else
@@ -546,14 +556,18 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.loveCount.setText("0");
 			}
 
+			viewHolder.checkBoxLove.setOnCheckedChangeListener(null);
+			
 			viewHolder.checkBoxLove.setTag(statusMessage);
 			if (selfLiked)
 			{
 				viewHolder.checkBoxLove.setChecked(true);
+				viewHolder.textBtnLove.setText(R.string.liked_it);
 			}
 			else
 			{
 				viewHolder.checkBoxLove.setChecked(false);
+				viewHolder.textBtnLove.setText(R.string.like);
 			}
 			viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 			break;
@@ -620,7 +634,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		//Done to support Quick Return
 		if (position == 0)
 		{
-			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(60), 0, 0);
+			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(45), 0, 0);
 		}
 		else
 		{

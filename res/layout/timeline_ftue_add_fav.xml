@@ -27,10 +27,11 @@
 
                 <com.bsb.hike.ui.utils.RecyclingImageView
                     android:id="@+id/dp_big"
-                    android:src="@drawable/sticker_035_machaa"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-				<RelativeLayout
+                    android:layout_height="match_parent"
+                    android:src="@drawable/sticker_035_machaa" />
+
+                <RelativeLayout
                     android:id="@+id/avatar_container"
                     android:layout_width="@dimen/medium_avatar"
                     android:layout_height="@dimen/medium_avatar"
@@ -46,6 +47,7 @@
                         android:id="@+id/avatar_frame"
                         style="@style/AvatarStyle" />
                 </RelativeLayout>
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -56,11 +58,11 @@
                     <com.bsb.hike.view.CustomFontTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="10dp"
                         android:text="MOEMNTS"
                         android:textColor="@color/black"
                         android:textSize="16sp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginTop="10dp"
                         android:textStyle="italic" />
                 </LinearLayout>
 
@@ -73,7 +75,6 @@
                     android:text="2 mins ago"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
-
             </FrameLayout>
 
             <com.bsb.hike.view.CustomFontTextView
@@ -81,8 +82,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/upper_ftue_card"
-                android:text="ADD AS FAVORITE"
                 android:layout_centerHorizontal="true"
+                android:text="ADD AS FAVORITE"
                 android:textColor="@color/blue_hike"
                 android:textSize="15dp"
                 android:textStyle="bold|italic" />

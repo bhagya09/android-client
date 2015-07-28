@@ -26,9 +26,9 @@
                 android:layout_height="120dp" >
 
                 <com.bsb.hike.ui.utils.RecyclingImageView
-                    android:src="@drawable/sticker_035_machaa"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"
+                    android:src="@drawable/sticker_035_machaa" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -40,26 +40,26 @@
                     <com.bsb.hike.ui.utils.RecyclingImageView
                         android:layout_width="wrap_content"
                         android:layout_height="30dp"
-                        android:scaleType="fitXY"
                         android:layout_marginBottom="10dp"
+                        android:scaleType="fitXY"
                         android:src="@drawable/voip_speaker_mute" />
 
                     <com.bsb.hike.view.CustomFontTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="10dp"
                         android:text="MOEMNTS"
                         android:textColor="@color/black"
                         android:textSize="16sp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginTop="10dp"
                         android:textStyle="italic" />
 
                     <com.bsb.hike.view.CustomFontTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:paddingBottom="2dp"
                         android:text="2 mins ago"
-                        android:layout_marginTop="10dp"
                         android:textColor="@color/black"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -70,8 +70,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/upper_ftue_card"
-                android:text="SHOW ME"
                 android:layout_centerHorizontal="true"
+                android:text="SHOW ME"
                 android:textColor="@color/blue_hike"
                 android:textSize="15dp"
                 android:textStyle="bold|italic" />

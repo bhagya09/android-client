@@ -188,7 +188,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			
 			if(feedDataModel.getReadStatus() == 1)
 			{
-				viewHolder.loveStatus.setImageResource(R.drawable.ic_lovedit);
+				viewHolder.loveStatus.setImageResource(R.drawable.ic_loved);
 			}
 			
 			if (statusMessage.hasMood())

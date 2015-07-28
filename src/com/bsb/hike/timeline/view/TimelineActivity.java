@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
@@ -33,6 +32,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ImageViewerActivity;
+import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -94,9 +94,12 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		super.onCreate(savedInstanceState);
 		initialiseTimelineScreen(savedInstanceState);
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.TIMELINE.ordinal());
-		
+
+		if (getIntent() != null && getIntent().getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false))
+		{
+			loadActivityFeedFragment();
+		}
 		
 		FetchUnreadFeedsTask fetchUnreadFeedsTask = new FetchUnreadFeedsTask();
 
@@ -112,7 +115,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void initialiseTimelineScreen(Bundle savedInstanceState)
 	{
-
 		setContentView(R.layout.timeline);
 		setupMainFragment(savedInstanceState);
 		setupActionBar();
@@ -187,7 +189,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			@Override
 			public void onClick(View v)
 			{
-				openActivityFeedFragment();
+				loadActivityFeedFragment();
 			}
 		});
 		return super.onCreateOptionsMenu(menu);
@@ -245,21 +247,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 					break;
 				case R.id.favourites:
-					try
-					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.POST_UPDATE_FROM_TOP_BAR);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					}
-					catch (JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-
-					Intent intent = new Intent(TimelineActivity.this, StatusUpdate.class);
+					Intent intent = new Intent(TimelineActivity.this, PeopleActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
-
 					break;
 				case R.id.my_profile:
 					Intent intent2 = new Intent(TimelineActivity.this, ProfileActivity.class);
@@ -308,6 +298,10 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 				startActivity(intent);
 				return true;
 			}
+
+		case R.id.activity_feed:
+			loadActivityFeedFragment();
+			return true;
 
 		default:
 			break;
@@ -446,10 +440,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		startActivity(intent);
 	}
 	
-	private void openActivityFeedFragment()
+	private void loadActivityFeedFragment()
 	{
 		ActivityFeedFragment activityFeedFragment = new ActivityFeedFragment();
-
 		getSupportFragmentManager().
 		beginTransaction().
 		add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).
@@ -471,7 +464,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		protected void onPostExecute(Integer result)
 		{
 			//updateFeedsNotification(result);
-			Toast.makeText(TimelineActivity.this, "unread DB call "+ result, Toast.LENGTH_SHORT).show();
 			unreadCounter = result;
 		}
 		
