@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
@@ -43,6 +44,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 				Logger.d(tag,"cross clicked " + clients.get((Integer) v.getTag()).getPhoneNumber() );
 				//TODO inform service about remove action
 				//((ViewGroup) v.getParent()).setLayoutTransition(new LayoutTransition());
+				clients.get((Integer) v.getTag()).hangUp();
 				clients.remove((Integer)v.getTag());
 				notifyDataSetChanged();
 				break;
@@ -62,6 +64,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		public TextView contactNameHolder;
 		public ImageView isSpeakingHolder;
 		public ImageView crossBtnHolder;
+		public ProgressBar connectingHolder;
 	}
 	
 	public ConferenceParticipantsAdapter(Context context, int resource,
@@ -92,6 +95,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 			conferenceParticipantHolder.contactNameHolder = (TextView) convertView.findViewById(R.id.contact);
 			conferenceParticipantHolder.isSpeakingHolder = (RecyclingImageView) convertView.findViewById(R.id.is_speaking_view);
 			conferenceParticipantHolder.crossBtnHolder = (RecyclingImageView) convertView.findViewById(R.id.remove_participant_btn);
+			conferenceParticipantHolder.connectingHolder = (ProgressBar) convertView.findViewById(R.id.connecting_progress);
 			convertView.setTag(conferenceParticipantHolder);
 			
 		}
@@ -110,8 +114,11 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
 		itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_APPEARING);
 		itemViewTransition.enableTransitionType(LayoutTransition.DISAPPEARING);
-		
 		conferenceParticipantHolder.itemViewHolder.setLayoutTransition(itemViewTransition);
+		
+		conferenceParticipantHolder.isSpeakingHolder.setVisibility(clients.get(position).isSpeaking()?View.VISIBLE:View.INVISIBLE);
+		conferenceParticipantHolder.crossBtnHolder.setVisibility(clients.get(position).connected?View.VISIBLE:View.GONE);
+		conferenceParticipantHolder.crossBtnHolder.setVisibility(clients.get(position).connected?View.GONE:View.VISIBLE);
 
 		conferenceParticipantHolder.crossBtnHolder.setTag(position);
 		conferenceParticipantHolder.crossBtnHolder.setEnabled(true);

@@ -55,7 +55,7 @@
         android:visibility="visible" />
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/connecting_progress"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
