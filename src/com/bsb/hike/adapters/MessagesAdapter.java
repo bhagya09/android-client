@@ -2580,12 +2580,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (detailHolder.senderName != null)
 				{
 					detailHolder.senderName.setTextColor(context.getResources().getColor(chatTheme.offlineMsgTextColor()));
-					checkIfContainsSearchText(detailHolder.senderName);
 				}
 				if (detailHolder.senderNameUnsaved != null)
 				{
 					detailHolder.senderNameUnsaved.setTextColor(context.getResources().getColor(chatTheme.offlineMsgTextColor()));
-					checkIfContainsSearchText(detailHolder.senderNameUnsaved);
 				}
 			}
 			else
@@ -2593,12 +2591,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (detailHolder.senderName != null)
 				{
 					detailHolder.senderName.setTextColor(context.getResources().getColor(R.color.chat_color));
-					checkIfContainsSearchText(detailHolder.senderName);
 				}
 				if (detailHolder.senderNameUnsaved != null)
 				{
 					detailHolder.senderNameUnsaved.setTextColor(context.getResources().getColor(R.color.unsaved_contact_name));
-					checkIfContainsSearchText(detailHolder.senderNameUnsaved);
 				}
 			}
 			detailHolder.avatarImage.setVisibility(View.VISIBLE);
