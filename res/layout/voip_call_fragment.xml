@@ -77,12 +77,13 @@
 		<ListView
             android:id="@+id/conference_list"
             style="@style/HomeList"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:dividerHeight="1px"
-            android:animateLayoutChanges="true"
             android:divider="@drawable/voip_conference_list_divider"
 	        android:layout_below="@id/voip_header"
 	        android:layout_above="@+id/hang_up_btn"
-            android:visibility="gone" />
+            android:visibility="visible" />
 	    	    	    
 		<LinearLayout
 		    android:id="@+id/signal_container"

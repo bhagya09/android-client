@@ -3,7 +3,6 @@
     android:id="@+id/voip_conference_participant_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="false"
     android:background="@drawable/list_item"
     android:gravity="center_vertical"
     android:orientation="horizontal"
@@ -49,18 +48,17 @@
         android:layout_width="55dp"
         android:layout_height="55dp"
         android:alpha="0.85"
-        android:background="@null"
         android:gravity="left"
         android:padding="20dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_tip_cross"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
 </LinearLayout>
