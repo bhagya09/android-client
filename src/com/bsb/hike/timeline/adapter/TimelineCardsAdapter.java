@@ -153,6 +153,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		View actionsLayout;
 
 		TextView textBtnLove;
+		
+		ImageView cancelFTUE;
 
 		public ViewHolder(View convertView, int viewType)
 		{
@@ -200,6 +202,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				largeProfilePic = (ImageView)convertView.findViewById(R.id.dp_big);
 				avatar = (ImageView)convertView.findViewById(R.id.avatar);
 				ftueShow = (TextView) convertView.findViewById(R.id.ftue_show);
+				cancelFTUE = (ImageView)convertView.findViewById(R.id.remove_ftue);
 				break;
 			}
 			
@@ -610,6 +613,20 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				}
 			});
 			profileLoader.loadProfileImage(loaderManager);
+			viewHolder.cancelFTUE.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					//increase counter by 1
+					int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, counter+1);
+					
+					//show card with next contact or exit card
+					addFTUEItemIfExists(false);
+				}
+			});
 			break;
 		case FTUE_CARD_INIT:
 		case FTUE_CARD_EXIT:
@@ -1034,7 +1051,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
 				
 				//Show card with contact
-				addFTUEItemIfExists();
+				addFTUEItemIfExists(false);
 				
 				break;
 				
@@ -1045,7 +1062,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, counter+1);
 				
 				//show card with next contact or exit card
-				addFTUEItemIfExists();
+				addFTUEItemIfExists(true);
 				
 				break;
 				
@@ -1208,7 +1225,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 	}
 	
-	private void addFTUEItemIfExists()
+	/**
+	 * addFav:- true --> goes for adding as Fav
+	 * @param addFav
+	 */
+	private void addFTUEItemIfExists(boolean addFav)
 	{
 		StatusMessage statusMessage = null;
 		if (!mStatusMessages.isEmpty())
@@ -1226,7 +1247,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				else
 				{
 					removeFTUEItemIfExists(FTUE_CARD_FAV);
-					Utils.addFavorite(mActivity.get(), contact, true);
+					if(addFav)
+					{
+						Utils.addFavorite(mActivity.get(), contact, true);						
+					}
 				}
 				statusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
 			}
