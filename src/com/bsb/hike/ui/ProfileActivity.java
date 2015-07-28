@@ -2101,21 +2101,36 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				});
 			}
 		}
-		else if (HikePubSub.GROUP_OWNER_CHANGE.equals(type))
-		{
-			if (mLocalMSISDN.equals((String) object))
-			{
-				runOnUiThread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-					    	setupGroupProfileList();
-						    //updateProfileHeaderView();
+        else if (HikePubSub.GROUP_OWNER_CHANGE.equals(type)) {
+			JSONObject jsonObj = (JSONObject) object;
+			try {
+				String groupId = jsonObj.getString(HikeConstants.TO);
+				String mymsisdn = preferences.getString(
+						HikeMessengerApp.MSISDN_SETTING, "");
+				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+				String msisdn = data.getString(HikeConstants.MSISDN);
+				if (!msisdn.equalsIgnoreCase(mymsisdn)) {
+					GroupParticipant grpParticipant = participantMap
+							.get(msisdn).getFirst();
+					grpParticipant
+							.setType(GroupParticipant.Participant_Type.ADMIN);
+				} else {
+					oneToNConversation.getMetadata().setMyselfAsAdmin(
+							GroupParticipant.Participant_Type.ADMIN);
+				}
+				if (mLocalMSISDN.equals(groupId)) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							setupGroupProfileList();
+							// updateProfileHeaderView();
 							profileAdapter.notifyDataSetChanged();
-					
-					}
-				});
+						}
+					});
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 

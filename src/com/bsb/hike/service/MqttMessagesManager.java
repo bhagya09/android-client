@@ -2804,7 +2804,7 @@ public class MqttMessagesManager
 		String msisdn = data.getString(HikeConstants.MSISDN);
 
 		convDb.changeGroupOwner(groupId, msisdn);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_OWNER_CHANGE, groupId);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_OWNER_CHANGE, jsonObj);
 
 	}
 
