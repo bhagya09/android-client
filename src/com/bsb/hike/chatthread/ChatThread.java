@@ -2747,7 +2747,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			Logger.i("gaurav", "search in background: " + loaderId);
 
-			if (chatThread.get() != null)
+			if (chatThread.get() != null && !chatThread.get().isMessageListEmpty())
 			{
 				chatThread.get().loadingMoreMessages = true;
 				int msgSize = chatThread.get().messages.size();
