@@ -2272,6 +2272,27 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					((ViewGroup) participantInfoHolder.container).addView(dndMessage);
 				}
 			}
+
+			else if (infoState == ParticipantInfoState.CHANGE_ADMIN)
+			{
+				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
+			
+				String message = OneToNConversationUtils.getAdminUpdatedMessage(convMessage, context);
+				
+				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_admin_default_theme
+						: R.drawable.ic_admin);
+				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
+			}
+			else if (infoState == ParticipantInfoState.GC_SETTING_CHANGE)
+			{
+				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
+			
+				String message = OneToNConversationUtils.getSettingUpdatedMessage(convMessage, context);
+				
+				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_group_info
+						: R.drawable.ic_group_info_custom);
+				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
+			}
 			else if (infoState == ParticipantInfoState.CHAT_BACKGROUND)
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
@@ -4064,7 +4085,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		if(requestCode == HikeConstants.PLATFORM_REQUEST)
 		{
-			mWebViewCardRenderer.onActivityResult(resultCode, data);
+			mWebViewCardRenderer.onActivityResult(requestCode,resultCode, data);
 		}
 	}
 }

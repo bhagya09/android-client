@@ -367,6 +367,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String SHOWN_ADD_FAVORITE_TIP = "shownAddFavoriteTip";
 	
+	public static final String SHOWN_MULTI_ADMIN_TIP = "shownMultiAdminTip";
+	
 	public static final String MQTT_IPS = "mqttIps";
 
 	public static final String STEALTH_ENCRYPTED_PATTERN = "stealthEncryptedPattern";
@@ -503,6 +505,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 	
+	public static final String KEYBOARD_HEIGHT_PORTRAIT = "keyboardHeightPortrait";
+
+	public static final String KEYBOARD_HEIGHT_LANDSCAPE = "keyboardHeightLand";
+
 	public static CurrentState currentState = CurrentState.CLOSED;
 
 	//private static Twitter twitter;

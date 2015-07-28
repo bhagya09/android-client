@@ -184,6 +184,32 @@ public class HttpRequests
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
+	
+	public static RequestToken postAdminRequest(String grpId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getGroupBaseUrl()+grpId+"/admin")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken postChangeAddMemSettingRequest(String grpId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getGroupBaseUrl()+grpId+"/setting")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.put(body)
+				.build();
+		return requestToken;
+	}
 
 	public static RequestToken platformZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
 	{
@@ -372,6 +398,19 @@ public class HttpRequests
 				.post(body)
 				.build();
 		
+		return requestToken;
+	}
+
+	public static RequestToken microAppGetRequest(String url, IRequestListener requestListener)
+	{
+
+		RequestToken requestToken = new StringRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.addHeader(PlatformUtils.getHeaders())
+				.setRequestListener(requestListener)
+				.build();
+
 		return requestToken;
 	}
 
