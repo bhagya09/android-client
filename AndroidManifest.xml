@@ -246,7 +246,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.StatusUpdate"
+            android:name="com.bsb.hike.timeline.view.StatusUpdate"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustPan|stateHidden" >
         </activity>
@@ -308,7 +308,7 @@
             android:screenOrientation="portrait" >
         </activity>
          <activity
-            android:name="com.bsb.hike.ui.ImageViewerActivity"
+            android:name="com.bsb.hike.timeline.view.PostDetailsActivity"
             android:launchMode="singleTop"
             android:theme="@style/Transparent"
             android:screenOrientation="portrait" >
