@@ -45,6 +45,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -68,8 +69,9 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
+import com.bsb.hike.timeline.view.PostDetailsActivity;
+import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
 import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.utils.EmoticonConstants;
@@ -162,12 +164,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			parent = convertView.findViewById(R.id.main_content);
 			name = (TextView) convertView.findViewById(R.id.name);
 			mainInfo = (TextView) convertView.findViewById(R.id.main_info);
-			checkBoxLove = (CheckBox)convertView.findViewById(R.id.btn_love);
-			loveCount = (TextView)convertView.findViewById(R.id.love_count);
+			checkBoxLove = (CheckBox) convertView.findViewById(R.id.btn_love);
+			loveCount = (TextView) convertView.findViewById(R.id.love_count);
 			actionsLayout = convertView.findViewById(R.id.actions_layout);
-			textBtnLove = (TextView)convertView.findViewById(R.id.text_btn_love);
-			
-			//Grab view references
+			textBtnLove = (TextView) convertView.findViewById(R.id.text_btn_love);
+
+			// Grab view references
 			switch (viewType)
 			{
 			case OTHER_UPDATE:
@@ -197,12 +199,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				ftueShow = (TextView) convertView.findViewById(R.id.ftue_show);
 				break;
 			case FTUE_CARD_FAV:
-				largeProfilePic = (ImageView)convertView.findViewById(R.id.dp_big);
-				avatar = (ImageView)convertView.findViewById(R.id.avatar);
+				largeProfilePic = (ImageView) convertView.findViewById(R.id.dp_big);
+				avatar = (ImageView) convertView.findViewById(R.id.avatar);
 				ftueShow = (TextView) convertView.findViewById(R.id.ftue_show);
 				break;
 			}
-			
+
 		}
 	}
 
@@ -290,8 +292,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void onBindViewHolder(ViewHolder viewHolder, int position)
 	{
 		StatusMessage statusMessage = mStatusMessages.get(position);
+
+		ActionsDataModel likesData = mActionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 		
-		ActionsDataModel likesData = mActionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE,ActivityObjectTypes.STATUS_UPDATE);
+		statusMessage.setActionsData(likesData);
 
 		int viewType = getItemViewType(position);
 
@@ -368,10 +372,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 				viewHolder.parent.setTag(statusMessage);
-				viewHolder.parent.setOnClickListener(onProfileInfoClickListener);
-				
+				viewHolder.parent.setOnClickListener(timelinePostDetailsListener);
+				viewHolder.parent.setOnLongClickListener(onCardLongPressListener);
+
 				boolean selfLiked = false;
-				
+
 				if (likesData != null)
 				{
 					viewHolder.loveCount.setText(String.valueOf(likesData.getCount()));
@@ -439,9 +444,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				if (!TextUtils.isEmpty(protip.getImageURL()))
 				{
 
-					ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), protip.getImageURL(), true);
-					viewHolder.statusImg.setTag(imageViewerInfo);
-					viewHolder.statusImg.setOnClickListener(imageClickListener);
+					viewHolder.statusImg.setTag(statusMessage);
+					viewHolder.statusImg.setOnClickListener(timelinePostDetailsListener);
 					// TODO
 					// profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, isListFlinging);
 					profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, false);
@@ -500,7 +504,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				roundAvatar1.setOval(true);
 				setAvatar(statusMessage.getMsisdn(), viewHolder.avatar);
 			}
-			
+
 			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : statusMessage
 					.getNotNullName());
 
@@ -520,20 +524,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.mainInfo.setText(statusMessage.getText());
 			}
 
-			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
-			imageViewerInfo.setStatusMessage(statusMessage);
-			
-			Bundle actionsBundle = new Bundle();
-
-			if (likesData != null)
-			{
-				actionsBundle.putStringArrayList(HikeConstants.MSISDNS, likesData.getAllMsisdn());
-			}
-			actionsBundle.putString(HikeConstants.Extras.IMAGE_CAPTION, viewHolder.mainInfo.getText().toString());
-			imageViewerInfo.setBundle(actionsBundle);
-
-			viewHolder.largeProfilePic.setTag(imageViewerInfo);
-			viewHolder.largeProfilePic.setOnClickListener(imageClickListener);
+			viewHolder.largeProfilePic.setTag(statusMessage);
+			viewHolder.largeProfilePic.setOnClickListener(timelinePostDetailsListener);
 
 			profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
 
@@ -687,29 +679,27 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		mIconImageLoader.loadImage(msisdn, avatar, false, true);
 	}
 
-	private OnClickListener imageClickListener = new OnClickListener()
+	private OnClickListener timelinePostDetailsListener = new OnClickListener()
 	{
-
 		@Override
 		public void onClick(View v)
 		{
-			ImageViewerInfo imageViewerInfo = (ImageViewerInfo) v.getTag();
-
-			String mappedId = imageViewerInfo.mappedId;
-			String url = imageViewerInfo.url;
-
-			Bundle arguments = new Bundle();
-			arguments.putString(HikeConstants.Extras.MAPPED_ID, mappedId);
-			arguments.putString(HikeConstants.Extras.URL, url);
-			arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, true);
-			arguments.putAll(imageViewerInfo.getBundle());
-			
-			HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
+			if (mActivity.get() != null)
+			{
+				StatusMessage statusMessage = (StatusMessage) v.getTag();
+				Intent intent = new Intent(mActivity.get(), PostDetailsActivity.class);
+				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
+				
+				if(statusMessage.getActionsData() != null)
+				{
+					intent.putStringArrayListExtra(HikeConstants.MSISDNS, statusMessage.getActionsData().getAllMsisdn());
+				}
+				
+				startActivity(intent);
+			}
 		}
 	};
 
-	
-	
 	private OnLongClickListener onCardLongPressListener = new OnLongClickListener()
 	{
 		@Override

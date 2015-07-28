@@ -100,6 +100,7 @@ import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.AccountUtils;

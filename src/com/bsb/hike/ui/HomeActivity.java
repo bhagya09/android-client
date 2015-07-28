@@ -80,6 +80,7 @@ import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.timeline.ActionsDeserializer;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.TimelineActions;
+import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;

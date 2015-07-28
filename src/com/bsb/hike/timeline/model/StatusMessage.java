@@ -92,6 +92,8 @@ public class StatusMessage
 	
 	private boolean isHistoricalUpdate;
 	
+	private ActionsDataModel actionsData;
+	
 	public StatusMessage(JSONObject statusMessageJson) throws JSONException
 	{
 		this.msisdn = statusMessageJson.getString(HikeConstants.FROM);
@@ -308,6 +310,16 @@ public class StatusMessage
 	public boolean isHistoricalUpdate()
 	{
 		return isHistoricalUpdate;
+	}
+
+	public ActionsDataModel getActionsData()
+	{
+		return actionsData;
+	}
+
+	public void setActionsData(ActionsDataModel actionsData)
+	{
+		this.actionsData = actionsData;
 	}
 	
 	

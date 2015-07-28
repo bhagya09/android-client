@@ -31,10 +31,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.ui.ImageViewerActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -166,7 +164,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		getSupportMenuInflater().inflate(R.menu.updates_menu, menu);
 
-		final Menu m = menu;
 		final MenuItem menuItem = menu.findItem(R.id.overflow_menu);
 		final View overflowMenuItem = menuItem.getActionView();
 		overflowMenuItem.setContentDescription("Timeline Overflow");
@@ -432,12 +429,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			return;
 		}
-
-		Bundle arguments = (Bundle) object;
-		
-		Intent intent = new Intent(this, ImageViewerActivity.class);
-		intent.putExtras(arguments);
-		startActivity(intent);
 	}
 	
 	private void loadActivityFeedFragment()

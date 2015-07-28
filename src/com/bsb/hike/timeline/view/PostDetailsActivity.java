@@ -1,8 +1,9 @@
-package com.bsb.hike.ui;
+package com.bsb.hike.timeline.view;
 
 import java.util.ArrayList;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.FragmentManager;
@@ -27,11 +28,14 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.timeline.adapter.DisplayContactsAdapter;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
 import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.utils.HikeUiHandler;
@@ -43,20 +47,16 @@ import com.bsb.hike.utils.Utils;
 
 /**
  * 
- * TODO Need to make single base class for ImageViewerActivity and ImageViewerFragment. Currently we are copy-pasting code.
+ * TODO Need to make single base class for this and ImageViewerFragment. Currently we are copy-pasting code.
  * 
  * @author Atul M
  * 
  */
-public class ImageViewerActivity extends SherlockFragmentActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
+public class PostDetailsActivity extends SherlockFragmentActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	ImageView imageView;
 
 	private String mappedId;
-
-	private String key;
-
-	private boolean isStatusImage;
 
 	private int imageSize;
 
@@ -64,9 +64,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 	private View fadeScreen;
 
-	private final String TAG = ImageViewerActivity.class.getSimpleName();
-
-	private String fileKey;
+	private final String TAG = PostDetailsActivity.class.getSimpleName();
 
 	private HeadlessImageDownloaderFragment mImageWorkerFragment;
 
@@ -103,8 +101,6 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 	private ArrayList<String> msisdns;
 
-	private String imageCaption;
-
 	private View infoContainer;
 
 	private TextView textViewCaption;
@@ -112,6 +108,16 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 	private TextView textViewCounts;
 
 	private View foregroundScreen;
+
+	private StatusMessage statusMessage;
+
+	private TextView fullTextView;
+
+	private boolean isTextStatusMessage;
+
+	private View contentContainer;
+
+	private View imageInfoDivider;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -130,24 +136,21 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 		mappedId = extras.getString(HikeConstants.Extras.MAPPED_ID);
 
-		fileKey = extras.getString(HikeConstants.Extras.FILE_KEY);
-
-		isStatusImage = extras.getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
+		// TODO think of a better place to do this without breaking animation
+		statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
 
 		msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
 
-		imageCaption = extras.getString(HikeConstants.Extras.IMAGE_CAPTION);
-
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
-		ViewTreeObserver observer = imageView.getViewTreeObserver();
+		ViewTreeObserver observer = contentContainer.getViewTreeObserver();
 
 		observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
 		{
 			@Override
 			public boolean onPreDraw()
 			{
-				imageView.getViewTreeObserver().removeOnPreDrawListener(this);
+				contentContainer.getViewTreeObserver().removeOnPreDrawListener(this);
 
 				runEnterAnimation();
 
@@ -155,7 +158,20 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 			}
 		});
 
-		showImage();
+		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+		{
+			isTextStatusMessage = true;
+			fullTextView.setText(statusMessage.getText());
+			imageView.setVisibility(View.GONE);
+			fadeScreen.setBackgroundColor(Color.WHITE);
+			textViewCounts.setTextColor(Color.BLACK);
+			fullTextView.setTextColor(Color.BLACK);
+		}
+		else
+		{
+			showImage();
+			fullTextView.setVisibility(View.GONE);
+		}
 	}
 
 	private void initReferences()
@@ -166,6 +182,9 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 		infoContainer = findViewById(R.id.image_info_container);
 		textViewCaption = (TextView) findViewById(R.id.text_view_caption);
 		textViewCounts = (TextView) findViewById(R.id.text_view_count);
+		fullTextView = (TextView) findViewById(R.id.text_view_full);
+		contentContainer = findViewById(R.id.content_container);
+		imageInfoDivider = findViewById(R.id.imageInfoDivider);
 		imageView.setOnClickListener(this);
 		hikeUiHandler = new HikeUiHandler(this);
 	}
@@ -175,20 +194,29 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 	public void runEnterAnimation()
 	{
 		final long duration = (long) (ANIM_DURATION * 1);
-		imageView.setTranslationY(20);
-		imageView.setAlpha(0f);
+		contentContainer.setTranslationY(20);
+		contentContainer.setAlpha(0f);
 
-		imageView.animate().setDuration(duration).translationY(0).alpha(1f);
+		contentContainer.animate().setDuration(duration).translationY(0).alpha(1f);
 
-		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, 0.95f);
+		float alphaFinal = isTextStatusMessage ? 1f : 0.95f;
+
+		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, alphaFinal);
 		bgAnim.setDuration(600);
 		bgAnim.start();
 
-
 		infoContainer.setVisibility(View.VISIBLE);
-		foregroundScreen.setVisibility(View.VISIBLE);
-		
-		textViewCaption.setText(imageCaption);
+
+		if (isTextStatusMessage)
+		{
+			imageInfoDivider.setVisibility(View.GONE);
+			textViewCaption.setVisibility(View.GONE);
+		}
+		else
+		{
+			foregroundScreen.setVisibility(View.VISIBLE);
+			textViewCaption.setText(statusMessage.getText());
+		}
 
 		if (msisdns != null && !msisdns.isEmpty())
 		{
@@ -216,13 +244,13 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 	public void runExitAnimation(final Runnable endAction)
 	{
 		infoContainer.setVisibility(View.GONE);
-		imageView.animate().setDuration(300).translationY(20).alpha(0f);
+		contentContainer.animate().setDuration(300).translationY(20).alpha(0f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
 		bgAnim.setDuration(600);
-		
+
 		ObjectAnimator fgAnim = ObjectAnimator.ofFloat(foregroundScreen, "alpha", 0);
 		fgAnim.setDuration(600);
-		
+
 		bgAnim.addListener(new AnimatorListener()
 		{
 			@Override
@@ -276,21 +304,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 	private void showImage()
 	{
-		key = mappedId;
-
-		if (!isStatusImage)
-		{
-			int idx = key.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
-
-			if (idx > 0)
-			{
-				key = new String(key.substring(0, idx));
-			}
-		}
-
-		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(key);
-
-		profileImageLoader = new ProfileImageLoader(this, key, imageView, imageSize, isStatusImage, true);
+		profileImageLoader = new ProfileImageLoader(this, mappedId, imageView, imageSize, true, true);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
 		{
 
@@ -304,14 +318,12 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 			public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
 			{
 				dismissProgressDialog();
-				if (isStatusImage)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
-				}
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
 			}
 
 			@Override
-			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
+			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
+			{
 				showProgressDialog();
 				return null;
 			}
@@ -362,11 +374,11 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 	{
 		if (HikePubSub.ICON_CHANGED.equals(type))
 		{
-			ContactInfo contactInfo = Utils.getUserContactInfo(ImageViewerActivity.this.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0));
+			ContactInfo contactInfo = Utils.getUserContactInfo(PostDetailsActivity.this.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0));
 
 			if (contactInfo.getMsisdn().equals((String) object))
 			{
-				ImageViewerActivity.this.runOnUiThread(new Runnable()
+				PostDetailsActivity.this.runOnUiThread(new Runnable()
 				{
 
 					@Override
@@ -385,21 +397,21 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 		FragmentManager fm = getSupportFragmentManager();
 		mImageWorkerFragment = (HeadlessImageDownloaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
 
-	    // If the Fragment is non-null, then it is currently being
-	    // retained across a configuration change.
-	    if (mImageWorkerFragment == null) 
-	    {
-	    	Logger.d(TAG, "starting new mImageLoaderFragment");
-	    	String fileName = Utils.getProfileImageFileName(key);
-	    	mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
-	    	mImageWorkerFragment.setTaskCallbacks(this);
-	        fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
-	    }
-	    else
-	    {
-	    	Toast.makeText(this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-	    }
+		// If the Fragment is non-null, then it is currently being
+		// retained across a configuration change.
+		if (mImageWorkerFragment == null)
+		{
+			Logger.d(TAG, "starting new mImageLoaderFragment");
+			String fileName = Utils.getProfileImageFileName(mappedId);
+			mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(mappedId, fileName, hasCustomImage, true, null, null, null, true);
+			mImageWorkerFragment.setTaskCallbacks(this);
+			fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
+		}
+		else
+		{
+			Toast.makeText(this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+			Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+		}
 
 	}
 
@@ -422,7 +434,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 	public void onFailed()
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, key);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, mappedId);
 		hikeUiHandler.post(failedRunnable);
 	}
 
@@ -434,7 +446,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 
 	public boolean hasFileKey()
 	{
-		if (!TextUtils.isEmpty(fileKey))
+		if (!TextUtils.isEmpty(statusMessage.getFileKey()))
 		{
 			return true;
 		}
@@ -448,7 +460,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 	// TODO Move to HikeDialogFactory
 	public void showLikesContactsDialog()
 	{
-		final HikeDialog dialog = new HikeDialog(ImageViewerActivity.this, R.style.Theme_CustomDialog, 11);
+		final HikeDialog dialog = new HikeDialog(PostDetailsActivity.this, R.style.Theme_CustomDialog, 11);
 		dialog.setContentView(R.layout.display_contacts_dialog);
 		dialog.setCancelable(true);
 
@@ -461,7 +473,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
 			{
-				Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(ImageViewerActivity.this,
+				Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(PostDetailsActivity.this,
 						ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), true);
 				// Add anything else to the intent
 				intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);

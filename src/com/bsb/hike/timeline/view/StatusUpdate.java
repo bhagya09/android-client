@@ -1,4 +1,4 @@
-package com.bsb.hike.ui;
+package com.bsb.hike.timeline.view;
 
 import java.io.IOException;
 
@@ -38,7 +38,6 @@ import com.bsb.hike.media.EmoticonPickerListener;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.StatusUpdateTask;
-import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -569,7 +568,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			final boolean statusPosted = (Boolean) object;
 			runOnUiThread(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
