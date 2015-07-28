@@ -740,13 +740,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			addToUndeliveredMessages((ConvMessage) msg.obj);
 			break;
 		case SHOW_CALL_ICON:
-			if (shouldShowCallIcon())
-			{
-				if (mActionBar != null && mActionBar.getMenuItem(R.id.voip_call) != null)
-				{
-					mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
-				}
-			}
+			showCallIcon();
 			break;
 		case OFFLINE_DISCONNECTED:
 			onOfflineDisconnection((String)msg.obj);
@@ -761,6 +755,16 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	}
 
+	private void showCallIcon()
+	{
+		if (shouldShowCallIcon())
+		{
+			if (mActionBar != null && mActionBar.getMenuItem(R.id.voip_call) != null)
+			{
+				mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
+			}
+		}
+	}
 
 	private void onOfflineConnection(String message)
 	{
@@ -772,6 +776,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		hideLastSeenText();
 		fetchLastSeen();
+		showCallIcon();
 		activity.invalidateOptionsMenu();
 	}
 	
