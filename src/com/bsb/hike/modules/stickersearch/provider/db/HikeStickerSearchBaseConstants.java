@@ -92,9 +92,11 @@ public class HikeStickerSearchBaseConstants
 	public static final String TAG_GROUP_UNIQUE_ID = "tagUniqueId"; // foreign key from TABLE_STICKER_TAG_MAPPING
 
 	// Syntax constants
+	public static final int SQLITE_FIRST_INTEGER_ROW_ID = 1;
+
 	public static final int SQLITE_LIMIT_VARIABLE_NUMBER = 500;
 
-	public static final String SYNTAX_PRIMARY_KEY = " INTEGER PRIMARY KEY AUTOINCREMENT, ";
+	public static final String SYNTAX_PRIMARY_KEY = " INTEGER PRIMARY KEY, ";
 
 	public static final String SYNTAX_FOREIGN_KEY = "FOREIGN KEY";
 

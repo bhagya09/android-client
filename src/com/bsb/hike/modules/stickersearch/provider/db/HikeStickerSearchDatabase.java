@@ -97,7 +97,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		if ((sHikeStickerSearchDatabase == null) || (sHikeStickerSearchDatabase.mDb == null) || (sHikeStickerSearchDatabase.mContext == null)
 				|| (sHikeStickerSearchDatabase.mRandom == null))
 		{
-			Logger.w(TAG, "Either database has not been initialized or, reinitializing...");
+			Logger.w(TAG, "Either database has not been initialized, initializing...");
+
 			init();
 		}
 
@@ -327,6 +328,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		Cursor c = null;
 		long rowId;
+		long existingTagsCount = 0;
+		long newTagsCount = 0;
 		boolean isExistingTag;
 		String tag;
 
@@ -376,6 +379,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 							if (isExistingTag)
 							{
+								existingTagsCount++;
+
 								mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
 										+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
 										+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER, new String[] { tag, stickerCode });
@@ -388,8 +393,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 								rowId = mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv);
 
-								if (rowId > 0)
+								if (rowId < HikeStickerSearchBaseConstants.SQLITE_FIRST_INTEGER_ROW_ID)
 								{
+									Logger.e(TAG, "Error while inserting tag '" + tag + "' into database !!!");
+								}
+								else
+								{
+									newTagsCount++;
 									newTags.add(tag);
 									rows.add(rowId);
 								}
@@ -415,9 +425,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			mDb.endTransaction();
 		}
 
-		Logger.v(TAG, "Newly added tags: " + newTags);
+		Logger.v(TAG, "Existing tags count = " + existingTagsCount);
+		Logger.v(TAG, "Newly added tags count = " + newTagsCount);
 
-		insertIntoVirtualTable(newTags, rows);
+		if (newTagsCount > 0)
+		{
+			Logger.v(TAG, "Newly added tags: " + newTags);
+
+			insertIntoVirtualTable(newTags, rows);
+		}
 	}
 
 	private boolean isValidTagData(StickerTagDataContainer stickersTagData)
@@ -441,14 +457,19 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						: remainingCount;
 				for (int j = 0; j < currentCount; j++)
 				{
-					String s = tags.get(i);
-					char[] array = s.toCharArray();
-					String table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
-							: HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + array[0];
+					String tag = tags.get(i);
+					char firstChar = tag.charAt(0);
+					String table = (firstChar > 'Z' || firstChar < 'A') ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
+							: HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + firstChar;
+
 					ContentValues cv = new ContentValues();
-					cv.put(HikeStickerSearchBaseConstants.TAG_REAL_PHRASE, s);
+					cv.put(HikeStickerSearchBaseConstants.TAG_REAL_PHRASE, tag);
 					cv.put(HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID, referenceIds.get(i++));
-					mDb.insert(table, null, cv);
+
+					if (mDb.insert(table, null, cv) < HikeStickerSearchBaseConstants.SQLITE_FIRST_INTEGER_ROW_ID)
+					{
+						Logger.e(TAG, "Error while inserting tag '" + tag + "' in virtual table: " + table);
+					}
 				}
 
 				SQLiteDatabase.releaseMemory();
