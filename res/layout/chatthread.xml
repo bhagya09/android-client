@@ -12,7 +12,7 @@
         android:id="@+id/overflow_anchor"
         android:layout_width="1dp"
         android:layout_height="0dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="8dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true" />
 
