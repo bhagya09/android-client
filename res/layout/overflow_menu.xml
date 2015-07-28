@@ -10,6 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:cacheColorHint="#000000"
+        android:paddingTop="8dp"
+		android:paddingBottom="8dp"
         android:background="@drawable/over_flow_rounded"
         android:scrollbars="none"
         android:divider="@null" />
