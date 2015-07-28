@@ -178,13 +178,7 @@ public class ImageViewerActivity extends SherlockFragmentActivity implements OnC
 		imageView.setTranslationY(20);
 		imageView.setAlpha(0f);
 
-		imageView.animate().setDuration(duration).translationY(0).alpha(1f).withEndAction(new Runnable()
-		{
-			public void run()
-			{
-				
-			}
-		});
+		imageView.animate().setDuration(duration).translationY(0).alpha(1f);
 
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, 0.95f);
 		bgAnim.setDuration(600);

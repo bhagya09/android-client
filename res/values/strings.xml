@@ -1572,4 +1572,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="clear_timeline_dialog">Are you sure you want to clear all posts from timeline?</string>
 	<string name="like">Like</string>
 	<string name="liked_it">Liked it</string>
+	<string name="status_hint">What are you upto?</string>
+	<string name="status_hint_image">Something about this photo</string>
+	<string name="add_mood">Add Mood</string>
 </resources>

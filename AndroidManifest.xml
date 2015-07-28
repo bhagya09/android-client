@@ -247,7 +247,8 @@
         </activity>
         <activity
             android:name=".ui.StatusUpdate"
-            android:configChanges="orientation|keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:windowSoftInputMode="adjustPan|stateHidden" >
         </activity>
         <activity
             android:name=".ui.GalleryActivity"
