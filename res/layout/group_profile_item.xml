@@ -81,14 +81,15 @@
             style="@style/SettingsHeaderItemTextView"/>
         
              <View
-                android:id="@+id/divider"
-                android:layout_width="1dp"
-                android:layout_height="14dp"
-                android:layout_marginLeft="6dp"
-                android:layout_marginRight="6dp"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/name"
-                android:background="@color/home_screen_list_divider" />
+                 android:id="@+id/divider"
+                 android:layout_width="1dp"
+                 android:layout_height="14dp"
+                 android:layout_centerVertical="true"
+                 android:layout_marginLeft="6dp"
+                 android:layout_marginRight="6dp"
+                 android:layout_toRightOf="@id/name"
+                 android:background="@color/home_screen_list_divider"
+                 android:visibility="gone" />
              
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/telephone"
@@ -97,6 +98,7 @@
             android:layout_toRightOf="@id/divider"
             android:text="Rishabh Sharma"
             android:layout_centerVertical="true"
+            android:visibility="gone"
             style="@style/SettingsHeaderSubItemTextView" />
         
     </RelativeLayout>
