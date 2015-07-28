@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1266"
-    android:versionName="3.9.8.81.4.multiadmin" >
+    android:versionCode="1294"
+    android:versionName="3.9.8.82.5.multiadmin" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
@@ -432,11 +433,6 @@
             android:theme="@style/TranslucentBlack" >
         </activity>
 
-        <receiver android:name=".voip.IncomingCallListener" >
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>

@@ -401,6 +401,19 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken microAppGetRequest(String url, IRequestListener requestListener)
+	{
+
+		RequestToken requestToken = new StringRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.addHeader(PlatformUtils.getHeaders())
+				.setRequestListener(requestListener)
+				.build();
+
+		return requestToken;
+	}
+
 	public static RequestToken postDeviceDetailsRequest(JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);

@@ -505,6 +505,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 	
+	public static final String KEYBOARD_HEIGHT_PORTRAIT = "keyboardHeightPortrait";
+
+	public static final String KEYBOARD_HEIGHT_LANDSCAPE = "keyboardHeightLand";
+
 	public static CurrentState currentState = CurrentState.CLOSED;
 
 	//private static Twitter twitter;
