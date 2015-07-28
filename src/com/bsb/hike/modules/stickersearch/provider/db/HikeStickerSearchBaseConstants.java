@@ -8,7 +8,6 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 public class HikeStickerSearchBaseConstants
 {
-
 	public static final int STICKERS_SEARCH_DATABASE_VERSION = 1;
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
@@ -85,6 +84,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_TAG_POPULARITY = "stickerTagSuitabilityOrder";
 
+	public static final String STICKER_AVAILABILITY = "stickerAvailability";
+
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
 
@@ -119,6 +120,16 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_END = ")";
 
+	public static final String SYNTAX_MATCH_START = " MATCH '";
+
+	public static final String SYNTAX_MATCH_END = "'";
+
+	public static final String SYNTAX_PREDICATE_MATCH_END = "*'";
+
+	public static final String SYNTAX_SINGLE_PARAMETER = "=?";
+
+	public static final String SYNTAX_SINGLE_PARAMETER_NEXT = "=? AND ";
+
 	// Entity type constants
 	public static final int ENTITY_INIT_MARKER = 0; // Reserved
 
@@ -140,24 +151,16 @@ public class HikeStickerSearchBaseConstants
 	// =============================Constants used for Sticker-Tag relation and recommendations]]
 
 	// Constants used in calculation===========================================================[[
-	public static final int MAXIMUM_PROBABILITY = 100; // percent
+	public static final long CURRENT_SUMMERY_TIME_WINDOW = 3 * 24 * 60 * 60 * 1000L; // 3 days time period in milliseconds
 
-	public static final int CURRENT_SUMMERY_TIME_WINDOW = 3; // days
-
-	public static final int MAXIMUM_FREQUENCY = 100; // relative count
+	public static final float MAXIMUM_FREQUENCY = 100.0f; // relative count
 
 	// ===========================================================Constants used in calculation]]
 
 	// Generic constants=======================================================================[[
 	public static final String STRING_EMPTY = "";
 
-	public static final String STRING_SPACE = "";
-
-	public static final String STRING_PREDICATE = "";
-
-	public static final String STRING_TRUE = String.valueOf(true);
-
-	public static final String STRING_FALSE = String.valueOf(false);
+	public static final String STRING_SPACE = " ";
 
 	public static final String STRING_INNER_SET_OPEN = "(";
 
@@ -167,9 +170,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STRING_OUTER_SET_CLOSE = "]";
 
-	public static final String STRING_ASSOCIATOR = " + ";
+	public static final int DECISION_STATE_NO = 0;
 
-	public static final String STRING_DISSOCIATOR = ", ";
+	public static final int DECISION_STATE_YES = 1;
 
 	// =======================================================================Generic constants]]
 
@@ -212,7 +215,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_NIGHT_TERMINAL = 6;
 
-	// [[----------------------------Add more in future; if required----------------------------]]
+	// ------------------------------Add more in future; if required-----------------------------
 
 	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = 11;
 
@@ -224,7 +227,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_NIGHT_NON_TERMINAL = 15;
 
-	// =============================================Constants used for indexing of sticker data]]
+	// ===============================================Constants used for coding of time moments]]
 
 	// Constants used for indexing of sticker data=============================================[[
 	// Order of following indices must be maintained iteratively; whenever removal/ addition of new index is taken place
@@ -254,7 +257,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12;
 
-	public static final int INDEX_STICKER_DATA_COUNT = 13;
+	public static final int INDEX_STICKER_AVAILABILITY_STATUS = 13;
+
+	public static final int INDEX_STICKER_DATA_COUNT = 14;
 
 	// =============================================Constants used for indexing of sticker data]]
 
@@ -263,9 +268,6 @@ public class HikeStickerSearchBaseConstants
 
 	// Default theme
 	public static final String DEFAULT_THEME_TAG = "GENERIC";
-
-	// Default moment
-	public static final int DEFAULT_MOMENT_CODE = -1;
 
 	// Constants used for calculating score====================================================[[
 

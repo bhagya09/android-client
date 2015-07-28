@@ -50,6 +50,16 @@ public enum StickerSearchDataController
 		}
 	}
 
+	public void clear(boolean isNeedToClearAllData)
+	{
+		Logger.i(TAG, "clear(" + isNeedToClearAllData + ")");
+
+		synchronized (StickerSearchDataController.class)
+		{
+			HikeStickerSearchDatabase.getInstance().deleteDataInTables(isNeedToClearAllData);;
+		}
+	}
+
 	public void setupStickerSearchWizard(JSONObject json, int state)
 	{
 		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
@@ -144,7 +154,7 @@ public enum StickerSearchDataController
 					ArrayList<String> tagCategoryList = new ArrayList<String>();
 					ArrayList<Integer> tagExactMatchPriorityList = new ArrayList<Integer>();
 					ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
-					int stickerMomentCode = HikeStickerSearchBaseConstants.DEFAULT_MOMENT_CODE;
+					int stickerMomentCode = HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL;
 					String stickerFestivals = HikeStickerSearchBaseConstants.STRING_EMPTY;
 
 					ArrayList<String> tempMatchElements = new ArrayList<String>();
@@ -350,7 +360,7 @@ public enum StickerSearchDataController
 								{
 									if (key.equalsIgnoreCase("*atime"))
 									{
-										stickerMomentCode = attributeData.optInt(key, HikeStickerSearchBaseConstants.DEFAULT_MOMENT_CODE);
+										stickerMomentCode = attributeData.optInt(key, HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL);
 									}
 									else if (key.equalsIgnoreCase("*afestival"))
 									{

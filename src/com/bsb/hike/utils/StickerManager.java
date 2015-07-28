@@ -1791,8 +1791,13 @@ public class StickerManager
 
 	public Sticker getStickerFromSetString(String info)
 	{
+		return getStickerFromSetString(info, false);
+	}
+
+	public Sticker getStickerFromSetString(String info, boolean stickerAvailability)
+	{
 		Pair<String, String> pair = getStickerInfoFromSetString(info);
-		return new Sticker(pair.first, pair.second);
+		return new Sticker(pair.first, pair.second, stickerAvailability);
 	}
 
 	public Pair<String, String> getStickerInfoFromSetString(String info)
