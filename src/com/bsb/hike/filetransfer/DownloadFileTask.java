@@ -47,6 +47,8 @@ public class DownloadFileTask extends FileTransferBase
 
 	private boolean showToast;
 
+	private final int DOWNLOAD_CHUNK_SIZE = 4 * 1024;
+
 	protected DownloadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, String fileKey, long msgId,
 			HikeFileType hikeFileType, Object userContext, boolean showToast, String token, String uId)
 	{
@@ -157,8 +159,7 @@ public class DownloadFileTask extends FileTransferBase
 		FTResult res = FTResult.SUCCESS;
 		BufferedInputStream in = null;
 		URLConnection conn = null;
-		NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
-		chunkSize = networkType.getMinChunkSize();
+		chunkSize = DOWNLOAD_CHUNK_SIZE;
 		retry = true;
 		reconnectTime = 0;
 		retryAttempts = 0;
@@ -240,7 +241,7 @@ public class DownloadFileTask extends FileTransferBase
 					if(chunkSize <= 0)
 					{
 						FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.DOWNLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");
-						chunkSize = DEFAULT_CHUNK_SIZE;
+						chunkSize = DOWNLOAD_CHUNK_SIZE;
 					}
 
 					byte data[] = new byte[chunkSize];
@@ -275,28 +276,6 @@ public class DownloadFileTask extends FileTransferBase
 							return FTResult.CARD_UNMOUNT;
 						}
 						Logger.d(getClass().getSimpleName(), "ChunkSize : " + chunkSize + "Bytes");
-						setChunkSize();
-						// ChunkSize is increased within the limits
-//						chunkSize *= 2;
-//						if (chunkSize > networkType.getMaxChunkSize())
-//							chunkSize = networkType.getMaxChunkSize();
-//						else if (chunkSize < networkType.getMinChunkSize())
-//							chunkSize = networkType.getMinChunkSize();
-
-						/*
-						 * This chunk size should ideally be no more than 1/8 of the total memory available.
-						 */
-//						try
-//						{
-//							int maxMemory = (int) Runtime.getRuntime().maxMemory();
-//							if (chunkSize > (maxMemory / 8))
-//								chunkSize = maxMemory / 8;
-//						}
-//						catch (Exception e)
-//						{
-//							e.printStackTrace();
-//						}
-						// change buffer size
 						data = new byte[chunkSize];
 						// increase the startByte for resume later
 						mStart += byteRead;
