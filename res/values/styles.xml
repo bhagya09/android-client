@@ -963,8 +963,5 @@
 	<style name="OverflowMenuContainerStyle">
         <item name="android:layout_width">168dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@color/white</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
     </style>
 </resources>
