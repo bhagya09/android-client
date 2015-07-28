@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 
@@ -18,8 +17,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -30,13 +27,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -309,18 +302,12 @@ public class DownloadFileTask extends FileTransferBase
 							{
 								Logger.d(getClass().getSimpleName(), "The md5's are not equal...Deleting the files...");
 								sendCrcLog(file_md5Hash);
-//								deleteTempFile();
-//								deleteStateFile();
-//								return FTResult.FAILED_UNRECOVERABLE;
 							}
 
 						}
 						else
 						{
 							sendCrcLog(file_md5Hash);
-//							deleteTempFile();
-//							deleteStateFile();
-//							return FTResult.FAILED_UNRECOVERABLE;
 						}
 						boolean isFileMoved = tempDownloadedFile.renameTo(mFile);
 						/*
@@ -384,32 +371,6 @@ public class DownloadFileTask extends FileTransferBase
 					retry = false;
 				}
 			}
-//			catch (IOException e)
-//			{
-//				Logger.e(getClass().getSimpleName(), "FT error : " + e.getMessage());
-//				if (e.getMessage() != null && (e.getMessage().contains(NETWORK_ERROR_1) || e.getMessage().contains(NETWORK_ERROR_2)))
-//				{
-//					// here we should retry
-//					mStart = _bytesTransferred;
-//					// Is case id the task quits after making MAX attempts
-//					// the file state is saved
-//					if (retryAttempts >= MAX_RETRY_ATTEMPTS)
-//					{
-//						error();
-//						res = FTResult.DOWNLOAD_FAILED;
-//					}
-//				}
-//				else
-//				{
-//					error();
-//					res = FTResult.DOWNLOAD_FAILED;
-//					retry = false;
-//				}
-//			}
-//			catch (Exception e)
-//			{
-//				Logger.e(getClass().getSimpleName(), "FT error : " + e.getMessage());
-//			}
 		} while (shouldRetry());
 		if (res == FTResult.SUCCESS)
 		{
