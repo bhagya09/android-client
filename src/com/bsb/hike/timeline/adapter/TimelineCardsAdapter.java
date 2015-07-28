@@ -93,13 +93,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private final int OTHER_UPDATE = -12;
 
 	public final static int FTUE_CARD_INIT = -14;
-	
+
 	public final static int FTUE_CARD_EXIT = -17;
 
 	public final static int FTUE_CARD_FAV = -18;
-	
+
 	private final int IMAGE = -15;
-	
+
 	private final int TEXT_IMAGE = -16;
 
 	public static final long EMPTY_STATUS_NO_STATUS_ID = -3;
@@ -107,9 +107,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public static final long EMPTY_STATUS_NO_STATUS_RECENTLY_ID = -5;
 
 	private TimelineActions mActionsData;
-	
+
 	private ProfileImageLoader profileLoader;
-	
+
 	protected AlertDialog alertDialog;
 
 	class ViewHolder extends RecyclerView.ViewHolder
@@ -149,7 +149,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		CheckBox checkBoxLove;
 
 		TextView loveCount;
-		
+
 		TextView ftueShow;
 
 		View actionsLayout;
@@ -217,7 +217,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private IconLoader mIconImageLoader;
 
 	private TimelineUpdatesImageLoader profileImageLoader;
-	
+
 	private String mUserMsisdn;
 
 	private int mProtipIndex;
@@ -225,16 +225,17 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private SoftReference<Activity> mActivity;
 
 	private int mLastPosition = 3;
-	
+
 	private List<String> mFtueFriendList;
-	
+
 	private LoaderManager loaderManager;
-	
+
 	private FragmentManager fragmentManager;
-	
+
 	private HikeUiHandler mHikeUiHandler;
 
-	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<String> ftueFriendList, LoaderManager loadManager, FragmentManager fragManager)
+	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<String> ftueFriendList, LoaderManager loadManager,
+			FragmentManager fragManager)
 	{
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 		mStatusMessages = statusMessages;
@@ -340,7 +341,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			viewHolder.infoContainer.setVisibility(View.GONE);
 			viewHolder.moodsContainer.setVisibility(View.GONE);
-			
+
 			viewHolder.actionsLayout.setVisibility(View.GONE);
 
 			switch (statusMessage.getStatusMessageType())
@@ -388,7 +389,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				}
 
 				viewHolder.checkBoxLove.setOnCheckedChangeListener(null);
-				
+
 				viewHolder.checkBoxLove.setTag(statusMessage);
 				if (selfLiked)
 				{
@@ -400,11 +401,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					viewHolder.checkBoxLove.setChecked(false);
 					viewHolder.textBtnLove.setText(R.string.like);
 				}
-				
+
 				viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
-				
+
 				viewHolder.actionsLayout.setVisibility(View.VISIBLE);
-				
+
 				break;
 			case FRIEND_REQUEST_ACCEPTED:
 			case USER_ACCEPTED_FRIEND_REQUEST:
@@ -492,7 +493,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			RoundedImageView roundAvatar1 = (RoundedImageView) viewHolder.avatar;
 			roundAvatar1.setScaleType(ScaleType.FIT_CENTER);
 			roundAvatar1.setBackgroundResource(0);
-			
+
 			if (statusMessage.hasMood())
 			{
 				// For moods we dont want to use rounded corners
@@ -537,7 +538,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.infoContainer.setOnLongClickListener(onCardLongPressListener);
 
 			boolean selfLiked = false;
-			
+
 			if (likesData != null)
 			{
 				viewHolder.loveCount.setText(String.valueOf(likesData.getCount()));
@@ -549,7 +550,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 			viewHolder.checkBoxLove.setOnCheckedChangeListener(null);
-			
+
 			viewHolder.checkBoxLove.setTag(statusMessage);
 			if (selfLiked)
 			{
@@ -566,7 +567,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		case FTUE_CARD_FAV:
 			int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
-			ContactInfo contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter-1));
+			ContactInfo contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter - 1));
 			viewHolder.name.setText(contact.getName());
 			setAvatar(contact.getMsisdn(), viewHolder.avatar);
 			viewHolder.ftueShow.setTag(viewType);
@@ -579,25 +580,26 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				@Override
 				public void onLoaderReset(Loader<Boolean> arg0)
 				{
-					//dismissProgressDialog();
+					// dismissProgressDialog();
 				}
 
 				@Override
 				public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
 				{
-					//dismissProgressDialog();
+					// dismissProgressDialog();
 				}
 
 				@Override
-				public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
-					//showProgressDialog();
+				public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
+				{
+					// showProgressDialog();
 					return null;
 				}
 
 				@Override
 				public void startDownloading()
 				{
-					//showProgressDialog();
+					// showProgressDialog();
 					loadHeadLessImageDownloadingFragment();
 				}
 			});
@@ -623,7 +625,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			mLastPosition = position;
 		}
 
-		//Done to support Quick Return
+		// Done to support Quick Return
 		if (position == 0)
 		{
 			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(45), 0, 0);
@@ -740,7 +742,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			return false;
 		}
 	};
-	
+
 	private String[] getLongPressListItemsArray(StatusMessage argStatusMessage)
 	{
 		ArrayList<String> optionsList = new ArrayList<String>();
@@ -749,9 +751,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			optionsList.add(String.format(mContext.getString(R.string.message_person), argStatusMessage.getNotNullName()));
 		}
-		
+
 		optionsList.add(mContext.getString(R.string.copy));
-		
+
 		optionsList.add(mContext.getString(R.string.delete_post));
 
 		final String[] options = new String[optionsList.size()];
@@ -759,9 +761,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		return options;
 	}
-	
+
 	private DialogListItemClickListener longPressListClickListener = new DialogListItemClickListener();
-	
+
 	private class DialogListItemClickListener implements DialogInterface.OnClickListener
 	{
 		StatusMessage mStatusMessage;
@@ -806,7 +808,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 	};
 
-	
 	public void removeStatusUpdate(String statusId)
 	{
 		if (mStatusMessages == null || mStatusMessages.isEmpty())
@@ -822,9 +823,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				break;
 			}
 		}
-		
+
 		notifyDataSetChanged();
 	}
+
 	private void showDeleteStatusConfirmationDialog(final StatusMessage statusMessage)
 	{
 		HikeDialogFactory.showDialog(mActivity.get(), HikeDialogFactory.DELETE_STATUS_TIMELINE_DIALOG, new HikeDialogListener()
@@ -888,8 +890,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		});
 	}
-	
-	
+
 	private OnClickListener yesBtnClickListener = new OnClickListener()
 	{
 
@@ -948,7 +949,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				{
 					mStatusMessages.remove(getProtipIndex());
 					notifyDataSetChanged();
-					
+
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CURRENT_PROTIP, -1);
 
 					HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_PROTIP, statusMessage.getProtip().getMappedId());
@@ -1016,46 +1017,46 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		@Override
 		public void onClick(View v)
 		{
-			
-			switch ((int)v.getTag())
+
+			switch ((int) v.getTag())
 			{
 			case FTUE_CARD_INIT:
 				// make counter 1
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 1);
-				
-				//Show card with contact
+
+				// Show card with contact
 				addFTUEItemIfExists();
-				
+
 				break;
-				
+
 			case FTUE_CARD_FAV:
-				
-				//increase counter by 1
+
+				// increase counter by 1
 				int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, counter+1);
-				
-				//show card with next contact or exit card
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, counter + 1);
+
+				// show card with next contact or exit card
 				addFTUEItemIfExists();
-				
+
 				break;
-				
+
 			case FTUE_CARD_EXIT:
-				
-				//reset counter to 0
+
+				// reset counter to 0
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
-				
-				//Set enable FTUE time to false
+
+				// Set enable FTUE time to false
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
-				
-				//remove FTUE Exit Card
+
+				// remove FTUE Exit Card
 				removeFTUEItemIfExists(FTUE_CARD_EXIT);
-				
+
 				break;
-				
+
 			default:
 				break;
 			}
-			
+
 		}
 	};
 
@@ -1101,7 +1102,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 									.getMappedId());
 
 							mActionsData.updateByActivityFeed(newFeed);
-							
+
 							notifyDataSetChanged();
 						}
 					}
@@ -1138,12 +1139,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
 									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
-							
+
 							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
 									.getMappedId());
 
 							mActionsData.updateByActivityFeed(newFeed);
-							
+
 							notifyDataSetChanged();
 						}
 					}
@@ -1169,7 +1170,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	{
 		mProtipIndex = startIndex;
 	}
-	
+
 	private void startActivity(Intent argIntent)
 	{
 		if (mActivity.get() != null)
@@ -1194,7 +1195,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			notifyDataSetChanged();
 		}
 	}
-	
+
 	private void addFTUEItemIfExists()
 	{
 		StatusMessage statusMessage = null;
@@ -1204,13 +1205,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			ContactInfo contact = null;
 			switch (counter)
 			{
-			
+
 			case 1:
 			case 2:
 			case 3:
 			case 4:
-				contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter-1));
-				if(counter == 1)
+				contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter - 1));
+				if (counter == 1)
 				{
 					removeFTUEItemIfExists(FTUE_CARD_INIT);
 				}
@@ -1233,30 +1234,31 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			notifyDataSetChanged();
 		}
 	}
-	
+
 	public void setFTUEFriendList(List<String> fndList)
 	{
 		this.mFtueFriendList = fndList;
 	}
-	
+
 	private void loadHeadLessImageDownloadingFragment()
 	{
-		HeadlessImageDownloaderFragment mImageWorkerFragment = (HeadlessImageDownloaderFragment) fragmentManager.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
+		HeadlessImageDownloaderFragment mImageWorkerFragment = (HeadlessImageDownloaderFragment) fragmentManager
+				.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
 
-	    // If the Fragment is non-null, then it is currently being
-	    // retained across a configuration change.
-	    if (mImageWorkerFragment == null) 
-	    {
-	    	String fileName = Utils.getProfileImageFileName(mUserMsisdn);
-	    	mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(mUserMsisdn, fileName, true, false, null, null, null, true);
-	    	mImageWorkerFragment.setTaskCallbacks(this);
-	        fragmentManager.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
-	    }
-	    else
-	    {
-	    	//Toast.makeText(this, mContext.getResources().getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-	    	//Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-	    }
+		// If the Fragment is non-null, then it is currently being
+		// retained across a configuration change.
+		if (mImageWorkerFragment == null)
+		{
+			String fileName = Utils.getProfileImageFileName(mUserMsisdn);
+			mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(mUserMsisdn, fileName, true, false, null, null, null, true);
+			mImageWorkerFragment.setTaskCallbacks(this);
+			fragmentManager.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
+		}
+		else
+		{
+			// Toast.makeText(this, mContext.getResources().getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
+			// Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+		}
 
 	}
 
@@ -1264,7 +1266,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	{
 		mHikeUiHandler.post(new Runnable()
 		{
-			
+
 			@Override
 			public void run()
 			{
@@ -1277,28 +1279,28 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void onProgressUpdate(float percent)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onFailed()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void handleUIMessage(Message msg)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onCancelled()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 }
