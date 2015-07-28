@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1291"
-    android:versionName="3.9.8.81.32.5.voip" >
+    android:versionCode="1292"
+    android:versionName="3.9.8.81.32.6.voip" >
 
     <uses-sdk
         android:minSdkVersion="9"
