@@ -300,6 +300,7 @@ public class DownloadFileTask extends FileTransferBase
 						return FTResult.CANCELLED;
 					case IN_PROGRESS:
 						Logger.d(getClass().getSimpleName(), "Server md5 : " + md5Hash);
+						closeStreams(raf, in);
 						String file_md5Hash = Utils.fileToMD5(tempDownloadedFile.getPath());
 						if (md5Hash != null)
 						{
@@ -335,7 +336,6 @@ public class DownloadFileTask extends FileTransferBase
 						{
 							Logger.d(getClass().getSimpleName(), "FT failed");
 							error();
-							closeStreams(raf, in);
 							FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
 							return FTResult.READ_FAIL;
 						}
