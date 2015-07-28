@@ -59,6 +59,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
@@ -1769,6 +1770,15 @@ public class StickerManager
 		}
 	}
 	
+	private void downloadDefaultTags(boolean isSignUp)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false))
+		{
+			DefaultTagDownloadTask defaultTagDownloadTask = new DefaultTagDownloadTask(isSignUp);
+			defaultTagDownloadTask.execute();
+		}
+	}
+	
 	public void refreshTagData()
 	{
 		long stickerTagRefreshPeriod = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_REFRESH_PERIOD, StickerSearchConstants.DEFAULT_STICKER_TAG_REFRESH_TIME);
@@ -1939,6 +1949,7 @@ public class StickerManager
 		}
 		
 		StickerManager.getInstance().downloadStickerTagData();
+		StickerManager.getInstance().downloadDefaultTags(false);
 	}
 	
 	public void doSignupTasks()
@@ -1949,6 +1960,7 @@ public class StickerManager
 		}
 		
 		StickerManager.getInstance().downloadStickerTagData();
+		StickerManager.getInstance().downloadDefaultTags(true);
 	}
 	
 	/**
