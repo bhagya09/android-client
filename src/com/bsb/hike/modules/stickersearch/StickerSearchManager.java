@@ -14,7 +14,6 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
@@ -213,7 +212,7 @@ public class StickerSearchManager
 
 		int firstTagHighlightLength = highlightArray[0][1] - highlightArray[0][0];
 		String preString = currentTextString.substring(0, highlightArray[0][0]);
-		String postString = ((highlightArray[0][1] + 1) > currentTextLength) ? HikeStickerSearchBaseConstants.STRING_EMPTY : currentTextString.substring(highlightArray[0][1] + 1);
+		String postString = ((highlightArray[0][1] + 1) > currentTextLength) ? StickerSearchConstants.STRING_EMPTY : currentTextString.substring(highlightArray[0][1] + 1);
 
 		if ((firstTagHighlightLength > 0) && Utils.isBlank(preString) && Utils.isBlank(postString))
 		{

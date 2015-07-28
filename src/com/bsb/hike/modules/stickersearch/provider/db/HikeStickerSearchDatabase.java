@@ -17,6 +17,7 @@ import java.util.Set;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.provider.StickerTagDataContainer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -54,6 +55,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		super(context, HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH, null, HikeStickerSearchBaseConstants.STICKERS_SEARCH_DATABASE_VERSION);
 
 		Logger.i(TAG, "HikeStickerSearchDatabase(" + context + ")");
+
 		mContext = context;
 		mDb = getWritableDatabase();
 		mRandom = new Random();
@@ -219,7 +221,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		ContentValues cv = new ContentValues();
 		cv.put(HikeStickerSearchBaseConstants.ENTITY_NAME, HikeStickerSearchBaseConstants.IS_INITIALISED);
 		cv.put(HikeStickerSearchBaseConstants.ENTITY_TYPE, HikeStickerSearchBaseConstants.ENTITY_INIT_MARKER);
-		cv.put(HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY, HikeStickerSearchBaseConstants.STRING_EMPTY);
+		cv.put(HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY, StickerSearchConstants.STRING_EMPTY);
 
 		mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, cv);
 	}

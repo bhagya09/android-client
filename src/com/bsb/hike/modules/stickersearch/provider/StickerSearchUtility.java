@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.Utils;
@@ -20,12 +21,6 @@ import android.util.Pair;
 
 public class StickerSearchUtility
 {
-	public static final String STRING_REGEX_ASSOCIATOR = " \\+ ";
-
-	public static final String STRING_ASSOCIATOR = " + ";
-
-	public static final String STRING_DISSOCIATOR = ", ";
-
 	/* Determine if given character is special character */
 	public static boolean isSpecialCharacter(char c)
 	{
@@ -88,7 +83,7 @@ public class StickerSearchUtility
 		}
 
 		outputBuilder.append(v1);
-		outputBuilder.append(STRING_ASSOCIATOR);
+		outputBuilder.append(StickerSearchConstants.STRING_ASSOCIATOR);
 		outputBuilder.append(v2);
 
 		return outputBuilder.toString();
@@ -100,7 +95,7 @@ public class StickerSearchUtility
 		StringBuilder outputBuilder = new StringBuilder();
 
 		outputBuilder.append(v1);
-		outputBuilder.append(STRING_ASSOCIATOR);
+		outputBuilder.append(StickerSearchConstants.STRING_ASSOCIATOR);
 		outputBuilder.append(v2);
 
 		return outputBuilder.toString();
@@ -117,7 +112,7 @@ public class StickerSearchUtility
 		}
 		else
 		{
-			ArrayList<String> values = split(s, STRING_REGEX_ASSOCIATOR, 0);
+			ArrayList<String> values = split(s, StickerSearchConstants.REGEX_ASSOCIATOR, 0);
 			int length = (values == null) ? 0 : values.size();
 			float v1;
 			float v2;
@@ -308,7 +303,7 @@ public class StickerSearchUtility
 				{
 					int i = matchList.size() - 1;
 
-					while ((i > -1) && matchList.get(i).equals(HikeStickerSearchBaseConstants.STRING_EMPTY))
+					while ((i > -1) && matchList.get(i).equals(StickerSearchConstants.STRING_EMPTY))
 					{
 						matchList.remove(i--);
 					}
@@ -389,7 +384,7 @@ public class StickerSearchUtility
 				{
 					int i = matchList.size() - 1;
 
-					while ((i > -1) && matchList.get(i).equals(HikeStickerSearchBaseConstants.STRING_EMPTY))
+					while ((i > -1) && matchList.get(i).equals(StickerSearchConstants.STRING_EMPTY))
 					{
 						matchList.remove(i);
 						startList.remove(i);
@@ -402,7 +397,7 @@ public class StickerSearchUtility
 		return new Pair<>(matchList, new Pair<>(startList, endList));
 	}
 
-	private static class TextMatchManager
+	public static class TextMatchManager
 	{
 		private static final HashMap<String, Pattern> sPatternContainer = new HashMap<String, Pattern>();
 
@@ -418,7 +413,7 @@ public class StickerSearchUtility
 			return pattern;
 		}
 
-		private static void clearResources()
+		public static void clearResources()
 		{
 			sPatternContainer.clear();
 		}

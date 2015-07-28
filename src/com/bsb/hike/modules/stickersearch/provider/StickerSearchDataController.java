@@ -155,7 +155,7 @@ public enum StickerSearchDataController
 					ArrayList<Integer> tagExactMatchPriorityList = new ArrayList<Integer>();
 					ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
 					int stickerMomentCode = HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL;
-					String stickerFestivals = HikeStickerSearchBaseConstants.STRING_EMPTY;
+					String stickerFestivals = StickerSearchConstants.STRING_EMPTY;
 
 					ArrayList<String> tempMatchElements = new ArrayList<String>();
 					ArrayList<String> tempRemainingMatchElements = new ArrayList<String>();
@@ -227,7 +227,7 @@ public enum StickerSearchDataController
 
 										if ((tagArray != null) && (tagArray.length() > 0))
 										{
-											formattedKey = key.toLowerCase(Locale.ENGLISH).replace("*c", "");
+											formattedKey = key.toLowerCase(Locale.ENGLISH).replace("*c", StickerSearchConstants.STRING_EMPTY);
 
 											for (int i = 0; i < tagArray.length(); i++)
 											{
@@ -273,7 +273,7 @@ public enum StickerSearchDataController
 										key = key.toLowerCase(Locale.ENGLISH);
 										if (key.startsWith("*c"))
 										{
-											formattedKey = key.replace("*c", "");
+											formattedKey = key.replace("*c", StickerSearchConstants.STRING_EMPTY);
 
 											for (int i = 0; i < tagArray.length(); i++)
 											{
