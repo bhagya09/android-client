@@ -24,6 +24,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -629,8 +630,8 @@ public class OfflineUtils
 
 	public static boolean isConnectedToSameMsisdn(String msisdn)
 	{
-		String connectedMsisdn = OfflineController.getInstance().getConnectedDevice(); 
-		return !TextUtils.isEmpty(connectedMsisdn) && connectedMsisdn.equals(msisdn);
+		String connectedMsisdn = OfflineController.getInstance().getConnectedDevice();
+		return !TextUtils.isEmpty(connectedMsisdn) && connectedMsisdn.equals(msisdn) && OfflineController.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTED;
 	}
 
 	public static boolean isConnectingToSameMsisdn(String msisdn) 
