@@ -410,7 +410,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		String[] oneToOneListeners = new String[] { HikePubSub.SMS_CREDIT_CHANGED, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.CONTACT_ADDED, HikePubSub.CONTACT_DELETED,
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
-				HikePubSub.APP_FOREGROUNDED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST ,HikePubSub.OFFLINE_FILE_COMPLETED};
+				HikePubSub.APP_FOREGROUNDED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST ,HikePubSub.OFFLINE_FILE_COMPLETED,
+				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE};
 		return oneToOneListeners;
 	}
 
@@ -586,6 +587,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case HikePubSub.OFFLINE_FILE_COMPLETED:
 			onOfflineFileCompleted((ConvMessage) object);
 			break;
+		case HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE:
+			updateMsgOriginType((Pair<Long, Integer>) object);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -593,6 +597,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 	}
 
+	
+	private void updateMsgOriginType(Pair<Long,Integer> pair)
+	{
+		ConvMessage convMessage = findMessageById(pair.first);
+		if (convMessage == null)
+		{
+			return;
+		}
+
+		convMessage.setMessageOriginType(ConvMessage.originTypeValue(pair.second));
+		uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+
+	}
 	/**
 	 * Sending MR in case of File completed in Offline.In Offline we send offline when we receive the completed file
 	 * 
