@@ -1593,13 +1593,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		Logger.d("gaurav","updateUIforSearchResult: " + position);
 		searchDialog.dismiss();
-		if (position >= 0)
+		if (messageSearchManager != null && messageSearchManager.isActive())
 		{
-			scrollToPosition(position, (int) (40 * Utils.densityMultiplier));
-		}
-		else
-		{
-			showToast(R.string.no_results);
+			if (position >= 0)
+			{
+				scrollToPosition(position, (int) (40 * Utils.densityMultiplier));
+			}
+			else
+			{
+				showToast(R.string.no_results);
+			}
 		}
 		setMessagesRead();
 		loadingMoreMessages = false;
