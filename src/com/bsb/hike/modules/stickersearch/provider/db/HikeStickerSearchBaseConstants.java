@@ -126,6 +126,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_PREDICATE_MATCH_END = "*'";
 
+	public static final String SYNTAX_IN_OPEN = " IN (";
+
 	public static final String SYNTAX_SINGLE_PARAMETER = "=?";
 
 	public static final String SYNTAX_SINGLE_PARAMETER_NEXT = "=? AND ";

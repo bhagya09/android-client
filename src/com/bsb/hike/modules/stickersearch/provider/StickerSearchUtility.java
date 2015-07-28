@@ -167,6 +167,52 @@ public class StickerSearchUtility
 		return result;
 	}
 
+	/* Get syntax string (a part of SQL query) while applying 'IN' clause with multiple '?' */
+	public static String getSQLiteDatabaseMultipleParameterSyntax(int count)
+	{
+		StringBuilder sb;
+
+		if (count > 0)
+		{
+			sb = new StringBuilder(count * 2 - 1);
+
+			sb.append("?");
+
+			for (int i = 1; i < count; i++)
+			{
+				sb.append(",?");
+			}
+		}
+		else
+		{
+			throw new IllegalArgumentException("Invalid argument (count)");
+		}
+
+		return sb.toString();
+	}
+
+	/* Get syntax string (a part of SQL query) while applying 'MATCH' clause with multiple 'OR' */
+	public static String getSQLiteDatabaseMultipleMatchSyntax(String[] ids)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		if ((ids != null) && (ids.length > 0))
+		{
+			sb.append(ids[0]);
+
+			for (int i = 1; i < ids.length; i++)
+			{
+				sb.append(" OR " + ids[i]);
+			}
+		}
+		else
+		{
+			throw new IllegalArgumentException((ids == null) ? "Invalid argument (ids)" : "Empty argument (ids)");
+		}
+
+		return sb.toString();
+	}
+
 	/* Get the code w.r.t. moment of time i.e. morning, evening, night etc. */
 	public static TIME_CODE getMomentCode()
 	{
