@@ -182,9 +182,6 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
 		View backContainer = actionBarView.findViewById(R.id.back);
-
-		ImageView backIcon = (ImageView) actionBarView.findViewById(R.id.up);
-
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 
 		backContainer.setOnClickListener(new OnClickListener()
@@ -200,9 +197,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
-
-		backIcon.setImageResource(R.drawable.ic_back);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
+		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 		title.setText(R.string.select_country);
 	}
 

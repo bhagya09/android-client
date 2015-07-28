@@ -25,6 +25,7 @@
         <item name="colorPrimaryDark">@color/white_100</item>
         <item name="colorAccent">@color/white_100</item>
         <item name="colorControlActivated">#1993CB</item>
+        
     </style>
     <style name="AppTheme.Overlay" parent="AppTheme">
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
@@ -69,6 +70,17 @@
         <item name="android:colorPrimary">@color/blue_hike</item>
         <item name="android:colorAccent">@color/blue_hike</item>
         
+    </style>
+    <style name="HomeList">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:cacheColorHint">#00000000</item>
+        <item name="android:divider">@drawable/home_list_divider</item>
+        <item name="android:dividerHeight">0.5dp</item>
+        <item name="android:headerDividersEnabled">false</item>
+        <item name="android:footerDividersEnabled">false</item>
+        <item name="android:drawSelectorOnTop">false</item>
+        <item name="android:listSelector">@drawable/listripple</item>
     </style>
     
 </resources>
