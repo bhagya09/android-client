@@ -232,6 +232,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private boolean isAdmin;
 
+	private TextView creator;
+	
 	private static final String TAG = "Profile_Activity";
 	
 	/* store the task so we can keep keep the progress dialog going */
@@ -914,6 +916,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			text = (TextView) headerView.findViewById(R.id.name);
 			profileImage = (ImageView) headerView.findViewById(R.id.group_profile_image);
 			creation = (TextView) headerView.findViewById(R.id.creation);
+			creator = (TextView) headerView.findViewById(R.id.creator);
 			smallIconFrame = (ImageView) headerView.findViewById(R.id.change_profile);
 			groupNameEditText.setText(oneToNConversation.getLabel());
 			msisdn = oneToNConversation.getMsisdn();
@@ -921,6 +924,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			text.setText(name);
 			if (profileType == ProfileType.BROADCAST_INFO) {
 				creation.setVisibility(View.GONE);
+				creator.setVisibility(View.GONE);
+
 			} else {
 				long groupCreation = oneToNConversation.getCreationDateInLong();
 				if (groupCreation != -1l)
@@ -931,6 +936,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 									.getGroupCreationTimeAsString(
 											getApplicationContext(),
 											groupCreation));
+				if(oneToNConversation.getConversationCreator()!=null){
+					creator.setText(getResources().getString(
+							R.string.group_created_by)
+							+ " "
+							+ oneToNConversation.getConversationCreator());
+				}
+
 			}
 
 			

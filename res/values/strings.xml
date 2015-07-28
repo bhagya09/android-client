@@ -1561,6 +1561,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="group_setting_updating">Changing group privacy settings</string>
 	<string name="group_setting_confirmation1">Allow everyone to add members?</string>
 	<string name="group_setting_confirmation2">Allow only Admins to add members?</string>
+	<string name="group_created_by">Created by </string>
 	<string name="group_rights_info">Only Admins can add members in this group</string>
 	<string name="group_rights_info_2">Everyone can add members</string>
 	<string name="sms_admin_toast">You cannot share your Admin rights with SMS users</string>
