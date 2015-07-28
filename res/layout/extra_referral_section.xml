@@ -30,30 +30,33 @@
         android:layout_marginTop="17dp"
         android:text="@string/your_referral_code"
         android:textColor="@color/referral_text_colour"
-        android:textSize="12sp"
+        android:textSize="14sp"
         android:textStyle="normal" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/referral_code"
         android:layout_width="150dp"
-        android:layout_height="30dp"
+        android:layout_height="44dp"
         android:layout_marginTop="12dp"
         android:alpha="0.5"
         android:background="@color/referral_code"
         android:gravity="center"
         android:textColor="@color/referral_text_colour"
-        android:textSize="16sp"
-        android:textStyle="normal" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/invite_Section_bottom_text"
-        android:layout_width="300dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="18dp"
         android:layout_marginTop="12dp"
+        android:alpha="0.8"
         android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:textColor="@color/referral_text_colour"
-        android:textSize="12sp"
+        android:textSize="14sp"
         android:textStyle="normal" />
 
 </LinearLayout>
