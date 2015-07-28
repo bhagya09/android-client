@@ -269,6 +269,7 @@ public class GroupChatThread extends OneToNChatThread
 		switch (item.id)
 		{
 		case R.string.voip_call_chat:
+			
 			Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
 			ArrayList<String> msisdns = new ArrayList<String>();
 			
@@ -279,14 +280,10 @@ public class GroupChatThread extends OneToNChatThread
 			}
 			
 			// Launch VoIP service
-			if (msisdns.size() > VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE) {
-				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.voip_group_too_large), Toast.LENGTH_SHORT).show();
-			} else {
-				activity.getApplicationContext().startService(
-						IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
-								msisdns, VoIPUtils.CallSource.CHAT_THREAD)
-						);
-			}
+			Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+					msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+			if (intent != null)
+				activity.getApplicationContext().startService(intent);
 			break;
 		case R.string.mute_group:
 			toggleMuteGroup();
@@ -515,6 +512,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
+		toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
 			switch (item.getItemId())
@@ -531,20 +529,18 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private boolean checkForDeadOrBlocked()
 	{
-		if (!oneToNConversation.isConversationAlive())
-		{
-			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
-			return true;
-		}
-
-		if (oneToNConversation.isBlocked())
-		{
-			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
-			return true;
-		}
-
-		return false;
+		return checkForBlocked() ||checkForDead();
+	}
+	
+	private boolean checkForDead()
+	{
+	    	return !oneToNConversation.isConversationAlive();
+	}
+	
+	private boolean checkForBlocked()
+	{
+			return oneToNConversation.isBlocked();
+	
 	}
 
 	@Override
@@ -583,7 +579,12 @@ public class GroupChatThread extends OneToNChatThread
 		playPinCreateViewAnim();
 
 		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		if (mShareablePopupLayout.isShowing())
+		{
+			mShareablePopupLayout.dismiss();
+		}
 
+		mComposeView.setOnTouchListener(this);
 		mComposeView.addTextChangedListener(new EmoticonTextWatcher());
 		mComposeView.requestFocus();
 		if (!TextUtils.isEmpty(pinText))
@@ -867,7 +868,11 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			ll.removeAllViews();
 		}
-		ll.addView(pinView, 0);
+		try {
+			ll.addView(pinView, 0);
+		} catch (Exception e) {
+			throw new IllegalStateException("Exception during adding of pin message, parent's child count  :"+ll.getChildCount(), e);
+		}
 
 		/**
 		 * If we were composing a new pin and a pin arrives from somewhere else Then we hide the received pin. The pin view will be made visible when pinCreateView is Destroyed.
@@ -963,6 +968,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		
 		super.onPrepareOverflowOptionsMenu(overflowItems);
+		toastForGroupEnd();
 		
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
@@ -978,6 +984,15 @@ public class GroupChatThread extends OneToNChatThread
 				overFlowMenuItem.text = oneToNConversation.isMuted() ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group);
 				break;
 			}
+		}
+	}
+
+	private void toastForGroupEnd() {
+		if(checkForDead()){
+			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
+		}else if(checkForBlocked()){
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
 		}
 	}
 	

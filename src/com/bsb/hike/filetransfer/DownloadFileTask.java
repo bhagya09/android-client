@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 
@@ -98,16 +100,7 @@ public class DownloadFileTask extends FileTransferBase
 		try
 		{
 			HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);
-			String downLoadUrl = hikeFile.getDownloadURL();
-			boolean isCloudFrontURL = false;
-			if(TextUtils.isEmpty(downLoadUrl))
-				downLoadUrl = (AccountUtils.fileTransferBaseDownloadUrl + fileKey);
-			else
-				isCloudFrontURL = true;
-				
-			mUrl = new URL(downLoadUrl);
-			if(isCloudFrontURL && AccountUtils.ssl)
-				mUrl = new URL("https", mUrl.getHost(), mUrl.getPort(), mUrl.getFile());
+			mUrl = getDownloadURL(hikeFile);
 
 			this.analyticEvents =  FTAnalyticEvents.getAnalyticEvents(FileTransferManager.getInstance(context).getAnalyticFile(hikeFile.getFile(), msgId));
 			FileSavedState fst = FileTransferManager.getInstance(context).getDownloadFileState(mFile, msgId);
@@ -166,7 +159,10 @@ public class DownloadFileTask extends FileTransferBase
 		URLConnection conn = null;
 		NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
 		chunkSize = networkType.getMinChunkSize();
-		while (shouldRetry())
+		retry = true;
+		reconnectTime = 0;
+		retryAttempts = 0;
+		do
 		{
 			try
 			{
@@ -176,6 +172,9 @@ public class DownloadFileTask extends FileTransferBase
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
 					return FTResult.DOWNLOAD_FAILED;
 				}
+				
+				mUrl = getUpdatedURL(mUrl, "Downloading File", FTAnalyticEvents.DOWNLOAD_FILE_TASK, getDownloadURL(hikeFile));
+
 				conn = initConn();
 				// set the range of byte to download
 				String byteRange = mStart + "-";
@@ -187,7 +186,7 @@ public class DownloadFileTask extends FileTransferBase
 				}
 				catch (Exception e)
 				{
-
+					Logger.e(getClass().getSimpleName(), "exception while setting connection params", e);
 				}
 				conn.connect();
 				int resCode = ssl ? ((HttpsURLConnection) conn).getResponseCode() : ((HttpURLConnection) conn).getResponseCode();
@@ -209,9 +208,6 @@ public class DownloadFileTask extends FileTransferBase
 				else
 				// everything is fine till this point
 				{
-					retry = true;
-					reconnectTime = 0;
-					retryAttempts = 0;
 					// Check for valid content length.
 					int contentLength = conn.getContentLength();
 					String md5Hash = conn.getHeaderField(ETAG);
@@ -323,8 +319,6 @@ public class DownloadFileTask extends FileTransferBase
 						FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
 						return FTResult.CANCELLED;
 					case IN_PROGRESS:
-						//When downloading file from cloudfront, then we are getting extra quotes at start and end of md5. So need to remove the quotes
-						md5Hash = removeExtraQuotes(md5Hash);
 						Logger.d(getClass().getSimpleName(), "Server md5 : " + md5Hash);
 						String file_md5Hash = Utils.fileToMD5(tempDownloadedFile.getPath());
 						if (md5Hash != null)
@@ -392,16 +386,21 @@ public class DownloadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
+				handleException(e);
 				Logger.e(getClass().getSimpleName(), "FT Download error : " + e.getMessage());
 				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_UNKNOWN_ERROR, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "all", "DOWNLOAD_FAILED ("+ retryAttempts + ")", e);
 				// here we should retry
 				mStart = _bytesTransferred;
 				// Is case id the task quits after making MAX attempts
 				// the file state is saved
-				if (retryAttempts >= MAX_RETRY_ATTEMPTS)
+				boolean isProtocolError = (e instanceof ProtocolException || e instanceof org.apache.http.ProtocolException) ;
+				if (retryAttempts >= MAX_RETRY_ATTEMPTS || isProtocolError)
 				{
 					error();
-					res = FTResult.DOWNLOAD_FAILED;
+					if(isProtocolError)
+						res = FTResult.UNKNOWN_SERVER_ERROR;
+					else
+						res = FTResult.DOWNLOAD_FAILED;
 					retry = false;
 				}
 			}
@@ -431,7 +430,7 @@ public class DownloadFileTask extends FileTransferBase
 //			{
 //				Logger.e(getClass().getSimpleName(), "FT error : " + e.getMessage());
 //			}
-		}
+		} while (shouldRetry());
 		if (res == FTResult.SUCCESS)
 		{
 			res = closeStreams(raf, in);
@@ -469,6 +468,7 @@ public class DownloadFileTask extends FileTransferBase
 			}
 			catch (Exception e)
 			{
+				Logger.e(getClass().getSimpleName(), "exception while closing input stream closeStreams", e);
 			}
 		}
 		return FTResult.SUCCESS;
@@ -518,7 +518,7 @@ public class DownloadFileTask extends FileTransferBase
 			final int errorStringId = result == FTResult.FILE_TOO_LARGE ? R.string.not_enough_space : result == FTResult.CANCELLED ? R.string.download_cancelled
 					: (result == FTResult.FILE_EXPIRED || result == FTResult.SERVER_ERROR) ? R.string.file_expire
 							: result == FTResult.FAILED_UNRECOVERABLE ? R.string.download_failed_fatal : result == FTResult.CARD_UNMOUNT ? R.string.card_unmount
-									: result == FTResult.NO_SD_CARD ? R.string.no_sd_card : R.string.download_failed;
+									: result == FTResult.NO_SD_CARD ? R.string.no_sd_card : result == FTResult.UNKNOWN_SERVER_ERROR ? R.string.unknown_server_error : R.string.download_failed;
 			if (showToast)
 			{
 				handler.post(new Runnable()
@@ -540,9 +540,25 @@ public class DownloadFileTask extends FileTransferBase
 		if(_state != FTState.PAUSED)
 			sendBroadcast();
 	}
-	
-	private String removeExtraQuotes(String mText){
-		mText = mText.replace("\"", "");
-		return mText;
+
+	private URL getDownloadURL(HikeFile hikeFile)
+	{
+		String downLoadUrl = hikeFile.getDownloadURL();
+		boolean isCloudFrontURL = false;
+		if(TextUtils.isEmpty(downLoadUrl))
+			downLoadUrl = (AccountUtils.fileTransferBaseDownloadUrl + fileKey);
+		else
+			isCloudFrontURL = true;
+		
+		URL tempUrl = null;
+		try {
+			tempUrl = new URL(downLoadUrl);
+			if(isCloudFrontURL && AccountUtils.ssl)
+				tempUrl = new URL("https", tempUrl.getHost(), tempUrl.getPort(), tempUrl.getFile());
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return tempUrl;
 	}
 }

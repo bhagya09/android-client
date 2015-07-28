@@ -697,6 +697,22 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	{
 		return mMsisdn;
 	}
+	
+	/*
+	 * Return actual sender of the message. In case of one-to-one mMsisdn is sender
+	 * But in case of group, msisdn of perticular participant would be returned. 
+	 */
+	public String getSenderMsisdn()
+	{
+		if(!TextUtils.isEmpty(groupParticipantMsisdn))
+		{
+			return groupParticipantMsisdn;
+		}
+		else
+		{
+			return mMsisdn;
+		}
+	}
 
 	public String getGroupParticipantMsisdn()
 	{

@@ -455,7 +455,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		@Override
 		public void run()
 		{
-			Utils.copyImage(srcPath, destPath, Bitmap.Config.ARGB_8888, getOutputQuality());
+			Utils.copyFile(srcPath, destPath);
 		}
 
 	}
