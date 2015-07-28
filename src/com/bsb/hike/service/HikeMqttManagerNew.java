@@ -143,6 +143,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private Messenger mMessenger; // this is used to interact with the mqtt thread
 
 	List<String> serverURIs = null;
+	
+	ArrayList<Integer> serverPorts = null;
 
 	private volatile short fastReconnect = 0;
 
@@ -356,6 +358,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		registerBroadcastReceivers();
 
 		setServerUris();
+		setServerPorts();
 		// mqttThreadHandler.postDelayed(new TestOutmsgs(), 10 * 1000); // this is just for testing
 		
 		initialised.getAndSet(true);
@@ -386,6 +389,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		filter.addAction(MQTT_CONNECTION_CHECK_ACTION);
 		filter.addAction(HikePubSub.SSL_PREFERENCE_CHANGED);
 		filter.addAction(HikePubSub.IPS_CHANGED);
+		filter.addAction(HikePubSub.PORTS_CHANGED);
 		context.registerReceiver(this, filter);
 		LocalBroadcastManager.getInstance(context).registerReceiver(this, filter);
 		
@@ -623,7 +627,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 			// get host information for this connect try, which in turn is based on
 			// previous host informartion
-			HostInfo hostInfo = new HostInfo(previousHostInfo, serverURIs);
+			HostInfo hostInfo = new HostInfo(previousHostInfo, serverURIs, serverPorts);
 			if (mqtt == null)
 			{
 				// Here I am using my modified MQTT PAHO library
@@ -735,6 +739,46 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			serverURIs.add("54.251.180.5");
 			serverURIs.add("54.251.180.6");
 			serverURIs.add("54.251.180.7");
+		}
+
+	}
+	
+	private void setServerPorts()
+	{
+		String portString = settings.getString(MqttConstants.MQTT_PORTS, "");
+		JSONArray portArray = null;
+
+		try
+		{
+			portArray = new JSONArray(portString);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		if (null != portArray && portArray.length() > 0)
+		{
+			serverPorts = new ArrayList<Integer>(portArray.length() + 1);
+			int len = portArray.length();
+
+			for (int i = 0; i < len; i++)
+			{
+				// serverURIs[i + 1] =
+				if (portArray.optInt(i) != 0)
+				{
+					serverPorts.add(portArray.optInt(i));
+				}
+			}
+		}
+		
+		if(serverPorts == null || serverPorts.isEmpty())
+		{
+			serverPorts = new ArrayList<Integer>(PRODUCTION_MQTT_CONNECT_PORTS.length);
+			for (Integer defaultPort : PRODUCTION_MQTT_CONNECT_PORTS)
+			{
+				serverPorts.add(defaultPort);
+			}
 		}
 
 	}
@@ -855,6 +899,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 						cancelNetworkErrorTimer();
 						HikeMessengerApp.getPubSub().publish(HikePubSub.CONNECTED_TO_MQTT, null);
 						mqttThreadHandler.postAtFrontOfQueue(new RetryFailedMessages());
+						saveSuccessfullMqttConnectPrefs();
 						resetConnectionVariables();
 					}
 
@@ -896,6 +941,15 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		}
 		return listernerConnect;
 	}
+	
+	private void saveSuccessfullMqttConnectPrefs()
+	{
+		if(previousHostInfo != null)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.LAST_MQTT_CONNECT_PORT, previousHostInfo.getPort());
+		}
+	}
+
 
 	/* This call back will be called when message is arrived */
 	private MqttCallback getMqttCallback()
@@ -1449,6 +1503,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			String ipString = intent.getStringExtra("ips");
 			saveAndSet(ipString);
 		}
+		else if (intent.getAction().equals(HikePubSub.PORTS_CHANGED))
+		{
+			String portsArrayString = intent.getStringExtra(MqttConstants.MQTT_PORTS);
+			saveAndSetPorts(portsArrayString);
+		}
 	}
 
 	/**
@@ -1518,6 +1577,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		editor.putString(HikeMessengerApp.MQTT_IPS, ipString);
 		editor.commit();
 		setServerUris();
+	}
+	
+	private void saveAndSetPorts(String portsArrayString)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.MQTT_PORTS, portsArrayString);
+		setServerPorts();
 	}
 
 	// This class is just for testing .....
