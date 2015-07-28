@@ -43,9 +43,6 @@ import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeTip;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
@@ -86,8 +83,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private CustomLinearLayout parentLayout;
 
 	private TextView charCounter;
-
-	private View tipView;
 
 	private View doneBtn;
 
@@ -191,24 +186,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubsubListeners);
 
-		if (!preferences.getBoolean(HikeMessengerApp.SHOWN_MOODS_TIP, false))
-		{
-			tipView = findViewById(R.id.mood_tip);
-
-			/*
-			 * Center aligning with the button.
-			 */
-			RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) tipView.getLayoutParams();
-			int screenWidth = getResources().getDisplayMetrics().widthPixels;
-			int buttonWidth = screenWidth / 4;
-			int marginRight = (int) ((buttonWidth / 2) - ((int) 22 * Utils.scaledDensityMultiplier));
-			layoutParams.rightMargin = marginRight;
-
-			tipView.setLayoutParams(layoutParams);
-			HikeTip.showTip(this, TipType.MOOD, tipView);
-		}
-		
-		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STATUS.ordinal());
 	}
 	
@@ -325,10 +302,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	public void onMoodClick(View v)
 	{
-		if (tipView != null)
-		{
-			HikeTip.closeTip(TipType.MOOD, tipView, preferences);
-		}
 		if (emojiParent.getVisibility() == View.VISIBLE)
 		{
 			mActivityTask.emojiShowing = false;

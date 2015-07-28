@@ -88,18 +88,8 @@
                 android:layout_below="@+id/avatar"
                 android:layout_marginTop="55dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_launcher" />
+                android:src="@drawable/misc_timeline_ftue" />
         </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/mood_tip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="55dp" >
-
-            <include layout="@layout/tool_tip" />
-        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/emoji_container"
