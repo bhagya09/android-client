@@ -1,8 +1,9 @@
-package com.bsb.hike.modules.httpmgr;
+package com.bsb.hike.imageHttp;
 
 import java.io.File;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
