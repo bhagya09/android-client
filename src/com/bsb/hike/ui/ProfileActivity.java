@@ -117,7 +117,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
-import com.google.gson.JsonObject;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
 		View.OnClickListener
@@ -2114,38 +2113,20 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else if (HikePubSub.GROUP_OWNER_CHANGE.equals(type))
 		{
-			JSONObject jsonObj = (JSONObject) object;
-			try {
-				String groupId = jsonObj.getString(HikeConstants.TO);
-				String mymsisdn  = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
-				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-				String msisdn = data.getString(HikeConstants.MSISDN);
-				if(!msisdn.equalsIgnoreCase(mymsisdn))
+			if (mLocalMSISDN.equals((String) object))
+			{
+				runOnUiThread(new Runnable()
 				{
-					GroupParticipant grpParticipant = participantMap.get(msisdn).getFirst();
-					grpParticipant.setType(GroupParticipant.Participant_Type.ADMIN);
-				}else{
-					oneToNConversation.getMetadata().setMyselfAsAdmin(GroupParticipant.Participant_Type.ADMIN);
-				}
-				if (mLocalMSISDN.equals(groupId))
-				{
-					runOnUiThread(new Runnable()
+					@Override
+					public void run()
 					{
-						@Override
-						public void run()
-						{
-						     	setupGroupProfileList();
-							    //updateProfileHeaderView();
-								profileAdapter.notifyDataSetChanged();
-						
-						}
-					});
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+					    	setupGroupProfileList();
+						    //updateProfileHeaderView();
+							profileAdapter.notifyDataSetChanged();
+					
+					}
+				});
 			}
-
 		}
 
 		if (HikePubSub.PARTICIPANT_LEFT_ONETONCONV.equals(type))
