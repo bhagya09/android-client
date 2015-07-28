@@ -22,7 +22,8 @@
         android:layout_marginRight="@dimen/contact_list_item_padding"
         android:button="@drawable/hike_list_item_checkbox"
         android:clickable="false"
-        android:focusable="false" />
+        android:focusable="false"
+        android:visibility="gone" />
 
      <com.bsb.hike.view.CustomFontTextView
          android:id="@+id/invite_Text"

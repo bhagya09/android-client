@@ -9,6 +9,12 @@ public class H20Dialog extends HikeDialog
 {
 	private CheckBox hikeSMSCheckBox;
 
+	public H20Dialog(Context context, int id)
+	{
+		super(context, id);
+		initViews();
+	}
+
 	public H20Dialog(Context context, int theme, int id)
 	{
 		super(context, theme, id);

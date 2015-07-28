@@ -113,16 +113,15 @@ public class OverFlowMenuLayout implements OnItemClickListener
 
 		if (item.drawableId != 0)
 		{
-			convertView.findViewById(R.id.item_image_view).setVisibility(View.VISIBLE);
-			convertView.findViewById(R.id.avatar_frame).setVisibility(View.GONE);
 			ImageView itemIcon = (ImageView) convertView.findViewById(R.id.item_icon);
+			itemIcon.setVisibility(View.VISIBLE);
 			itemIcon.setBackgroundResource(item.drawableId);
 			itemIcon.setImageResource(0);
 		}
 		
 		else
 		{
-			convertView.findViewById(R.id.item_image_view).setVisibility(View.GONE);
+			convertView.findViewById(R.id.item_icon).setVisibility(View.GONE);
 		}
 
 		TextView freeSmsCount = (TextView) convertView.findViewById(R.id.free_sms_count);

@@ -10,6 +10,11 @@ public class ContactDialog extends HikeDialog
 
 	private Spinner spinner;
 
+	public ContactDialog(Context context, int id)
+	{
+		super(context, id);
+	}
+
 	public ContactDialog(Context context, int theme, int id)
 	{
 		super(context, theme, id);
