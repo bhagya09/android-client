@@ -3991,6 +3991,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		SmileyParser smileyParser = SmileyParser.getInstance();
 		statusHolder.messageTextView.setText(smileyParser.addSmileySpans(convMessage.getMessage(), true));
 		Linkify.addLinks(statusHolder.messageTextView, Linkify.ALL);
+		checkIfContainsSearchText(statusHolder.messageTextView);
 
 		setAvatar(convMessage.isSent() ? myMsisdn : convMessage.getGroupParticipantMsisdn(), statusHolder.image);
 		statusHolder.avatarFrame.setVisibility(View.VISIBLE);
