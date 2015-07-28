@@ -157,8 +157,8 @@ public enum StickerSearchDataController
 					int stickerMomentCode = HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL;
 					String stickerFestivals = StickerSearchConstants.STRING_EMPTY;
 
-					ArrayList<String> tempMatchElements = new ArrayList<String>();
-					ArrayList<String> tempRemainingMatchElements = new ArrayList<String>();
+					ArrayList<String> tempExactMatchElements = new ArrayList<String>();
+					ArrayList<String> tempRemainingExactMatchElements = new ArrayList<String>();
 
 					if ((tags != null) && (tags.length() > 0))
 					{
@@ -203,8 +203,8 @@ public enum StickerSearchDataController
 												if (!Utils.isBlank(tag))
 												{
 													tag = tag.trim().toUpperCase(Locale.ENGLISH);
-													tempMatchElements.add(tag);
-													tempRemainingMatchElements.add(tag);
+													tempExactMatchElements.add(tag);
+													tempRemainingExactMatchElements.add(tag);
 												}
 											}
 										}
@@ -243,11 +243,11 @@ public enum StickerSearchDataController
 														tagList.add(tag);
 														tagLanguageList.add(languageId);
 														tagCategoryList.add(formattedKey);
-														exactMatchPriority = tempMatchElements.indexOf(tag);
+														exactMatchPriority = tempExactMatchElements.indexOf(tag);
 														tagExactMatchPriorityList.add(exactMatchPriority);
 														if (exactMatchPriority >= 0)
 														{
-															tempRemainingMatchElements.remove(tag);
+															tempRemainingExactMatchElements.remove(tag);
 														}
 														tagPriorityList.add(i);
 													}
@@ -284,11 +284,11 @@ public enum StickerSearchDataController
 													tagList.add(tag);
 													tagLanguageList.add(languageId);
 													tagCategoryList.add(formattedKey);
-													exactMatchPriority = tempMatchElements.indexOf(tag);
+													exactMatchPriority = tempExactMatchElements.indexOf(tag);
 													tagExactMatchPriorityList.add(exactMatchPriority);
 													if (exactMatchPriority >= 0)
 													{
-														tempRemainingMatchElements.remove(tag);
+														tempRemainingExactMatchElements.remove(tag);
 													}
 													tagPriorityList.add(i);
 												}
@@ -305,18 +305,18 @@ public enum StickerSearchDataController
 									}
 								}
 
-								for (String remainingTag : tempRemainingMatchElements)
+								for (String remainingExactMatchTag : tempRemainingExactMatchElements)
 								{
-									tagList.add(remainingTag);
+									tagList.add(remainingExactMatchTag);
 									tagLanguageList.add(languageId);
 									tagCategoryList.add("title");
-									exactMatchPriority = tempMatchElements.indexOf(remainingTag);
+									exactMatchPriority = tempExactMatchElements.indexOf(remainingExactMatchTag);
 									tagExactMatchPriorityList.add(exactMatchPriority);
 									tagPriorityList.add(exactMatchPriority);
 								}
 
-								tempMatchElements.clear();
-								tempRemainingMatchElements.clear();
+								tempExactMatchElements.clear();
+								tempRemainingExactMatchElements.clear();
 							}
 							else
 							{
