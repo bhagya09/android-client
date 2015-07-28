@@ -1,6 +1,5 @@
 package com.bsb.hike.timeline.adapter;
 
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
 import android.animation.Animator;

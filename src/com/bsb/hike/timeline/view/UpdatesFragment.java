@@ -58,6 +58,8 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 {
 
 	private StatusMessage noStatusMessage;
+	
+	private StatusMessage ftueStatusMessage;
 
 	private TimelineCardsAdapter timelineCardsAdapter;
 
@@ -168,12 +170,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				public void run()
 				{
 					statusMessages.add(startIndex, statusMessage);
-
-					if (noStatusMessage != null && (statusMessages.size() >= HikeConstants.MIN_STATUS_COUNT || statusMessage.getMsisdn().equals(userMsisdn)))
-					{
-						statusMessages.remove(noStatusMessage);
-						noStatusMessage = null;
-					}
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
@@ -187,27 +183,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				@Override
 				public void run()
 				{
-					timelineCardsAdapter.notifyDataSetChanged();
-				}
-			});
-		}
-		else if (HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED.equals(type))
-		{
-			getActivity().runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					//TODO Discuss if anything to do with it???
-					/*if (!shouldAddFTUEItem())
-					{
-						removeFTUEItemIfExists();
-					}
-					else
-					{
-						addFTUEItem(statusMessages);
-					}*/
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
@@ -261,7 +236,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 	private int getStartIndex()
 	{
 		int startIndex = 0;
-		if (noStatusMessage != null)
+		if (ftueStatusMessage != null)
 		{
 			startIndex++;
 		}
@@ -270,36 +245,43 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 
 	private boolean shouldAddFTUEItem()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
+		{
+			return true;
+		}
+		else
+		{
+			ftueStatusMessage = null;
+			return false;
+		}
 	}
 
 	private void addFTUEItem()
 	{
-		int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
+		int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+		int cardCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER, 4);
 		ContactInfo contact = null;
-		switch (counter)
+		if(counter == 0)
 		{
-		case 0:
 			//To SHOW BASIC CARD
-			statusMessages.add(new StatusMessage(TimelineCardsAdapter.FTUE_CARD_INIT, null, null, null, null, null, 0));
-			break;
-
-		case 1:
-		case 2:
-		case 3:
-		case 4:	
+			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_INIT, null, null, null, null, null, 0);
+			statusMessages.add(0, ftueStatusMessage);
+			return;
+		}
+		else if(counter <= cardCount)
+		{
 			//To SHOW Fav Card
 			contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter - 1));
-			statusMessages.add(new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0));
-			break;
-			
-		case 5:
+			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
+			statusMessages.add(0, ftueStatusMessage);
+			return;
+		}
+		else if(counter == cardCount + 1)
+		{
 			//To SHOW Exit Card
-			statusMessages.add(new StatusMessage(TimelineCardsAdapter.FTUE_CARD_EXIT, null, null, null, null, null, 0));
-			break;
-			
-			default:
-				break;
+			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_EXIT, null, null, null, null, null, 0);
+			statusMessages.add(0, ftueStatusMessage);
+			return;
 		}
 	}
 

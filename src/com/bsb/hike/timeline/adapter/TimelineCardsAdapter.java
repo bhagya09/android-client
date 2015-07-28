@@ -155,6 +155,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		View actionsLayout;
 
 		TextView textBtnLove;
+		
+		ImageView cancelFTUE;
 
 		public ViewHolder(View convertView, int viewType)
 		{
@@ -202,6 +204,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				largeProfilePic = (ImageView) convertView.findViewById(R.id.dp_big);
 				avatar = (ImageView) convertView.findViewById(R.id.avatar);
 				ftueShow = (TextView) convertView.findViewById(R.id.ftue_show);
+				cancelFTUE = (ImageView)convertView.findViewById(R.id.remove_ftue);
 				break;
 			}
 
@@ -566,8 +569,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			break;
 
 		case FTUE_CARD_FAV:
-			int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
-			ContactInfo contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter - 1));
+			int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+			ContactInfo contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter-1));
 			viewHolder.name.setText(contact.getName());
 			setAvatar(contact.getMsisdn(), viewHolder.avatar);
 			viewHolder.ftueShow.setTag(viewType);
@@ -604,6 +607,20 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				}
 			});
 			profileLoader.loadProfileImage(loaderManager);
+			viewHolder.cancelFTUE.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					//increase counter by 1
+					int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, counter+1);
+					
+					//show card with next contact or exit card
+					addFTUEItemIfExists(false);
+				}
+			});
 			break;
 		case FTUE_CARD_INIT:
 		case FTUE_CARD_EXIT:
@@ -1022,30 +1039,29 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			{
 			case FTUE_CARD_INIT:
 				// make counter 1
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 1);
-
-				// Show card with contact
-				addFTUEItemIfExists();
-
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
+				
+				//Show card with contact
+				addFTUEItemIfExists(false);
+				
 				break;
 
 			case FTUE_CARD_FAV:
-
-				// increase counter by 1
-				int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, counter + 1);
-
-				// show card with next contact or exit card
-				addFTUEItemIfExists();
-
+				
+				//increase counter by 1
+				int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, counter+1);
+				
+				//show card with next contact or exit card
+				addFTUEItemIfExists(true);
+				
 				break;
 
 			case FTUE_CARD_EXIT:
-
-				// reset counter to 0
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
-
-				// Set enable FTUE time to false
+				//reset counter to 0
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+				
+				//Set enable FTUE time to false
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
 
 				// remove FTUE Exit Card
@@ -1188,47 +1204,50 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	{
 		if (!mStatusMessages.isEmpty())
 		{
-			if (mStatusMessages.get(mStatusMessages.size() - 1).getId() == id)
+			for(int i=0; i< mStatusMessages.size(); i++)
 			{
-				mStatusMessages.remove(mStatusMessages.size() - 1);
+				if (mStatusMessages.get(i).getId() == id)
+				{
+					mStatusMessages.remove(i);
+				}
 			}
 			notifyDataSetChanged();
 		}
 	}
-
-	private void addFTUEItemIfExists()
+	
+	/**
+	 * addFav:- true --> goes for adding as Fav
+	 * @param addFav
+	 */
+	private void addFTUEItemIfExists(boolean addFav)
 	{
 		StatusMessage statusMessage = null;
 		if (!mStatusMessages.isEmpty())
 		{
-			int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_FAV_COUNTER, 0);
+			int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+			int cardCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER, 4);
 			ContactInfo contact = null;
-			switch (counter)
+			if(counter <= cardCount)
 			{
-
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-				contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter - 1));
-				if (counter == 1)
+				contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter-1));
+				if(counter == 1)
 				{
 					removeFTUEItemIfExists(FTUE_CARD_INIT);
 				}
 				else
 				{
 					removeFTUEItemIfExists(FTUE_CARD_FAV);
-					Utils.addFavorite(mActivity.get(), contact, true);
+					if(addFav)
+					{
+						Utils.addFavorite(mActivity.get(), contact, true);						
+					}
 				}
 				statusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
-				break;
-
-			case 5:
+			}
+			else if(counter == cardCount + 1)
+			{
 				removeFTUEItemIfExists(FTUE_CARD_FAV);
 				statusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_EXIT, null, null, null, null, null, 0);
-				break;
-			default:
-				break;
 			}
 			mStatusMessages.add(0, statusMessage);
 			notifyDataSetChanged();
