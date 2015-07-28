@@ -118,12 +118,20 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		conferenceParticipantHolder.itemViewHolder.setLayoutTransition(itemViewTransition);
 		
 		conferenceParticipantHolder.isSpeakingHolder.setVisibility(clients.get(position).isSpeaking()?View.VISIBLE:View.INVISIBLE);
-		conferenceParticipantHolder.crossBtnHolder.setVisibility(clients.get(position).connected?View.VISIBLE:View.GONE);
-		conferenceParticipantHolder.connectingHolder.setVisibility(clients.get(position).connected?View.GONE:View.VISIBLE);
+		
+		if (clients.get(position).isDummy) {
+			// For conference participants
+			conferenceParticipantHolder.crossBtnHolder.setVisibility(View.GONE);
+			conferenceParticipantHolder.connectingHolder.setVisibility(View.GONE);
+		} else {
+			// For conference host
+			conferenceParticipantHolder.crossBtnHolder.setVisibility(clients.get(position).connected?View.VISIBLE:View.GONE);
+			conferenceParticipantHolder.connectingHolder.setVisibility(clients.get(position).connected?View.GONE:View.VISIBLE);
 
-		conferenceParticipantHolder.crossBtnHolder.setTag(position);
-		conferenceParticipantHolder.crossBtnHolder.setEnabled(true);
-		conferenceParticipantHolder.crossBtnHolder.setOnClickListener(conferencePartitcipantClickListenter);
+			conferenceParticipantHolder.crossBtnHolder.setTag(position);
+			conferenceParticipantHolder.crossBtnHolder.setEnabled(true);
+			conferenceParticipantHolder.crossBtnHolder.setOnClickListener(conferencePartitcipantClickListenter);
+		}
 
 		return convertView;
 	}

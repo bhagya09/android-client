@@ -109,8 +109,9 @@ public class VoIPClient  {
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
-	private boolean isSpeaking = true;
+	private boolean isSpeaking = false;
 	private int voicePacketCount = 0;
+	public boolean isDummy = false;
 
 	// List of client MSISDNs (for conference)
 	public List<VoIPClient> clientMsisdns = new ArrayList<>();
@@ -169,7 +170,7 @@ public class VoIPClient  {
 		// Get name from MSISDN
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(phoneNumber);
 		if (contactInfo == null) {
-			Logger.d(tag, "Unable to retrieve contact info.");
+//			Logger.d(tag, "Unable to retrieve contact info.");
 			name = phoneNumber;
 		} else {
 			name = contactInfo.getNameOrMsisdn();
@@ -2023,7 +2024,7 @@ public class VoIPClient  {
 	
 	private void updateClientsList(String json) {
 		
-		Logger.w(tag, "Updating: " + json);
+//		Logger.w(tag, "Updating: " + json);
 		try {
 			clientMsisdns.clear();
 			JSONObject jsonObject = new JSONObject(json);
@@ -2035,6 +2036,7 @@ public class VoIPClient  {
 					client.setPhoneNumber(clientObject.getString(VoIPConstants.Extras.MSISDN));
 					client.setSpeaking(clientObject.getBoolean(VoIPConstants.Extras.SPEAKING));
 					client.setCallStatus(CallStatus.values()[clientObject.getInt(VoIPConstants.Extras.STATUS)]);
+					client.isDummy = true;
 					clientMsisdns.add(client);
 				}
 			} else

@@ -283,7 +283,12 @@ public class VoIPService extends Service {
 				
 				if (!hostingConference())
 					stop();
-				
+				break;
+
+			case VoIPConstants.MSG_UPDATE_SPEAKING:
+				if (hostingConference())
+					sendClientsListToAllClients();
+				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
 				break;
 				
 			default:
@@ -1417,26 +1422,20 @@ public class VoIPService extends Service {
 
 						if (useVADToReduceData) {
 
-							/*
-							 * If the mic signal does not contain voice, we can handle the situation in three ways -
-							 * 1. Don't transmit anything. The other end will fill up the gap with silence. Downside - signal quality indicator will switch to weak. 
-							 * 2. Send a special "silent" packet. Downside - older builds will not support this, and fall back to (1).
-							 * 3. Lower the bitrate for non-voice packets. Downside - (1) and (2) will reduce the CPU usage, and lower bandwidth consumption even more. 
-							 */
-
-							// Approach (3)
-							if (ret == 0 && !hostingConference()) {
+							if (ret == 0) {
 								// There is no voice signal, bitrate should be lowered
 								if (!voiceSignalAbsent) {
 									voiceSignalAbsent = true;
-//									Logger.w(tag, "We stopped speaking.");
-									client.setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
+									Logger.w(tag, "We stopped speaking.");
+									if (!hostingConference())
+										client.setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
 								}
 							} else if (voiceSignalAbsent) {
 								// Mic signal is reverting to voice
-//								Logger.w(tag, "We started speaking.");
+								Logger.w(tag, "We started speaking.");
 								voiceSignalAbsent = false;
-								client.setEncoderBitrate(client.getBitrate());
+								if (!hostingConference())
+									client.setEncoderBitrate(client.getBitrate());
 							}
 						}
 					} else
@@ -2166,7 +2165,7 @@ public class VoIPService extends Service {
 								JSONObject clientJson = new JSONObject();
 								clientJson.put(VoIPConstants.Extras.MSISDN, Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE)).getMsisdn());
 								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.HOSTING_CONFERENCE.ordinal());
-								clientJson.put(VoIPConstants.Extras.SPEAKING, !voiceSignalAbsent);
+								clientJson.put(VoIPConstants.Extras.SPEAKING, !voiceSignalAbsent && !mute);
 								clientsJson.put(clientJson);
 
 								// Encapsulate the array in another JSON object
@@ -2177,7 +2176,7 @@ public class VoIPService extends Service {
 								VoIPDataPacket dp = new VoIPDataPacket(PacketType.CLIENTS_LIST_JSON);
 								dp.setData(json.toString().getBytes("UTF-8"));
 								
-								conferenceBroadcastPackets.add(dp);	// TODO: Server code needs to be changed to broadcast any type of packet
+								conferenceBroadcastPackets.add(dp);	
 								Logger.w(tag, "Sending clients list.");
 								
 //								for (VoIPClient client : clients.values()) {

@@ -123,7 +123,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 		@Override
 		public void handleMessage(Message msg) {
-			Logger.d(tag, "Incoming handler received message: " + msg.what);
+//			Logger.d(tag, "Incoming handler received message: " + msg.what);
 			if(!isVisible())
 			{
 				Logger.d(tag, "Fragment not visible, returning");
@@ -183,7 +183,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_LEFT_CONFERENCE:
 				Bundle bundle = msg.getData();
 				String msisdn = bundle.getString(VoIPConstants.MSISDN);
-				showMessage(msisdn + " has left the conference.");
+				String name = null;
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
+				if (contactInfo == null) {
+					name = msisdn;
+				} else {
+					name = contactInfo.getNameOrMsisdn();
+				}
+				showMessage(name + " has left the conference.");
 			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
 				setContactDetails();
 				break;
