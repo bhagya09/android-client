@@ -68,7 +68,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
@@ -96,9 +95,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
-
-	private static final boolean TEST = false; // TODO: Test flag only, turn off
-												// for Production
 
 	private OverflowAdapter overflowAdapter;
 	
@@ -162,13 +158,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private String[] homePubSubListeners = { HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
-			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION  };
+			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
-	private boolean photosEnabled;
-
-	private static MenuItem searchMenuItem;
+	private MenuItem searchMenuItem;
 
 	private boolean showingSearchModeActionBar = false;
 	
@@ -219,44 +213,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		if (Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
+		//Make sure we are not launching share intent if our activity is restarted by OS
+		if(isShareIntent(getIntent()) && savedInstanceState == null)
 		{
-			Intent intent =getIntent();
-			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
-			{ 
-				String fileName = Utils.getRealPathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext());
-				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
-			}
-			else
-			{
-				handleShareIntent(getIntent());
-			}
-		} 
-		
-		else if(Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
-		{
-			handleShareIntent(getIntent());
-			
-			//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
-			
-			/*
-			Intent intent =getIntent();
-			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
-			if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
-			{
-				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
-				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
-				multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
-				startActivity(multiIntent);
-			}
-			else
-			{
-				handleShareIntent(getIntent());
-			}
-			*/
+			handleFileShareIntent(getIntent());
 		}
-
+		
 		setupActionBar();
 
 		// Checking whether the state of the avatar and conv DB Upgrade settings
@@ -305,6 +267,62 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			break;
 		}
 
+	}
+	
+	private boolean isShareIntent(Intent intent)
+	{
+		if (Intent.ACTION_SEND.equals(intent.getAction()) || Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())) 
+		{
+			return true;
+		} 
+		
+		return false;
+	}
+	
+	private void handleFileShareIntent(Intent intent)
+	{
+
+		//If launching from android history, do not process 
+		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0)
+		{
+			return;
+		}
+		
+		if (Intent.ACTION_SEND.equals(intent.getAction()) ) 
+		{
+			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
+			{ 
+				String fileName = Utils.getAbsolutePathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
+				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
+			}
+			else
+			{
+				transferShareIntent(intent);
+			}
+		} 
+		
+		else if(Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction()))
+		{
+			transferShareIntent(intent);
+			
+			//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
+			
+			/*
+			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
+			if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
+			{
+				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
+				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
+				multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
+				startActivity(multiIntent);
+			}
+			else
+			{
+				handleShareIntent(intent);
+			}
+			*/
+		}
 	}
 
 	private void startFestivePopup(int type)
@@ -578,6 +596,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		
+		if(isShareIntent(intent))
+		{
+			handleFileShareIntent(intent);
+		}
+		
 		if (mainFragment != null)
 		{
 			mainFragment.onNewintent(intent);
@@ -685,6 +708,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 			if (Utils.isPhotosEditEnabled())
 			{
+				Logger.d("ph_en", "inside API setupMenuOptions, enabling photo inside actionbar");
 				View takePhotoActionView = menu.findItem(R.id.take_pic).getActionView();
 				((ImageView) takePhotoActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
 				takePhotoActionView.findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
@@ -707,6 +731,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 			else
 			{
+				Logger.d("ph_en", "inside setupMenuOptions, disabling photo inside actionbar");
 				menu.removeItem(R.id.take_pic);
 			}
 
@@ -757,20 +782,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	public static void setSearchOptionAccess(boolean setVisible)
-	{
-		if (searchMenuItem != null)
-		{
-			searchMenuItem.setEnabled(setVisible);
-			searchMenuItem.setVisible(setVisible);
-		}
-	}
-
 	private void toggleMenuItems(Menu menu, boolean value)
 	{
 		menu.findItem(R.id.overflow_menu).setVisible(value);
 		menu.findItem(R.id.new_conversation).setVisible(value);
-		menu.findItem(R.id.take_pic).setVisible(value);
+
+		MenuItem takePicItem = menu.findItem(R.id.take_pic);
+		if (takePicItem != null) // This will happen if photos edit option is disabled
+		{
+			takePicItem.setVisible(value);
+		}
 	}
 
 	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
@@ -1029,6 +1050,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
+	public void onBackPressed()
+	{
+		// In android 5.0(and higher) when back is pressed, sherlock action mode does not exit.
+		// Instead the activity was exiting.
+		// The following change checks if search mode is still there, and take s action accordingly
+		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
+		{
+			searchMenuItem.collapseActionView();
+			return;
+		}
+		super.onBackPressed();
+	}
+
+	@Override
 	protected void onPause()
 	{
 		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN))
@@ -1050,7 +1085,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.clearJar(this);
 		t2 = System.currentTimeMillis();
 		Logger.d("clearJar", "time : " + (t2 - t1));
-		photosEnabled = Utils.isPhotosEditEnabled();
 	}
 
 	
@@ -1086,7 +1120,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		deviceDetailsSent = true;
 	}
 
-	private void handleShareIntent(Intent shareIntent)
+	private void transferShareIntent(Intent shareIntent)
 	{
 		if(shareIntent == null)
 		{
@@ -1529,6 +1563,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						flashStealthIndicatorView();
 					}
+				}
+			});
+		}
+		else if (HikePubSub.UPDATE_OF_PHOTOS_ICON.equals(type))
+		{
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					invalidateOptionsMenu();
 				}
 			});
 		}

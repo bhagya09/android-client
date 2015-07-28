@@ -1,16 +1,19 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -19,16 +22,15 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -40,8 +42,13 @@ import com.bsb.hike.utils.Logger;
  */
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
+	private static final int OPEN_FULL_PAGE_WITH_TITLE = 111;
 	
 	private static final int SHOW_OVERFLOW_MENU = 112;
+	
+	private static final int OPEN_FULL_PAGE = 114;
+
+	private static final int CHANGE_ACTION_BAR_TITLE = 115;
 	
 	private BotInfo mBotInfo;
 	
@@ -146,9 +153,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Calling this function will initiate forward of the message to a friend or group.
 	 * 
 	 * @param json
-	 *            : if the data has changed , then send the updated fields and it will update the metadata. If the key is already present, it will be replaced else it will be added
-	 *            to the existent metadata. If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already
-	 *            present and will add the key-value pair if the key is not present in the existent metadata.
+	 *            : the card object data for the forwarded card. This data will be the card object for the new forwarded card
+	 *            that'll be created. The platform version of the card should be same as the bot, that is defined by the server. The
+	 *            app name and app package will also be added from the card object of the bot metadata.
 	 *@param hikeMessage : the hike message to be included in notif tupple and conversation tupple.
 	 */
 	@JavascriptInterface
@@ -175,6 +182,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
 
 			JSONObject webMetadata = new JSONObject();
+			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
 			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
 			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
 			
@@ -194,6 +202,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Data is encoded with URL Encoded Scheme. Decode it before using.
 	 * The json contains:
 	 * hd: helper data
+	 * target_platform: the platform version that this bot and associated microapp targets
 	 * notifData: notif data
 	 * block: whether the bot is blocked
 	 * mute: whether the bot is muted
@@ -210,7 +219,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		JSONObject jsonObject = new JSONObject();
 		try
 		{
+			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			getInitJson(jsonObject, mBotInfo.getMsisdn());
+			jsonObject.put(HikePlatformConstants.TARGET_PLATFORM, botMetadata.getTargetPlatform());
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, mBotInfo.getHelperData());
 			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifDataJSON());
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
@@ -411,7 +422,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	/**
 	 * Platform Bridge Version 1
 	 * Call this function to delete partial notif data pertaining to a microApp. The key is the timestamp provided by Native
-	 * @param key
+	 * @param key: the key of the saved data. Will remain unique for a unique microApp.
 	 */
 	@JavascriptInterface
 	public void deletePartialNotifData(String key)
@@ -486,94 +497,164 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			}
 			break;
 
+		case OPEN_FULL_PAGE_WITH_TITLE:
+			if (mCallback != null)
+			{
+				String[] params = (String[]) msg.obj;
+				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
+			}
+			break;
+		case CHANGE_ACTION_BAR_TITLE:
+			if (mCallback != null)
+			{
+				String title = (String) msg.obj;
+				mCallback.changeActionBarTitle(title);
+			}
 		default:
 			super.handleUiMessage(msg);
 		}
 	}
-	
+
 	/**
-	 * Platform Bridge Version 1
-	 * call this function for any post call.
-	 * @param functionId : function id to call back to the js.
-	 * @param data : the stringified data that contains:
-	 *     "url": the url that will be called.
-	 *     "params": the push params to be included in the body.
-	 * Response to the js will be sent as follows:
-	 * callbackFromNative(functionId, responseJson)
-	 *    responseJson will be like this:
-	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
-	 *          Failure: "{ "status": "failure", "error_message" : error message}"
-	 *
+	 * Platform bridge Version 2
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, and js injected to remove unwanted features from the full page.
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
 	 */
 	@JavascriptInterface
-	public void doPostRequest(final String functionId, String data)
+	@Override
+	public void openFullPage(final String title, final String url)
 	{
-		try
+		if (TextUtils.isEmpty(title))
 		{
-			IRequestListener requestListener = new IRequestListener()
-			{
-				@Override
-				public int hashCode()
-				{
-					return super.hashCode();
-				}
-
-				@Override
-				public void onRequestFailure(HttpException httpException)
-				{
-					Logger.e(tag, "microApp post request failed with exception " + httpException.getMessage());
-					JSONObject failure = new JSONObject();
-					try
-					{
-						failure.put(HikePlatformConstants.STATUS, HikePlatformConstants.FAILURE);
-						failure.put(HikePlatformConstants.ERROR_MESSAGE, httpException.getMessage());
-					}
-					catch (JSONException e)
-					{
-						Logger.e(tag, "Error while parsing failure request");
-						e.printStackTrace();
-					}
-					callbackToJS(functionId, String.valueOf(failure));
-				}
-
-				@Override
-				public void onRequestSuccess(Response result)
-				{
-					Logger.d(tag, "microapp post request success with code " + result.getStatusCode());
-					JSONObject success = new JSONObject();
-					try
-					{
-						success.put(HikePlatformConstants.STATUS, HikePlatformConstants.SUCCESS);
-						success.put(HikePlatformConstants.STATUS_CODE, result.getStatusCode());
-						success.put(HikePlatformConstants.RESPONSE, result.getBody().getContent());
-					}
-					catch (JSONException e)
-					{
-						Logger.e(tag, "Error while parsing success request");
-						e.printStackTrace();
-					}
-					callbackToJS(functionId, String.valueOf(success));
-				}
-
-				@Override
-				public void onRequestProgressUpdate(float progress)
-				{
-
-				}
-			};
-			JSONObject jsonObject = new JSONObject(data);
-			String url = jsonObject.optString(HikePlatformConstants.URL);
-			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
-			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), requestListener);
-			if (!token.isRequestRunning())
-			{
-				token.execute();
-			}
+			sendMessageToUiThread(OPEN_FULL_PAGE, url);
 		}
-		catch (JSONException e)
+		else
 		{
-			Logger.e(tag, "error in JSON");
-			e.printStackTrace();
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url });
+		}
+	}
+	
+	/**
+	 * Platform bridge Version 1
+	 * Call this function to open a full page webView within hike.
+	 * 
+	 * @param url
+	 *            : the url that will be loaded.
+	 */
+	@JavascriptInterface
+	public void openFullPage(final String url)
+	{
+		sendMessageToUiThread(OPEN_FULL_PAGE, url);
+	}
+
+	/**
+	 * Platform Version 2
+	 * called by the special packet sent in the bot to delete the conversation of the particular bot
+	 */
+	@JavascriptInterface
+	public void deleteBotConversation()
+	{
+		Logger.i(tag, "delete bot conversation and removing from conversation fragment");
+		final Activity context = weakActivity.get();
+		if (context != null)
+		{
+			ConversationsAdapter.removeBotMsisdn = mBotInfo.getMsisdn();
+			final Intent intent = Utils.getHomeActivityIntent(context);
+			mHandler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					context.finish();
+					context.startActivity(intent);
+				}
+			});
+		}
+	}
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to delete the entire caching related to the namespace of the bot.
+	 */
+	@JavascriptInterface
+	public void deleteAllCacheData()
+	{
+		HikeContentDatabase.getInstance().deleteAllMicroAppCacheData(mBotInfo.getNamespace());
+	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * Call this function to delete partial cached data pertaining to the namespace of the bot, The key is  provided by Javascript
+	 * @param key: the key of the saved data. Will remain unique for a unique microApp.
+	 */
+	@JavascriptInterface
+	public void deletePartialCacheData(String key)
+	{
+		HikeContentDatabase.getInstance().deletePartialMicroAppCacheData(key, mBotInfo.getNamespace());
+	}
+
+	@JavascriptInterface
+	@Override
+	public void onResize(String height)
+	{
+		//do nothing
+	}
+	@JavascriptInterface
+	public void chooseFile(final String id)
+	{	
+		Logger.d("FileUpload","Id in FileChooser is "+ id);
+
+		saveId(id);
+	
+		if (null == mHandler)
+		{
+			Logger.e("FileUpload", "mHandler is null");
+			return;
+		}
+		
+		
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{	Context weakActivityRef=weakActivity.get();
+				if (weakActivityRef != null)
+				{	
+					int galleryFlags =GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
+					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+					}
+			}
+		});
+	}
+	/**
+	 * Platform Version 3
+	 * call this method to change the title of the action bar for the bot.
+	 * @param title : the title on the action bar.
+	 */
+	@JavascriptInterface
+	public void changeBotTitle(final String title)
+	{
+		if (!TextUtils.isEmpty(title))
+		{
+			sendMessageToUiThread(CHANGE_ACTION_BAR_TITLE, title);
+		}
+	}
+
+	/**
+	 * Platform Version 3
+	 * call this method to reset the title of the action bar for the bot to the original title sent by server.
+	 */
+	@JavascriptInterface
+	public void resetBotTitle()
+	{
+		if (!TextUtils.isEmpty(mBotInfo.getConversationName()))
+		{
+			sendMessageToUiThread(CHANGE_ACTION_BAR_TITLE, mBotInfo.getConversationName());
 		}
 	}
 

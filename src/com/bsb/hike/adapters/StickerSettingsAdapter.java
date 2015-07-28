@@ -52,7 +52,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		this.stickerCategories = stickerCategories;
 		this.mInflater = LayoutInflater.from(mContext);
 		mListMapping = new int[stickerCategories.size()];
-		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, false);
+		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
 		initialiseMapping(mListMapping, stickerCategories);
 		
 	}

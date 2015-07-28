@@ -4,6 +4,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import com.bsb.hike.platform.CustomWebView;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,14 +15,19 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -177,8 +184,41 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		{
 			ProductInfoManager.getInstance().downloadStkPk(metaData);
 		}
-		
+		if (action.equals(PopUpAction.ACTIVATE_CHAT_HEAD_APPS.toString()))
+		{
+			OnChatHeadPopupActivateClick();
+		}
+	}
 
+	private void OnChatHeadPopupActivateClick()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
+		{
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
+			if (Utils.isIceCreamOrHigher())
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+				JSONArray packagesJSONArray;
+				try
+				{
+					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+					if (packagesJSONArray != null)
+					{
+						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		else
+		{
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private void multiFwdStickers(Context context, String stickerId, String categoryId, boolean selectAll)

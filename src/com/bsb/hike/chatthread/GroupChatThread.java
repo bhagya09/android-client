@@ -2,6 +2,7 @@ package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 
@@ -35,6 +36,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -44,9 +46,12 @@ import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.voip.VoIPConstants;
+import com.bsb.hike.voip.VoIPUtils;
 
 /**
  * @author piyush
@@ -123,6 +128,10 @@ public class GroupChatThread extends OneToNChatThread
 			 */
 			unreadPinCount = oneToNConversation.getUnreadPinnedMessageCount();
 		}
+		
+		if (shouldShowCallIcon())
+			list.add(new OverFlowMenuItem(getString(R.string.voip_call_chat), 0, 0, R.string.voip_call_chat));
+		
 		list.add(new OverFlowMenuItem(getString(R.string.group_profile), unreadPinCount, 0, R.string.group_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		list.add(new OverFlowMenuItem(isMuted() ? getString(R.string.unmute_group) : getString(R.string.mute_group), 0, 0, R.string.mute_group));
@@ -148,6 +157,11 @@ public class GroupChatThread extends OneToNChatThread
 		}
 	}
 	
+	private boolean shouldShowCallIcon()
+	{
+		return VoIPUtils.isConferencingEnabled(activity.getApplicationContext());
+	}
+
 	/**
 	 * Done to typecast conversation as GroupConversation here
 	 */
@@ -192,8 +206,6 @@ public class GroupChatThread extends OneToNChatThread
 			showBlockOverlay(label);
 
 		}
-
-		showTips();
 
 		toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
 		toggleGroupLife(oneToNConversation.isConversationAlive());
@@ -251,8 +263,27 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
 		switch (item.id)
 		{
+		case R.string.voip_call_chat:
+			
+			Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
+			ArrayList<String> msisdns = new ArrayList<String>();
+			
+			for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
+			{
+				String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
+				msisdns.add(msisdn);
+			}
+			
+			// Launch VoIP service
+			Intent intent = IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+					msisdns, msisdn, VoIPUtils.CallSource.CHAT_THREAD);
+			if (intent != null)
+				activity.getApplicationContext().startService(intent);
+			break;
 		case R.string.mute_group:
 			toggleMuteGroup();
 			break;
@@ -263,8 +294,6 @@ public class GroupChatThread extends OneToNChatThread
 			showThemePicker(R.string.chat_theme_tip_group);
 			break;
 		default:
-			Logger.d(TAG, "Calling super Class' itemClicked");
-			super.itemClicked(item);
 		}
 	}
 	
@@ -482,6 +511,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
+		toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
 			switch (item.getItemId())
@@ -498,20 +528,18 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private boolean checkForDeadOrBlocked()
 	{
-		if (!oneToNConversation.isConversationAlive())
-		{
-			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
-			return true;
-		}
-
-		if (oneToNConversation.isBlocked())
-		{
-			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
-			return true;
-		}
-
-		return false;
+		return checkForBlocked() ||checkForDead();
+	}
+	
+	private boolean checkForDead()
+	{
+	    	return !oneToNConversation.isConversationAlive();
+	}
+	
+	private boolean checkForBlocked()
+	{
+			return oneToNConversation.isBlocked();
+	
 	}
 
 	private void showPinCreateView()
@@ -540,7 +568,12 @@ public class GroupChatThread extends OneToNChatThread
 		playPinCreateViewAnim();
 
 		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		if (mShareablePopupLayout.isShowing())
+		{
+			mShareablePopupLayout.dismiss();
+		}
 
+		mComposeView.setOnTouchListener(this);
 		mComposeView.addTextChangedListener(new EmoticonTextWatcher());
 		mComposeView.requestFocus();
 
@@ -819,7 +852,11 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			ll.removeAllViews();
 		}
-		ll.addView(pinView, 0);
+		try {
+			ll.addView(pinView, 0);
+		} catch (Exception e) {
+			throw new IllegalStateException("Exception during adding of pin message, parent's child count  :"+ll.getChildCount(), e);
+		}
 
 		/**
 		 * If we were composing a new pin and a pin arrives from somewhere else Then we hide the received pin. The pin view will be made visible when pinCreateView is Destroyed.
@@ -915,6 +952,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		
 		super.onPrepareOverflowOptionsMenu(overflowItems);
+		toastForGroupEnd();
 		
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
@@ -930,6 +968,15 @@ public class GroupChatThread extends OneToNChatThread
 				overFlowMenuItem.text = oneToNConversation.isMuted() ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group);
 				break;
 			}
+		}
+	}
+
+	private void toastForGroupEnd() {
+		if(checkForDead()){
+			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
+		}else if(checkForBlocked()){
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
 		}
 	}
 	

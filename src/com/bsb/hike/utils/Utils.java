@@ -12,12 +12,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.net.URL;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,12 +46,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,6 +58,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -76,10 +76,10 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -145,6 +145,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -204,6 +205,7 @@ import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -248,6 +250,11 @@ public class Utils
 	public static int densityDpi;
 
 	private static final String defaultCountryName = "India";
+
+	/**
+	 * copied from {@link android.telephony.TelephonyManager}
+	 */
+	private static final int NETWORK_TYPE_GSM = 16;
 
 	static
 	{
@@ -343,6 +350,7 @@ public class Utils
 
 		return mOutToLeft;
 	}
+	
 
 	public static Animation outToRightAnimation(Context ctx)
 	{
@@ -360,6 +368,32 @@ public class Utils
 			}
 		}
 		return mOutToRight;
+	}
+
+	public static long gettingMidnightTimeinMilliseconds()
+	{
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		return c.getTimeInMillis();
+	}
+	
+	public static boolean isMyServiceRunning(Class<?> serviceClass, Context ctx)
+	{
+		ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
+		{
+			{
+				if (serviceClass.getName().equals(service.service.getClassName()))
+				{
+
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public static Animation inFromLeftAnimation(Context ctx)
@@ -414,7 +448,7 @@ public class Utils
 		// capturing new media.
 		if (TextUtils.isEmpty(orgFileName))
 		{
-			orgFileName = getOriginalFile(type, orgFileName);
+			orgFileName = getUniqueFilename(type);
 		}
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
@@ -422,30 +456,32 @@ public class Utils
 		return new File(mediaStorageDir, orgFileName);
 	}
 
-	public static String getOriginalFile(HikeFileType type, String orgFileName)
+	public static String getUniqueFilename(HikeFileType type)
 	{
 		// Create a media file name
 		// String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.SSS")
 		// .format(new Date());
 		String timeStamp = Long.toString(System.currentTimeMillis());
-		// File name should only be blank in case of profile images or while
-		// capturing new media.
-		if (TextUtils.isEmpty(orgFileName))
+		/*
+		 * We don't create files for type LOCATION and CONTACT.
+		 * So file name should be empty string instead of null to avoid NullPointerException on file creation.
+		 */
+		String orgFileName = "";
+		
+		switch (type)
 		{
-			switch (type)
-			{
-			case PROFILE:
-			case IMAGE:
-				orgFileName = "IMG_" + timeStamp + ".jpg";
-				break;
-			case VIDEO:
-				orgFileName = "MOV_" + timeStamp + ".mp4";
-				break;
-			case AUDIO:
-			case AUDIO_RECORDING:
-				orgFileName = "AUD_" + timeStamp + ".m4a";
-			}
+		case PROFILE:
+		case IMAGE:
+			orgFileName = "IMG_" + timeStamp + ".jpg";
+			break;
+		case VIDEO:
+			orgFileName = "MOV_" + timeStamp + ".mp4";
+			break;
+		case AUDIO:
+		case AUDIO_RECORDING:
+			orgFileName = "AUD_" + timeStamp + ".m4a";
 		}
+		
 		return orgFileName;
 	}
 
@@ -459,7 +495,7 @@ public class Utils
 				return null;
 			}
 		}
-		String fileName = prefix + Utils.getOriginalFile(type, null);
+		String fileName = prefix + Utils.getUniqueFilename(type);
 		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
 		return selectedFile;
 	}
@@ -1356,7 +1392,7 @@ public class Utils
 			{
 				if (cursor.moveToFirst())
 				{
-					int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+					int idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 					if(idx >= 0)
 					{
 						result = cursor.getString(idx);
@@ -1382,6 +1418,62 @@ public class Utils
 				cursor.close();
 		}
 		return result;
+	}
+	
+	/**
+	 * Wrapper Method that covers all the known edge cases while retrieving filepath from Uri
+	 * 
+	 * @param uri
+	 * @param mContext
+	 * @param checkForPicassaUri : boolena for special handling of Picassa Uri
+	 * @return absolute file path othe file represented by the uri
+	 */
+	
+	public static String getAbsolutePathFromUri(Uri uri, Context mContext,boolean checkForPicassaUri)
+	{
+		
+		String fileUriString = uri.toString();
+		String fileUriStart = "file:";
+		
+		String returnFilePath = null;
+		if (fileUriString.startsWith(fileUriStart))
+		{
+			File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
+			/*
+			 * Done to fix the issue in a few Sony devices.
+			 */
+			returnFilePath = selectedFile.getAbsolutePath();
+		}
+		
+		if(returnFilePath == null)
+		{
+			returnFilePath = getRealPathFromUri(uri, mContext);
+		}
+		
+		if(returnFilePath == null && checkForPicassaUri && isPicasaUri(fileUriString))
+		{
+			
+			String timeStamp = Utils.getUniqueFilename(HikeFileType.IMAGE);
+			File file = null;
+			try
+			{
+				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+				downloadAndSaveFile(mContext,file,uri);
+				returnFilePath = file.getAbsolutePath();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (SecurityException er)
+			{
+				er.printStackTrace();
+			}
+
+		}
+		
+		return returnFilePath;
+		
 	}
 	
 	public static enum ExternalStorageState
@@ -1465,7 +1557,8 @@ public class Utils
 			// on ICS or higher.
 			if (tempBmp != null)
 			{
-				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 80);
+				int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, imageCompressQuality);
 				tempBmp.recycle();
 				src = new ByteArrayInputStream(fileBytes);
 			}
@@ -1512,7 +1605,8 @@ public class Utils
 	{
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		int imageQuality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
-		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, 80, imageQuality, true);
+		int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
+		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, imageCompressQuality, imageQuality, true);
 	}
 	
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, Bitmap.Config config, int quality, int imageQuality, boolean toUserServerConfig)
@@ -1713,7 +1807,7 @@ public class Utils
 		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
 		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
 		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;
-
+		
 		Logger.d("SSL", "Base: " + AccountUtils.base);
 		Logger.d("SSL", "FTHost: " + AccountUtils.fileTransferHost);
 		Logger.d("SSL", "FTUploadBase: " + AccountUtils.fileTransferBase);
@@ -2222,7 +2316,7 @@ public class Utils
 		}
 	}
 
-	public static void downloadAndSaveFile(Context context, File destFile, Uri uri) throws Exception
+	public static void downloadAndSaveFile(Context context, File destFile, Uri uri) throws IOException,SecurityException
 	{
 		InputStream is = null;
 		OutputStream os = null;
@@ -2267,7 +2361,7 @@ public class Utils
 				HikeConstants.GOOGLE_PLUS_PREFIX)|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
 	}
 
-	public static Uri makePicasaUri(Uri uri)
+	public static Uri makePicasaUriIfRequired(Uri uri)
 	{
 		if (uri.toString().startsWith("content://com.android.gallery3d.provider"))
 		{
@@ -2541,8 +2635,17 @@ public class Utils
 		{
 			return;
 		}
-		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.showSoftInput(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+		showSoftKeyboard(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+	}
+	
+	public static void showSoftKeyboard(View v,int flags)
+	{
+		if (v == null)
+		{
+			return;
+		}
+		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInput(v, flags);
 	}
 	
 //	public static void showSoftKeyboard(Context context)
@@ -3190,6 +3293,11 @@ public class Utils
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
 	
+	public static boolean isLollipopOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+	}
+	
 	public static boolean isIceCreamOrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
@@ -3198,6 +3306,16 @@ public class Utils
 	public static boolean isJELLY_BEAN_MR2OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
+	}
+	
+	public static boolean isJellybeanOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+	}
+
+	public static boolean isJellybeanMR1OrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
 	}
 
 	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
@@ -3410,7 +3528,7 @@ public class Utils
 		Intent intent = new Intent();
 		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
 		{
-			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
 		}
 
 		else
@@ -3421,7 +3539,7 @@ public class Utils
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
-		Drawable avatarDrawable = Utils.getAvatarDrawableForNotificationOrShortcut(activity, conv.getMsisdn(), false);
+		Drawable avatarDrawable = Utils.getAvatarDrawableForShortcut(activity, conv.getMsisdn(), false);
 
 		Bitmap bitmap = HikeBitmapFactory.drawableToBitmap(avatarDrawable, Bitmap.Config.RGB_565);
 
@@ -3443,11 +3561,18 @@ public class Utils
 
 	public static void onCallClicked(Context context, final String mContactNumber, VoIPUtils.CallSource source)
 	{
+		// Check if we have blocked this user. 
+		if (ContactManager.getInstance().isBlocked(mContactNumber)) {
+			Toast.makeText(context, context.getString(R.string.content_des_block_overlay_message), Toast.LENGTH_SHORT).show();
+			return;
+		}
+
 		if (!isUserOnline(context))
 		{
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;
 		}
+		
 		context.startService(IntentFactory.getVoipCallIntent(context, mContactNumber, source));
 	}
 
@@ -3966,7 +4091,36 @@ public class Utils
 		postText.setEnabled(enabled);
 	}
 
-	public static Drawable getAvatarDrawableForNotificationOrShortcut(Context context, String msisdn, boolean isPin)
+	public static Drawable getAvatarDrawableForNotification(Context context, String msisdn, boolean isPin)
+	{
+		if (msisdn.equals(context.getString(R.string.app_name)) || msisdn.equals(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
+		{
+			return null;
+		}
+
+		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+
+		if (isPin || drawable == null)
+		{
+			Drawable background = context.getResources().getDrawable(BitmapUtils.getDefaultAvatarResourceId(msisdn, false));
+
+			Drawable iconDrawable = null;
+
+			if (isPin)
+			{
+				iconDrawable = context.getResources().getDrawable(R.drawable.ic_pin_notification);
+			}
+			else
+			{
+				iconDrawable = context.getResources().getDrawable(OneToNConversationUtils.isBroadcastConversation(msisdn)? R.drawable.ic_default_avatar_broadcast : 
+					(OneToNConversationUtils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
+			}
+			drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
+		}
+		return drawable;
+	}
+
+	public static Drawable getAvatarDrawableForShortcut(Context context, String msisdn, boolean isPin)
 	{
 		if (msisdn.equals(context.getString(R.string.app_name)) || msisdn.equals(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
 		{
@@ -3994,7 +4148,7 @@ public class Utils
 		}
 		return drawable;
 	}
-
+	
 	public static void getRecommendedAndHikeContacts(Context context, List<ContactInfo> recommendedContacts, List<ContactInfo> hikeContacts, List<ContactInfo> friendsList)
 	{
 		SharedPreferences settings = (SharedPreferences) context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -4306,7 +4460,31 @@ public class Utils
 		}
 		return false;
 	}
-
+	
+	public static List<String> getPackagesMatchingIntent(String action, String category,String mimeType)
+	{
+		Intent shareIntent = new Intent(action);
+		if(!TextUtils.isEmpty(category))
+		{
+			shareIntent.addCategory(category);
+		}
+		if(!TextUtils.isEmpty(mimeType))
+		{
+			shareIntent.setType(mimeType);
+		}
+		List<ResolveInfo> resolveInfoList =  HikeMessengerApp.getInstance().getPackageManager().queryIntentActivities(shareIntent, 0);
+		
+		List<String> matchedPackages = new ArrayList<String>(resolveInfoList.size());
+		if(!resolveInfoList.isEmpty())
+		{
+			for(ResolveInfo ri : resolveInfoList)
+			{
+				matchedPackages.add(ri.activityInfo.packageName);
+			}
+		}
+		return matchedPackages;
+	}
+	
 	public static void clearJar(Context c)
 	{
 		HashMap<URL, JarFile> jarCache = null;
@@ -4710,7 +4888,7 @@ public class Utils
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(intent);
 	}
-
+	
 	public static Drawable getChatTheme(ChatTheme chatTheme, Context context)
 	{
 		/*
@@ -4834,60 +5012,103 @@ public class Utils
 	
 	public static String getFormattedPrettyTime( Context context, long timestampInSeconds)
 	{
-		if (timestampInSeconds < 0)
+		try
 		{
-			return "";
-		}
-		
-		long givenTimeStampInMillis = timestampInSeconds * 1000; 
-		Calendar givenCalendar = Calendar.getInstance();
-		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
-		
-		long currentTime = System.currentTimeMillis();
-		Calendar currentCalendar = Calendar.getInstance();
-		
-		if(givenCalendar.before(currentCalendar))
-		{
-			long timeDiff = currentTime - givenTimeStampInMillis;
-
-			if (timeDiff < 60 * 1000)
+			if (timestampInSeconds < 0)
 			{
-				// until 1 minute
-				return context.getResources().getString(R.string.now);
+				return "";
 			}
-			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+
+			long givenTimeStampInMillis = timestampInSeconds * 1000;
+			Calendar givenCalendar = Calendar.getInstance();
+			givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+
+			long currentTime = System.currentTimeMillis();
+			Calendar currentCalendar = Calendar.getInstance();
+
+			if (givenCalendar.before(currentCalendar))
 			{
-				//Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+				long timeDiff = currentTime - givenTimeStampInMillis;
+
+				if (timeDiff < 60 * 1000)
+				{
+					// until 1 minute
+					return context.getResources().getString(R.string.now);
+				}
+				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+				{
+					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+				}
+				else
+				{
+					// Shows date in numeric format
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				}
 			}
 			else
 			{
-				//Shows date in numeric format
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+				{
+					if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+					{
+						// Show time in non relate default time format
+						return getFormattedTime(context, givenTimeStampInMillis);
+					}
+					else
+					{
+						// Show date in MMM dd format eg. Apr 21, May 13 etc.
+						return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+								DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+					}
+				}
+				else
+				{
+					// Show date in numeric format
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				}
 			}
 		}
-		else
+		catch (Exception e)
 		{
+			return getFallBackPrettyTime(context, timestampInSeconds);
+		}
+
+	}
+
+	private static String getFallBackPrettyTime(Context context, long timestampInSeconds)
+	{
+		try
+		{
+			long givenTimeStampInMillis = timestampInSeconds * 1000;
+			Calendar givenCalendar = Calendar.getInstance();
+			givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+
+			Calendar currentCalendar = Calendar.getInstance();
+
 			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 			{
 				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
 				{
-					//Show time in non relate default time format
+					// Show time in non relate default time format
 					return getFormattedTime(context, givenTimeStampInMillis);
 				}
 				else
 				{
 					// Show date in MMM dd format eg. Apr 21, May 13 etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+					return DateUtils.formatDateRange(context, givenTimeStampInMillis, givenTimeStampInMillis, DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_YEAR);
 				}
 			}
 			else
 			{
-				//Show date in numeric format
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				// Show date in numeric format
+				return DateUtils.formatDateRange(context, givenTimeStampInMillis, givenTimeStampInMillis, DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_YEAR);
 			}
 		}
-	
+		catch (Exception e)
+		{
+			return "";
+		}
 	}
 
 	public static Pair<String[], String[]> getMsisdnToNameArray(Conversation conversation)
@@ -4969,7 +5190,10 @@ public class Utils
 		{
 			return false;
 		}
-		return true;
+		else 
+		{
+			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE, true);
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -5130,14 +5354,15 @@ public class Utils
 			else
 				networkType = info.getSubtype();
 		}
+		else
+		{
+			return -1;
+		}
 
 		// There are following types of mobile networks
 		switch (networkType)
 		{
-		case TelephonyManager.NETWORK_TYPE_HSUPA: // ~ 1-23 Mbps
 		case TelephonyManager.NETWORK_TYPE_LTE: // ~ 10+ Mbps // API level 11
-		case TelephonyManager.NETWORK_TYPE_HSPAP: // ~ 10-20 Mbps // API level 13
-		case TelephonyManager.NETWORK_TYPE_EVDO_B: // ~ 5 Mbps // API level 9
 			return 4;
 		case TelephonyManager.NETWORK_TYPE_EVDO_0: // ~ 400-1000 kbps
 		case TelephonyManager.NETWORK_TYPE_EVDO_A: // ~ 600-1400 kbps
@@ -5145,12 +5370,16 @@ public class Utils
 		case TelephonyManager.NETWORK_TYPE_HSPA: // ~ 700-1700 kbps
 		case TelephonyManager.NETWORK_TYPE_UMTS: // ~ 400-7000 kbps
 		case TelephonyManager.NETWORK_TYPE_EHRPD: // ~ 1-2 Mbps // API level 11
+		case TelephonyManager.NETWORK_TYPE_HSPAP: // ~ 10-20 Mbps // API level 13
+		case TelephonyManager.NETWORK_TYPE_EVDO_B: // ~ 5 Mbps // API level 9
+		case TelephonyManager.NETWORK_TYPE_HSUPA: // ~ 1-23 Mbps
 			return 3;
 		case TelephonyManager.NETWORK_TYPE_1xRTT: // ~ 50-100 kbps
 		case TelephonyManager.NETWORK_TYPE_CDMA: // ~ 14-64 kbps
 		case TelephonyManager.NETWORK_TYPE_EDGE: // ~ 50-100 kbps
 		case TelephonyManager.NETWORK_TYPE_GPRS: // ~ 100 kbps
 		case TelephonyManager.NETWORK_TYPE_IDEN: // ~25 kbps // API level 8
+		case NETWORK_TYPE_GSM:
 			return 2;
 		case TelephonyManager.NETWORK_TYPE_UNKNOWN:
 		default:
@@ -5506,11 +5735,17 @@ public class Utils
 			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
 		}
 	}
+	
 	public static boolean isOkHttp()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOGGLE_OK_HTTP, true);
 	}
 
+	public static boolean isAddressbookCallsThroughHttpMgrEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, false);
+	}
+	
 	/**
 	 * Returns active network info
 	 * @return
@@ -5713,7 +5948,8 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, 80);
+		int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
+		Utils.copyFile(srcFilePath, destFilePath);
 
 		if (setIcon)
 		{
@@ -5798,7 +6034,12 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
-		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		if (Build.MANUFACTURER != null && Build.MANUFACTURER.toLowerCase().startsWith("asus"))
+		{
+			return false;
+		}
+
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
 		{
 			return false;
 		}
@@ -5811,6 +6052,19 @@ public class Utils
 			return false;
 		}
 	}
+
+	public static boolean isSendLogsEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.Extras.ENABLE_SEND_LOGS, false);
+		}
+		
+		return false;
+	}
+	
 
 	public static boolean moveFile(File inputFile, File outputFile) {
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
@@ -6082,5 +6336,28 @@ public class Utils
 		int screenHeight = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 		Logger.d("image_config", "Screen dimens are :- " + screenWidth + ", "+ screenHeight);
 		return screenHeight * screenHeight;
+	}
+	
+	public static String getStackTrace(Throwable ex)
+	{
+		StringWriter errorTrace = new StringWriter();
+		ex.printStackTrace(new PrintWriter(errorTrace));
+		return errorTrace.toString();
+	}
+	
+	public static Uri getFormedUri(Context context, String unformedUrl, String token)
+	{
+		//this RE checks for starting characters followed by :// to match http:// or https://
+		if (!unformedUrl.toLowerCase().matches("^\\w+://.*")) {
+			//making it a valid http URL
+		    unformedUrl = AccountUtils.HTTP_STRING + unformedUrl;
+		}
+		Uri formedUri= Uri.parse(unformedUrl)
+				.buildUpon()
+				.scheme((Utils.switchSSLOn(context) || URLUtil.isHttpsUrl(unformedUrl)) ? "https" : "http")
+				.appendPath(HikeConstants.ANDROID)
+				.appendPath(token)
+				.build();
+		return formedUri;
 	}
 }

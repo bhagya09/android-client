@@ -97,6 +97,29 @@ public final class DataPacketProtoBuf {
      * <code>optional int64 timestamp = 9;</code>
      */
     long getTimestamp();
+
+    /**
+     * <code>optional bool isVoice = 10 [default = true];</code>
+     */
+    boolean hasIsVoice();
+    /**
+     * <code>optional bool isVoice = 10 [default = true];</code>
+     */
+    boolean getIsVoice();
+
+    /**
+     * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+     */
+    java.util.List<com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost> 
+        getBroadcastListList();
+    /**
+     * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+     */
+    com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost getBroadcastList(int index);
+    /**
+     * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+     */
+    int getBroadcastListCount();
   }
   /**
    * Protobuf type {@code DataPacket}
@@ -194,6 +217,19 @@ public final class DataPacketProtoBuf {
               timestamp_ = input.readInt64();
               break;
             }
+            case 80: {
+              bitField0_ |= 0x00000200;
+              isVoice_ = input.readBool();
+              break;
+            }
+            case 90: {
+              if (!((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
+                broadcastList_ = new java.util.ArrayList<com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost>();
+                mutable_bitField0_ |= 0x00000400;
+              }
+              broadcastList_.add(input.readMessage(com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost.PARSER, extensionRegistry));
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -202,6 +238,9 @@ public final class DataPacketProtoBuf {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
+          broadcastList_ = java.util.Collections.unmodifiableList(broadcastList_);
+        }
         try {
           unknownFieldsCodedOutput.flush();
         } catch (java.io.IOException e) {
@@ -225,6 +264,531 @@ public final class DataPacketProtoBuf {
     @java.lang.Override
     public com.google.protobuf.Parser<DataPacket> getParserForType() {
       return PARSER;
+    }
+
+    public interface BroadcastHostOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:DataPacket.BroadcastHost)
+        com.google.protobuf.MessageLiteOrBuilder {
+
+      /**
+       * <code>required string ip = 1;</code>
+       */
+      boolean hasIp();
+      /**
+       * <code>required string ip = 1;</code>
+       */
+      java.lang.String getIp();
+      /**
+       * <code>required string ip = 1;</code>
+       */
+      com.google.protobuf.ByteString
+          getIpBytes();
+
+      /**
+       * <code>required int32 port = 2;</code>
+       */
+      boolean hasPort();
+      /**
+       * <code>required int32 port = 2;</code>
+       */
+      int getPort();
+    }
+    /**
+     * Protobuf type {@code DataPacket.BroadcastHost}
+     */
+    public static final class BroadcastHost extends
+        com.google.protobuf.GeneratedMessageLite implements
+        // @@protoc_insertion_point(message_implements:DataPacket.BroadcastHost)
+        BroadcastHostOrBuilder {
+      // Use BroadcastHost.newBuilder() to construct.
+      private BroadcastHost(com.google.protobuf.GeneratedMessageLite.Builder builder) {
+        super(builder);
+        this.unknownFields = builder.getUnknownFields();
+      }
+      private BroadcastHost(boolean noInit) { this.unknownFields = com.google.protobuf.ByteString.EMPTY;}
+
+      private static final BroadcastHost defaultInstance;
+      public static BroadcastHost getDefaultInstance() {
+        return defaultInstance;
+      }
+
+      public BroadcastHost getDefaultInstanceForType() {
+        return defaultInstance;
+      }
+
+      private final com.google.protobuf.ByteString unknownFields;
+      private BroadcastHost(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        initFields();
+        int mutable_bitField0_ = 0;
+        com.google.protobuf.ByteString.Output unknownFieldsOutput =
+            com.google.protobuf.ByteString.newOutput();
+        com.google.protobuf.CodedOutputStream unknownFieldsCodedOutput =
+            com.google.protobuf.CodedOutputStream.newInstance(
+                unknownFieldsOutput);
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!parseUnknownField(input, unknownFieldsCodedOutput,
+                                       extensionRegistry, tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000001;
+                ip_ = bs;
+                break;
+              }
+              case 16: {
+                bitField0_ |= 0x00000002;
+                port_ = input.readInt32();
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e.getMessage()).setUnfinishedMessage(this);
+        } finally {
+          try {
+            unknownFieldsCodedOutput.flush();
+          } catch (java.io.IOException e) {
+          // Should not happen
+          } finally {
+            unknownFields = unknownFieldsOutput.toByteString();
+          }
+          makeExtensionsImmutable();
+        }
+      }
+      public static com.google.protobuf.Parser<BroadcastHost> PARSER =
+          new com.google.protobuf.AbstractParser<BroadcastHost>() {
+        public BroadcastHost parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          return new BroadcastHost(input, extensionRegistry);
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<BroadcastHost> getParserForType() {
+        return PARSER;
+      }
+
+      private int bitField0_;
+      public static final int IP_FIELD_NUMBER = 1;
+      private java.lang.Object ip_;
+      /**
+       * <code>required string ip = 1;</code>
+       */
+      public boolean hasIp() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required string ip = 1;</code>
+       */
+      public java.lang.String getIp() {
+        java.lang.Object ref = ip_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            ip_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>required string ip = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getIpBytes() {
+        java.lang.Object ref = ip_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          ip_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int PORT_FIELD_NUMBER = 2;
+      private int port_;
+      /**
+       * <code>required int32 port = 2;</code>
+       */
+      public boolean hasPort() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required int32 port = 2;</code>
+       */
+      public int getPort() {
+        return port_;
+      }
+
+      private void initFields() {
+        ip_ = "";
+        port_ = 0;
+      }
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        if (!hasIp()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+        if (!hasPort()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        getSerializedSize();
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          output.writeBytes(1, getIpBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          output.writeInt32(2, port_);
+        }
+        output.writeRawBytes(unknownFields);
+      }
+
+      private int memoizedSerializedSize = -1;
+      public int getSerializedSize() {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(1, getIpBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeInt32Size(2, port_);
+        }
+        size += unknownFields.size();
+        memoizedSerializedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      protected java.lang.Object writeReplace()
+          throws java.io.ObjectStreamException {
+        return super.writeReplace();
+      }
+
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+
+      public static Builder newBuilder() { return Builder.create(); }
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder(com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost prototype) {
+        return newBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() { return newBuilder(this); }
+
+      /**
+       * Protobuf type {@code DataPacket.BroadcastHost}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessageLite.Builder<
+            com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost, Builder>
+          implements
+          // @@protoc_insertion_point(builder_implements:DataPacket.BroadcastHost)
+          com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHostOrBuilder {
+        // Construct using com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private void maybeForceBuilderInitialization() {
+        }
+        private static Builder create() {
+          return new Builder();
+        }
+
+        public Builder clear() {
+          super.clear();
+          ip_ = "";
+          bitField0_ = (bitField0_ & ~0x00000001);
+          port_ = 0;
+          bitField0_ = (bitField0_ & ~0x00000002);
+          return this;
+        }
+
+        public Builder clone() {
+          return create().mergeFrom(buildPartial());
+        }
+
+        public com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost getDefaultInstanceForType() {
+          return com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost.getDefaultInstance();
+        }
+
+        public com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost build() {
+          com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost buildPartial() {
+          com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost result = new com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost(this);
+          int from_bitField0_ = bitField0_;
+          int to_bitField0_ = 0;
+          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+            to_bitField0_ |= 0x00000001;
+          }
+          result.ip_ = ip_;
+          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+            to_bitField0_ |= 0x00000002;
+          }
+          result.port_ = port_;
+          result.bitField0_ = to_bitField0_;
+          return result;
+        }
+
+        public Builder mergeFrom(com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost other) {
+          if (other == com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost.getDefaultInstance()) return this;
+          if (other.hasIp()) {
+            bitField0_ |= 0x00000001;
+            ip_ = other.ip_;
+            
+          }
+          if (other.hasPort()) {
+            setPort(other.getPort());
+          }
+          setUnknownFields(
+              getUnknownFields().concat(other.unknownFields));
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          if (!hasIp()) {
+            
+            return false;
+          }
+          if (!hasPort()) {
+            
+            return false;
+          }
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost) e.getUnfinishedMessage();
+            throw e;
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+        private int bitField0_;
+
+        private java.lang.Object ip_ = "";
+        /**
+         * <code>required string ip = 1;</code>
+         */
+        public boolean hasIp() {
+          return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+        /**
+         * <code>required string ip = 1;</code>
+         */
+        public java.lang.String getIp() {
+          java.lang.Object ref = ip_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              ip_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>required string ip = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+            getIpBytes() {
+          java.lang.Object ref = ip_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            ip_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>required string ip = 1;</code>
+         */
+        public Builder setIp(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          ip_ = value;
+          
+          return this;
+        }
+        /**
+         * <code>required string ip = 1;</code>
+         */
+        public Builder clearIp() {
+          bitField0_ = (bitField0_ & ~0x00000001);
+          ip_ = getDefaultInstance().getIp();
+          
+          return this;
+        }
+        /**
+         * <code>required string ip = 1;</code>
+         */
+        public Builder setIpBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          ip_ = value;
+          
+          return this;
+        }
+
+        private int port_ ;
+        /**
+         * <code>required int32 port = 2;</code>
+         */
+        public boolean hasPort() {
+          return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+        /**
+         * <code>required int32 port = 2;</code>
+         */
+        public int getPort() {
+          return port_;
+        }
+        /**
+         * <code>required int32 port = 2;</code>
+         */
+        public Builder setPort(int value) {
+          bitField0_ |= 0x00000002;
+          port_ = value;
+          
+          return this;
+        }
+        /**
+         * <code>required int32 port = 2;</code>
+         */
+        public Builder clearPort() {
+          bitField0_ = (bitField0_ & ~0x00000002);
+          port_ = 0;
+          
+          return this;
+        }
+
+        // @@protoc_insertion_point(builder_scope:DataPacket.BroadcastHost)
+      }
+
+      static {
+        defaultInstance = new BroadcastHost(true);
+        defaultInstance.initFields();
+      }
+
+      // @@protoc_insertion_point(class_scope:DataPacket.BroadcastHost)
     }
 
     private int bitField0_;
@@ -390,6 +954,56 @@ public final class DataPacketProtoBuf {
       return timestamp_;
     }
 
+    public static final int ISVOICE_FIELD_NUMBER = 10;
+    private boolean isVoice_;
+    /**
+     * <code>optional bool isVoice = 10 [default = true];</code>
+     */
+    public boolean hasIsVoice() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional bool isVoice = 10 [default = true];</code>
+     */
+    public boolean getIsVoice() {
+      return isVoice_;
+    }
+
+    public static final int BROADCASTLIST_FIELD_NUMBER = 11;
+    private java.util.List<com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost> broadcastList_;
+    /**
+     * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+     */
+    public java.util.List<com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost> getBroadcastListList() {
+      return broadcastList_;
+    }
+    /**
+     * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+     */
+    public java.util.List<? extends com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHostOrBuilder> 
+        getBroadcastListOrBuilderList() {
+      return broadcastList_;
+    }
+    /**
+     * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+     */
+    public int getBroadcastListCount() {
+      return broadcastList_.size();
+    }
+    /**
+     * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+     */
+    public com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost getBroadcastList(int index) {
+      return broadcastList_.get(index);
+    }
+    /**
+     * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+     */
+    public com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHostOrBuilder getBroadcastListOrBuilder(
+        int index) {
+      return broadcastList_.get(index);
+    }
+
     private void initFields() {
       encrypted_ = false;
       data_ = com.google.protobuf.ByteString.EMPTY;
@@ -400,6 +1014,8 @@ public final class DataPacketProtoBuf {
       requiresAck_ = false;
       voicePacketNumber_ = 0;
       timestamp_ = 0L;
+      isVoice_ = true;
+      broadcastList_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -414,6 +1030,12 @@ public final class DataPacketProtoBuf {
       if (!hasPacketType()) {
         memoizedIsInitialized = 0;
         return false;
+      }
+      for (int i = 0; i < getBroadcastListCount(); i++) {
+        if (!getBroadcastList(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
       }
       memoizedIsInitialized = 1;
       return true;
@@ -448,6 +1070,12 @@ public final class DataPacketProtoBuf {
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeInt64(9, timestamp_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeBool(10, isVoice_);
+      }
+      for (int i = 0; i < broadcastList_.size(); i++) {
+        output.writeMessage(11, broadcastList_.get(i));
       }
       output.writeRawBytes(unknownFields);
     }
@@ -493,6 +1121,14 @@ public final class DataPacketProtoBuf {
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(9, timestamp_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(10, isVoice_);
+      }
+      for (int i = 0; i < broadcastList_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(11, broadcastList_.get(i));
       }
       size += unknownFields.size();
       memoizedSerializedSize = size;
@@ -606,6 +1242,10 @@ public final class DataPacketProtoBuf {
         bitField0_ = (bitField0_ & ~0x00000080);
         timestamp_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000100);
+        isVoice_ = true;
+        bitField0_ = (bitField0_ & ~0x00000200);
+        broadcastList_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000400);
         return this;
       }
 
@@ -665,6 +1305,15 @@ public final class DataPacketProtoBuf {
           to_bitField0_ |= 0x00000100;
         }
         result.timestamp_ = timestamp_;
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+          to_bitField0_ |= 0x00000200;
+        }
+        result.isVoice_ = isVoice_;
+        if (((bitField0_ & 0x00000400) == 0x00000400)) {
+          broadcastList_ = java.util.Collections.unmodifiableList(broadcastList_);
+          bitField0_ = (bitField0_ & ~0x00000400);
+        }
+        result.broadcastList_ = broadcastList_;
         result.bitField0_ = to_bitField0_;
         return result;
       }
@@ -700,6 +1349,19 @@ public final class DataPacketProtoBuf {
         if (other.hasTimestamp()) {
           setTimestamp(other.getTimestamp());
         }
+        if (other.hasIsVoice()) {
+          setIsVoice(other.getIsVoice());
+        }
+        if (!other.broadcastList_.isEmpty()) {
+          if (broadcastList_.isEmpty()) {
+            broadcastList_ = other.broadcastList_;
+            bitField0_ = (bitField0_ & ~0x00000400);
+          } else {
+            ensureBroadcastListIsMutable();
+            broadcastList_.addAll(other.broadcastList_);
+          }
+          
+        }
         setUnknownFields(
             getUnknownFields().concat(other.unknownFields));
         return this;
@@ -713,6 +1375,12 @@ public final class DataPacketProtoBuf {
         if (!hasPacketType()) {
           
           return false;
+        }
+        for (int i = 0; i < getBroadcastListCount(); i++) {
+          if (!getBroadcastList(i).isInitialized()) {
+            
+            return false;
+          }
         }
         return true;
       }
@@ -1068,6 +1736,163 @@ public final class DataPacketProtoBuf {
         bitField0_ = (bitField0_ & ~0x00000100);
         timestamp_ = 0L;
         
+        return this;
+      }
+
+      private boolean isVoice_ = true;
+      /**
+       * <code>optional bool isVoice = 10 [default = true];</code>
+       */
+      public boolean hasIsVoice() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional bool isVoice = 10 [default = true];</code>
+       */
+      public boolean getIsVoice() {
+        return isVoice_;
+      }
+      /**
+       * <code>optional bool isVoice = 10 [default = true];</code>
+       */
+      public Builder setIsVoice(boolean value) {
+        bitField0_ |= 0x00000200;
+        isVoice_ = value;
+        
+        return this;
+      }
+      /**
+       * <code>optional bool isVoice = 10 [default = true];</code>
+       */
+      public Builder clearIsVoice() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        isVoice_ = true;
+        
+        return this;
+      }
+
+      private java.util.List<com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost> broadcastList_ =
+        java.util.Collections.emptyList();
+      private void ensureBroadcastListIsMutable() {
+        if (!((bitField0_ & 0x00000400) == 0x00000400)) {
+          broadcastList_ = new java.util.ArrayList<com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost>(broadcastList_);
+          bitField0_ |= 0x00000400;
+         }
+      }
+
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public java.util.List<com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost> getBroadcastListList() {
+        return java.util.Collections.unmodifiableList(broadcastList_);
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public int getBroadcastListCount() {
+        return broadcastList_.size();
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost getBroadcastList(int index) {
+        return broadcastList_.get(index);
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder setBroadcastList(
+          int index, com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureBroadcastListIsMutable();
+        broadcastList_.set(index, value);
+
+        return this;
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder setBroadcastList(
+          int index, com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost.Builder builderForValue) {
+        ensureBroadcastListIsMutable();
+        broadcastList_.set(index, builderForValue.build());
+
+        return this;
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder addBroadcastList(com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureBroadcastListIsMutable();
+        broadcastList_.add(value);
+
+        return this;
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder addBroadcastList(
+          int index, com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureBroadcastListIsMutable();
+        broadcastList_.add(index, value);
+
+        return this;
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder addBroadcastList(
+          com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost.Builder builderForValue) {
+        ensureBroadcastListIsMutable();
+        broadcastList_.add(builderForValue.build());
+
+        return this;
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder addBroadcastList(
+          int index, com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost.Builder builderForValue) {
+        ensureBroadcastListIsMutable();
+        broadcastList_.add(index, builderForValue.build());
+
+        return this;
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder addAllBroadcastList(
+          java.lang.Iterable<? extends com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost> values) {
+        ensureBroadcastListIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, broadcastList_);
+
+        return this;
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder clearBroadcastList() {
+        broadcastList_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000400);
+
+        return this;
+      }
+      /**
+       * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
+       */
+      public Builder removeBroadcastList(int index) {
+        ensureBroadcastListIsMutable();
+        broadcastList_.remove(index);
+
         return this;
       }
 

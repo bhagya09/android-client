@@ -19,18 +19,18 @@ import com.bsb.hike.utils.Logger;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
 {
-	private View mainView;
+	protected View mainView;
 
-	private int possibleKeyboardHeightLand, possibleKeyboardHeight, originalBottomPadding;
+	protected int possibleKeyboardHeightLand, possibleKeyboardHeight, originalBottomPadding;
 
-	private boolean isKeyboardOpen;
+	protected boolean isKeyboardOpen;
 
-	private int firstTimeHeight;
+	protected int firstTimeHeight;
 
-	private int[] mEatTouchEventViewIds;
+	protected int[] mEatTouchEventViewIds;
 	
-	private PopupListener mListener;
-	
+	protected PopupListener mListener;
+
 	/**
 	 * 
 	 * @param mainView
@@ -55,7 +55,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		this.mEatTouchEventViewIds = eatTouchEventViewIds;
 	}
 
-	private void registerOnGlobalLayoutListener()
+	protected void registerOnGlobalLayoutListener()
 	{
 		mainView.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener);
 	}
@@ -310,8 +310,21 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		}
 	}
 	
-	public void setPopupDismissListener(PopupListener listener)
+	public boolean onEditTextTouch(View v, MotionEvent event)
 	{
-		this.mListener = listener;
+		return false;
+	}
+
+	/**
+	 * 
+	 * @return true if previous task is running
+	 */
+	public boolean isBusyInOperations(){
+		return false;
+	}
+
+	public void onBackPressed()
+	{
+
 	}
 }

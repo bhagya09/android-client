@@ -23,6 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.DatabaseUtils.InsertHelper;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -37,9 +38,11 @@ import android.util.SparseArray;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
@@ -111,7 +114,22 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private HikeConversationsDatabase(Context context)
 	{
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
-		mDb = getWritableDatabase();
+		try
+		{
+			mDb = getWritableDatabase();
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+			/*
+			 * Ref: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/database/sqlite/SQLiteOpenHelper.java
+			 * 
+			 * When mContext.openOrCreateDatabase throws SQLException, in catch it creates a new database using SQLiteDatabase.openDatabase method.
+			 * 
+			 * SQLiteDatabase.openDatabase returns the newly opened database
+			 * 
+			 * */
+		}
 	}
 	
 	public SQLiteDatabase getWriteDatabase()
@@ -1560,7 +1578,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String msgHash = null;
 		if (!msg.isSent() && (msg.getParticipantInfoState() == ParticipantInfoState.NO_INFO))
 		{
-			msgHash = msg.getMsisdn() + msg.getMappedMsgID();
+			msgHash = msg.getSenderMsisdn() + msg.getMappedMsgID();
 
 			String message = msg.getMessage();
 			if(message !=null && message.length() > 0)
@@ -1651,6 +1669,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					{
 						// duplicate message return false
 						Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+						
+						logDuplicateMessageEntry(conv, e);
 						return false;
 					}
 
@@ -1672,6 +1692,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						{
 							// duplicate message return false
 							Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+							logDuplicateMessageEntry(conv, e);
 							return false;
 						}
 
@@ -1749,6 +1770,29 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	private void logDuplicateMessageEntry(ConvMessage conv, Exception e)
+	{
+		//if server switch is off
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, true))
+		{
+			return;
+		}
+				
+		JSONObject infoJson = new JSONObject();
+		try 
+		{
+			infoJson.put(AnalyticsConstants.ERROR_TRACE, e.toString());
+			infoJson.put(AnalyticsConstants.MESSAGE_DATA, conv.toString());
+		
+			HAManager.getInstance().logDevEvent(HikeConstants.MESSAGING, HikeConstants.DUPLICATE, infoJson);
+		} 
+		catch (JSONException jsonEx) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",jsonEx);
+		}
+		
+	}
+
 	/**
 	 *
 	 * @param convMessages
@@ -1779,6 +1823,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					// duplicate message . Skip further processing
 					Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+					logDuplicateMessageEntry(conv, e);
 					continue;
 				}
 				addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
@@ -1799,6 +1844,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					{
 						// duplicate message . Skip further processing
 						Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
+						logDuplicateMessageEntry(conv, e);
 						continue;
 					}
 
@@ -3354,6 +3400,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public void deleteMessages(ArrayList<Long> msgIds, String msisdn, Boolean containsLastMessage)
 	{
+
+		if (msgIds == null || msgIds.isEmpty())
+		{
+			Logger.e(HikeConversationsDatabase.class.getSimpleName(), "deleteMessages :: msgIds not present");
+			return;
+		}
+		
 		StringBuilder inSelection = new StringBuilder("(" + msgIds.get(0));
 		for (int i = 0; i < msgIds.size(); i++)
 		{
@@ -6905,6 +6958,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(IS_MUTE, newMuteState ? 1 : 0);
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+	}
+	
+	public void updateBotConfiguration(String botMsisdn, int configuration)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(BOT_CONFIGURATION, configuration);
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}
 

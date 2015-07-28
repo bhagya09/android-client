@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.BufferedReader;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +21,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -375,39 +375,6 @@ public class AccountUtils
 	{
 		// Assert.assertTrue("Token is empty", !TextUtils.isEmpty(mToken));
 	}
-	
-	public static List<String> getBlockList(JSONObject obj)
-	{
-		JSONArray blocklist;
-		List<String> blockListMsisdns = new ArrayList<String>();
-		if ((obj == null) || ("fail".equals(obj.optString("stat"))))
-		{
-			Logger.w("HTTP", "Unable to upload address book");
-			// TODO raise a real exception here
-			return null;
-		}
-		Logger.d("AccountUtils", "Reply from addressbook:" + obj.toString());
-		blocklist = obj.optJSONArray("blocklist");
-		if (blocklist == null)
-		{
-			Logger.e("AccountUtils", "Received blocklist as null");
-			return null;
-		}
-
-		for (int i = 0; i < blocklist.length(); i++)
-		{
-			try
-			{
-				blockListMsisdns.add(blocklist.getString(i));
-			}
-			catch (JSONException e)
-			{
-				Logger.e("AccountUtils", "Invalid json object", e);
-				return null;
-			}
-		}
-		return blockListMsisdns;
-	}
 
 	public static void performRequest(HikeHttpRequest hikeHttpRequest, boolean addToken) throws NetworkErrorException, IllegalStateException
 	{
@@ -487,10 +454,10 @@ public class AccountUtils
 		}
 	}
 
-	public static int getBytesUploaded(String sessionId) throws ClientProtocolException, IOException
+	public static int getBytesUploaded(String sessionId, String mUrl) throws ClientProtocolException, IOException
 	{
 		int val = 0;
-		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/pft/");
+		HttpRequestBase req = new HttpGet(mUrl);
 		addToken(req);
 		req.addHeader("X-SESSION-ID", sessionId);
 		AccountUtils.setNoTransform(req);
@@ -521,5 +488,92 @@ public class AccountUtils
 	public static void setNoTransform(HttpRequestBase request)
 	{
 		request.addHeader("Cache-Control", "no-transform");
+	}
+	
+	/**
+	 * 
+	 * @param new_contacts_by_id
+	 *            new entries to update with. These will replace contact IDs on the server
+	 * @param ids_json
+	 *            , these are ids that are no longer present and should be removed
+	 * @return
+	 */
+	public static List<ContactInfo> updateAddressBook(Map<String, List<ContactInfo>> new_contacts_by_id, JSONArray ids_json) throws IllegalStateException
+	{
+		HttpPost request = new HttpPost(base + "/account/addressbook-update");
+		addToken(request);
+		JSONObject data = new JSONObject();
+
+		try
+		{
+			data.put("remove", ids_json);
+			data.put("update", ContactUtils.getJsonContactList(new_contacts_by_id, false));
+		}
+		catch (JSONException e)
+		{
+			Logger.e("AccountUtils", "Invalid JSON put", e);
+			return null;
+		}
+
+		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
+
+		if (msisdnForMissingPlatformUID != null && msisdnForMissingPlatformUID.size()>0)
+		{
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
+		}
+
+		String encoded = data.toString();
+		// try
+		// {
+		AbstractHttpEntity entity = new ByteArrayEntity(encoded.getBytes());
+		request.setEntity(entity);
+		entity.setContentType("application/json");
+		JSONObject obj = executeRequest(request);
+		if(obj == null)
+		{
+			recordAddressBookUploadFailException(data.toString());
+		}
+		return ContactUtils.getContactList(obj, new_contacts_by_id);
+	}
+	
+	private static void recordAddressBookUploadFailException(String jsonString)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, false))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+
+			metadata.put(HikeConstants.PAYLOAD, jsonString);
+
+			Logger.d("AccountUtils", "recording addressbook upload fail event. json = " + jsonString);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.ADDRESSBOOK_UPLOAD, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+	
+	public static JSONObject postAddressBook(String token, Map<String, List<ContactInfo>> contactsMap) throws IllegalStateException, IOException
+	{
+		HttpPost httppost = new HttpPost(base + "/account/addressbook");
+		addToken(httppost);
+		JSONObject data;
+		data = ContactUtils.getJsonContactList(contactsMap, true);
+		if (data == null)
+		{
+			return null;
+		}
+		String encoded = data.toString();
+
+		Logger.d("ACCOUNT UTILS", "Json data is : " + encoded);
+		AbstractHttpEntity entity = new GzipByteArrayEntity(encoded.getBytes(), HTTP.DEFAULT_CONTENT_CHARSET);
+		entity.setContentType("application/json");
+		httppost.setEntity(entity);
+		JSONObject obj = executeRequest(httppost);
+		return obj;
 	}
 }

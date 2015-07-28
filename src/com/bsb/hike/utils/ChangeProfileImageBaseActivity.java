@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
-import java.net.URI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +27,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
@@ -48,6 +48,7 @@ import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -219,20 +220,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			else
 			{
-				String fileUriStart = "file://";
-				String fileUriString = selectedFileUri.toString();
-				if (fileUriString.startsWith(fileUriStart))
-				{
-					 selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-					/*
-					 * Done to fix the issue in a few Sony devices.
-					 */
-					path = selectedFileIcon.getAbsolutePath();
-				}
-				else
-				{
-					path = Utils.getRealPathFromUri(selectedFileUri, this);
-				}
+				path = Utils.getAbsolutePathFromUri(selectedFileUri, this,false);
 			}
 			if (TextUtils.isEmpty(path))
 			{
@@ -310,6 +298,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
 				return;
 			}
+			
 			profileImageCropped();
 			break;
 		
@@ -499,7 +488,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
-		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn(),false))
+
+		// check if msisdn is not a group id and if it already has an icon (force check to avoid stale state)
+		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
 			// case when we need to show dialog for change dp and remove dp 
 			showProfileImageEditDialog(this, context, removeImagePath);
@@ -604,7 +595,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 					if (statusMessage != null)
 					{
-						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
+						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, true);
 
 						int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 						Editor editor = prefs.getPref().edit();
