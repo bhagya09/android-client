@@ -206,5 +206,7 @@
 	<dimen name="settings_screen_divider_left_padding">64dp</dimen>
 	<dimen name="settings_screen_divider_right_padding">16dp</dimen>
 	<dimen name="settings_interior_height">64dp</dimen>
+	<dimen name="custom_dialog_width">280dp</dimen>
+	<dimen name="custom_dialog_preferred_paddding">24dp</dimen>
 	
 </resources>
