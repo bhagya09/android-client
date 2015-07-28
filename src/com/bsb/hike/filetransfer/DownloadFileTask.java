@@ -182,6 +182,7 @@ public class DownloadFileTask extends FileTransferBase
 				{
 					conn.setRequestProperty("Cookie", "user=" + token + ";UID=" + uId);
 					conn.setRequestProperty("Range", "bytes=" + byteRange);
+					conn.setRequestProperty("Accept-Encoding", "musixmatch");
 					conn.setConnectTimeout(HikeConstants.CONNECT_TIMEOUT);
 				}
 				catch (Exception e)
