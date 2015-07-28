@@ -348,7 +348,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			super.onBackPressed();
 		}
 	}
-	
+
 	public void actionBarBackPressed()
 	{
 		if (isEmojiOrMoodLayoutVisible())
@@ -466,19 +466,19 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		setupEmoticonLayout(whichSubcategory, tabDrawables);
 		emoticonLayout.setVisibility(View.VISIBLE);
-		
+
 		View eraseKey = (View) findViewById(R.id.erase_key_image);
 		eraseKey.setVisibility(View.VISIBLE);
 		eraseKey.setOnClickListener(new OnClickListener()
 		{
-			
+
 			@Override
 			public void onClick(View v)
 			{
 				statusTxt.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
 			}
 		});
-		
+
 	}
 
 	public void hideEmoticonSelector()
@@ -564,7 +564,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onEventReceived(final String type, Object object)
 	{
-	 if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
+		if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
 		{
 			final boolean statusPosted = (Boolean) object;
 			runOnUiThread(new Runnable()
@@ -630,5 +630,5 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Utils.emoticonClicked(getApplicationContext(), emoticonIndex, statusTxt);
 	}
-	
+
 }
