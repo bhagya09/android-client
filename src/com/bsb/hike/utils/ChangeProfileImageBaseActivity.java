@@ -769,10 +769,23 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			
 			@Override
 			public void run() {
-				Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.update_profile_failed), Toast.LENGTH_LONG).show();
+				Toast.makeText(getApplicationContext(), getString(R.string.update_profile_failed), Toast.LENGTH_LONG).show();
+				dismissDialog();
 			}
 		});
 		
+	}
+
+	@Override
+	public void onTaskAlreadyRunning() {
+	runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					Toast.makeText(getApplicationContext(), getString(R.string.task_already_running), Toast.LENGTH_LONG).show();
+					dismissDialog();
+				}
+			});
 	}
 	
 }

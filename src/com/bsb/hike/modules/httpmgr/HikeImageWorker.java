@@ -33,6 +33,8 @@ public class HikeImageWorker
 		
 		void onSuccess(Response result);
 		
+		void onTaskAlreadyRunning();
+		
 	}
 
 	protected WeakReference<TaskCallbacks> taskCallbacks;

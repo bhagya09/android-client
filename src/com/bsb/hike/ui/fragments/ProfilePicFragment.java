@@ -100,7 +100,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			if(isAdded() && isVisible())
 			{
 				Logger.d(TAG, "inside ImageViewerFragment, onFailed Recv");
-				showErrorState();
+				showErrorState(getString(R.string.photo_dp_save_error));
 			}
 		}
 	};
@@ -230,7 +230,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 			if (smallerBitmap == null)
 			{
-				showErrorState();
+				showErrorState(getString(R.string.photo_dp_save_error));
 				return;
 			}
 
@@ -253,7 +253,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void beginDpUpload(byte[] bytes, String origImagePath, String mLocalMSISDN)
 	{
 		Logger.d(TAG, "inside API loadHeadLessImageUploadingFragment");
-    	mImageWorkerFragment = HikeImageUploader.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
+    	mImageWorkerFragment = HikeImageUploader.newInstance(bytes, origImagePath, mLocalMSISDN, false, true);
     	mImageWorkerFragment.setTaskCallbacks(this);
         mImageWorkerFragment.startUpLoadingTask();
 	}
@@ -360,19 +360,19 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		}
 	};
 
-	private void showErrorState()
+	private void showErrorState(String errorMessage)
 	{
 		mUploadStatus = UPLOAD_FAILED;
 
 		if (!isAdded())
 		{
-			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.profile_pic_failed, Toast.LENGTH_SHORT).show();
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
 			return;
 		}
 
 		mCircularProgress.setProgress(1f);
 
-		changeTextWithAnimation(text1, getString(R.string.photo_dp_save_error));
+		changeTextWithAnimation(text1, errorMessage);
 
 		changeTextWithAnimation(text2, getString(R.string.photo_dp_save_error_sub));
 
@@ -508,5 +508,16 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	{
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onTaskAlreadyRunning() {
+		hikeUiHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				showErrorState(getString(R.string.task_already_running));
+			}
+		});
 	}
 }

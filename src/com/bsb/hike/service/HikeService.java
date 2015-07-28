@@ -856,6 +856,12 @@ public class HikeService extends Service
 				return;
 			}	
 		}
+
+		@Override
+		public void onTaskAlreadyRunning() {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 	

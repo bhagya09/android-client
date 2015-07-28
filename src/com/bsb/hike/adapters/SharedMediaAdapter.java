@@ -119,18 +119,28 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     	
     	if (initFragment != null && initFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
     	{
-    		Logger.i(TAG,"Match : "+initFragment.getPathTag());
+    		//Checking address of image in fragment just as an extra safety check
+    		//Storing initFragment in correct position if it is required.
+    		Logger.i(TAG,"Init Match : "+initFragment.getPathTag());
+    		mFragments.set(initFragment.getPosition(), null);
+    		initFragment.setPosition(position);
+    		 while (mFragments.size() <= position) {
+    	            mFragments.add(null);
+    	        }
+    		mFragments.set(position, initFragment);
     		return initFragment;
         }
         
     	if (mFragments.size() > position) {
-            Fragment f = mFragments.get(position);
-            if (f != null) {
+    		ImageViewerFragment f = mFragments.get(position);
+            if (f != null)
+            {
+            	Logger.i(TAG,"Match : "+f.getPathTag());
                 return f;
             }
         }
-    	
-        if (mCurTransaction == null) {
+
+    	if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
 
@@ -354,6 +364,8 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 
 		private String pathTag;
 		
+		private int pos;
+		
 		private OnClickListener mListener;
 		
 		private HikeSharedFile mFile;
@@ -370,6 +382,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 			fragment.mListener = listener;
 			fragment.mLoader = loader;
 			fragment.mFile = file;
+			fragment.setPosition(position);
 			return fragment;
 		}
 
@@ -429,6 +442,15 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 			Logger.i(TAG,"Setting Tag : " +pathTag);
 			this.pathTag = pathTag;
 		}
+
+		public int getPosition() {
+			return pos;
+		}
+
+		public void setPosition(int pos) {
+			this.pos = pos;
+		}
+
 	}
 
 
