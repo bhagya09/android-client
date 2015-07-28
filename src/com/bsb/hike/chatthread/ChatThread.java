@@ -2495,7 +2495,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (messages.size() - HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY < oldIndex)
 		{
 			int from = oldIndex - 1;
-			int to = messages.size() - HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY;
+			int to = Math.max(messages.size() - HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, 0);
 			int position = newList.size()-1;
 			while (from >= to)
 			{
