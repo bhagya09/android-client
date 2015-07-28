@@ -366,7 +366,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			httpRequestURL = "/account";
 			fetchPersistentData();
 
-			if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()))
+			//only handling ACTION_ATTACH_DATA intent when activity started for the first time. 
+			//SO that if activity is recreated we do not send it to DP Flow again.
+			if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()) && savedInstanceState == null)
 			{
 				super.onActivityResult(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());
 			}
@@ -460,11 +462,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{
+				Utils.hideSoftKeyboard(getApplicationContext(), v);
 				onBackPressed();
 			}
 		});
 		
-		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
+		actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
@@ -1603,6 +1606,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onEmoticonClick(View v)
 	{
+		Utils.hideSoftKeyboard(getApplicationContext(), v);
 		if (v != null)
 		{
 			if (currentSelection != null)

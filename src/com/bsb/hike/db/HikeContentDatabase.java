@@ -603,4 +603,15 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 		return null;
 	}
+
+	public void deletePartialMicroAppCacheData(String key, String nameSpace)
+	{
+		String where = HIKE_CONTENT.NAMESPACE + "=? and " + HIKE_CONTENT.KEY + "=?";
+		mDB.delete(HIKE_CONTENT.CONTENT_CACHE_TABLE, where , new String[]{nameSpace, key} );
+	}
+
+	public void deleteAllMicroAppCacheData(String nameSpace)
+	{
+		mDB.delete(HIKE_CONTENT.CONTENT_CACHE_TABLE, HIKE_CONTENT.NAMESPACE + "=?" , new String[]{nameSpace} );
+	}
 }

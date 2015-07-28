@@ -722,6 +722,10 @@ public class HikeConstants
 	public static final int SHARE_FILE_CODE = 1194;
 	
 	public static final int PLATFORM_REQUEST = 1195; 
+	
+	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
+
+	public static final int ADD_TO_CONFERENCE_REQUEST = 1196; 
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -1055,6 +1059,8 @@ public class HikeConstants
 	public static final String TO_SHOW = "toShow";
 
 	public static final String PIN_DISPLAYED = "displayed";
+	public static final String STATUS_BAR_BLUE = "blue";
+	public static final String STATUS_BAR_TRANSPARENT = "transparent";
 
 	public static final int MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY = 51;
 
@@ -1073,6 +1079,8 @@ public class HikeConstants
 	public static final String VOIP_BITRATE_3G = "vb3g";
 
 	public static final String VOIP_BITRATE_WIFI = "vbw";
+
+	public static final String VOIP_BITRATE_CONFERENCE = "vbc";
 
 	public static final String VOIP_ACTIVATED = "voip";
 
@@ -1246,6 +1254,8 @@ public class HikeConstants
 		public static final String EMOTICON_SHOWING = "emoticonShowing";
 
 		public static final String EXISTING_GROUP_CHAT = "existingGroupChat";
+
+		public static final String ADD_TO_CONFERENCE = "addToConference";
 
 		public static final String EXISTING_BROADCAST_LIST = "existingBroadcastList";
 
@@ -2303,6 +2313,10 @@ public class HikeConstants
 		public static final String NUX = "nux";
 
 		public static final String CREATE_MULTIPLE_BOTS = "cbot";
+		
+		public static final String REMOVE_MICRO_APP = "dmapp";
+		
+		public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
@@ -2395,7 +2409,7 @@ public class HikeConstants
 
 	public static enum FTResult
 	{
-		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD
+		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD, UNKNOWN_SERVER_ERROR
 	}
 
 	public static enum SMSSyncState
@@ -2642,6 +2656,8 @@ public class HikeConstants
 	
 	public static final String SESSION_LOG_TRACKING = "stl";
 
+	public static final String PHONE_SPEC = "pl";
+
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";
@@ -2867,10 +2883,13 @@ public class HikeConstants
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
+	public static final String HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE = "contact_pick_result_for_conference";
 
 	public static final String NOTIFIACTION_DELAY_GROUP = "gnt";
 
 	public static final String NOTIFIACTION_DELAY_ONE_TO_ONE = "ont";
+
+	public static final String KEYBOARD_CONFIGURATION = "kc";
 
 	public static final String GET="get";
 
@@ -2923,4 +2942,10 @@ public class HikeConstants
 		
 		public static final String KEY_INVITE_VIA_SMS = "inviteViaSms";
 	}
+	
+	public static final String NOTIFICATIONS_PRIORITY = "npc";
+
+	public static final String FT_HOST_IPS = "ftHostIps";
+	
+	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
 }

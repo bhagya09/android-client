@@ -3,6 +3,7 @@ package com.bsb.hike.view;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.preference.Preference;
+import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -39,7 +40,7 @@ public class IconPreference extends Preference
 	{
 		super.onBindView(view);
 		
-		view.setAlpha(isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		ViewCompat.setAlpha(view, isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
 		
 		final ImageView imageView = (ImageView) view.findViewById(R.id.icon);
 		if ((imageView != null) && (this.mIcon != null))

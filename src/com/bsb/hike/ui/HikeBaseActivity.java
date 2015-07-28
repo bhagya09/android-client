@@ -3,6 +3,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 
 import android.R;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -12,7 +13,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -42,7 +46,7 @@ public abstract class HikeBaseActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		
 		Intent intent = getIntent();
-
+		setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_BLUE);
 		if (!intent.hasExtra(HikeBaseActivity.DESTINATION_INTENT))
 		{
 			Logger.d(TAG, "Destination intents not present. Nothing to do!");
@@ -182,6 +186,7 @@ public abstract class HikeBaseActivity extends AppCompatActivity
 			setResult(RESULT_OK, data);
 			finish();
 		}
+		
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -201,5 +206,8 @@ public abstract class HikeBaseActivity extends AppCompatActivity
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	protected void setStatusBarColor(Window window,String color){
+		StatusBarColorChanger.setStatusBarColor(window, color);
 	}
 }

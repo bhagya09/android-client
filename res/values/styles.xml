@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    	   xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike" >
 
     <style name="ChatLabelStyle" parent="@android:style/TextAppearance.Medium.Inverse">
         <item name="android:textColor">#ffffff</item>
@@ -341,34 +342,27 @@
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:statusBarColor">@color/blue_hike_status_bar_m</item>
+        <item name="colorControlActivated">#1993CB</item>
     </style>
     <style name="NoCloseButton" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
     <item name="android:visibility">visible</item>
 	</style>
-
-	 <style name="AppTheme.Overlay" parent="AppTheme">
-	     
-	      <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
-        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
-         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
-        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
-        <item name="windowActionBarOverlay">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        
-        
-	 </style>
-	
-	<style name="AppTheme.ChatThread" parent="AppTheme">
-	   
-	    <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+	<style name="AppTheme.Overlay" parent="AppTheme">
+        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="windowActionBarOverlay">true</item>
-        
-	</style>
-
-    <style name="ActivityAnimation">
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+    <style name="AppTheme.ChatThread" parent="AppTheme">
+        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+	<style name="ActivityAnimation">
         <item name="android:windowExitAnimation">@anim/fade_out_animation</item>
     	<item name="android:windowEnterAnimation">@anim/fade_in_animation</item>
     </style>
@@ -393,8 +387,8 @@
     </style>
     
     <style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@drawable/bg_header</item>
-        <item name="android:background">@drawable/bg_header</item>
+        <item name="background">@color/blue_hike</item>
+        <item name="android:background">@color/blue_hike</item>
         <item name="backgroundSplit">@color/credits_blue</item>
         <item name="android:backgroundSplit">@color/credits_blue</item>
         <item name="titleTextStyle">@style/NoTitleText</item>
@@ -934,4 +928,43 @@
         <item name="android:background">@drawable/list_item</item>
     </style>
 	
+	<style name="ProfileHeaderText" parent="BaseStyleTextView">
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:textSize">18sp</item>
+	    <item name="android:textColor">#CC000000</item>
+	    <item name="android:textStyle">normal</item>
+	    <item name="android:singleLine">true</item>
+	    <item name="android:gravity">center_vertical</item>
+	    <item name="android:ellipsize">end</item>
+	    <item name="android:maxLength">@integer/max_length_group_name</item>
+	</style>
+	
+	<style name="ProfileHeaderSubText" parent="BaseStyleTextView">
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:textSize">12sp</item>
+	    <item name="android:textColor">#7A000000</item>
+	    <item name="android:textStyle">normal</item>
+	    <item name="android:gravity">center_vertical</item>
+	    <item name="android:ellipsize">end</item>
+	    <item name="android:maxLines">2</item>
+	</style>
+	
+	<style name="MaterialSwitch">
+	    <item name="sw_trackSize">14dp</item>
+        <item name="sw_trackCap">round</item>
+        <item name="sw_thumbRadius">10dp</item>
+        <item name="sw_thumbElevation">2dp</item>
+        <item name="sw_animDuration">@android:integer/config_shortAnimTime</item>
+        <item name="sw_interpolator">@android:anim/linear_interpolator</item>
+	</style>
+	
+	<style name="OverflowMenuContainerStyle">
+        <item name="android:layout_width">168dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
 </resources>

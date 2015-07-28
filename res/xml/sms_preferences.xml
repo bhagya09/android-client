@@ -8,21 +8,21 @@
         android:summary="@string/undelivered_sms_setting_summary"
         android:title="@string/hike_offline" />
 
-    <com.bsb.hike.view.IconCheckBoxPreference
+    <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="receiveSmsPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/default_client_info"
         android:title="@string/default_client_header"
-        android:widgetLayout="@layout/checkbox_widget" />
+        android:widgetLayout="@layout/switch_widget" />
     
-    <com.bsb.hike.view.IconCheckBoxPreference
+    <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="freeSmsPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/free_sms_msg"
         android:title="@string/free_hike_to_sms"
-        android:widgetLayout="@layout/checkbox_widget" />
+        android:widgetLayout="@layout/switch_widget" />
 
     <com.bsb.hike.view.IconPreference
         android:key="earnFreeSms"

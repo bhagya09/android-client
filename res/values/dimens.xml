@@ -160,7 +160,7 @@
 	<dimen name="sm_rightmargin">53dp</dimen>
 	<dimen name="top_margin_shared_content">8dp</dimen>
 	<dimen name="shared_media_top_margin_hike_bot">3dp</dimen>
-	<dimen name="avatar_profile_size">66dp</dimen>
+	<dimen name="avatar_profile_size">68dp</dimen>
 	<dimen name="welcome_with_love_top">30dp</dimen>
 	<dimen name="diwali_popup_width">290dp</dimen>
 	<dimen name="diwali_popup_height">380dp</dimen>
@@ -208,5 +208,6 @@
 	<dimen name="settings_interior_height">64dp</dimen>
 	<dimen name="custom_dialog_width">280dp</dimen>
 	<dimen name="custom_dialog_preferred_paddding">24dp</dimen>
+	<dimen name="home_list_header_drawable_padding">4dp</dimen>
 	
 </resources>

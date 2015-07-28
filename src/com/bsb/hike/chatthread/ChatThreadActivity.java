@@ -357,4 +357,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		super.onRestoreInstanceState(savedInstanceState);
 		
 	}
+	@Override
+	protected void setStatusBarColor(Window window, String color) {
+		// TODO Auto-generated method stub
+		//Nothing to be done with status bar
+		return;
+	}
 }

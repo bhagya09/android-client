@@ -743,10 +743,12 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{
 				contactView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_group, 0, 0, 0);
+				contactView.setCompoundDrawablePadding(context.getResources().getDimensionPixelOffset(R.dimen.home_list_header_drawable_padding));
 		}
 		else
 		{
 			contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+			contactView.setCompoundDrawablePadding(0);
 		}
 	}
 
@@ -1296,7 +1298,7 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				conversationsMsisdns.remove(conv.getMsisdn());
 			}
-			if (phoneBookContacts != null && conv.isOnHike())
+			if (phoneBookContacts != null && conv.isOnHike() && !conv.isStealth())
 			{
 				phoneBookContacts.add(getPhoneContactFakeConv(conv));
 			}

@@ -47,41 +47,22 @@
          android:src="@drawable/ic_invite_to_hike"
          android:visibility="gone" />
  
-     <View
-         android:id="@+id/invite_divider"
-         android:layout_width="1dp"
-         android:layout_height="32dp"
-         android:layout_centerVertical="true"
-         android:layout_alignParentLeft="true"
-         android:background="@color/list_divider"
-         android:visibility="gone" />
      </RelativeLayout>
 
-    <FrameLayout
-        android:id="@+id/avatar_container"
-        android:layout_width="@dimen/compose_avatar_dimen"
-        android:layout_height="@dimen/compose_avatar_dimen"
-        android:layout_centerVertical="true" >
-
-        <com.bsb.hike.view.RoundedImageView
-            android:id="@+id/contact_image"
-            style="@style/AvatarStyle" />
+     <com.bsb.hike.view.RoundedImageView
+          android:id="@+id/contact_image"
+          style="@style/RoundedStyle"
+          android:layout_width="@dimen/compose_avatar_dimen"
+          android:layout_height="@dimen/compose_avatar_dimen"
+          android:layout_centerVertical="true"
+          android:layout_alignParentStart="true" />
         
-        <ImageView
-        	android:id="@+id/online_indicator"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:layout_gravity="bottom|right"
-        	android:scaleType="centerInside"
-        	android:layout_marginBottom="7dp" />
-
-    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/name_num_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/avatar_container"
+        android:layout_toRightOf="@id/contact_image"
         android:layout_toLeftOf="@id/action_container"
         android:orientation="vertical"
         style="@style/compose_name_container_margins">

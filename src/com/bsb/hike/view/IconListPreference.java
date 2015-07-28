@@ -2,6 +2,7 @@ package com.bsb.hike.view;
 
 import android.content.Context;
 import android.preference.ListPreference;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
@@ -29,7 +30,7 @@ public class IconListPreference extends ListPreference
 	{
 		super.onBindView(view);
 		
-		view.setAlpha(isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		ViewCompat.setAlpha(view, isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
 		
 		TextView titleTextView = (TextView) view.findViewById(android.R.id.title);
 		if ((titleTextView != null) && (this.mTitleColor >= 0))

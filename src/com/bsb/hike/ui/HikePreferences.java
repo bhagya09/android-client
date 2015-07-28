@@ -65,9 +65,9 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.IconListPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
+import com.bsb.hike.view.SwitchPreferenceCompat;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -89,6 +89,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	public static final float PREF_ENABLED_ALPHA = 1.0f;
 	
 	public static final float PREF_DISABLED_ALPHA = 0.24f;
+	
+	private boolean mIsResumed = false;
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -169,23 +171,23 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 		}*/
 
-		final IconCheckBoxPreference profilePicPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.PROFILE_PIC_PREF);
+		final SwitchPreferenceCompat profilePicPreference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.PROFILE_PIC_PREF);
 		if (profilePicPreference != null)
 		{
 			profilePicPreference.setOnPreferenceChangeListener(this);
 		}
-		final IconCheckBoxPreference sendEnterPreference = (IconCheckBoxPreference) getPreferenceScreen()
+		final SwitchPreferenceCompat sendEnterPreference = (SwitchPreferenceCompat) getPreferenceScreen()
 				.findPreference(HikeConstants.SEND_ENTER_PREF);
 		if (sendEnterPreference != null) {
 			sendEnterPreference.setOnPreferenceChangeListener(this);
 		}
-		final IconCheckBoxPreference doubleTapPreference = (IconCheckBoxPreference) getPreferenceScreen()
+		final SwitchPreferenceCompat doubleTapPreference = (SwitchPreferenceCompat) getPreferenceScreen()
 				.findPreference(HikeConstants.DOUBLE_TAP_PREF);
 		if (doubleTapPreference != null) {
 			doubleTapPreference.setOnPreferenceChangeListener(this);
 		}
 
-		final IconCheckBoxPreference sslPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.SSL_PREF);
+		final SwitchPreferenceCompat sslPreference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SSL_PREF);
 		if (sslPreference != null)
 		{
 			if(Utils.isSSLAllowed())
@@ -318,7 +320,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					changeStealthTimeout.setSummary(R.string.change_stealth_timeout_body);
 					changeStealthTimeout.setOnPreferenceChangeListener(this);
 				}
-				IconCheckBoxPreference stealthIndicatorEnabled = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
+				SwitchPreferenceCompat stealthIndicatorEnabled = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
 				if (stealthIndicatorEnabled != null)
 				{
 					if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
@@ -329,7 +331,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					stealthIndicatorEnabled.setOnPreferenceChangeListener(this);			
 				}
 				
-				IconCheckBoxPreference stealthNotificationEnabled = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
+				SwitchPreferenceCompat stealthNotificationEnabled = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
 				if (stealthNotificationEnabled != null)
 				{
 					if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
@@ -426,7 +428,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 		}
 		
-		IconCheckBoxPreference unifiedInbox = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.KEY_RECEIVE_SMS_PREF);
+		SwitchPreferenceCompat unifiedInbox = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.KEY_RECEIVE_SMS_PREF);
 		
 		if (unifiedInbox != null)
 		{
@@ -443,7 +445,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 		}
 		
-		IconCheckBoxPreference freeHike2SMS = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.FREE_SMS_PREF);
+		SwitchPreferenceCompat freeHike2SMS = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.FREE_SMS_PREF);
 		
 		if (freeHike2SMS != null)
 		{
@@ -524,6 +526,18 @@ private void setupToolBar(int titleRes){
 		outState.putInt(HikeConstants.Extras.BLOKING_TASK_TYPE, blockingTaskType.ordinal());
 		super.onSaveInstanceState(outState);
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mIsResumed = true;
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mIsResumed = false;
+	}
 
 	@Override
 	public void onDestroy()
@@ -542,6 +556,8 @@ private void setupToolBar(int titleRes){
 		Logger.d("HikePreferences", "setting task:" + task.isFinished());
 		if (!task.isFinished())
 		{
+			// dismissing any existing dialog before showing the new one
+			dismissProgressDialog();
 			mTask = task;
 			String title = getString(R.string.account);
 			String message = "";
@@ -1013,7 +1029,7 @@ private void setupToolBar(int titleRes){
 		{
 			stealthBundle.putString(preference.getKey(), (String) value);
 		}
-		else if (preference instanceof IconCheckBoxPreference)
+		else if (preference instanceof SwitchPreferenceCompat)
 		{
 			stealthBundle.putBoolean(preference.getKey(), (boolean) value);	
 		}
@@ -1578,7 +1594,7 @@ private void setupToolBar(int titleRes){
 				}
 				else if(stealthBundle.containsKey(HikeConstants.STEALTH_INDICATOR_ENABLED))
 				{
-					IconCheckBoxPreference stealthIndicatorEnabled = (IconCheckBoxPreference)getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
+					SwitchPreferenceCompat stealthIndicatorEnabled = (SwitchPreferenceCompat)getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					stealthIndicatorEnabled.setChecked(newValue);
 					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_INDICATOR_ENABLED);
@@ -1586,7 +1602,7 @@ private void setupToolBar(int titleRes){
 				}
 				else if(stealthBundle.containsKey(HikeConstants.STEALTH_NOTIFICATION_ENABLED))
 				{
-					IconCheckBoxPreference stealthNotificationEnabled = (IconCheckBoxPreference)getPreferenceScreen().findPreference(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
+					SwitchPreferenceCompat stealthNotificationEnabled = (SwitchPreferenceCompat)getPreferenceScreen().findPreference(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
 					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
 					stealthNotificationEnabled.setChecked(newValue); 
 					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_NOTIFICATION_ENABLED);
@@ -1627,7 +1643,7 @@ private void setupToolBar(int titleRes){
 		mTask = null;
 		dismissProgressDialog();
 		Preference notificationPreference = getPreferenceScreen().findPreference(HikeConstants.NOTIF_SOUND_PREF);
-		if(notificationPreference != null)
+		if(notificationPreference != null && mIsResumed && !isFinishing())
 		{
 			NotificationToneListPreference notifToneListPref = (NotificationToneListPreference) notificationPreference;
 			notifToneListPref.createAndShowDialog(ringtonesNameURIMap);
@@ -1756,7 +1772,7 @@ private void setupToolBar(int titleRes){
 				}
 				smsDialogActionClicked(true, isSendHikeChecked);
 				
-				IconCheckBoxPreference unifiedInbox = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.KEY_RECEIVE_SMS_PREF);
+				SwitchPreferenceCompat unifiedInbox = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.KEY_RECEIVE_SMS_PREF);
 				
 				if (unifiedInbox != null)
 				{
