@@ -1197,9 +1197,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	{
 		if (!mStatusMessages.isEmpty())
 		{
-			if (mStatusMessages.get(0).getId() == id)
+			for(int i=0; i< mStatusMessages.size(); i++)
 			{
-				mStatusMessages.remove(0);
+				if (mStatusMessages.get(i).getId() == id)
+				{
+					mStatusMessages.remove(i);
+				}
 			}
 			notifyDataSetChanged();
 		}

@@ -178,13 +178,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				public void run()
 				{
 					statusMessages.add(startIndex, statusMessage);
-
-					//TODO Discuss if anything to do with it... is this check still required????????
-					if (ftueStatusMessage != null && (statusMessages.size() >= HikeConstants.MIN_STATUS_COUNT || statusMessage.getMsisdn().equals(userMsisdn)))
-					{
-						statusMessages.remove(ftueStatusMessage);
-						ftueStatusMessage = null;
-					}
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
@@ -198,28 +191,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				@Override
 				public void run()
 				{
-					timelineCardsAdapter.notifyDataSetChanged();
-				}
-			});
-		}
-		//TODO Discuss if anything to do with it???
-		else if (HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED.equals(type))
-		{
-			getActivity().runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					//TODO Discuss if anything to do with it???
-					/*if (!shouldAddFTUEItem())
-					{
-						removeFTUEItemIfExists();
-					}
-					else
-					{
-						addFTUEItem(statusMessages);
-					}*/
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
