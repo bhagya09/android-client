@@ -327,6 +327,22 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			else
 			{
 				getSupportFragmentManager().popBackStack();
+				ActionBar actionBar = getSupportActionBar();
+				View actionBarView = actionBar.getCustomView();
+				View backContainer = actionBarView.findViewById(R.id.back);
+
+				TextView title = (TextView) actionBarView.findViewById(R.id.title);
+				title.setText(R.string.timeline);
+
+				backContainer.setOnClickListener(new View.OnClickListener()
+				{
+
+					@Override
+					public void onClick(View v)
+					{
+						onBackPressed();
+					}
+				});
 			}
 		}
 		
