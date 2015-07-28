@@ -4,11 +4,14 @@ import java.util.ArrayList;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
@@ -18,7 +21,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView.ScaleType;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
@@ -119,12 +124,18 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 
 	private View imageInfoDivider;
 
+	private View actionBarView;
+
+	private ActionBar actionBar;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		overridePendingTransition(0, 0);
 
 		super.onCreate(savedInstanceState);
+
+		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		setContentView(R.layout.image_viewer_activity);
 
@@ -172,6 +183,8 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 			showImage();
 			fullTextView.setVisibility(View.GONE);
 		}
+
+		setupActionBar();
 	}
 
 	private void initReferences()
@@ -220,8 +233,14 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 
 		if (msisdns != null && !msisdns.isEmpty())
 		{
-			// TODO Make this generic for all action types
-			textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+			if (isTextStatusMessage)
+			{
+				textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+			}
+			else
+			{
+				textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
+			}
 
 			textViewCounts.setOnClickListener(new View.OnClickListener()
 			{
@@ -251,6 +270,9 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 		ObjectAnimator fgAnim = ObjectAnimator.ofFloat(foregroundScreen, "alpha", 0);
 		fgAnim.setDuration(600);
 
+		ObjectAnimator actionBarAnim = ObjectAnimator.ofFloat(actionBarView, "alpha", 0);
+		actionBarAnim.setDuration(600);
+
 		bgAnim.addListener(new AnimatorListener()
 		{
 			@Override
@@ -279,6 +301,7 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 		});
 		bgAnim.start();
 		fgAnim.start();
+		actionBarAnim.start();
 	}
 
 	@Override
@@ -291,6 +314,8 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 				finish();
 			}
 		});
+
+		actionBar.hide();
 	}
 
 	@Override
@@ -493,5 +518,72 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 		});
 
 		dialog.show();
+	}
+
+	private void setupActionBar()
+	{
+
+		actionBar = getSupportActionBar();
+		actionBar.setIcon(R.drawable.hike_logo_top_bar);
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+
+		if (!isTextStatusMessage)
+		{
+			actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+		}
+
+		actionBarView = LayoutInflater.from(this).inflate(R.layout.chat_thread_action_bar, null);
+
+		View backContainer = actionBarView.findViewById(R.id.back);
+
+		View contactInfoContainer = actionBarView.findViewById(R.id.contact_info);
+
+		TextView contactName = (TextView) contactInfoContainer.findViewById(R.id.contact_name);
+
+		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
+
+		contactName.setText(statusMessage.getNotNullName());
+
+		contactStatus.setText(statusMessage.getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));
+
+		/**
+		 * Adding click listeners
+		 */
+		contactInfoContainer.setOnClickListener(this);
+
+		backContainer.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				onBackPressed();
+			}
+		});
+
+		actionBar.setCustomView(actionBarView);
+
+		setAvatar();
+	}
+
+	/**
+	 * This method is used to setAvatar for a contact.
+	 */
+	protected void setAvatar()
+	{
+		ImageView avatar = (ImageView) actionBarView.findViewById(R.id.avatar);
+
+		if (avatar == null)
+		{
+			return;
+		}
+
+		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(statusMessage.getMsisdn());
+		if (drawable == null)
+		{
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(statusMessage.getMsisdn(), false);
+		}
+
+		avatar.setScaleType(ScaleType.FIT_CENTER);
+		avatar.setImageDrawable(drawable);
 	}
 }

@@ -135,7 +135,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		backContainer.setOnClickListener(new View.OnClickListener()
 		{
-
 			@Override
 			public void onClick(View v)
 			{
