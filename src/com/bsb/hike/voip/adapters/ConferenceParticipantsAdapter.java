@@ -77,6 +77,12 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		iconLoader = new IconLoader(context, context.getResources().getDimensionPixelSize(R.dimen.small_avatar));
 		iconLoader.setImageFadeIn(false);
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
+		
+		itemViewTransition = new LayoutTransition();
+		itemViewTransition.disableTransitionType(LayoutTransition.APPEARING);
+		itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
+		itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_APPEARING);
+		itemViewTransition.enableTransitionType(LayoutTransition.DISAPPEARING);
 	}
 
 	@Override
@@ -109,16 +115,11 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		convertView.setEnabled(false);
 		convertView.setOnClickListener(null);
 		
-		itemViewTransition = new LayoutTransition();
-		itemViewTransition.disableTransitionType(LayoutTransition.APPEARING);
-		itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
-		itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_APPEARING);
-		itemViewTransition.enableTransitionType(LayoutTransition.DISAPPEARING);
 		conferenceParticipantHolder.itemViewHolder.setLayoutTransition(itemViewTransition);
 		
 		conferenceParticipantHolder.isSpeakingHolder.setVisibility(clients.get(position).isSpeaking()?View.VISIBLE:View.INVISIBLE);
 		conferenceParticipantHolder.crossBtnHolder.setVisibility(clients.get(position).connected?View.VISIBLE:View.GONE);
-		conferenceParticipantHolder.crossBtnHolder.setVisibility(clients.get(position).connected?View.GONE:View.VISIBLE);
+		conferenceParticipantHolder.connectingHolder.setVisibility(clients.get(position).connected?View.GONE:View.VISIBLE);
 
 		conferenceParticipantHolder.crossBtnHolder.setTag(position);
 		conferenceParticipantHolder.crossBtnHolder.setEnabled(true);
