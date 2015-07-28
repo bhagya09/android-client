@@ -61,6 +61,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/invite_btn"
+            android:visibility="gone"
             android:src="@drawable/ic_online_green_dot" />
         
         </RelativeLayout>
