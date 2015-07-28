@@ -2,60 +2,63 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/voip_conference_participant_item"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="wrap_content"
     android:background="@drawable/list_item"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingLeft="14dp"
-    android:paddingRight="14dp" >
+    android:paddingLeft="7dp" >
 
-    <FrameLayout
-        android:layout_width="@dimen/small_avatar"
-        android:layout_height="@dimen/small_avatar" >
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/avatar"
+        style="@style/AvatarStyle.MorePadding"
+        android:layout_width="@dimen/medium_avatar"
+        android:layout_height="@dimen/medium_avatar"
+        android:layout_margin="7dp"
+        android:src="@drawable/emo_tab_4_selected" />
 
-        <com.bsb.hike.view.RoundedImageView
-            android:id="@+id/avatar"
-            style="@style/AvatarStyle.MorePadding"
-            android:src="@drawable/emo_tab_4_selected" />
-        
-    </FrameLayout>
-
-    <LinearLayout
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/contact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
-        android:orientation="vertical" >
+        android:layout_gravity="left|center_vertical"
+        android:layout_margin="7dp"
+        android:layout_weight="1"
+        android:drawablePadding="3dp"
+        android:ellipsize="end"
+        android:gravity="left"
+        android:singleLine="true"
+        android:text="Conference participant"
+        android:textColor="@color/almost_white"
+        android:textSize="16sp"
+        android:textStyle="italic|bold" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/is_speaking_view"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="right|center_vertical"
+        android:alpha="0.65"
+        android:gravity="right"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_speaker"
+        android:visibility="invisible" />
 
-			<ImageButton
-				android:id="@+id/remove_participant_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-				android:background="@null"
-				android:src="@drawable/ic_cancel">
-			</ImageButton>
-		            
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:drawablePadding="3dp"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="Conference participant"
-                android:textColor="@color/almost_white"
-                android:textSize="18sp"
-                android:textStyle="bold|italic" />
-        </RelativeLayout>
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/remove_participant_btn"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:alpha="0.85"
+        android:gravity="left"
+        android:padding="20dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_tip_cross"
+        android:visibility="visible" />
 
-    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/connecting_progress"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:visibility="gone" />
 
 </LinearLayout>
