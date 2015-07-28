@@ -623,6 +623,19 @@ public class HikeConstants
 	public static final String BROADCAST_ID_PREFIX = "b:";
 	
 	public static final String AVATAR = "avatar";
+	
+	public class InviteSection
+	{
+		public static final String INVITE_SECTION = "invite_section";
+
+		public static final String SHOW_EXTRA_INVITE_SECTION = "show_invite_section";
+
+		public static final String INVITE_SECTION_MAIN_TEXT = "invite_main_text";
+
+		public static final String INVITE_SECTION_BOTTOM_TEXT = "invite_bottom_text";
+
+		public static final String INVITE_SECTION_IMAGE = "invite_image";
+	}
 
 	/* Constant used to name the preference file which saves the drafts */
 	public static final String DRAFT_SETTING = "draftSetting";
