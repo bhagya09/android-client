@@ -36,7 +36,7 @@ public class VoIPConstants {
 	/**
 	 * Maximum size of a group to launch a conference call directly
 	 */
-	public static final int MAXIMUM_GROUP_CHAT_SIZE = 10;
+	public static final int MAXIMUM_GROUP_CHAT_SIZE = 100;
 	
 	/**
 	 * If a client does not provide audio data continuously this many times, 

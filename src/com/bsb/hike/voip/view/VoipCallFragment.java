@@ -31,6 +31,8 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -831,11 +833,16 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private void updateConferenceList() {
 	
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
-		List<VoIPClient> clients = voipService.getConferenceClients();
-		if (clients == null)
-			return;
-		
-		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getSherlockActivity(), 0, 0, clients);
+		conferenceList.setOnItemClickListener(new OnItemClickListener()
+		{
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+			{
+				Logger.d("UmangX", position + "");
+			}
+		});
+		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getSherlockActivity(), 0, 0, voipService.getConferenceClients());
 		conferenceList.setAdapter(adapter);
 		conferenceList.setVisibility(View.VISIBLE);
 		conferenceList.setFocusable(false);
