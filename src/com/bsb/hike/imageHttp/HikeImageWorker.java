@@ -1,4 +1,4 @@
-package com.bsb.hike.modules.httpmgr;
+package com.bsb.hike.imageHttp;
 
 import java.lang.ref.WeakReference;
 
