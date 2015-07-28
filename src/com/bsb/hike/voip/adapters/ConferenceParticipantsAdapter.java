@@ -42,8 +42,6 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 			case R.id.remove_participant_btn:
 
 				Logger.d(tag,"cross clicked " + clients.get((Integer) v.getTag()).getPhoneNumber() );
-				//TODO inform service about remove action
-				//((ViewGroup) v.getParent()).setLayoutTransition(new LayoutTransition());
 				clients.get((Integer) v.getTag()).hangUp();
 				clients.remove((Integer)v.getTag());
 				notifyDataSetChanged();
