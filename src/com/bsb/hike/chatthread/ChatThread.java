@@ -1219,10 +1219,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Logger.i(TAG, "theme selected " + chatTheme);
 
 		/**
+		 * Need to update the UI here as well as theme selected  and current theme could be different
+		 */
+		
+		
+		/**
 		 * Save current theme and send chat theme message
 		 */
 		if (currentTheme != chatTheme)
 		{
+			updateUIAsPerTheme(chatTheme);
 			currentTheme = chatTheme;
 			sendChatThemeMessage();
 		}
