@@ -19,7 +19,6 @@ public class CustomFontTextView extends TextView implements ViewTreeObserver.OnG
     private void setFont(AttributeSet attrs)
     {
     	fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
-        setTypeface(getTypeface(), getTypeface().getStyle());
     }
 
     public CustomFontTextView(Context context, AttributeSet attrs, int defStyle)
