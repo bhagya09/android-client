@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -18,11 +17,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,14 +36,18 @@ import com.bsb.hike.adapters.MoodAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.EmoticonPickerListener;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import com.bsb.hike.view.RoundedImageView;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
 
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, EmoticonPickerListener
@@ -56,7 +58,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int moodId = -1;
 
 		int moodIndex = -1;
-		
+
 		StatusUpdateTask task;
 
 		boolean emojiShowing = false;
@@ -65,8 +67,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	private ActivityTask mActivityTask;
-
-	private SharedPreferences preferences;
 
 	private ProgressDialog progressDialog;
 
@@ -82,8 +82,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private CustomLinearLayout parentLayout;
 
-	private TextView charCounter;
-
 	private View doneBtn;
 
 	private TextView postText;
@@ -95,7 +93,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private String mImagePath;
 
 	private ImageView statusImage;
-	
+
+	private IconLoader mIconImageLoader;
+
+	private ImageButton btnRemovePhoto;
+
+	private View addMoodLayout;
+
 	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
 
 	@Override
@@ -123,31 +127,43 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mActivityTask = new ActivityTask();
 		}
-		
+
 		initVarRef();
 
+		RoundedImageView roundAvatar = (RoundedImageView) avatar;
+		roundAvatar.setOval(true);
+
 		setupActionBar();
-		
+
 		readArguments(getIntent());
+
+		mIconImageLoader = new IconLoader(getApplicationContext(), getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 		
+		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(false);
+		
+		mIconImageLoader.setDefaultDrawableNull(false);
+
+		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+		
+		avatar.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(selfMsisdn, false));
+		
+		mIconImageLoader.loadImage(selfMsisdn, avatar, false, true, false);
+
 		parentLayout.setOnSoftKeyboardListener(this);
-		
+
 		if (!TextUtils.isEmpty(mImagePath))
 		{
 			Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
 			statusImage.setImageBitmap(bmp);
+			statusTxt.setHint(R.string.status_hint_image);
+		}else{
+			removePhoto(null);
 		}
 
-		//Set edit text hint "Whats up? Atul M"
-		statusTxt.setHint(getString(R.string.whats_up_user, Utils.getFirstName(preferences.getString(HikeMessengerApp.NAME_SETTING, ""))));
-		
-		charCounter.setText(Integer.toString(statusTxt.length()));
+		setMood(mActivityTask.moodId, mActivityTask.moodIndex);
 
-		setMood(mActivityTask.moodId, mActivityTask.moodIndex); 
-		
 		statusTxt.addTextChangedListener(new TextWatcher()
 		{
-
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count)
 			{
@@ -162,10 +178,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			public void afterTextChanged(Editable s)
 			{
 				toggleEnablePostButton();
-				charCounter.setText(Integer.toString(s.length()));
 			}
 		});
-		
+
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
 
 		if (mActivityTask.emojiShowing)
@@ -188,7 +203,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STATUS.ordinal());
 	}
-	
+
 	private void readArguments(Intent intent)
 	{
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
@@ -199,32 +214,32 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	 */
 	public void initVarRef()
 	{
-		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 		emojiParent = (ViewGroup) findViewById(R.id.emoji_container);
-		moodParent = (ViewGroup) findViewById(R.id.mood_parent);
+		moodParent = (ViewGroup) findViewById(R.id.mood_parent_status);
 		avatar = (ImageView) findViewById(R.id.avatar);
-		charCounter = (TextView) findViewById(R.id.char_counter);
 		statusTxt = (EditText) findViewById(R.id.status_txt);
 		parentLayout = (CustomLinearLayout) findViewById(R.id.parent_layout);
-		statusImage = (ImageView)findViewById(R.id.status_image);
+		statusImage = (ImageView) findViewById(R.id.status_image);
+		btnRemovePhoto = (ImageButton) findViewById(R.id.btn_remove_photo);
+		addMoodLayout = findViewById(R.id.addMoodLayout);
 	}
 
 	@Override
 	protected void onStop()
 	{
 		super.onStop();
-		
+
 		if (mActivityTask.moodShowing || mActivityTask.emojiShowing)
 		{
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
-		
+
 		else
 		{
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 	}
-	
+
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -311,6 +326,15 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		setTitle();
 	}
 
+	public void removePhoto(View dontUseThis)
+	{
+		btnRemovePhoto.setVisibility(View.GONE);
+		statusImage.setImageResource(0);
+		statusImage.setVisibility(View.GONE);
+		statusTxt.setHint(R.string.status_hint);
+		mImagePath = null;
+	}
+
 	@Override
 	public void onBackPressed()
 	{
@@ -365,11 +389,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			emojiParent.setVisibility(View.GONE);
 		}
 		toggleEnablePostButton();
-		/*
-		 * Show soft keyboard.
-		 */
-		InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-		imm.showSoftInput(statusTxt, InputMethodManager.SHOW_IMPLICIT);
+		
+		addMoodLayout.setVisibility(View.VISIBLE);
 	}
 
 	private void postStatus()
@@ -405,6 +426,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private void showEmojiSelector()
 	{
 		Utils.hideSoftKeyboard(this, statusTxt);
+		
+		addMoodLayout.setVisibility(View.GONE);
 
 		mActivityTask.emojiShowing = true;
 
@@ -465,8 +488,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void setupEmoticonLayout(int whichSubcategory, int[] tabDrawable)
 	{
-		EmoticonAdapter statusEmojiAdapter = new EmoticonAdapter(this.getApplicationContext(), this, getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT, tabDrawable,
-				true);
+		EmoticonAdapter statusEmojiAdapter = new EmoticonAdapter(this.getApplicationContext(), this,
+				getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT, tabDrawable, true);
 
 		ViewPager emoticonViewPager = (ViewPager) findViewById(R.id.emoticon_pager);
 		emoticonViewPager.setAdapter(statusEmojiAdapter);
@@ -481,6 +504,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Utils.hideSoftKeyboard(this, statusTxt);
 
+		addMoodLayout.setVisibility(View.GONE);
+		
 		mActivityTask.moodShowing = true;
 
 		showCancelButton(true);
@@ -488,7 +513,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		moodParent.setClickable(true);
 		GridView moodPager = (GridView) findViewById(R.id.mood_pager);
 
-		emojiParent.setVisibility(View.VISIBLE);
 		moodParent.setVisibility(View.VISIBLE);
 
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
@@ -519,7 +543,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			onBackPressed();
 		}
-		//setCharCountForStatus(findViewById(R.id.post_twitter_btn).isSelected());
 	}
 
 	private void showCancelButton(boolean moodLayout)
@@ -527,34 +550,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (moodLayout)
 		{
 		}
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		super.onActivityResult(requestCode, resultCode, data);
-		/*if (requestCode == HikeConstants.FACEBOOK_REQUEST_CODE)
-		{
-			Session session = Session.getActiveSession();
-			if (session != null && resultCode == RESULT_OK)
-			{
-				mActivityTask.fbSelected = true;
-				session.onActivityResult(this, requestCode, resultCode, data);
-			}
-			else if (session != null && resultCode == RESULT_CANCELED)
-			{
-				Logger.d("StatusUpdate", "Facebook Permission Cancelled");
-				// if we do not close the session here then requesting publish
-				// permission just after canceling the permission will
-				// throw an exception telling can not request publish
-				// permission, there
-				// is already a publish request pending.
-				mActivityTask.fbSelected = false;
-				session.closeAndClearTokenInformation();
-				Session.setActiveSession(null);
-			}
-			fb.setSelected(mActivityTask.fbSelected);
-		}*/
 	}
 
 	public void toggleEnablePostButton()
@@ -620,16 +615,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onShown()
 	{
-		if (emojiParent.getVisibility() == View.VISIBLE)
-		{
-			mActivityTask.emojiShowing = false;
-			emojiParent.setVisibility(View.GONE);
-		}
+		hideEmojiOrMoodLayout();
+		Logger.d(StatusUpdate.class.getSimpleName(), "shown keyboard");
 	}
 
 	@Override
 	public void onHidden()
 	{
+		Logger.d(StatusUpdate.class.getSimpleName(), "hidden keyboard");
 	}
 
 	@Override
