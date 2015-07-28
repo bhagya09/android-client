@@ -11,7 +11,7 @@
         android:layout_centerInParent="true"
         android:contentDescription="Overflow menu"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_new_status" />
+        android:src="@drawable/ic_activity" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/top_bar_indicator_text"
