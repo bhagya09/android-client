@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -2098,7 +2097,7 @@ public class VoIPService extends Service {
 		return String.valueOf(num);
 	}
 	
-	public List<VoIPClient> getConferenceClients() {
+	public ArrayList<VoIPClient> getConferenceClients() {
 		if (hostingConference())
 			return new ArrayList<VoIPClient>(clients.values());
 		else {

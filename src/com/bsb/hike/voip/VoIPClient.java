@@ -13,7 +13,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -114,7 +113,7 @@ public class VoIPClient  {
 	public boolean isDummy = false;
 
 	// List of client MSISDNs (for conference)
-	public List<VoIPClient> clientMsisdns = new ArrayList<>();
+	public ArrayList<VoIPClient> clientMsisdns = new ArrayList<>();
 	public boolean isHostingConference;
 	public boolean isInAHostedConference;
 	public String groupChatMsisdn;
