@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/overflowmenu"
     style="@style/OverflowMenuContainerStyle"
+    android:background="@drawable/shadow_overflow"
     android:orientation="vertical" >
 
     <ListView
@@ -9,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:cacheColorHint="#000000"
+        android:scrollbars="none"
         android:divider="@null" />
 
 </LinearLayout>
