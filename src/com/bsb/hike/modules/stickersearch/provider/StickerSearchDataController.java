@@ -79,7 +79,7 @@ public enum StickerSearchDataController
 		Set<String> receivedStickerSet = new HashSet<String>();
 		HashSet<String> stickerCodeSet = new HashSet<String>();
 		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
-		ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
+		ArrayList<TagToStcikerDataContainer> stickersTagData = new ArrayList<TagToStcikerDataContainer>();
 		Iterator<String> categories = packsData.keys();
 
 		while (categories.hasNext())
@@ -401,7 +401,7 @@ public enum StickerSearchDataController
 							Logger.e(TAG, "setupStickerSearchWizard(), No attribute is attached with sticker: " + stickerInfo);
 						}
 
-						stickersTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
+						stickersTagData.add(new TagToStcikerDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
 								tagPriorityList, stickerMomentCode, stickerFestivals));
 						stickerCodeSet.add(stickerInfo);
 					}

@@ -19,7 +19,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
-import com.bsb.hike.modules.stickersearch.provider.StickerTagDataContainer;
+import com.bsb.hike.modules.stickersearch.provider.TagToStcikerDataContainer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -32,13 +32,14 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Pair;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
 	private static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
 
-	private static final String TAG_REBALANCING = TAG + "_Rebalancing";
+	private static final String TAG_REBALANCING = TAG + "$Rebalancing";
+
+	private volatile int sMaxSelectionCount;
 
 	private volatile Random mRandom;
 
@@ -88,6 +89,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				sHikeStickerSearchDatabase.mRandom = new Random();
 			}
+
+			sHikeStickerSearchDatabase.sMaxSelectionCount = (int) (StickerSearchConstants.MAXIMUM_SEARCH_COUNT * StickerSearchConstants.MAXIMUM_SELECTION_COUNT_RATIO);
 		}
 	}
 
@@ -319,7 +322,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
+	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<TagToStcikerDataContainer> stickersTagData)
 	{
 		Logger.i(TAG, "insertStickerTagData()");
 
@@ -336,7 +339,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		try
 		{
 			mDb.beginTransaction();
-			for (StickerTagDataContainer stickerTagData : stickersTagData)
+			for (TagToStcikerDataContainer stickerTagData : stickersTagData)
 			{
 				if (!isValidTagData(stickerTagData))
 				{
@@ -407,15 +410,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						}
 					}
 				}
-
-				try
-				{
-					Thread.sleep(5);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
 			}
 
 			mDb.setTransactionSuccessful();
@@ -436,7 +430,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	private boolean isValidTagData(StickerTagDataContainer stickersTagData)
+	private boolean isValidTagData(TagToStcikerDataContainer stickersTagData)
 	{
 		return (stickersTagData == null) ? false : stickersTagData.isValidData();
 	}
@@ -473,14 +467,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				}
 
 				SQLiteDatabase.releaseMemory();
-				try
-				{
-					Thread.sleep(5);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
 
 				remainingCount -= currentCount;
 			}
@@ -492,173 +478,242 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	private ArrayList<ArrayList<Object>> searchInPrimaryTable(String match, ArrayList<Long> primaryKeys, boolean isExactMatchNeeded)
+	private ArrayList<StickerDataContainer> searchInPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)
 	{
-		ArrayList<ArrayList<Object>> list = null;
-		int size = ((primaryKeys == null) ? 0 : primaryKeys.size());
-		if (size <= 0)
+		ArrayList<StickerDataContainer> list = null;
+
+		if ((referenceArgs != null) && (referenceArgs.length > 0))
 		{
-			return list;
-		}
+			Cursor c = null;
 
-		Cursor c = null;
-		try
-		{
-			ArrayList<ArrayList<Object>> tempList = null;
-			ArrayList<Float> matchRankList = null;
-			String[] args = new String[size];
-
-			for (int i = 0; i < size; i++)
+			try
 			{
-				args[i] = String.valueOf(primaryKeys.get(i));
-			}
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID
+						+ HikeStickerSearchBaseConstants.SYNTAX_IN_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParameterSyntax(referenceArgs.length)
+						+ HikeStickerSearchBaseConstants.SYNTAX_END, referenceArgs, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, null, null);
 
-			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_IN_OPEN
-					+ StickerSearchUtility.getSQLiteDatabaseMultipleParameterSyntax(size) + HikeStickerSearchBaseConstants.SYNTAX_END, args, null, null, null);
-			if (c != null)
-			{
-				int count = c.getCount();
+				int count = (c == null) ? 0 : c.getCount();
+
 				if (count > 0)
 				{
-					list = new ArrayList<ArrayList<Object>>(count);
-					tempList = new ArrayList<ArrayList<Object>>(count);
-					matchRankList = new ArrayList<Float>(count);
-					ArrayList<String> temp = new ArrayList<String>();
-					if (match.contains(" "))
+					if (count <= sMaxSelectionCount)
 					{
-						int wordCountInPhrase = StickerSearchUtility.splitAndDoIndexing(match, " ").first.size();
-						while (c.moveToNext())
-						{
-							temp.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
-							tempList.add(buildStickerData(c));
-							Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> tagPhrases = StickerSearchUtility.splitAndDoIndexing(
-									c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)), " ");
-							float score = ((float) (wordCountInPhrase * (tagPhrases.first.size() > 2 ? 70 : 100))) / tagPhrases.first.size();
-							Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
-							matchRankList.add(score);
-						}
+						list = selectTagsForStickers(matchKey, isExactMatchNeeded, count, c);
 					}
 					else
 					{
-						if (isExactMatchNeeded)
-						{
-							String actualTag;
-							int matchLength = match.length();
-							if (matchLength > 1)
-							{
-								count = 0;
-								while (c.moveToNext())
-								{
-									actualTag = c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE));
-									Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> tagPhrases = StickerSearchUtility.splitAndDoIndexing(actualTag, " ");
-									if (match.equalsIgnoreCase(tagPhrases.first.get(0)))
-									{
-										temp.add(actualTag);
-										tempList.add(buildStickerData(c));
-										float score = ((float) (matchLength * (tagPhrases.first.size() > 1 ? 60 : 100))) / (tagPhrases.first.get(0).length());
-										Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
-										matchRankList.add(score);
-									}
-									else
-									{
-										Logger.d(TAG, "Rejected phrase: " + actualTag);
-									}
-								}
-							}
-							else
-							{
-								count = 0;
-								while (c.moveToNext())
-								{
-									actualTag = c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE));
-									Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> tagPhrases = StickerSearchUtility.splitAndDoIndexing(actualTag, " ");
-									if (tagPhrases.first.get(0).length() == 1)
-									{
-										temp.add(actualTag);
-										tempList.add(buildStickerData(c));
-										float score = ((tagPhrases.first.size() > 1) ? 50f : 100f);
-										Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
-										matchRankList.add(score);
-										count++;
-									}
-								}
-							}
-						}
-						else
-						{
-							while (c.moveToNext())
-							{
-								temp.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
-								tempList.add(buildStickerData(c));
-								Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> tagPhrases = StickerSearchUtility.splitAndDoIndexing(
-										c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)), " ");
-								float score = ((float) (match.length() * (tagPhrases.first.size() > 1 ? 70 : 100))) / (tagPhrases.first.get(0).length());
-								Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
-								matchRankList.add(score);
-							}
-						}
+						list = selectTagsForStickersWithLimit(matchKey, isExactMatchNeeded, count, c);
 					}
 
-					// set order
-					float maxMatch = Float.MIN_VALUE;
-					int prefCount = 8;
-					ArrayList<Object> previousStikcer = null;
-					ArrayList<Object> currentStickerData;
-					for (int i = 0; i < prefCount && i < count; i++)
-					{
-						maxMatch = Collections.max(matchRankList);
-						int index = matchRankList.indexOf(maxMatch);
-						currentStickerData = tempList.get(index);
-						matchRankList.remove(index);
-						tempList.remove(index);
-
-						if ((previousStikcer == null)
-								|| !currentStickerData.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE).equals(
-										previousStikcer.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE)))
-						{
-							list.add(currentStickerData);
-						}
-						else
-						{
-							if ((int) currentStickerData.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER) > (int) previousStikcer
-									.get(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER))
-							{
-								list.set(list.size() - 1, currentStickerData);
-							}
-
-							prefCount++;
-						}
-
-						previousStikcer = currentStickerData;
-					}
-
-					list.addAll(tempList);
 					Logger.i(TAG, "Search findings count = " + list.size());
 					Logger.i(TAG, "Search findings: " + list);
 				}
 			}
-		}
-		finally
-		{
-			if (c != null)
+			finally
 			{
-				c.close();
+				if (c != null)
+				{
+					c.close();
+				}
+				SQLiteDatabase.releaseMemory();
 			}
-			SQLiteDatabase.releaseMemory();
 		}
 
 		return list;
 	}
 
-	private ArrayList<Object> buildStickerData(Cursor c)
+	private ArrayList<StickerDataContainer> selectTagsForStickers(String matchKey, boolean isExactMatchNeeded, int count, Cursor c)
 	{
-		ArrayList<Object> data = new ArrayList<Object>(HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_COUNT);
+		ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>(count);
+		int[] columnIndices = computeColumnIndices(c);
+
+		if (matchKey.contains(StickerSearchConstants.STRING_SPACE) || !isExactMatchNeeded)
+		{
+			while (c.moveToNext())
+			{
+				list.add(buildStickerData(c, columnIndices));
+			}
+		}
+		else
+		{
+			String actualTag;
+			int firstWordLimitIndexInTag;
+
+			while (c.moveToNext())
+			{
+				actualTag = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]);
+				firstWordLimitIndexInTag = actualTag.indexOf(StickerSearchConstants.STRING_SPACE);
+
+				if ((firstWordLimitIndexInTag > 0) && (firstWordLimitIndexInTag < actualTag.length()))
+				{
+					if (matchKey.equalsIgnoreCase(actualTag.substring(0, firstWordLimitIndexInTag)))
+					{
+						list.add(buildStickerData(c, columnIndices));
+					}
+					else
+					{
+						Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+					}
+				}
+				else if (firstWordLimitIndexInTag == -1)
+				{
+					if (matchKey.equalsIgnoreCase(actualTag))
+					{
+						list.add(buildStickerData(c, columnIndices));
+					}
+					else
+					{
+						Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+					}
+				}
+				else
+				{
+					Logger.i(TAG, "Rejected search result due to invalid first word: " + actualTag);
+				}
+			}
+		}
+
+		return list;
+	}
+
+	private ArrayList<StickerDataContainer> selectTagsForStickersWithLimit(String matchKey, boolean isExactMatchNeeded, int count, Cursor c)
+	{
+
+		ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>(count);
+		int[] columnIndices = computeColumnIndices(c);
+
+		String previousStickerCode = null;
+		String currentStickerCode;
+		int tagCountPerSticker = 0;
+
+		if (matchKey.contains(StickerSearchConstants.STRING_SPACE) || !isExactMatchNeeded)
+		{
+			while (c.moveToNext())
+			{
+				currentStickerCode = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE]);
+
+				if (currentStickerCode.equals(previousStickerCode))
+				{
+					if (tagCountPerSticker >= StickerSearchConstants.MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT)
+					{
+						Logger.i(TAG, "Skipped search result due to repeated tag: " + c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]));
+					}
+					else
+					{
+						list.add(buildStickerData(c, columnIndices));
+						tagCountPerSticker++;
+					}
+				}
+				else
+				{
+					list.add(buildStickerData(c, columnIndices));
+					tagCountPerSticker = 1;
+					previousStickerCode = currentStickerCode;
+				}
+			}
+		}
+		else
+		{
+			String actualTag;
+			int firstWordLimitIndexInTag;
+
+			while (c.moveToNext())
+			{
+				currentStickerCode = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE]);
+
+				if (currentStickerCode.equals(previousStickerCode))
+				{
+					actualTag = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]);
+
+					if (tagCountPerSticker >= StickerSearchConstants.MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT)
+					{
+						Logger.i(TAG, "Skipped search result due to repeated tag: " + actualTag);
+					}
+					else
+					{
+						firstWordLimitIndexInTag = actualTag.indexOf(StickerSearchConstants.STRING_SPACE);
+
+						if ((firstWordLimitIndexInTag > 0) && (firstWordLimitIndexInTag < actualTag.length()))
+						{
+							if (matchKey.equalsIgnoreCase(actualTag.substring(0, firstWordLimitIndexInTag)))
+							{
+								list.add(buildStickerData(c, columnIndices));
+								tagCountPerSticker++;
+							}
+							else
+							{
+								Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+							}
+						}
+						else if (firstWordLimitIndexInTag == -1)
+						{
+							if (matchKey.equalsIgnoreCase(actualTag))
+							{
+								list.add(buildStickerData(c, columnIndices));
+								tagCountPerSticker++;
+							}
+							else
+							{
+								Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+							}
+						}
+						else
+						{
+							Logger.i(TAG, "Rejected search result due to invalid first word: " + actualTag);
+						}
+					}
+				}
+				else
+				{
+					actualTag = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]);
+					firstWordLimitIndexInTag = actualTag.indexOf(StickerSearchConstants.STRING_SPACE);
+
+					if ((firstWordLimitIndexInTag > 0) && (firstWordLimitIndexInTag < actualTag.length()))
+					{
+						if (matchKey.equalsIgnoreCase(actualTag.substring(0, firstWordLimitIndexInTag)))
+						{
+							list.add(buildStickerData(c, columnIndices));
+							tagCountPerSticker = 1;
+							previousStickerCode = currentStickerCode;
+						}
+						else
+						{
+							Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+						}
+					}
+					else if (firstWordLimitIndexInTag == -1)
+					{
+						if (matchKey.equalsIgnoreCase(actualTag))
+						{
+							list.add(buildStickerData(c, columnIndices));
+							tagCountPerSticker = 1;
+							previousStickerCode = currentStickerCode;
+						}
+						else
+						{
+							Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+						}
+					}
+					else
+					{
+						Logger.i(TAG, "Rejected search result due to invalid first word: " + actualTag);
+					}
+				}
+			}
+		}
+
+		return list;
+	}
+
+	private int[] computeColumnIndices(Cursor c)
+	{
+		int[] columnIndices;
 
 		// Do not change the order of insertion as per indices defined as followed
 		// INDEX_STICKER_DATA_STICKER_CODE = 0
 		// INDEX_STICKER_DATA_TAG_PHRASE = 1
 		// INDEX_STICKER_DATA_PHRASE_LANGUAGE = 2
-		// INDEX_STICKER_DATA_TAG_CATEGORY = 3
+		// INDEX_STICKER_DATA_TAG_STATE_CATEGORY = 3
 		// INDEX_STICKER_DATA_OVERALL_FREQUENCY_FOR_TAG = 4
 		// INDEX_STICKER_DATA_OVERALL_FREQUENCY = 5
 		// INDEX_STICKER_DATA_STORY_THEMES = 6
@@ -671,28 +726,62 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// INDEX_STICKER_AVAILABILITY_STATUS = 13
 		// INDEX_STICKER_DATA_COUNT = 14
 
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_REGION_FUNCTION_OF_FREQUENCY)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STATE_FUNCTION_OF_FREQUENCY)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY_FOR_TAG)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STORY_THEME_ENTITIES)));
-		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY)));
-		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_FESTIVALS)));
-		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG)));
-		data.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG)));
-		data.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY)));
+		if (c != null)
+		{
+			columnIndices = new int[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_COUNT];
 
-		return data;
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_PHRASE_LANGUAGE] = c
+					.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_REGION_FUNCTION_OF_FREQUENCY);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_STATE_CATEGORY] = c
+					.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STATE_FUNCTION_OF_FREQUENCY);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY_FOR_TAG] = c
+					.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY_FOR_TAG);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STORY_THEMES] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STORY_THEME_ENTITIES);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_FESTIVALS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_FESTIVALS);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_AGE] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_USED_WITH_STRINGS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_REJECTED_WITH_WORDS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_AVAILABILITY_STATUS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY);
+		}
+		else
+		{
+			columnIndices = null;
+		}
+
+		return columnIndices;
 	}
 
-	public ArrayList<ArrayList<Object>> searchIntoFTSAndFindStickerList(String phrase, boolean isExactMatchNeeded)
+	private StickerDataContainer buildStickerData(Cursor c, int[] columnIndices)
 	{
+		StickerDataContainer sticker;
+
+		if (columnIndices.length == HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_COUNT)
+		{
+			sticker = new StickerDataContainer(c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE]),
+					c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]),
+					c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY]),
+					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER]),
+					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE]),
+					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_AVAILABILITY_STATUS]));
+		}
+		else
+		{
+			sticker = null;
+		}
+
+		return sticker;
+	}
+
+	public ArrayList<StickerDataContainer> searchIntoFTSAndFindStickerList(String phrase, boolean isExactMatchNeeded)
+	{
+		ArrayList<StickerDataContainer> result = null;
 		ArrayList<Long> tempRows = null;
-		ArrayList<Long> rows = null;
+		String[] rows = null;
 		Cursor c = null;
 
 		try
@@ -735,21 +824,26 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 		}
 
-		if ((tempRows != null) && (tempRows.size() > HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER))
+		int rowsCount = (tempRows == null) ? 0 : tempRows.size();
+		if (rowsCount > 0)
 		{
-			Collections.shuffle(tempRows, mRandom);
-			rows = new ArrayList<Long>(HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER);
-			for (int i = 0; i < HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER; i++)
+			if (rowsCount > HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER)
 			{
-				rows.add(tempRows.get(i));
+				Collections.shuffle(tempRows, mRandom);
+				rowsCount = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER;
 			}
-		}
-		else
-		{
-			rows = tempRows;
+
+			rows = new String[rowsCount];
+
+			for (int i = 0; i < rowsCount; i++)
+			{
+				rows[i] = String.valueOf(tempRows.get(i));
+			}
+
+			result = searchInPrimaryTable(phrase, rows, isExactMatchNeeded);
 		}
 
-		return searchInPrimaryTable(phrase, rows, isExactMatchNeeded);
+		return result;
 	}
 
 	public void disableTagsForDeletedStickers(Set<String> stickerInfoSet)
