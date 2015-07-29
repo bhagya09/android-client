@@ -290,6 +290,13 @@ public class VoIPService extends Service {
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
 				break;
 				
+			case VoIPConstants.MSG_UPDATE_QUALITY:
+				// Do not show quality if we're hosting a conference
+				if (hostingConference())
+					return;
+				sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
+				break;
+				
 			default:
 				// Pass message to activity through its handler
 				sendHandlerMessage(msg.what);
@@ -577,6 +584,8 @@ public class VoIPService extends Service {
 				if (!VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + msisdns.size()))
 					return returnInt;
 
+				restoreActivity();
+				
 				for (String phoneNumber : msisdns) {
 					
 					// Check for own phone number in group members
@@ -588,6 +597,7 @@ public class VoIPService extends Service {
 					client.isInAHostedConference = true;
 					client.groupChatMsisdn = groupChatMsisdn;
 					initiateOutgoingCall(client, callSource);
+					
 				}
 			} else {
 				// Outgoing call to single recipient
@@ -597,8 +607,9 @@ public class VoIPService extends Service {
 				initiateOutgoingCall(client, callSource);
 			}
 			
+			// Show activity
+			restoreActivity();
 			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
-			
 		}
 
 		if(client != null && client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -650,11 +661,8 @@ public class VoIPService extends Service {
 				HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST, 
 				getCallId(), true);
 
-		// Show activity
-		restoreActivity();
-		
 		client.retrieveExternalSocket();
-		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);		
+		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);
 	}
 	
 	private void startConnectionTimeoutThread() {
@@ -1250,6 +1258,11 @@ public class VoIPService extends Service {
 			
 			if (hostingConference())
 				startChrono();
+			
+			// When a conference participant accepts a call, change their UI
+			// to display all the conference participants
+			if (client.isHostingConference)
+				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
 
 		} else {
 			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
@@ -2083,7 +2096,7 @@ public class VoIPService extends Service {
 		return conferencingEnabled;
 	}
 
-	public String getClientCount() {
+	public int getClientCount() {
 		int num = 1;
 
 		if (hostingConference())
@@ -2091,10 +2104,10 @@ public class VoIPService extends Service {
 		else {
 			VoIPClient client = getClient();
 			if (client != null && client.clientMsisdns != null)
-				num = client.clientMsisdns.size();
+				num = client.clientMsisdns.size() + 1;
 		}
 		
-		return String.valueOf(num);
+		return num;
 	}
 	
 	public ArrayList<VoIPClient> getConferenceClients() {
@@ -2178,11 +2191,6 @@ public class VoIPService extends Service {
 								conferenceBroadcastPackets.add(dp);	
 								Logger.w(tag, "Sending clients list.");
 								
-//								for (VoIPClient client : clients.values()) {
-//									if (client.connected)
-//										client.sendPacket(dp, true);
-//								}								
-								
 							} catch (JSONException e) {
 								Logger.w(tag, "JSONException: " + e.toString());
 							} catch (UnsupportedEncodingException e) {
@@ -2195,7 +2203,7 @@ public class VoIPService extends Service {
 		};
 		
 		clientListHandler = new Handler();
-		clientListHandler.postDelayed(clientListRunnable, 250);
+		clientListHandler.postDelayed(clientListRunnable, VoIPConstants.CONFERENCE_CLIENTS_LIST_BROADCAST_REPEAT);
 	}
 
 	/**

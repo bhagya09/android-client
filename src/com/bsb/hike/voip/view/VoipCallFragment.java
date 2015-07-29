@@ -121,7 +121,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 		@Override
 		public void handleMessage(Message msg) {
-//			Logger.d(tag, "Incoming handler received message: " + msg.what);
+			Logger.d(tag, "Incoming handler received message: " + msg.what);
 			if(!isVisible())
 			{
 				Logger.d(tag, "Fragment not visible, returning");
@@ -815,10 +815,23 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 
 		if (voipService.hostingConference() || clientPartner.isHostingConference) {
+			
+			// Display the contact name and participant count
 			nameOrMsisdn = getString(R.string.voip_conference_label);
+			int clientCount = voipService.getClientCount();
+			String numberOfParticipants;
+			if (clientCount == 0)
+				numberOfParticipants = getString(R.string.voip_conference_waiting_for_participants_info);
+			else
+				numberOfParticipants = clientCount + " " + getString(R.string.participants);
 			contactMsisdnView.setVisibility(View.VISIBLE);
-			contactMsisdnView.setText(voipService.getClientCount() + " " + getString(R.string.participants));
-			updateConferenceList();
+			contactMsisdnView.setText(numberOfParticipants);
+			
+			// When a call is initiated or received, 
+			// show the participants list only to the host
+			// and to the participants after they accept the call
+			if (voipService.recordingAndPlaybackRunning || voipService.hostingConference())
+				updateConferenceList();
 		}
 
 		if (clientPartner.isHostingConference) {

@@ -62,6 +62,11 @@ public class VoIPConstants {
 	 */
 	public static final int CONGESTION_CONTROL_REPEAT_THRESHOLD = 3;
 
+	/**
+	 * Number of ms to wait before broadcasting the list of clients again. 
+	 */
+	public static final int CONFERENCE_CLIENTS_LIST_BROADCAST_REPEAT = 2000;
+	
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions
@@ -209,6 +214,8 @@ public class VoIPConstants {
 		public static final String INCOMING_CALL = "incomingCall";
 		
 		public static final String VOIP_VERSION = "version";
+		
+		public static final String CONFERENCE = "conf";
 		
 		public static final String REMOVE_FAILED_FRAGMENT = "removeFailedFrag";
 		

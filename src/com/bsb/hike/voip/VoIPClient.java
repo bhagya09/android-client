@@ -41,6 +41,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -111,6 +112,7 @@ public class VoIPClient  {
 	private boolean isSpeaking = false;
 	private int voicePacketCount = 0;
 	public boolean isDummy = false;
+	private String selfMsisdn;
 
 	// List of client MSISDNs (for conference)
 	public ArrayList<VoIPClient> clientMsisdns = new ArrayList<>();
@@ -153,6 +155,9 @@ public class VoIPClient  {
 		encryptionStage = EncryptionStage.STAGE_INITIAL;
 		currentCallQuality = CallQuality.UNKNOWN;
 		setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
+
+		if (context != null)
+			selfMsisdn =  Utils.getUserContactInfo(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE)).getMsisdn();
 	}
 
 	public String getName() {
@@ -509,6 +514,9 @@ public class VoIPClient  {
 			if (!TextUtils.isEmpty(groupChatMsisdn) && !isInitiator())
 				socketData.put(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
 			
+			if (isInAHostedConference)
+				socketData.put(VoIPConstants.Extras.CONFERENCE, true);
+			
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
 			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
@@ -520,7 +528,7 @@ public class VoIPClient  {
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
 			Logger.d(tag, "Sent socket information to partner. Reconnecting: " + reconnecting);
 			socketInfoSent = true;
 
@@ -2036,6 +2044,11 @@ public class VoIPClient  {
 					client.setSpeaking(clientObject.getBoolean(VoIPConstants.Extras.SPEAKING));
 					client.setCallStatus(CallStatus.values()[clientObject.getInt(VoIPConstants.Extras.STATUS)]);
 					client.isDummy = true;
+					
+					// Ignoring your own msisdn
+					if (client.getPhoneNumber().equals(selfMsisdn))
+						continue;
+					
 					clientMsisdns.add(client);
 				}
 			} else
