@@ -14,8 +14,6 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.tasks.DownloadProfileImageTask;
-import com.bsb.hike.tasks.DownloadProfileImageTask.DownloadProfileImageTaskCallbacks;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -27,18 +25,18 @@ import com.bsb.hike.utils.Utils;
  * if isProfilePicDownload = true, means used for DP(User/Group/SU) Download
  *
  */
-public class HikeImageDownloader extends HikeImageWorker implements DownloadProfileImageTaskCallbacks
+public class HikeImageDownloader extends HikeImageWorker 
 {
 	private String id;
 
 	private boolean statusImage;
+	
+	private boolean forceNewRequest;
 
 	private boolean hasCustomIcon;
 	
 	private String url;
 
-	private DownloadProfileImageTask downloadProfileImageTask;
-	
 	private boolean isProfilePicDownload;
 	
 	private String msisdn;
@@ -52,7 +50,7 @@ public class HikeImageDownloader extends HikeImageWorker implements DownloadProf
 	private static final String TAG = "dp_download";
 	
 	public static HikeImageDownloader newInstance(String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
-			String url, boolean isProfilePicDownloaded) {
+			String url, boolean isProfilePicDownloaded,boolean forceNewRequest) {
 		
 		HikeImageDownloader mHeadLessImageDownloaderFragment = new HikeImageDownloader();
 		mHeadLessImageDownloaderFragment.id = key;
@@ -63,6 +61,7 @@ public class HikeImageDownloader extends HikeImageWorker implements DownloadProf
 		mHeadLessImageDownloaderFragment.msisdn = msisdn;
 		mHeadLessImageDownloaderFragment.fileName = fileName;
 		mHeadLessImageDownloaderFragment.name = name;
+		mHeadLessImageDownloaderFragment.forceNewRequest = forceNewRequest;
         return mHeadLessImageDownloaderFragment;
     }
 
@@ -73,7 +72,7 @@ public class HikeImageDownloader extends HikeImageWorker implements DownloadProf
 		Logger.d(TAG, "executing DownloadProfileImageTask");
 		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		
-		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, pathOfTempFile, hasCustomIcon, statusImage, url, requestListener);
+		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, pathOfTempFile, hasCustomIcon, statusImage, url,forceNewRequest, requestListener);
 		if(token != null && !token.isRequestRunning())
 		{
 			token.execute();
@@ -108,9 +107,9 @@ public class HikeImageDownloader extends HikeImageWorker implements DownloadProf
 				}
 			}
 			
-			if(taskCallbacks.get() != null)
+			if(taskCallbacks != null)
 			{
-				taskCallbacks.get().onSuccess(result);
+				taskCallbacks.onSuccess(result);
 			}
 		}
 
@@ -126,80 +125,22 @@ public class HikeImageDownloader extends HikeImageWorker implements DownloadProf
 			{
 				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), pathOfTempFile);
 				
-				if(taskCallbacks.get() != null)
+				if(taskCallbacks != null)
 				{
-					taskCallbacks.get().onCancelled();
+					taskCallbacks.onCancelled();
 				}
 			}
 			else
 			{
 				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), pathOfTempFile);
 				
-				if(taskCallbacks.get() != null)
+				if(taskCallbacks != null)
 				{
-					taskCallbacks.get().onFailed();
+					taskCallbacks.onFailed();
 				}
 			}
 		}
 	};
-	
-	@Override
-	public void onRequestProgressUpdate(float progress)
-	{
-		
-	}
-	
-	@Override
-	public void onRequestSuccess(Response result)
-	{
-		Logger.d(TAG, "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		String filePath = directory + "/" +  Utils.getProfileImageFileName(id);
-		
-		if(!doAtomicFileRenaming(filePath, downloadProfileImageTask.getFilePath()))
-		{
-			return;
-		}
-		
-		if(isProfilePicDownload)
-		{
-			if(!doPostSuccessfulProfilePicDownload())
-			{
-				return ;
-			}
-		}
-		
-		if(taskCallbacks.get() != null)
-		{
-			taskCallbacks.get().onSuccess(result);
-		}
-	}
-
-	@Override
-	public void onRequestFailure(HttpException httpException)
-	{
-		Logger.e(TAG, " Request Failed with exception " + httpException);
-		
-		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
-		
-		if(taskCallbacks.get() != null)
-		{
-			taskCallbacks.get().onFailed();
-		}
-	}
-
-	@Override
-	public void onRequestCancelled()
-	{
-		Logger.e(TAG, " Request cancelled");
-		
-		doAtomicMultiFileDel(Utils.getProfileImageFileName(id), downloadProfileImageTask.getFilePath());
-		
-		if(taskCallbacks.get() != null)
-		{
-			taskCallbacks.get().onCancelled();
-		}
-	}
 	
 	private boolean doPostSuccessfulProfilePicDownload()
 	{

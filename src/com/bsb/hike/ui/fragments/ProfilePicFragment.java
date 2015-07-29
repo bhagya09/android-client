@@ -516,7 +516,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			
 			@Override
 			public void run() {
-				showErrorState(getString(R.string.task_already_running));
+				 Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.task_already_running, Toast.LENGTH_SHORT).show();
+				 getActivity().onBackPressed();
 			}
 		});
 	}

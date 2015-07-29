@@ -36,8 +36,10 @@ public class HikeImageUploader extends HikeImageWorker
 
 	private static final String TAG = "dp_upload";
 	
-	private RequestToken token;
-
+	private static RequestToken profileToken;
+	
+	private static RequestToken groupToken;
+	
 	public static HikeImageUploader newInstance(byte[] bytes, String tmpFilePath, String msisdn, boolean toDelTempFileOnCallFail, boolean toDeletPrevMsisdnPic) {
 		
 		HikeImageUploader mHeadLessImageUploaderFragment = new HikeImageUploader();
@@ -51,6 +53,9 @@ public class HikeImageUploader extends HikeImageWorker
 	
 	public void startUpLoadingTask()
 	{
+		RequestToken currentToken = null;
+		
+		
 		String filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		File dir = new File(filePath);
 		if (!dir.exists())
@@ -61,21 +66,37 @@ public class HikeImageUploader extends HikeImageWorker
 
 		if(OneToNConversationUtils.isGroupConversation(msisdn))
 		{
-			token = HttpRequests.editGroupProfileAvatarRequest(tmpFilePath, requestListener, msisdn);
-		}
-		else
-		{
-			token = HttpRequests.editProfileAvatarRequest(tmpFilePath, requestListener);
-		}
-		if(token != null &&!token.isRequestRunning())
-		{
-			token.execute();
-		}
-		else
-		{
-			if(taskCallbacks.get() != null)
+			if(groupToken == null)
 			{
-				taskCallbacks.get().onTaskAlreadyRunning();
+				groupToken = HttpRequests.editGroupProfileAvatarRequest(tmpFilePath, requestListener, msisdn);
+			}
+			
+			currentToken = groupToken;
+		}
+		else
+		{
+			if(profileToken == null)
+			{
+				profileToken = HttpRequests.editProfileAvatarRequest(tmpFilePath, requestListener);
+			}
+			
+			currentToken = profileToken;
+			
+		}
+		
+		Logger.d(TAG, "Attempting upload");
+		
+		if(currentToken != null &&!currentToken.isRequestRunning())
+		{
+			Logger.d(TAG, "Begining upload");
+			currentToken.execute();
+		}
+		else
+		{
+			Logger.d(TAG, "Aborting upload");
+			if(taskCallbacks != null)
+			{
+				taskCallbacks.onTaskAlreadyRunning();
 			}
 	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
 		}
@@ -88,6 +109,8 @@ public class HikeImageUploader extends HikeImageWorker
 		{
 			Logger.d(TAG, "inside API onRequestSuccess inside HEADLESS IMAGE UPLOAD FRAGMENT");
 			
+			clearTokens();
+			
 			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 			String originqlFilePath = directory + File.separator +  Utils.getProfileImageFileName(msisdn);
 			
@@ -98,10 +121,10 @@ public class HikeImageUploader extends HikeImageWorker
 			
 			doAtomicFileRenaming(originqlFilePath, tmpFilePath);
 			
-			if(taskCallbacks.get() != null)
+			if(taskCallbacks != null)
 			{
 				Logger.d(TAG, "calling onSuccess of listener");
-				taskCallbacks.get().onSuccess(result);
+				taskCallbacks.onSuccess(result);
 			}
 			
 		}
@@ -114,6 +137,8 @@ public class HikeImageUploader extends HikeImageWorker
 		@Override
 		public void onRequestFailure(HttpException httpException)
 		{
+			clearTokens();
+			
 			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 			{
 				Logger.d(TAG, "inside API onRequestCancelled inside HEADLESSIMAGEUPLOAD FRAGMENT");
@@ -123,9 +148,9 @@ public class HikeImageUploader extends HikeImageWorker
 					doAtomicFileDel(tmpFilePath);
 				}
 				
-				if(taskCallbacks.get() != null)
+				if(taskCallbacks != null)
 				{
-					taskCallbacks.get().onCancelled();
+					taskCallbacks.onCancelled();
 				}
 			}
 			else
@@ -137,9 +162,9 @@ public class HikeImageUploader extends HikeImageWorker
 					doAtomicFileDel(tmpFilePath);
 				}
 
-				if(taskCallbacks.get() != null)
+				if(taskCallbacks != null)
 				{
-					taskCallbacks.get().onFailed();
+					taskCallbacks.onFailed();
 				}
 			}
 		}
@@ -147,11 +172,34 @@ public class HikeImageUploader extends HikeImageWorker
 	
 	public boolean isTaskRunning()
 	{
-		if(token == null)
+		RequestToken currentToken = null;
+		
+		if(OneToNConversationUtils.isGroupConversation(msisdn))
+		{
+			currentToken = groupToken ;
+		}
+		else
+		{
+			currentToken = profileToken ;
+		}
+		
+		if(currentToken == null)
 		{
 			return false;
 		}
 		
-		return token.isRequestRunning();
+		return currentToken.isRequestRunning();
+	}
+	
+	private void clearTokens()
+	{
+		if(OneToNConversationUtils.isGroupConversation(msisdn))
+		{
+			groupToken = null;
+		}
+		else
+		{
+			profileToken = null;
+		}
 	}
 }

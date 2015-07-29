@@ -33,13 +33,10 @@ import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
 /**
