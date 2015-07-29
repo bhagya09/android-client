@@ -8,7 +8,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.View;
@@ -22,11 +21,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -448,42 +445,25 @@ public class HikeDialogFactory
 	private static HikeDialog showSMSClientDialog(int dialogId, final Context context, final HikeDialogListener listener, final boolean triggeredFromToggle,
 			final CompoundButton checkBox, final boolean showingNativeInfoDialog)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
-		hikeDialog.setContentView(R.layout.enable_sms_client_popup);
+		final CustomAlertDialog hikeDialog = new CustomAlertDialog(context, dialogId);
 		hikeDialog.setCancelable(showingNativeInfoDialog);
 
-		TextView header = (TextView) hikeDialog.findViewById(R.id.header);
-		TextView body = (TextView) hikeDialog.findViewById(R.id.body);
-		Button btnOk = (Button) hikeDialog.findViewById(R.id.btn_ok);
-		Button btnCancel = (Button) hikeDialog.findViewById(R.id.btn_cancel);
-
-		header.setText(showingNativeInfoDialog ? R.string.native_header : R.string.use_hike_for_sms);
-		body.setText(showingNativeInfoDialog ? R.string.native_info : R.string.use_hike_for_sms_info);
-
+		hikeDialog.setTitle(showingNativeInfoDialog ? R.string.native_header : R.string.use_hike_for_sms);
+		
+		hikeDialog.setMessage(showingNativeInfoDialog ? R.string.native_info : R.string.use_hike_for_sms_info);
+		
 		if (showingNativeInfoDialog)
 		{
-			btnCancel.setVisibility(View.GONE);
-			btnOk.setText(R.string.continue_txt);
+			hikeDialog.setPositiveButton(R.string.continue_txt, listener);
 		}
 		else
 		{
-			btnCancel.setText(R.string.cancel);
-			btnOk.setText(R.string.allow);
+			hikeDialog.setNegativeButton(R.string.cancel, listener);
+			hikeDialog.setPositiveButton(R.string.allow, listener);
 		}
-
-		btnOk.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(hikeDialog);
-			}
-		});
 
 		hikeDialog.setOnCancelListener(new OnCancelListener()
 		{
-
 			@Override
 			public void onCancel(DialogInterface dialog)
 			{
@@ -491,16 +471,6 @@ public class HikeDialogFactory
 				{
 					checkBox.setChecked(false);
 				}
-			}
-		});
-
-		btnCancel.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				listener.negativeClicked(hikeDialog);
 			}
 		});
 
@@ -952,28 +922,18 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showSMSSyncDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog dialog = new HikeDialog(context, dialogId);
-		dialog.setContentView(R.layout.enable_sms_client_popup);
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
 		
 		boolean syncConfirmation = (boolean) data[0]; 
 
-		final View btnContainer = dialog.findViewById(R.id.button_container);
+		dialog.setTitle(R.string.import_sms);
+		dialog.setMessage(R.string.import_sms_info);
+		dialog.setPositiveButton(R.string.yes, listener);
+		dialog.setNegativeButton(R.string.no, listener);
 
-		final ProgressBar syncProgress = (ProgressBar) dialog.findViewById(R.id.loading_progress);
-		TextView header = (TextView) dialog.findViewById(R.id.header);
-		final TextView info = (TextView) dialog.findViewById(R.id.body);
-		Button okBtn = (Button) dialog.findViewById(R.id.btn_ok);
-		Button cancelBtn = (Button) dialog.findViewById(R.id.btn_cancel);
-		final View btnDivider = dialog.findViewById(R.id.sms_divider);
+		DialogUtils.setupSyncDialogLayout(syncConfirmation, dialog);
 
-		header.setText(R.string.import_sms);
-		info.setText(R.string.import_sms_info);
-		okBtn.setText(R.string.yes);
-		cancelBtn.setText(R.string.no);
-
-		DialogUtils.setupSyncDialogLayout(syncConfirmation, btnContainer, syncProgress, info, btnDivider);
-
-		okBtn.setOnClickListener(new OnClickListener()
+		dialog.buttonPositive.setOnClickListener(new OnClickListener()
 		{
 
 			@Override
@@ -983,13 +943,13 @@ public class HikeDialogFactory
 
 				DialogUtils.executeSMSSyncStateResultTask(new SyncOldSMSTask(context));
 
-				DialogUtils.setupSyncDialogLayout(false, btnContainer, syncProgress, info, btnDivider);
+				DialogUtils.setupSyncDialogLayout(false, dialog);
 
 				DialogUtils.sendSMSSyncLogEvent(true);
 			}
 		});
 
-		cancelBtn.setOnClickListener(new OnClickListener()
+		dialog.buttonNegative.setOnClickListener(new OnClickListener()
 		{
 
 			@Override

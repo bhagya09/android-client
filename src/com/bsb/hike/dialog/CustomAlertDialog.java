@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
@@ -35,6 +36,8 @@ public class CustomAlertDialog extends HikeDialog
 	Button buttonNegative;
 
 	Button buttonNeutral;
+	
+	ProgressBar mProgressIndeterminate;
 
 	public CustomAlertDialog(Context context, int dialogId)
 	{
@@ -57,6 +60,7 @@ public class CustomAlertDialog extends HikeDialog
 		buttonPositive = (Button) this.findViewById(R.id.btn_positive);
 		buttonNegative = (Button) this.findViewById(R.id.btn_negative);
 		buttonNeutral = (Button) this.findViewById(R.id.btn_neutral);
+		mProgressIndeterminate = (ProgressBar) this.findViewById(R.id.loading_progress);
 	}
 
 	public void setTitle(int resId)
