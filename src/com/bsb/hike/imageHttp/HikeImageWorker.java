@@ -1,7 +1,5 @@
 package com.bsb.hike.imageHttp;
 
-import java.lang.ref.WeakReference;
-
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
@@ -37,11 +35,11 @@ public class HikeImageWorker
 		
 	}
 
-	protected WeakReference<TaskCallbacks> taskCallbacks;
+	protected TaskCallbacks taskCallbacks;
 
 	public void setTaskCallbacks(TaskCallbacks callbacks)
 	{
-		this.taskCallbacks = new WeakReference<TaskCallbacks>(callbacks);
+		this.taskCallbacks = callbacks;
 	}
 
 	/**

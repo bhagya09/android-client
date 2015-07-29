@@ -393,6 +393,28 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		});
 	}
 
+	private void showStaleState(String message)
+	{
+		mUploadStatus = UPLOAD_FAILED;
+
+		if (!isAdded())
+		{
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		mCircularProgress.setProgress(100f);
+
+		changeTextWithAnimation(text1, message);
+
+		changeTextWithAnimation(text2, getString(R.string.try_again_later));
+
+		mCircularProgress.setProgressColor(getResources().getColor(R.color.photos_circular_progress_yellow));
+
+		mFragmentView.findViewById(R.id.retryButton).setVisibility(View.GONE);
+
+	}
+	
 	private void changeTextWithAnimation(final TextView tv, final String newText)
 	{
 		ObjectAnimator visToInvis = ObjectAnimator.ofFloat(tv, "alpha", 1f, 0.2f);
@@ -516,7 +538,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			
 			@Override
 			public void run() {
-				showErrorState(getString(R.string.task_already_running));
+				showStaleState(getString(R.string.task_already_running));
 			}
 		});
 	}

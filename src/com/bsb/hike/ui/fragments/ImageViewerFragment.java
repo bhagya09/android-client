@@ -198,7 +198,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			public void startDownloading()
 			{
 				showProgressDialog();
-				loadHeadLessImageDownloadingFragment();
+				beginImageDownload();
 			}
 		});
 		profileImageLoader.loadProfileImage(getLoaderManager());
@@ -352,11 +352,11 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		hikeUiHandler.post(failedRunnable);
 	}
 
-	private void loadHeadLessImageDownloadingFragment()
+	private void beginImageDownload()
 	{
     	Logger.d(TAG, "starting new mImageLoaderFragment");
     	String fileName = Utils.getProfileImageFileName(key);
-    	mImageWorkerFragment = HikeImageDownloader.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true);
+    	mImageWorkerFragment = HikeImageDownloader.newInstance(key, fileName, hasCustomImage, isStatusImage, null, null, null, true,false);
     	mImageWorkerFragment.setTaskCallbacks(this);
     	mImageWorkerFragment.startLoadingTask();
 	}

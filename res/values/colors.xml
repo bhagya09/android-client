@@ -414,6 +414,7 @@
     <color name="photos_action_bar_font">#FFFFFF</color>
     <color name="photos_circular_progress_blue">#178ee1</color>
     <color name="photos_circular_progress_red">#dd2b28</color>
+    <color name="photos_circular_progress_yellow">#FFDB58</color>
     <color name="photos_circular_progress_red_alpha">#99dd2b28</color>
     <color name="photos_actions_selected">#f4f4f4</color>
     <color name="photos_camera_selector">#05e7e8e9</color>

@@ -3511,7 +3511,7 @@ public class MqttMessagesManager
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
 		HikeImageDownloader downLoaderFragment = HikeImageDownloader.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true);
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true,true);
 		downLoaderFragment.startLoadingTask();
 	}
 
@@ -3524,7 +3524,7 @@ public class MqttMessagesManager
 		}
 		
 		String fileName = Utils.getProfileImageFileName(id);
-		HikeImageDownloader downLoaderFragment = HikeImageDownloader.newInstance( id, fileName, true, false, null, null, null, true);
+		HikeImageDownloader downLoaderFragment = HikeImageDownloader.newInstance( id, fileName, true, false, null, null, null, true,true);
 		downLoaderFragment.startLoadingTask();
 	}
 
@@ -3532,7 +3532,7 @@ public class MqttMessagesManager
 	{
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
 		HikeImageDownloader downLoaderFragment = HikeImageDownloader.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL(), true);
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL(), true,true);
 		downLoaderFragment.startLoadingTask();
 	}
 
