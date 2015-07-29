@@ -132,6 +132,7 @@ public abstract class ImageWorker
 				imageView.setBackgroundDrawable(null);
 			}
 		}
+		
 		if (mImageCache != null)
 		{
 			value = mImageCache.get(data);
@@ -161,13 +162,14 @@ public abstract class ImageWorker
 					mImageCache.putInCache(data, bd);
 				}
 				imageView.setImageDrawable(bd);
-				
 				sendImageCallback(imageView);
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
 			{
 				setDefaultAvatar(imageView, data);
+				sendImageCallback(imageView);
 			}
+			
 		}
 		else if (cancelPotentialWork(data, imageView) && !isFlinging)
 		{
@@ -475,8 +477,9 @@ public abstract class ImageWorker
 					 */
 					setImageDrawable(imageView, defaultDrawable);
 					imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-					sendImageCallback(imageView);
 				}
+				
+				sendImageCallback(imageView);
 
 			}
 		}
@@ -557,7 +560,6 @@ public abstract class ImageWorker
 				imageView.setImageDrawable(drawable);
 			}
 			
-			sendImageCallback(imageView);
 		}
 		catch (Exception e)
 		{
