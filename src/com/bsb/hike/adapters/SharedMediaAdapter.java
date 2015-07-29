@@ -45,8 +45,6 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	
 	private static final String TAG = "SharedMediaAdapter";
     
-	private boolean initialised;
-
     private final FragmentManager mFragmentManager;
     
     private FragmentTransaction mCurTransaction = null;
@@ -76,12 +74,6 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
         mFragmentManager = fm;
     }
 
-    public void clearInitialFragment()
-    {
-    	initFragment = null;
-    	initialised = true;
-    }
-    
     /**
      * Return the Fragment associated with a specified position.
      */
@@ -117,34 +109,32 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     	Logger.i(TAG,"Institiating : " +position +"/"+ sharedMediaItemList.size());
     	Logger.i(TAG,"Fragments : " +position +"/"+ mFragments.size());
     	
-    	if (initFragment != null && initFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
-    	{
-    		//Checking address of image in fragment just as an extra safety check
-    		//Storing initFragment in correct position if it is required.
-    		Logger.i(TAG,"Init Match : "+initFragment.getPathTag());
-    		mFragments.set(initFragment.getPosition(), null);
-    		initFragment.setPosition(position);
-    		 while (mFragments.size() <= position) {
-    	            mFragments.add(null);
-    	        }
-    		mFragments.set(position, initFragment);
-    		return initFragment;
-        }
-        
     	if (mFragments.size() > position) {
     		ImageViewerFragment f = mFragments.get(position);
-            if (f != null)
+            if (f != null && f.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath()))
             {
             	Logger.i(TAG,"Match : "+f.getPathTag());
                 return f;
             }
         }
+    	
+    	ImageViewerFragment fragment = null;
+    	
+    	if (initFragment != null && initFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
+    	{
+    		fragment = initFragment;
+        }
+        
 
     	if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
 
-        ImageViewerFragment fragment = getItem(position);
+        if(fragment == null)
+        {
+        	fragment = getItem(position);
+        }
+        
         Logger.v(TAG, "Adding item #" + position + ": f=" + fragment);
         if (mSavedState.size() > position) {
         	ImageViewerFragment.SavedState fss = mSavedState.get(position);
@@ -158,7 +148,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
         fragment.setMenuVisibility(false);
         fragment.setUserVisibleHint(false);
         
-        if(initFragment == null && !initialised)
+        if(initFragment == null)
         {
         	initFragment = fragment;
         }
@@ -174,15 +164,6 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     	Logger.i(TAG,"Destroy Item called : "+position);
     	ImageViewerFragment fragment = (ImageViewerFragment)object;
 
-    	if( !initialised && initFragment != null && fragment != null && fragment.getPathTag().equals(initFragment.getPathTag()) )
-    	{
-    		return;
-    	}
-    	
-    	if(position >= mFragments.size())
-    	{
-    		return;
-    	}
     	
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();

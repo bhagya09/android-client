@@ -270,7 +270,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPageScrollStateChanged(int arg0)
 	{
-		smAdapter.clearInitialFragment();
 	}
 
 	@Override
