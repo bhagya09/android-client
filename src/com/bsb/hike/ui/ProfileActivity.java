@@ -353,7 +353,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			setContentView(R.layout.profile);
 			View parent = findViewById(R.id.parent_layout);
-			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background)); 
+			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background));
+			ListView list = (ListView) parent.findViewById(R.id.profile_content);
+			list.setDivider(null); //Removing the default dividers since they are not needed in the timeline
 			this.profileType = ProfileType.CONTACT_INFO_TIMELINE;
 			setupContactTimelineScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
@@ -384,6 +386,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				View parent = findViewById(R.id.parent_layout);
 				parent.setBackgroundColor(getResources().getColor(R.color.standerd_background)); //Changing background color form white for self profile
 				this.profileType = ProfileType.USER_PROFILE;
+				ListView list = (ListView) parent.findViewById(R.id.profile_content);
+				list.setDivider(null); //Removing the default dividers since they are not needed in the timeline
 				setupProfileScreen(savedInstanceState);
 				HikeMessengerApp.getPubSub().addListeners(this, profilePubSubListeners);
 				triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.PROFILE_PHOTO.ordinal();
