@@ -219,7 +219,8 @@ public class MovingList<T extends Unique> implements Collection<T>
 	 */
 	public long getUniqueId(int index)
 	{
-		return uniqueIds.get(index);
+		Unique item = items.get(index);
+		return (item != null) ? item.getUniqueId() : uniqueIds.get(index);
 	}
 
 	/**
