@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -574,6 +576,17 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadSideText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadUtils.totalShareCount, ChatHeadUtils.noOfDays));
 		chatHeadSideText.setEnabled(false);
 	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
+        // we are doing this because we need to consume this touch event here and don't want to pass further
+	    chatHeadInfoIconLayout.setOnTouchListener(new View.OnTouchListener()
+		{	
+			@Override
+			public boolean onTouch(View v, MotionEvent event)
+			{
+				Logger.d(TAG, "accepting user touch");
+				return true;
+			}
+		});
+	    
 	}
 
 	private void initLayoutComponentsView()
