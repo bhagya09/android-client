@@ -490,6 +490,7 @@ public class HttpRequests
 		
 		if(forceCreateNewToken)
 		{
+			//this should be done when new image needs to be downloaded irrespectve of a previous download is running on the same URL
 			builder.setId(id+"_"+System.currentTimeMillis());
 		}
 			
