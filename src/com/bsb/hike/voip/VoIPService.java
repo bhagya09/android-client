@@ -1337,7 +1337,7 @@ public class VoIPService extends Service {
 				}
 				
 				if (recorder == null || recorder.getState() != AudioRecord.STATE_INITIALIZED) {
-					Logger.e(tag, "AudioRecord initialization failed. Mic will not work.");
+					Logger.e(tag, "AudioRecord initialization failed. Mic may not work. State: " + recorder.getState());
 					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 					return;
 				}

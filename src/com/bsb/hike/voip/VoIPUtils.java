@@ -526,9 +526,7 @@ public class VoIPUtils {
 				/*
 				 * Call Initiation Messages
 				 * Added: 24 Mar, 2015 (AJ)
-				 * Prior to this addition, socket information messages served as call
-				 * initiation messages as well. We are now introducing a separate class
-				 * of messages for call initiation to speed up the process. 
+				 * These are being used purely for analytics.
 				 */
 				if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE) ||
