@@ -173,6 +173,12 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		long msgId = OfflineUtils.getMsgId(message);
 		
 		int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
+		
+		if(!tempConvMessage.isOfflineMessage())
+		{
+			Logger.d(TAG, "Updating Ordinal value to Offline  for offline msgs");
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, new Pair<Long, Integer>(msgId, ConvMessage.OriginType.OFFLINE.ordinal()));
+		}
 		if (rowsUpdated == 0) 
 		{
 			Logger.d(getClass().getSimpleName(), "No rows updated");

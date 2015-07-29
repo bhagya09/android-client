@@ -342,8 +342,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 					IntentFactory.openSettingPrivacy(this);
 					break;
 				case 8:
-					HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
-					IntentFactory.openSettingStickerOnOtherApp(this);
+					IntentFactory.openStickerSettings(this);
 					break;
 				case 9:
 					IntentFactory.openSettingHelp(this);
@@ -408,8 +407,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 					IntentFactory.openSettingPrivacy(this);
 					break;
 				case 7:
-					HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
-					IntentFactory.openSettingStickerOnOtherApp(this);
+					IntentFactory.openStickerSettings(this);
 					break;
 				case 8:
 					IntentFactory.openSettingHelp(this);

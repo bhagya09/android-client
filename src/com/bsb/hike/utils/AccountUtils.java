@@ -454,10 +454,10 @@ public class AccountUtils
 		}
 	}
 
-	public static int getBytesUploaded(String sessionId) throws ClientProtocolException, IOException
+	public static int getBytesUploaded(String sessionId, String mUrl) throws ClientProtocolException, IOException
 	{
 		int val = 0;
-		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/pft/");
+		HttpRequestBase req = new HttpGet(mUrl);
 		addToken(req);
 		req.addHeader("X-SESSION-ID", sessionId);
 		AccountUtils.setNoTransform(req);
