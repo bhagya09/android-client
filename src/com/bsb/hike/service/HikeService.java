@@ -309,7 +309,7 @@ public class HikeService extends Service
 		
 		if(!TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, "")))
 		{
-			//HikeHandlerUtil.getInstance().postRunnableWithDelay(new CleanFileRunnable(),0);
+			HikeHandlerUtil.getInstance().postRunnableWithDelay(new CleanFileRunnable(),0);
 			
 		}
 		

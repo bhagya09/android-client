@@ -227,7 +227,6 @@ public class UploadFileTask extends FileTransferBase
 		hikeFile.setFile(sourceFile);
 		JSONObject fileJSON =  hikeFile.serialize();
 		
-		
 		try 
 		{
 			filesArray.put(fileJSON);
@@ -241,7 +240,6 @@ public class UploadFileTask extends FileTransferBase
 		{
 			e.printStackTrace();
 		}
-		((ConvMessage) userContext).setMessage(HikeFileType.getFileTypeMessage(context,hikeFile.getHikeFileType(),false));
 		((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
 		Logger.d("OfflineManager","Message Metadata is "+((ConvMessage) userContext).getMetadata().getJSON());
 		((ConvMessage) userContext).setMessageOriginType(OriginType.OFFLINE);
