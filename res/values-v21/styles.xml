@@ -71,15 +71,7 @@
         <item name="android:colorAccent">@color/blue_hike</item>
         
     </style>
-    <style name="HomeList">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:cacheColorHint">#00000000</item>
-        <item name="android:divider">@drawable/home_list_divider</item>
-        <item name="android:dividerHeight">0.5dp</item>
-        <item name="android:headerDividersEnabled">false</item>
-        <item name="android:footerDividersEnabled">false</item>
-        <item name="android:drawSelectorOnTop">false</item>
+    <style name="HomeList" parent="HomeListParent">
         <item name="android:listSelector">@drawable/listripple</item>
     </style>
     
