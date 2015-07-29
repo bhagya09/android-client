@@ -15,13 +15,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.google.gson.Gson;
 import com.hike.transporter.DefaultRetryPolicy;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
@@ -274,15 +277,17 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private void initClientConfig(String namespace) 
 	{
+		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 		Logger.d(TAG, "Initialising client config!");
-		topics  =  new ArrayList<Topic>();
+		topics = new ArrayList<Topic>();
 		Topic textTopic = new Topic(OfflineConstants.TEXT_TOPIC);
-		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
+		Topic fileTopic = new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
 		DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(4, 500, 1);
-		transporterConfig = new Config.ConfigBuilder(topics,connectionManager.getHostAddress(),OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).
-							sendoldPersistedMessages(true).nameSpace(namespace).setRetryPolicy(retryPolicy).build();
+		transporterConfig = new Config.ConfigBuilder(topics, connectionManager.getHostAddress(), offlineParameters.getPortNo(), OfflineConstants.TEXT_TOPIC)
+				.sendoldPersistedMessages(true).nameSpace(namespace).setRetryPolicy(retryPolicy).keepAliveTimeout(offlineParameters.getHeartBeatTimeout())
+				.keepAliveTimeoutScreenOff(offlineParameters.getKeepAliveScreenTimeout()).build();
 	}
 
 	public void removeMessage(int msg)
@@ -331,12 +336,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	private void initServerConfig(String namespace) 
 	{
+		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 		topics  =  new ArrayList<Topic>();
 		Topic textTopic = new Topic(OfflineConstants.TEXT_TOPIC);
 		Topic fileTopic =  new Topic(OfflineConstants.FILE_TOPIC);
 		topics.add(textTopic);
 		topics.add(fileTopic);
-		transporterConfig = new Config.ConfigBuilder(topics, OfflineConstants.IP_SERVER, OfflineConstants.PORT_PING,OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(true).nameSpace(namespace).build();
+		transporterConfig = new Config.ConfigBuilder(topics, OfflineConstants.IP_SERVER, offlineParameters.getPortNo(),OfflineConstants.TEXT_TOPIC).sendoldPersistedMessages(true).nameSpace(namespace).keepAliveTimeout(offlineParameters.getHeartBeatTimeout()).keepAliveTimeoutScreenOff(offlineParameters.getKeepAliveScreenTimeout()).build();
 	}
 
 	public void connectToHotspot(String msisdn)
@@ -494,6 +500,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		connectinMsisdn = null;
 		removeAllMessages();
 		startedForChatThread = false;
+		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
 	}
 
 	public void setConnectedDevice(String connectedDevice)
@@ -547,7 +554,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 
-	public void updateListeners(OFFLINE_STATE offline_STATE) {
+	public void updateListeners(String connectedDevice,String connectingDevice) {
 
 		// to avoid ConcurrentModificationException we use a cloned list of listeners
 		// for traversing.
@@ -557,14 +564,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			clonedListeners.add(offlineListener);
 		}
 		
-		if (offline_STATE == OFFLINE_STATE.CONNECTED)
+		if (!TextUtils.isEmpty(connectedDevice))
 		{
 			for (IOfflineCallbacks offlineListener : clonedListeners)
 			{
 				offlineListener.onDisconnect(ERRORCODE.USERDISCONNECTED);
 			}
 		}
-		else if (offline_STATE == OFFLINE_STATE.CONNECTING)
+		else if (!TextUtils.isEmpty(connectingDevice))
 		{
 			for (IOfflineCallbacks offlineListener : clonedListeners)
 			{

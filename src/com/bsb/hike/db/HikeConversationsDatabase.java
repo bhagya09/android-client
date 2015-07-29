@@ -23,6 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.DatabaseUtils.InsertHelper;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -75,6 +76,7 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -114,7 +116,22 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private HikeConversationsDatabase(Context context)
 	{
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
-		mDb = getWritableDatabase();
+		try
+		{
+			mDb = getWritableDatabase();
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+			/*
+			 * Ref: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/database/sqlite/SQLiteOpenHelper.java
+			 * 
+			 * When mContext.openOrCreateDatabase throws SQLException, in catch it creates a new database using SQLiteDatabase.openDatabase method.
+			 * 
+			 * SQLiteDatabase.openDatabase returns the newly opened database
+			 * 
+			 * */
+		}
 	}
 	
 	public SQLiteDatabase getWriteDatabase()
@@ -957,8 +974,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID,  DBConstants.MSG_STATUS, DBConstants.MESSAGE_ORIGIN_TYPE }, DBConstants.MSISDN + "=? AND "+ DBConstants.MESSAGE_ID + "<=? AND " + DBConstants.MSG_STATUS + "<"
-					+ State.SENT_DELIVERED_READ.ordinal(), new String[] { msisdn, String.valueOf(maxMsgId) }, null, null, null);
+			String equality = OfflineUtils.isConnectedToSameMsisdn(msisdn) ? " =? " : " <>? ";
+			String selecParams = DBConstants.MSISDN + "=? AND "+ DBConstants.MESSAGE_ID + "<=? AND " + DBConstants.MSG_STATUS + "<? AND "
+					  + DBConstants.MESSAGE_ORIGIN_TYPE + equality;
+			
+			String[] selecArgs = new String[] { msisdn, String.valueOf(maxMsgId), Integer.toString(State.SENT_DELIVERED_READ.ordinal()), Integer.toString(ConvMessage.OriginType.OFFLINE.ordinal())};
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID,  DBConstants.MSG_STATUS, DBConstants.MESSAGE_ORIGIN_TYPE }, selecParams, selecArgs, null, null, null);
 
 			while (c.moveToNext())
 			{
@@ -1563,7 +1584,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String msgHash = null;
 		if (!msg.isSent() && (msg.getParticipantInfoState() == ParticipantInfoState.NO_INFO))
 		{
-			msgHash = msg.getMsisdn() + msg.getMappedMsgID();
+			msgHash = msg.getSenderMsisdn() + msg.getMappedMsgID();
 
 			String message = msg.getMessage();
 			if(message !=null && message.length() > 0)

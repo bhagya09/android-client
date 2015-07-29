@@ -29,6 +29,8 @@ public class HttpException extends Exception
 	
 	public static final short REASON_CODE_RESPONSE_PARSING_ERROR = 0x09;
 	
+	public static final short REASON_CODE_CONTENT_LENGTH_REQUIRED = 0x10;
+	
 	private int errorCode;
 
 	public HttpException(short errorCode)

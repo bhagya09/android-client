@@ -673,7 +673,7 @@ public class UploadFileTask extends FileTransferBase
 				}
 				catch (Exception e)
 				{
-
+					Logger.e(getClass().getSimpleName(), "exception while initFileUpload when key is valid", e);
 				}
 				/*
 				 * Setting event in case of forward when file key is validated.
@@ -918,7 +918,17 @@ public class UploadFileTask extends FileTransferBase
 			}
 			X_SESSION_ID = fst.getSessionId();
 			if(X_SESSION_ID != null)
-				mStart = AccountUtils.getBytesUploaded(String.valueOf(X_SESSION_ID));
+			{
+				URL baseUrl = mUrl = new URL(AccountUtils.fileTransferBase + "/user/pft/");
+				try{
+					mStart = AccountUtils.getBytesUploaded(String.valueOf(X_SESSION_ID), mUrl.toString());
+				}catch(Exception ex)
+				{
+					handleException(ex);
+					mUrl = getUpdatedURL(mUrl, "ResumeLength", FTAnalyticEvents.UPLOAD_FILE_TASK, baseUrl);
+					mStart = AccountUtils.getBytesUploaded(String.valueOf(X_SESSION_ID), mUrl.toString());
+				}
+			}
 			else
 				mStart = 0;
 			if (mStart <= 0)
@@ -930,7 +940,7 @@ public class UploadFileTask extends FileTransferBase
 			this.analyticEvents.mRetryCount += 1;
 		}
 		_state = FTState.IN_PROGRESS;
-		LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		
 		if (mStart >= length)
 		{
@@ -939,7 +949,7 @@ public class UploadFileTask extends FileTransferBase
 		}
 		// @GM setting transferred bytes if there are any
 		setBytesTransferred(mStart);
-		mUrl = new URL(AccountUtils.fileTransferBase + "/user/pft/");
+		URL baseUrl = mUrl = new URL(AccountUtils.fileTransferBase + "/user/pft/");
 		RandomAccessFile raf = new RandomAccessFile(sourceFile, "r");
 		raf.seek(mStart);
 
@@ -1013,10 +1023,13 @@ public class UploadFileTask extends FileTransferBase
 							raf.close();
 							return null;
 						}
+						mUrl = getUpdatedURL(mUrl, "UploadingFile", FTAnalyticEvents.UPLOAD_FILE_TASK, baseUrl);
 						raf.seek(start);
 						setChunkSize();
 						if (chunkSize > length)
 							chunkSize = (int) length;
+						if(chunkSize > (length - start))
+							chunkSize = (int) (length - start);
 						if (end != (start + chunkSize - 1))
 						{
 							end = (start + chunkSize - 1);
@@ -1111,7 +1124,7 @@ public class UploadFileTask extends FileTransferBase
 		}
 		catch (IOException e)
 		{
-
+			Logger.e(getClass().getSimpleName(), "exception while closing random access file", e);
 		}
 		return responseJson;
 	}
@@ -1225,11 +1238,12 @@ public class UploadFileTask extends FileTransferBase
 		// If we are not able to verify the filekey validity from the server, fall back to uploading the file		
 		final int MAX_RETRY = 3;
 		int retry =0;
+		URL baseUrl = mUrl = new URL(AccountUtils.fileTransferBaseDownloadUrl + fileKey);
 		while(retry < MAX_RETRY)
 		{
 			try
 			{
-				mUrl = new URL(AccountUtils.fileTransferBaseDownloadUrl + fileKey);
+				mUrl = getUpdatedURL(mUrl, "FileKeyValidation", FTAnalyticEvents.UPLOAD_FILE_TASK, baseUrl);
 				HttpClient client = new DefaultHttpClient();
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
@@ -1266,6 +1280,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				handleException(e);
 				retry++;
 				if(retry == (MAX_RETRY-1))
 					throw e;
@@ -1302,6 +1317,7 @@ public class UploadFileTask extends FileTransferBase
 			client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 		}
 		long time = System.currentTimeMillis();
+		Logger.d("UploadFileTask", "Upload URL = " + mUrl.toString());
 		HttpPost post = new HttpPost(mUrl.toString());
 		String res = null;
 		int resCode = 0;
@@ -1324,6 +1340,7 @@ public class UploadFileTask extends FileTransferBase
 		}
 		catch (ConnectTimeoutException ex)
 		{
+			handleException(ex);
 			ex.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "FT Upload time out error : " + ex.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "ConnectTimeoutException : " , ex);
@@ -1331,10 +1348,12 @@ public class UploadFileTask extends FileTransferBase
 		}
 		catch (Exception e)
 		{
+			handleException(e);
 			e.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "FT Upload error : " + e.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "Unknown exception : ", e);
-			if(e instanceof UnknownHostException || e instanceof SocketException || e.getMessage() == null)
+
+			if(e.getMessage() == null)
 			{
 				error();
 				res = null;
@@ -1363,7 +1382,7 @@ public class UploadFileTask extends FileTransferBase
 				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_HTTP_OPERATION, resCode, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "Response code greater than 400");
 				deleteStateFile();
 				_state = FTState.IN_PROGRESS;
-				freshStart = true;
+				retry = false;
 			}
 		}
 		time = System.currentTimeMillis() - time;
@@ -1450,11 +1469,12 @@ public class UploadFileTask extends FileTransferBase
 		// If we are not able to verify the md5 validity from the server, fall back to uploading the file
 		final int MAX_RETRY = 3;
 		int retry = 0;
+		URL baseUrl = mUrl = new URL(AccountUtils.fastFileUploadUrl + fileMD5);
 		while (retry < MAX_RETRY)
 		{
 			try
 			{
-				mUrl = new URL(AccountUtils.fastFileUploadUrl + fileMD5);
+				mUrl = getUpdatedURL(mUrl, "VerifyMd5", FTAnalyticEvents.UPLOAD_FILE_TASK, baseUrl);
 				HttpClient client = new DefaultHttpClient();
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
@@ -1494,6 +1514,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				handleException(e);
 				retry++;
 				if (retry == MAX_RETRY)
 					throw e;

@@ -103,6 +103,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.UPDATE_LAST_MSG_STATE, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_MARKED, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
+		mPubSub.addListener(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, this);
 	}
 
 	@Override
@@ -478,6 +479,14 @@ public class DbConversationListener implements Listener
 			{
 				HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
 			}
+		}
+		else if(HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE.equals(type))
+		{
+			Pair<Long, Integer> pair = (Pair<Long, Integer>) object;
+
+			long msgId = pair.first;
+
+			HikeConversationsDatabase.getInstance().updateMessageOriginType(msgId, pair.second);
 		}
 	}
 

@@ -406,6 +406,8 @@ public class HikePubSub implements Runnable
 
 	public static final String OFFLINE_MESSAGE_SENT = "offlineMessageSent";
 	
+	public static final String UPDATE_MESSAGE_ORIGIN_TYPE = "updateMsgOriTyp";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

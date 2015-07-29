@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
@@ -439,11 +440,6 @@
             android:theme="@style/TranslucentBlack" >
         </activity>
 
-        <receiver android:name=".voip.IncomingCallListener" >
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>

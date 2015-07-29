@@ -1,5 +1,7 @@
 package com.bsb.hike.voip.view;
 
+import java.util.ArrayList;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -16,6 +18,7 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -38,9 +41,11 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
@@ -65,7 +70,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private CallActionsView callActionsView;
 	private Chronometer callDuration;
 
-	private ImageButton holdButton, muteButton, speakerButton;
+	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
 
 	private boolean isCallActive;
 
@@ -97,10 +102,15 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle)
 	{
 		View view = inflater.inflate(R.layout.voip_call_fragment, null);
-
+		
 		muteButton = (ImageButton) view.findViewById(R.id.mute_btn);
 		holdButton = (ImageButton) view.findViewById(R.id.hold_btn);
 		speakerButton = (ImageButton) view.findViewById(R.id.speaker_btn);
+		addButton = (ImageButton) view.findViewById(R.id.add_btn);
+		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
+		
+		if (VoIPUtils.isConferencingEnabled(getSherlockActivity())) 
+			addButton.setVisibility(View.VISIBLE);
 
 		return view;
 	}
@@ -127,6 +137,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				isCallActive = true;
 				updateCallStatus();
 				activateActiveCallButtons();
+				initProximityWakelock();
 				break;
 			case VoIPConstants.MSG_CONNECTION_FAILURE:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
@@ -149,7 +160,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_QUALITY:
 				CallQuality quality = voipService.getQuality();
 				showSignalStrength(quality);
-				// Logger.d(tag, "Updating call quality to: " + quality);
 				break;
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
@@ -173,6 +183,13 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
 				setContactDetails();
 				break;
+			case VoIPConstants.MSG_UPDATE_SPEAKING:
+				if (voipService.hostingConference())
+					updateConferenceList();
+				break;
+			case VoIPConstants.MSG_BLUETOOTH_SHOW:
+				toggleBluetoothButton(true);
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -195,6 +212,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			voipService = binder.getService();
 			isBound = true;
 			connectMessenger();
+			
+			// Should we show the bluetooth button?
+			boolean bluetooth = voipService.isOnHeadsetSco();
+			if (bluetooth)
+				toggleBluetoothButton(true);
 		}
 	};
 
@@ -208,8 +230,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
-		updateCallStatus();
 		initProximityWakelock();
+		updateCallStatus();
 		super.onResume();
 	}
 
@@ -271,7 +293,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(tag, "There is no active call.");
-			getSherlockActivity().finish();	// Bugfix AND-354
+//			getSherlockActivity().finish();	// Bugfix AND-354
 			return;
 		}
 
@@ -309,6 +331,13 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 		
+		// Ignore intents if we're hosting a conference
+		if (voipService != null && voipService.hostingConference()) {
+//			Logger.w(tag, "Ignoring intent with action " + action + " because we're hosting a conference.");
+			voipService.processErrorIntent(action, msisdn);
+			return;
+		}
+		
 		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
 		{
 			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
@@ -341,32 +370,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) 
 		{
 			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+			VoIPUtils.sendMissedCallNotificationToPartner(msisdn);
 			if (voipService != null)
 			{
 				voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
 				updateCallStatus();
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BUSY);
-				voipService.stop();
-			}
-		}
-		
-		if (action.equals(VoIPConstants.INCOMING_NATIVE_CALL_HOLD) && voipService != null) 
-		{
-			if (VoIPService.getCallId() > 0) 
-			{
-				if(voipService.isAudioRunning())
-				{
-					showMessage(getString(R.string.voip_call_on_hold));
-					voipService.setHold(true);
-					voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-				}
-				else
-				{
-					voipService.hangUp();
-				}
-			}
-			else
-			{
 				voipService.stop();
 			}
 		}
@@ -532,6 +541,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		muteButton.setSelected(voipService.getMute());
 		holdButton.setSelected(voipService.getHold());
 		speakerButton.setSelected(voipService.getSpeaker());
+		addButton.setSelected(false);
 
 		setupActiveCallButtonActions();
 	}
@@ -548,6 +558,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		muteButton.startAnimation(anim);
 		holdButton.startAnimation(anim);
 		speakerButton.startAnimation(anim);
+		addButton.startAnimation(anim);
+		bluetoothButton.startAnimation(anim);
 		hangupButton.startAnimation(anim);
 	}
 
@@ -602,6 +614,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				speakerButton.setSelected(newSpeaker);
 				voipService.setSpeaker(newSpeaker);
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_SPEAKER, newSpeaker ? 1 : 0);
+				
+				if (newSpeaker == true)
+					releaseProximityWakelock();
+				else
+					initProximityWakelock();
 			}
 		});
 
@@ -619,8 +636,45 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				}
 			}
 		});
+		
+		addButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				releaseProximityWakelock();
+				Intent intent = new Intent(HikeMessengerApp.getInstance(), ComposeChatActivity.class);
+				intent.putExtra(HikeConstants.Extras.ADD_TO_CONFERENCE, true);
+				startActivityForResult(intent, HikeConstants.ADD_TO_CONFERENCE_REQUEST);
+			}
+		});
+		
+		bluetoothButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				bluetoothButton.setSelected(!bluetoothButton.isSelected());
+				voipService.toggleBluetoothFromActivity(bluetoothButton.isSelected());
+			}
+		});
+		
 	}
 
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == HikeConstants.ADD_TO_CONFERENCE_REQUEST) {
+			if (resultCode == Activity.RESULT_OK) {
+				if (data.hasExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE)) {
+					ArrayList<String> msisdns = data.getStringArrayListExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE);
+					Logger.w(tag, "Adding to conference: " + msisdns.toString());
+					Intent intent = IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(),
+							msisdns, null, VoIPUtils.CallSource.ADD_TO_CONFERENCE);
+					if (intent != null)
+						getActivity().startService(intent);
+				}
+			}
+		}
+	};
+	
 	private void updateCallStatus()
 	{
 		if(!isAdded() || voipService == null)
@@ -658,6 +712,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case INCOMING_CALL:
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_incoming));
+				releaseProximityWakelock();
 				break;
 
 			case PARTNER_BUSY:
@@ -687,6 +742,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					callDuration.setText(getString(R.string.voip_call_ended));
 				}
 				break;
+				
+			case HOSTING_CONFERENCE:
+				startCallDuration();
+				break;
+				
 		default:
 			// Logger.w(tag, "Unhandled status: " + status);
 			callDuration.startAnimation(anim);
@@ -713,7 +773,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		VoIPClient clientPartner = voipService.getPartnerClient();
 		if (clientPartner == null) 
 		{
-			getSherlockActivity().finish();
+			// AND-1247
+			// getSherlockActivity().finish();
 			Logger.w(tag, "Partner client info is null. Returning.");
 			return;
 		}
@@ -738,10 +799,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 
-		if (voipService.hostingConference() || clientPartner.clientMsisdns != null) {
+		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			nameOrMsisdn = getString(R.string.voip_conference_label);
 			contactMsisdnView.setVisibility(View.VISIBLE);
-			contactMsisdnView.setText(voipService.getClientNames());
+			contactMsisdnView.setText(voipService.getClientCount() + " " + getString(R.string.participants));
+			updateConferenceList();
 		}
 
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
@@ -750,6 +812,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 		
 		contactNameView.setText(nameOrMsisdn);
+	}
+	
+	private void updateConferenceList() {
+	
+		TextView contactNameView = (TextView) getView().findViewById(R.id.conference_list);
+		contactNameView.setVisibility(View.VISIBLE);
+		contactNameView.setText(Html.fromHtml(voipService.getClientNames()));
+
 	}
 	
 	public void showCallActionsView()
@@ -791,7 +861,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					   			signalStrengthView.setText(getString(R.string.voip_signal_excellent));
 					   			break;
 		default:
-			Logger.w(tag, "Unhandled voice quality: " + quality);
+			Logger.d(tag, "Unhandled voice quality: " + quality + ". Defaulting to good.");
+			gd.setColor(getResources().getColor(R.color.signal_good));
+	   		signalStrengthView.setText(getString(R.string.voip_signal_good));
 			break;
 		}
 		signalContainer.startAnimation(anim);
@@ -884,5 +956,13 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				return;
 			}
 		easter = 0;
+	}
+	
+	private void toggleBluetoothButton(boolean show) {
+		if (show) {
+			bluetoothButton.setSelected(true);
+			bluetoothButton.setVisibility(View.VISIBLE);
+		} else
+			bluetoothButton.setVisibility(View.GONE);
 	}
 }
