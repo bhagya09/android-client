@@ -649,8 +649,10 @@ public class VoIPService extends Service {
 			VoIPClient primary = getClient();
 			primary.cryptoEnabled = false;
 			primary.isInAHostedConference = true;
-			if (primary.getPreferredConnectionMethod() != ConnectionMethods.RELAY)
-				primary.forceReconnect();
+			
+			// Must maintain contact with the same server
+			client.setRelayAddress(primary.getRelayAddress());
+			client.setRelayPort(primary.getRelayPort());
 		}
 		
 		if (clients.size() > 0 && getCallId() > 0) {
@@ -2093,12 +2095,6 @@ public class VoIPService extends Service {
 	}
 	
 	public boolean hostingConference() {
-//		boolean conference = false;
-//		if (clients.size() > 1 || !TextUtils.isEmpty(groupChatMsisdn))
-//			conference = true;
-//		// Logger.d(logTag, "Conference check: " + conference);
-//		return conference;
-		
 		return hostingConference;
 	}
 	

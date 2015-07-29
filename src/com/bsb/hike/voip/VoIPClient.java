@@ -422,8 +422,9 @@ public class VoIPClient  {
 						/**
 						 * If we are initiating the connection, then we set the relay server
 						 * to be used by both clients. 
+						 * Also check if the relay has already been set (in case of conferences)
 						 */
-						if (!isInitiator()) {
+						if (!isInitiator() && TextUtils.isEmpty(getRelayAddress())) {
 							setRelayAddress(host.getHostAddress());
 							setRelayPort(VoIPUtils.getRelayPort(context));
 						}
@@ -1450,10 +1451,6 @@ public class VoIPClient  {
 						packetLoss = 0;
 						break;
 						
-					case FORCE_RECONNECT:
-						reconnect();
-						break;
-						
 					default:
 						Logger.w(tag, "Received unexpected packet: " + dataPacket.getType());
 						break;
@@ -2033,24 +2030,9 @@ public class VoIPClient  {
 		buffersToSendQueue.put(dp);
 	}
 	
-	public void forceReconnect() {
-		if (!isInitiator())
-			reconnect();
-		else {
-			new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					VoIPDataPacket dp = new VoIPDataPacket(PacketType.FORCE_RECONNECT);
-					sendPacket(dp, true);
-				}
-			}).start();
-		}
-	}
-	
 	private void updateClientsList(String json) {
 		
-		Logger.w(tag, "Updating: " + json);
+//		Logger.w(tag, "Updating: " + json);
 		try {
 			clientMsisdns.clear();
 			JSONObject jsonObject = new JSONObject(json);
