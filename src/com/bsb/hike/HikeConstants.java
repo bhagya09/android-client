@@ -1050,6 +1050,8 @@ public class HikeConstants
 	public static final String IMAGE_FRAGMENT_TAG = "imageFragmentTag";
 	
 	public static final String STICKER_RECOMMENDATION_FRAGMENT_TAG = "stickerRecommendationFragmentTag";
+	
+	public static final String STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG = "stickerRecommendationFragmentFtueTag";
 
 	public static final String SHOW_STEALTH_POPUP = "stlthrmd";
 
@@ -1928,6 +1930,8 @@ public class HikeConstants
 		public static final String STICKER_BTN_CLICKED = "sBnc";
 
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
+		
+		public static final String STKR_SHOP_BTN_CLICKED_FROM_RECOMMENDATION_FTUE = "ftshpck";
 
 		public static final String STICKER_SETTING_BTN_CLICKED = "stickerSettingBtnClicked";
 		
@@ -1938,6 +1942,10 @@ public class HikeConstants
 		public static final String STICKER_RECOMMENDATION_AUTOPOPUP_SETTING_STATE = "srATs";
 		
 		public static final String STICKER_RECOMMENDATION_REJECTION_KEY = "srCrP";
+		
+		public static final String STICKER_RECOMMENDATION_FTUE1_REJECTION_KEY = "srCrFt1";
+		
+		public static final String STICKER_RECOMMENDATION_FTUE2_REJECTION_KEY = "srCrFt2";
 		
 		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
 		

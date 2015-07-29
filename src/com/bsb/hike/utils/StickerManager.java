@@ -37,6 +37,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -59,6 +60,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
@@ -206,6 +208,8 @@ public class StickerManager
 	public static final String FROM_AUTO_RECOMMENDATION_PANEL = "ar";
 	
 	public static final String FROM_BLUE_TAP_RECOMMENDATION_PANEL = "br";
+	
+	public static final String FROM_STICKER_RECOMMENDATION_FTUE = "ft";
 	
 	public static final String FROM_OTHER = "o";
 	
@@ -1769,6 +1773,15 @@ public class StickerManager
 		}
 	}
 	
+	private void downloadDefaultTags(boolean isSignUp)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false))
+		{
+			DefaultTagDownloadTask defaultTagDownloadTask = new DefaultTagDownloadTask(isSignUp);
+			defaultTagDownloadTask.execute();
+		}
+	}
+	
 	public void refreshTagData()
 	{
 		long stickerTagRefreshPeriod = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_REFRESH_PERIOD, StickerSearchConstants.DEFAULT_STICKER_TAG_REFRESH_TIME);
@@ -1939,6 +1952,7 @@ public class StickerManager
 		}
 		
 		StickerManager.getInstance().downloadStickerTagData();
+		StickerManager.getInstance().downloadDefaultTags(false);
 	}
 	
 	public void doSignupTasks()
@@ -1949,6 +1963,7 @@ public class StickerManager
 		}
 		
 		StickerManager.getInstance().downloadStickerTagData();
+		StickerManager.getInstance().downloadDefaultTags(true);
 	}
 	
 	/**
@@ -2073,6 +2088,27 @@ public class StickerManager
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REJECTION_KEY);
+			metadata.put(HikeConstants.SOURCE, rejectionSource);
+			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
+			metadata.put(HikeConstants.TAP_WORD, tappedWord);
+			
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+	
+	/**
+	 * Send recommendation rejection analytics
+	 */
+	public void sendRecommendationRejectionAnalyticsFtue(boolean firstFtueVisible, String rejectionSource, String tappedWord, String taggedPhrase)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, (firstFtueVisible ? HikeConstants.LogEvent.STICKER_RECOMMENDATION_FTUE1_REJECTION_KEY : HikeConstants.LogEvent.STICKER_RECOMMENDATION_FTUE2_REJECTION_KEY));
 			metadata.put(HikeConstants.SOURCE, rejectionSource);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);

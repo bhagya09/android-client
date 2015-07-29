@@ -510,6 +510,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		
 	public static final String TAG_FIRST_TIME_DOWNLOAD = "tagFirstTimeDownload";
 	
+	public static final String DEFAULT_TAGS_DOWNLOADED = "defaultTagsDownloaded";
+	
 	public static final String STICKER_SET = "stickerSet";
 	
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";

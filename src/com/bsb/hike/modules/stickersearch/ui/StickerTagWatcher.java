@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -55,6 +56,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private FrameLayout stickerRecommendView;
 
 	private Fragment fragment;
+	
+	private Fragment fragmentFtue;
 
 	private int count;
 
@@ -169,7 +172,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			@Override
 			public void run()
 			{
-				if ((stickerList == null) || (stickerList.size() == 0) || !chatthread.isKeyboardOpen())
+				if ((stickerList == null) || !chatthread.isKeyboardOpen())
 				{
 					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or isKeyboardOpen(): " + chatthread.isKeyboardOpen());
 					return;
@@ -195,9 +198,34 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				}
 
 				dismissStickerRecommendFtueTip();
-				((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, stickerList);
 				stickerRecommendView.setVisibility(View.VISIBLE);
-				showFtueAnimation();
+				
+				Logger.d(TAG, "fetch new list starting ..");
+				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
+				Logger.d(TAG, "fetch new list completed ..");
+				
+				if(!result.first) // no available stickers present show ftue
+				{
+					FragmentManager fm = activity.getSupportFragmentManager();
+					fragmentFtue = fm.findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG);
+					if(fragmentFtue == null)
+					{
+						fragmentFtue = StickerRecommendationFtueFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
+						fm.beginTransaction()
+						.add(R.id.sticker_recommendation_parent, fragmentFtue, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG).commitAllowingStateLoss();
+					}
+					hideFragment(fragment);
+					showFragment(fragmentFtue);
+					((StickerRecommendationFtueFragment) fragmentFtue).setAndNotify(word, phrase, result.second);
+				}
+				else // show only available stickers
+				{
+					hideFragment(fragmentFtue);
+					showFragment(fragment);
+					
+					((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, result.second);
+					showFtueAnimation();
+				}
 			}
 		});
 	}
@@ -270,7 +298,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, int size)
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, int size, String source, boolean dismissAndClear)
 	{
 		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + ")");
 
@@ -279,44 +307,53 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			throw new IllegalStateException("sticker picker is null but sticker is selected.");
 		}
 
-		String source = (StickerSearchManager.getInstance().getFirstContinuousMatchFound() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
-				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);
 		StickerManager.getInstance().addRecentStickerToPallete(sticker);
 		stickerPickerListener.stickerSelected(sticker, source);
 
-		/*
-		 * dismiss sticker search pop-up
-		 */
-		dismissStickerSearchPopup();
-
-		/*
-		 * if its first word or first phrase clear edit text
-		 */
-		if (StickerSearchManager.getInstance().getFirstContinuousMatchFound())
+		if(dismissAndClear)
 		{
-			clearSearchText();
+			/*
+			 * dismiss sticker search pop-up
+			 */
+			dismissStickerSearchPopup();
+			
+			/*
+			 * if its first word or first phrase clear edit text
+			 */
+			if (StickerSearchManager.getInstance().getFirstContinuousMatchFound())
+			{
+				clearSearchText();
+			}
+			/*
+			 * if sticker is selected from pop-up, then select all the text
+			 */
+			else
+			{
+				selectSearchText();
+			}
 		}
-		else
-		/*
-		 * if sticker is selected from pop-up, then select all the text
-		 */
-		{
-			selectSearchText();
-		}
-
 		// send analytics
 		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), size,
 				StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
 	}
 
 	@Override
-	public void onCloseClicked(String word, String phrase)
+	public void onCloseClicked(String word, String phrase, boolean ftue)
 	{
 		dismissStickerSearchPopup();
 
 		// send analytics
-		StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_CROSS,
-				word, phrase);
+		if(ftue && fragmentFtue != null)
+		{
+			StickerRecommendationFtueFragment stickerRecommendationFtueFragment = (StickerRecommendationFtueFragment) fragmentFtue;
+			StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), StickerManager.REJECT_FROM_CROSS,
+					word, phrase);
+		}
+		else
+		{
+			StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_CROSS,
+					word, phrase);
+		}
 	}
 
 	@Override
@@ -370,7 +407,29 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		return (stickerRecommendView != null) && (stickerRecommendView.getVisibility() == View.VISIBLE);
 	}
 
-	public void releaseResources()
+	private void hideFragment(Fragment fragment)
+	{
+		if ((activity != null) && (fragment != null))
+		{
+			FragmentManager fragmentManager = activity.getSupportFragmentManager();
+			fragmentManager.beginTransaction().hide(fragment).commitAllowingStateLoss();
+			fragmentManager.executePendingTransactions();
+		}
+		fragment = null;
+	}
+	
+	private void showFragment(Fragment fragment)
+	{
+		if ((activity != null) && (fragment != null))
+		{
+			FragmentManager fragmentManager = activity.getSupportFragmentManager();
+			fragmentManager.beginTransaction().show(fragment).commitAllowingStateLoss();
+			fragmentManager.executePendingTransactions();
+		}
+		fragment = null;
+	}
+	
+	private void releaseFragmentResources(Fragment fragment)
 	{
 		if ((activity != null) && (fragment != null))
 		{
@@ -378,10 +437,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
 			fragmentManager.executePendingTransactions();
 		}
-
+		fragment = null;
+	}
+	
+	public void releaseResources()
+	{
+		releaseFragmentResources(fragment);
+		releaseFragmentResources(fragmentFtue);
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
-		fragment = null;
 		activity = null;
 
 		colorSpanPool.releaseResources();
@@ -404,10 +468,20 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public void sendIgnoreAnalytics()
 	{
-		if ((fragment != null) && isStickerRecommnedPoupShowing())
+		if(isStickerRecommnedPoupShowing())
 		{
-			StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_IGNORE,
-					((StickerRecommendationFragment) fragment).getTappedWord(), ((StickerRecommendationFragment) fragment).getTaggedPhrase());
+			if (fragmentFtue != null)
+			{
+				StickerRecommendationFtueFragment stickerRecommendationFtueFragment = (StickerRecommendationFtueFragment) fragmentFtue;
+				StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), StickerManager.REJECT_FROM_IGNORE,
+						stickerRecommendationFtueFragment.getTappedWord(), stickerRecommendationFtueFragment.getTaggedPhrase());
+			}
+			else if (fragment != null)
+			{
+				StickerRecommendationFragment stickerRecommendationFragment = (StickerRecommendationFragment) fragment;
+				StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_IGNORE,
+						stickerRecommendationFragment.getTappedWord(), stickerRecommendationFragment.getTaggedPhrase());
+			}
 		}
 	}
 }

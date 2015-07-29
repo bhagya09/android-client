@@ -362,6 +362,20 @@ public class HttpRequests
 		return requestToken;
 	}
 	
+	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+					.setId(requestId)
+					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp)
+					.setRequestListener(requestListener)
+					.setRequestType(REQUEST_TYPE_SHORT)
+					.setPriority(PRIORITY_HIGH)
+					.build();
+		
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+	
 	public static RequestToken productPopupRequest(String url, IRequestListener requestListener, String requestType)
 	{
 		ByteArrayRequest.Builder builder = new ByteArrayRequest.Builder().
