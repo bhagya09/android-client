@@ -2,7 +2,6 @@ package com.bsb.hike.voip.adapters;
 
 import java.util.List;
 
-import android.animation.LayoutTransition;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,8 +26,6 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 	private Context context;
 	private List<VoIPClient> clients;
 	private IconLoader iconLoader;
-	
-	private LayoutTransition itemViewTransition;
 	
 	private final String tag = getClass().getSimpleName();
 	
@@ -76,14 +73,6 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		iconLoader = new IconLoader(context, context.getResources().getDimensionPixelSize(R.dimen.small_avatar));
 		iconLoader.setImageFadeIn(false);
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
-		
-		itemViewTransition = new LayoutTransition();
-		if (Utils.isJellybeanOrHigher()) {
-			itemViewTransition.disableTransitionType(LayoutTransition.APPEARING);
-			itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
-			itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_APPEARING);
-			itemViewTransition.enableTransitionType(LayoutTransition.DISAPPEARING);
-		}
 	}
 
 	@Override
@@ -115,8 +104,6 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 
 		convertView.setEnabled(false);
 		convertView.setOnClickListener(null);
-		
-		conferenceParticipantHolder.itemViewHolder.setLayoutTransition(itemViewTransition);
 		
 		conferenceParticipantHolder.isSpeakingHolder.setVisibility(clients.get(position).isSpeaking()?View.VISIBLE:View.INVISIBLE);
 		
