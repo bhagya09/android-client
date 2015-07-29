@@ -399,8 +399,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		mainMenu = menu;
 		type = getIntent().getIntExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.NOT_SHAREABLE);
 
-		if (!showingMultiSelectActionBar)
+		if (!showingMultiSelectActionBar){
 			getMenuInflater().inflate(R.menu.compose_chat_menu, menu);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}else
+			getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		
 		if (type != HikeConstants.Extras.NOT_SHAREABLE && Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
 		{
@@ -412,7 +415,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		}
 
-		return super.onCreateOptionsMenu(menu);
+		return true;
 	}
 
 	@Override
