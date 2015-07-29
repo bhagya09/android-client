@@ -152,6 +152,8 @@ public class OfflineConstants
 	public static final String OFFLINE_MSISDN = "offlineState";
 
 	public static final String CURRENT_RECIEVING_MSG_ID = "recMsgID";
+
+	public static final String OFFLINE_DISCONNECT_FRAGMENT = "offline_disconnect_fragment";
 	
 	
 }

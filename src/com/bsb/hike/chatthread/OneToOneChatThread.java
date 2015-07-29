@@ -1395,6 +1395,13 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 	}
 	
+	private void startFreeHikeAnimation()
+	{
+		Utils.blockOrientationChange(activity);
+		offlineAnimationFragment = new OfflineAnimationFragment(msisdn,activity,this);
+		offlineAnimationFragment.show(activity.getSupportFragmentManager(), "OfflineAnimationDialog");
+	}
+
 	// if we are in connecting state or connected offline in case of block need to break the connection
 	@Override
 	protected void onBlockUserclicked()
@@ -1442,6 +1449,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
+			if(showAnimation)
+			{
+				activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				startFreeHikeAnimation();
+			}
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
 			showToast(R.string.scan_process_started);
 			if(offlineController==null)
@@ -3013,6 +3025,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void connectedToMsisdn(String connectedDevice)
 	{
 		//TODO  - Handle Animation
+		if(offlineAnimationFragment!=null)
+		{
+			offlineAnimationFragment.connectedToMsisdn(msisdn);
+		}
 		sendUIMessage(OFFLINE_CONNECTED,getString(R.string.connection_established));
 		changeChannel(true);
 		clearAttachmentPicker();
@@ -3037,6 +3053,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
+		
+		if(offlineAnimationFragment!=null)
+		{
+			offlineAnimationFragment.onDisconnect(errorCode);
+		}
 		
 		switch (errorCode)
 		{
