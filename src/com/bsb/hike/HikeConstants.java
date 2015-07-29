@@ -2359,6 +2359,8 @@ public class HikeConstants
 		public static final String PRODUCT_POPUP="productpopup";
 		
 		public static final String SESSION = "sess";
+		
+		public static final String GENERAL_EVENT = "ge";
 	}
 
 	public static final class SMSNative
@@ -2832,7 +2834,7 @@ public class HikeConstants
 		public static final int H2O = 10;
 
 		public static final int OTHER = 11;
-
+		
 	}
 	
 	public static final  String NOTIFICATION_RETRY_JSON="notifretry";
@@ -2915,4 +2917,7 @@ public class HikeConstants
 	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
 
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+
+	public static final String OFFLINE_MESSAGE_REQUEST = "omr";
+	
 }

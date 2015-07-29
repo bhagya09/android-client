@@ -1,6 +1,7 @@
 package com.bsb.hike.offline;
 
 import java.io.BufferedReader;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,11 +13,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Action;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
@@ -24,7 +33,11 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -642,6 +655,59 @@ public class OfflineUtils
 	public static String getConnectingMsisdn()
 	{
 		return OfflineController.getInstance().getConnectingDevice();
+	}
+
+	public static void sendOfflineRequestPacket(String targetMsisdn)
+	{
+		JSONObject message = new JSONObject();
+		JSONObject data = new JSONObject();
+		try
+		{
+			data.put(HikeConstants.TYPE,HikeConstants.OFFLINE);
+		    data.put(HikeConstants.SUB_TYPE, HikeConstants.OFFLINE_MESSAGE_REQUEST);
+			data.put(HikeConstants.TIMESTAMP,System.currentTimeMillis() / 1000);
+			message.put(HikeConstants.TO, targetMsisdn);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT);
+			message.put(HikeConstants.DATA, data);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "Error in Json");
+		}
+	}
+
+	public static void handleOfflineRequestPacket(Context context,JSONObject packet)
+	{
+		String msisdn;
+		try
+		{
+			msisdn = packet.getString(HikeConstants.FROM);
+			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
+			Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
+			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
+			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
+			HikeNotification.getInstance().showBigTextStyleNotification(chatThreadIntent, hikeNotifMsgStack.getNotificationIcon(),
+					System.currentTimeMillis()/1000,HikeNotification.OFFLINE_REQUEST_ID,msisdn + " Sent you offline request", msisdn,"wants to Connect Offline", msisdn,null,avatarDrawable, true,0, actions);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "Error in JSon");
+		}
+		
+	}
+
+	private static Action[] getNotificationActions(Context context, String msisdn)
+	{
+		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
+		chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+		PendingIntent chatThreadPendingIntent = PendingIntent.getService(context, 0, chatThreadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
+		
+		actions[0] = new NotificationCompat.Action(R.drawable.offline_inline_logo, context.getString(R.string.connect),chatThreadPendingIntent);
+		actions[1] = new NotificationCompat.Action(R.drawable.cross, context.getString(R.string.cancel),null);
+
+		return actions;
 	}
 
 }

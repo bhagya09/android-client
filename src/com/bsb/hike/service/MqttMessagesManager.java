@@ -81,6 +81,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -3105,6 +3106,7 @@ public class MqttMessagesManager
 	public void saveMqttMessage(JSONObject jsonObj) throws JSONException
 	{
 
+	
 		Logger.d("Gcm test", jsonObj.toString());
 		String type = jsonObj.optString(HikeConstants.TYPE);
 		Logger.d(VoIPConstants.TAG, "Received message of type: " + type);  // TODO: Remove me!
@@ -3349,6 +3351,37 @@ public class MqttMessagesManager
 		//'pd' means message is to be tracked for reliability
 		{
 			saveNewMessageRead(jsonObj);
+		}
+		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT.equals(type))
+		{
+			handleGeneralEvent(jsonObj);
+		}
+	}
+
+	private void handleGeneralEvent(JSONObject packet)
+	{
+		
+		if (packet.has(HikeConstants.DATA))
+		{
+			JSONObject data;
+			try
+			{
+				data = packet.getJSONObject(HikeConstants.DATA);
+				if (data.has(HikeConstants.TYPE))
+				{
+					String type = data.getString(HikeConstants.TYPE);
+					if(type.equals(HikeConstants.OFFLINE))
+					{
+						Logger.d("MqttMessagesManager", "Offline message request");
+						OfflineUtils.handleOfflineRequestPacket(context,packet);
+					}
+						
+				}
+			}
+			catch (JSONException e)
+			{
+				Logger.d("MqttMessagesManager", "Error in json");
+			}
 		}
 	}
 
@@ -3950,6 +3983,10 @@ public class MqttMessagesManager
 						HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1.equals(type)) 
 				{
 					VoIPUtils.handleVOIPPacket(context, json);
+				}
+				else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT.equals(type))
+				{
+					handleGeneralEvent(json);
 				}
 				else
 				{
