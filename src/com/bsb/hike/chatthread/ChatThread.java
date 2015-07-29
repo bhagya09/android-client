@@ -596,6 +596,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				offlineController.addListener(this);
 			}
 			channelSelector = new OfflineChannel(offlineController);
+			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 		}
 		else if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
 		{

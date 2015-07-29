@@ -198,6 +198,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case CONNECTED:
 			if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 			{
+				activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 				sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
 			}
 			break;
@@ -765,6 +766,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void onOfflineConnection(String message)
 	{
 		setLastSeen(message);
+		showNetworkError(ChatThreadUtils.checkNetworkError());
 		activity.invalidateOptionsMenu();
 	}
 
@@ -772,6 +774,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		hideLastSeenText();
 		fetchLastSeen();
+		showNetworkError(ChatThreadUtils.checkNetworkError());
+		activity.updateActionBarColor(getCurrentlTheme().headerBgResId());
 		activity.invalidateOptionsMenu();
 	}
 	
