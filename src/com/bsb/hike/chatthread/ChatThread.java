@@ -1527,7 +1527,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			Utils.toggleSoftKeyboard(activity.getApplicationContext());
 		}
-		
+		if (mShareablePopupLayout.isShowing())
+		{
+			mShareablePopupLayout.dismiss();
+		}
 		mBottomView.setVisibility(View.GONE);
 	}
 
