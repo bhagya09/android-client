@@ -92,9 +92,11 @@ public class HikeStickerSearchBaseConstants
 	public static final String TAG_GROUP_UNIQUE_ID = "tagUniqueId"; // foreign key from TABLE_STICKER_TAG_MAPPING
 
 	// Syntax constants
+	public static final int SQLITE_FIRST_INTEGER_ROW_ID = 1;
+
 	public static final int SQLITE_LIMIT_VARIABLE_NUMBER = 500;
 
-	public static final String SYNTAX_PRIMARY_KEY = " INTEGER PRIMARY KEY AUTOINCREMENT, ";
+	public static final String SYNTAX_PRIMARY_KEY = " INTEGER PRIMARY KEY, ";
 
 	public static final String SYNTAX_FOREIGN_KEY = "FOREIGN KEY";
 
@@ -126,6 +128,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_PREDICATE_MATCH_END = "*'";
 
+	public static final String SYNTAX_IN_OPEN = " IN (";
+
 	public static final String SYNTAX_SINGLE_PARAMETER = "=?";
 
 	public static final String SYNTAX_SINGLE_PARAMETER_NEXT = "=? AND ";
@@ -139,9 +143,11 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int ENTITY_CHAT_STORY_TOPIC = 3; // Conversation story
 
-	public static final int ENTITY_INDIVIDUAL_USER = 4; // Individual person to chat with
+	public static final int ENTITY_USER_SELF = 4; // Self
 
-	public static final int ENTITY_GROUP_USER = 5; // Group to chat in
+	public static final int ENTITY_USER_INDIVIDUAL = 5; // Individual person to chat with
+
+	public static final int ENTITY_USER_GROUP = 6; // Group to chat in
 
 	// Entity-qualified constants
 	public static final String IS_INITIALISED = "isInitialising";
@@ -150,31 +156,12 @@ public class HikeStickerSearchBaseConstants
 
 	// =============================Constants used for Sticker-Tag relation and recommendations]]
 
-	// Constants used in calculation===========================================================[[
-	public static final long CURRENT_SUMMERY_TIME_WINDOW = 3 * 24 * 60 * 60 * 1000L; // 3 days time period in milliseconds
-
-	public static final float MAXIMUM_FREQUENCY = 100.0f; // relative count
-
-	// ===========================================================Constants used in calculation]]
-
-	// Generic constants=======================================================================[[
-	public static final String STRING_EMPTY = "";
-
-	public static final String STRING_SPACE = " ";
-
-	public static final String STRING_INNER_SET_OPEN = "(";
-
-	public static final String STRING_INNER_SET_CLOSE = ")";
-
-	public static final String STRING_OUTER_SET_OPEN = "[";
-
-	public static final String STRING_OUTER_SET_CLOSE = "]";
-
+	// Decision constants======================================================================[[
 	public static final int DECISION_STATE_NO = 0;
 
 	public static final int DECISION_STATE_YES = 1;
 
-	// =======================================================================Generic constants]]
+	// ======================================================================Decision constants]]
 
 	// Constants used in shared_pref or system_db==============================================[[
 	public static final String SHARED_PREF_STICKER_DATA = "hike_sticker_tag_data";
@@ -268,20 +255,6 @@ public class HikeStickerSearchBaseConstants
 
 	// Default theme
 	public static final String DEFAULT_THEME_TAG = "GENERIC";
-
-	// Constants used for calculating score====================================================[[
-
-	public static final float WEITAGE_PRE_SCORE = 0.08f;
-
-	public static final float WEITAGE_POST_SCORE = 0.29f;
-
-	public static final float WEITAGE_EXACT_MATCH = 0.34f;
-
-	public static final float WEITAGE_FREQUENCY = 0.23f;
-
-	public static final float WEITAGE_CONTEXT_MOMENT = 0.06f;
-
-	// ====================================================Constants used for calculating score]]
 
 	// States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY
