@@ -41,6 +41,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -111,6 +112,7 @@ public class VoIPClient  {
 	private boolean isSpeaking = false;
 	private int voicePacketCount = 0;
 	public boolean isDummy = false;
+	private String selfMsisdn;
 
 	// List of client MSISDNs (for conference)
 	public ArrayList<VoIPClient> clientMsisdns = new ArrayList<>();
@@ -153,6 +155,9 @@ public class VoIPClient  {
 		encryptionStage = EncryptionStage.STAGE_INITIAL;
 		currentCallQuality = CallQuality.UNKNOWN;
 		setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
+
+		if (context != null)
+			selfMsisdn =  Utils.getUserContactInfo(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE)).getMsisdn();
 	}
 
 	public String getName() {
@@ -2039,6 +2044,11 @@ public class VoIPClient  {
 					client.setSpeaking(clientObject.getBoolean(VoIPConstants.Extras.SPEAKING));
 					client.setCallStatus(CallStatus.values()[clientObject.getInt(VoIPConstants.Extras.STATUS)]);
 					client.isDummy = true;
+					
+					// Ignoring your own msisdn
+					if (client.getPhoneNumber().equals(selfMsisdn))
+						continue;
+					
 					clientMsisdns.add(client);
 				}
 			} else

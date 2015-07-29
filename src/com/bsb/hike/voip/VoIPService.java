@@ -584,6 +584,8 @@ public class VoIPService extends Service {
 				if (!VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + msisdns.size()))
 					return returnInt;
 
+				restoreActivity();
+				
 				for (String phoneNumber : msisdns) {
 					
 					// Check for own phone number in group members
@@ -604,8 +606,9 @@ public class VoIPService extends Service {
 				initiateOutgoingCall(client, callSource);
 			}
 			
+			// Show activity
+			restoreActivity();
 			sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
-			
 		}
 
 		if(client != null && client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -657,9 +660,6 @@ public class VoIPService extends Service {
 				HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST, 
 				getCallId(), true);
 
-		// Show activity
-		restoreActivity();
-		
 		client.retrieveExternalSocket();
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);		
 	}
@@ -2103,7 +2103,7 @@ public class VoIPService extends Service {
 		else {
 			VoIPClient client = getClient();
 			if (client != null && client.clientMsisdns != null)
-				num = client.clientMsisdns.size();
+				num = client.clientMsisdns.size() + 1;
 		}
 		
 		return num;
