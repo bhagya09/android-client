@@ -342,7 +342,10 @@
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:statusBarColor">@color/blue_hike_status_bar_m</item>
-        <item name="colorControlActivated">#1993CB</item>
+        <item name="colorControlActivated">@color/blue_hike</item>
+        <item name="android:colorControlActivated">@color/blue_hike</item>
+        <item name="colorAccent">@color/blue_hike</item>
+        <item name="android:colorAccent">@color/blue_hike</item>
     </style>
     <style name="NoCloseButton" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
     <item name="android:visibility">visible</item>

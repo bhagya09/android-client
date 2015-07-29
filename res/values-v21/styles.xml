@@ -23,8 +23,8 @@
         <item name="android:statusBarColor">@color/blue_hike_status_bar_m</item>
         <item name="colorPrimary">@color/white_100</item>
         <item name="colorPrimaryDark">@color/white_100</item>
-        <item name="colorAccent">@color/white_100</item>
-        <item name="colorControlActivated">#1993CB</item>
+        <item name="colorAccent">@color/blue_hike</item>
+        <item name="colorControlActivated">@color/blue_hike</item>
         
     </style>
     <style name="AppTheme.Overlay" parent="AppTheme">
