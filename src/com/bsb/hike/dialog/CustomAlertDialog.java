@@ -9,15 +9,15 @@ import android.widget.TextView;
 
 import com.bsb.hike.R;
 
+/**
+ * CustomAlertDialog is a class that extends {@link HikeDialog}. The purpose of this class is
+ * keep the alert dialog implementation to as close as possible to the native AlertDialog
+ * and preserve our custom settings(UI) like fonts, etc... 
+ * @author gauravmittal
+ */
 public class CustomAlertDialog extends HikeDialog
 {
 
-	/**
-	 * @author gauravmittal
-	 * CustomAlertDialog is a class that extends {@link HikeDialog}. The purpose of this class is
-	 * keep the alert dialog implementation to as close as possible to the native AlertDialog
-	 * and preserve our custom settings(UI) like fonts, etc... 
-	 */
 	Context mContext;
 
 	View titleTemplate;
