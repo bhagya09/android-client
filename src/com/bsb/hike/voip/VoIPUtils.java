@@ -577,6 +577,9 @@ public class VoIPUtils {
 					if (metadataJSON.has(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
 						i.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, metadataJSON.getString(VoIPConstants.Extras.GROUP_CHAT_MSISDN));
 					
+					if (metadataJSON.has(VoIPConstants.Extras.CONFERENCE))
+						i.putExtra(VoIPConstants.Extras.CONFERENCE, metadataJSON.getBoolean(VoIPConstants.Extras.CONFERENCE));
+					
 					context.startService(i);
 					return;
 				}

@@ -1450,6 +1450,10 @@ public class VoIPClient  {
 						packetLoss = 0;
 						break;
 						
+					case FORCE_RECONNECT:
+						reconnect();
+						break;
+						
 					default:
 						Logger.w(tag, "Received unexpected packet: " + dataPacket.getType());
 						break;
@@ -2029,9 +2033,24 @@ public class VoIPClient  {
 		buffersToSendQueue.put(dp);
 	}
 	
+	public void forceReconnect() {
+		if (!isInitiator())
+			reconnect();
+		else {
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					VoIPDataPacket dp = new VoIPDataPacket(PacketType.FORCE_RECONNECT);
+					sendPacket(dp, true);
+				}
+			}).start();
+		}
+	}
+	
 	private void updateClientsList(String json) {
 		
-//		Logger.w(tag, "Updating: " + json);
+		Logger.w(tag, "Updating: " + json);
 		try {
 			clientMsisdns.clear();
 			JSONObject jsonObject = new JSONObject(json);
@@ -2057,7 +2076,7 @@ public class VoIPClient  {
 			Logger.e(tag, "Error parsing clients JSON: " + e.toString());
 		}
 
-		if (clientMsisdns.size() <= 2) {
+		if (clientMsisdns.size() <= 1) {
 			Logger.w(tag, "Conference over?");
 		} else
 			isHostingConference = true;

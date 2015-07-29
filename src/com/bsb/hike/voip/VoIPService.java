@@ -481,6 +481,9 @@ public class VoIPService extends Service {
 				Logger.d(tag, "We are going to participate in a group chat conference with msisdn: " + client.groupChatMsisdn);
 			}
 			
+			if (intent.hasExtra(VoIPConstants.Extras.CONFERENCE))
+				client.isHostingConference = true;
+			
 			// Error case: we are receiving a delayed v0 message for a call we 
 			// initiated earlier. 
 			if (!client.isInitiator() && partnerCallId != getCallId()) {
@@ -641,11 +644,19 @@ public class VoIPService extends Service {
 		if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
 			VoIPUtils.cancelMissedCallNotification(getApplicationContext());
 
+		if (clients.size() == 1) {
+			// We are adding a second client, and hence starting a conference call
+			VoIPClient primary = getClient();
+			primary.cryptoEnabled = false;
+			primary.isInAHostedConference = true;
+			if (primary.getPreferredConnectionMethod() != ConnectionMethods.RELAY)
+				primary.forceReconnect();
+		}
+		
 		if (clients.size() > 0 && getCallId() > 0) {
 			Logger.d(tag, "We're in a conference. Maintaining call id: " + getCallId());
-			getClient().cryptoEnabled = false;
-			client.isInAHostedConference = true;
 			client.cryptoEnabled = false;
+			client.isInAHostedConference = true;
 			startConferenceBroadcast();			
 		}
 		else {
@@ -1438,13 +1449,13 @@ public class VoIPService extends Service {
 								// There is no voice signal, bitrate should be lowered
 								if (!voiceSignalAbsent) {
 									voiceSignalAbsent = true;
-									Logger.w(tag, "We stopped speaking.");
+//									Logger.w(tag, "We stopped speaking.");
 									if (!hostingConference())
 										client.setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
 								}
 							} else if (voiceSignalAbsent) {
 								// Mic signal is reverting to voice
-								Logger.w(tag, "We started speaking.");
+//								Logger.w(tag, "We started speaking.");
 								voiceSignalAbsent = false;
 								if (!hostingConference())
 									client.setEncoderBitrate(client.getBitrate());
@@ -2122,8 +2133,10 @@ public class VoIPService extends Service {
 
 		synchronized (clients) {
 			clients.put(client.getPhoneNumber(), client);
-			if (clients.size() > 1)
+			if (clients.size() > 1) {
+				Logger.w(tag, "We are now hosting a conference.");
 				hostingConference = true;
+			}
 		}
 		sendClientsListToAllClients();
 	}
@@ -2146,6 +2159,9 @@ public class VoIPService extends Service {
 	 */
 	private void sendClientsListToAllClients() {
 		
+		if (!hostingConference())
+			return;
+			
 		if (clientListHandler != null && clientListRunnable != null)
 			clientListHandler.removeCallbacks(clientListRunnable);
 		
