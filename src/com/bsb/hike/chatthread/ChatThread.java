@@ -2505,6 +2505,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				newList.set(position, messages.getRaw(from), messages.getUniqueId(from));
 				position--;
 				from--;
+				if (position < 0 || from < 0)
+					break;
 			}
 		}
 		for(int i = oldIndex; i<messages.size(); i++)
