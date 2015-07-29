@@ -1,11 +1,17 @@
 package com.bsb.hike.modules.stickersearch;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
+import android.util.Pair;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 public class StickerSearchUtils
 {
@@ -57,5 +63,51 @@ public class StickerSearchUtils
 		int sizeEachImage = StickerManager.SIZE_IMAGE + ((int) (remainingSpace / numItemsRow));
 		
 		return sizeEachImage;
+	}
+	
+	/**
+	 * 
+	 * @param stickerList
+	 * @return a pair of boolean and sticker list where boolean represents whether original sticker list contains any available stickers or not.
+	 * if boolean is true it return list containing available stickers only and original sticker list if boolean is false
+	 */
+	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList)
+	{
+		int length = stickerList.size();
+		List<Sticker> resultList = new ArrayList<Sticker>(length);
+		
+		for(int i = 0 ; i < length ; i ++)
+		{
+			Sticker sticker = stickerList.get(i);
+			if(sticker.isStickerAvailable())
+			{
+				resultList.add(sticker);
+			}
+		}
+		
+		if(resultList.size() == 0)
+		{
+			for(int i = 0 ; i < length ;i ++)
+			{
+				Sticker sticker = stickerList.get(i);
+				if(sticker.getStickerCurrentAvailability())
+				{
+					resultList.add(sticker);
+				}
+			}
+			
+			if(resultList.size() == 0)
+			{
+				return new Pair<Boolean, List<Sticker>>(false, stickerList);
+			}
+			else
+			{
+				return new Pair<Boolean, List<Sticker>>(true, resultList);
+			}
+		}
+		else
+		{
+			return new Pair<Boolean, List<Sticker>>(true, resultList);
+		}
 	}
 }

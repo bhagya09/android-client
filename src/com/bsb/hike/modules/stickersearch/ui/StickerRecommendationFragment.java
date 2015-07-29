@@ -20,6 +20,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -116,7 +117,7 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 		{
 			if (listener != null)
 			{
-				listener.onCloseClicked(word, phrase);
+				listener.onCloseClicked(word, phrase, false);
 			}
 		}
 	};
@@ -182,7 +183,9 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 			return;
 		}
 		Sticker sticker = stickerList.get(position);
-		listener.stickerSelected(word, phrase, sticker, position, stickerList.size());
+		String source = (StickerSearchManager.getInstance().getFirstContinuousMatchFound() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
+				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);
+		listener.stickerSelected(word, phrase, sticker, position, stickerList.size(), source, true);
 	}
 	
 	private void refreshStickerList()
