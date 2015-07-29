@@ -131,7 +131,8 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		}
 		else
 		{
-			backgroundImage.setImageResource(R.color.chat_thread_default_bg);
+			View stickylayout=findViewById(R.id.sticky_parent_list);
+			stickylayout.setBackgroundResource(R.color.chat_thread_default_bg);
 			
 		}
 		
@@ -593,5 +594,11 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			});
 			Utils.resetPinUnreadCount(mConversation);
 		}
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color)
+	{
+		// TODO Auto-generated method stub
+		return;
 	}
 }
