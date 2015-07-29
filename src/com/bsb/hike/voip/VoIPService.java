@@ -290,6 +290,13 @@ public class VoIPService extends Service {
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
 				break;
 				
+			case VoIPConstants.MSG_UPDATE_QUALITY:
+				// Do not show quality if we're hosting a conference
+				if (hostingConference())
+					return;
+				sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
+				break;
+				
 			default:
 				// Pass message to activity through its handler
 				sendHandlerMessage(msg.what);
