@@ -909,6 +909,36 @@ public abstract class JavascriptBridge
 
 	}
 
+	/**
+	 * Platform Bridge Version 3
+	 * Call this function to enable zooming in webViews.
+	 * @param enabled
+	 */
+	@JavascriptInterface
+	public void setZoomEnabled(final String enabled)
+	{
+		Logger.d(tag, "set zoom enabled called with " + enabled);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+		{
+			if (null == mHandler)
+			{
+				return;
+			}
+			mHandler.post(new Runnable()
+			{
+				@SuppressLint("NewApi")
+				@Override
+				public void run()
+				{
+
+					mWebView.getSettings().setBuiltInZoomControls(Boolean.valueOf(enabled));
+					mWebView.getSettings().setDisplayZoomControls(false);
+				}
+			});
+
+		}
+	}
+
 	private class PlatformMicroAppRequestListener implements IRequestListener
 	{
 		String functionId;
