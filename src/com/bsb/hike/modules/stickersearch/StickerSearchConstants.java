@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.stickersearch;
 
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+
 public class StickerSearchConstants
 {
 	// Generic constants for UI================================================================[[
@@ -41,17 +43,37 @@ public class StickerSearchConstants
 
 	// ===========================================================Constants used in calculation]]
 
+	// Constants used for selecting search result==============================================[[
+	public static final int MAXIMUM_SEARCH_COUNT = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER;
+
+	public static final float MAXIMUM_SELECTION_COUNT_RATIO = 0.50f;
+
+	public static final int MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT = 2;
+
+	// ==============================================Constants used for selecting search result]]
+
 	// Constants used for calculating score====================================================[[
-
-	public static final float WEITAGE_PRE_SCORE = 0.08f;
-
-	public static final float WEITAGE_POST_SCORE = 0.29f;
+	public static final float WEITAGE_MATCH_SCORE = 0.30f;
 
 	public static final float WEITAGE_EXACT_MATCH = 0.34f;
 
-	public static final float WEITAGE_FREQUENCY = 0.23f;
+	public static final float WEITAGE_FREQUENCY = 0.30f;
 
 	public static final float WEITAGE_CONTEXT_MOMENT = 0.06f;
+
+	public static final float TRENDING_FREQUENCY_RATIO = 0.50f;
+
+	public static final float LOCAL_FREQUENCY_RATIO = 0.37f;
+
+	public static final float GLOBAL_FREQUENCY_RATIO = 0.13f;
+
+	public static final float MINIMUM_MATCH_SCORE_SINGLE_WORD = 0.33f;
+
+	public static final float MINIMUM_MATCH_SCORE_SINGLE_CHARACTER = 0.30f;
+
+	public static final float MINIMUM_MATCH_SCORE_PHRASE = 0.20f;
+
+	public static final int MAXIMUM_ODD_MATCH_COUNT = 4;
 
 	// ====================================================Constants used for calculating score]]
 
@@ -62,10 +84,14 @@ public class StickerSearchConstants
 
 	public static final String REGEX_ASSOCIATOR = " \\+ ";
 
+	public static final String REGEX_SPACE = " ";
+
 	// =====================================================================Regular expressions]]
 
 	// Generic constants=======================================================================[[
 	public static final String STRING_EMPTY = "";
+
+	public static final String STRING_SPACE = " ";
 
 	public static final String STRING_PREDICATE = "*";
 
