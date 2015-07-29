@@ -334,7 +334,10 @@ public class HikeNotificationMsgStack implements Listener
 				 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to
 				 * the conversation we want to open. http://groups .google.com/group/android-developers/browse_thread/thread /e61ec1e8d88ea94d/1fe953564bd11609?#1fe953564bd11609
 				 */
-				mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
+				if(mNotificationIntent != null)
+				{
+					mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
+				}
 			}
 		}
 	}
@@ -350,7 +353,7 @@ public class HikeNotificationMsgStack implements Listener
 		
 		if (mBotInfo.isNonMessagingBot())
 		{
-			return IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, "", "", mContext);
+			return IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
 		}
 
 		else
