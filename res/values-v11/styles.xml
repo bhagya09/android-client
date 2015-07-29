@@ -18,14 +18,5 @@
         <item name="windowActionBarOverlay">true</item>
         <item name="android:windowActionBarOverlay">true</item>
     </style>
-    
-    <style name="ButtonCustomDialog" parent="Widget.AppCompat.Button.Borderless.Colored">
-        <item name="android:paddingBottom">10dp</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
-        <item name="android:textStyle">bold|italic</item>
-        <item name="android:textColor">@color/unread_message</item>
-        <item name="android:textSize">14sp</item>
-    </style>
+   
 </resources>
