@@ -178,7 +178,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			Logger.d(getClass().getSimpleName(), "No rows updated");
 		}
 		
-		if (!OfflineUtils.isContactTransferMessage(message) && OfflineUtils.isFileTransferMessage(message)) 
+		if (OfflineUtils.isFileTransferMessage(message)) 
 		{ 
 			fileManager.handleFileDelivered(msgId, tempConvMessage);
 		}
