@@ -18,6 +18,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient;
 
 
@@ -77,10 +78,12 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
 		
 		itemViewTransition = new LayoutTransition();
-		itemViewTransition.disableTransitionType(LayoutTransition.APPEARING);
-		itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
-		itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_APPEARING);
-		itemViewTransition.enableTransitionType(LayoutTransition.DISAPPEARING);
+		if (Utils.isJellybeanOrHigher()) {
+			itemViewTransition.disableTransitionType(LayoutTransition.APPEARING);
+			itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
+			itemViewTransition.disableTransitionType(LayoutTransition.CHANGE_APPEARING);
+			itemViewTransition.enableTransitionType(LayoutTransition.DISAPPEARING);
+		}
 	}
 
 	@Override

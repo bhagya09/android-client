@@ -1257,6 +1257,11 @@ public class VoIPService extends Service {
 			
 			if (hostingConference())
 				startChrono();
+			
+			// When a conference participant accepts a call, change their UI
+			// to display all the conference participants
+			if (client.isHostingConference)
+				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
 
 		} else {
 			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
@@ -2090,7 +2095,7 @@ public class VoIPService extends Service {
 		return conferencingEnabled;
 	}
 
-	public String getClientCount() {
+	public int getClientCount() {
 		int num = 1;
 
 		if (hostingConference())
@@ -2101,7 +2106,7 @@ public class VoIPService extends Service {
 				num = client.clientMsisdns.size();
 		}
 		
-		return String.valueOf(num);
+		return num;
 	}
 	
 	public ArrayList<VoIPClient> getConferenceClients() {
@@ -2185,11 +2190,6 @@ public class VoIPService extends Service {
 								conferenceBroadcastPackets.add(dp);	
 								Logger.w(tag, "Sending clients list.");
 								
-//								for (VoIPClient client : clients.values()) {
-//									if (client.connected)
-//										client.sendPacket(dp, true);
-//								}								
-								
 							} catch (JSONException e) {
 								Logger.w(tag, "JSONException: " + e.toString());
 							} catch (UnsupportedEncodingException e) {
@@ -2202,7 +2202,7 @@ public class VoIPService extends Service {
 		};
 		
 		clientListHandler = new Handler();
-		clientListHandler.postDelayed(clientListRunnable, 250);
+		clientListHandler.postDelayed(clientListRunnable, VoIPConstants.CONFERENCE_CLIENTS_LIST_BROADCAST_REPEAT);
 	}
 
 	/**
