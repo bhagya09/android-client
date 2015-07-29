@@ -250,7 +250,8 @@ public class OfflineFileManager
 		}
 	}
 
-	public void handleFileDelivered(long msgId, ConvMessage tempConvMessage) {
+	public void handleFileDelivered(long msgId, ConvMessage tempConvMessage) 
+	{
 		HikeFile hikeFile = tempConvMessage.getMetadata().getHikeFiles().get(0);
 		removeBinFileIfExists(hikeFile.getFilePath(),tempConvMessage.getMsgID());
 		HikeConversationsDatabase.getInstance().updateMessageMetadata(msgId, OfflineUtils.getUpdatedMessageMetaData(tempConvMessage));

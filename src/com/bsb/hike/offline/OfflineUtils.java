@@ -431,7 +431,7 @@ public class OfflineUtils
 	{
 		contactJson.put(HikeConstants.FILE_NAME, contactJson.optString(HikeConstants.NAME, HikeConstants.CONTACT_FILE_NAME));
 		contactJson.put(HikeConstants.CONTENT_TYPE, HikeConstants.CONTACT_CONTENT_TYPE);
-		contactJson.put(HikeConstants.FILE_KEY, "OfflineMessageFileKey" + System.currentTimeMillis());
+		
 		JSONArray files = new JSONArray();
 		files.put(contactJson);
 		JSONObject metadata = new JSONObject();
@@ -557,7 +557,7 @@ public class OfflineUtils
 		{
 			fileJSON = metaData.getJSONArray(HikeConstants.FILES).getJSONObject(0);
 			String fileName = fileJSON.getString(HikeConstants.FILE_NAME);
-			File sourceFile = new File(fileJSON.getString(HikeConstants.FILE_PATH));
+			File sourceFile = new File(fileJSON.optString(HikeConstants.FILE_PATH));
 			hikeFile.setFileKey("OfflineKey" + System.currentTimeMillis() / 1000);
 			hikeFile.setFile(sourceFile);
 			hikeFile.setFileSize((int) sourceFile.length());
