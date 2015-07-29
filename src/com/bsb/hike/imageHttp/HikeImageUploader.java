@@ -38,7 +38,7 @@ public class HikeImageUploader extends HikeImageWorker
 	
 	private static RequestToken profileToken;
 	
-	private static RequestToken groupToken;
+	private RequestToken groupToken;
 	
 	public static HikeImageUploader newInstance(byte[] bytes, String tmpFilePath, String msisdn, boolean toDelTempFileOnCallFail, boolean toDeletPrevMsisdnPic) {
 		
@@ -53,8 +53,6 @@ public class HikeImageUploader extends HikeImageWorker
 	
 	public void startUpLoadingTask()
 	{
-		RequestToken currentToken = null;
-		
 		
 		String filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		File dir = new File(filePath);
@@ -64,41 +62,55 @@ public class HikeImageUploader extends HikeImageWorker
 			return;
 		}
 
+		Logger.d(TAG, "Attempting upload");
+		
 		if(OneToNConversationUtils.isGroupConversation(msisdn))
 		{
-			if(groupToken == null)
-			{
-				groupToken = HttpRequests.editGroupProfileAvatarRequest(tmpFilePath, requestListener, msisdn);
-			}
+			groupToken = HttpRequests.editGroupProfileAvatarRequest(tmpFilePath, requestListener, msisdn);
 			
-			currentToken = groupToken;
+			executeToken(groupToken);
+			
 		}
 		else
 		{
 			if(profileToken == null)
 			{
+				Logger.d(TAG, "Begining upload");
+				
 				profileToken = HttpRequests.editProfileAvatarRequest(tmpFilePath, requestListener);
+				
+				executeToken(profileToken);
+				
 			}
-			
-			currentToken = profileToken;
+			else
+			{
+				Logger.d(TAG, "Aborting upload");
+				if(taskCallbacks != null)
+				{
+					taskCallbacks.onTaskAlreadyRunning();
+				}
+			}
 			
 		}
 		
-		Logger.d(TAG, "Attempting upload");
-		
-		if(currentToken != null &&!currentToken.isRequestRunning())
+	}
+	
+	private void executeToken(RequestToken token)
+	{
+		if(token !=null)
 		{
 			Logger.d(TAG, "Begining upload");
-			currentToken.execute();
+			
+			token.execute();
+			
 		}
 		else
 		{
-			Logger.d(TAG, "Aborting upload");
+			Logger.d(TAG, "Aborting upload, upload Failed");
 			if(taskCallbacks != null)
 			{
-				taskCallbacks.onTaskAlreadyRunning();
+				taskCallbacks.onFailed();
 			}
-	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
 		}
 	}
 
