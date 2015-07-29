@@ -174,6 +174,8 @@ public class FTAnalyticEvents
 
 	public static final String UNABLE_TO_START_ACTIVITY = "unable_to_start_activity";
 
+	public static final String UNABLE_TO_CREATE_HIKE_TEMP_DIR = "unable_to_hike_temp_dir";
+
 	public static final String HOST_FALLBACK = "host_fallback";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
