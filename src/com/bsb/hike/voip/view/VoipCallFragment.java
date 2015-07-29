@@ -820,7 +820,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			nameOrMsisdn = getString(R.string.voip_conference_label);
 			int clientCount = voipService.getClientCount();
 			String numberOfParticipants;
-			if (clientCount == 0)
+			if (clientCount == 1)
 				numberOfParticipants = getString(R.string.voip_conference_waiting_for_participants_info);
 			else
 				numberOfParticipants = clientCount + " " + getString(R.string.participants);
