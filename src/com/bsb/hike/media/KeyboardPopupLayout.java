@@ -327,4 +327,9 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	{
 
 	}
+
+	public void setPopupDismissListener(PopupListener listener) 
+	{
+		this.mListener = listener;
+	}
 }
