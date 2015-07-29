@@ -31,11 +31,13 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
+import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
-public class StickerRecommendationFtueFragment extends SherlockFragment implements Listener
+public class StickerRecommendationFtueFragment extends SherlockFragment implements Listener, SuccessfulImageLoadingListener
 {
 	private IStickerRecommendFragmentListener listener;
 	
@@ -92,6 +94,7 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 		super.onActivityCreated(savedInstanceState);
 		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFtueFragment.this, pubSubListeners);
 		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true);
+		stickerLoader.setSuccessfulImageLoadingListener(this);
 	}
 	
 	@Override
@@ -141,11 +144,6 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 	{
 		ivSticker.setScaleType(ScaleType.CENTER_INSIDE);
 		stickerLoader.loadImage(sticker.getSmallStickerPath(), ivSticker, false);
-		if(stickerLoaded)
-		{
-			pbSticker.setVisibility(View.GONE);
-			ivSticker.setVisibility(View.VISIBLE);	
-		}
 	}
 	
 	
@@ -290,5 +288,24 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 	public boolean isFtueScreen1Visible()
 	{
 		return stickerRecommendFtueStep1.getVisibility() == View.VISIBLE;
+	}
+
+	@Override
+	public void onSuccessfulImageLoaded(ImageView imageView)
+	{
+		if(!isAdded())
+		{
+			return ;
+		}
+		getSherlockActivity().runOnUiThread(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				pbSticker.setVisibility(View.GONE);
+				ivSticker.setVisibility(View.VISIBLE);
+			}
+		});
 	}
 }
