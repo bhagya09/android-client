@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.json.JSONException;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -34,7 +36,11 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -44,6 +50,7 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
@@ -81,6 +88,55 @@ public class GroupChatThread extends OneToNChatThread
 	public GroupChatThread(ChatThreadActivity activity, String msisdn)
 	{
 		super(activity, msisdn);
+	}
+
+	@Override
+	public void onCreate(Bundle savedState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedState);
+		shouldShowMultiAdminPopup();
+	}
+
+	private void shouldShowMultiAdminPopup() {
+		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false))
+		{
+			try {
+				if(oneToNConversation.getMetadata().amIAdmin()||oneToNConversation.getConversationOwner().equalsIgnoreCase(activity.getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, ""))){
+					showMultiAdminTip(activity);
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+		
+	}
+	public static void showMultiAdminTip(final Context context)
+	{
+	
+		HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
+		{
+
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, true);
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+			}
+
+		}, 0);
 	}
 
 	@Override
@@ -198,15 +254,8 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Is the group owner blocked ? If true then show the block overlay with appropriate strings
 		 */
-
-		if (oneToNConversation.isBlocked())
-		{
-			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-
-			showBlockOverlay(label);
-
-		}
-
+         ///from now onwards  group will never block
+	
 		toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
 		toggleGroupLife(oneToNConversation.isConversationAlive());
 		addUnreadCountMessage();
@@ -306,7 +355,7 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Proceeding only if the group is alive
 		 */
-		if (oneToNConversation.isConversationAlive() && !oneToNConversation.isBlocked())
+		if (oneToNConversation.isConversationAlive())
 		{
 			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.GROUP_INFO_TOP_BUTTON);
 
@@ -315,11 +364,6 @@ public class GroupChatThread extends OneToNChatThread
 			activity.startActivity(intent);
 		}
 		
-		else if (oneToNConversation.isBlocked())
-		{
-			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
-		}
 		
 		else
 		{
@@ -525,6 +569,7 @@ public class GroupChatThread extends OneToNChatThread
 		
 		return false;
 	}
+	
 	
 	private boolean checkForDeadOrBlocked()
 	{
@@ -961,7 +1006,7 @@ public class GroupChatThread extends OneToNChatThread
 			{
 			case R.string.group_profile:
 			case R.string.chat_theme:
-				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
+				overFlowMenuItem.enabled = !checkForDead();
 				break;
 			case R.string.mute_group:
 				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();

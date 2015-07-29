@@ -389,12 +389,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent openComposeChatIntentForGroup(Context appContext, String convId, String convName)
+	public static Intent openComposeChatIntentForGroup(Context appContext, String convId, String convName, int setting)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
 		Bundle bundle = new Bundle();
 		bundle.putString(HikeConstants.Extras.ONETON_CONVERSATION_NAME, convName);
 		bundle.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
+		bundle.putInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS, setting);
 		bundle.putBoolean(HikeConstants.Extras.CREATE_GROUP, true);
 		intent.putExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE, bundle);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
