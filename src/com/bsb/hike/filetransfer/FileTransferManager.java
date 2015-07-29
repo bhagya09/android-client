@@ -805,19 +805,23 @@ public class FileTransferManager extends BroadcastReceiver
 
 	public File getHikeTempDir()
 	{
-		File hikeTempDir = new File(context.getExternalFilesDir(null), HIKE_TEMP_DIR_NAME);
+		File hikeDir = context.getExternalFilesDir(null);
+		if(hikeDir == null)
+		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_HIKE_TEMP_DIR, 0, FTAnalyticEvents.UPLOAD_FILE_TASK + ":" + FTAnalyticEvents.DOWNLOAD_FILE_TASK,
+					"File", "Hike dir is null when external storage state is - " + Environment.getExternalStorageState());
+			return null;
+		}
+		File hikeTempDir = new File(hikeDir, HIKE_TEMP_DIR_NAME);
 		if(hikeTempDir != null && !hikeTempDir.exists())
 		{
 			if (!hikeTempDir.mkdirs())
 			{
 				Logger.d("FileTransferManager", "failed to create directory");
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_HIKE_TEMP_DIR, 0, FTAnalyticEvents.UPLOAD_FILE_TASK + ":" + FTAnalyticEvents.DOWNLOAD_FILE_TASK,
+						"File", "Unable to create Hike temp dir when external storage state is - " + Environment.getExternalStorageState());
 				return null;
 			}
-		}
-		else
-		{
-			FTAnalyticEvents.logDevError(FTAnalyticEvents.UNABLE_TO_CREATE_HIKE_TEMP_DIR, 0, FTAnalyticEvents.UPLOAD_FILE_TASK + ":" + FTAnalyticEvents.DOWNLOAD_FILE_TASK,
-					"File", "Hike temp dir is null when external storage state is - " + Environment.getExternalStorageState());
 		}
 		return hikeTempDir;
 	}

@@ -176,6 +176,10 @@ public class DownloadFileTask extends FileTransferBase
 				{
 					conn.setRequestProperty("Cookie", "user=" + token + ";UID=" + uId);
 					conn.setRequestProperty("Range", "bytes=" + byteRange);
+					/*
+					 * "java.io.IOException: unexpected end of stream" on HttpURLConnection
+					 * https://code.google.com/p/android/issues/detail?id=24672
+					 */
 					conn.setRequestProperty("Accept-Encoding", "musixmatch");
 					conn.setConnectTimeout(HikeConstants.CONNECT_TIMEOUT);
 				}
