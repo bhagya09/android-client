@@ -528,7 +528,7 @@ public class VoIPClient  {
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
 			Logger.d(tag, "Sent socket information to partner. Reconnecting: " + reconnecting);
 			socketInfoSent = true;
 

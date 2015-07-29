@@ -597,6 +597,7 @@ public class VoIPService extends Service {
 					client.isInAHostedConference = true;
 					client.groupChatMsisdn = groupChatMsisdn;
 					initiateOutgoingCall(client, callSource);
+					
 				}
 			} else {
 				// Outgoing call to single recipient
@@ -661,7 +662,7 @@ public class VoIPService extends Service {
 				getCallId(), true);
 
 		client.retrieveExternalSocket();
-		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);		
+		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);
 	}
 	
 	private void startConnectionTimeoutThread() {

@@ -435,7 +435,7 @@ public class VoIPUtils {
 	}
 	
 	/**
-	 * Used to communicate between two clients using the server
+	 * Used to communicate between two clients using the server. Delivery is not guaranteed.
 	 * @param recipient		Recipient's MSISDN
 	 * @param callMessage	One of the MQTT Message types ({@linkplain com.bsb.hike.HikeConstants.MqttMessageTypes})
 	 * @param callId		If there is an associated call ID, put it here
@@ -459,7 +459,7 @@ public class VoIPUtils {
 			message.put(HikeConstants.SUB_TYPE, callMessage);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
 			Logger.d(tag, "Sent call request message of type: " + callMessage + " to: " + recipient);
 
 		} catch (JSONException e) {
