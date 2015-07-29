@@ -509,6 +509,9 @@ public class VoIPClient  {
 			if (!TextUtils.isEmpty(groupChatMsisdn) && !isInitiator())
 				socketData.put(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
 			
+			if (isInAHostedConference)
+				socketData.put(VoIPConstants.Extras.CONFERENCE, true);
+			
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
 			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
