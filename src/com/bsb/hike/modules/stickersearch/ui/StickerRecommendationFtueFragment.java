@@ -224,6 +224,9 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 			@Override
 			public void run()
 			{
+				pbSticker.setVisibility(View.VISIBLE);
+				ivSticker.setVisibility(View.GONE);
+				
 				loadStickerImage(false);
 				stickerRecommendFtueStep1.setVisibility(View.VISIBLE);
 				stickerRecommendFtueStep2.setVisibility(View.GONE);

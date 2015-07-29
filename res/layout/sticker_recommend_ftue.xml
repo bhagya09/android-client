@@ -91,14 +91,14 @@
                     android:layout_height="wrap_content"
                     android:text="@string/sticker_recommend_ftue_heading"
                     android:textColor="@color/white"
-                    android:paddingRight="24dp"
+                    android:paddingRight="32dp"
                     android:textSize="16sp" />
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/tvSubHeadingFtueView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="9dp"
+                    android:layout_marginTop="7dp"
                     android:layout_below="@id/tvHeadingFtueView2"
                     android:layout_alignRight="@id/tvHeadingFtueView2"
                     android:text="@string/download_from_shop"
