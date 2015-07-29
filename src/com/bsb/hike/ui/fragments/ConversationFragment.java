@@ -25,12 +25,15 @@ import android.os.Bundle;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
+import android.support.v4.app.ListFragment;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -53,10 +56,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v4.app.ListFragment;
-import com.nineoldandroids.animation.ObjectAnimator;
-import android.view.Menu;
-import android.view.MenuInflater;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -97,7 +96,6 @@ import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedLi
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
@@ -113,6 +111,7 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
+import com.nineoldandroids.animation.ObjectAnimator;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
@@ -1572,7 +1571,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		});	
 
 		alertDialog = builder.show();
-		alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+		alertDialog.getListView().setDivider(null);
+		alertDialog.getListView().setPadding(0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
 		return true;
 	}
 
