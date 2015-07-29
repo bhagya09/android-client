@@ -76,6 +76,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -90,6 +91,7 @@ import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
+import com.google.gson.Gson;
 
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -148,6 +150,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
+	
+	private OfflineParameters offlineParameters=null;
 
 	/* The waiting time in seconds before scheduling a H20 Tip */
 	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 60;
@@ -190,6 +194,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		checkOfflineConnectionStatus();
 	};
 	
+	@Override
+	protected void init()
+	{
+		super.init();
+		offlineParameters=new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+	}
 	
 	private void checkOfflineConnectionStatus()
 	{
@@ -261,7 +271,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private List<OverFlowMenuItem> getOverFlowItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
+		
+		if(offlineParameters.isOfflineEnabled())
 		list.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
+
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));

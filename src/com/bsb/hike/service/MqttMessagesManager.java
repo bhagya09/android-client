@@ -2220,7 +2220,11 @@ public class MqttMessagesManager
 			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
 		}
-
+		if(data.has(HikeConstants.OFFLINE))
+		{
+			String offline = data.optString(HikeConstants.OFFLINE, "{}");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.OFFLINE, offline);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
