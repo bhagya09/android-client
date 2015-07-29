@@ -417,7 +417,14 @@ public class OfflineController
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 		Logger.d(TAG, "Hike File type is: "
 				+ hikeFile.getHikeFileType().ordinal());
-
+		
+		if (hikeFile.getHikeFileType() == HikeFileType.CONTACT)
+		{
+			SenderConsignment senderConsignment = hikeConverter.getMessageConsignment(convMessage, false);
+			offlineManager.sendConsignment(senderConsignment);
+			return;
+		}
+		
 		File selected = hikeFile.getFile();
 		File sourceFile=new File (hikeFile.getSourceFilePath());
 		if (selected.exists()) 
