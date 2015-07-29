@@ -260,6 +260,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onStop()
 	{
+		releaseEmoticon();
+
 		super.onStop();
 		
 		if (mActivityTask.moodShowing || mActivityTask.emojiShowing)
@@ -864,13 +866,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mEmoticonPicker.releaseReources();
 			mEmoticonPicker.dismiss();
 		}
-	}
-	
-	@Override
-	protected void onStop()
-	{
-		releaseEmoticon();
-		super.onStop();
 	}
 	
 	@Override
