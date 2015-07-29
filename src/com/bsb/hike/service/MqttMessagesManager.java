@@ -1731,6 +1731,15 @@ public class MqttMessagesManager
 				LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.IPS_CHANGED).putExtra("ips", ipArray.toString()));
 			}
 		}
+		
+		if (data.has(MqttConstants.MQTT_PORTS))
+		{
+			JSONArray portsArray = data.getJSONArray(MqttConstants.MQTT_PORTS);
+			if (null != portsArray && portsArray.length() > 0)
+			{
+				LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.PORTS_CHANGED).putExtra(MqttConstants.MQTT_PORTS, portsArray.toString()));
+			}
+		}
 		// watsapp invite message
 		if (data.has(HikeConstants.WATSAPP_INVITE_ENABLED))
 		{
