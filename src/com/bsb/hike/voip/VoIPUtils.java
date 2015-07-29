@@ -526,9 +526,7 @@ public class VoIPUtils {
 				/*
 				 * Call Initiation Messages
 				 * Added: 24 Mar, 2015 (AJ)
-				 * Prior to this addition, socket information messages served as call
-				 * initiation messages as well. We are now introducing a separate class
-				 * of messages for call initiation to speed up the process. 
+				 * These are being used purely for analytics.
 				 */
 				if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE) ||
@@ -560,7 +558,10 @@ public class VoIPUtils {
 					Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
 					i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.SET_PARTNER_INFO);
 					i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-					i.putExtra(VoIPConstants.Extras.INTERNAL_IP, metadataJSON.getString(VoIPConstants.Extras.INTERNAL_IP));
+					
+					if (metadataJSON.has(VoIPConstants.Extras.INTERNAL_IP))
+						i.putExtra(VoIPConstants.Extras.INTERNAL_IP, metadataJSON.getString(VoIPConstants.Extras.INTERNAL_IP));
+					
 					i.putExtra(VoIPConstants.Extras.INTERNAL_PORT, metadataJSON.getInt(VoIPConstants.Extras.INTERNAL_PORT));
 					i.putExtra(VoIPConstants.Extras.EXTERNAL_IP, metadataJSON.getString(VoIPConstants.Extras.EXTERNAL_IP));
 					i.putExtra(VoIPConstants.Extras.EXTERNAL_PORT, metadataJSON.getInt(VoIPConstants.Extras.EXTERNAL_PORT));
