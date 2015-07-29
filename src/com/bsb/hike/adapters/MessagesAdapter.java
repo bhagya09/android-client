@@ -3370,6 +3370,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							updateOriginTypeForConvMessage(convMessage,OriginType.NORMAL);
 						}
 					}
+					else if(fileState.getFTState() == FTState.IN_PROGRESS)
+					{
+						return ;
+					}
 				}
 				else
 				{
@@ -3423,7 +3427,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					{
 						Toast.makeText(mActivity, "Error in Opening File.Corrupt Due to incomplete Download", Toast.LENGTH_SHORT).show();
 						return;
-					}	
+					}
+					if(offlineFss.getFTState() == FTState.IN_PROGRESS)
+					{
+						return;
+					}
 				}
 				File receivedFile = hikeFile.getFile();
 				
