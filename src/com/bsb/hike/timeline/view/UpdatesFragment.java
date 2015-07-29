@@ -245,7 +245,8 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 
 	private boolean shouldAddFTUEItem()
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
+		return false;
+		/*if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
 		{
 			return true;
 		}
@@ -253,7 +254,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		{
 			ftueStatusMessage = null;
 			return false;
-		}
+		}*/
 	}
 
 	private void addFTUEItem()

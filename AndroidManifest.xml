@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1348"
-    android:versionName="4.0.1.6.photos_timeline" >
+    android:versionName="4.0.1.7.photos_timeline" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
