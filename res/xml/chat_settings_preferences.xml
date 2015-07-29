@@ -38,7 +38,7 @@
         android:widgetLayout="@layout/checkbox_widget" />
     
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/ic_recommendation_setting"
+        icon="@drawable/ic_instant_reco"
         android:defaultValue="true"
         android:key="stickerRecommendAutopopupPref"
         android:layout="@layout/icon_preference"

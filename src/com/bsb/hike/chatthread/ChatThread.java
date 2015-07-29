@@ -4960,7 +4960,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	public void onAttachFragment(Fragment fragment)
 	{
-		if(fragment.getTag() == HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
+		if(fragment.getTag() == HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG || fragment.getTag() == HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG)
 		{
 			return;
 		}
