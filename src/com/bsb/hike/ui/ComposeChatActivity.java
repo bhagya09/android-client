@@ -55,6 +55,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.chatHead.ChatHeadService;
+import com.bsb.hike.chatthread.OnlineChannel;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -1463,7 +1464,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				ArrayList<Uri> imageUris = presentIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 				ArrayList<FileTransferData> fileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
-				
+				ArrayList<FileTransferData> offlineFileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
+
 				if (imageUris != null)
 				{
 					boolean showMaxFileToast = false;
@@ -1484,25 +1486,34 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						
 						File file = new File(filePath);
-						if (file.length() > HikeConstants.MAX_FILE_SIZE)
-						{
-							showMaxFileToast = true;
-							if (offlineContact == null)
-								continue;
-						}
+						
 
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
 						if (fileType == null)
 							fileType = presentIntent.getType();
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-						fileDetails.add(new Pair<String, String>(filePath, fileType));
-						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList, offlineContact);
+						
+						
+						if (file.length() > HikeConstants.MAX_FILE_SIZE)
+						{
+							showMaxFileToast = true;
+							if (offlineContact != null)
+							{
+								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList);
+								offlineFileTransferList.add(fileData);
+							}
+							continue;
+								
+						}
+						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList);
 						if(fileData!=null){
+							fileDetails.add(new Pair<String, String>(filePath, fileType));
 							fileTransferList.add(fileData);
 						}
 					}
 
-					if (showMaxFileToast)
+					
+					if (showMaxFileToast && !fileTransferList.isEmpty())
 					{
 						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - 1forwardMessageAsPerType - Max limit is reached.");
 						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
@@ -1510,11 +1521,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 					if (offlineContact != null)
 					{
-						controller.sendFile(fileTransferList, offlineContact.getMsisdn());
+						offlineFileTransferList.addAll(fileTransferList);
+						controller.sendFile(offlineFileTransferList, offlineContact.getMsisdn());
 					}
 					
-					if (showMaxFileToast)
-					{
 						if (arrayList.size() >= 1)
 						{
 							ContactInfo contactInfo = arrayList.get(0);
@@ -1541,7 +1551,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								Utils.executeAsyncTask(prefileTransferTask);
 							}
 						}
-					}
 				
 					return arrayList;
 				}
@@ -1632,7 +1641,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						else
 						{
-							FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, arrayList, offlineContact);
+							FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, arrayList);
 							if(fileData!=null){
 								fileTransferList.add(fileData);
 							}
@@ -1853,6 +1862,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
 				ArrayList<FileTransferData> fileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
+				ArrayList<FileTransferData> offlineFileTransferList=new ArrayList<ComposeChatActivity.FileTransferData>();
 				fileUri = Utils.makePicasaUriIfRequired(fileUri);
 				
 				String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
@@ -1865,15 +1875,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 	
 				File file = new File(filePath);
-				boolean isForOnline = true;
-				if (file.length() > HikeConstants.MAX_FILE_SIZE)  
-				{
-					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - forwardMessageAsPerType - Max size reached.");
-					Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
-					isForOnline = false;
-					if (offlineContact == null)
-						return arrayList;
-				}
 	
 				type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
 				if (type == null)
@@ -1887,35 +1888,38 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				
 				HikeFileType hikeFileType = HikeFileType.fromString(
 						type, false);
-				FileTransferData fileData = initialiseFileTransfer(
-						filePath, null, hikeFileType, type, false, -1,
-						true, arrayList, offlineContact);
-				if (fileData != null) {
-					fileTransferList.add(fileData);
-
-				}
 				
+				if (file.length() > HikeConstants.MAX_FILE_SIZE)  
+				{
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
+							"Compose - forwardMessageAsPerType - Max size reached.");
+					Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+					if (offlineContact != null)
+					{
+						offlineFileTransferList.add(initialiseFileTransfer(filePath, null, hikeFileType, type, false, -1, true, arrayList));
+					}
+				}
+				else
+				{
+					FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, type, false, -1, true, arrayList);
+					if (fileData != null)
+					{
+						fileTransferList.add(fileData);
+
+					}
+				}
 				if (offlineContact != null)
 				{
-					controller.sendFile(fileTransferList, offlineContact.getMsisdn());
+					offlineFileTransferList.addAll(fileTransferList);
+					controller.sendFile(offlineFileTransferList, offlineContact.getMsisdn());
 				}
 				
-				if (arrayList.size() > 1 && isForOnline) 
+				if (arrayList.size() > 1 && !fileTransferList.isEmpty()) 
 				{
-					if (!fileTransferList.isEmpty()) {
-						prefileTransferTask = new PreFileTransferAsycntask(
-								fileTransferList, intent, null, false, FILE_TRANSFER);
-						Utils.executeAsyncTask(prefileTransferTask);
-					}
+					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent, null, false, FILE_TRANSFER);
+					Utils.executeAsyncTask(prefileTransferTask);
 				}
 				
-				if (!isForOnline)
-				{
-					if (intent != null) {
-						startActivity(intent);
-						finish();
-					}
-				}
 			}
 		}
 		else if (presentIntent.hasExtra(Intent.EXTRA_TEXT) || presentIntent.hasExtra(HikeConstants.Extras.MSG))
@@ -2270,7 +2274,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		//sendMessage(convMessage);
 	}
 	private FileTransferData initialiseFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
-			boolean isForwardingFile, ArrayList<ContactInfo> arrayList, ContactInfo offlineContact)
+			boolean isForwardingFile, ArrayList<ContactInfo> arrayList)
 	{
 		clearTempData();
 		if (filePath == null)
@@ -2282,12 +2286,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		File file = new File(filePath);
 		Logger.d(getClass().getSimpleName(), "File size: " + file.length() + " File name: " + file.getName());
 
-		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length() && offlineContact == null)
-		{
-			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - InitialiseFileTransfer - Max size reached.");
-			Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
-			return null;
-		}
+//		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
+//		{
+//			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "Compose - InitialiseFileTransfer - Max size reached.");
+//			Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
+//			return null;
+//		}
 		return new FileTransferData(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file);
 	}
 	private void clearTempData()
