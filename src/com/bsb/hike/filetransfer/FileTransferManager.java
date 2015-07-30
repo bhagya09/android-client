@@ -627,16 +627,18 @@ public class FileTransferManager extends BroadcastReceiver
 			catch (IOException i)
 			{
 				i.printStackTrace();
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "Reading download state failed", i);
 			}
 			catch (ClassNotFoundException e)
 			{
-				// TODO Auto-generated catch block
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "Reading download state failed", e);
 				e.printStackTrace();
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 				Logger.e(getClass().getSimpleName(), "Exception while reading state file : ", e);
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "Reading download state failed", e);
 			}
 			finally
 			{
@@ -693,16 +695,19 @@ public class FileTransferManager extends BroadcastReceiver
 		catch (IOException i)
 		{
 			i.printStackTrace();
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", i);
 		}
 		catch (ClassNotFoundException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", e);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "Exception while reading state file : ", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.FT_STATE_READ_FAIL, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "Reading upload state failed", e);
 		}
 		finally
 		{
