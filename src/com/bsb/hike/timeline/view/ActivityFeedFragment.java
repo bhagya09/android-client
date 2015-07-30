@@ -87,26 +87,6 @@ public class ActivityFeedFragment extends Fragment implements Listener
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState)
-	{
-		/*
-		 * We post execute setupActionBar in ChatThread; So to handle action bar of media viewer on rotation we need to do its action bar setup after activity is created and post
-		 * UI this runnable
-		 */
-		(new Handler()).post(new Runnable()
-		{
-
-			@Override
-			public void run()
-			{
-				setupActionBar();
-			}
-		});
-
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
 	public void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
