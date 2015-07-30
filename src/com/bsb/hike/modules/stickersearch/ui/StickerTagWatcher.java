@@ -235,7 +235,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		if (count > 0)
 		{
 			stickerRecommendView.removeCallbacks(scrollRunnable);
-			stickerRecommendView.postDelayed(scrollRunnable, SCROLL_DELAY);
+			stickerRecommendView.postDelayed(scrollRunnable, WAIT_TIME_IN_FTUE_SCROLL);
 		}
 	}
 

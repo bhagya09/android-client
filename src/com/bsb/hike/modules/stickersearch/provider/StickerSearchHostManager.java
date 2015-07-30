@@ -42,17 +42,21 @@ public class StickerSearchHostManager
 
 	private int mCurrentTextSignificantLength;
 
-	private static volatile ArrayList<String> sCurrentWordsInText = null;
+	private volatile ArrayList<String> sCurrentWordsInText = null;
 
-	private static volatile ArrayList<Integer> sWordStartIndicesInCurrentText = null;
+	private volatile ArrayList<Integer> sWordStartIndicesInCurrentText = null;
 
-	private static volatile ArrayList<Integer> sWordEndIndicesInCurrentText = null;
+	private volatile ArrayList<Integer> sWordEndIndicesInCurrentText = null;
 
-	private static HashMap<String, ArrayList<StickerDataContainer>> sLocalSearchCache = new HashMap<String, ArrayList<StickerDataContainer>>();
+	private static HashMap<String, ArrayList<StickerDataContainer>> sCacheForLocalSearch = new HashMap<String, ArrayList<StickerDataContainer>>();
 
-	private static HashMap<String, Float> sLocalAnalogousScoreCache = new HashMap<String, Float>();
+	private static HashMap<String, Float> sCacheForLocalAnalogousScore = new HashMap<String, Float>();
+
+	private static HashMap<String, LinkedHashSet<Sticker>> sCacheForLocalOrderedStickers = new HashMap<String, LinkedHashSet<Sticker>>();
 
 	private TIME_CODE mMomentCode;
+
+	private int NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL;
 
 	private ArrayList<String> mPreviousWords;
 
@@ -80,6 +84,7 @@ public class StickerSearchHostManager
 	{
 		sWords = new LinkedList<Word>();
 		mCurrentTextSignificantLength = 0;
+		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()) + 1;
 	}
 
 	/* Get the instance of this class from outside */
@@ -138,8 +143,10 @@ public class StickerSearchHostManager
 			sWordEndIndicesInCurrentText = null;
 		}
 
-		sLocalSearchCache.clear();
-		sLocalAnalogousScoreCache.clear();
+		sCacheForLocalSearch.clear();
+		sCacheForLocalAnalogousScore.clear();
+		sCacheForLocalOrderedStickers.clear();
+
 		mCurrentTextSignificantLength = 0;
 		mCurrentText = null;
 		mMomentCode = StickerSearchUtility.getMomentCode();
@@ -303,7 +310,7 @@ public class StickerSearchHostManager
 
 					String searchKey = searchText.toString().toUpperCase(Locale.ENGLISH);
 
-					if (!sLocalSearchCache.containsKey(searchKey))
+					if (!sCacheForLocalSearch.containsKey(searchKey))
 					{
 						ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>();
 						Logger.d(TAG, "Phrase \"" + searchKey + "\" was not found in local cache...");
@@ -353,7 +360,7 @@ public class StickerSearchHostManager
 
 						if (partialSearchKey.length() > 1)
 						{
-							wordResult = sLocalSearchCache.get(wordSearchKey);
+							wordResult = sCacheForLocalSearch.get(wordSearchKey);
 							if (wordResult == null)
 							{
 								Logger.d(TAG, "Word \"" + wordSearchKey + "\" was not found in local cache...");
@@ -365,12 +372,12 @@ public class StickerSearchHostManager
 									wordResult = wordResultList;
 									Logger.d(TAG, "Filtering word stickers before saving in local cache, searchKey::" + wordSearchKey + " ==> " + wordResult);
 
-									sLocalSearchCache.put(wordSearchKey, wordResult);
+									sCacheForLocalSearch.put(wordSearchKey, wordResult);
 								}
 								else if (wordResultList == null)
 								{
 									Logger.i(TAG, "Saving to cache, Word searchKey::" + searchKey + " ==> []");
-									sLocalSearchCache.put(partialSearchKey, new ArrayList<StickerDataContainer>());
+									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerDataContainer>());
 								}
 							}
 							else
@@ -380,7 +387,7 @@ public class StickerSearchHostManager
 						}
 						else if (partialSearchKey.length() == 1 && j == 0)
 						{
-							wordResult = sLocalSearchCache.get(partialSearchKey);
+							wordResult = sCacheForLocalSearch.get(partialSearchKey);
 							if (wordResult == null)
 							{
 								Logger.d(TAG, "Single word \"" + partialSearchKey + "\" was not found in local cache...");
@@ -391,12 +398,12 @@ public class StickerSearchHostManager
 									wordResult = wordResultList;
 									Logger.d(TAG, "Filtering single character word stickers before saving in local cache, searchKey::" + partialSearchKey + " ==> " + wordResult);
 
-									sLocalSearchCache.put(partialSearchKey, wordResult);
+									sCacheForLocalSearch.put(partialSearchKey, wordResult);
 								}
 								else if (wordResultList == null)
 								{
 									Logger.i(TAG, "Saving to cache, Single character word searchKey::" + searchKey + " ==> []");
-									sLocalSearchCache.put(partialSearchKey, new ArrayList<StickerDataContainer>());
+									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerDataContainer>());
 								}
 							}
 							else
@@ -419,14 +426,14 @@ public class StickerSearchHostManager
 						if (suggestionFoundOnLastValidPhrase)
 						{
 							Logger.i(TAG, "Saving to cache, Phrase searchKey::" + searchKey + " ==> " + list);
-							sLocalSearchCache.put(searchKey, list);
+							sCacheForLocalSearch.put(searchKey, list);
 						}
 						else
 						{
 							if (lastWordIndexInPhraseStartedWithPivot > i)
 							{
 								Logger.i(TAG, "Saving to cache, Phrase searchKey::" + searchKey + " ==> []");
-								sLocalSearchCache.put(searchKey, new ArrayList<StickerDataContainer>());
+								sCacheForLocalSearch.put(searchKey, new ArrayList<StickerDataContainer>());
 
 								String currentPhrase;
 								int currentMaxPermutationSize;
@@ -464,7 +471,7 @@ public class StickerSearchHostManager
 										continue;
 									}
 
-									savedStickers = sLocalSearchCache.get(searchKey);
+									savedStickers = sCacheForLocalSearch.get(searchKey);
 									if ((savedStickers != null) && (savedStickers.size() > 0))
 									{
 										int marker = savedStickers.indexOf(null);
@@ -520,7 +527,7 @@ public class StickerSearchHostManager
 					}
 					else
 					{
-						ArrayList<StickerDataContainer> savedStickers = sLocalSearchCache.get(searchKey);
+						ArrayList<StickerDataContainer> savedStickers = sCacheForLocalSearch.get(searchKey);
 						if ((savedStickers != null) && (savedStickers.size() > 0))
 						{
 							int marker = savedStickers.indexOf(null);
@@ -592,7 +599,7 @@ public class StickerSearchHostManager
 										continue;
 									}
 
-									savedStickers = sLocalSearchCache.get(searchKey);
+									savedStickers = sCacheForLocalSearch.get(searchKey);
 									if ((savedStickers != null) && (savedStickers.size() > 0))
 									{
 										if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
@@ -652,11 +659,11 @@ public class StickerSearchHostManager
 								boolean exactSearch = !((actualStartOfWord > start) ? ((actualStartOfWord <= end) && (actualEndOfWord == end)) : (actualEndOfWord >= end));
 								if (exactSearch)
 								{
-									savedStickers = sLocalSearchCache.get(searchKey);
+									savedStickers = sCacheForLocalSearch.get(searchKey);
 								}
 								else
 								{
-									savedStickers = sLocalSearchCache.get(searchKey + StickerSearchConstants.STRING_PREDICATE);
+									savedStickers = sCacheForLocalSearch.get(searchKey + StickerSearchConstants.STRING_PREDICATE);
 								}
 
 								if (savedStickers != null && (savedStickers.contains(null) ? savedStickers.size() > 1 : savedStickers.size() > 0))
@@ -724,8 +731,10 @@ public class StickerSearchHostManager
 				sWordEndIndicesInCurrentText = null;
 			}
 
-			sLocalSearchCache.clear();
-			sLocalAnalogousScoreCache.clear();
+			sCacheForLocalSearch.clear();
+			sCacheForLocalAnalogousScore.clear();
+			sCacheForLocalOrderedStickers.clear();
+
 			mCurrentTextSignificantLength = 0;
 			mCurrentText = null;
 		}
@@ -898,8 +907,9 @@ public class StickerSearchHostManager
 			if (count > 1)
 			{
 				String nextWord;
+				String firstWord = selectedTextInPhrase.get(0);
 				Collections.reverse(selectedTextInPhrase);
-				searchText.append(selectedTextInPhrase.get(0));
+				searchText.append(firstWord);
 
 				for (j = 1; j < count; j++)
 				{
@@ -920,8 +930,17 @@ public class StickerSearchHostManager
 				}
 
 				Logger.i(TAG, "Finding stickers for searched pre-phrase \"" + currentPhrase + "\"");
-				tempSelectedStickers = processStickerData(currentPhrase.replaceAll(StickerSearchConstants.REGEX_PREDICATE, StickerSearchConstants.STRING_EMPTY),
-						sLocalSearchCache.get(currentPhrase), StickerSearchConstants.MINIMUM_MATCH_SCORE_PHRASE);
+
+				// Compute phrase search results having first word significant
+				if (firstWord.length() > 1)
+				{
+					tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_PHRASE_PREDICTIVE);
+				}
+				// Compute phrase search results having no word significant
+				else
+				{
+					tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_PHRASE_LIMITED);
+				}
 
 				if ((tempSelectedStickers != null) && (tempSelectedStickers.size() > 0))
 				{
@@ -1009,21 +1028,36 @@ public class StickerSearchHostManager
 			}
 
 			Logger.i(TAG, "Finding stickers for searched phrase \"" + currentPhrase + "\" with exactSearch: " + exactSearch);
-			if ((lastWordIndexInPhraseStartedWithPivot == wordIndexInText) && !exactSearch)
+
+			// Compute single word search results
+			if (lastWordIndexInPhraseStartedWithPivot == wordIndexInText)
 			{
-				tempSelectedStickers = processStickerData(currentPhrase.replaceAll(StickerSearchConstants.REGEX_PREDICATE, StickerSearchConstants.STRING_EMPTY),
-						sLocalSearchCache.get(currentPhrase + StickerSearchConstants.STRING_PREDICATE), StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_WORD);
+				if (exactSearch)
+				{
+					if (currentPhrase.length() == 1)
+					{
+						tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_CHARACTER);
+					}
+					else
+					{
+						tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_WORD_EXACT);
+					}
+				}
+				else
+				{
+					tempSelectedStickers = getOrderedStickers((currentPhrase + StickerSearchConstants.STRING_PREDICATE),
+							StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_WORD_PREDICTIVE);
+				}
 			}
-			else if (currentPhrase.length() > 1)
+			// Compute phrase search results having first word significant
+			else if (word.length() > 1)
 			{
-				tempSelectedStickers = processStickerData(currentPhrase.replaceAll(StickerSearchConstants.REGEX_PREDICATE, StickerSearchConstants.STRING_EMPTY),
-						sLocalSearchCache.get(currentPhrase), StickerSearchConstants.MINIMUM_MATCH_SCORE_PHRASE);
+				tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_PHRASE_PREDICTIVE);
 			}
-			else if (isFirstValidWord)
+			// Compute phrase search results having no word significant
+			else
 			{
-				tempSelectedStickers = processStickerData(currentPhrase.replaceAll(StickerSearchConstants.REGEX_PREDICATE, StickerSearchConstants.STRING_EMPTY),
-						sLocalSearchCache.get(currentPhrase), ((word.length() == 1) ? StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_CHARACTER
-								: StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_WORD));
+				tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_PHRASE_LIMITED);
 			}
 
 			if (tempSelectedStickers != null && (tempSelectedStickers.size() > 0))
@@ -1067,134 +1101,152 @@ public class StickerSearchHostManager
 		return new Pair<String, LinkedHashSet<Sticker>>(relatedPhrase, stickers);
 	}
 
-	private LinkedHashSet<Sticker> processStickerData(String searchKey, ArrayList<StickerDataContainer> stickerData, float minimumMatchingScore)
+	private LinkedHashSet<Sticker> getOrderedStickers(String searchKey, float minimumMatchingScore)
 	{
+		String plainSearchKey = searchKey.replaceAll(StickerSearchConstants.REGEX_PREDICATE, StickerSearchConstants.STRING_EMPTY);
 		LinkedHashSet<Sticker> stickers = null;
 
-		if (stickerData != null)
+		if (sCacheForLocalOrderedStickers.containsKey(plainSearchKey))
 		{
-			int count = stickerData.size();
+			stickers = sCacheForLocalOrderedStickers.get(plainSearchKey);
+		}
+		else
+		{
+			stickers = computeOrderingAndGetStickers(plainSearchKey, sCacheForLocalSearch.get(searchKey), minimumMatchingScore);
+			sCacheForLocalOrderedStickers.put(plainSearchKey, stickers);
+		}
 
-			if (count > 0)
+		return stickers;
+	}
+
+	private LinkedHashSet<Sticker> computeOrderingAndGetStickers(String searchKey, ArrayList<StickerDataContainer> stickerData, float minimumMatchingScore)
+	{
+		LinkedHashSet<Sticker> stickers = null;
+		int count = (stickerData == null) ? 0 : stickerData.size();
+
+		if (count > 0)
+		{
+			float matchScoreWeitage = StickerSearchConstants.WEITAGE_MATCH_SCORE;
+			float exactMatchWeitage = StickerSearchConstants.WEITAGE_EXACT_MATCH;
+			float trendingFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_TRENDING_FREQUENCY;
+			float localFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_LOCAL_FREQUENCY;
+			float globalFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_GLOBAL_FREQUENCY;
+			float contextMomentWeitage = StickerSearchConstants.WEITAGE_CONTEXT_MOMENT;
+
+			int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
+			int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
+
+			ArrayList<StickerDataContainer> timePrioritizedStickerList = new ArrayList<StickerDataContainer>();
+			ArrayList<StickerDataContainer> tempStickerDataList = new ArrayList<StickerDataContainer>();
+			TreeSet<StickerDataContainer> leastButSignificantStickerDataList = new TreeSet<StickerDataContainer>();
+			stickers = new LinkedHashSet<Sticker>();
+
+			for (StickerDataContainer sticker : stickerData)
 			{
-				float matchScoreWeitage = StickerSearchConstants.WEITAGE_MATCH_SCORE;
-				float exactMatchWeitage = StickerSearchConstants.WEITAGE_EXACT_MATCH;
-				float trendingFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_TRENDING_FREQUENCY;
-				float localFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_LOCAL_FREQUENCY;
-				float globalFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_GLOBAL_FREQUENCY;
-				float contextMomentWeitage = StickerSearchConstants.WEITAGE_CONTEXT_MOMENT;
-
-				int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
-				int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
-
-				ArrayList<Sticker> timePrioritizedStickerList = new ArrayList<Sticker>();
-				ArrayList<StickerDataContainer> tempStickerList = new ArrayList<StickerDataContainer>();
-				TreeSet<StickerDataContainer> leastButSignificantStickerList = new TreeSet<StickerDataContainer>();
-				stickers = new LinkedHashSet<Sticker>();
-
-				for (StickerDataContainer sticker : stickerData)
+				if (sticker == null)
 				{
-					if (sticker == null)
-					{
-						continue;
-					}
+					continue;
+				}
 
-					int stickerMometCode = sticker.getMomentCode();
-					String frequencyString = sticker.getOverallFrequencyFunction();
-					int frequency;
-					if (Utils.isBlank(frequencyString))
-					{
-						frequency = 0;
-					}
-					else
-					{
-						frequency = Integer.parseInt(frequencyString);
-					}
-					float formattedFrequency;
-					if (frequency >= 10)
-					{
-						formattedFrequency = 0.99f;
-					}
-					else
-					{
-						formattedFrequency = ((float) frequency) / 10.0f;
-					}
+				int stickerMometCode = sticker.getMomentCode();
+				String frequencyString = sticker.getOverallFrequencyFunction();
+				int frequency;
+				if (Utils.isBlank(frequencyString))
+				{
+					frequency = 0;
+				}
+				else
+				{
+					frequency = Integer.parseInt(frequencyString);
+				}
+				float formattedFrequency;
+				if (frequency >= 10)
+				{
+					formattedFrequency = 0.99f;
+				}
+				else
+				{
+					formattedFrequency = ((float) frequency) / 10.0f;
+				}
 
-					float phraseMatchScore = computeAnalogousScoreForExactMatch(searchKey,
-							sticker.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
+				float phraseMatchScore = computeAnalogousScoreForExactMatch(searchKey,
+						sticker.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
 
-					if (sticker.getExactMatchOrder() == -1)
-					{
-						sticker.setScore(
-								phraseMatchScore,
-								((matchScoreWeitage * phraseMatchScore) + 0.0f + (trendingFrequencyWeitage * formattedFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
-										: 0f)));
-					}
-					else
-					{
-						sticker.setScore(phraseMatchScore, ((matchScoreWeitage * phraseMatchScore)
-								+ (exactMatchWeitage * (phraseMatchScore > 0.7f ? phraseMatchScore : 0) / (sticker.getExactMatchOrder() + 1))
-								+ (trendingFrequencyWeitage * formattedFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage : 0f)));
-					}
+				if (sticker.getExactMatchOrder() == -1)
+				{
+					sticker.setScore(
+							phraseMatchScore,
+							((matchScoreWeitage * phraseMatchScore) + 0.0f + (trendingFrequencyWeitage * formattedFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
+									: 0f)));
+				}
+				else
+				{
+					sticker.setScore(phraseMatchScore,
+							((matchScoreWeitage * phraseMatchScore) + (exactMatchWeitage * (phraseMatchScore > 0.7f ? phraseMatchScore : 0) / (sticker.getExactMatchOrder() + 1))
+									+ (trendingFrequencyWeitage * formattedFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage : 0f)));
+				}
 
-					if (currentMomentTerminalCode == stickerMometCode)
+				if (currentMomentTerminalCode == stickerMometCode)
+				{
+					timePrioritizedStickerList.add(sticker);
+				}
+				else if (phraseMatchScore >= minimumMatchingScore)
+				{
+					tempStickerDataList.add(sticker);
+				}
+				else
+				{
+					if (leastButSignificantStickerDataList.size() >= NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL)
 					{
-						timePrioritizedStickerList.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
-					}
-					else if (phraseMatchScore >= minimumMatchingScore)
-					{
-						tempStickerList.add(sticker);
-					}
-					else
-					{
-						if (leastButSignificantStickerList.size() >= StickerSearchConstants.MAXIMUM_ODD_MATCH_COUNT)
+						StickerDataContainer currentLeastSignificantSticker = leastButSignificantStickerDataList.last();
+						if (currentLeastSignificantSticker.compareTo(sticker) == 1)
 						{
-							StickerDataContainer currentLeastSignificantSticker = leastButSignificantStickerList.last();
-							if (currentLeastSignificantSticker.compareTo(sticker) == 1)
-							{
-								leastButSignificantStickerList.pollLast();
-								leastButSignificantStickerList.add(sticker);
-							}
-						}
-						else
-						{
-							leastButSignificantStickerList.add(sticker);
+							leastButSignificantStickerDataList.pollLast();
+							leastButSignificantStickerDataList.add(sticker);
 						}
 					}
-				}
-
-				// Sort in descending order and make a unique list
-				if (tempStickerList.size() > 0)
-				{
-					Collections.sort(tempStickerList);
-					for (StickerDataContainer sticker : tempStickerList)
+					else
 					{
-						stickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
+						leastButSignificantStickerDataList.add(sticker);
 					}
-
-					tempStickerList.clear();
 				}
-				else if (leastButSignificantStickerList.size() > 0)
+			}
+
+			// Sort in descending order and make a unique list of significant stickers based on ordering w.r.t. score
+			if (tempStickerDataList.size() > 0)
+			{
+				Collections.sort(tempStickerDataList);
+				for (StickerDataContainer sticker : tempStickerDataList)
 				{
-					for (StickerDataContainer sticker : leastButSignificantStickerList)
-					{
-						stickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
-					}
-
-					leastButSignificantStickerList.clear();
+					stickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
 				}
 
-				// Apply time division
-				if (timePrioritizedStickerList.size() > 0)
+				tempStickerDataList.clear();
+			}
+			else if (leastButSignificantStickerDataList.size() > 0)
+			{
+				for (StickerDataContainer sticker : leastButSignificantStickerDataList)
 				{
-					Collections.sort(timePrioritizedStickerList);
-					LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>(timePrioritizedStickerList);
-
-					// Put remaining stickers after time-prioritized stickers in pop-up
-					timePrioritizedStickers.addAll(stickers);
-					stickers.clear();
-					stickers = timePrioritizedStickers;
+					stickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
 				}
+
+				leastButSignificantStickerDataList.clear();
+			}
+
+			// Apply time division, if such stickers are found after ordering
+			if (timePrioritizedStickerList.size() > 0)
+			{
+				Collections.sort(timePrioritizedStickerList);
+				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>();
+				for (StickerDataContainer sticker : leastButSignificantStickerDataList)
+				{
+					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
+				}
+
+				// Put remaining stickers after time-prioritized stickers in pop-up
+				timePrioritizedStickers.addAll(stickers);
+				stickers.clear();
+				stickers = timePrioritizedStickers;
 			}
 		}
 
@@ -1204,7 +1256,7 @@ public class StickerSearchHostManager
 	private float computeAnalogousScoreForExactMatch(String searchKey, String tag)
 	{
 		String cacheKey = searchKey + StickerSearchConstants.STRING_PREDICATE + tag;
-		Float result = sLocalAnalogousScoreCache.get(cacheKey);
+		Float result = sCacheForLocalAnalogousScore.get(cacheKey);
 
 		if (result == null)
 		{
@@ -1253,7 +1305,7 @@ public class StickerSearchHostManager
 				result = count / exactWordsCount;
 			}
 
-			sLocalAnalogousScoreCache.put(cacheKey, result);
+			sCacheForLocalAnalogousScore.put(cacheKey, result);
 		}
 
 		return result;

@@ -5,7 +5,9 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConst
 public class StickerSearchConstants
 {
 	// Generic constants for UI================================================================[[
-	public static final int SCROLL_DELAY = 1000; // 1 seconds period in milliseconds
+	public static final int WAIT_TIME_IN_FTUE_SCROLL = 1000; // 1 second period in milliseconds
+
+	public static final int WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = 250; // 0.25 second period in milliseconds
 
 	public static final int SCROLL_SPEED_PER_DIP = 500;
 
@@ -34,14 +36,14 @@ public class StickerSearchConstants
 
 	// ====================================================Generic constants for searching text]]
 
-	// Constants used in calculation===========================================================[[
+	// Constants used in summary calculation===================================================[[
 	public static final long TIME_WINDOW_LOCAL_SUMMERY = 14 * 24 * 60 * 60 * 1000l; // 14 days period in milliseconds
 
 	public static final long TIME_WINDOWCURRENT_SUMMERY = 3 * 24 * 60 * 60 * 1000L; // 3 days period in milliseconds
 
 	public static final float MAXIMUM_FREQUENCY = 100.00f; // relative count
 
-	// ===========================================================Constants used in calculation]]
+	// ====================================================Constants used in summary calculation]]
 
 	// Constants used for selecting search result==============================================[[
 	public static final int MAXIMUM_SEARCH_COUNT = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER;
@@ -55,11 +57,11 @@ public class StickerSearchConstants
 	// Constants used for calculating score====================================================[[
 	public static final float WEITAGE_MATCH_SCORE = 0.30f;
 
-	public static final float WEITAGE_EXACT_MATCH = 0.34f;
+	public static final float WEITAGE_EXACT_MATCH = 0.32f;
 
-	public static final float WEITAGE_FREQUENCY = 0.30f;
+	public static final float WEITAGE_FREQUENCY = 0.28f;
 
-	public static final float WEITAGE_CONTEXT_MOMENT = 0.06f;
+	public static final float WEITAGE_CONTEXT_MOMENT = 0.10f;
 
 	public static final float RATIO_TRENDING_FREQUENCY = 0.50f;
 
@@ -67,13 +69,15 @@ public class StickerSearchConstants
 
 	public static final float RATIO_GLOBAL_FREQUENCY = 0.13f;
 
-	public static final float MINIMUM_MATCH_SCORE_SINGLE_WORD = 0.33f;
+	public static final float MINIMUM_MATCH_SCORE_SINGLE_WORD_PREDICTIVE = 0.24f;
 
-	public static final float MINIMUM_MATCH_SCORE_SINGLE_CHARACTER = 0.30f;
+	public static final float MINIMUM_MATCH_SCORE_SINGLE_WORD_EXACT = 0.33f;
 
-	public static final float MINIMUM_MATCH_SCORE_PHRASE = 0.20f;
+	public static final float MINIMUM_MATCH_SCORE_SINGLE_CHARACTER = 0.25f;
 
-	public static final int MAXIMUM_ODD_MATCH_COUNT = 5;
+	public static final float MINIMUM_MATCH_SCORE_PHRASE_PREDICTIVE = 0.20f;
+
+	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
 
 	// ====================================================Constants used for calculating score]]
 

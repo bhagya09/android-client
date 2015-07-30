@@ -450,31 +450,8 @@ public enum StickerSearchDataController
 		HashSet<String> untaggedSet = new HashSet<String>();
 		untaggedSet.addAll(receivedStickerSet);
 		untaggedSet.removeAll(stickerCodeSet);
-		Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
-
-		if (state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)
-		{
-			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-			Set<String> updateRetrySet = new HashSet<String>();
-			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
-
-			if (pendingRetrySet != null)
-			{
-				for (String stickerCode : pendingRetrySet)
-				{
-					if (!receivedStickerSet.contains(stickerCode))
-					{
-						updateRetrySet.add(stickerCode);
-					}
-				}
-			}
-
-			Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
-			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
-		}
-
-		receivedStickerSet.clear();
 		stickerCodeSet.clear();
+		Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
 		untaggedSet.clear();
 
 		if (stickersTagData.size() > 0)
@@ -486,6 +463,28 @@ public enum StickerSearchDataController
 				HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
 			}
 		}
+
+		Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+		Set<String> updateRetrySet = new HashSet<String>();
+		Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
+
+		if (pendingRetrySet != null)
+		{
+			for (String stickerCode : pendingRetrySet)
+			{
+				if (!receivedStickerSet.contains(stickerCode))
+				{
+					updateRetrySet.add(stickerCode);
+				}
+			}
+		}
+
+		Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
+		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
+		pendingRetrySet.clear();
+		updateRetrySet.clear();
+
+		receivedStickerSet.clear();
 	}
 
 	public void updateStickerList(Set<String> stickerInfoSet)
