@@ -1,6 +1,7 @@
 package com.bsb.hike.dialog;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,7 +9,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.View;
@@ -22,11 +22,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -39,6 +36,8 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.AccountAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
@@ -46,7 +45,6 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.tasks.SyncOldSMSTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontTextView;
 
 public class HikeDialogFactory
 {
@@ -301,130 +299,67 @@ public class HikeDialogFactory
 
 	private static HikeDialog showImageQualityDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
-		hikeDialog.setContentView(R.layout.image_quality_popup);
-		hikeDialog.setCancelable(true);
-		hikeDialog.setCanceledOnTouchOutside(true);
+		
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		final Editor editor = appPrefs.edit();
-		int quality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, ImageQuality.QUALITY_DEFAULT);
-		final LinearLayout small_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_small_container);
-		final LinearLayout medium_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_medium_container);
-		final LinearLayout original_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_original_container);
-		final CheckBox small = (CheckBox) hikeDialog.findViewById(R.id.hike_small_checkbox);
-		final CheckBox medium = (CheckBox) hikeDialog.findViewById(R.id.hike_medium_checkbox);
-		final CheckBox original = (CheckBox) hikeDialog.findViewById(R.id.hike_original_checkbox);
-		CustomFontTextView smallSize = (CustomFontTextView) hikeDialog.findViewById(R.id.image_quality_small_cftv);
-		CustomFontTextView mediumSize = (CustomFontTextView) hikeDialog.findViewById(R.id.image_quality_medium_cftv);
-		CustomFontTextView originalSize = (CustomFontTextView) hikeDialog.findViewById(R.id.image_quality_original_cftv);
-		Button once = (Button) hikeDialog.findViewById(R.id.btn_just_once);
-
-		long image_small_size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL, HikeConstants.IMAGE_SIZE_SMALL);
-		long image_medium_size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM, HikeConstants.IMAGE_SIZE_MEDIUM);
+		List<RadioButtonPojo> radioButtons = DialogUtils.getImageQualityOptions(context, data);
 		
-		if (data != null)
+		final CustomAlertRadioButtonDialog hikeDialog = new CustomAlertRadioButtonDialog(context, dialogId,  radioButtons, new RadioButtonItemCheckedListener()
 		{
-			Long[] dataBundle = (Long[]) data;
-			int smallsz, mediumsz, originalsz;
-			if (dataBundle.length > 0)
+
+			@Override
+			public void onRadioButtonItemClicked(RadioButtonPojo whichItem, CustomAlertRadioButtonDialog dialog)
 			{
-
-				originalsz = dataBundle[1].intValue();
-				smallsz = (int) (dataBundle[0] * image_small_size);
-				mediumsz = (int) (dataBundle[0] * image_medium_size);
-				if (smallsz >= originalsz)
-				{
-					smallsz = originalsz;
-					smallSize.setVisibility(View.GONE);
-				}
-				if (mediumsz >= originalsz)
-				{
-					mediumsz = originalsz;
-					mediumSize.setVisibility(View.GONE);
-					// if medium option text size is gone, so is small's
-					smallSize.setVisibility(View.GONE);
-				}
-				smallSize.setText(" (" + Utils.getSizeForDisplay(smallsz) + ")");
-				mediumSize.setText(" (" + Utils.getSizeForDisplay(mediumsz) + ")");
-				originalSize.setText(" (" + Utils.getSizeForDisplay(originalsz) + ")");
+				dialog.selectedRadioGroup = whichItem;
 			}
-		}
-
-		showImageQualityOption(quality, small, medium, original);
+			
+		});
+		
+		hikeDialog.setCancelable(true);
+		hikeDialog.setCanceledOnTouchOutside(true);
+		hikeDialog.setTitle(R.string.image_quality_prefs);
+		hikeDialog.setPositiveButton(R.string.image_quality_send, null);
 
 		OnClickListener imageQualityDialogOnClickListener = new OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
 			{
-				// TODO Auto-generated method stub
-				switch (v.getId())
-				{
-				case R.id.hike_small_container:
-					showImageQualityOption(ImageQuality.QUALITY_SMALL, small, medium, original);
-					break;
-				case R.id.hike_medium_container:
-					showImageQualityOption(ImageQuality.QUALITY_MEDIUM, small, medium, original);
-					break;
-				case R.id.hike_original_container:
-					showImageQualityOption(ImageQuality.QUALITY_ORIGINAL, small, medium, original);
-					break;
-				case R.id.btn_just_once:
-					saveImageQualitySettings(editor, small, medium, original);
+					saveImageQualitySettings(editor, hikeDialog.selectedRadioGroup);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
 					callOnSucess(listener, hikeDialog);
-					break;
-				}
 			}
 		};
-
-		small_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		medium_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		original_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		once.setOnClickListener(imageQualityDialogOnClickListener);
+		
+		hikeDialog.buttonPositive.setOnClickListener(imageQualityDialogOnClickListener);
 
 		hikeDialog.show();
 		return hikeDialog;
 	}
 
-	private static void showImageQualityOption(int quality, CheckBox small, CheckBox medium, CheckBox original)
+	
+	private static void saveImageQualitySettings(Editor editor, RadioButtonPojo pojo)
 	{
-		switch (quality)
+		if (pojo != null)
 		{
-		case ImageQuality.QUALITY_ORIGINAL:
-			small.setChecked(false);
-			medium.setChecked(false);
-			original.setChecked(true);
-			break;
-		case ImageQuality.QUALITY_MEDIUM:
-			small.setChecked(false);
-			medium.setChecked(true);
-			original.setChecked(false);
-			break;
-		case ImageQuality.QUALITY_SMALL:
-			small.setChecked(true);
-			medium.setChecked(false);
-			original.setChecked(false);
-			break;
+			switch (pojo.id)
+			{
+			case R.string.image_quality_small:
+				editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_SMALL);
+				editor.commit();				
+				break;
+				
+			case R.string.image_quality_medium:
+				editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_MEDIUM);
+				editor.commit();				
+				break;
+				
+			case R.string.image_quality_original:
+				editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_ORIGINAL);
+				editor.commit();				
+				break;
+			}
 		}
-	}
-
-	private static void saveImageQualitySettings(Editor editor, CheckBox small, CheckBox medium, CheckBox original)
-	{
-		// TODO Auto-generated method stub
-		if (medium.isChecked())
-		{
-			editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_MEDIUM);
-		}
-		else if (original.isChecked())
-		{
-			editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_ORIGINAL);
-		}
-		else
-		{
-			editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_SMALL);
-		}
-		editor.commit();
 	}
 
 	private static void callOnSucess(HikeDialogListener listener, HikeDialog hikeDialog)
@@ -448,42 +383,25 @@ public class HikeDialogFactory
 	private static HikeDialog showSMSClientDialog(int dialogId, final Context context, final HikeDialogListener listener, final boolean triggeredFromToggle,
 			final CompoundButton checkBox, final boolean showingNativeInfoDialog)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
-		hikeDialog.setContentView(R.layout.enable_sms_client_popup);
+		final CustomAlertDialog hikeDialog = new CustomAlertDialog(context, dialogId);
 		hikeDialog.setCancelable(showingNativeInfoDialog);
 
-		TextView header = (TextView) hikeDialog.findViewById(R.id.header);
-		TextView body = (TextView) hikeDialog.findViewById(R.id.body);
-		Button btnOk = (Button) hikeDialog.findViewById(R.id.btn_ok);
-		Button btnCancel = (Button) hikeDialog.findViewById(R.id.btn_cancel);
-
-		header.setText(showingNativeInfoDialog ? R.string.native_header : R.string.use_hike_for_sms);
-		body.setText(showingNativeInfoDialog ? R.string.native_info : R.string.use_hike_for_sms_info);
-
+		hikeDialog.setTitle(showingNativeInfoDialog ? R.string.native_header : R.string.use_hike_for_sms);
+		
+		hikeDialog.setMessage(showingNativeInfoDialog ? R.string.native_info : R.string.use_hike_for_sms_info);
+		
 		if (showingNativeInfoDialog)
 		{
-			btnCancel.setVisibility(View.GONE);
-			btnOk.setText(R.string.continue_txt);
+			hikeDialog.setPositiveButton(R.string.continue_txt, listener);
 		}
 		else
 		{
-			btnCancel.setText(R.string.cancel);
-			btnOk.setText(R.string.allow);
+			hikeDialog.setNegativeButton(R.string.cancel, listener);
+			hikeDialog.setPositiveButton(R.string.allow, listener);
 		}
-
-		btnOk.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(hikeDialog);
-			}
-		});
 
 		hikeDialog.setOnCancelListener(new OnCancelListener()
 		{
-
 			@Override
 			public void onCancel(DialogInterface dialog)
 			{
@@ -491,16 +409,6 @@ public class HikeDialogFactory
 				{
 					checkBox.setChecked(false);
 				}
-			}
-		});
-
-		btnCancel.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				listener.negativeClicked(hikeDialog);
 			}
 		});
 
@@ -952,28 +860,18 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showSMSSyncDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog dialog = new HikeDialog(context, dialogId);
-		dialog.setContentView(R.layout.enable_sms_client_popup);
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
 		
 		boolean syncConfirmation = (boolean) data[0]; 
 
-		final View btnContainer = dialog.findViewById(R.id.button_container);
+		dialog.setTitle(R.string.import_sms);
+		dialog.setMessage(R.string.import_sms_info);
+		dialog.setPositiveButton(R.string.yes, listener);
+		dialog.setNegativeButton(R.string.no, listener);
 
-		final ProgressBar syncProgress = (ProgressBar) dialog.findViewById(R.id.loading_progress);
-		TextView header = (TextView) dialog.findViewById(R.id.header);
-		final TextView info = (TextView) dialog.findViewById(R.id.body);
-		Button okBtn = (Button) dialog.findViewById(R.id.btn_ok);
-		Button cancelBtn = (Button) dialog.findViewById(R.id.btn_cancel);
-		final View btnDivider = dialog.findViewById(R.id.sms_divider);
+		DialogUtils.setupSyncDialogLayout(syncConfirmation, dialog);
 
-		header.setText(R.string.import_sms);
-		info.setText(R.string.import_sms_info);
-		okBtn.setText(R.string.yes);
-		cancelBtn.setText(R.string.no);
-
-		DialogUtils.setupSyncDialogLayout(syncConfirmation, btnContainer, syncProgress, info, btnDivider);
-
-		okBtn.setOnClickListener(new OnClickListener()
+		dialog.buttonPositive.setOnClickListener(new OnClickListener()
 		{
 
 			@Override
@@ -983,13 +881,13 @@ public class HikeDialogFactory
 
 				DialogUtils.executeSMSSyncStateResultTask(new SyncOldSMSTask(context));
 
-				DialogUtils.setupSyncDialogLayout(false, btnContainer, syncProgress, info, btnDivider);
+				DialogUtils.setupSyncDialogLayout(false, dialog);
 
 				DialogUtils.sendSMSSyncLogEvent(true);
 			}
 		});
 
-		cancelBtn.setOnClickListener(new OnClickListener()
+		dialog.buttonNegative.setOnClickListener(new OnClickListener()
 		{
 
 			@Override

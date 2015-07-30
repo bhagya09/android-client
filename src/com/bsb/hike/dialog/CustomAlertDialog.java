@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
@@ -26,7 +27,7 @@ public class CustomAlertDialog extends HikeDialog
 
 	TextView message;
 
-	CheckBox checkBox;
+	private CheckBox checkBox;
 
 	View buttonPanel;
 
@@ -35,18 +36,30 @@ public class CustomAlertDialog extends HikeDialog
 	Button buttonNegative;
 
 	Button buttonNeutral;
+	
+	ProgressBar mProgressIndeterminate;
+	
+	private static final int DEFAULT_LAYOUT_RESID = R.layout.custom_dialog;
+	
+	private int layoutResId;
 
 	public CustomAlertDialog(Context context, int dialogId)
 	{
+		this(context, dialogId, DEFAULT_LAYOUT_RESID);
+	}
+	
+	public CustomAlertDialog(Context context, int dialogId, int layoutResId)
+	{
 		super(context, dialogId);
 		this.mContext = context;
+		this.layoutResId = layoutResId;
 		initViews();
 	}
 
 	private void initViews()
 	{
 		// this.setContentView(R.layout.operator_alert_popup);
-		this.setContentView(R.layout.custom_dialog);
+		this.setContentView(layoutResId);
 		this.setCancelable(true);
 
 		titleTemplate = (View) this.findViewById(R.id.title_template);
@@ -57,6 +70,7 @@ public class CustomAlertDialog extends HikeDialog
 		buttonPositive = (Button) this.findViewById(R.id.btn_positive);
 		buttonNegative = (Button) this.findViewById(R.id.btn_negative);
 		buttonNeutral = (Button) this.findViewById(R.id.btn_neutral);
+		mProgressIndeterminate = (ProgressBar) this.findViewById(R.id.loading_progress);
 	}
 
 	public void setTitle(int resId)
