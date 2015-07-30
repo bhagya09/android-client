@@ -12,11 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
@@ -643,6 +645,15 @@ public class OfflineUtils
 	public static String getConnectingMsisdn()
 	{
 		return OfflineController.getInstance().getConnectingDevice();
+	}
+	
+	public static void stopFreeHikeConnection(Context context, String msisdn) 
+	{
+		if ((OfflineUtils.isConnectedToSameMsisdn(msisdn) || OfflineUtils.isConnectingToSameMsisdn(msisdn)))
+		{
+			HikeMessengerApp.getInstance().showToast(context.getString(R.string.disconnect_offline));	
+			OfflineController.getInstance().shutDown();
+		}
 	}
 
 }
