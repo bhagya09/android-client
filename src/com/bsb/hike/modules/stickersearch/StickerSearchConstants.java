@@ -55,11 +55,11 @@ public class StickerSearchConstants
 	// Constants used for calculating score====================================================[[
 	public static final float WEITAGE_MATCH_SCORE = 0.30f;
 
-	public static final float WEITAGE_EXACT_MATCH = 0.34f;
+	public static final float WEITAGE_EXACT_MATCH = 0.32f;
 
-	public static final float WEITAGE_FREQUENCY = 0.30f;
+	public static final float WEITAGE_FREQUENCY = 0.28f;
 
-	public static final float WEITAGE_CONTEXT_MOMENT = 0.06f;
+	public static final float WEITAGE_CONTEXT_MOMENT = 0.10f;
 
 	public static final float RATIO_TRENDING_FREQUENCY = 0.50f;
 
@@ -67,13 +67,15 @@ public class StickerSearchConstants
 
 	public static final float RATIO_GLOBAL_FREQUENCY = 0.13f;
 
-	public static final float MINIMUM_MATCH_SCORE_SINGLE_WORD = 0.33f;
+	public static final float MINIMUM_MATCH_SCORE_SINGLE_WORD_PREDICTIVE = 0.24f;
 
-	public static final float MINIMUM_MATCH_SCORE_SINGLE_CHARACTER = 0.30f;
+	public static final float MINIMUM_MATCH_SCORE_SINGLE_WORD_EXACT = 0.33f;
 
-	public static final float MINIMUM_MATCH_SCORE_PHRASE = 0.20f;
+	public static final float MINIMUM_MATCH_SCORE_SINGLE_CHARACTER = 0.25f;
 
-	public static final int MAXIMUM_ODD_MATCH_COUNT = 5;
+	public static final float MINIMUM_MATCH_SCORE_PHRASE_PREDICTIVE = 0.20f;
+
+	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
 
 	// ====================================================Constants used for calculating score]]
 
