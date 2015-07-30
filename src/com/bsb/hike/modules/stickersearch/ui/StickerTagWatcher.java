@@ -125,9 +125,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 
-		if ((end > editable.length()) || (end > StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT))
+		if ((end > editable.length()) || (end > StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT))
 		{
-			end = Math.min(editable.length(), StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT);
+			end = Math.min(editable.length(), StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 			Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 		}
 
