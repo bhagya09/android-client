@@ -1430,7 +1430,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 			else 
 			{
-				stopFreeHikeConnection();
+				OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 			}
 			break;
 		default:
@@ -1445,28 +1445,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		offlineAnimationFragment.show(activity.getSupportFragmentManager(), OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
 	}
 
-	// if we are in connecting state or connected offline in case of block need to break the connection
-	@Override
-	protected void onBlockUserclicked()
-	{
-		stopFreeHikeConnection();
-		super.onBlockUserclicked();
-	}
-	
-	private void stopFreeHikeConnection() 
-	{
-		if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTED))	
-		{
-			showToast(R.string.user_disconnect);
-			OfflineController.getInstance().shutDown();
-		}
-		else if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTING))
-		{
-			showToast(R.string.connection_cancelled);
-			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CONNECTION_CANCELLED));
-		}
-	}
-	
 	private void setupOfflineUI()
 	{	
 		sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.awaiting_response));
@@ -3065,7 +3043,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected void blockUnBlockUser(boolean isBlocked)
 	{
 		super.blockUnBlockUser(isBlocked);
-
+		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 		/**
 		 * If blocked, hide LastSeen view, else, try to show the lastSeen
 		 */
@@ -3162,7 +3140,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void onDisconnectionRequest()
 	{
-		stopFreeHikeConnection();
+		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 	}
 	
 }

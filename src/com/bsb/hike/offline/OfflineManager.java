@@ -269,13 +269,31 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 				OfflineController.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTING)
 		{
 			connectedDevice = offlineNetworkMsisdn;
-			initClientConfig(connectedDevice);
-			Logger.d(TAG, "Starting as Client");
-			transporter.initAsClient(transporterConfig, context,messageSentCallback,messageReceivedCallback,this,handler.getLooper(), HikeOfflinePersistence.getInstance());
+			
+			// now transporter initAsClient is on Handler Thread/ backend thread
+			final IConnectionListener listener = this;
+			handler.post(new Runnable()
+			{	
+				@Override
+				public void run()
+				{
+					if (initClientConfig(connectedDevice))
+					{
+						Logger.d(TAG, "Starting as Client");
+						if (OfflineController.getInstance().getOfflineState() ==  OFFLINE_STATE.CONNECTING)
+							transporter.initAsClient(transporterConfig, context,messageSentCallback,messageReceivedCallback, listener,handler.getLooper(), HikeOfflinePersistence.getInstance());
+					}
+					else
+					{
+						HikeMessengerApp.getInstance().showToast("Sorry something fucked up..!! Didn't get AP's IP");
+						OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.AP_IP_NOT_AVAILABLE));
+					}
+				}
+			});
 		}
 	}
 
-	private void initClientConfig(String namespace) 
+	private boolean initClientConfig(String namespace) 
 	{
 		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 		Logger.d(TAG, "Initialising client config!");
@@ -285,9 +303,16 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		topics.add(textTopic);
 		topics.add(fileTopic);
 		DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(4, 500, 1);
-		transporterConfig = new Config.ConfigBuilder(topics, connectionManager.getHostAddress(), offlineParameters.getPortNo(), OfflineConstants.TEXT_TOPIC)
-				.sendoldPersistedMessages(true).nameSpace(namespace).setRetryPolicy(retryPolicy).keepAliveTimeout(offlineParameters.getHeartBeatTimeout())
-				.keepAliveTimeoutScreenOff(offlineParameters.getKeepAliveScreenTimeout()).build();
+		String host = connectionManager.getHostAddress();
+		Logger.d(TAG, "host is: " + host);
+		if (host != null)
+		{
+			transporterConfig = new Config.ConfigBuilder(topics, host, offlineParameters.getPortNo(), OfflineConstants.TEXT_TOPIC)
+					.sendoldPersistedMessages(true).nameSpace(namespace).setRetryPolicy(retryPolicy).keepAliveTimeout(offlineParameters.getHeartBeatTimeout())
+					.keepAliveTimeoutScreenOff(offlineParameters.getKeepAliveScreenTimeout()).build();
+			return true;
+		}
+		return false;
 	}
 
 	public void removeMessage(int msg)

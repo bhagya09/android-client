@@ -96,6 +96,7 @@ import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedListener;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -1548,6 +1549,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				else if (getString(R.string.block_title).equals(option))
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
+					OfflineUtils.stopFreeHikeConnection(HikeMessengerApp.getInstance().getApplicationContext(), conv.getMsisdn());
 				}
 				else if (getString(R.string.unblock_title).equals(option))
 				{
@@ -1575,7 +1577,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
 		return true;
 	}
-
 
 	protected void onAddShortcutClicked(ConvInfo conv)
 	{

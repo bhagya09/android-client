@@ -1,7 +1,6 @@
 package com.bsb.hike.offline;
 
 import java.io.BufferedReader;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,8 +34,8 @@ import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationMsgStack;
-import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -664,6 +663,21 @@ public class OfflineUtils
 	public static String getConnectingMsisdn()
 	{
 		return OfflineController.getInstance().getConnectingDevice();
+	}
+	
+	public static void stopFreeHikeConnection(Context context, String msisdn) 
+	{
+		if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTED))	
+		{
+			HikeMessengerApp.getInstance().showToast(context.getString(R.string.disconnect_offline));
+			OfflineController.getInstance().shutDown();
+		}
+		else if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTING))
+		{
+			HikeMessengerApp.getInstance().showToast(context.getString(R.string.connection_cancelled));	
+			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CONNECTION_CANCELLED));
+		}
+		
 	}
 
 	public static void sendOfflineRequestPacket(String targetMsisdn)
