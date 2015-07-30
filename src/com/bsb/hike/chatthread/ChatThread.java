@@ -861,13 +861,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			recordSearchOptionClick();
 			setupSearchMode(null);
 			break;
-		case 420:
-			String numberonly = messages.get(messages.size() - 1).getMessage().replaceAll("[^0-9]", "");
-			int count = 0;
-			if (!TextUtils.isEmpty(numberonly))
-				count = new Integer(numberonly);
-			automateMessages(count);
-			break;
 		case R.string.hide_chat:
 			StealthModeManager.getInstance().toggleConversation(msisdn, !mConversation.isStealth(), activity);
 			//exiting chat thread 
@@ -947,8 +940,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		return new OverFlowMenuItem[] {
 				new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat),
 				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat),
-				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat),
-				new OverFlowMenuItem("Auto_Msg", 0, 0, 420)};
+				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat)};
 	}
 
 	protected void showOverflowMenu()
