@@ -54,9 +54,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		mActivityFeedRecyclerView = (RecyclerView) parent.findViewById(R.id.activityFeedRecycleView);
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mActivityFeedRecyclerView.setLayoutManager(mLayoutManager);
-
-		// TODO
-		// mUpdatesList.setEmptyView(parent.findViewById(android.R.id.empty));
+		mActivityFeedRecyclerView.addItemDecoration(new DividerItemDecoration(HikeMessengerApp.getInstance().getApplicationContext(), DividerItemDecoration.VERTICAL_LIST));
 		return parent;
 	}
 
