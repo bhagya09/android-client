@@ -3,6 +3,8 @@ package com.bsb.hike.utils;
 import java.io.File;
 import java.util.ArrayList;
 
+import android.content.pm.PackageManager;
+import android.os.Build;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -958,6 +960,54 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
 		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
+		return intent;
+	}
+
+	public static Intent getEmailOpenIntent(Context context)
+	{
+		return getEmailOpenIntent(context, null, null, null);
+	}
+
+	/**
+	 * Call this function to send email
+	 * @param context
+	 * @param subject: the Subject of the email. If subject is empty, the fallback subject is "Feedback on hike for Android" in different languages.
+	 * @param body:    the body of the email. User can change the body on his own as well.
+	 * @param sendTo:  the sender email id. if email id is empty, the fallback email is sent to "support@hike.in"
+	 * @return
+	 */
+	public static Intent getEmailOpenIntent(Context context, String subject, String body, String sendTo)
+	{
+		Intent intent = new Intent(Intent.ACTION_SENDTO);
+		intent.setData(Uri.parse("mailto:" + (TextUtils.isEmpty(sendTo) ? HikeConstants.MAIL : sendTo)));
+
+		if (null == body)
+		{
+			body = "";
+		}
+		StringBuilder message = new StringBuilder(body);
+		message.append("\n\n");
+
+		try
+		{
+			message.append(context.getString(R.string.hike_version) + " " + context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName + "\n");
+		}
+		catch (PackageManager.NameNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		message.append(context.getString(R.string.device_name) + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
+
+		message.append(context.getString(R.string.android_version) + " " + Build.VERSION.RELEASE + "\n");
+
+		String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, "");
+		message.append(context.getString(R.string.msisdn) + " " + msisdn);
+
+		intent.putExtra(Intent.EXTRA_TEXT, message.toString());
+		intent.putExtra(Intent.EXTRA_SUBJECT, TextUtils.isEmpty(subject) ? context.getString(R.string.feedback_on_hike) : subject);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
 

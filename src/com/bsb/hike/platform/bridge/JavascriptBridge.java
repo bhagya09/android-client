@@ -939,6 +939,22 @@ public abstract class JavascriptBridge
 		}
 	}
 
+	/**
+	 * Platform Version 3
+	 * Call this function to send email. This function opens Android email intent to send email. Hike Version, Device name, Android version and Phone number are added by default in the email body.
+	 *
+	 * @param subject: the Subject of the email. If subject is empty, the fallback subject is "Feedback on hike for Android" in different languages.
+	 * @param body:    the body of the email. User can change the body on his own as well.
+	 * @param sendTo:  the sender email id. if email id is empty, the fallback email is sent to "support@hike.in"
+	 */
+	@JavascriptInterface
+	public void sendEmail(String subject, String body, String sendTo)
+	{
+		Context context = weakActivity.get();
+		Intent intent = IntentFactory.getEmailOpenIntent(context, subject, body, sendTo);
+		context.startActivity(intent);
+	}
+
 	private class PlatformMicroAppRequestListener implements IRequestListener
 	{
 		String functionId;
