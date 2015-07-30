@@ -82,7 +82,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	ProgressDialog mDialog;
 
-	private boolean isDeleting;
 	private Toolbar _toolBar;
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
 	
