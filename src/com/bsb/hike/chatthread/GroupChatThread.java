@@ -254,8 +254,14 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Is the group owner blocked ? If true then show the block overlay with appropriate strings
 		 */
-         ///from now onwards  group will never block
-	
+		if (oneToNConversation.isBlocked())
+
+		{
+			String label = oneToNConversation
+					.getConversationParticipantName(oneToNConversation
+							.getConversationOwner());
+			showBlockOverlay(label);
+		}
 		toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
 		toggleGroupLife(oneToNConversation.isConversationAlive());
 		addUnreadCountMessage();
@@ -355,15 +361,21 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Proceeding only if the group is alive
 		 */
-		if (oneToNConversation.isConversationAlive())
+		if (oneToNConversation.isConversationAlive() && !oneToNConversation.isBlocked())
 		{
 			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.GROUP_INFO_TOP_BUTTON);
 
 			Intent intent = IntentFactory.getGroupProfileIntent(activity.getApplicationContext(), msisdn);
 
 			activity.startActivity(intent);
+		} else if (oneToNConversation.isBlocked()) {
+			String label = oneToNConversation
+					.getConversationParticipantName(oneToNConversation
+							.getConversationOwner());
+			Toast.makeText(activity.getApplicationContext(),
+					activity.getString(R.string.block_overlay_message, label),
+					Toast.LENGTH_SHORT).show();
 		}
-		
 		
 		else
 		{
