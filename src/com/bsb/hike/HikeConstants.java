@@ -2936,5 +2936,7 @@ public class HikeConstants
 	
 	public static final String HTTP_HOST_IPS = "httpHostIps";
 
+	public static final String HTTP_HOST_PLATFORM_IPS = "httpHostPlfIps";
+
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
 }

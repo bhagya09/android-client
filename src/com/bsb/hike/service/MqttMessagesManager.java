@@ -2230,6 +2230,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_HOST_IPS, httpHostIps);
 			HttpManager.setProductionHostUris();
 		}
+		if (data.has(HikeConstants.HTTP_HOST_PLATFORM_IPS))
+		{
+			String httpHostIps = data.getString(HikeConstants.HTTP_HOST_PLATFORM_IPS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_HOST_PLATFORM_IPS, httpHostIps);
+			HttpManager.setPlatformProductionHostUris();
+		}
 		if (data.has(HikeConstants.SPECIAL_DAY_TRIGGER))
 		{
 			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
