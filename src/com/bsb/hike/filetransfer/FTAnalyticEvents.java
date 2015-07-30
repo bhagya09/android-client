@@ -175,6 +175,8 @@ public class FTAnalyticEvents
 	public static final String UNABLE_TO_START_ACTIVITY = "unable_to_start_activity";
 
 	public static final String HOST_FALLBACK = "host_fallback";
+
+	public static final String FT_STATE_READ_FAIL = "ft_state_read_fail";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
