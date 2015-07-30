@@ -39,11 +39,12 @@ public class ChatHeadLayout implements StickerPickerListener
 		ChatHeadUtils.initVariables();
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		overlayScreenViewGroup = (RelativeLayout)inflater.inflate(R.layout.chat_head, null);
-		//overlayScreenViewGroup.setOnClickListener(chatHeadLayout);
+	    //overlayScreenViewGroup.setOnClickListener(chatHeadLayout);
 		LinearLayout chatty = (LinearLayout) overlayScreenViewGroup.findViewById(R.id.sticker_pallete_other_app);
 		picker = new StickerPicker(R.layout.chat_head_sticker_layout, context, chatHeadLayout, null);
 		picker.onCreatingChatHeadActivity(context, chatty);
 		picker.setOnClick();
+		overlayScreenViewGroup.setFocusableInTouchMode(true);
 		return overlayScreenViewGroup;
 	}
 	

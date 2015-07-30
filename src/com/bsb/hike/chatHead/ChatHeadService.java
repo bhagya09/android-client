@@ -84,10 +84,10 @@ public class ChatHeadService extends Service
 	private static boolean toShow = true;
 	
 	private LayoutParams chatHeadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-			LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
 
 	private LayoutParams closeHeadParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-			LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+			LayoutParams.TYPE_PHONE, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
 
 	private LayoutParams stickerPickerParams;
 	
@@ -231,13 +231,12 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
+				chatHead.setOnTouchListener(null);
 				if(ChatHeadLayout.getOverlayView() != null)
 				{
 					try 
 					{
 						windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
-						chatHeadParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
-						windowManager.updateViewLayout(chatHead, chatHeadParams);
 					}
 					catch (Exception e)
 					{
@@ -254,6 +253,8 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
+				chatHead.setOnTouchListener(chatHeadOnTouchListener);
+				
 				switch (flag)
 				{
 				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
@@ -311,8 +312,26 @@ public class ChatHeadService extends Service
 			if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
 			{
 				windowManager.addView(ChatHeadLayout.attachPicker(context), stickerPickerParams);
-				chatHeadParams.flags = LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
-				windowManager.updateViewLayout(chatHead, chatHeadParams);
+				ChatHeadLayout.getOverlayView().setOnTouchListener(new View.OnTouchListener()
+				{
+					
+					@Override
+					public boolean onTouch(View v, MotionEvent event)
+					{
+						resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
+						return false;
+					}
+				});
+				ChatHeadLayout.getOverlayView().setOnKeyListener(new View.OnKeyListener()
+				{
+					
+					@Override
+					public boolean onKey(View v, int keyCode, KeyEvent event)
+					{
+						resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
+						return false;
+					}
+				});
 			}
 		}
 		catch (Exception e)
@@ -367,7 +386,7 @@ public class ChatHeadService extends Service
 				+ chatHead.getHeight() + RECT_CONST_DP);
 		rectCloseHead = new Rect(closeHeadLocations[0] - RECT_CONST_DP, closeHeadLocations[1] - RECT_CONST_DP, closeHeadLocations[0] + closeHead.getWidth() + RECT_CONST_DP,
 				closeHeadLocations[1] + closeHead.getHeight() + RECT_CONST_DP);
-		if (Rect.intersects(rectChatHead, rectCloseHead))
+		if (closeHeadLocations[0] != 0 && closeHeadLocations[1] != 0 && Rect.intersects(rectChatHead, rectCloseHead))
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD_DISMISS, ChatHeadService.foregroundAppName);
 			dismissed++;
@@ -528,17 +547,6 @@ public class ChatHeadService extends Service
 
 		}
 	};
-	
-	private View.OnKeyListener chatHeadOnKeyListener = new View.OnKeyListener()
-	{
-
-		@Override
-		public boolean onKey(View v, int keyCode, KeyEvent event)
-		{
-			resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
-			return false;
-		}
-	};
 
 	public void resetPosition(int flag, String path)
 	{
@@ -588,8 +596,6 @@ public class ChatHeadService extends Service
 
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 		
-		chatHead.setOnKeyListener(chatHeadOnKeyListener);
-		
 		UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.START);
 		
 		RECT_CONST_DP = (int)(RECT_CONST * Utils.densityMultiplier);
@@ -599,7 +605,7 @@ public class ChatHeadService extends Service
 	{
 		int height = (int)(Utils.densityMultiplier * 248) + ChatThreadUtils.getStatusBarHeight(this) ;
 		stickerPickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, height,
-				LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+				LayoutParams.TYPE_PHONE, LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.TRANSLUCENT);
 		stickerPickerParams.gravity = Gravity.BOTTOM;
 	}
 
@@ -627,6 +633,15 @@ public class ChatHeadService extends Service
 			Logger.d("MotionEvent", "tapsingle");
 			return true;
 		}
+		
+		@Override
+		public boolean onDoubleTap(MotionEvent e)
+		{
+			Logger.d("MotionEvent", "tapDouble");
+			return true;
+		}
+		
+		
 	}
 	@Override
 	public IBinder onBind(Intent intent)
@@ -644,7 +659,6 @@ public class ChatHeadService extends Service
 		try
 		{
 			windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
-			chatHeadParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
 		}
 		catch(Exception e)
 		{
