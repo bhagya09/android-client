@@ -70,8 +70,32 @@ public class StickerSearchUtility
 		return outputBuilder.toString();
 	}
 
-	/* Get individual values from string composed of 2 values */
-	public static String getCompositeValuesString(StringBuilder outputBuilder, float v1, float v2)
+	/* Get individual values from composite string of n values */
+	public static <T> String getCompositeNumericValues(ArrayList<T> values)
+	{
+		StringBuilder outputBuilder = new StringBuilder();
+		int size = (values == null) ? 0 : values.size();
+
+		if (size > 0)
+		{
+			int lengthBeforeLastElement = size - 1;
+			int i = 0;
+
+			for (; i < lengthBeforeLastElement; i++)
+			{
+				outputBuilder.append(values.get(i));
+				outputBuilder.append(StickerSearchConstants.STRING_ASSOCIATOR);
+			}
+
+			// Add last element
+			outputBuilder.append(values.get(i));
+		}
+
+		return outputBuilder.toString();
+	}
+
+	/* Get individual values from composite string of n values for large no. of same instructions */
+	public static <T> String getCompositeNumericValues(StringBuilder outputBuilder, ArrayList<T> values)
 	{
 		if (outputBuilder == null)
 		{
@@ -81,85 +105,163 @@ public class StickerSearchUtility
 		{
 			outputBuilder.setLength(0);
 		}
+		int size = (values == null) ? 0 : values.size();
 
-		outputBuilder.append(v1);
-		outputBuilder.append(StickerSearchConstants.STRING_ASSOCIATOR);
-		outputBuilder.append(v2);
+		if (size > 0)
+		{
+			int lengthBeforeLastElement = size - 1;
+			int i = 0;
+
+			for (; i < lengthBeforeLastElement; i++)
+			{
+				outputBuilder.append(values.get(i));
+				outputBuilder.append(StickerSearchConstants.STRING_ASSOCIATOR);
+			}
+
+			// Add last element
+			outputBuilder.append(values.get(i));
+		}
 
 		return outputBuilder.toString();
 	}
 
 	/* Get individual values from string composed of 2 values */
-	public static String getCompositeValuesString(float v1, float v2)
+	@SuppressWarnings("unchecked")
+	public static <T> ArrayList<T> getIndividualNumericValues(String s, int count, Class<T> kind)
 	{
-		StringBuilder outputBuilder = new StringBuilder();
+		ArrayList<Object> result = new ArrayList<Object>(count);
 
-		outputBuilder.append(v1);
-		outputBuilder.append(StickerSearchConstants.STRING_ASSOCIATOR);
-		outputBuilder.append(v2);
-
-		return outputBuilder.toString();
-	}
-
-	/* Get individual values from string composed of 2 values */
-	public static Pair<Float, Float> getIndividualValues(String s)
-	{
-		Pair<Float, Float> result;
-
+		// Return default values, if empty set
 		if (Utils.isBlank(s))
 		{
-			result = new Pair<Float, Float>(0.0f, 0.0f);
-		}
-		else
-		{
-			ArrayList<String> values = split(s, StickerSearchConstants.REGEX_ASSOCIATOR, 0);
-			int length = (values == null) ? 0 : values.size();
-			float v1;
-			float v2;
-
-			if (length == 2)
+			if (kind == Integer.class)
 			{
-				try
+				for (int i = 0; i < count; i++)
 				{
-					v1 = Float.parseFloat(values.get(0));
-				}
-				catch (NumberFormatException e)
-				{
-					v1 = 0.0f;
-				}
-
-				try
-				{
-					v2 = Float.parseFloat(values.get(1));
-				}
-				catch (NumberFormatException e)
-				{
-					v2 = 0.0f;
+					result.add(0);
 				}
 			}
-			else if (length == 1)
+			else if (kind == Float.class)
 			{
-				v1 = 0.0f;
-
-				try
+				for (int i = 0; i < count; i++)
 				{
-					v2 = Float.parseFloat(values.get(0));
+					result.add(0.00f);
 				}
-				catch (NumberFormatException e)
+			}
+			else if (kind == Long.class)
+			{
+				for (int i = 0; i < count; i++)
 				{
-					v2 = 0.0f;
+					result.add(0L);
+				}
+			}
+			else if (kind == Double.class)
+			{
+				for (int i = 0; i < count; i++)
+				{
+					result.add(0.00d);
 				}
 			}
 			else
 			{
-				v1 = 0.0f;
-				v2 = 0.0f;
+				throw new IllegalArgumentException("Unknown type of numerical values are being demanded.");
 			}
+		}
+		// Return actual values, if non-empty set
+		else
+		{
+			ArrayList<String> values = split(s, StickerSearchConstants.REGEX_ASSOCIATOR, 0);
+			int length = (values == null) ? 0 : values.size();
+			int lessCount = count - length;
+			int i = 0;
 
-			result = new Pair<Float, Float>(v1, v2);
+			if (kind == Integer.class)
+			{
+				for (i = 0; i < lessCount; i++)
+				{
+					result.add(0);
+				}
+
+				for (int j = 0; i < count; i++, j++)
+				{
+					try
+					{
+						result.add(Integer.parseInt(values.get(j)));
+					}
+					catch (NumberFormatException e)
+					{
+						result.add(0);
+					}
+
+				}
+			}
+			else if (kind == Float.class)
+			{
+				for (i = 0; i < lessCount; i++)
+				{
+					result.add(0.00f);
+				}
+
+				for (int j = 0; i < count; i++, j++)
+				{
+					try
+					{
+						result.add(Float.parseFloat(values.get(j)));
+					}
+					catch (NumberFormatException e)
+					{
+						result.add(0.00f);
+					}
+
+				}
+			}
+			else if (kind == Long.class)
+			{
+				for (i = 0; i < lessCount; i++)
+				{
+					result.add(0L);
+				}
+
+				for (int j = 0; i < count; i++, j++)
+				{
+					try
+					{
+						result.add(Long.parseLong(values.get(j)));
+					}
+					catch (NumberFormatException e)
+					{
+						result.add(0L);
+					}
+
+				}
+			}
+			else if (kind == Double.class)
+			{
+				for (i = 0; i < lessCount; i++)
+				{
+					result.add(0.00d);
+				}
+
+				for (int j = 0; i < count; i++, j++)
+				{
+					try
+					{
+						result.add(Double.parseDouble(values.get(j)));
+					}
+					catch (NumberFormatException e)
+					{
+						result.add(0.00d);
+					}
+
+				}
+			}
+			else
+			{
+				throw new IllegalArgumentException("Unknown type of numerical values are being demanded.");
+			}
 		}
 
-		return result;
+		return (ArrayList<T>) result;
 	}
 
 	/* Get syntax string (a part of SQL query) while applying 'IN' clause with multiple '?' */

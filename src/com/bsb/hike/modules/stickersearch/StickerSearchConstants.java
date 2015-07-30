@@ -63,9 +63,9 @@ public class StickerSearchConstants
 
 	public static final float WEITAGE_CONTEXT_MOMENT = 0.10f;
 
-	public static final float RATIO_TRENDING_FREQUENCY = 0.50f;
+	public static final float RATIO_TRENDING_FREQUENCY = 0.59f;
 
-	public static final float RATIO_LOCAL_FREQUENCY = 0.37f;
+	public static final float RATIO_LOCAL_FREQUENCY = 0.28f;
 
 	public static final float RATIO_GLOBAL_FREQUENCY = 0.13f;
 
@@ -78,6 +78,16 @@ public class StickerSearchConstants
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_PREDICTIVE = 0.20f;
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
+
+	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
+
+	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING = 0;
+
+	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL = 1;
+
+	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL = 2;
+
+	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT = 3;
 
 	// ====================================================Constants used for calculating score]]
 
