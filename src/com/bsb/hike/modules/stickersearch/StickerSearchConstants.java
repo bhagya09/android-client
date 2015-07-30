@@ -46,7 +46,7 @@ public class StickerSearchConstants
 	// Constants used for selecting search result==============================================[[
 	public static final int MAXIMUM_SEARCH_COUNT = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER;
 
-	public static final float RATIO_MAXIMUM_SELECTION_COUNT = 0.50f;
+	public static final float RATIO_MAXIMUM_SELECTION_COUNT = 0.4f;
 
 	public static final int MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT = 2;
 

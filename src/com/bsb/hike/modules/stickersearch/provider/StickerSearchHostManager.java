@@ -1125,14 +1125,14 @@ public class StickerSearchHostManager
 
 					if (sticker.getExactMatchOrder() == -1)
 					{
-						sticker.setRecommendationScore(
+						sticker.setScore(
 								phraseMatchScore,
 								((matchScoreWeitage * phraseMatchScore) + 0.0f + (trendingFrequencyWeitage * formattedFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
 										: 0f)));
 					}
 					else
 					{
-						sticker.setRecommendationScore(phraseMatchScore, ((matchScoreWeitage * phraseMatchScore)
+						sticker.setScore(phraseMatchScore, ((matchScoreWeitage * phraseMatchScore)
 								+ (exactMatchWeitage * (phraseMatchScore > 0.7f ? phraseMatchScore : 0) / (sticker.getExactMatchOrder() + 1))
 								+ (trendingFrequencyWeitage * formattedFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage : 0f)));
 					}

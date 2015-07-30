@@ -124,10 +124,20 @@ public class StickerDataContainer implements Comparable<StickerDataContainer>
 		return mStringsNotUsedWithSticker;
 	}
 
-	public void setRecommendationScore(float matchingScore, float overallScore)
+	public void setScore(float matchingScore, float overallScore)
 	{
 		mMatchingScore = matchingScore;
 		mRecommendationScore = overallScore;
+	}
+
+	public float getMatchingScore()
+	{
+		return mMatchingScore;
+	}
+
+	public float getRecommendationScore()
+	{
+		return mRecommendationScore;
 	}
 
 	@Override

@@ -478,7 +478,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	private ArrayList<StickerDataContainer> searchInPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)
+	private ArrayList<StickerDataContainer> searchIntoPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)
 	{
 		ArrayList<StickerDataContainer> list = null;
 
@@ -490,7 +490,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID
 						+ HikeStickerSearchBaseConstants.SYNTAX_IN_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParameterSyntax(referenceArgs.length)
-						+ HikeStickerSearchBaseConstants.SYNTAX_END, referenceArgs, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, null, null);
+						+ HikeStickerSearchBaseConstants.SYNTAX_END, referenceArgs, null, null, null);
 
 				int count = (c == null) ? 0 : c.getCount();
 
@@ -498,11 +498,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				{
 					if (count <= sMaxSelectionCount)
 					{
-						list = selectTagsForStickers(matchKey, isExactMatchNeeded, count, c);
+						list = selectTagsForStickers(matchKey, isExactMatchNeeded, c);
 					}
 					else
 					{
-						list = selectTagsForStickersWithLimit(matchKey, isExactMatchNeeded, count, c);
+						list = selectTagsForStickersWithLimit(matchKey, isExactMatchNeeded, c);
 					}
 
 					Logger.i(TAG, "Search findings count = " + list.size());
@@ -522,64 +522,22 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return list;
 	}
 
-	private ArrayList<StickerDataContainer> selectTagsForStickers(String matchKey, boolean isExactMatchNeeded, int count, Cursor c)
+	private ArrayList<StickerDataContainer> selectTagsForStickers(String matchKey, boolean isExactMatchNeeded, Cursor c)
 	{
-		ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>(count);
+		ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>(c.getCount());
 		int[] columnIndices = computeColumnIndices(c);
 
-		if (matchKey.contains(StickerSearchConstants.STRING_SPACE) || !isExactMatchNeeded)
+		while (c.moveToNext())
 		{
-			while (c.moveToNext())
-			{
-				list.add(buildStickerData(c, columnIndices));
-			}
-		}
-		else
-		{
-			String actualTag;
-			int firstWordLimitIndexInTag;
-
-			while (c.moveToNext())
-			{
-				actualTag = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]);
-				firstWordLimitIndexInTag = actualTag.indexOf(StickerSearchConstants.STRING_SPACE);
-
-				if ((firstWordLimitIndexInTag > 0) && (firstWordLimitIndexInTag < actualTag.length()))
-				{
-					if (matchKey.equalsIgnoreCase(actualTag.substring(0, firstWordLimitIndexInTag)))
-					{
-						list.add(buildStickerData(c, columnIndices));
-					}
-					else
-					{
-						Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
-					}
-				}
-				else if (firstWordLimitIndexInTag == -1)
-				{
-					if (matchKey.equalsIgnoreCase(actualTag))
-					{
-						list.add(buildStickerData(c, columnIndices));
-					}
-					else
-					{
-						Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
-					}
-				}
-				else
-				{
-					Logger.i(TAG, "Rejected search result due to invalid first word: " + actualTag);
-				}
-			}
+			list.add(buildStickerData(c, columnIndices));
 		}
 
 		return list;
 	}
 
-	private ArrayList<StickerDataContainer> selectTagsForStickersWithLimit(String matchKey, boolean isExactMatchNeeded, int count, Cursor c)
+	private ArrayList<StickerDataContainer> selectTagsForStickersWithLimit(String matchKey, boolean isExactMatchNeeded, Cursor c)
 	{
-
-		ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>(count);
+		ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>(c.getCount());
 		int[] columnIndices = computeColumnIndices(c);
 
 		String previousStickerCode = null;
@@ -596,7 +554,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				{
 					if (tagCountPerSticker >= StickerSearchConstants.MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT)
 					{
-						Logger.i(TAG, "Skipped search result due to repeated tag: " + c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]));
+						Logger.i(TAG, "Skipped repeated sticker for tag: " + c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]));
 					}
 					else
 					{
@@ -619,15 +577,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			while (c.moveToNext())
 			{
+				actualTag = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]);
 				currentStickerCode = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE]);
 
 				if (currentStickerCode.equals(previousStickerCode))
 				{
-					actualTag = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]);
-
 					if (tagCountPerSticker >= StickerSearchConstants.MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT)
 					{
-						Logger.i(TAG, "Skipped search result due to repeated tag: " + actualTag);
+						Logger.i(TAG, "Skipped repeated sticker for tag: " + actualTag);
 					}
 					else
 					{
@@ -635,42 +592,41 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 						if ((firstWordLimitIndexInTag > 0) && (firstWordLimitIndexInTag < actualTag.length()))
 						{
-							if (matchKey.equalsIgnoreCase(actualTag.substring(0, firstWordLimitIndexInTag)))
+							if (actualTag.substring(0, firstWordLimitIndexInTag).equals(matchKey))
 							{
 								list.add(buildStickerData(c, columnIndices));
 								tagCountPerSticker++;
 							}
 							else
 							{
-								Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+								Logger.i(TAG, "Rejected sticker due to different first word in tag: " + actualTag);
 							}
 						}
 						else if (firstWordLimitIndexInTag == -1)
 						{
-							if (matchKey.equalsIgnoreCase(actualTag))
+							if (actualTag.equals(matchKey))
 							{
 								list.add(buildStickerData(c, columnIndices));
 								tagCountPerSticker++;
 							}
 							else
 							{
-								Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+								Logger.i(TAG, "Rejected sticker due to different first word in tag: " + actualTag);
 							}
 						}
 						else
 						{
-							Logger.i(TAG, "Rejected search result due to invalid first word: " + actualTag);
+							Logger.i(TAG, "Rejected sticker due to error in fetching first word in tag: " + actualTag);
 						}
 					}
 				}
 				else
 				{
-					actualTag = c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]);
 					firstWordLimitIndexInTag = actualTag.indexOf(StickerSearchConstants.STRING_SPACE);
 
 					if ((firstWordLimitIndexInTag > 0) && (firstWordLimitIndexInTag < actualTag.length()))
 					{
-						if (matchKey.equalsIgnoreCase(actualTag.substring(0, firstWordLimitIndexInTag)))
+						if (actualTag.substring(0, firstWordLimitIndexInTag).equals(matchKey))
 						{
 							list.add(buildStickerData(c, columnIndices));
 							tagCountPerSticker = 1;
@@ -678,12 +634,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						}
 						else
 						{
-							Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+							Logger.i(TAG, "Rejected sticker due to different first word in tag: " + actualTag);
 						}
 					}
 					else if (firstWordLimitIndexInTag == -1)
 					{
-						if (matchKey.equalsIgnoreCase(actualTag))
+						if (actualTag.equals(matchKey))
 						{
 							list.add(buildStickerData(c, columnIndices));
 							tagCountPerSticker = 1;
@@ -691,12 +647,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						}
 						else
 						{
-							Logger.i(TAG, "Rejected search result due to different first word: " + actualTag);
+							Logger.i(TAG, "Rejected sticker due to different first word in tag: " + actualTag);
 						}
 					}
 					else
 					{
-						Logger.i(TAG, "Rejected search result due to invalid first word: " + actualTag);
+						Logger.i(TAG, "Rejected sticker due to error in fetching first word in tag: " + actualTag);
 					}
 				}
 			}
@@ -777,44 +733,41 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return sticker;
 	}
 
-	public ArrayList<StickerDataContainer> searchIntoFTSAndFindStickerList(String phrase, boolean isExactMatchNeeded)
+	public ArrayList<StickerDataContainer> searchIntoFTSAndFindStickerList(String matchKey, boolean isExactMatchNeeded)
 	{
 		ArrayList<StickerDataContainer> result = null;
-		ArrayList<Long> tempRows = null;
+		ArrayList<String> tempReferences = null;
 		String[] rows = null;
 		Cursor c = null;
+		int count = 0;
 
 		try
 		{
-			char[] array = phrase.toCharArray();
-			String table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH : HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
+			char[] array = matchKey.toCharArray();
+			String table = (array[0] > 'Z' || array[0] < 'A') ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH : HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
 					+ array[0];
-			Logger.i(TAG, "Searching \"" + phrase + "\" in " + table + ", exact search: " + isExactMatchNeeded);
+			Logger.i(TAG, "Searching \"" + matchKey + "\" in " + table + ", exact search: " + isExactMatchNeeded);
 
 			if (isExactMatchNeeded)
 			{
-				c = mDb.query(table, new String[] { HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID }, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
-						+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + phrase + HikeStickerSearchBaseConstants.SYNTAX_MATCH_END, null, null, null, null);
+				c = mDb.query(table, null, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
+						+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + matchKey + HikeStickerSearchBaseConstants.SYNTAX_MATCH_END, null, null, null, null);
 			}
 			else
 			{
-				c = mDb.query(table, new String[] { HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID }, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
-						+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + phrase + HikeStickerSearchBaseConstants.SYNTAX_PREDICATE_MATCH_END, null, null, null, null);
+				c = mDb.query(table, null, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
+						+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + matchKey + HikeStickerSearchBaseConstants.SYNTAX_PREDICATE_MATCH_END, null, null, null, null);
 			}
 
-			int count = ((c == null) ? 0 : c.getCount());
+			count = ((c == null) ? 0 : c.getCount());
 			if (count > 0)
 			{
-				tempRows = new ArrayList<Long>(count);
-				while (c.moveToNext())
-				{
-					tempRows.add(c.getLong(c.getColumnIndex(HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID)));
-				}
+				tempReferences = selectReferencesForTags(matchKey, isExactMatchNeeded, c);
 			}
 		}
 		catch (SQLiteException e)
 		{
-			Logger.e(TAG, "Exception while searching \"" + phrase + "\"", e);
+			Logger.e(TAG, "Exception while searching \"" + matchKey + "\"", e);
 		}
 		finally
 		{
@@ -824,26 +777,83 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 		}
 
-		int rowsCount = (tempRows == null) ? 0 : tempRows.size();
-		if (rowsCount > 0)
+		if (count > 0)
 		{
-			if (rowsCount > HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER)
+			if (count > StickerSearchConstants.MAXIMUM_SEARCH_COUNT)
 			{
-				Collections.shuffle(tempRows, mRandom);
-				rowsCount = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER;
+				Collections.shuffle(tempReferences, mRandom);
+				count = StickerSearchConstants.MAXIMUM_SEARCH_COUNT;
 			}
 
-			rows = new String[rowsCount];
+			rows = new String[count];
 
-			for (int i = 0; i < rowsCount; i++)
+			for (int i = 0; i < count; i++)
 			{
-				rows[i] = String.valueOf(tempRows.get(i));
+				rows[i] = tempReferences.get(i);
 			}
 
-			result = searchInPrimaryTable(phrase, rows, isExactMatchNeeded);
+			result = searchIntoPrimaryTable(matchKey, rows, isExactMatchNeeded);
 		}
 
 		return result;
+	}
+
+	private ArrayList<String> selectReferencesForTags(String matchKey, boolean isExactMatchNeeded, Cursor c)
+	{
+		int count = (c == null) ? 0 : c.getCount();
+		ArrayList<String> tempReferences = null;
+
+		if (count > 0)
+		{
+			tempReferences = new ArrayList<String>(count);
+
+			int tagIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.TAG_REAL_PHRASE);
+			int referenceIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID);
+
+			if (matchKey.contains(StickerSearchConstants.STRING_SPACE) || !isExactMatchNeeded || (count < StickerSearchConstants.MAXIMUM_SEARCH_COUNT))
+			{
+				while (c.moveToNext())
+				{
+					tempReferences.add(String.valueOf(c.getLong(referenceIndex)));
+				}
+			}
+			else
+			{
+				String actualTag;
+				String firstWordInTag;
+				int firstWordLimitIndexInTag;
+
+				while (c.moveToNext())
+				{
+					actualTag = c.getString(tagIndex);
+					firstWordLimitIndexInTag = actualTag.indexOf(StickerSearchConstants.STRING_SPACE);
+
+					if ((firstWordLimitIndexInTag > 0) && (firstWordLimitIndexInTag < actualTag.length()))
+					{
+						firstWordInTag = actualTag.substring(0, firstWordLimitIndexInTag);
+
+						if (firstWordInTag.startsWith(matchKey))
+						{
+							tempReferences.add(String.valueOf(c.getLong(referenceIndex)));
+						}
+						else
+						{
+							Logger.i(TAG, "Rejected search result due to different first word in tag: " + actualTag);
+						}
+					}
+					else if (firstWordLimitIndexInTag == -1)
+					{
+						tempReferences.add(String.valueOf(c.getLong(referenceIndex)));
+					}
+					else
+					{
+						Logger.i(TAG, "Rejected search result due to error in fetching first word in tag: " + actualTag);
+					}
+				}
+			}
+		}
+
+		return tempReferences;
 	}
 
 	public void disableTagsForDeletedStickers(Set<String> stickerInfoSet)
