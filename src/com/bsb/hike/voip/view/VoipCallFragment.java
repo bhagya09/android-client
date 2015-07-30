@@ -73,7 +73,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private Chronometer callDuration;
 
 	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
-
+	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 
 	private CallFragmentListener activity;
@@ -814,6 +814,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 
+		if (voipService.hostingConference() && signalContainer != null) {
+			// remove quality indicator
+			signalContainer.setVisibility(View.GONE);
+		}
+		
 		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			
 			// Display the contact name and participant count
@@ -880,7 +885,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void showSignalStrength(CallQuality quality)
 	{
-		LinearLayout signalContainer = (LinearLayout) getView().findViewById(R.id.signal_container);
+		signalContainer = (LinearLayout) getView().findViewById(R.id.signal_container);
 		TextView signalStrengthView = (TextView) getView().findViewById(R.id.signal_strength);
 		GradientDrawable gd = (GradientDrawable)signalContainer.getBackground();
 
