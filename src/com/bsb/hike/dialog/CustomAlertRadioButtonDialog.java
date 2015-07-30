@@ -82,6 +82,11 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 
 				checkBox.setChecked(radioBtn.isChecked);
 
+				if (radioBtn.isChecked)
+				{
+					selectedRadioGroup = radioBtn;
+				}
+
 				messageHeadingTv.setText(radioBtn.messageHeading);
 
 				if (TextUtils.isEmpty(radioBtn.subText))
@@ -180,7 +185,10 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 
 			((CheckBox) view.findViewById(R.id.checkbox1)).setChecked(mPojo.isChecked);
 
+			selectedRadioGroup = mPojo;
+
 			((ArrayAdapter<RadioButtonPojo>) parent.getAdapter()).notifyDataSetChanged();
+
 		}
 		if (mListener != null && mPojo.isChecked)
 		{
@@ -198,6 +206,14 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 	public void setMessage(String messageText)
 	{
 		throw new IllegalArgumentException("Cannot show body and radio buttons together in this popup");
+	}
+
+	public int getCheckedRadioButtonId()
+	{
+		if (selectedRadioGroup != null)
+			return selectedRadioGroup.id;
+		else
+			return -1;
 	}
 
 }
