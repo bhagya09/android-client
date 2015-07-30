@@ -1646,6 +1646,8 @@ public class HikeConstants
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 
 		public static final String ENABLE_SEND_LOGS = "ulogs_on";
+
+		public static final String NEW_GROUP = "newGroups";
 	}
 
 	public static final class LogEvent

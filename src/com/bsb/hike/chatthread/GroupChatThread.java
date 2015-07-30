@@ -81,13 +81,17 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private View pinView;
 
+	private boolean isNewChat;
+
 	/**
 	 * @param activity
 	 * @param msisdn
+	 * @param newChat TODO
 	 */
-	public GroupChatThread(ChatThreadActivity activity, String msisdn)
+	public GroupChatThread(ChatThreadActivity activity, String msisdn, boolean newChat)
 	{
 		super(activity, msisdn);
+		isNewChat = newChat;
 	}
 
 	@Override
@@ -98,7 +102,7 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	private void shouldShowMultiAdminPopup() {
-		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false))
+		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat)
 		{
 			try {
 				if(oneToNConversation.getMetadata().amIAdmin()||oneToNConversation.getConversationOwner().equalsIgnoreCase(activity.getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, ""))){
