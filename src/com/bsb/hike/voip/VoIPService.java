@@ -226,7 +226,6 @@ public class VoIPService extends Service {
 					Logger.d(tag, msisdn + " has quit the conference.");
 					removeFromClients(msisdn);
 					playFromSoundPool(SOUND_DECLINE, false);
-					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 				}
 				break;
 

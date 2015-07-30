@@ -178,17 +178,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
 				showMessage(getString(R.string.voip_mic_error));
 				break;
-			case VoIPConstants.MSG_LEFT_CONFERENCE:
-				Bundle bundle = msg.getData();
-				String msisdn = bundle.getString(VoIPConstants.MSISDN);
-				String name = null;
-				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
-				if (contactInfo == null) {
-					name = msisdn;
-				} else {
-					name = contactInfo.getNameOrMsisdn();
-				}
-				showMessage(name + " has left the conference.");
 			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
 				setContactDetails();
 				break;
