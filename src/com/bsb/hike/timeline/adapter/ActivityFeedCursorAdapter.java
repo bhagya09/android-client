@@ -2,8 +2,6 @@ package com.bsb.hike.timeline.adapter;
 
 import java.lang.ref.WeakReference;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
@@ -46,9 +43,9 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 	private final int PROFILE_PIC_CHANGE = 3;
 
 	private final int IMAGE = 1;
-	
+
 	private final int TEXT_IMAGE = 2;
-	
+
 	private final int TEXT = 0;
 
 	class ViewHolder extends RecyclerView.ViewHolder
@@ -63,19 +60,13 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 		TextView extraInfo;
 
-		TextView timeStamp;
-
 		ImageView statusImg;
 
 		ImageView largeProfilePic;
 
-		View infoContainer;
-
 		View parent;
 
 		ViewGroup contactsContainer;
-		
-		ImageView moodImage;
 
 		ImageView loveStatus;
 
@@ -88,22 +79,19 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			name = (TextView) convertView.findViewById(R.id.name);
 			mainInfo = (TextView) convertView.findViewById(R.id.main_info);
 
-			//Grab view references
+			// Grab view references
 			switch (viewType)
 			{
-			
+
 			case PROFILE_PIC_CHANGE:
 			case IMAGE:
 			case TEXT_IMAGE:
 				avatar = (ImageView) convertView.findViewById(R.id.avatar);
 				largeProfilePic = (ImageView) convertView.findViewById(R.id.profile_pic);
-				timeStamp = (TextView) convertView.findViewById(R.id.timestamp);
-				infoContainer = convertView.findViewById(R.id.info_container);
-				moodImage = (ImageView) convertView.findViewById(R.id.mood_pic);
-				loveStatus = (ImageView)convertView.findViewById(R.id.love_status);
+				loveStatus = (ImageView) convertView.findViewById(R.id.love_status);
 				break;
 			}
-			
+
 		}
 	}
 
@@ -114,21 +102,17 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 	private IconLoader mIconImageLoader;
 
 	private TimelineUpdatesImageLoader profileImageLoader;
-	
+
 	private String mUserMsisdn;
 
 	private int mProtipIndex;
 
 	private WeakReference<Activity> mActivity;
 
-	private int mLastPosition = 3;
-
-	private static final String TAG = "ActivityFeedCardCursorAdapter";
-	
-    public ActivityFeedCursorAdapter(Activity activity, Cursor c, int flags) 
-    {
-        super(HikeMessengerApp.getInstance().getApplicationContext(), c, flags);
-        mContext = HikeMessengerApp.getInstance().getApplicationContext();
+	public ActivityFeedCursorAdapter(Activity activity, Cursor c, int flags)
+	{
+		super(HikeMessengerApp.getInstance().getApplicationContext(), c, flags);
+		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 		profileImageLoader = new TimelineUpdatesImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
 		mIconImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(true);
@@ -136,12 +120,12 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 		mProtipIndex = -1;
 		mActivity = new WeakReference<Activity>(activity);
 		mUserMsisdn = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-    }
+	}
 
-    @Override
+	@Override
 	public int getItemViewType(int position)
 	{
-    	mCursor.moveToPosition(position);
+		mCursor.moveToPosition(position);
 		StatusMessage message = new StatusMessage(mCursor);
 		if (message.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
@@ -165,8 +149,8 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 		FeedDataModel feedDataModel = new FeedDataModel(cursor);
 
-		int viewType = getItemViewType(cursor.getPosition()); 
-				
+		int viewType = getItemViewType(cursor.getPosition());
+
 		switch (viewType)
 		{
 		case TEXT:
@@ -174,43 +158,42 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 		case TEXT_IMAGE:
 		case PROFILE_PIC_CHANGE:
 			RoundedImageView roundAvatar1 = (RoundedImageView) viewHolder.avatar;
-			roundAvatar1.setScaleType(ScaleType.FIT_CENTER);
+			roundAvatar1.setScaleType(ScaleType.FIT_XY);
 			roundAvatar1.setBackgroundResource(0);
-			
-			roundAvatar1.setOval(true);
-			setAvatar(feedDataModel.getActor(), viewHolder.avatar);
-			
-			viewHolder.name.setText(mUserMsisdn.equals(feedDataModel.getActor()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : 
-				ContactManager.getInstance().getContact(feedDataModel.getActor()).getFirstNameAndSurname());
+			viewHolder.name.setText(mUserMsisdn.equals(feedDataModel.getActor()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : ContactManager
+					.getInstance().getContact(feedDataModel.getActor()).getFirstNameAndSurname());
 
-			viewHolder.timeStamp.setText(Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
-			
-			if(feedDataModel.getReadStatus() == 1)
+			if (feedDataModel.getReadStatus() == 1)
 			{
 				viewHolder.loveStatus.setImageResource(R.drawable.ic_loved);
 			}
-			
+
 			if (statusMessage.hasMood())
 			{
 				// For moods we dont want to use rounded corners
-				viewHolder.moodImage.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
-				viewHolder.moodImage.setVisibility(View.VISIBLE);
+				viewHolder.avatar.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
+				viewHolder.avatar.setVisibility(View.VISIBLE);
 			}
-				
-			if(viewType == TEXT)
+			else
+			{
+				roundAvatar1.setOval(true);
+				setAvatar(feedDataModel.getActor(), viewHolder.avatar);
+			}
+
+			if (viewType == TEXT)
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true) + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 			}
 			else if (TextUtils.isEmpty(statusMessage.getText()))
 			{
-				viewHolder.mainInfo.setText(R.string.status_profile_pic_notification);
+				viewHolder.mainInfo.setText(R.string.status_profile_pic_notification + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 			}
 			else
 			{
-				viewHolder.mainInfo.setText(statusMessage.getText());
+				viewHolder.mainInfo.setText(statusMessage.getText() + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 			}
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
@@ -219,31 +202,11 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 			profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
 
-			viewHolder.infoContainer.setTag(statusMessage);
-			viewHolder.infoContainer.setOnClickListener(onProfileInfoClickListener);
+			viewHolder.parent.setTag(statusMessage);
+			viewHolder.parent.setOnClickListener(onProfileInfoClickListener);
 			break;
 		}
 
-		if (cursor.getPosition() >= mLastPosition)
-		{
-			Animator[] anims = getAnimators(viewHolder.itemView);
-			int length = anims.length;
-			for (int i = length; i > 0; i--)
-			{
-				Animator anim = anims[i - 1];
-				anim.setInterpolator(cardInterp);
-				anim.setDuration(500).start();
-			}
-			mLastPosition = cursor.getPosition();
-		}
-
-	}
-
-	private DecelerateInterpolator cardInterp = new DecelerateInterpolator();
-
-	protected Animator[] getAnimators(View view)
-	{
-		return new Animator[] { ObjectAnimator.ofFloat(view, "alpha", 0, 1f), ObjectAnimator.ofFloat(view, "translationY", 200, 0) };
 	}
 
 	@Override
@@ -254,14 +217,8 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 		switch (viewType)
 		{
 		case TEXT:
-			convertView = mInflater.inflate(R.layout.activity_feed_item, parent, false);
-			return new ViewHolder(convertView, viewType);
 		case PROFILE_PIC_CHANGE:
-			convertView = mInflater.inflate(R.layout.activity_feed_item, parent, false);
-			return new ViewHolder(convertView, viewType);
 		case IMAGE:
-			convertView = mInflater.inflate(R.layout.activity_feed_item, parent, false);
-			return new ViewHolder(convertView, viewType);
 		case TEXT_IMAGE:
 			convertView = mInflater.inflate(R.layout.activity_feed_item, parent, false);
 			return new ViewHolder(convertView, viewType);
@@ -318,7 +275,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			// mContext.finish();
 		}
 	};
-	
+
 	private void startActivity(Intent argIntent)
 	{
 		if (mActivity.get() != null)
@@ -327,11 +284,10 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 		}
 	}
 
-
 	@Override
 	protected void onContentChanged()
 	{
-		
+
 	}
 
 }

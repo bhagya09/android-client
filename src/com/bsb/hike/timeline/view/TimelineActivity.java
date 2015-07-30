@@ -408,40 +408,33 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			@Override
 			public void run()
 			{
-				final TextView activityFeedTopBarIndicator = (TextView)activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+				final TextView activityFeedTopBarIndicator = (TextView) activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
 				if (activityFeedTopBarIndicator != null)
 				{
-					if(count < 1)
+					activityFeedMenuItem.setVisible(true);
+					if (count > 9)
 					{
-						activityFeedMenuItem.setVisible(false);
+						activityFeedTopBarIndicator.setText("9+");
 					}
-					else
+					else if (count > 0)
 					{
-						if (count > 9)
-						{
-							activityFeedTopBarIndicator.setText("9+");
-						}
-						else if (count > 0)
-						{
-							activityFeedTopBarIndicator.setText(String.valueOf(count));
-						}
-						activityFeedMenuItem.setVisible(true);
-						activityFeedTopBarIndicator.setVisibility(View.VISIBLE);
-						activityFeedTopBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+						activityFeedTopBarIndicator.setText(String.valueOf(count));
 					}
+					activityFeedMenuItem.setVisible(true);
+					activityFeedTopBarIndicator.setVisibility(View.VISIBLE);
+					activityFeedTopBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 				}
 			}
 		});
 	}
-	
+
 	@Override
 	protected void openImageViewer(Object object)
 	{
 		/*
 		 * Making sure we don't add the fragment if the activity is finishing.
 		 */
-		if (isFinishing())
-		{
+		if (isFinishing()) {
 			return;
 		}
 	}
