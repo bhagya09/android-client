@@ -6,6 +6,7 @@ package com.bsb.hike.dialog;
 import java.util.List;
 
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +32,13 @@ import com.bsb.hike.R;
 public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements OnItemClickListener
 {
 
-	private List<RadioButtonPojo> radioButtonPojoList;
+	protected List<RadioButtonPojo> radioButtonPojoList;
 
-	private RadioButtonItemCheckedListener mListener;
+	protected RadioButtonItemCheckedListener mListener;
 
 	public RadioButtonPojo selectedRadioGroup;
+	
+	ArrayAdapter<RadioButtonPojo> mAdapter;
 
 	/**
 	 * @param context
@@ -55,13 +58,19 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 
 		final LayoutInflater mInflater = getLayoutInflater();
 
-		ArrayAdapter<RadioButtonPojo> mAdapter = new ArrayAdapter<RadioButtonPojo>(mContext, R.layout.custom_radio_btn, R.id.header, radioButtonPojoList)
+		mAdapter = new ArrayAdapter<RadioButtonPojo>(mContext, R.layout.custom_radio_btn, R.id.header, radioButtonPojoList)
 		{
 
 			@Override
 			public RadioButtonPojo getItem(int position)
 			{
 				return radioButtonPojoList.get(position);
+			}
+			
+			@Override
+			public boolean isEnabled(int position)
+			{
+				return getItem(position).enabled;
 			}
 
 			@Override
@@ -110,7 +119,9 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 					messageTextTv.setVisibility(View.VISIBLE);
 					messageTextTv.setText(radioBtn.messageText);
 				}
-
+				
+				ViewCompat.setAlpha(convertView, radioBtn.enabled ? 1.0f : 0.24f);
+				
 				return convertView;
 			}
 		};
@@ -131,6 +142,8 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 		String messageHeading;
 
 		String subText;
+		
+		boolean enabled = true;
 
 		public RadioButtonPojo(int id, boolean isChecked, String messageText, String messageHeading, String subText)
 		{
