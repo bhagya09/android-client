@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -2624,9 +2625,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		
 		super.onPrepareOverflowOptionsMenu(overflowItems);
-		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
+		Iterator<OverFlowMenuItem> iteratorOverflowItems = overflowItems.iterator();
+		while(iteratorOverflowItems.hasNext())
 		{
 
+			OverFlowMenuItem overFlowMenuItem = iteratorOverflowItems.next();
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.add_as_favorite_menu:
@@ -2635,7 +2638,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				 */
 				if(!mContactInfo.isNotOrRejectedFavourite())
 				{
-					overflowItems.remove(overFlowMenuItem);
+					iteratorOverflowItems.remove();
 				}
 				else
 				{
