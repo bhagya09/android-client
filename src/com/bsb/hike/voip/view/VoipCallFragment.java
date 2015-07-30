@@ -73,7 +73,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private Chronometer callDuration;
 
 	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
-
+	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 
 	private CallFragmentListener activity;
@@ -178,17 +178,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
 				showMessage(getString(R.string.voip_mic_error));
 				break;
-			case VoIPConstants.MSG_LEFT_CONFERENCE:
-				Bundle bundle = msg.getData();
-				String msisdn = bundle.getString(VoIPConstants.MSISDN);
-				String name = null;
-				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
-				if (contactInfo == null) {
-					name = msisdn;
-				} else {
-					name = contactInfo.getNameOrMsisdn();
-				}
-				showMessage(name + " has left the conference.");
 			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
 				setContactDetails();
 				break;
@@ -814,6 +803,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 
+		if (voipService.hostingConference() && signalContainer != null) {
+			// remove quality indicator
+			signalContainer.setVisibility(View.GONE);
+		}
+		
 		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			
 			// Display the contact name and participant count
@@ -880,7 +874,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void showSignalStrength(CallQuality quality)
 	{
-		LinearLayout signalContainer = (LinearLayout) getView().findViewById(R.id.signal_container);
+		signalContainer = (LinearLayout) getView().findViewById(R.id.signal_container);
 		TextView signalStrengthView = (TextView) getView().findViewById(R.id.signal_strength);
 		GradientDrawable gd = (GradientDrawable)signalContainer.getBackground();
 

@@ -226,7 +226,6 @@ public class VoIPService extends Service {
 					Logger.d(tag, msisdn + " has quit the conference.");
 					removeFromClients(msisdn);
 					playFromSoundPool(SOUND_DECLINE, false);
-					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 				}
 				break;
 
@@ -644,21 +643,23 @@ public class VoIPService extends Service {
 		if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
 			VoIPUtils.cancelMissedCallNotification(getApplicationContext());
 
+		VoIPClient primary = getClient();
+		
 		if (clients.size() == 1) {
 			// We are adding a second client, and hence starting a conference call
-			VoIPClient primary = getClient();
 			primary.cryptoEnabled = false;
 			primary.isInAHostedConference = true;
-			
-			// Must maintain contact with the same server
-			client.setRelayAddress(primary.getRelayAddress());
-			client.setRelayPort(primary.getRelayPort());
 		}
 		
 		if (clients.size() > 0 && getCallId() > 0) {
 			Logger.d(tag, "We're in a conference. Maintaining call id: " + getCallId());
 			client.cryptoEnabled = false;
 			client.isInAHostedConference = true;
+
+			// Must maintain contact with the same server
+			client.setRelayAddress(primary.getRelayAddress());
+			client.setRelayPort(primary.getRelayPort());
+			
 			startConferenceBroadcast();			
 		}
 		else {
@@ -1727,7 +1728,6 @@ public class VoIPService extends Service {
 
 				// Wait till the broadcast frames start coming in
 				OpusWrapper opusWrapper = null;
-				int voicePacketNumber = 0;
 				try {
 					VoIPDataPacket broadcastPacket = conferenceBroadcastPackets.take();
 					Logger.w(tag, "Starting conference broadcast.");
@@ -1737,10 +1737,10 @@ public class VoIPService extends Service {
 
 					byte[] compressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 10];
 					int compressedDataLength = 0;
-					VoIPClient connectedClient = null;
+					VoIPClient broadcastClient = null;
 
 					while (keepRunning) {
-						connectedClient = null;
+						broadcastClient = null;
 						
 						// If it's an audio packet, then compress it
 						if (broadcastPacket.getType() == PacketType.AUDIO_PACKET) {
@@ -1760,9 +1760,10 @@ public class VoIPService extends Service {
 						synchronized (clients) {
 							for (VoIPClient client : clients.values()) {
 								
-								if (client.connected)
-									connectedClient = client;
-								else
+								if (client.connected && client.getPreferredConnectionMethod() == ConnectionMethods.RELAY)
+									broadcastClient = client;
+								
+								if (!client.connected)
 									continue;
 								
 								if (client.isSpeaking() && broadcastPacket.getType() == PacketType.AUDIO_PACKET)
@@ -1776,15 +1777,10 @@ public class VoIPService extends Service {
 						}
 						
 						// Send the packet
-						if (broadcastPacket.getBroadcastList() != null) {
-							if (broadcastPacket.getType() == PacketType.AUDIO_PACKET)
-								broadcastPacket.setVoicePacketNumber(voicePacketNumber++);
-							
-							if (connectedClient != null) {
-								connectedClient.addToSendingQueue(broadcastPacket);								
+						if (broadcastClient != null && broadcastPacket.getBroadcastList() != null) {
+							if (broadcastClient != null) {
+								broadcastClient.addToSendingQueue(broadcastPacket);								
 							}
-							else
-								Logger.w(tag, "Unable to find a connected client to broadcast.");
 						}
 						
 						// Wait for next packet
