@@ -35,6 +35,8 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 
 	private RadioButtonItemCheckedListener mListener;
 
+	public RadioButtonPojo selectedRadioGroup;
+
 	/**
 	 * @param context
 	 * @param dialogId
@@ -53,51 +55,56 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 
 		final LayoutInflater mInflater = getLayoutInflater();
 
-		ArrayAdapter<RadioButtonPojo> mAdapter = new ArrayAdapter<RadioButtonPojo>(mContext, R.layout.custom_popup_radio_btn, R.id.header, radioButtonPojoList)
+		ArrayAdapter<RadioButtonPojo> mAdapter = new ArrayAdapter<RadioButtonPojo>(mContext, R.layout.custom_radio_btn, R.id.header, radioButtonPojoList)
 		{
+
+			@Override
+			public RadioButtonPojo getItem(int position)
+			{
+				return radioButtonPojoList.get(position);
+			}
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent)
 			{
+				RadioButtonPojo radioBtn = getItem(position);
+
 				if (convertView == null)
 				{
-					convertView = mInflater.inflate(R.layout.custom_popup_radio_btn, null);
+					convertView = mInflater.inflate(R.layout.custom_radio_btn, null);
+					convertView.setTag(radioBtn);
 				}
 
-				CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.checkbox);
-				TextView headerText = (TextView) convertView.findViewById(R.id.header);
-				TextView headerMessageText = (TextView) convertView.findViewById(R.id.headerSubText);
-				TextView subTextView = (TextView) convertView.findViewById(R.id.subtext);
-
-				RadioButtonPojo radioBtn = getItem(position);
+				CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.checkbox1);
+				TextView messageHeadingTv = (TextView) convertView.findViewById(R.id.header);
+				TextView messageTextTv = (TextView) convertView.findViewById(R.id.headerSubText);
+				TextView subTextTv = (TextView) convertView.findViewById(R.id.subtext);
 
 				checkBox.setChecked(radioBtn.isChecked);
 
-				headerText.setText(radioBtn.messageHeading);
+				messageHeadingTv.setText(radioBtn.messageHeading);
 
 				if (TextUtils.isEmpty(radioBtn.subText))
 				{
-					subTextView.setVisibility(View.GONE);
+					subTextTv.setVisibility(View.GONE);
 				}
 
 				else
 				{
-					subTextView.setVisibility(View.VISIBLE);
-					subTextView.setText(radioBtn.subText);
+					subTextTv.setVisibility(View.VISIBLE);
+					subTextTv.setText(radioBtn.subText);
 				}
 
 				if (TextUtils.isEmpty(radioBtn.messageText))
 				{
-					headerMessageText.setVisibility(View.GONE);
+					messageTextTv.setVisibility(View.GONE);
 				}
 
 				else
 				{
-					headerMessageText.setVisibility(View.VISIBLE);
-					headerMessageText.setText(radioBtn.messageText);
+					messageTextTv.setVisibility(View.VISIBLE);
+					messageTextTv.setText(radioBtn.messageText);
 				}
-
-				convertView.setTag(radioBtn);
 
 				return convertView;
 			}
@@ -110,7 +117,7 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 
 	public static class RadioButtonPojo
 	{
-		private int id;
+		int id;
 
 		boolean isChecked;
 
@@ -142,29 +149,43 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 				throw new IllegalArgumentException("You need to pass in a message heading in RadioButton Pojo");
 			}
 		}
+
+		public void setChecked(boolean isChecked)
+		{
+			this.isChecked = isChecked;
+		}
 	}
 
 	public static interface RadioButtonItemCheckedListener
 	{
-		public void onRadioButtonItemClicked(RadioButtonPojo whichItem);
+		public void onRadioButtonItemClicked(RadioButtonPojo whichItem, CustomAlertRadioButtonDialog dialog);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
-		CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkbox);
-
-		checkBox.setChecked(!checkBox.isChecked());
-
 		RadioButtonPojo mPojo = (RadioButtonPojo) view.getTag();
 
-		mPojo.isChecked = checkBox.isChecked();
-
-		if (mListener != null)
+		if (!mPojo.isChecked)
 		{
-			mListener.onRadioButtonItemClicked(mPojo);
-		}
+			for (RadioButtonPojo pojo : radioButtonPojoList)
+			{
+				if (mPojo.id != pojo.id)
+				{
+					pojo.isChecked = false;
+				}
+			}
 
+			mPojo.isChecked = true;
+
+			((CheckBox) view.findViewById(R.id.checkbox1)).setChecked(mPojo.isChecked);
+
+			((ArrayAdapter<RadioButtonPojo>) parent.getAdapter()).notifyDataSetChanged();
+		}
+		if (mListener != null && mPojo.isChecked)
+		{
+			mListener.onRadioButtonItemClicked(mPojo, CustomAlertRadioButtonDialog.this);
+		}
 	}
 
 	@Override

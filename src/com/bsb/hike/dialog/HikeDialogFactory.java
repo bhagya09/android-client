@@ -1,6 +1,7 @@
 package com.bsb.hike.dialog;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,7 +23,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -36,6 +36,8 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.AccountAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
@@ -43,7 +45,6 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.tasks.SyncOldSMSTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontTextView;
 
 public class HikeDialogFactory
 {
@@ -298,130 +299,67 @@ public class HikeDialogFactory
 
 	private static HikeDialog showImageQualityDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
-		hikeDialog.setContentView(R.layout.image_quality_popup);
-		hikeDialog.setCancelable(true);
-		hikeDialog.setCanceledOnTouchOutside(true);
+		
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		final Editor editor = appPrefs.edit();
-		int quality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, ImageQuality.QUALITY_DEFAULT);
-		final LinearLayout small_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_small_container);
-		final LinearLayout medium_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_medium_container);
-		final LinearLayout original_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_original_container);
-		final CheckBox small = (CheckBox) hikeDialog.findViewById(R.id.hike_small_checkbox);
-		final CheckBox medium = (CheckBox) hikeDialog.findViewById(R.id.hike_medium_checkbox);
-		final CheckBox original = (CheckBox) hikeDialog.findViewById(R.id.hike_original_checkbox);
-		CustomFontTextView smallSize = (CustomFontTextView) hikeDialog.findViewById(R.id.image_quality_small_cftv);
-		CustomFontTextView mediumSize = (CustomFontTextView) hikeDialog.findViewById(R.id.image_quality_medium_cftv);
-		CustomFontTextView originalSize = (CustomFontTextView) hikeDialog.findViewById(R.id.image_quality_original_cftv);
-		Button once = (Button) hikeDialog.findViewById(R.id.btn_just_once);
-
-		long image_small_size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_SMALL, HikeConstants.IMAGE_SIZE_SMALL);
-		long image_medium_size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_IMAGE_SIZE_MEDIUM, HikeConstants.IMAGE_SIZE_MEDIUM);
+		List<RadioButtonPojo> radioButtons = DialogUtils.getImageQualityOptions(context, data);
 		
-		if (data != null)
+		final CustomAlertRadioButtonDialog hikeDialog = new CustomAlertRadioButtonDialog(context, dialogId,  radioButtons, new RadioButtonItemCheckedListener()
 		{
-			Long[] dataBundle = (Long[]) data;
-			int smallsz, mediumsz, originalsz;
-			if (dataBundle.length > 0)
+
+			@Override
+			public void onRadioButtonItemClicked(RadioButtonPojo whichItem, CustomAlertRadioButtonDialog dialog)
 			{
-
-				originalsz = dataBundle[1].intValue();
-				smallsz = (int) (dataBundle[0] * image_small_size);
-				mediumsz = (int) (dataBundle[0] * image_medium_size);
-				if (smallsz >= originalsz)
-				{
-					smallsz = originalsz;
-					smallSize.setVisibility(View.GONE);
-				}
-				if (mediumsz >= originalsz)
-				{
-					mediumsz = originalsz;
-					mediumSize.setVisibility(View.GONE);
-					// if medium option text size is gone, so is small's
-					smallSize.setVisibility(View.GONE);
-				}
-				smallSize.setText(" (" + Utils.getSizeForDisplay(smallsz) + ")");
-				mediumSize.setText(" (" + Utils.getSizeForDisplay(mediumsz) + ")");
-				originalSize.setText(" (" + Utils.getSizeForDisplay(originalsz) + ")");
+				dialog.selectedRadioGroup = whichItem;
 			}
-		}
-
-		showImageQualityOption(quality, small, medium, original);
+			
+		});
+		
+		hikeDialog.setCancelable(true);
+		hikeDialog.setCanceledOnTouchOutside(true);
+		hikeDialog.setTitle(R.string.image_quality_prefs);
+		hikeDialog.setPositiveButton(R.string.image_quality_send, null);
 
 		OnClickListener imageQualityDialogOnClickListener = new OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
 			{
-				// TODO Auto-generated method stub
-				switch (v.getId())
-				{
-				case R.id.hike_small_container:
-					showImageQualityOption(ImageQuality.QUALITY_SMALL, small, medium, original);
-					break;
-				case R.id.hike_medium_container:
-					showImageQualityOption(ImageQuality.QUALITY_MEDIUM, small, medium, original);
-					break;
-				case R.id.hike_original_container:
-					showImageQualityOption(ImageQuality.QUALITY_ORIGINAL, small, medium, original);
-					break;
-				case R.id.btn_just_once:
-					saveImageQualitySettings(editor, small, medium, original);
+					saveImageQualitySettings(editor, hikeDialog.selectedRadioGroup);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
 					callOnSucess(listener, hikeDialog);
-					break;
-				}
 			}
 		};
-
-		small_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		medium_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		original_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		once.setOnClickListener(imageQualityDialogOnClickListener);
+		
+		hikeDialog.buttonPositive.setOnClickListener(imageQualityDialogOnClickListener);
 
 		hikeDialog.show();
 		return hikeDialog;
 	}
 
-	private static void showImageQualityOption(int quality, CheckBox small, CheckBox medium, CheckBox original)
+	
+	private static void saveImageQualitySettings(Editor editor, RadioButtonPojo pojo)
 	{
-		switch (quality)
+		if (pojo != null)
 		{
-		case ImageQuality.QUALITY_ORIGINAL:
-			small.setChecked(false);
-			medium.setChecked(false);
-			original.setChecked(true);
-			break;
-		case ImageQuality.QUALITY_MEDIUM:
-			small.setChecked(false);
-			medium.setChecked(true);
-			original.setChecked(false);
-			break;
-		case ImageQuality.QUALITY_SMALL:
-			small.setChecked(true);
-			medium.setChecked(false);
-			original.setChecked(false);
-			break;
+			switch (pojo.id)
+			{
+			case R.string.image_quality_small:
+				editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_SMALL);
+				editor.commit();				
+				break;
+				
+			case R.string.image_quality_medium:
+				editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_MEDIUM);
+				editor.commit();				
+				break;
+				
+			case R.string.image_quality_original:
+				editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_ORIGINAL);
+				editor.commit();				
+				break;
+			}
 		}
-	}
-
-	private static void saveImageQualitySettings(Editor editor, CheckBox small, CheckBox medium, CheckBox original)
-	{
-		// TODO Auto-generated method stub
-		if (medium.isChecked())
-		{
-			editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_MEDIUM);
-		}
-		else if (original.isChecked())
-		{
-			editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_ORIGINAL);
-		}
-		else
-		{
-			editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_SMALL);
-		}
-		editor.commit();
 	}
 
 	private static void callOnSucess(HikeDialogListener listener, HikeDialog hikeDialog)

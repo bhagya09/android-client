@@ -27,7 +27,7 @@ public class CustomAlertDialog extends HikeDialog
 
 	TextView message;
 
-	CheckBox checkBox;
+	private CheckBox checkBox;
 
 	View buttonPanel;
 
