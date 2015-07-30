@@ -2354,7 +2354,16 @@ public class MqttMessagesManager
 		/*
 		 * Applying the offset.
 		 */
-		statusMessage.setTimeStamp(Utils.applyServerTimeOffset(context, statusMessage.getTimeStamp()));
+		long timeStamp = Utils.applyServerTimeOffset(context, statusMessage.getTimeStamp());
+		statusMessage.setTimeStamp(timeStamp);
+		if(jsonObj.has(HikeConstants.TIMESTAMP))
+		{
+			/*
+			 * We need to replace serverTimeOffsetApplied timestamp in jsonObject as well 
+			 */
+			jsonObj.put(HikeConstants.TIMESTAMP, timeStamp);
+		}
+		
 
 		ContactInfo contactInfo = conMgr.getContact(statusMessage.getMsisdn(), true, false);
 		FavoriteType favoriteType = contactInfo.getFavoriteType();
