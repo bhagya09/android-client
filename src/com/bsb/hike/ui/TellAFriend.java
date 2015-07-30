@@ -514,14 +514,13 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 	
 				mailIntent.setData(Uri.parse("mailto:"));
 				mailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
-				mailIntent.putExtra(Intent.EXTRA_TEXT, Utils.getInviteMessage(this, R.string.email_body));
-	
+				mailIntent.putExtra(Intent.EXTRA_TEXT, String.format(getString(R.string.email_body), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TOKEN, "")));
 				startActivity(mailIntent);
 				break;
 	
 			case OTHER:
 				Utils.logEvent(this, HikeConstants.LogEvent.DRAWER_INVITE);
-				Utils.startShareIntent(this, Utils.getInviteMessage(this, R.string.invite_share_message));
+				Utils.startShareIntent(this, String.format(getString(R.string.invite_share_message), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TOKEN, "")));
 				break;
 			}
 		}
