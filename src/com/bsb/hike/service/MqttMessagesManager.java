@@ -2324,8 +2324,8 @@ public class MqttMessagesManager
 		
 		if (data.optBoolean(HikeConstants.PATCH_AB))
 		{
-			boolean contactsChanged = ContactManager.getInstance().syncUpdates(context);
-			Logger.d(getClass().getSimpleName(), "contacts changed : " + contactsChanged);
+			byte contactSyncResult = ContactManager.getInstance().syncUpdates(context);
+			Logger.d(getClass().getSimpleName(), "contacts sync result : " + contactSyncResult);
 		}
 	}
 
