@@ -644,21 +644,23 @@ public class VoIPService extends Service {
 		if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
 			VoIPUtils.cancelMissedCallNotification(getApplicationContext());
 
+		VoIPClient primary = getClient();
+		
 		if (clients.size() == 1) {
 			// We are adding a second client, and hence starting a conference call
-			VoIPClient primary = getClient();
 			primary.cryptoEnabled = false;
 			primary.isInAHostedConference = true;
-			
-			// Must maintain contact with the same server
-			client.setRelayAddress(primary.getRelayAddress());
-			client.setRelayPort(primary.getRelayPort());
 		}
 		
 		if (clients.size() > 0 && getCallId() > 0) {
 			Logger.d(tag, "We're in a conference. Maintaining call id: " + getCallId());
 			client.cryptoEnabled = false;
 			client.isInAHostedConference = true;
+
+			// Must maintain contact with the same server
+			client.setRelayAddress(primary.getRelayAddress());
+			client.setRelayPort(primary.getRelayPort());
+			
 			startConferenceBroadcast();			
 		}
 		else {
