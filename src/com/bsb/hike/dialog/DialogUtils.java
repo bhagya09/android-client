@@ -217,5 +217,28 @@ public class DialogUtils
 		
 		return list;
 	}
+	
+	
+	public static List<RadioButtonPojo> getH20SMSOptions(Context context, boolean nativeOnly)
+	{
+		List<RadioButtonPojo> list = getSMSOptions(context);
+		
+		// Check Free Hike sms
+		list.get(0).isChecked = true;
+		// Uncheck native sms
+		list.get(1).isChecked = false;
+		
+		if (nativeOnly)
+		{
+			list.remove(0);
+		}
+		
+		if (Utils.isKitkatOrHigher())
+		{
+			list.remove(1);
+		}
+		
+		return list;
+	}
 
 }
