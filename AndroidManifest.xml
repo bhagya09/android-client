@@ -165,7 +165,7 @@
             android:name=".ui.SignupActivity"
             android:label="@string/app_label"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan|stateAlwaysVisible" >
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" >
         </activity>
         <activity
             android:name=".chatthread.ChatThreadActivity"
