@@ -39,14 +39,14 @@ public class StickerSearchConstants
 
 	public static final long TIME_WINDOWCURRENT_SUMMERY = 3 * 24 * 60 * 60 * 1000L; // 3 days period in milliseconds
 
-	public static final float MAXIMUM_FREQUENCY = 100.0f; // relative count
+	public static final float MAXIMUM_FREQUENCY = 100.00f; // relative count
 
 	// ===========================================================Constants used in calculation]]
 
 	// Constants used for selecting search result==============================================[[
 	public static final int MAXIMUM_SEARCH_COUNT = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER;
 
-	public static final float RATIO_MAXIMUM_SELECTION_COUNT = 0.4f;
+	public static final float RATIO_MAXIMUM_SELECTION_COUNT = 0.40f;
 
 	public static final int MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT = 2;
 
