@@ -169,7 +169,7 @@
             android:layout_toLeftOf="@id/div_fav"
             android:gravity="center"
             android:layout_marginRight="8dp"
-            android:background="@drawable/bg_fav"
+            android:background="@drawable/bg_fav_selector_ripple"
             android:onClick="onAddToContactClicked">
 
             <ImageView
@@ -205,7 +205,7 @@
             android:gravity="center"
             android:layout_marginLeft="8dp"
             android:contentDescription="Add to Favorites"
-            android:background="@drawable/bg_fav"
+            android:background="@drawable/bg_fav_selector_ripple"
             android:onClick="onTextButtonClick"
             android:layout_centerVertical="true">
 
@@ -240,7 +240,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_fav"
+        android:background="@drawable/bg_fav_selector_ripple"
         android:onClick="onTextButtonClick"
         android:visibility="gone">
         
