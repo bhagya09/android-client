@@ -69,7 +69,7 @@ public class HikeImageDownloader extends HikeImageWorker
 		String fileName = Utils.getProfileImageFileName(id);
 		
 		Logger.d(TAG, "executing DownloadProfileImageTask");
-		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getTempProfileImageFileName(msisdn, true);
+		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getTempProfileImageFileName(id, true);
 		
 		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, pathOfTempFile, hasCustomIcon, statusImage, url,forceNewRequest, requestListener);
 		if(token != null && !token.isRequestRunning())
