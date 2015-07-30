@@ -389,6 +389,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			performWorkOnBackEndThread(msg);
 			// removing the CONNECT_TO_HOTSPOT message from handler after timeout
 			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
+			Logger.d(TAG,"time connect handler posted is "+handler.hasMessages(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE));
 		}
 	}
 
