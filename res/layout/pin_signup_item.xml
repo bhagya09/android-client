@@ -2,53 +2,54 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-<LinearLayout 
-    android:id="@+id/pin_layout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_horizontal"
-    android:orientation="vertical" >
 
-    <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/txt_img1"
+    <LinearLayout
+        android:id="@+id/pin_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/signup_header_height"
-        android:gravity="center"
-        android:text="@string/whats_your_number"
-        style="@style/SignupHeader"
-        android:paddingLeft="42dp"
-		android:paddingRight="42dp" />
-    
-    <LinearLayout 
-        android:id="@+id/verified_pin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:visibility="gone">
-        
-        <ImageView 
-            android:layout_width="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/txt_img1"
+            style="@style/SignupHeader"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_pin_verified"
-            android:layout_marginRight="12dp"
-            android:layout_gravity="center"/>
-        
-	    <com.bsb.hike.view.CustomFontTextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="@dimen/signup_header_height"
-	        android:gravity="center"
-	        android:text="@string/verified"
-        	style="@style/SignupHeader" />
-	</LinearLayout>
-	
+            android:gravity="center"
+            android:minHeight="@dimen/signup_header_height"
+            android:paddingLeft="42dp"
+            android:paddingRight="42dp"
+            android:text="@string/whats_your_number" />
+
+        <LinearLayout
+            android:id="@+id/verified_pin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginRight="12dp"
+                android:src="@drawable/ic_pin_verified" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                style="@style/SignupHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/signup_header_height"
+                android:gravity="center"
+                android:text="@string/verified" />
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/loading_layout"
             android:layout_width="match_parent"
-        	android:layout_height="@dimen/signup_header_height"
-        	android:gravity="center"
-        	android:orientation="horizontal"
+            android:layout_height="@dimen/signup_header_height"
+            android:gravity="center"
+            android:orientation="horizontal"
             android:visibility="gone" >
 
             <ProgressBar
@@ -58,91 +59,89 @@
                 android:layout_centerVertical="true" />
 
             <com.bsb.hike.view.CustomFontTextView
-		        android:id="@+id/txt_loading"
-		        android:layout_width="wrap_content"
-		        android:layout_height="@dimen/signup_header_height"
-		        android:paddingLeft="15dp"
-		        android:gravity="center"
-		        android:text="@string/hang_on"
-		        android:textColor="@color/phone_entering_header"
-		        android:textSize="24sp"
-		        style="@style/SignupHeader" />
-    </LinearLayout>
-    
-    <com.bsb.hike.view.CustomFontEditText
-        android:id="@+id/et_enter_pin"
-        android:layout_width="216dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_country_picker_selector"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:drawablePadding="12dp"
-        android:layout_marginTop="12dp"
-        android:drawableLeft="@drawable/ic_pin"
-        android:hint="@string/pin"
-        android:imeOptions="actionDone"
-        android:inputType="number"
-        android:singleLine="true"
-        android:textSize="18sp"
-        android:visibility="visible" />
-    
-    <RelativeLayout 
-        android:layout_width="wrap_content"
-        android:layout_height="56dp" >
-        
-    	<com.bsb.hike.view.CustomFontTextView
-        	android:id="@+id/invalid_pin"
-        	android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_alignParentTop="true"
-        	android:gravity="center_horizontal"
-        	android:paddingTop="9dp"
-        	android:text="@string/wrong_pin"
-        	android:textSize="13sp"
-        	android:textStyle="bold"
-        	android:textColor="#f16c67"
-	    	android:visibility="visible"/>
-    
-    	<com.bsb.hike.view.CustomFontTextView
-        	android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:gravity="center_horizontal"
-        	android:layout_alignParentBottom="true"
-        	android:paddingBottom="9dp"
-        	android:text="@string/didnt_get_pin"
-        	android:textSize="13sp"
-        	android:textColor="#6d767b"
-	    	android:visibility="visible"/>
-        
-    </RelativeLayout>
-    
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <LinearLayout
-            android:id="@+id/pin_btn_container"
-            android:layout_width="216dp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true" >
-
-            <com.bsb.hike.view.CustomFontButton
-                android:id="@+id/btn_call_me"
-                android:layout_width="match_parent"
-                android:layout_height="41dp"
-                android:textSize="15sp"
-	    		android:textStyle="bold|italic"
-	    		android:layout_margin="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/signup_button"
-                android:onClick="onClick"
+                android:id="@+id/txt_loading"
+                style="@style/SignupHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/signup_header_height"
+                android:gravity="center"
                 android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:text="@string/call_me_for_the_pin"
-                android:textColor="@color/white" />
-
+                android:text="@string/hang_on"
+                android:textColor="@color/phone_entering_header"
+                android:textSize="24sp" />
         </LinearLayout>
 
-    </RelativeLayout>
-</LinearLayout>
+        <com.bsb.hike.view.CustomFontEditText
+            android:id="@+id/et_enter_pin"
+            android:layout_width="216dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_country_picker_selector"
+            android:drawableLeft="@drawable/ic_pin"
+            android:drawablePadding="12dp"
+            android:hint="@string/pin"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:singleLine="true"
+            android:textSize="18sp"
+            android:visibility="visible" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="56dp" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/invalid_pin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:gravity="center_horizontal"
+                android:paddingTop="9dp"
+                android:text="@string/wrong_pin"
+                android:textColor="#f16c67"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center_horizontal"
+                android:paddingBottom="9dp"
+                android:text="@string/didnt_get_pin"
+                android:textColor="#6d767b"
+                android:textSize="13sp"
+                android:visibility="visible" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <LinearLayout
+                android:id="@+id/pin_btn_container"
+                android:layout_width="216dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true" >
+
+                <com.bsb.hike.view.CustomFontButton
+                    android:id="@+id/btn_call_me"
+                    android:layout_width="match_parent"
+                    android:layout_height="41dp"
+                    android:layout_margin="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/signup_button"
+                    android:onClick="onClick"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:text="@string/call_me_for_the_pin"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold|italic" />
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
 </ScrollView>
