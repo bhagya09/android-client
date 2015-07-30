@@ -481,6 +481,9 @@ public class VoIPService extends Service {
 				Logger.d(tag, "We are going to participate in a group chat conference with msisdn: " + client.groupChatMsisdn);
 			}
 			
+			if (intent.hasExtra(VoIPConstants.Extras.CONFERENCE))
+				client.isHostingConference = true;
+			
 			// Error case: we are receiving a delayed v0 message for a call we 
 			// initiated earlier. 
 			if (!client.isInitiator() && partnerCallId != getCallId()) {
@@ -641,11 +644,21 @@ public class VoIPService extends Service {
 		if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
 			VoIPUtils.cancelMissedCallNotification(getApplicationContext());
 
+		if (clients.size() == 1) {
+			// We are adding a second client, and hence starting a conference call
+			VoIPClient primary = getClient();
+			primary.cryptoEnabled = false;
+			primary.isInAHostedConference = true;
+			
+			// Must maintain contact with the same server
+			client.setRelayAddress(primary.getRelayAddress());
+			client.setRelayPort(primary.getRelayPort());
+		}
+		
 		if (clients.size() > 0 && getCallId() > 0) {
 			Logger.d(tag, "We're in a conference. Maintaining call id: " + getCallId());
-			getClient().cryptoEnabled = false;
-			client.isInAHostedConference = true;
 			client.cryptoEnabled = false;
+			client.isInAHostedConference = true;
 			startConferenceBroadcast();			
 		}
 		else {
@@ -1438,13 +1451,13 @@ public class VoIPService extends Service {
 								// There is no voice signal, bitrate should be lowered
 								if (!voiceSignalAbsent) {
 									voiceSignalAbsent = true;
-									Logger.w(tag, "We stopped speaking.");
+//									Logger.w(tag, "We stopped speaking.");
 									if (!hostingConference())
 										client.setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
 								}
 							} else if (voiceSignalAbsent) {
 								// Mic signal is reverting to voice
-								Logger.w(tag, "We started speaking.");
+//								Logger.w(tag, "We started speaking.");
 								voiceSignalAbsent = false;
 								if (!hostingConference())
 									client.setEncoderBitrate(client.getBitrate());
@@ -1610,23 +1623,24 @@ public class VoIPService extends Service {
 
 					// Retrieve decoded samples from all clients and combine into one
 					VoIPDataPacket finalDecodedSample = null;
-					for (VoIPClient client : clients.values()) {
-						VoIPDataPacket dp = client.getDecodedBuffer();
-						if (dp != null) {
-							if (hostingConference())
-								clientSample.put(client.getPhoneNumber(), dp.getData());
+					synchronized (clients) {
+						for (VoIPClient client : clients.values()) {
+							VoIPDataPacket dp = client.getDecodedBuffer();
+							if (dp != null) {
+								if (hostingConference())
+									clientSample.put(client.getPhoneNumber(), dp.getData());
 
-							if (finalDecodedSample == null)
-								finalDecodedSample = dp;
-							else {
-								// We have to combine samples
-								finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
+								if (finalDecodedSample == null)
+									finalDecodedSample = dp;
+								else {
+									// We have to combine samples
+									finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
+								}
+							} else {
+								// If we have no audio data from a client
+								// then assume that it has stopped speaking.
+								client.setSpeaking(false);
 							}
-						} else {
-							// If we have no audio data from a client
-							// then assume that it has stopped speaking.
-//							Logger.d(tag, client.getPhoneNumber() + " has no audio data.");
-							client.setSpeaking(false);
 						}
 					}
 
@@ -1669,22 +1683,24 @@ public class VoIPService extends Service {
 						// This is the broadcast
 						conferenceBroadcastPackets.add(dp);
 
-						for (VoIPClient client : clients.values()) {
-							if (!client.isSpeaking() || !client.connected)
-								continue;
+						synchronized (clients) {
+							for (VoIPClient client : clients.values()) {
+								if (!client.isSpeaking() || !client.connected)
+									continue;
 
-							// Custom streams
-							VoIPDataPacket clientDp = new VoIPDataPacket();
-							byte[] origPCM = clientSample.get(client.getPhoneNumber());
-							byte[] newPCM = null;
-							if (origPCM == null) {
-								newPCM = conferencePCM;
-							} else {
-								newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+								// Custom streams
+								VoIPDataPacket clientDp = new VoIPDataPacket();
+								byte[] origPCM = clientSample.get(client.getPhoneNumber());
+								byte[] newPCM = null;
+								if (origPCM == null) {
+									newPCM = conferencePCM;
+								} else {
+									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+								}
+								clientDp.setData(newPCM);
+								clientDp.setVoice(true);
+								client.addSampleToEncode(clientDp); 
 							}
-							clientDp.setData(newPCM);
-							clientDp.setVoice(true);
-							client.addSampleToEncode(clientDp); 
 						}
 					}
 
@@ -1696,7 +1712,6 @@ public class VoIPService extends Service {
 					scheduledFuture.cancel(true);
 					scheduledExecutorService.shutdownNow();
 				}
-
 			}
 		}, 0, sleepTime, TimeUnit.MILLISECONDS);
 	}
@@ -1744,20 +1759,22 @@ public class VoIPService extends Service {
 						} 
 							
 						// Create a broadcast list
-						for (VoIPClient client : clients.values()) {
-							
-							if (client.connected)
-								connectedClient = client;
-							else
-								continue;
-							
-							if (client.isSpeaking() && broadcastPacket.getType() == PacketType.AUDIO_PACKET)
-								continue;
+						synchronized (clients) {
+							for (VoIPClient client : clients.values()) {
+								
+								if (client.connected)
+									connectedClient = client;
+								else
+									continue;
+								
+								if (client.isSpeaking() && broadcastPacket.getType() == PacketType.AUDIO_PACKET)
+									continue;
 
-							BroadcastListItem item = broadcastPacket.new BroadcastListItem();
-							item.setIp(client.getExternalIPAddress());
-							item.setPort(client.getExternalPort());
-							broadcastPacket.addToBroadcastList(item);
+								BroadcastListItem item = broadcastPacket.new BroadcastListItem();
+								item.setIp(client.getExternalIPAddress());
+								item.setPort(client.getExternalPort());
+								broadcastPacket.addToBroadcastList(item);
+							}
 						}
 						
 						// Send the packet
@@ -1765,8 +1782,9 @@ public class VoIPService extends Service {
 							if (broadcastPacket.getType() == PacketType.AUDIO_PACKET)
 								broadcastPacket.setVoicePacketNumber(voicePacketNumber++);
 							
-							if (connectedClient != null)
-								connectedClient.addToSendingQueue(broadcastPacket);
+							if (connectedClient != null) {
+								connectedClient.addToSendingQueue(broadcastPacket);								
+							}
 							else
 								Logger.w(tag, "Unable to find a connected client to broadcast.");
 						}
@@ -2030,11 +2048,7 @@ public class VoIPService extends Service {
 	}
 
 	public boolean isAudioRunning() {
-		VoIPClient client = getClient();
-		if (client != null)
-			return client.isAudioRunning();
-		else
-			return false;
+		return recordingAndPlaybackRunning;
 	}
 
 	public void setCallStatus(VoIPConstants.CallStatus status)
@@ -2082,12 +2096,6 @@ public class VoIPService extends Service {
 	}
 	
 	public boolean hostingConference() {
-//		boolean conference = false;
-//		if (clients.size() > 1 || !TextUtils.isEmpty(groupChatMsisdn))
-//			conference = true;
-//		// Logger.d(logTag, "Conference check: " + conference);
-//		return conference;
-		
 		return hostingConference;
 	}
 	
@@ -2122,8 +2130,10 @@ public class VoIPService extends Service {
 
 		synchronized (clients) {
 			clients.put(client.getPhoneNumber(), client);
-			if (clients.size() > 1)
+			if (clients.size() > 1) {
+				Logger.w(tag, "We are now hosting a conference.");
 				hostingConference = true;
+			}
 		}
 		sendClientsListToAllClients();
 	}
@@ -2146,6 +2156,9 @@ public class VoIPService extends Service {
 	 */
 	private void sendClientsListToAllClients() {
 		
+		if (!hostingConference())
+			return;
+			
 		if (clientListHandler != null && clientListRunnable != null)
 			clientListHandler.removeCallbacks(clientListRunnable);
 		

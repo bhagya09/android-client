@@ -422,8 +422,9 @@ public class VoIPClient  {
 						/**
 						 * If we are initiating the connection, then we set the relay server
 						 * to be used by both clients. 
+						 * Also check if the relay has already been set (in case of conferences)
 						 */
-						if (!isInitiator()) {
+						if (!isInitiator() && TextUtils.isEmpty(getRelayAddress())) {
 							setRelayAddress(host.getHostAddress());
 							setRelayPort(VoIPUtils.getRelayPort(context));
 						}
@@ -2057,7 +2058,7 @@ public class VoIPClient  {
 			Logger.e(tag, "Error parsing clients JSON: " + e.toString());
 		}
 
-		if (clientMsisdns.size() <= 2) {
+		if (clientMsisdns.size() <= 1) {
 			Logger.w(tag, "Conference over?");
 		} else
 			isHostingConference = true;
