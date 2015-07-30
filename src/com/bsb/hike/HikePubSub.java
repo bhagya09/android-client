@@ -402,6 +402,10 @@ public class HikePubSub implements Runnable
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
 	
+	public static final String ENTER_TO_SEND_SETTINGS_CHANGED = "enterToSendSettingsChanged";
+	
+	public static final String NUDGE_SETTINGS_CHANGED = "nudgeSettingsChanged";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
