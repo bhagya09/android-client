@@ -1268,9 +1268,7 @@ public class VoIPService extends Service {
 			Logger.d(tag, "Starting audio record / playback.");
 			startRecording();
 			startPlayBack();
-			
-			if (hostingConference())
-				startChrono();
+			startChrono();
 			
 			// When a conference participant accepts a call, change their UI
 			// to display all the conference participants
