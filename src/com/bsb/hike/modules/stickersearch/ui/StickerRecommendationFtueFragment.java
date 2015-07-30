@@ -125,7 +125,10 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 	@Override
 	public void onDestroy()
 	{
+		Logger.d(StickerTagWatcher.TAG, "recommend ftue fragment on destroy called");
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		listener = null;
+		stickerList = null;
 		super.onDestroy();
 	}
 	
@@ -153,19 +156,24 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 		@Override
 		public void onClick(View v)
 		{
-			listener.stickerSelected(word, phrase, sticker, 0, stickerList.size(), StickerManager.FROM_STICKER_RECOMMENDATION_FTUE, false);
-			
-			stickerRecommendFtueStep1.setVisibility(View.GONE);
-			stickerRecommendFtueStep2.setVisibility(View.VISIBLE);
-			
-			TranslateAnimation slideIn = new TranslateAnimation(104, 0, 0, 0);
-			slideIn.setInterpolator(new LinearInterpolator());
-			slideIn.setDuration(400);
-			tvHeadingFtueView2.startAnimation(slideIn);
-			
-			Animation fadein = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_in_animation);
-			fadein.setDuration(400);
-			tvSubHeadingFtueView2.startAnimation(fadein);
+			if(listener != null)
+			{
+				listener.stickerSelected(word, phrase, sticker, 0, stickerList.size(), StickerManager.FROM_STICKER_RECOMMENDATION_FTUE, false);
+
+				stickerRecommendFtueStep1.setVisibility(View.GONE);
+				stickerRecommendFtueStep2.setVisibility(View.VISIBLE);
+
+				float startOffset = StickerSearchUtils.getStickerSize();
+
+				TranslateAnimation slideIn = new TranslateAnimation(startOffset, 0, 0, 0);
+				slideIn.setInterpolator(new LinearInterpolator());
+				slideIn.setDuration(400);
+				tvHeadingFtueView2.startAnimation(slideIn);
+
+				Animation fadein = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_in_animation);
+				fadein.setDuration(400);
+				tvSubHeadingFtueView2.startAnimation(fadein);
+			}
 		}
 	};
 	
@@ -258,7 +266,7 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 		{
 		case HikePubSub.STICKER_DOWNLOADED:
 			Sticker downloadedSticker = (Sticker) object;
-			if(sticker.equals(downloadedSticker))
+			if(sticker != null && sticker.equals(downloadedSticker))
 			{
 				refreshStickerList();
 			}

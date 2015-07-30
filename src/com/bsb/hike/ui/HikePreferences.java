@@ -1039,6 +1039,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
 					AnalyticsConstants.CLICK_EVENT, metadata);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, isChecked);
 		} else if (HikeConstants.DOUBLE_TAP_PREF.equals(preference.getKey())) {
 
 			Editor editor = PreferenceManager.getDefaultSharedPreferences(
@@ -1060,6 +1061,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			HikeMessengerApp.getPubSub().publish(HikePubSub.NUDGE_SETTINGS_CHANGED, isChecked);
 		}
 		else if(HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
 		{

@@ -2997,4 +2997,6 @@ public class HikeConstants
 	public static final String CATEGORY_ID = "catId";
 	
 	public static final String STICKER_RECOMMENDATION_ENABLED = "sre";
+	
+	public static final String STICKER_TAG_REFRESH_TIME = "strt";
 }

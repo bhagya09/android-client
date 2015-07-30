@@ -56,7 +56,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:paddingTop="@dimen/sticker_recommend_sticker_image_padding"
+                    android:paddingTop="5dp"
                     android:orientation="vertical" >
 
                     <com.bsb.hike.view.CustomFontTextView
@@ -69,7 +69,7 @@
                     <com.bsb.hike.view.CustomFontTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="9dp"
+                        android:layout_marginTop="4dp"
                         android:text="@string/tap_on_sticker_to_send"
                         android:textColor="@color/white"
                         android:textSize="13sp"
@@ -81,8 +81,8 @@
                 android:id="@+id/ftueView2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingTop="@dimen/sticker_recommend_sticker_image_padding"
-                android:layout_marginLeft="24dp"
+                android:paddingTop="5dp"
+                android:layout_marginLeft="16dp"
                 android:visibility="visible" >
 
                 <com.bsb.hike.view.CustomFontTextView
@@ -98,7 +98,7 @@
                     android:id="@+id/tvSubHeadingFtueView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
+                    android:layout_marginTop="4dp"
                     android:layout_below="@id/tvHeadingFtueView2"
                     android:layout_alignRight="@id/tvHeadingFtueView2"
                     android:text="@string/download_from_shop"

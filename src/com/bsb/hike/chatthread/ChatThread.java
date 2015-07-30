@@ -278,7 +278,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected boolean reachedEnd = false;
 	
-	private boolean _doubleTapPref = false;
+	private volatile boolean _doubleTapPref = false;
 
 
 	private int currentFirstVisibleItem = Integer.MAX_VALUE;
@@ -606,13 +606,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 
 	private void defineEnterAction() {
+		
 		if (mComposeView != null) {
 			//if send on enter setting is unchecked then send button will send the cursor to the next line.
 			if (!PreferenceManager.getDefaultSharedPreferences(
 					activity.getApplicationContext()).getBoolean(
-					HikeConstants.SEND_ENTER_PREF, false)) {
+					HikeConstants.SEND_ENTER_PREF, false))
+			{
 				mComposeView.setInputType(mComposeView.getInputType()
 						| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+			}
+			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
+			{
+				mComposeView.setInputType(mComposeView.getInputType()
+						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 			}
 			//Its a workaround to set the multiline editfield when android:imeOptions="actionSend".
     		mComposeView.setHorizontallyScrolling(false);
@@ -3190,10 +3197,33 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
         case HikePubSub.STEALTH_CONVERSATION_UNMARKED:
         	onConversationStealthToggle(object,HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type));
 			break;
+        case HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED:
+        	onEnterToSendSettingsChanged();
+        	break;
+        case HikePubSub.NUDGE_SETTINGS_CHANGED:
+        	onNudgeSettingsChnaged();
+        	break;
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
 		}
+	}
+	
+	private void onNudgeSettingsChnaged()
+	{
+		_doubleTapPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.DOUBLE_TAP_PREF, true);
+	}
+	
+	private void onEnterToSendSettingsChanged()
+	{
+		activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				defineEnterAction();
+			}
+		});
 	}
 	
 	private void onStickerRecommendPreferenceChanged()
@@ -3392,7 +3422,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
-				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED};
+				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
