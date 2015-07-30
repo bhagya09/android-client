@@ -5,7 +5,9 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConst
 public class StickerSearchConstants
 {
 	// Generic constants for UI================================================================[[
-	public static final int SCROLL_DELAY = 1000; // 1 seconds period in milliseconds
+	public static final int WAIT_TIME_IN_FTUE_SCROLL = 1000; // 1 second period in milliseconds
+
+	public static final int WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = 250; // 0.25 second period in milliseconds
 
 	public static final int SCROLL_SPEED_PER_DIP = 500;
 
@@ -34,14 +36,14 @@ public class StickerSearchConstants
 
 	// ====================================================Generic constants for searching text]]
 
-	// Constants used in calculation===========================================================[[
+	// Constants used in summary calculation===================================================[[
 	public static final long TIME_WINDOW_LOCAL_SUMMERY = 14 * 24 * 60 * 60 * 1000l; // 14 days period in milliseconds
 
 	public static final long TIME_WINDOWCURRENT_SUMMERY = 3 * 24 * 60 * 60 * 1000L; // 3 days period in milliseconds
 
 	public static final float MAXIMUM_FREQUENCY = 100.00f; // relative count
 
-	// ===========================================================Constants used in calculation]]
+	// ====================================================Constants used in summary calculation]]
 
 	// Constants used for selecting search result==============================================[[
 	public static final int MAXIMUM_SEARCH_COUNT = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER;

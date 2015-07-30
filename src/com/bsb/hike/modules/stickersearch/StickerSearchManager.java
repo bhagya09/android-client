@@ -221,7 +221,7 @@ public class StickerSearchManager
 				listener.dismissStickerSearchPopup();
 
 				SingleCharacterHighlightTask singleCharacterHighlightTask = new SingleCharacterHighlightTask(s, highlightArray);
-				searchEngine.runOnUiThread(singleCharacterHighlightTask, 250);
+				searchEngine.runOnUiThread(singleCharacterHighlightTask, StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
 			}
 			else
 			{
