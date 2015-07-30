@@ -1813,7 +1813,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		try
 		{
 			int rightMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0, Gravity.TOP | Gravity.RIGHT);
+			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
 		}
 		catch (BadTokenException e)
 		{
