@@ -2659,10 +2659,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				optionsList.add(getString(R.string.make_call));
 			}
-			if (!tempContactInfo.isOnhike())
-			{
-				optionsList.add(getString(R.string.invite_to_hike));
-			}
 			if (isGroupOwner)
 			{
 				if (isBroadcast)
@@ -2701,10 +2697,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					else if (getString(R.string.make_call).equals(option))
 					{
 						Utils.onCallClicked(getApplicationContext(), contactInfo.getMsisdn(), VoIPUtils.CallSource.PROFILE_ACTIVITY);
-					}
-					else if (getString(R.string.invite_to_hike).equals(option))
-					{
-						inviteToHike(contactInfo);
 					}
 					else if (getString(R.string.add_to_contacts).equals(option))
 					{
