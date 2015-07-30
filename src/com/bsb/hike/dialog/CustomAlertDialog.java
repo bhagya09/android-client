@@ -31,9 +31,9 @@ public class CustomAlertDialog extends HikeDialog
 
 	View buttonPanel;
 
-	Button buttonPositive;
+	public Button buttonPositive;
 
-	Button buttonNegative;
+	public Button buttonNegative;
 
 	Button buttonNeutral;
 	
