@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.view.CustomFontButton;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -97,6 +98,7 @@ import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
@@ -1179,8 +1181,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setBackgroundResource(0);
 				videoHolder.fileThumb.setImageResource(0);
 
-				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
-						.wasFileDownloaded()));
+				boolean isUnknown = ContactManager.getInstance().isUnknownContact(conversation.getMsisdn());
+				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded()));
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
@@ -1344,8 +1346,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
 
-				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
-						.wasFileDownloaded()));
+				boolean isUnknown = ContactManager.getInstance().isUnknownContact(conversation.getMsisdn());
+				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded()));
 
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
