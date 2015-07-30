@@ -343,6 +343,7 @@ public class UploadFileTask extends FileTransferBase
 				
 				// 1) user clicked Media file and sending it
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
+				msgId = ((ConvMessage) userContext).getMsgID();
 				
 				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
@@ -395,7 +396,7 @@ public class UploadFileTask extends FileTransferBase
 	 * 
 	 * @throws Exception
 	 */
-	private void initFileUpload() throws FileTransferCancelledException, Exception
+	private void initFileUpload(boolean isFileKeyValid) throws FileTransferCancelledException, Exception
 	{
 		HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 		hikeFileType = hikeFile.getHikeFileType();
@@ -418,7 +419,7 @@ public class UploadFileTask extends FileTransferBase
 			else
 			{
 				mFile = new File(hikeFile.getSourceFilePath());
-				if (mFile.exists() && hikeFileType == HikeFileType.IMAGE && !mFile.getPath().startsWith(Utils.getFileParent(hikeFileType, true)))
+				if (!isFileKeyValid && mFile.exists() && hikeFileType == HikeFileType.IMAGE && !mFile.getPath().startsWith(Utils.getFileParent(hikeFileType, true)))
 				{
 					selectedFile = Utils.getOutputMediaFile(hikeFileType, fileName, true);
 					if (selectedFile == null)
@@ -452,7 +453,7 @@ public class UploadFileTask extends FileTransferBase
 				{
 					File compFile = null;
 					VideoEditedInfo info = null;
-					if(android.os.Build.VERSION.SDK_INT >= 18 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))
+					if(!isFileKeyValid && android.os.Build.VERSION.SDK_INT >= 18 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))
 					{
 						info = VideoUtilities.processOpenVideo(mFile.getPath());
 						if(info != null)
@@ -596,12 +597,6 @@ public class UploadFileTask extends FileTransferBase
 	@Override
 	public FTResult call()
 	{
-		if(!Utils.isUserOnline(context))
-		{
-			saveStateOnNoInternet();
-			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
-			return FTResult.UPLOAD_FAILED;
-		}
 		mThread = Thread.currentThread();
 		boolean isValidKey = false;
 		try{
@@ -618,7 +613,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				try
 				{
-					initFileUpload();
+					initFileUpload(isValidKey);
 				}
 				catch (Exception e)
 				{
@@ -632,7 +627,13 @@ public class UploadFileTask extends FileTransferBase
 			}
 			else
 			{
-				initFileUpload();
+				initFileUpload(isValidKey);
+			}
+			if(!Utils.isUserOnline(context))
+			{
+				saveStateOnNoInternet();
+				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
+				return FTResult.UPLOAD_FAILED;
 			}
 		}
 		catch (FileTransferCancelledException e)
@@ -955,7 +956,17 @@ public class UploadFileTask extends FileTransferBase
 			if (end == (length - 1) && responseString != null)
 			{
 				Logger.d(getClass().getSimpleName(), "response: " + responseString);
-				responseJson = new JSONObject(responseString);
+				try
+				{
+					responseJson = new JSONObject(responseString);
+				}
+				catch(JSONException e)
+				{
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.JSON_PARSING_ISSUE, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "Parsing response json received from server",
+							"Response = " + responseString, e);
+					raf.close();
+					throw e;
+				}
 				incrementBytesTransferred(chunkSize);
 				resetAndUpdate = true; // To update UI
 			}
@@ -1474,9 +1485,14 @@ public class UploadFileTask extends FileTransferBase
 
 	private void saveStateOnNoInternet()
 	{
-		_state = FTState.ERROR;
-		stateFile = getStateFile((ConvMessage) userContext);
-		saveFileKeyState(fileKey);
-		fileKey = null;
+		HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+		FileSavedState fst = FileTransferManager.getInstance(context).getUploadFileState(hikeFile.getFile(), msgId);
+		if(fst.getSessionId() == null)
+		{
+			_state = FTState.ERROR;
+			stateFile = getStateFile((ConvMessage) userContext);
+			saveFileKeyState(fileKey);
+			fileKey = null;
+		}
 	}
 }
