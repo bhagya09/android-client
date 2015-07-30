@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.chatHead.StickerShareSettings.ListViewItem;
+import com.bsb.hike.utils.Utils;
 
 public class ChatHeadSettingsArrayAdapter extends ArrayAdapter<ListViewItem>
 {
@@ -41,7 +42,15 @@ public class ChatHeadSettingsArrayAdapter extends ArrayAdapter<ListViewItem>
 		ImageView imgView = (ImageView) convertView.findViewById(R.id.app_icon);
 		TextView txtView = (TextView) convertView.findViewById(R.id.app_name);
 		mListViewItems.get(position).mCheckBox = (CheckBox) convertView.findViewById(R.id.checkbox_item);
-		imgView.setBackground(listItem.appIcon);
+		if (Utils.isJellybeanOrHigher())
+		{
+			imgView.setBackground(listItem.appIcon);
+		}
+		else
+		{
+			imgView.setBackgroundDrawable(listItem.appIcon);
+		}
+		
 		txtView.setText(listItem.appName);
 		if (listItem.appChoice)
 		{
