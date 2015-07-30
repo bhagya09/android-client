@@ -1585,5 +1585,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="connect">Connect</string>
 	<string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
-    
+    <string name="cancel_connection">Cancel conection with <![CDATA[<font color=#FF0000>%1$s</font>]]> ??</string>
+    <string name="cancel_offline_connection">Cancel Connection</string>
+    <string name="connection_cancelled">Connection cancelled</string>
 </resources>

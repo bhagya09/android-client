@@ -19,21 +19,29 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 
 public class OfflineDisconnectFragment extends Fragment
 {
-	String connectedMsisdn;
+	String firstMessage;
 	
-	String presentMsisdn;
+	String secondMessage;
+	
+	ImageView avatar;
+	
+	Drawable avatarDrawable;
 	
 	View fragmentView;
 	
 	OfflineConnectionRequestListener listener;
 	
-	public OfflineDisconnectFragment(String presentMsisdn,String connectedMsisdn,OfflineConnectionRequestListener listener)
+	public OfflineDisconnectFragment(String firstMessage,String secondMessage,Drawable avatarDrawable ,OfflineConnectionRequestListener listener)
 	{
-		this.presentMsisdn = presentMsisdn;
-		this.connectedMsisdn = connectedMsisdn;
+		this.firstMessage = firstMessage;
+		this.secondMessage = secondMessage;
+		this.avatarDrawable = avatarDrawable;
 		this.listener = listener;
 	}
 	@Override
@@ -46,34 +54,15 @@ public class OfflineDisconnectFragment extends Fragment
 	
 	private void setupView()
 	{
-		ImageView avatar = (ImageView)fragmentView.findViewById(R.id.connected_avatar);
-		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectedMsisdn);
-		if (drawable == null)
-		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectedMsisdn, false);
-		}
+		avatar = (ImageView)fragmentView.findViewById(R.id.connected_avatar);
 		avatar.setScaleType(ScaleType.FIT_CENTER);
-		avatar.setImageDrawable(drawable);
+		avatar.setImageDrawable(avatarDrawable);
 		TextView connectionRequest = (TextView)fragmentView.findViewById(R.id.connect_request);
 		TextView connectionWarning = (TextView)fragmentView.findViewById(R.id.disconnect_warning);
 		
-		ContactInfo contactInfo  = ContactManager.getInstance().getContact(presentMsisdn);
-		String contactFirstName = presentMsisdn;
-		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
-		{
-			contactFirstName = contactInfo.getFirstName();
-		}
+		connectionRequest.setText(Html.fromHtml(firstMessage));
 		
-		connectionRequest.setText(getResources().getString(R.string.disconnect_warning,contactFirstName));
-		
-		ContactInfo connectedContactInfo  = ContactManager.getInstance().getContact(connectedMsisdn);
-		String connectedContactFirstName = connectedMsisdn;
-		if(connectedContactInfo!=null && !TextUtils.isEmpty(connectedContactInfo.getFirstName()))
-		{
-			connectedContactFirstName = connectedContactInfo.getFirstName();
-		}
-		
-		connectionWarning.setText(Html.fromHtml(getResources().getString(R.string.connected_warning,connectedContactFirstName)));
+		connectionWarning.setText(Html.fromHtml(secondMessage));
 		
 		fragmentView.findViewById(R.id.reject_disconnect).setOnClickListener(new OnClickListener()
 		{
@@ -92,7 +81,12 @@ public class OfflineDisconnectFragment extends Fragment
 			@Override
 			public void onClick(View v)
 			{
-				listener.onConnectionRequest(true);
+				listener.onDisconnectionRequest();
+				//If connected user wants to disconnect and start another connection
+				if(OfflineController.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTED)
+				{
+					listener.onConnectionRequest(true);
+				}
 				Fragment fragment = getActivity().getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 				if(fragment != null)
 				    getActivity().getSupportFragmentManager().beginTransaction().remove(fragment).commit();
@@ -104,6 +98,8 @@ public class OfflineDisconnectFragment extends Fragment
 	public interface OfflineConnectionRequestListener
 	{ 
 		public void onConnectionRequest(Boolean startAnimation);	
+		
+		public void onDisconnectionRequest();
     }
 	
 }

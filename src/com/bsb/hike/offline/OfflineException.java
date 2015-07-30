@@ -21,6 +21,8 @@ public class OfflineException extends TException
 	public static byte CONNECTION_TIME_OUT = 22;
 	
 	public static byte GHOST_PACKET_NOT_RECEIVED = 23;
+	
+	public static byte CONNECTION_CANCELLED = 25;
 
 	public OfflineException(byte reasonCode) {
 		super(reasonCode);

@@ -25,6 +25,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
@@ -82,6 +83,7 @@ import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -174,6 +176,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private View hikeOfflineDisconnectView;
 
 	private OfflineAnimationFragment offlineAnimationFragment = null;
+	
+	private OfflineDisconnectFragment offlineDisconnectFragment =null;
 	
 	/**
 	 * this is set of all the currently visible messages which are stuck in tick and are not sms
@@ -1424,7 +1428,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				startFreeHikeConversation(true);
 			}
-			else
+			else 
 			{
 				stopFreeHikeConnection();
 			}
@@ -1437,7 +1441,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		Utils.blockOrientationChange(activity);
 		offlineAnimationFragment = new OfflineAnimationFragment(msisdn,activity,this);
-		offlineAnimationFragment.show(activity.getSupportFragmentManager(), "OfflineAnimationDialog");
+		offlineAnimationFragment.setCancelable(false);
+		offlineAnimationFragment.show(activity.getSupportFragmentManager(), OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
 	}
 
 	// if we are in connecting state or connected offline in case of block need to break the connection
@@ -1450,11 +1455,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	
 	private void stopFreeHikeConnection() 
 	{
-		if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTED) || 
-				OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTING))		
+		if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTED))	
 		{
 			showToast(R.string.user_disconnect);
 			OfflineController.getInstance().shutDown();
+		}
+		else if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTING))
+		{
+			showToast(R.string.connection_cancelled);
+			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CONNECTION_CANCELLED));
 		}
 	}
 	
@@ -1471,7 +1480,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case CONNECTED:
 			/*Toast.makeText(activity, getResources().getString(R.string.connected_previously,
 					OfflineUtils.getConnectedMsisdn()), Toast.LENGTH_SHORT).show();*/
-			showPreviouslyConnectedTip();
+			showPreviouslyConnectedorConnectingTip(true);
 			break;
 		case CONNECTING:
 			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
@@ -1506,36 +1515,57 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 	
 
-	private void showPreviouslyConnectedTip()
+	private void showPreviouslyConnectedorConnectingTip(boolean isConnected)
 	{
-		/*if (hikeOfflineDisconnectView == null)
-		{
-			hikeOfflineDisconnectView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.offline_disconnect_card, null);
-		}
 
-		hikeOfflineDisconnectView.clearAnimation();
-
-		LinearLayout tipContainer = (LinearLayout) activity.findViewById(R.id.tipContainerBottom);
-
-		if (tipContainer.getChildCount() > 0)
-		{
-			tipContainer.removeAllViews();
-		}
-
-		*//**
-		 * Hide any other open FTUE Tips
-		 *//*
-		mTips.hideTip();
-
-		setupOfflineDisconnectCardView();
-		tipContainer.addView(hikeOfflineDisconnectView);
-		hikeOfflineDisconnectView.setVisibility(View.VISIBLE);
-		scrollListViewOnShowingH20Tip();*/
-		OfflineDisconnectFragment offlineDisconnectFragment = new OfflineDisconnectFragment(msisdn,OfflineUtils.getConnectedMsisdn(),this);
 		FragmentManager fragmentManager = activity.getSupportFragmentManager();
+		Fragment fragment = fragmentManager.findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+		if(fragment!=null && fragment.isAdded())
+		{
+			return;
+		}
+		if(isConnected)
+		{
+		
+			String connectedMsisdn = OfflineUtils.getConnectedMsisdn();
+			if(TextUtils.isEmpty(connectedMsisdn))
+			{
+				return;
+			}
+			String firstMessage = getResources().getString(R.string.disconnect_warning,mContactInfo.getFirstName());
+			ContactInfo connectedContactInfo  = ContactManager.getInstance().getContact(connectedMsisdn);
+			String connectedContactFirstName = connectedMsisdn;
+			if(connectedContactInfo!=null && !TextUtils.isEmpty(connectedContactInfo.getFirstName()))
+			{
+				connectedContactFirstName = connectedContactInfo.getFirstName();
+			}
+			String secondMessage = getResources().getString(R.string.connected_warning,connectedContactFirstName);
+			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectedMsisdn);
+			if (drawable == null)
+			{
+				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectedMsisdn, false);
+			}
+			offlineDisconnectFragment = new OfflineDisconnectFragment(firstMessage,secondMessage,drawable,this);
+		}
+		else
+		{
+			String connectingMsisdn = OfflineUtils.getConnectingMsisdn();
+			if(TextUtils.isEmpty(connectingMsisdn))
+			{
+				return;
+			}
+			String firstMessage = getResources().getString(R.string.cancel_connection,mContactInfo.getFirstName());
+			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
+			if (drawable == null)
+			{
+				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+			}
+			offlineDisconnectFragment = new OfflineDisconnectFragment(firstMessage,"",drawable,this);
+		}
+	
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 		activity.findViewById(R.id.animation_layout).setVisibility(View.VISIBLE);
-		fragmentTransaction.add(R.id.animation_layout, offlineDisconnectFragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+		fragmentTransaction.replace(R.id.animation_layout, offlineDisconnectFragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		fragmentTransaction.commit();
 	}
 
@@ -2410,12 +2440,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case R.id.free_hike_cancel:
 			setOfflineFtueCardCancelled();
 			break;
-		case R.id.reject_disconnect:
-			hikeOfflineDisconnectView.setVisibility(View.GONE);
-			break;
-		case R.id.accept_disconnect:
-			startAnotherFreeHikeConnection(true);
-			break;
 		default:
 			super.onClick(v);
 		}
@@ -2423,7 +2447,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	
 	public void startAnotherFreeHikeConnection(Boolean startAnimation)
 	{
-		stopFreeHikeConnection();
 		sendUIMessage(START_OFFLINE_CONNECTION, 1000,startAnimation);
 	}
 
@@ -2896,6 +2919,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				hideH20Tip();
 				return true;
 			}
+			else if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+				showPreviouslyConnectedorConnectingTip(false);
+			}
 			else
 			{
 				return false;
@@ -3003,13 +3030,18 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
 				break;
 			case R.string.scan_free_hike:
-				if (!OfflineUtils.isConnectedToSameMsisdn(mConversation.getMsisdn()))
+				if (!OfflineUtils.isConnectedToSameMsisdn(mConversation.getMsisdn()) && 
+						!OfflineUtils.isConnectingToSameMsisdn(mConversation.getMsisdn()))
 				{
 					overFlowMenuItem.text = getString(R.string.scan_free_hike);
 				}
-				else
+				else if(OfflineUtils.isConnectedToSameMsisdn(mConversation.getMsisdn()))
 				{
 					overFlowMenuItem.text = getString(R.string.disconnect_offline);
+				}
+				else if(OfflineUtils.isConnectingToSameMsisdn(mConversation.getMsisdn()))
+				{
+					overFlowMenuItem.text = getString(R.string.cancel_offline_connection);
 				}
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
@@ -3125,6 +3157,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onConnectionRequest(Boolean startAnimation)
 	{
 		startAnotherFreeHikeConnection(startAnimation);
+	}
+
+	@Override
+	public void onDisconnectionRequest()
+	{
+		stopFreeHikeConnection();
 	}
 	
 }

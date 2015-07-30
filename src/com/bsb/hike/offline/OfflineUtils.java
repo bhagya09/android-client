@@ -658,7 +658,7 @@ public class OfflineUtils
 			return false;
 		}
 		String connectingMsisdn = OfflineController.getInstance().getConnectingDevice(); 
-		return !TextUtils.isEmpty(connectingMsisdn) && connectingMsisdn.equals(msisdn);
+		return !TextUtils.isEmpty(connectingMsisdn) && connectingMsisdn.equals(msisdn) && OfflineController.getInstance().getOfflineState() ==OFFLINE_STATE.CONNECTING;
 	}
 
 	public static String getConnectingMsisdn()

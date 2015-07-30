@@ -154,6 +154,8 @@ public class OfflineConstants
 	public static final String CURRENT_RECIEVING_MSG_ID = "recMsgID";
 
 	public static final String OFFLINE_DISCONNECT_FRAGMENT = "offline_disconnect_fragment";
+
+	public static final String OFFLINE_ANIMATION_FRAGMENT = "offline_animation_dialog";
 	
 	
 }
