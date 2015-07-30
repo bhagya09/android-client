@@ -5,7 +5,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1294"
-    android:versionName="3.9.8.82.4.chat_head_wm" >
+    android:versionName="3.9.8.82.5.chat_head_wm" >
 
     <uses-sdk
         android:minSdkVersion="9"
