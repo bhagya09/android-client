@@ -12,6 +12,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.hostnameverifier.HikeHostNameVerifier;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.squareup.okhttp.Authenticator;
@@ -557,6 +558,7 @@ public class ClientOptions
 				.setWriteTimeout(writeTimeout, TimeUnit.MILLISECONDS)
 				.setSocketFactory(Defaults.SOCKET_FACTORY)
 				.setSslSocketFactory(Defaults.SSL_SOCKET_FACTORY)
+				.setHostnameVerifier(new HikeHostNameVerifier())
 				.build();
 		return defaultClientOptions;
 	}

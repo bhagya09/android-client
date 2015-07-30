@@ -7,6 +7,7 @@
     android:versionCode="1295"
     android:versionName="3.9.8.82.2.platform" >
 
+
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>

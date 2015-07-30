@@ -76,6 +76,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -2223,7 +2224,18 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_HOST_IPS, ftHostIps);
 			FileTransferManager.getInstance(context).setFThostURIs();
 		}
-
+		if (data.has(HikeConstants.HTTP_HOST_IPS))
+		{
+			String httpHostIps = data.getString(HikeConstants.HTTP_HOST_IPS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_HOST_IPS, httpHostIps);
+			HttpManager.setProductionHostUris();
+		}
+		if (data.has(HikeConstants.HTTP_HOST_PLATFORM_IPS))
+		{
+			String httpHostIps = data.getString(HikeConstants.HTTP_HOST_PLATFORM_IPS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_HOST_PLATFORM_IPS, httpHostIps);
+			HttpManager.setPlatformProductionHostUris();
+		}
 		if (data.has(HikeConstants.SPECIAL_DAY_TRIGGER))
 		{
 			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
