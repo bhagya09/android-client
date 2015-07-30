@@ -357,7 +357,7 @@ public class OneToNConversationUtils
 			}
 
 			ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
-			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true, newOneToNConv);
 			activity.startActivity(intent);
 			activity.finish();
 

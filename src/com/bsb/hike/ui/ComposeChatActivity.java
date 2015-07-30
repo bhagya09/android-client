@@ -1345,7 +1345,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			
 			Intent intent = null;
 			if (arrayList.size() == 1) {
-				intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true);
+				intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true, false);
 			} else {
 				intent = Utils.getHomeActivityIntent(this);
 			}
@@ -1386,7 +1386,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			if(arrayList.size()==1)
 			{
 				// forwarding to 1 is special case , we want to create conversation if does not exist and land to recipient
-				intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false);
+				intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false, false);
 				intent.putExtras(presentIntent);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
@@ -1407,12 +1407,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						else
 						{
-							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false);
 						}
 					}
 					else
 					{
-						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false);
 					}
 
 				}
@@ -1909,7 +1909,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				@Override
 				public void run()
 				{
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, msisdn, false); 
+					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, msisdn, false, false); 
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();

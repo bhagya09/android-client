@@ -1849,7 +1849,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void openChatThread(ContactInfo contactInfo)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true);
+		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true, false);
 		//Add anything else which is need to the intent
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, false))
@@ -1862,7 +1862,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public void onProfileSmallLeftBtnClick(View v)
 	{
 		Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.ADD_PARTICIPANT);
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false, false);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 
@@ -2659,10 +2659,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				optionsList.add(getString(R.string.make_call));
 			}
-			if (!tempContactInfo.isOnhike())
-			{
-				optionsList.add(getString(R.string.invite_to_hike));
-			}
 			if (isGroupOwner)
 			{
 				if (isBroadcast)
@@ -2701,10 +2697,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					else if (getString(R.string.make_call).equals(option))
 					{
 						Utils.onCallClicked(getApplicationContext(), contactInfo.getMsisdn(), VoIPUtils.CallSource.PROFILE_ACTIVITY);
-					}
-					else if (getString(R.string.invite_to_hike).equals(option))
-					{
-						inviteToHike(contactInfo);
 					}
 					else if (getString(R.string.add_to_contacts).equals(option))
 					{

@@ -471,6 +471,10 @@ public class MqttMessagesManager
 		{
 			if(metadata!=null){
 				this.convDb.setGroupCreationTime(oneToNConversation.getMsisdn(),  oneToNConversation.getCreationDate());
+				if(metadata.has(HikeConstants.GROUP_SETTING)){
+					this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(), metadata.optInt(HikeConstants.GROUP_SETTING),-1, new ContentValues());
+					Logger.d(getClass().getSimpleName(), "GCJ Message - GS setting change");
+				}
 			}
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
 			return;
@@ -543,9 +547,6 @@ public class MqttMessagesManager
 					 * This exception is thrown for unknown themes. Do nothing
 					 */
 				}
-			}
-			if(metadata.has(HikeConstants.GROUP_SETTING)){
-				this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(), metadata.optInt(HikeConstants.GROUP_SETTING),-1, new ContentValues());
 			}
 		}
 
@@ -1503,7 +1504,7 @@ public class MqttMessagesManager
 			JSONObject grpInfo = groups.optJSONObject(msisdn);
 
 			if (grpInfo.has(HikeConstants.ROLE)) {
-				this.convDb.changeGroupSettings(msisdn, 0, grpInfo.optInt(HikeConstants.ROLE), new ContentValues());
+				this.convDb.changeGroupSettings(msisdn, -1, grpInfo.optInt(HikeConstants.ROLE), new ContentValues());
 			}
 		}
 	}

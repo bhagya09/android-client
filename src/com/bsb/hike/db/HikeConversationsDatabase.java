@@ -2058,7 +2058,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						convMetadata = new OneToNConversationMetadata(null);
 					}
 
+					if(setting!=-1){
 					convMetadata.setAddMembersRights(setting);
+					}
 					if (setMyselfAdmin != -1) {
 						convMetadata.setMyselfAsAdmin(setMyselfAdmin);
 					}
@@ -3696,6 +3698,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					infoChangeOnly = true;
 				}
 				if (currentParticipant.getContactInfo().isOnhike() != newParticipantEntry.getValue().getFirst().getContactInfo().isOnhike())
+				{
+					participantsAlreadyAdded = false;
+					infoChangeOnly = true;
+				}
+				if (currentParticipant.isAdmin() != newParticipantEntry.getValue().getFirst().isAdmin())
 				{
 					participantsAlreadyAdded = false;
 					infoChangeOnly = true;
