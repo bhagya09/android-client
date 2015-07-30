@@ -386,7 +386,7 @@ public class ChatHeadService extends Service
 				+ chatHead.getHeight() + RECT_CONST_DP);
 		rectCloseHead = new Rect(closeHeadLocations[0] - RECT_CONST_DP, closeHeadLocations[1] - RECT_CONST_DP, closeHeadLocations[0] + closeHead.getWidth() + RECT_CONST_DP,
 				closeHeadLocations[1] + closeHead.getHeight() + RECT_CONST_DP);
-		if (Rect.intersects(rectChatHead, rectCloseHead))
+		if (closeHeadLocations[0] != 0 && closeHeadLocations[1] != 0 && Rect.intersects(rectChatHead, rectCloseHead))
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD_DISMISS, ChatHeadService.foregroundAppName);
 			dismissed++;
