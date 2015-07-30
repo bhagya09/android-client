@@ -990,7 +990,6 @@
     <string name="ftue_status_update_card_header">Express yourself</string>
     <string name="ftue_status_update_card_msg">Tap here to post a status update. Only your favorites can see them.</string>
     <string name="earn_free_sms">Earn free SMS</string>
-    <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing Stickers, the ability to choose who sees my Last Seen and some really cool Chat Themes. \n\nThe best part? Hike has thing called Hidden Mode that lets you hide your private chats, from the world! Awesome!\n\nDownload it like asap from http://hike.in!</string>
     <string name="email_subject">hike up your life</string>
     <string name="ftue_card_header_last_seen">Last seen</string>
     <string name="ftue_card_body_last_seen">Only favorites can see your last seen &amp; status updates</string>
@@ -1560,5 +1559,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="your_referral_code">Your <b>referral</b> code</string>
     <string name="share_referral_code">Share your referral code anywhere and earn rewards for every friend who joins through your invite</string>
     <string name="copied_to_clipboard">Copied to clipboard.</string>
+    <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing Stickers, the ability to choose who sees my Last Seen and some really cool Chat Themes. \n\nThe best part? Hike has thing called Hidden Mode that lets you hide your private chats, from the world! Awesome!\n\nDownload it like asap from http://hike.in/%1$s</string>
     
 </resources>
