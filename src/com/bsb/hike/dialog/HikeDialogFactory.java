@@ -20,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -768,92 +767,52 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showH20Dialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final H20Dialog dialog = new H20Dialog(context, dialogId);
 		boolean nativeOnly = (boolean) data[0];
 		int selectedSMSCount = (int) data[1];
 		int mCredits = (int) data[2];
-		
+
+		final H20Dialog dialog = new H20Dialog(context, HikeDialogFactory.SHOW_H20_SMS_DIALOG, DialogUtils.getH20SMSOptions(context, nativeOnly),
+				new RadioButtonItemCheckedListener()
+				{
+					@Override
+					public void onRadioButtonItemClicked(RadioButtonPojo whichItem, CustomAlertRadioButtonDialog dialog)
+					{
+						dialog.selectedRadioGroup = whichItem;
+					}
+
+				});
+
 		dialog.setCancelable(true);
-		
-		TextView popupHeader = (TextView) dialog.findViewById(R.id.popup_header);
-		View hikeSMS = dialog.findViewById(R.id.hike_sms_container);
-		View nativeSMS = dialog.findViewById(R.id.native_sms_container);
-		TextView nativeHeader = (TextView) dialog.findViewById(R.id.native_sms_header);
-		TextView hikeSmsHeader = (TextView) dialog.findViewById(R.id.hike_sms_header);
-		TextView hikeSmsSubtext = (TextView) dialog.findViewById(R.id.hike_sms_subtext);
+		dialog.setTitle(context.getString(R.string.send_sms_as, selectedSMSCount));
+		dialog.setPositiveButton(R.string.always, null);
+		dialog.setNegativeButton(R.string.just_once, null);
 
-		popupHeader.setText(context.getString(R.string.send_sms_as, selectedSMSCount));
-		hikeSmsSubtext.setText(context.getString(R.string.free_hike_sms_subtext, mCredits));
-
-		hikeSMS.setVisibility(nativeOnly ? View.GONE : View.VISIBLE);
-		nativeSMS.setVisibility(Utils.isKitkatOrHigher() ? View.GONE : View.VISIBLE);
-
-		final CheckBox sendHike = (CheckBox) dialog.findViewById(R.id.hike_sms_checkbox);
-
-		final CheckBox sendNative = (CheckBox) dialog.findViewById(R.id.native_sms_checkbox);
-
-		final Button alwaysBtn = (Button) dialog.findViewById(R.id.btn_always);
-		final Button justOnceBtn = (Button) dialog.findViewById(R.id.btn_just_once);
-
-		sendHike.setChecked(true);
-		
 		if (!nativeOnly && mCredits < selectedSMSCount)
 		{
+			dialog.editH20Groups(R.string.free_hike_sms, R.string.regular_sms, (context.getString(R.string.free_hike_sms_subtext_diabled, mCredits)));
 			// Disable Free Hike SMS field and enable the native SMS one
-			hikeSmsSubtext.setText(context.getString(R.string.free_hike_sms_subtext_diabled, mCredits));
-			hikeSmsSubtext.setEnabled(false);
-			hikeSmsHeader.setEnabled(false);
-			hikeSMS.setEnabled(false);
-			sendHike.setEnabled(false);
-			sendHike.setChecked(false);
-			sendNative.setChecked(true);
 		}
 
-		nativeHeader.setText(context.getString(R.string.regular_sms));
-		
-		OnClickListener onClickListener = new OnClickListener()
+		dialog.buttonPositive.setOnClickListener(new OnClickListener()
 		{
-			
 			@Override
 			public void onClick(View v)
 			{
-				switch (v.getId())
-				{
-				case R.id.hike_sms_container:
-				case R.id.hike_sms_checkbox:
-					sendHike.setChecked(true);
-					sendNative.setChecked(false);
-					break;
-					
-				case R.id.native_sms_container:
-				case R.id.native_sms_checkbox:
-					sendHike.setChecked(false);
-					sendNative.setChecked(true);
-					break;
-					
-				case R.id.btn_always:
-					HAManager.getInstance().record(HikeConstants.LogEvent.SMS_POPUP_ALWAYS_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
-					
-					Utils.setSendUndeliveredAlwaysAsSmsSetting(context, true, !sendHike.isChecked());
-					listener.positiveClicked(dialog);
-					break;
-					
-				case R.id.btn_just_once:
-					HAManager.getInstance().record(HikeConstants.LogEvent.SMS_POPUP_JUST_ONCE_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
-					
-					listener.positiveClicked(dialog);
-					break;
-				}
+				HAManager.getInstance().record(HikeConstants.LogEvent.SMS_POPUP_ALWAYS_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
+				Utils.setSendUndeliveredAlwaysAsSmsSetting(context, true, !dialog.isHikeSMSChecked());
+				listener.positiveClicked(dialog);
 			}
-		};
-		
-		hikeSMS.setOnClickListener(onClickListener);
-		sendHike.setOnClickListener(onClickListener);
-		nativeSMS.setOnClickListener(onClickListener);
-		sendNative.setOnClickListener(onClickListener);
-		alwaysBtn.setOnClickListener(onClickListener);
-		justOnceBtn.setOnClickListener(onClickListener);
+		});
 
+		dialog.buttonNegative.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				HAManager.getInstance().record(HikeConstants.LogEvent.SMS_POPUP_JUST_ONCE_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
+				listener.positiveClicked(dialog);
+			}
+		});
 
 		dialog.show();
 		return dialog;
