@@ -8,11 +8,13 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeConstants.SMSSyncState;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.ContactInfo;
@@ -191,6 +193,29 @@ public class DialogUtils
 		
 		return list;
 
+	}
+	
+	public static List<RadioButtonPojo> getSMSOptions(Context context)
+	{
+		RadioButtonPojo nativeSMSRb, hikeSMSRb;
+		
+		String hikeSms = context.getString(R.string.free_hike_sms_subtext, context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0));
+		
+		nativeSMSRb = new RadioButtonPojo(R.string.regular_sms, false, "", context.getString(R.string.regular_sms), context.getString(R.string.carrier_charges_apply));
+		
+		hikeSMSRb = new RadioButtonPojo(R.string.free_hike_sms, false, "", context.getString(R.string.free_hike_sms), hikeSms);
+		
+		
+		boolean sendNativeAlwaysPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.SEND_UNDELIVERED_AS_NATIVE_PREF, false);
+		
+		hikeSMSRb.setChecked(!sendNativeAlwaysPref);
+		nativeSMSRb.setChecked(sendNativeAlwaysPref);
+		
+		List<RadioButtonPojo> list = new ArrayList<RadioButtonPojo>(2);
+		list.add(hikeSMSRb);
+		list.add(nativeSMSRb);
+		
+		return list;
 	}
 
 }
