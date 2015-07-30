@@ -229,7 +229,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						}
 					}
 
-					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STICKER_DATA_FIRST_SETUP);
+					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP);
 
 					if (totalNumber != 0)
 					{

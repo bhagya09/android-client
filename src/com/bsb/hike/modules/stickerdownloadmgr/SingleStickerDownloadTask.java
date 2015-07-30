@@ -117,7 +117,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						return;
 					}
 					
-					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STICKER_DATA_FIRST_SETUP);
+					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP);
 					
 					if (!data.has(HikeConstants.PACKS))
 					{

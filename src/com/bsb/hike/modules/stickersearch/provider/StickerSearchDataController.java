@@ -64,7 +64,7 @@ public enum StickerSearchDataController
 	{
 		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
 
-		if (!((state == StickerSearchConstants.STICKER_DATA_FIRST_SETUP) || (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)))
+		if (!((state == StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP) || (state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)))
 		{
 			Logger.e(TAG, "setupStickerSearchWizard(), Invalid trial request.");
 			return;
@@ -128,7 +128,7 @@ public enum StickerSearchDataController
 					continue;
 				}
 
-				if (state == StickerSearchConstants.STICKER_DATA_FIRST_SETUP)
+				if (state == StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP)
 				{
 					if (TextUtils.isEmpty(stickerData.optString(HikeConstants.IMAGE)))
 					{
@@ -136,7 +136,7 @@ public enum StickerSearchDataController
 						continue;
 					}
 				}
-				else if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
+				else if (state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)
 				{
 					Logger.v(TAG, "setupStickerSearchWizard(), No dependency on image data for sticker: " + stickerInfo);
 				}
@@ -452,7 +452,7 @@ public enum StickerSearchDataController
 		untaggedSet.removeAll(stickerCodeSet);
 		Logger.i(TAG, "setupStickerSearchWizard(), Current untagged stickers: " + untaggedSet);
 
-		if (state == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL)
+		if (state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)
 		{
 			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
 			Set<String> updateRetrySet = new HashSet<String>();

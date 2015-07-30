@@ -21,7 +21,7 @@ public class StickerTagInsertTask implements Runnable
 	@Override
 	public void run()
 	{
-		if ((trialValue == StickerSearchConstants.STICKER_DATA_FIRST_SETUP) || (trialValue == StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL))
+		if ((trialValue == StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP) || (trialValue == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH))
 		{
 			StickerSearchDataController.getInstance().setupStickerSearchWizard(data, trialValue);
 		}
