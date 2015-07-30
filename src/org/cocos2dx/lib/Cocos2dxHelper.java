@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.lang.Runnable;
 
+import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
 
 import android.app.Activity;
@@ -330,6 +331,7 @@ public class Cocos2dxHelper {
 	}
 
 	public static void terminateProcess() {
+		Logger.d("Cocos2dxHelper", "Terminating Process : " + android.os.Process.myPid());
 		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
