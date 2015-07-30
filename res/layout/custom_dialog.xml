@@ -34,6 +34,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/messageBodyContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
@@ -59,6 +60,17 @@
             android:text="checkbox"
             android:visibility="gone" />
     </LinearLayout>
+    
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_below="@+id/messageBodyContainer"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:indeterminateDrawable="@drawable/loading"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/button_panel"

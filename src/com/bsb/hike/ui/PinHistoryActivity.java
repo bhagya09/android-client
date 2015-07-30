@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Pair;
@@ -130,7 +131,9 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		}
 		else
 		{
-			backgroundImage.setImageResource(chatTheme.bgResId());
+			View stickylayout=findViewById(R.id.sticky_parent_list);
+			stickylayout.setBackgroundResource(R.color.chat_thread_default_bg);
+			
 		}
 		
 		Utils.resetPinUnreadCount(mConversation);
@@ -159,8 +162,10 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		
 		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
 		chatTheme = db.getChatThemeForMsisdn(msisdn);
-
+		if(chatTheme!=ChatTheme.DEFAULT)
 		actionBar.setBackgroundDrawable(getResources().getDrawable(chatTheme.headerBgResId()));
+		else
+		actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 		actionBar.setDisplayShowTitleEnabled(true);
 
 		actionBar.setIcon(R.drawable.hike_logo_top_bar);
@@ -214,6 +219,11 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		if(isActionModeOn)
 		{
 			return onActionModeItemClicked(item);
+		}
+		if(item.getItemId()==android.R.id.home)
+		{
+			onBackPressed();
+			
 		}
 		return true;
 	}
@@ -510,7 +520,6 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			Toast.makeText(PinHistoryActivity.this, R.string.copied, Toast.LENGTH_SHORT).show();
 			destroyActionMode();
 			return true;
-
 		default:
 			destroyActionMode();
 		return false;
@@ -585,5 +594,11 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			});
 			Utils.resetPinUnreadCount(mConversation);
 		}
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color)
+	{
+		// TODO Auto-generated method stub
+		return;
 	}
 }

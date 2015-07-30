@@ -121,7 +121,6 @@
 	</style>
 	
 	<style name="Theme.CustomDialog" parent="Theme.AppCompat.Dialog.Alert">
-	    <item name="android:maxWidth">@dimen/custom_dialog_width</item>
 	    <item name="android:windowIsFloating">true</item>
 	    <item name="android:windowNoTitle">true</item>
 	</style>
@@ -298,7 +297,7 @@
         <item name="android:shadowRadius">0.7</item>
     </style>
 
-    <style name="HomeList">
+    <style name="HomeListParent">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:cacheColorHint">#00000000</item>
@@ -308,7 +307,10 @@
         <item name="android:footerDividersEnabled">false</item>
         <item name="android:drawSelectorOnTop">false</item>
         <item name="android:listSelector">@android:color/transparent</item>
+        <item name="android:overScrollFooter">@android:color/transparent</item>
     </style>
+    
+    <style name="HomeList" parent = "HomeListParent"/>
     
     <style name="Hike.ActionBarTheme" parent="Theme.AppCompat">
         <item name="actionBarSize">@dimen/st__action_bar_default_height</item>
@@ -342,7 +344,10 @@
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:statusBarColor">@color/blue_hike_status_bar_m</item>
-        <item name="colorControlActivated">#1993CB</item>
+        <item name="colorControlActivated">@color/blue_hike</item>
+        <item name="android:colorControlActivated">@color/blue_hike</item>
+        <item name="colorAccent">@color/blue_hike</item>
+        <item name="android:colorAccent">@color/blue_hike</item>
     </style>
     <style name="NoCloseButton" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
     <item name="android:visibility">visible</item>
@@ -916,8 +921,8 @@
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
     </style>
-
-    <style name="ButtonCustomDialog">
+    
+     <style name="ButtonCustomDialogParent" parent = "Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:paddingBottom">10dp</item>
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingLeft">8dp</item>
@@ -927,6 +932,8 @@
         <item name="android:textSize">14sp</item>
         <item name="android:background">@drawable/list_item</item>
     </style>
+
+    <style name="ButtonCustomDialog" parent = "ButtonCustomDialogParent" />
 	
 	<style name="ProfileHeaderText" parent="BaseStyleTextView">
 	    <item name="android:layout_width">wrap_content</item>
