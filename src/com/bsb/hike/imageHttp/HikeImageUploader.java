@@ -95,6 +95,11 @@ public class HikeImageUploader extends HikeImageWorker
 		
 	}
 	
+	public static RequestToken getProfileRequestToken()
+	{
+		return profileToken;
+	}
+	
 	private void executeToken(RequestToken token)
 	{
 		if(token !=null)

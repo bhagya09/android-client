@@ -1,7 +1,5 @@
 package com.bsb.hike.ui.fragments;
 
-import java.io.File;
-
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -15,6 +13,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
@@ -74,6 +73,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	private final byte UPLOAD_FAILED = 2;
 	
 	private final byte UPLOAD_INPROGRESS = 3;
+	
+	private final byte UPLOAD_STALE = 4;
 	
 	private RoundedImageView mCircularImageView;
 
@@ -148,11 +149,19 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		{
 			mUploadStatus = savedInstanceState.getByte(UPLOAD_STATUS_KEY) ;
 			
-			//if upload was statrted before and the file to be uploaded no longer exists, we can assume the file was uploaded
-			if(mUploadStatus == UPLOAD_INPROGRESS && !(new File(imagePath)).exists())
+			//if upload was statrted before and the token to be uploaded no longer exists, we can assume the file was uploaded
+			if(mUploadStatus == UPLOAD_INPROGRESS)
 			{
-				mUploadStatus = UPLOAD_COMPLETE;
+				if(HikeImageUploader.getProfileRequestToken() == null)
+				{
+					mUploadStatus = UPLOAD_COMPLETE;
+				}
+				else 
+				{
+					mUploadStatus = UPLOAD_STALE;
+				}
 			}
+			
 		}
 
 
@@ -200,8 +209,14 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private void startUpload()
 	{
-		if(mUploadStatus == UPLOAD_COMPLETE)
+		if(mUploadStatus == UPLOAD_COMPLETE )
 		{
+			timelineLauncherRunnable.run();
+			return;
+		}
+		if( mUploadStatus == UPLOAD_STALE)
+		{
+			showStaleState(getString(R.string.task_already_running));
 			return;
 		}
 		
@@ -395,7 +410,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private void showStaleState(String message)
 	{
-		mUploadStatus = UPLOAD_FAILED;
+		mUploadStatus = UPLOAD_STALE;
 
 		if (!isAdded())
 		{
@@ -407,11 +422,26 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		changeTextWithAnimation(text1, message);
 
-		changeTextWithAnimation(text2, getString(R.string.try_again_later));
+		changeTextWithAnimation(text2, getString(R.string.goto_timeline));
 
 		mCircularProgress.setProgressColor(getResources().getColor(R.color.photos_circular_progress_yellow));
 
 		mFragmentView.findViewById(R.id.retryButton).setVisibility(View.GONE);
+		
+		mFragmentView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				if(mUploadStatus == UPLOAD_STALE)
+				{
+					mUploadStatus = UPLOAD_COMPLETE;
+				
+					timelineLauncherRunnable.run();
+				}
+				
+			}
+		});
 
 	}
 	
