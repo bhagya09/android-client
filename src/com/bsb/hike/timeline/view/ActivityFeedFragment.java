@@ -4,30 +4,31 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
 import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
 
-public class ActivityFeedFragment extends SherlockFragment implements Listener
+public class ActivityFeedFragment extends Fragment implements Listener
 {
 
 	private ActivityFeedCursorAdapter activityFeedCardAdapter;
@@ -37,7 +38,7 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 	private RecyclerView mActivityFeedRecyclerView;
 
 	private LinearLayoutManager mLayoutManager;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -45,7 +46,7 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 		setHasOptionsMenu(true);
 		setupActionBar();
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -171,12 +172,11 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 					{
 						activityFeedCardAdapter.swapCursor(result);
 					}
-					
+
 					/**
-					 * Added this check as to ensure that this call for updating read status
-					 * only when screen is shown to user i.e in post execute, fragment is Added and visible
+					 * Added this check as to ensure that this call for updating read status only when screen is shown to user i.e in post execute, fragment is Added and visible
 					 */
-					if(isAdded() && isVisible())
+					if (isAdded() && isVisible())
 					{
 						UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
 
@@ -206,20 +206,14 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 		}
 
 	}
-	
+
 	public void setupActionBar()
 	{
-		if (getSherlockActivity() == null)
-		{
-			return;
-		}
-		/*
-		 * else part
-		 */
-		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+		ActionBar actionBar = ((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar();
+
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-		
-		View actionBarView = getSherlockActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
+
+		View actionBarView = getActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
@@ -229,7 +223,6 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 		TextView subText = (TextView) actionBarView.findViewById(R.id.subtext);
 		subText.setVisibility(View.GONE);
 
-		
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		backContainer.setOnClickListener(new OnClickListener()
@@ -253,5 +246,5 @@ public class ActivityFeedFragment extends SherlockFragment implements Listener
 	{
 		menu.clear();
 	}
-	
+
 }

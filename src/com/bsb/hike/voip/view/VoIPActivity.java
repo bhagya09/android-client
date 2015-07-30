@@ -2,13 +2,16 @@ package com.bsb.hike.voip.view;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.Logger;
@@ -24,7 +27,7 @@ import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
  * @author anuj
  *
  */
-public class VoIPActivity extends SherlockFragmentActivity implements CallFragmentListener, CallFailedFragListener
+public class VoIPActivity extends AppCompatActivity implements CallFragmentListener, CallFailedFragListener
 {
 	private VoipCallFragment mainFragment;
 
@@ -38,6 +41,8 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+		
+		setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
 		setupMainFragment();
 		Intent intent = getIntent();
@@ -98,6 +103,10 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 
 			// Using this method to ensure fragment commit happens immediately
 			getSupportFragmentManager().executePendingTransactions();
+			
+			// Let the screen switch off
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 	}
 
@@ -111,13 +120,6 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 	public boolean isShowingCallFailedFragment() 
 	{
 		return isFragmentAdded(HikeConstants.VOIP_CALL_FAILED_FRAGMENT_TAG);
-	}
-
-	@Override
-	protected void onStop() 
-	{
-		super.onStop();
-		removeCallFailedFragment();
 	}
 
 	/**

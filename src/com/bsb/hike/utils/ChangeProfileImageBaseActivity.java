@@ -19,11 +19,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -34,7 +32,9 @@ import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
@@ -315,20 +315,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				return;
 			}
 			
-			applyCompression(mActivityState.destFilePath);
-			
 			profileImageCropped();
 			break;
 		
-		}
-	}
-
-	protected void applyCompression(String filename)
-	{
-		if(!Utils.isPhotosEditEnabled())
-		{
-			int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
-			Utils.compressAndCopyImage(filename, filename, ChangeProfileImageBaseActivity.this, Bitmap.Config.RGB_565, imageCompressQuality, ImageQuality.QUALITY_MEDIUM, false);
 		}
 	}
 
@@ -399,28 +388,26 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
 
-		final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this, HikeDialogFactory.REMOVE_DP_CONFIRM_DIALOG);
-		deleteConfirmDialog.setHeader(R.string.remove_photo);
-		deleteConfirmDialog.setBody(R.string.confirm_remove_photo);
-		deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, false);
+		CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this, HikeDialogFactory.REMOVE_DP_CONFIRM_DIALOG);
+		deleteConfirmDialog.setTitle(R.string.remove_photo);
+		deleteConfirmDialog.setMessage(R.string.confirm_remove_photo);
 
 		// if checkbox is selected, delete the profile status update from own and favorites timeline
 		String dpStatusId = prefs.getPref().getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "");
 
-		if (dpStatusId.isEmpty())
+		if (!dpStatusId.isEmpty())
 		{
-			deleteConfirmDialog.setCheckboxVisibility(View.GONE);
+			deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, null, false);
 		}
 
-		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
+		HikeDialogListener dialogListener = new HikeDialogListener()
 		{
-			JSONObject md = new JSONObject();
-
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				// if checkbox is selected, delete the profile status update from own and favorites timelines
-				if (deleteConfirmDialog.isChecked())
+				JSONObject md = new JSONObject();
+				CustomAlertDialog deleteDialog = (CustomAlertDialog) hikeDialog;
+				if (deleteDialog.isChecked())
 				{
 					ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 					StatusMessageType[] smType = { StatusMessageType.PROFILE_PIC };
@@ -461,11 +448,23 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json error");
 					}
 				}
-				deleteConfirmDialog.dismiss();
+				deleteDialog.dismiss();
+			}
+			
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+				
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
 			}
 		};
-		deleteConfirmDialog.setOkButton(R.string.yes, dialogOkClickListener);
-		deleteConfirmDialog.setCancelButton(R.string.no);
+		deleteConfirmDialog.setPositiveButton(R.string.yes, dialogListener);
+		deleteConfirmDialog.setNegativeButton(R.string.no,dialogListener);
 		deleteConfirmDialog.show();
 	}
 

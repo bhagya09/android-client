@@ -10,24 +10,22 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ImageView.ScaleType;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -49,6 +47,9 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.Animator.AnimatorListener;
+import com.nineoldandroids.animation.ObjectAnimator;
 
 /**
  * 
@@ -57,7 +58,7 @@ import com.bsb.hike.utils.Utils;
  * @author Atul M
  * 
  */
-public class PostDetailsActivity extends SherlockFragmentActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
+public class PostDetailsActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -132,10 +133,10 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 	public void onCreate(Bundle savedInstanceState)
 	{
 		overridePendingTransition(0, 0);
+		
+		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		super.onCreate(savedInstanceState);
-
-		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		setContentView(R.layout.image_viewer_activity);
 
@@ -263,15 +264,15 @@ public class PostDetailsActivity extends SherlockFragmentActivity implements OnC
 	public void runExitAnimation(final Runnable endAction)
 	{
 		infoContainer.setVisibility(View.GONE);
-		contentContainer.animate().setDuration(300).translationY(20).alpha(0f);
+		contentContainer.animate().setDuration(100).translationY(20).alpha(0f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
-		bgAnim.setDuration(600);
+		bgAnim.setDuration(200);
 
 		ObjectAnimator fgAnim = ObjectAnimator.ofFloat(foregroundScreen, "alpha", 0);
-		fgAnim.setDuration(600);
+		fgAnim.setDuration(200);
 
 		ObjectAnimator actionBarAnim = ObjectAnimator.ofFloat(actionBarView, "alpha", 0);
-		actionBarAnim.setDuration(600);
+		actionBarAnim.setDuration(200);
 
 		bgAnim.addListener(new AnimatorListener()
 		{

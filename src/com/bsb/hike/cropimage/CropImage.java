@@ -55,7 +55,9 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -275,6 +277,9 @@ public class CropImage extends MonitoredActivity
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
+		
 	}
 	
 	@Override

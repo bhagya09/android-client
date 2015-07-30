@@ -25,12 +25,15 @@ import android.os.Bundle;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
+import android.support.v4.app.ListFragment;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -53,10 +56,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -97,7 +96,6 @@ import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedLi
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
@@ -113,8 +111,9 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
+import com.nineoldandroids.animation.ObjectAnimator;
 
-public class ConversationFragment extends SherlockListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
+public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.MESSAGE_DELIVERED,
 			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.CONTACT_ADDED,
@@ -1009,20 +1008,23 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			BotInfo botInfo = (BotInfo) convInfo;
 			if (botInfo.isMessagingBot())
 			{
-				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
+				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo);
 				startActivity(intent);
 			}
 			else
 			{
-				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), "", "", getActivity());
-				startActivity(web);
+				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
+				if(web != null)
+				{
+					startActivity(web);
+				}
 				
 				resetNotificationCounter(convInfo);
 			}
 		}
 		else
 		{
-			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
+			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo);
 			startActivity(intent);
 		}
 
@@ -1391,7 +1393,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
                         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
                     }
 					Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-					Utils.createShortcut(getSherlockActivity(), conv);
+					Utils.createShortcut(getActivity(), conv);
 				}
 				else if (getString(R.string.delete_chat).equals(option))
 				{
@@ -1485,7 +1487,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.email_conversations).equals(option))
 				{
-					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getSherlockActivity(), ConversationFragment.this);
+					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getActivity(), ConversationFragment.this);
 					Utils.executeConvAsyncTask(task, conv);
 					
 					if (BotUtils.isBot(conv.getMsisdn()))
@@ -1532,7 +1534,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.group_info).equals(option) || getString(R.string.broadcast_info).equals(option))
 				{
-					if (!((OneToNConvInfo) conv).isConversationAlive())
+					if(!ContactManager.getInstance().isGroupAlive(((OneToNConvInfo) conv).getMsisdn()))
 					{
 						return;
 					}
@@ -1569,7 +1571,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		});	
 
 		alertDialog = builder.show();
-		alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+		alertDialog.getListView().setDivider(null);
+		alertDialog.getListView().setPadding(0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
 		return true;
 	}
 
@@ -1581,7 +1584,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
 		}
 		Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-		Utils.createShortcut(getSherlockActivity(), conv);
+		Utils.createShortcut(getActivity(), conv);
 	}
 
 	protected void onDeleteBotClicked(final ConvInfo conv, final boolean shouldBlock)

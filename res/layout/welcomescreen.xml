@@ -74,7 +74,8 @@
 	            android:text="@string/get_started"
 	            android:textColor="@drawable/signup_btn_text"
 	            android:textSize="15sp"
-	            android:textStyle="bold|italic" />
+	            android:textStyle="bold|italic"
+	            android:textAllCaps="false" />
 
 	        <LinearLayout
 	            android:id="@+id/loading_layout"

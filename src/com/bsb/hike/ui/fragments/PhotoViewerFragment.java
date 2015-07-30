@@ -31,11 +31,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.support.v4.app.Fragment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -53,11 +55,12 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class PhotoViewerFragment extends SherlockFragment implements OnPageChangeListener
+public class PhotoViewerFragment extends Fragment implements OnPageChangeListener
 {
 	private View mParent;
 	
@@ -240,7 +243,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			@Override
 			public void onClick(View v)
 			{
-				startActivity(HikeSharedFilesActivity.getHikeSharedFilesActivityIntent(getSherlockActivity(), isGroup, conversationName, msisdnArray, nameArray, msisdn));
+				startActivity(HikeSharedFilesActivity.getHikeSharedFilesActivityIntent(getActivity(), isGroup, conversationName, msisdnArray, nameArray, msisdn));
 			}
 		});
 		
@@ -314,8 +317,8 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	{
 		senderName.setText(getSenderName(position));
 		long timeStamp = sharedMediaItems.get(position).getTimeStamp();
-		String date = Utils.getFormattedDate(getSherlockActivity(), timeStamp);
-		String time = Utils.getFormattedTime(false, getSherlockActivity(), timeStamp);
+		String date = Utils.getFormattedDate(getActivity(), timeStamp);
+		String time = Utils.getFormattedTime(false, getActivity(), timeStamp);
 		itemTimeStamp.setText(date+", "+time);
 	}
 
@@ -343,17 +346,18 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	
 	public void setupActionBar()
 	{
-		if (getSherlockActivity() == null)
+		if (getActivity() == null)
 		{
 			return;
 		}
 		/*
 		 * else part
 		 * */
-		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+		StatusBarColorChanger.changeStatusBarColorifnotInTranslucentState(getActivity(), HikeConstants.STATUS_BAR_TRANSPARENT);
+		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();//check if getSupportA
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
-		View actionBarView = getSherlockActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		View actionBarView = getActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
 		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header_photo_viewer));
 
 		View backContainer = actionBarView.findViewById(R.id.back);
@@ -377,11 +381,13 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 	
 	private void finish()
 	{
-		getSherlockActivity().onBackPressed();
+		getActivity().onBackPressed();
 	}
 
 	public static void openPhoto(int resId, Context context, ArrayList<HikeSharedFile> hikeSharedFiles, boolean fromChatThread, Conversation conversation)
@@ -474,7 +480,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		@Override
 		protected void onPostExecute(List<HikeSharedFile> result)
 		{
-			if(getSherlockActivity() == null)
+			if(getActivity() == null)
 			{
 				return ;
 			}
@@ -560,7 +566,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 		//deletes current selected item from viewpager 
 		case R.id.delete_msgs:
-			HikeDialogFactory.showDialog(getSherlockActivity(), HikeDialogFactory.DELETE_FILES_DIALOG, new HikeDialogListener()
+			HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_FILES_DIALOG, new HikeDialogListener()
 			{
 				
 				@Override
@@ -603,13 +609,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			
 			return true;
 		case R.id.forward_msgs:
+			
 			File selFile = getCurrentSelectedItem().getFile();
 			if(selFile == null || !selFile.exists())
 			{
 				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.file_expire, Toast.LENGTH_SHORT).show();
 				return false;
 			}
-			Intent intent = new Intent(getSherlockActivity(), ComposeChatActivity.class);
+			Intent intent = new Intent(getActivity(), ComposeChatActivity.class);
 			intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
 			JSONArray multipleMsgArray = new JSONArray();
 			try
@@ -628,7 +635,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			return true;
 		case R.id.share_msgs:
 			
-			getCurrentSelectedItem().shareFile(getSherlockActivity());
+			getCurrentSelectedItem().shareFile(getActivity());
 			return true;
 		case R.id.edit_pic:
 			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null,false);
@@ -650,7 +657,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onResume()
 	{
-		if(!getSherlockActivity().getSupportActionBar().isShowing())
+		if(!((AppCompatActivity) getActivity()).getSupportActionBar().isShowing())
 		{
 			toggleViewsVisibility();
 		}
@@ -684,19 +691,19 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	public void toggleViewsVisibility()
 	{
-		if (getSherlockActivity() != null)
+		if (getActivity() != null)
 		{
-			ActionBar actionbar = getSherlockActivity().getSupportActionBar();
+			ActionBar actionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 			Animation animation;
 			if (!actionbar.isShowing())
 			{
 				actionbar.show();
-				animation = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_in_animation);
+				animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_animation);
 			}
 			else
 			{
 				actionbar.hide();
-				animation = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_out_animation);
+				animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_animation);
 			}
 			animation.setDuration(300);
 			animation.setFillAfter(true);
@@ -736,8 +743,9 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(smAdapter != null)
 		{
 			smAdapter.onDestroy();
+			
 		}
-		
+		StatusBarColorChanger.changeStatusBarColorifnotInTranslucentState(getActivity(), HikeConstants.STATUS_BAR_BLUE);
 		super.onDestroy();
 	}
 }

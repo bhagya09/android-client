@@ -81,14 +81,6 @@ public class DialogUtils
 		}
 	}
 	
-	public static void setupSyncDialogLayout(boolean syncConfirmation, View btnContainer, ProgressBar syncProgress, TextView info, View btnDivider)
-	{
-		btnContainer.setVisibility(syncConfirmation ? View.VISIBLE : View.GONE);
-		syncProgress.setVisibility(syncConfirmation ? View.GONE : View.VISIBLE);
-		btnDivider.setVisibility(syncConfirmation ? View.VISIBLE : View.GONE);
-		info.setText(syncConfirmation ? R.string.import_sms_info : R.string.importing_sms_info);
-	}
-
 	public static void executeSMSSyncStateResultTask(AsyncTask<Void, Void, SMSSyncState> asyncTask)
 	{
 		if (Utils.isHoneycombOrHigher())
@@ -120,5 +112,12 @@ public class DialogUtils
 			Logger.w("LogEvent", e);
 		}
 
+	}
+
+	public static void setupSyncDialogLayout(boolean syncConfirmation, CustomAlertDialog dialog)
+	{
+		dialog.buttonPanel.setVisibility(syncConfirmation ? View.VISIBLE : View.GONE);
+		dialog.mProgressIndeterminate.setVisibility(syncConfirmation ? View.GONE : View.VISIBLE);
+		dialog.setMessage(syncConfirmation ? R.string.import_sms_info : R.string.importing_sms_info);
 	}
 }

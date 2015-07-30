@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -19,7 +20,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -54,11 +54,11 @@ import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOn
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class UpdatesFragment extends SherlockFragment implements Listener, OnClickListener
+public class UpdatesFragment extends Fragment implements Listener, OnClickListener
 {
 
 	private StatusMessage noStatusMessage;
-	
+
 	private StatusMessage ftueStatusMessage;
 
 	private TimelineCardsAdapter timelineCardsAdapter;
@@ -79,11 +79,11 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 	private LinearLayoutManager mLayoutManager;
 
 	private View actionsView;
-	
+
 	private TimelineActions actionsData = new TimelineActions();
 
 	private Gson gson;
-	
+
 	private List<String> mFtueFriendList;
 
 	@Override
@@ -91,10 +91,10 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 	{
 		View parent = inflater.inflate(R.layout.updates, null);
 		mUpdatesList = (RecyclerView) parent.findViewById(R.id.updatesRecycleView);
-		actionsView = parent.findViewById(R.id.new_update_tab); 
+		actionsView = parent.findViewById(R.id.new_update_tab);
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mUpdatesList.setLayoutManager(mLayoutManager);
-		
+
 		// TODO
 		// mUpdatesList.setEmptyView(parent.findViewById(android.R.id.empty));
 		return parent;
@@ -106,18 +106,18 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		super.onViewCreated(view, savedInstanceState);
 
 		prefs = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		
+
 		GsonBuilder gsonBuilder = new GsonBuilder();
-	    gsonBuilder.registerTypeAdapter(TimelineActions.class, new ActionsDeserializer());
-	    gson = gsonBuilder.create();
+		gsonBuilder.registerTypeAdapter(TimelineActions.class, new ActionsDeserializer());
+		gson = gsonBuilder.create();
 
 		userMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, "");
 
 		statusMessages = new ArrayList<StatusMessage>();
-		
+
 		mFtueFriendList = new ArrayList<String>();
 
-		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getSherlockActivity().getSupportFragmentManager());
+		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager());
 		timelineCardsAdapter.setActionsData(actionsData);
 
 		mUpdatesList.setAdapter(timelineCardsAdapter);
@@ -126,9 +126,9 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(45)).isSnappable(false).build();
 
 		mUpdatesList.setOnScrollListener(scrollListener);
-		
+
 		actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
-		
+
 		actionsView.findViewById(R.id.new_status_tab).setOnClickListener(this);
 
 		FetchUpdates fetchUpdates = new FetchUpdates();
@@ -232,7 +232,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 			});
 		}
 	}
-	
+
 	private int getStartIndex()
 	{
 		int startIndex = 0;
@@ -246,15 +246,9 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 	private boolean shouldAddFTUEItem()
 	{
 		return false;
-		/*if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
-		{
-			return true;
-		}
-		else
-		{
-			ftueStatusMessage = null;
-			return false;
-		}*/
+		/*
+		 * if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true)) { return true; } else { ftueStatusMessage = null; return false; }
+		 */
 	}
 
 	private void addFTUEItem()
@@ -262,24 +256,24 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
 		int cardCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER, 4);
 		ContactInfo contact = null;
-		if(counter == 0)
+		if (counter == 0)
 		{
-			//To SHOW BASIC CARD
+			// To SHOW BASIC CARD
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_INIT, null, null, null, null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
 			return;
 		}
-		else if(counter <= cardCount)
+		else if (counter <= cardCount)
 		{
-			//To SHOW Fav Card
+			// To SHOW Fav Card
 			contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter - 1));
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
 			return;
 		}
-		else if(counter == cardCount + 1)
+		else if (counter == cardCount + 1)
 		{
-			//To SHOW Exit Card
+			// To SHOW Exit Card
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_EXIT, null, null, null, null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
 			return;
@@ -292,7 +286,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 		@Override
 		protected List<StatusMessage> doInBackground(Void... params)
 		{
-		
+
 			List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
 
 			ArrayList<String> msisdnList = new ArrayList<String>();
@@ -324,16 +318,16 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 			}
 
 			final ArrayList<String> suIDList = new ArrayList<String>();
-			
-			for(StatusMessage suMessage: result)
+
+			for (StatusMessage suMessage : result)
 			{
 				if (!TextUtils.isEmpty(suMessage.getMappedId()))
 				{
 					suIDList.add(suMessage.getMappedId());
 				}
 			}
-			
-			if(!suIDList.isEmpty())
+
+			if (!suIDList.isEmpty())
 			{
 				// Get actions for SU from HTTP
 				JSONArray suIDArray = new JSONArray(suIDList);
@@ -355,31 +349,23 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 					@Override
 					public void run()
 					{
-						HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(),suIDList, actionsData);
+						HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDList, actionsData);
 						timelineCardsAdapter.setActionsData(actionsData);
 						notifyVisibleItems();
 					}
 				}, 0);
 			}
-			
+
 			/*
 			 * If we already have a few status messages in the timeline, no need to prompt the user to post his/her own message.
 			 */
-			/*if (result.size() < HikeConstants.MIN_STATUS_COUNT)
-			{
-				if (TextUtils.isEmpty(lastStatus))
-				{
-					noStatusMessage = new StatusMessage(TimelineCardsAdapter.EMPTY_STATUS_NO_STATUS_ID, null, "12345", getString(R.string.mood_update), getString(
-							R.string.hey_name, name), StatusMessageType.NO_STATUS, System.currentTimeMillis() / 1000);
-					statusMessages.add(0, noStatusMessage);
-				}
-				else if (result.isEmpty())
-				{
-					noStatusMessage = new StatusMessage(TimelineCardsAdapter.EMPTY_STATUS_NO_STATUS_RECENTLY_ID, null, "12345", getString(R.string.mood_update), getString(
-							R.string.hey_name, name), StatusMessageType.NO_STATUS, System.currentTimeMillis() / 1000);
-					statusMessages.add(0, noStatusMessage);
-				}
-			}*/
+			/*
+			 * if (result.size() < HikeConstants.MIN_STATUS_COUNT) { if (TextUtils.isEmpty(lastStatus)) { noStatusMessage = new
+			 * StatusMessage(TimelineCardsAdapter.EMPTY_STATUS_NO_STATUS_ID, null, "12345", getString(R.string.mood_update), getString( R.string.hey_name, name),
+			 * StatusMessageType.NO_STATUS, System.currentTimeMillis() / 1000); statusMessages.add(0, noStatusMessage); } else if (result.isEmpty()) { noStatusMessage = new
+			 * StatusMessage(TimelineCardsAdapter.EMPTY_STATUS_NO_STATUS_RECENTLY_ID, null, "12345", getString(R.string.mood_update), getString( R.string.hey_name, name),
+			 * StatusMessageType.NO_STATUS, System.currentTimeMillis() / 1000); statusMessages.add(0, noStatusMessage); } }
+			 */
 
 			long currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
 
@@ -400,9 +386,9 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 
 			statusMessages.addAll(result);
 			Logger.d(getClass().getSimpleName(), "Updating...");
-			
+
 			// Get Fav users list from SharedPref for FTUE
-			if(shouldAddFTUEItem())
+			if (shouldAddFTUEItem())
 			{
 				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 				{
@@ -412,35 +398,36 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 
 						HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 						String mymsisdn = settings.getData(HikeMessengerApp.MSISDN_SETTING, "");
-						mFtueFriendList = new ArrayList<String>(Utils.getServerRecommendedContactsSelection(settings.getData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null), mymsisdn));
+						mFtueFriendList = new ArrayList<String>(Utils.getServerRecommendedContactsSelection(settings.getData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null),
+								mymsisdn));
 						timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
 						addFTUEItem();
 						notifyVisibleItems();
 					}
 				}, 0);
 			}
-			
+
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
 		}
 
 	}
-	
+
 	private IRequestListener actionUpdatesReqListener = new IRequestListener()
 	{
 		@Override
 		public void onRequestSuccess(Response result)
 		{
 			final JSONObject response = (JSONObject) result.getBody().getContent();
-			
+
 			if (Utils.isResponseValid(response))
 			{
 				actionsData = gson.fromJson(response.toString(), TimelineActions.class);
 
 				timelineCardsAdapter.setActionsData(actionsData);
-				
+
 				notifyVisibleItems();
-				
-				HikeConversationsDatabase.getInstance().updateActionsData(actionsData,ActivityObjectTypes.STATUS_UPDATE);
+
+				HikeConversationsDatabase.getInstance().updateActionsData(actionsData, ActivityObjectTypes.STATUS_UPDATE);
 			}
 		}
 
@@ -487,7 +474,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 			break;
 		}
 	}
-	
+
 	public void notifyVisibleItems()
 	{
 		if (UpdatesFragment.this.isAdded())
@@ -503,6 +490,5 @@ public class UpdatesFragment extends SherlockFragment implements Listener, OnCli
 			});
 		}
 	}
-	
 
 }

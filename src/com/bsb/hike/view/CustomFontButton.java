@@ -13,12 +13,9 @@ public class CustomFontButton extends Button
 	
 	private CustomTypeFace customTypeFace;
 	
-	private int style;
-
 	private void setFont(AttributeSet attrs)
 	{
 		fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
-		setTypeface(getTypeface(), style);
 	}
 
 	public CustomFontButton(Context context, AttributeSet attrs, int defStyle)
@@ -43,7 +40,6 @@ public class CustomFontButton extends Button
 	{
 		if (!isInEditMode())
 		{
-			this.style = style;
 			/*
 			 * If we are dealing with LDPI phones, we use the default font, They have a rendering issue with the font that we're using
 			 */

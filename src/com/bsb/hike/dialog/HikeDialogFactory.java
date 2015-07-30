@@ -8,7 +8,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.View;
@@ -22,11 +21,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -209,7 +206,7 @@ public class HikeDialogFactory
 		{
 			throw new IllegalArgumentException("Make sure You are sending one string , that is name to fill with in dialog");
 		}
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
 		hikeDialog.setContentView(R.layout.added_as_favorite_pop_up);
 		hikeDialog.setCancelable(true);
 		TextView heading = (TextView) hikeDialog.findViewById(R.id.addedYouAsFavHeading);
@@ -258,7 +255,7 @@ public class HikeDialogFactory
 
 	private static HikeDialog showStealthResetDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
 		hikeDialog.setContentView(R.layout.stealth_ftue_popup);
 		hikeDialog.setCancelable(true);
 
@@ -307,7 +304,7 @@ public class HikeDialogFactory
 
 	private static HikeDialog showImageQualityDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
 		hikeDialog.setContentView(R.layout.image_quality_popup);
 		hikeDialog.setCancelable(true);
 		hikeDialog.setCanceledOnTouchOutside(true);
@@ -454,42 +451,25 @@ public class HikeDialogFactory
 	private static HikeDialog showSMSClientDialog(int dialogId, final Context context, final HikeDialogListener listener, final boolean triggeredFromToggle,
 			final CompoundButton checkBox, final boolean showingNativeInfoDialog)
 	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
-		hikeDialog.setContentView(R.layout.enable_sms_client_popup);
+		final CustomAlertDialog hikeDialog = new CustomAlertDialog(context, dialogId);
 		hikeDialog.setCancelable(showingNativeInfoDialog);
 
-		TextView header = (TextView) hikeDialog.findViewById(R.id.header);
-		TextView body = (TextView) hikeDialog.findViewById(R.id.body);
-		Button btnOk = (Button) hikeDialog.findViewById(R.id.btn_ok);
-		Button btnCancel = (Button) hikeDialog.findViewById(R.id.btn_cancel);
-
-		header.setText(showingNativeInfoDialog ? R.string.native_header : R.string.use_hike_for_sms);
-		body.setText(showingNativeInfoDialog ? R.string.native_info : R.string.use_hike_for_sms_info);
-
+		hikeDialog.setTitle(showingNativeInfoDialog ? R.string.native_header : R.string.use_hike_for_sms);
+		
+		hikeDialog.setMessage(showingNativeInfoDialog ? R.string.native_info : R.string.use_hike_for_sms_info);
+		
 		if (showingNativeInfoDialog)
 		{
-			btnCancel.setVisibility(View.GONE);
-			btnOk.setText(R.string.continue_txt);
+			hikeDialog.setPositiveButton(R.string.continue_txt, listener);
 		}
 		else
 		{
-			btnCancel.setText(R.string.cancel);
-			btnOk.setText(R.string.allow);
+			hikeDialog.setNegativeButton(R.string.cancel, listener);
+			hikeDialog.setPositiveButton(R.string.allow, listener);
 		}
-
-		btnOk.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(hikeDialog);
-			}
-		});
 
 		hikeDialog.setOnCancelListener(new OnCancelListener()
 		{
-
 			@Override
 			public void onCancel(DialogInterface dialog)
 			{
@@ -497,16 +477,6 @@ public class HikeDialogFactory
 				{
 					checkBox.setChecked(false);
 				}
-			}
-		});
-
-		btnCancel.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				listener.negativeClicked(hikeDialog);
 			}
 		});
 
@@ -521,7 +491,7 @@ public class HikeDialogFactory
 			PhonebookContact contact = (PhonebookContact) data[0];
 			String okText = (String) data[1];
 			Boolean showAccountInfo = (Boolean) data[2];
-			final ContactDialog contactDialog = new ContactDialog(context, R.style.Theme_CustomDialog, dialogId);
+			final ContactDialog contactDialog = new ContactDialog(context, dialogId);
 			contactDialog.setContentView(R.layout.contact_share_info);
 			contactDialog.data = contact;
 			ViewGroup parent = (ViewGroup) contactDialog.findViewById(R.id.parent);
@@ -646,20 +616,11 @@ public class HikeDialogFactory
 	{
 		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
 		
-		dialog.setHeader(R.string.clear_conversation);
-		dialog.setBody(R.string.confirm_clear_conversation);
-		
-		dialog.setOkButton(R.string.ok, new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(dialog);
-			}
-		});
-		dialog.setCancelButton(R.string.cancel);
-		
+		dialog.setTitle(R.string.clear_conversation);
+		dialog.setMessage(R.string.confirm_clear_conversation);
+		dialog.setPositiveButton(R.string.ok, listener);
+		dialog.setNegativeButton(R.string.cancel, listener);
+
 		dialog.show();
 		return dialog;
 	}
@@ -667,52 +628,22 @@ public class HikeDialogFactory
 	private static HikeDialog showDeleteAccountDialog(int dialogId, Context context, final HikeDialogListener listener)
 	{
 		final CustomAlertDialog correctMSISDNConfirmDialog = new CustomAlertDialog(context, dialogId);
-		
-		correctMSISDNConfirmDialog.setHeader(R.string.incorrect_msisdn_warning);
-		correctMSISDNConfirmDialog.setBody(R.string.incorrect_msisdn_msg);
-		
-		correctMSISDNConfirmDialog.setOkButton(R.string.ok, new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(correctMSISDNConfirmDialog);
-			}
-		});
-		
-		correctMSISDNConfirmDialog.setCancelButtonVisibility(View.GONE);
+
+		correctMSISDNConfirmDialog.setTitle(R.string.incorrect_msisdn_warning);
+		correctMSISDNConfirmDialog.setMessage(R.string.incorrect_msisdn_msg);
+		correctMSISDNConfirmDialog.setPositiveButton(R.string.ok, listener);
 		correctMSISDNConfirmDialog.show();
-		
+
 		return correctMSISDNConfirmDialog;
 	}
 	
 	private static HikeDialog showDeleteAccountConfirmDialog(int dialogId, Context context, final HikeDialogListener listener)
 	{
 		final CustomAlertDialog firstConfirmDialog = new CustomAlertDialog(context, dialogId);
-		firstConfirmDialog.setHeader(R.string.are_you_sure);
-		firstConfirmDialog.setBody(R.string.delete_confirm_msg_1);
-		
-		firstConfirmDialog.setOkButton(R.string.confirm, new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(firstConfirmDialog);
-			}
-		});
-		
-		firstConfirmDialog.setCancelButton(R.string.cancel, new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				listener.negativeClicked(firstConfirmDialog);
-			}
-		});
-		
+		firstConfirmDialog.setTitle(R.string.are_you_sure);
+		firstConfirmDialog.setMessage(R.string.delete_confirm_msg_1);
+		firstConfirmDialog.setPositiveButton(R.string.confirm, listener);
+		firstConfirmDialog.setNegativeButton(R.string.cancel, listener);
 		firstConfirmDialog.show();
 		return firstConfirmDialog;
 	}
@@ -723,29 +654,18 @@ public class HikeDialogFactory
 		
 		ArrayList<ContactInfo> arrayList = (ArrayList<ContactInfo>) data[1];
 		final CustomAlertDialog forwardConfirmDialog = new CustomAlertDialog(context, dialogId);
-		
 		if (isSharing)
 		{
-			forwardConfirmDialog.setHeader(R.string.share);
-			forwardConfirmDialog.setBody(DialogUtils.getForwardConfirmationText(context, arrayList, false));
+			forwardConfirmDialog.setTitle(R.string.share);
+			forwardConfirmDialog.setMessage(DialogUtils.getForwardConfirmationText(context, arrayList, false));
 		}
-		
 		else
 		{
-			forwardConfirmDialog.setHeader(R.string.forward);
-			forwardConfirmDialog.setBody(DialogUtils.getForwardConfirmationText(context, arrayList, true));
+			forwardConfirmDialog.setTitle(R.string.forward);
+			forwardConfirmDialog.setMessage(DialogUtils.getForwardConfirmationText(context, arrayList, true));
 		}
-		
-		forwardConfirmDialog.setOkButton(R.string.ok, new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(forwardConfirmDialog);
-			}
-		});
-		forwardConfirmDialog.setCancelButton(R.string.cancel);
+		forwardConfirmDialog.setPositiveButton(R.string.ok, listener);
+		forwardConfirmDialog.setNegativeButton(R.string.cancel, listener);
 		forwardConfirmDialog.show();
 		
 		return forwardConfirmDialog;
@@ -756,29 +676,18 @@ public class HikeDialogFactory
 		final CustomAlertDialog confirmDialog = new CustomAlertDialog(context, dialogId);
 		boolean selectAllChecked = (boolean) data[0];
 		int selectedContactsSize = (int) data[1];
-		
 		if(!selectAllChecked)
 		{
-			confirmDialog.setHeader(R.string.invite_friends);
-			confirmDialog.setBody(context.getResources().getString(R.string.invite_friends_confirmation_msg, selectedContactsSize));
+			confirmDialog.setTitle(R.string.invite_friends);
+			confirmDialog.setMessage(context.getResources().getString(R.string.invite_friends_confirmation_msg, selectedContactsSize));
 		}
 		else
 		{
-			confirmDialog.setHeader(R.string.select_all_confirmation_header);
-			confirmDialog.setBody(context.getResources().getString(R.string.select_all_confirmation_msg, selectedContactsSize));
+			confirmDialog.setTitle(R.string.select_all_confirmation_header);
+			confirmDialog.setMessage(context.getResources().getString(R.string.select_all_confirmation_msg, selectedContactsSize));
 		}
-		
-		confirmDialog.setOkButton(R.string.yes, new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(confirmDialog);
-			}
-		});
-		
-		confirmDialog.setCancelButton(R.string.no);
+		confirmDialog.setPositiveButton(R.string.yes, listener);
+		confirmDialog.setNegativeButton(R.string.no, listener);
 		confirmDialog.show();
 		
 		return confirmDialog;
@@ -788,36 +697,27 @@ public class HikeDialogFactory
 	{
 		final CustomAlertDialog confirmDialog = new CustomAlertDialog(context, dialogId);
 		
-		OnClickListener positiveListener = new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(confirmDialog);
-			}
-		};
-		
 		switch (dialogId)
 		{
 		case UNLINK_ACCOUNT_CONFIRMATION_DIALOG:
-			confirmDialog.setHeader(R.string.unlink_account);
-			confirmDialog.setBody(R.string.unlink_confirmation);
-			confirmDialog.setOkButton(R.string.unlink_account, positiveListener);
-			confirmDialog.setCancelButton(R.string.cancel);
+			confirmDialog.setTitle(R.string.unlink_account);
+			confirmDialog.setMessage(R.string.unlink_confirmation);
+			confirmDialog.setPositiveButton(R.string.unlink_account, listener);
+			confirmDialog.setNegativeButton(R.string.cancel,listener);
 			break;
 			
 		case UNLINK_FB_DIALOG:
-			confirmDialog.setHeader(R.string.unlink_facebook);
-			confirmDialog.setBody(R.string.unlink_facebook_confirmation);
-			confirmDialog.setOkButton(R.string.unlink, positiveListener);
-			confirmDialog.setCancelButton(R.string.cancel);
+			confirmDialog.setTitle(R.string.unlink_facebook);
+			confirmDialog.setMessage(R.string.unlink_facebook_confirmation);
+			confirmDialog.setPositiveButton(R.string.unlink, listener);
+			confirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 			
 		case UNLINK_TWITTER_DIALOG:
-			confirmDialog.setHeader(R.string.unlink_twitter);
-			confirmDialog.setBody(R.string.unlink_twitter_confirmation);
-			confirmDialog.setOkButton(R.string.unlink, positiveListener);
-			confirmDialog.setCancelButton(R.string.cancel);
+			confirmDialog.setTitle(R.string.unlink_twitter);
+			confirmDialog.setMessage(R.string.unlink_twitter_confirmation);
+			confirmDialog.setPositiveButton(R.string.unlink, listener);
+			confirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 		}
 		
@@ -830,126 +730,105 @@ public class HikeDialogFactory
 	{
 		final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(context, dialogId);
 		
-		OnClickListener positiveListener = new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				listener.positiveClicked(deleteConfirmDialog);
-			}
-		};
-		
-		OnClickListener negativeListener = new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				listener.negativeClicked(deleteConfirmDialog);
-			}
-		};
-		
 		switch (dialogId)
 		{
 		case DELETE_FILES_DIALOG:
-			deleteConfirmDialog.setBody(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));
-			deleteConfirmDialog.setHeader(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg_header) : context.getString(R.string.confirm_delete_msgs_header, (int) data[0]));
-			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, true);
-			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
+			deleteConfirmDialog.setMessage(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));
+			deleteConfirmDialog.setTitle(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg_header) : context.getString(R.string.confirm_delete_msgs_header, (int) data[0]));
+			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, null, true);
+			deleteConfirmDialog.setPositiveButton(R.string.delete, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 			
 		case DELETE_PINS_DIALOG:
-			deleteConfirmDialog.setBody(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin) : context.getString(R.string.confirm_delete_pins, (int) data[0]));
-			deleteConfirmDialog.setHeader(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin_header) : context.getString(R.string.confirm_delete_pins_header, (int) data[0]));
-			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
+			deleteConfirmDialog.setMessage(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin) : context.getString(R.string.confirm_delete_pins, (int) data[0]));
+			deleteConfirmDialog.setTitle(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin_header) : context.getString(R.string.confirm_delete_pins_header, (int) data[0]));
+			deleteConfirmDialog.setPositiveButton(R.string.delete, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 			
 		case DELETE_STATUS_DIALOG:
-			deleteConfirmDialog.setHeader(R.string.delete_status);
-			deleteConfirmDialog.setBody(R.string.delete_status_confirmation);
-			deleteConfirmDialog.setOkButton(R.string.ok, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.delete_status);
+			deleteConfirmDialog.setMessage(R.string.delete_status_confirmation);
+			deleteConfirmDialog.setPositiveButton(R.string.ok, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
 		case DELETE_STATUS_TIMELINE_DIALOG:
-			deleteConfirmDialog.setHeader(R.string.delete_status);
-			deleteConfirmDialog.setBody(R.string.delete_status_timeline_confirmation);
-			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.delete_status);
+			deleteConfirmDialog.setMessage(R.string.delete_status_timeline_confirmation);
+			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
 		case WIPE_TIMELINE_DIALOG:
-			deleteConfirmDialog.setHeader(R.string.clear_timeline);
-			deleteConfirmDialog.setBody(R.string.clear_timeline_dialog);
-			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.clear_timeline);
+			deleteConfirmDialog.setTitle(R.string.clear_timeline_dialog);
+			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
 		case DELETE_FROM_GROUP:
-			deleteConfirmDialog.setHeader(R.string.remove_from_group);
-			deleteConfirmDialog.setBody(context.getString(R.string.remove_confirm, (String) data[0]));
-			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.remove_from_group);
+			deleteConfirmDialog.setMessage(context.getString(R.string.remove_confirm, (String) data[0]));
+			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 		
 		case DELETE_FROM_BROADCAST:
-			deleteConfirmDialog.setHeader(R.string.remove_from_broadcast);
-			deleteConfirmDialog.setBody(context.getString(R.string.remove_confirm_broadcast, (String) data[0]));
-			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.remove_from_broadcast);
+			deleteConfirmDialog.setMessage(context.getString(R.string.remove_confirm_broadcast, (String) data[0]));
+			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
 		case DELETE_CHAT_DIALOG:
 		case DELETE_NON_MESSAGING_BOT:
-			deleteConfirmDialog.setHeader(R.string.delete);
-			deleteConfirmDialog.setBody(context.getString(dialogId == DELETE_CHAT_DIALOG ? R.string.confirm_delete_chat_msg : R.string.confirm_delete_non_messaging,
+			deleteConfirmDialog.setTitle(R.string.delete);
+			deleteConfirmDialog.setMessage(context.getString(dialogId == DELETE_CHAT_DIALOG ? R.string.confirm_delete_chat_msg : R.string.confirm_delete_non_messaging,
 					(String) data[0]));
-			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
 		case DELETE_GROUP_DIALOG:
-			deleteConfirmDialog.setHeader(R.string.delete);
-			deleteConfirmDialog.setBody(context.getString(R.string.confirm_delete_group_msg, (String) data[0]));
-			deleteConfirmDialog.setOkButton(android.R.string.ok, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.delete);
+			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_group_msg, (String) data[0]));
+			deleteConfirmDialog.setPositiveButton(android.R.string.ok, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 			
 		case DELETE_BROADCAST_DIALOG:
-			deleteConfirmDialog.setHeader(R.string.delete);
-			deleteConfirmDialog.setBody(context.getString(R.string.delete_broadcast_confirm));
-			deleteConfirmDialog.setOkButton(android.R.string.ok, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.delete);
+			deleteConfirmDialog.setMessage(context.getString(R.string.delete_broadcast_confirm));
+			deleteConfirmDialog.setPositiveButton(android.R.string.ok, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 			
 		case DELETE_ALL_CONVERSATIONS:
-			deleteConfirmDialog.setHeader(R.string.deleteconversations);
-			deleteConfirmDialog.setBody(R.string.delete_all_question);
-			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.deleteconversations);
+			deleteConfirmDialog.setMessage(R.string.delete_all_question);
+			deleteConfirmDialog.setPositiveButton(R.string.delete, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 			
 		case DELETE_MESSAGES_DIALOG:
-			deleteConfirmDialog.setHeader((int) data[0] == 1 ? R.string.confirm_delete_msg_header : R.string.confirm_delete_msgs_header);
-			deleteConfirmDialog.setBody((int) data[0] == 1 ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));
+			deleteConfirmDialog.setTitle((int) data[0] == 1 ? R.string.confirm_delete_msg_header : R.string.confirm_delete_msgs_header);
+			deleteConfirmDialog.setMessage((int) data[0] == 1 ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));
 			if ((boolean) data[1] == true)
 			{
-				deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, true);
+				deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, null, true);
 			}
-			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
+			deleteConfirmDialog.setPositiveButton(R.string.delete, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 			
 		case DELETE_BLOCK:
-			deleteConfirmDialog.setHeader(R.string.delete_block);
-			deleteConfirmDialog.setBody(context.getString(R.string.confirm_delete_block_msg,(String) data[0]));
-			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.delete_block);
+			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_block_msg,(String) data[0]));
+			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 		}
-		
 		deleteConfirmDialog.show();
 		
 		return deleteConfirmDialog;
@@ -958,29 +837,10 @@ public class HikeDialogFactory
 	private static HikeDialog showGPSDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
 	{
 		final CustomAlertDialog alert = new CustomAlertDialog(context, dialogId);
-		alert.setHeader(R.string.location);
-		alert.setBody((int) data[0]);
-		
-		OnClickListener onClickListener = new View.OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				switch (v.getId())
-				{
-				case R.id.btn_ok:
-					listener.positiveClicked(alert);
-					break;
-				case R.id.btn_cancel:
-					listener.negativeClicked(alert);
-					break;
-				}
-				
-			}
-		};
-		alert.setOkButton(android.R.string.ok, onClickListener);
-		alert.setCancelButton(R.string.cancel, onClickListener);
+		alert.setTitle(R.string.location);
+		alert.setMessage((int) data[0]);
+		alert.setPositiveButton(android.R.string.ok, listener);
+		alert.setNegativeButton(R.string.cancel, listener);
 		alert.show();
 		
 		return alert;
@@ -988,7 +848,7 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showH20Dialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final H20Dialog dialog = new H20Dialog(context, R.style.Theme_CustomDialog, dialogId);
+		final H20Dialog dialog = new H20Dialog(context, dialogId);
 		boolean nativeOnly = (boolean) data[0];
 		int selectedSMSCount = (int) data[1];
 		int mCredits = (int) data[2];
@@ -1082,28 +942,18 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showSMSSyncDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog dialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
-		dialog.setContentView(R.layout.enable_sms_client_popup);
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
 		
 		boolean syncConfirmation = (boolean) data[0]; 
 
-		final View btnContainer = dialog.findViewById(R.id.button_container);
+		dialog.setTitle(R.string.import_sms);
+		dialog.setMessage(R.string.import_sms_info);
+		dialog.setPositiveButton(R.string.yes, listener);
+		dialog.setNegativeButton(R.string.no, listener);
 
-		final ProgressBar syncProgress = (ProgressBar) dialog.findViewById(R.id.loading_progress);
-		TextView header = (TextView) dialog.findViewById(R.id.header);
-		final TextView info = (TextView) dialog.findViewById(R.id.body);
-		Button okBtn = (Button) dialog.findViewById(R.id.btn_ok);
-		Button cancelBtn = (Button) dialog.findViewById(R.id.btn_cancel);
-		final View btnDivider = dialog.findViewById(R.id.sms_divider);
+		DialogUtils.setupSyncDialogLayout(syncConfirmation, dialog);
 
-		header.setText(R.string.import_sms);
-		info.setText(R.string.import_sms_info);
-		okBtn.setText(R.string.yes);
-		cancelBtn.setText(R.string.no);
-
-		DialogUtils.setupSyncDialogLayout(syncConfirmation, btnContainer, syncProgress, info, btnDivider);
-
-		okBtn.setOnClickListener(new OnClickListener()
+		dialog.buttonPositive.setOnClickListener(new OnClickListener()
 		{
 
 			@Override
@@ -1113,13 +963,13 @@ public class HikeDialogFactory
 
 				DialogUtils.executeSMSSyncStateResultTask(new SyncOldSMSTask(context));
 
-				DialogUtils.setupSyncDialogLayout(false, btnContainer, syncProgress, info, btnDivider);
+				DialogUtils.setupSyncDialogLayout(false, dialog);
 
 				DialogUtils.sendSMSSyncLogEvent(true);
 			}
 		});
 
-		cancelBtn.setOnClickListener(new OnClickListener()
+		dialog.buttonNegative.setOnClickListener(new OnClickListener()
 		{
 
 			@Override
@@ -1156,7 +1006,7 @@ public class HikeDialogFactory
 	 */
 	private static HikeDialog showHikeUpgradeDialog(int dialogId, Context context, Object[] data)
 	{
-		final HikeDialog dialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog dialog = new HikeDialog(context, dialogId);
 		dialog.setContentView(R.layout.app_update_popup);
 		dialog.setCancelable(false);
 
@@ -1174,7 +1024,7 @@ public class HikeDialogFactory
 	
 	private static HikeDialog showVoipFtuePopUp(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
-		final HikeDialog dialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		final HikeDialog dialog = new HikeDialog(context, dialogId);
 		dialog.setContentView(R.layout.voip_ftue_popup);
 		dialog.setCancelable(true);
 		TextView okBtn = (TextView) dialog.findViewById(R.id.awesomeButton);

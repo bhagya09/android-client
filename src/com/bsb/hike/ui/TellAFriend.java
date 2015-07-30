@@ -21,7 +21,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -432,6 +434,8 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	@Override

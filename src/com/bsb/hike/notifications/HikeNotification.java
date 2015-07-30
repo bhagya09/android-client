@@ -475,10 +475,11 @@ public class HikeNotification
 				notifyStringMessage(convMsg.getMsisdn(), message, false, notificationType);
 				return;
 			}
-
+			//TODO we are changing it for temporary please correct this next release as soon as possible (forceBlockNotificationSound=true)
+			forceBlockNotificationSound=true;
 			// big picture messages ! intercept !
 			showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, !convMsg.isStickerMessage(), isPin, false, hikeNotifMsgStack.getNotificationSubText(),
-					Utils.getAvatarDrawableForNotification(context, msisdn, isPin), forceBlockNotificationSound, 0,isSilentNotification(convMsg));
+					Utils.getAvatarDrawableForNotification(context, msisdn, isPin), forceBlockNotificationSound, 0,isSilentNotification(convMsg),true);
 		}
 		else
 		{
@@ -1095,7 +1096,7 @@ public class HikeNotification
 
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
-			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification)
+			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification,boolean disableTickerText)
 	{
 
 		final int smallIconId = returnSmallIcon();
@@ -1103,7 +1104,7 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder;
 		if (bigPictureImage != null)
 		{
-			mBuilder = getNotificationBuilder(key, message, text.toString(), argAvatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification);
+			mBuilder = getNotificationBuilder(key, message, text.toString(), argAvatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification,disableTickerText);
 			final NotificationCompat.BigPictureStyle bigPicStyle = new NotificationCompat.BigPictureStyle();
 			bigPicStyle.setBigContentTitle(key);
 			if(!TextUtils.isEmpty(subMessage))
@@ -1160,7 +1161,14 @@ public class HikeNotification
 		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, false, isPin, true,
 				hikeNotifMsgStack.getNotificationSubText(), Utils.getAvatarDrawableForNotification(context, msisdn, isPin), forceNotPlaySound, 0,isSilentNotification);
 	}
-	
+	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
+			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
+			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification)
+	{
+		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, isFTMessage, isPin, isBigText, subMessage,
+				argAvatarDrawable, forceNotPlaySound, retryCount, isSilentNotification, false);
+
+	}
 
 	public int returnSmallIcon()
 	{
@@ -1193,17 +1201,41 @@ public class HikeNotification
 	public NotificationCompat.Builder getNotificationBuilder(String contentTitle, String contentText, String tickerText, Drawable avatarDrawable, int smallIconId,
 			boolean forceNotPlaySound,boolean isSilentNotification)
 	{
-		if (!TextUtils.isEmpty(tickerText) && tickerText.length()>TICKER_TEXT_MAX_LENGHT+3)
-		{  // we are trimming ticker text so that it will not scroll in status bar.
-			tickerText=tickerText.substring(0, TICKER_TEXT_MAX_LENGHT)+"...";
-		}
+		return getNotificationBuilder(contentTitle, contentText, tickerText, avatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification,false);
+	}
+	/*
+	 * creates a notification builder with sound, led and vibrate option set according to app preferences. forceNotPlaySound : true if we want to force not to play notification
+	 * sounds or lights.
+	 */
+	public NotificationCompat.Builder getNotificationBuilder(String contentTitle, String contentText, String tickerText, Drawable avatarDrawable, int smallIconId,
+			boolean forceNotPlaySound,boolean isSilentNotification,boolean disbleTickerText)
+	{
+		
 		final SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this.context);
 		String vibrate = preferenceManager.getString(HikeConstants.VIBRATE_PREF_LIST, VIB_DEF);
 		final Bitmap avatarBitmap = HikeBitmapFactory.getCircularBitmap(HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(avatarDrawable, Bitmap.Config.RGB_565)), context));
 		
+		// Check the current notification priority
+		// notifPriority(0) = PRIORITY_DEFAULT
+		// notifPriority(-2) = PRIORITY_MIN
+		// notifPriority(2) = PRIORITY_MAX
+		// notifPriority(-1) = PRIORITY_LOW
+		// notifPriority(1) = PRIORITY_HIGH
+		int notifPriority = HikeSharedPreferenceUtil.getInstance().getPref().getInt(HikeConstants.NOTIFICATIONS_PRIORITY, NotificationCompat.PRIORITY_DEFAULT);		
+		
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setContentTitle(contentTitle).setSmallIcon(smallIconId).setLargeIcon(avatarBitmap)
-				.setContentText(contentText).setAutoCancel(true).setTicker(tickerText).setPriority(NotificationCompat.PRIORITY_DEFAULT)
+				.setContentText(contentText).setAutoCancel(true).setPriority(notifPriority)
 				.setCategory(NotificationCompat.CATEGORY_MESSAGE).setColor(context.getResources().getColor(R.color.blue_hike));
+		
+		
+		if (!disbleTickerText)
+		{
+			if (!TextUtils.isEmpty(tickerText) && tickerText.length()>TICKER_TEXT_MAX_LENGHT+3)
+			{  // we are trimming ticker text so that it will not scroll in status bar.
+				tickerText=tickerText.substring(0, TICKER_TEXT_MAX_LENGHT)+"...";
+			}
+			mBuilder.setTicker(tickerText);
+		}
 		
 		// Reset ticker text since we dont want to tick older messages
 		hikeNotifMsgStack.setTickerText(null);
