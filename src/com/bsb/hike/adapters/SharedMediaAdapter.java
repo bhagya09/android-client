@@ -49,13 +49,13 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     
     private FragmentTransaction mCurTransaction = null;
 
-    private ArrayList<ImageViewerFragment.SavedState> mSavedState = new ArrayList<ImageViewerFragment.SavedState>();
+    private ArrayList<SharedMediaCustomFragment.SavedState> mSavedState = new ArrayList<SharedMediaCustomFragment.SavedState>();
     
-    private ArrayList<ImageViewerFragment> mFragments = new ArrayList<ImageViewerFragment>();
+    private ArrayList<SharedMediaCustomFragment> mFragments = new ArrayList<SharedMediaCustomFragment>();
     
-    private ImageViewerFragment initFragment;
+    private SharedMediaCustomFragment firstFragment;
     
-    private ImageViewerFragment mCurrentPrimaryItem = null;
+    private SharedMediaCustomFragment mCurrentPrimaryItem = null;
 
     public SharedMediaAdapter(FragmentManager fm,Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItemList, String msisdn, ViewPager viewPager, PhotoViewerFragment photoViewerFragment)
 	{
@@ -90,9 +90,9 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	}
 
 	
-	public ImageViewerFragment getItem (int position)
+	public SharedMediaCustomFragment getItem (int position)
 	{
-		return ImageViewerFragment.newInstance(position,sharedMediaLoader,sharedMediaItemList.get(position),this);
+		return SharedMediaCustomFragment.newInstance(position,sharedMediaLoader,sharedMediaItemList.get(position),this);
 	}
 	
 
@@ -110,7 +110,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     	Logger.i(TAG,"Fragments : " +position +"/"+ mFragments.size());
     	
     	if (mFragments.size() > position) {
-    		ImageViewerFragment f = mFragments.get(position);
+    		SharedMediaCustomFragment f = mFragments.get(position);
             if (f != null && f.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath()))
             {
             	Logger.i(TAG,"Match : "+f.getPathTag());
@@ -118,11 +118,11 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
             }
         }
     	
-    	ImageViewerFragment fragment = null;
+    	SharedMediaCustomFragment fragment = null;
     	
-    	if (initFragment != null && initFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
+    	if (firstFragment != null && firstFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
     	{
-    		fragment = initFragment;
+    		fragment = firstFragment;
         }
         
 
@@ -137,7 +137,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
         
         Logger.v(TAG, "Adding item #" + position + ": f=" + fragment);
         if (mSavedState.size() > position) {
-        	ImageViewerFragment.SavedState fss = mSavedState.get(position);
+        	SharedMediaCustomFragment.SavedState fss = mSavedState.get(position);
             if (fss != null) {
                 fragment.setInitialSavedState(fss);
             }
@@ -148,9 +148,9 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
         fragment.setMenuVisibility(false);
         fragment.setUserVisibleHint(false);
         
-        if(initFragment == null)
+        if(firstFragment == null)
         {
-        	initFragment = fragment;
+        	firstFragment = fragment;
         }
         
         mFragments.set(position,fragment);
@@ -162,14 +162,14 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
     	Logger.i(TAG,"Destroy Item called : "+position);
-    	ImageViewerFragment fragment = (ImageViewerFragment)object;
+    	SharedMediaCustomFragment fragment = (SharedMediaCustomFragment)object;
 
     	
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
         Logger.v(TAG, "Removing item #" + position + ": f=" + object
-                + " v=" + ((ImageViewerFragment)object).getView());
+                + " v=" + ((SharedMediaCustomFragment)object).getView());
         while (mSavedState.size() <= position) {
             mSavedState.add(null);
         }
@@ -181,7 +181,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
-    	ImageViewerFragment fragment = (ImageViewerFragment)object;
+    	SharedMediaCustomFragment fragment = (SharedMediaCustomFragment)object;
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
                 mCurrentPrimaryItem.setMenuVisibility(false);
@@ -206,7 +206,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return ((ImageViewerFragment)object).getView() == view;
+        return ((SharedMediaCustomFragment)object).getView() == view;
     }
 
     @Override
@@ -214,12 +214,12 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
         Bundle state = null;
         if (mSavedState.size() > 0) {
             state = new Bundle();
-            ImageViewerFragment.SavedState[] fss = new ImageViewerFragment.SavedState[mSavedState.size()];
+            SharedMediaCustomFragment.SavedState[] fss = new SharedMediaCustomFragment.SavedState[mSavedState.size()];
             mSavedState.toArray(fss);
             state.putParcelableArray("states", fss);
         }
         for (int i=0; i<mFragments.size(); i++) {
-        	ImageViewerFragment f = mFragments.get(i);
+        	SharedMediaCustomFragment f = mFragments.get(i);
             if (f != null && f.isAdded()) {
                 if (state == null) {
                     state = new Bundle();
@@ -249,7 +249,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
             for (String key: keys) {
                 if (key.startsWith("f")) {
                     int index = Integer.parseInt(key.substring(1));
-                    ImageViewerFragment f = (ImageViewerFragment) mFragmentManager.getFragment(bundle, key);
+                    SharedMediaCustomFragment f = (SharedMediaCustomFragment) mFragmentManager.getFragment(bundle, key);
                     if (f != null) {
                         while (mFragments.size() <= index) {
                             mFragments.add(null);
@@ -341,7 +341,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		return sharedMediaLoader;
 	}
 	
-	public static class ImageViewerFragment extends Fragment {
+	public static class SharedMediaCustomFragment extends Fragment {
 
 		private String pathTag;
 		
@@ -356,9 +356,9 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
-		public static ImageViewerFragment newInstance(int position,SharedFileImageLoader loader,HikeSharedFile file,OnClickListener listener) {
+		public static SharedMediaCustomFragment newInstance(int position,SharedFileImageLoader loader,HikeSharedFile file,OnClickListener listener) {
 
-			ImageViewerFragment fragment = new ImageViewerFragment();
+			SharedMediaCustomFragment fragment = new SharedMediaCustomFragment();
 			fragment.setPathTag(file.getExactFilePath());
 			fragment.mListener = listener;
 			fragment.mLoader = loader;
@@ -367,7 +367,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 			return fragment;
 		}
 
-		public ImageViewerFragment() {
+		public SharedMediaCustomFragment() {
 		}
 		
 
