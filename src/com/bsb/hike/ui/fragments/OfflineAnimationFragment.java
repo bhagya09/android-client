@@ -24,6 +24,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Interpolator;
@@ -249,10 +250,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	    ObjectAnimator translateY = ObjectAnimator.ofFloat(imageViewLayout, "translationY",yd);
 	    ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageViewLayout,"scaleX",2.6f);
 	    ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageViewLayout,"scaleY",2.6f);
-	    translateX.setDuration(700);
-	    translateY.setDuration(700);
-	    scaleX.setDuration(700);
-	    scaleY.setDuration(700);
+	    translateX.setDuration(600);
+	    translateY.setDuration(600);
+	    scaleX.setDuration(600);
+	    scaleY.setDuration(600);
 	    ObjectAnimator scaleXDown = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 2);
 	    ObjectAnimator scaleYDown = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 2);
 	    scaleXDown.setDuration(200);
@@ -261,10 +262,54 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 2.6f);
 		scaleXUp.setDuration(200);
 		scaleYUp.setDuration(200);
-	    AnimatorSet anim =  new AnimatorSet();
+	    
+	    ObjectAnimator alphaAnimation  =  ObjectAnimator.ofFloat(frame, View.ALPHA,0.0f,1.0f);
+		alphaAnimation.setDuration(200);
+		//alphaAnimation.setInterpolator(new AccelerateInterpolator());
+	    ObjectAnimator scaleXUpHolo = ObjectAnimator.ofFloat(frame, "scaleX", 1.1f);
+		ObjectAnimator scaleYUpHolo = ObjectAnimator.ofFloat(frame, "scaleY", 1.1f);
+		ObjectAnimator scaleXDownHolo = ObjectAnimator.ofFloat(frame, "scaleX", 1f);
+		ObjectAnimator scaleYDownHolo = ObjectAnimator.ofFloat(frame, "scaleY", 1f);
+		scaleXDownHolo.setDuration(400);
+		scaleYDownHolo.setDuration(400);
+		scaleXUpHolo.setDuration(400);
+		scaleYUpHolo.setDuration(400);
+		scaleXUpHolo.addListener(new AnimatorListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animator animation)
+			{
+				frame.setVisibility(View.VISIBLE);
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationCancel(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		AnimatorSet anim =  new AnimatorSet();
 	    anim.playTogether(translateX,translateY,scaleX,scaleY);
 	    anim.play(scaleXDown).with(scaleYDown).after(translateX);
 	    anim.play(scaleXUp).with(scaleYUp).after(scaleXDown);
+		anim.play(scaleXUpHolo).with(scaleYUpHolo).with(alphaAnimation).after(1000);
+		anim.play(scaleYDownHolo).with(scaleXDownHolo).after(scaleXUpHolo);
 	    anim.addListener(new AnimatorListener()
 		{
 			
@@ -273,7 +318,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				ImageView  connectionIcon = (ImageView)fragmentView.findViewById(R.id.offline_icon);
 				connectionIcon.setVisibility(View.VISIBLE);
-				
 			}
 			
 			@Override
@@ -285,7 +329,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
-				frame.setVisibility(View.VISIBLE);
+				//frame.setVisibility(View.VISIBLE);
 				startRotateAnimation();
 			}
 
@@ -298,11 +342,80 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	    anim.start();
 	}
 		
+	private void startframeAnimation()
+	{
+		ObjectAnimator alphaAnimation  =  ObjectAnimator.ofFloat(frame, View.ALPHA,0.0f,1.0f);
+		alphaAnimation.setDuration(300);
+		alphaAnimation.setInterpolator(new AccelerateInterpolator());
+		alphaAnimation.addListener(new AnimatorListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animator animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animator animation)
+			{
+				
+			}
+			
+			@Override
+			public void onAnimationCancel(Animator animation)
+			{
+				
+			}
+		});
+		
+		/*AnimatorSet anim =  new AnimatorSet();
+		anim.playTogether(scaleXUp,scaleYUp);
+		anim.play(scaleYDown).with(scaleXDown).after(scaleXUp);
+		anim.addListener(new AnimatorListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animator animation)
+			{
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animator animation)
+			{
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animator animation)
+			{
+				startRotateAnimation();
+			}
+			
+			@Override
+			public void onAnimationCancel(Animator animation)
+			{
+				
+			}
+		});
+		anim.start();*/
+		
+	}
 	
 	protected void startRotateAnimation()
 	{
 		ImageView progressBead = (ImageView)fragmentView.findViewById(R.id.bead);
-		rotateAnimation = new RotateAnimation(0, 360,Animation.RELATIVE_TO_SELF,0.3f,Animation.RELATIVE_TO_SELF,2.9f);
+		progressBead.setVisibility(View.VISIBLE);
+		rotateAnimation = new RotateAnimation(0, 360,Animation.RELATIVE_TO_SELF,0.3f,Animation.RELATIVE_TO_SELF,2.7f);
 		rotateAnimation.setDuration(1000);
 		rotateAnimation.setRepeatCount(Animation.INFINITE);
 		rotateAnimation.setInterpolator(new LinearInterpolator());
