@@ -412,10 +412,10 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			@Override
 			public void run()
 			{
-				final TextView activityFeedTopBarIndicator = (TextView)activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+				final TextView activityFeedTopBarIndicator = (TextView) activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
 				if (activityFeedTopBarIndicator != null)
 				{
-					if(count == NO_FEED_PRESENT)
+					if(count ==  NO_FEED_PRESENT)
 					{
 						activityFeedMenuItem.setVisible(false);
 					}
@@ -444,15 +444,14 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 		});
 	}
-	
+
 	@Override
 	protected void openImageViewer(Object object)
 	{
 		/*
 		 * Making sure we don't add the fragment if the activity is finishing.
 		 */
-		if (isFinishing())
-		{
+		if (isFinishing()) {
 			return;
 		}
 	}

@@ -188,11 +188,9 @@ public class ActionsDataModel
 			contactInfoList = new LinkedHashSet<ContactInfo>();
 		}
 
-		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-
 		ContactInfo contactInfo = Utils.getUserContactInfo(true);
 
-		if (!selfMsisdn.equals(contactInfo.getMsisdn()))
+		if (!msisdn.equals(contactInfo.getMsisdn()))
 		{
 			contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
 		}

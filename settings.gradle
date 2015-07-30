@@ -15,11 +15,7 @@ include 'shared'
 include 'api'
 include 'services:webservice'
 */
-<<<<<<< HEAD
-include ':android-client',':google-play',':cwac-camera',':actionbar-sherlock',':facebook',':viewpager-indicator-library',':cardview'
-=======
-include ':android-client',':google-play',':cwac-camera',':appcompatv7',':facebook',':viewpager-indicator-library'
->>>>>>> 7a6b9dabb9f32f4e52f00779957c6138ba6952b1
+include ':android-client',':google-play',':cwac-camera',':appcompatv7',':facebook',':viewpager-indicator-library',':cardview'
 project(':google-play').projectDir = new File('./google-play-services_lib')
 project(':facebook').projectDir = new File('./facebook-android-sdk/facebook')
 project(':appcompatv7').projectDir = new File('./appcompat')
