@@ -14,9 +14,9 @@ public class StickerSearchConstants
 	// ================================================================Generic constants for UI]]
 
 	// Generic constants for data setup========================================================[[
-	public static final int STICKER_DATA_FIRST_SETUP = 0;
+	public static final int TRIAL_STICKER_DATA_FIRST_SETUP = 0;
 
-	public static final int STICKER_DATA_UPDATE_TRIAL = 1;
+	public static final int TRIAL_STICKER_DATA_UPDATE_REFRESH = 1;
 
 	// ========================================================Generic constants for data setup]]
 
@@ -28,16 +28,16 @@ public class StickerSearchConstants
 	// ====================================================Generic constants for periodic tasks]]
 
 	// Generic constants for searching text====================================================[[
-	public static final int SEARCH_MAX_TEXT_LIMIT = 70;
+	public static final int MAXIMUM_SEARCH_TEXT_LIMIT = 70;
 
-	public static final int SEARCH_MAX_BROKER_LIMIT = 75;
+	public static final int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = 75;
 
 	// ====================================================Generic constants for searching text]]
 
 	// Constants used in calculation===========================================================[[
-	public static final long LOCAL_SUMMERY_TIME_WINDOW = 14 * 24 * 60 * 60 * 1000l; // 14 days period in milliseconds
+	public static final long TIME_WINDOW_LOCAL_SUMMERY = 14 * 24 * 60 * 60 * 1000l; // 14 days period in milliseconds
 
-	public static final long CURRENT_SUMMERY_TIME_WINDOW = 3 * 24 * 60 * 60 * 1000L; // 3 days period in milliseconds
+	public static final long TIME_WINDOWCURRENT_SUMMERY = 3 * 24 * 60 * 60 * 1000L; // 3 days period in milliseconds
 
 	public static final float MAXIMUM_FREQUENCY = 100.0f; // relative count
 
@@ -46,7 +46,7 @@ public class StickerSearchConstants
 	// Constants used for selecting search result==============================================[[
 	public static final int MAXIMUM_SEARCH_COUNT = HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER;
 
-	public static final float MAXIMUM_SELECTION_COUNT_RATIO = 0.50f;
+	public static final float RATIO_MAXIMUM_SELECTION_COUNT = 0.50f;
 
 	public static final int MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT = 2;
 
@@ -61,11 +61,11 @@ public class StickerSearchConstants
 
 	public static final float WEITAGE_CONTEXT_MOMENT = 0.06f;
 
-	public static final float TRENDING_FREQUENCY_RATIO = 0.50f;
+	public static final float RATIO_TRENDING_FREQUENCY = 0.50f;
 
-	public static final float LOCAL_FREQUENCY_RATIO = 0.37f;
+	public static final float RATIO_LOCAL_FREQUENCY = 0.37f;
 
-	public static final float GLOBAL_FREQUENCY_RATIO = 0.13f;
+	public static final float RATIO_GLOBAL_FREQUENCY = 0.13f;
 
 	public static final float MINIMUM_MATCH_SCORE_SINGLE_WORD = 0.33f;
 
@@ -73,7 +73,7 @@ public class StickerSearchConstants
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE = 0.20f;
 
-	public static final int MAXIMUM_ODD_MATCH_COUNT = 4;
+	public static final int MAXIMUM_ODD_MATCH_COUNT = 5;
 
 	// ====================================================Constants used for calculating score]]
 

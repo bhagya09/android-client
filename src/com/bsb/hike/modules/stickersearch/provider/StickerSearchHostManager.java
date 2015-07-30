@@ -178,13 +178,13 @@ public class StickerSearchHostManager
 			mCurrentText = s.toString();
 
 			boolean isNeedToRemoveLastWord = false;
-			if (mCurrentTextSignificantLength > StickerSearchConstants.SEARCH_MAX_TEXT_LIMIT)
+			if (mCurrentTextSignificantLength > StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT)
 			{
-				mCurrentTextSignificantLength = StickerSearchConstants.SEARCH_MAX_TEXT_LIMIT;
+				mCurrentTextSignificantLength = StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT;
 				while ((mCurrentTextSignificantLength < s.length()) && (s.charAt(mCurrentTextSignificantLength) != ' '))
 				{
 					mCurrentTextSignificantLength++;
-					if (mCurrentTextSignificantLength >= StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT)
+					if (mCurrentTextSignificantLength >= StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT)
 					{
 						isNeedToRemoveLastWord = true;
 						break;
@@ -1079,9 +1079,9 @@ public class StickerSearchHostManager
 			{
 				float matchScoreWeitage = StickerSearchConstants.WEITAGE_MATCH_SCORE;
 				float exactMatchWeitage = StickerSearchConstants.WEITAGE_EXACT_MATCH;
-				float trendingFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.TRENDING_FREQUENCY_RATIO;
-				float localFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.LOCAL_FREQUENCY_RATIO;
-				float globalFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.GLOBAL_FREQUENCY_RATIO;
+				float trendingFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_TRENDING_FREQUENCY;
+				float localFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_LOCAL_FREQUENCY;
+				float globalFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_GLOBAL_FREQUENCY;
 				float contextMomentWeitage = StickerSearchConstants.WEITAGE_CONTEXT_MOMENT;
 
 				int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));

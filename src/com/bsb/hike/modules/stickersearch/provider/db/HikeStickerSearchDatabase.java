@@ -90,7 +90,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sHikeStickerSearchDatabase.mRandom = new Random();
 			}
 
-			sHikeStickerSearchDatabase.sMaxSelectionCount = (int) (StickerSearchConstants.MAXIMUM_SEARCH_COUNT * StickerSearchConstants.MAXIMUM_SELECTION_COUNT_RATIO);
+			sHikeStickerSearchDatabase.sMaxSelectionCount = (int) (StickerSearchConstants.MAXIMUM_SEARCH_COUNT * StickerSearchConstants.RATIO_MAXIMUM_SELECTION_COUNT);
 		}
 	}
 
