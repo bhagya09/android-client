@@ -123,8 +123,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String SMS_SETTING = "smscredits";
 
-	public static final String NAME = "name";
-
 	public static final String ACCEPT_TERMS = "acceptterms";
 	
 	public static final String CONNECTED_ONCE = "connectedonce";
