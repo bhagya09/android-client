@@ -3702,6 +3702,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					participantsAlreadyAdded = false;
 					infoChangeOnly = true;
 				}
+				if (currentParticipant.isAdmin() != newParticipantEntry.getValue().getFirst().isAdmin())
+				{
+					participantsAlreadyAdded = false;
+					infoChangeOnly = true;
+				}
 				currentParticipants.remove(newParticipantEntry.getKey());
 			}
 		}
