@@ -1176,7 +1176,6 @@ public class StickerManager
 		String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
 		DownloadType downloadType = (DownloadType) b.getSerializable(StickerManager.STICKER_DOWNLOAD_TYPE);
 		DownloadSource downloadSource = (DownloadSource) b.getSerializable(HikeConstants.DOWNLOAD_SOURCE);
-//		final boolean failedDueToLargeFile = b.getBoolean(StickerManager.STICKER_DOWNLOAD_FAILED_FILE_TOO_LARGE);
 		StickerCategory category = StickerManager.getInstance().getCategoryForId(categoryId);
 
 		if(category == null)
