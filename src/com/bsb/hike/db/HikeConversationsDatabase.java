@@ -2058,7 +2058,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						convMetadata = new OneToNConversationMetadata(null);
 					}
 
+					if(setting!=-1){
 					convMetadata.setAddMembersRights(setting);
+					}
 					if (setMyselfAdmin != -1) {
 						convMetadata.setMyselfAsAdmin(setMyselfAdmin);
 					}
