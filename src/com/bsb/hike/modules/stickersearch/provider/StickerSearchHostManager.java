@@ -713,6 +713,8 @@ public class StickerSearchHostManager
 
 		if (Utils.isBlank(currentText))
 		{
+			Logger.i(TAG, "onMessageSent(), resetting all search results...");
+
 			if (sCurrentWordsInText != null)
 			{
 				sCurrentWordsInText.clear();
@@ -1140,84 +1142,126 @@ public class StickerSearchHostManager
 			ArrayList<StickerDataContainer> tempStickerDataList = new ArrayList<StickerDataContainer>();
 			TreeSet<StickerDataContainer> leastButSignificantStickerDataList = new TreeSet<StickerDataContainer>();
 			stickers = new LinkedHashSet<Sticker>();
+			StickerDataContainer sticker;
 
-			for (StickerDataContainer sticker : stickerData)
+			// Calculate peak frequencies
+			float largestTrendingFrequency = Float.MIN_VALUE;
+			float largestLocalFrequency = Float.MIN_VALUE;
+			float largestGlobalFrequency = Float.MIN_VALUE;
+
+			float stickerTrendingFrequency;
+			float stickerLocalFrequency;
+			float stickerGlobalFrequency;
+
+			for (int i = 0; i < count; i++)
 			{
-				if (sticker == null)
+				sticker = stickerData.get(i);
+				if (sticker != null)
 				{
-					continue;
-				}
-
-				int stickerMometCode = sticker.getMomentCode();
-				String frequencyString = sticker.getOverallFrequencyFunction();
-				int frequency;
-				if (Utils.isBlank(frequencyString))
-				{
-					frequency = 0;
-				}
-				else
-				{
-					frequency = Integer.parseInt(frequencyString);
-				}
-				float formattedFrequency;
-				if (frequency >= 10)
-				{
-					formattedFrequency = 0.99f;
-				}
-				else
-				{
-					formattedFrequency = ((float) frequency) / 10.0f;
-				}
-
-				float phraseMatchScore = computeAnalogousScoreForExactMatch(searchKey,
-						sticker.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
-
-				if (sticker.getExactMatchOrder() == -1)
-				{
-					sticker.setScore(
-							phraseMatchScore,
-							((matchScoreWeitage * phraseMatchScore) + 0.0f + (trendingFrequencyWeitage * formattedFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
-									: 0f)));
-				}
-				else
-				{
-					sticker.setScore(phraseMatchScore,
-							((matchScoreWeitage * phraseMatchScore) + (exactMatchWeitage * (phraseMatchScore > 0.7f ? phraseMatchScore : 0) / (sticker.getExactMatchOrder() + 1))
-									+ (trendingFrequencyWeitage * formattedFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage : 0f)));
-				}
-
-				if (currentMomentTerminalCode == stickerMometCode)
-				{
-					timePrioritizedStickerList.add(sticker);
-				}
-				else if (phraseMatchScore >= minimumMatchingScore)
-				{
-					tempStickerDataList.add(sticker);
-				}
-				else
-				{
-					if (leastButSignificantStickerDataList.size() >= NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL)
+					// Trending frequency
+					stickerTrendingFrequency = sticker.getTrendingFrequency();
+					if (stickerTrendingFrequency > largestTrendingFrequency)
 					{
-						StickerDataContainer currentLeastSignificantSticker = leastButSignificantStickerDataList.last();
-						if (currentLeastSignificantSticker.compareTo(sticker) == 1)
-						{
-							leastButSignificantStickerDataList.pollLast();
-							leastButSignificantStickerDataList.add(sticker);
-						}
+						largestTrendingFrequency = stickerTrendingFrequency;
+					}
+
+					// Local frequency
+					stickerLocalFrequency = sticker.getLocalFrequency();
+					if (stickerLocalFrequency > largestLocalFrequency)
+					{
+						largestLocalFrequency = stickerLocalFrequency;
+					}
+
+					// Global frequency
+					stickerGlobalFrequency = sticker.getGlobalFrequency();
+					if (stickerGlobalFrequency > largestGlobalFrequency)
+					{
+						largestGlobalFrequency = stickerGlobalFrequency;
+					}
+				}
+			}
+
+			// Set to 1.00f to avoid 'Divide by zero' case
+			if (largestTrendingFrequency <= 0.00f)
+			{
+				largestTrendingFrequency = 1.00f;
+			}
+			if (largestLocalFrequency <= 0.00f)
+			{
+				largestLocalFrequency = 1.00f;
+			}
+			if (largestGlobalFrequency <= 0.00f)
+			{
+				largestGlobalFrequency = 1.00f;
+			}
+
+			// Calculate overall score
+			for (int i = 0; i < count; i++)
+			{
+				sticker = stickerData.get(i);
+				if (sticker != null)
+				{
+
+					int stickerMometCode = sticker.getMomentCode();
+					float phraseMatchScore = computeAnalogousScoreForExactMatch(searchKey,
+							sticker.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
+
+					if (sticker.getExactMatchOrder() == -1)
+					{
+						sticker.setScore(
+								phraseMatchScore,
+								((matchScoreWeitage * phraseMatchScore) + 0.00f + (trendingFrequencyWeitage * sticker.getTrendingFrequency() / largestTrendingFrequency)
+										+ (localFrequencyWeitage * sticker.getLocalFrequency() / largestLocalFrequency)
+										+ (globalFrequencyWeitage * sticker.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
+										: 0.00f)));
 					}
 					else
 					{
-						leastButSignificantStickerDataList.add(sticker);
+						sticker.setScore(
+								phraseMatchScore,
+								((matchScoreWeitage * phraseMatchScore)
+										+ (exactMatchWeitage * ((phraseMatchScore > 0.70f) ? phraseMatchScore : 0.00f) / (sticker.getExactMatchOrder() + 1))
+										+ (trendingFrequencyWeitage * sticker.getTrendingFrequency() / largestTrendingFrequency)
+										+ (localFrequencyWeitage * sticker.getLocalFrequency() / largestLocalFrequency)
+										+ (globalFrequencyWeitage * sticker.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
+										: 0.00f)));
+					}
+
+					if (currentMomentTerminalCode == stickerMometCode)
+					{
+						timePrioritizedStickerList.add(sticker);
+					}
+					else if (phraseMatchScore >= minimumMatchingScore)
+					{
+						tempStickerDataList.add(sticker);
+					}
+					else
+					{
+						if (leastButSignificantStickerDataList.size() >= NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL)
+						{
+							StickerDataContainer currentLeastSignificantSticker = leastButSignificantStickerDataList.last();
+							if (currentLeastSignificantSticker.compareTo(sticker) == 1)
+							{
+								leastButSignificantStickerDataList.pollLast();
+								leastButSignificantStickerDataList.add(sticker);
+							}
+						}
+						else
+						{
+							leastButSignificantStickerDataList.add(sticker);
+						}
 					}
 				}
 			}
 
 			// Sort in descending order and make a unique list of significant stickers based on ordering w.r.t. score
-			if (tempStickerDataList.size() > 0)
+			count = tempStickerDataList.size();
+			if (count > 0)
 			{
 				Collections.sort(tempStickerDataList);
-				for (StickerDataContainer sticker : tempStickerDataList)
+				for (int i = 0; i < count; i++)
 				{
+					sticker = tempStickerDataList.get(i);
 					stickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
 				}
 
@@ -1225,9 +1269,9 @@ public class StickerSearchHostManager
 			}
 			else if (leastButSignificantStickerDataList.size() > 0)
 			{
-				for (StickerDataContainer sticker : leastButSignificantStickerDataList)
+				for (StickerDataContainer marginalSticker : leastButSignificantStickerDataList)
 				{
-					stickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
+					stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
 				}
 
 				leastButSignificantStickerDataList.clear();
@@ -1238,9 +1282,9 @@ public class StickerSearchHostManager
 			{
 				Collections.sort(timePrioritizedStickerList);
 				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>();
-				for (StickerDataContainer sticker : leastButSignificantStickerDataList)
+				for (StickerDataContainer timelySticker : leastButSignificantStickerDataList)
 				{
-					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
+					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(timelySticker.getStickerCode(), timelySticker.getStickerAvailabilityStatus()));
 				}
 
 				// Put remaining stickers after time-prioritized stickers in pop-up
