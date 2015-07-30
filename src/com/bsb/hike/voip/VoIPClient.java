@@ -245,7 +245,7 @@ public class VoIPClient  {
 		return preferredConnectionMethod;
 	}
 	
-	private void setPreferredConnectionMethod(
+	public void setPreferredConnectionMethod(
 			ConnectionMethods preferredConnectionMethod) {
 		this.preferredConnectionMethod = preferredConnectionMethod;
 		cachedInetAddress = null;
@@ -1026,11 +1026,8 @@ public class VoIPClient  {
 			addPacketToAckWaitQueue(dp);
 
 		if (dp.getType() == PacketType.AUDIO_PACKET) {
-			// If the client is in a conference, then the packet numbers will be
-			// set by service since one packet is broadcast to everyone.
-			// Hence, set a voice packet number only if we're not in a hosted conference
-			// and the other client is v2 or above
-			if (!isInAHostedConference && version >= 2)
+			// Voice packet numbers are disabled for conferences
+			if (!isInAHostedConference)
 				dp.setVoicePacketNumber(voicePacketCount++);
 		}
 		
@@ -2000,7 +1997,7 @@ public class VoIPClient  {
 		Logger.w(tag, "Remote packet loss: " + remotePacketLoss + ", new bitrate: " + newBitrate);
 		
 		opusWrapper.setEncoderBitrate(newBitrate);
-		sendPacket(new VoIPDataPacket(PacketType.RESET_PACKET_LOSS), true);
+		sendPacket(new VoIPDataPacket(PacketType.RESET_PACKET_LOSS), false);
 		lastCongestionControlTimestamp = System.currentTimeMillis();
 	}
 	
