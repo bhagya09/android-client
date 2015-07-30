@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="@drawable/list_item"
+    android:clickable="true"
+    android:orientation="horizontal"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp" >
+
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:button="@drawable/preference_radio_btn"
+        android:clickable="true" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="16dp"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/header"
+                style="@style/BaseStyleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/regular_sms"
+                android:textColor="@drawable/sms_popup_text_selector"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/headerSubText"
+                style="@style/BaseStyleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@drawable/sms_popup_text_selector"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/subtext"
+            style="@style/BaseStyleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/carrier_charges_apply"
+            android:textColor="@drawable/sms_popup_subtext_selector"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</LinearLayout>
