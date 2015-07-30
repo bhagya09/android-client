@@ -1623,23 +1623,24 @@ public class VoIPService extends Service {
 
 					// Retrieve decoded samples from all clients and combine into one
 					VoIPDataPacket finalDecodedSample = null;
-					for (VoIPClient client : clients.values()) {
-						VoIPDataPacket dp = client.getDecodedBuffer();
-						if (dp != null) {
-							if (hostingConference())
-								clientSample.put(client.getPhoneNumber(), dp.getData());
+					synchronized (clients) {
+						for (VoIPClient client : clients.values()) {
+							VoIPDataPacket dp = client.getDecodedBuffer();
+							if (dp != null) {
+								if (hostingConference())
+									clientSample.put(client.getPhoneNumber(), dp.getData());
 
-							if (finalDecodedSample == null)
-								finalDecodedSample = dp;
-							else {
-								// We have to combine samples
-								finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
+								if (finalDecodedSample == null)
+									finalDecodedSample = dp;
+								else {
+									// We have to combine samples
+									finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
+								}
+							} else {
+								// If we have no audio data from a client
+								// then assume that it has stopped speaking.
+								client.setSpeaking(false);
 							}
-						} else {
-							// If we have no audio data from a client
-							// then assume that it has stopped speaking.
-//							Logger.d(tag, client.getPhoneNumber() + " has no audio data.");
-							client.setSpeaking(false);
 						}
 					}
 
@@ -1682,22 +1683,24 @@ public class VoIPService extends Service {
 						// This is the broadcast
 						conferenceBroadcastPackets.add(dp);
 
-						for (VoIPClient client : clients.values()) {
-							if (!client.isSpeaking() || !client.connected)
-								continue;
+						synchronized (clients) {
+							for (VoIPClient client : clients.values()) {
+								if (!client.isSpeaking() || !client.connected)
+									continue;
 
-							// Custom streams
-							VoIPDataPacket clientDp = new VoIPDataPacket();
-							byte[] origPCM = clientSample.get(client.getPhoneNumber());
-							byte[] newPCM = null;
-							if (origPCM == null) {
-								newPCM = conferencePCM;
-							} else {
-								newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+								// Custom streams
+								VoIPDataPacket clientDp = new VoIPDataPacket();
+								byte[] origPCM = clientSample.get(client.getPhoneNumber());
+								byte[] newPCM = null;
+								if (origPCM == null) {
+									newPCM = conferencePCM;
+								} else {
+									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+								}
+								clientDp.setData(newPCM);
+								clientDp.setVoice(true);
+								client.addSampleToEncode(clientDp); 
 							}
-							clientDp.setData(newPCM);
-							clientDp.setVoice(true);
-							client.addSampleToEncode(clientDp); 
 						}
 					}
 
@@ -1709,7 +1712,6 @@ public class VoIPService extends Service {
 					scheduledFuture.cancel(true);
 					scheduledExecutorService.shutdownNow();
 				}
-
 			}
 		}, 0, sleepTime, TimeUnit.MILLISECONDS);
 	}
@@ -1757,20 +1759,22 @@ public class VoIPService extends Service {
 						} 
 							
 						// Create a broadcast list
-						for (VoIPClient client : clients.values()) {
-							
-							if (client.connected)
-								connectedClient = client;
-							else
-								continue;
-							
-							if (client.isSpeaking() && broadcastPacket.getType() == PacketType.AUDIO_PACKET)
-								continue;
+						synchronized (clients) {
+							for (VoIPClient client : clients.values()) {
+								
+								if (client.connected)
+									connectedClient = client;
+								else
+									continue;
+								
+								if (client.isSpeaking() && broadcastPacket.getType() == PacketType.AUDIO_PACKET)
+									continue;
 
-							BroadcastListItem item = broadcastPacket.new BroadcastListItem();
-							item.setIp(client.getExternalIPAddress());
-							item.setPort(client.getExternalPort());
-							broadcastPacket.addToBroadcastList(item);
+								BroadcastListItem item = broadcastPacket.new BroadcastListItem();
+								item.setIp(client.getExternalIPAddress());
+								item.setPort(client.getExternalPort());
+								broadcastPacket.addToBroadcastList(item);
+							}
 						}
 						
 						// Send the packet
@@ -1778,8 +1782,9 @@ public class VoIPService extends Service {
 							if (broadcastPacket.getType() == PacketType.AUDIO_PACKET)
 								broadcastPacket.setVoicePacketNumber(voicePacketNumber++);
 							
-							if (connectedClient != null)
-								connectedClient.addToSendingQueue(broadcastPacket);
+							if (connectedClient != null) {
+								connectedClient.addToSendingQueue(broadcastPacket);								
+							}
 							else
 								Logger.w(tag, "Unable to find a connected client to broadcast.");
 						}
@@ -2043,11 +2048,7 @@ public class VoIPService extends Service {
 	}
 
 	public boolean isAudioRunning() {
-		VoIPClient client = getClient();
-		if (client != null)
-			return client.isAudioRunning();
-		else
-			return false;
+		return recordingAndPlaybackRunning;
 	}
 
 	public void setCallStatus(VoIPConstants.CallStatus status)
