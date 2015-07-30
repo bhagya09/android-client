@@ -1515,7 +1515,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
-	<string name="edit_photos">New Photo</string>
+	<string name="edit_photos">New photo</string>
 	<string name="gif_not_working">Invalid GIF</string>
 	<string name="gif_sent">GIF</string>
 	<string name="gif_received">Sent you a GIF</string>
@@ -1561,5 +1561,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="multi_edit_undo_warning">Discard all image editing changes?</string>
     <string name="multi_edit_undo_warning_header">Discard Changes?</string>
     <string name="photos_oom_upload">Unable to Upload Image\nNot Enough Memory On Device.</string>
-    <string name="try_again_later">Try again later.</string>
+    <string name="goto_timeline">Go to Timeline.</string>
 </resources>
