@@ -2243,7 +2243,13 @@ public class MqttMessagesManager
 			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
 		}
-
+		
+		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME))
+		{
+			long tagRefreshTime = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_TAG_REFRESH_PERIOD, tagRefreshTime);
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
