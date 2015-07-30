@@ -633,6 +633,11 @@ public class FileTransferManager extends BroadcastReceiver
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				Logger.e(getClass().getSimpleName(), "Exception while reading state file : ", e);
+			}
 			finally
 			{
 				Utils.closeStreams(in, fileIn);
