@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -70,7 +69,7 @@ public class HikeImageDownloader extends HikeImageWorker
 		String fileName = Utils.getProfileImageFileName(id);
 		
 		Logger.d(TAG, "executing DownloadProfileImageTask");
-		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getTempProfileImageFileName(msisdn, true);
 		
 		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, pathOfTempFile, hasCustomIcon, statusImage, url,forceNewRequest, requestListener);
 		if(token != null && !token.isRequestRunning())

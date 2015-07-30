@@ -2443,9 +2443,21 @@ public class Utils
 
 	public static String getTempProfileImageFileName(String msisdn)
 	{
-		return getValidFileNameForMsisdn(msisdn) + "_tmp.jpg";
+		return getTempProfileImageFileName(msisdn, false);
 	}
 
+	public static String getTempProfileImageFileName(String msisdn,boolean useTimeStamp)
+	{
+		String suffix = "_tmp.jpg";
+		
+		if(useTimeStamp)
+		{
+			suffix = Long.toString(System.currentTimeMillis())+suffix;
+		}
+		
+		return getValidFileNameForMsisdn(msisdn) +suffix;
+	}
+	
 	public static String getProfileImageFileName(String msisdn)
 	{
 		return getValidFileNameForMsisdn(msisdn) + ".jpg";
