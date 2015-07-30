@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 
+import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
@@ -23,11 +24,16 @@ import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 
-public class OfflineDisconnectFragment extends Fragment
+public class OfflineDisconnectFragment extends SherlockFragment
 {
-	String firstMessage;
 	
-	String secondMessage;
+	private static final String CONNECTINGMSISDN = "connecting_msisdn";
+
+	private static final String CONNECTEDMSISDN = "connected_msisdn";
+
+	String connectingMsisdn;
+	
+	String connectedMsisdn;
 	
 	ImageView avatar;
 	
@@ -37,13 +43,20 @@ public class OfflineDisconnectFragment extends Fragment
 	
 	OfflineConnectionRequestListener listener;
 	
-	public OfflineDisconnectFragment(String firstMessage,String secondMessage,Drawable avatarDrawable ,OfflineConnectionRequestListener listener)
+	String firstMessage = "";
+	
+	String secondMessage = "";
+	
+	public static OfflineDisconnectFragment newInstance(String connectingMsisdn,String connectedMsisdn)
 	{
-		this.firstMessage = firstMessage;
-		this.secondMessage = secondMessage;
-		this.avatarDrawable = avatarDrawable;
-		this.listener = listener;
+		OfflineDisconnectFragment offlineDisconnectFragment  = new OfflineDisconnectFragment();
+		Bundle data = new Bundle(2);
+		data.putString(CONNECTINGMSISDN,connectingMsisdn);
+		data.putString(CONNECTEDMSISDN, connectedMsisdn);
+		offlineDisconnectFragment.setArguments(data);
+		return offlineDisconnectFragment;
 	}
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -56,12 +69,50 @@ public class OfflineDisconnectFragment extends Fragment
 	{
 		avatar = (ImageView)fragmentView.findViewById(R.id.connected_avatar);
 		avatar.setScaleType(ScaleType.FIT_CENTER);
-		avatar.setImageDrawable(avatarDrawable);
 		TextView connectionRequest = (TextView)fragmentView.findViewById(R.id.connect_request);
 		TextView connectionWarning = (TextView)fragmentView.findViewById(R.id.disconnect_warning);
+		if(!TextUtils.isEmpty(connectedMsisdn))
+		{
+			 
+		    ContactInfo connectingContactInfo  = ContactManager.getInstance().getContact(connectingMsisdn);
+			String connectingContactFirstName = connectingMsisdn;
+			if(connectingContactInfo!=null && !TextUtils.isEmpty(connectingContactInfo.getFirstName()))
+			{
+				connectingContactFirstName = connectingContactInfo.getFirstName();
+			}
+			firstMessage = getResources().getString(R.string.disconnect_warning,connectingContactFirstName);
+			ContactInfo connectedContactInfo  = ContactManager.getInstance().getContact(connectedMsisdn);
+			String connectedContactFirstName = connectedMsisdn;
+			if(connectedContactInfo!=null && !TextUtils.isEmpty(connectedContactInfo.getFirstName()))
+			{
+				connectedContactFirstName = connectedContactInfo.getFirstName();
+			}
+			secondMessage = getResources().getString(R.string.connected_warning,connectedContactFirstName);
+			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectedMsisdn);
+			if (drawable == null)
+			{
+				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectedMsisdn, false);
+			}
+			avatar.setImageDrawable(drawable);
+		}
+		else
+		{
+			ContactInfo connectingContactInfo  = ContactManager.getInstance().getContact(connectingMsisdn);
+			String connectingContactFirstName = connectingMsisdn;
+			if(connectingContactInfo!=null && !TextUtils.isEmpty(connectingContactInfo.getFirstName()))
+			{
+				connectingContactFirstName = connectingContactInfo.getFirstName();
+			}
+			firstMessage = getResources().getString(R.string.cancel_connection,connectingContactFirstName);
+			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
+			if (drawable == null)
+			{
+				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+			}
+			avatar.setImageDrawable(drawable);
+		}
 		
 		connectionRequest.setText(Html.fromHtml(firstMessage));
-		
 		connectionWarning.setText(Html.fromHtml(secondMessage));
 		
 		fragmentView.findViewById(R.id.reject_disconnect).setOnClickListener(new OnClickListener()
@@ -102,4 +153,32 @@ public class OfflineDisconnectFragment extends Fragment
 		public void onDisconnectionRequest();
     }
 	
+	@Override
+	public void onActivityCreated(Bundle arg0)
+	{
+		super.onActivityCreated(arg0);
+		
+	}
+	
+	@Override 
+	public void onCreate(Bundle savedInstanceState)
+	{ 
+	   super.onCreate(savedInstanceState);
+	   Bundle arguments = getArguments();
+	    if(arguments != null)
+	    {
+	       handleArguments(arguments);
+	    }
+	}
+
+	private void handleArguments(Bundle arguments)
+	{
+		connectingMsisdn = arguments.getString(CONNECTINGMSISDN);
+		connectedMsisdn = arguments.getString(CONNECTEDMSISDN);
+	} 
+	
+	public void setConnectionListner(OfflineConnectionRequestListener  listener)
+	{
+		this.listener =listener;
+	}
 }

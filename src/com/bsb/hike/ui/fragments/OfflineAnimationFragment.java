@@ -2,15 +2,13 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
+
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,20 +23,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -46,14 +39,9 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.HoloCircularProgress;
-import com.hike.transporter.TException;
-import com.hike.transporter.interfaces.IConnectionListener;
-import com.musicg.dsp.LinearInterpolation;
 
 public class OfflineAnimationFragment extends DialogFragment implements IOfflineCallbacks
 {
@@ -79,12 +67,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	String contactFirstName;
 	
-	ChatThreadActivity chatThreadActivity;
-	
 	protected static final int UPDATE_ANIMATION_MESSAGE = 1;
 
 	protected static final int START_TIMER = 2;
-	
+
+	private static final String MSISDN = "msisdn";
+
 	TextView timerText;
 	
 	Button retryButton;
@@ -107,11 +95,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 
 	};
 	
-	public OfflineAnimationFragment(String msisdn,ChatThreadActivity activity,OfflineConnectionRequestListener listener)
+	public static OfflineAnimationFragment newInstance(String msisdn)
 	{
-		this.msisdn = msisdn;
-		this.chatThreadActivity = activity;
-		this.listener = listener;
+		OfflineAnimationFragment offlineAnimationFragment = new OfflineAnimationFragment();
+		Bundle data = new Bundle(1);
+		data.putString(MSISDN, msisdn);
+		offlineAnimationFragment.setArguments(data);
+		return offlineAnimationFragment; 
 	}
 	
 	/**
@@ -415,7 +405,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		ImageView progressBead = (ImageView)fragmentView.findViewById(R.id.bead);
 		progressBead.setVisibility(View.VISIBLE);
-		rotateAnimation = new RotateAnimation(0, 360,Animation.RELATIVE_TO_SELF,0.3f,Animation.RELATIVE_TO_SELF,2.7f);
+		rotateAnimation = new RotateAnimation(0, 360,Animation.RELATIVE_TO_SELF,0.3f,Animation.RELATIVE_TO_SELF,2.8f);
 		rotateAnimation.setDuration(1000);
 		rotateAnimation.setRepeatCount(Animation.INFINITE);
 		rotateAnimation.setInterpolator(new LinearInterpolator());
@@ -462,9 +452,21 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		super.onCreate(savedInstanceState);
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Translucent);
+		
+	    // handle fragment arguments
+	    Bundle arguments = getArguments();
+	    if(arguments != null)
+	    {
+	       handleArguments(arguments);
+	    }
 	}
 
 	
+	private void handleArguments(Bundle arguments)
+	{
+		msisdn = arguments.getString(MSISDN);
+	}
+
 	@Override
 	public void onActivityCreated(Bundle arg0)
 	{
@@ -511,7 +513,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				public void run()
 				{
 					logo.setImageDrawable(getResources().getDrawable(R.drawable.cross_retry));
-					rotateAnimation.cancel();
+					if(rotateAnimation!=null)
+						rotateAnimation.cancel();
 					frame.setVisibility(View.INVISIBLE);
 					ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 3.5f);
 					ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 3.5f);
@@ -535,7 +538,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 				
 				 connectionInfo.setText(getResources().getString(R.string.connection_established));
-				 rotateAnimation.cancel();
+				 
+				 if(rotateAnimation!=null)
+					 rotateAnimation.cancel();
 				 frame.setVisibility(View.INVISIBLE);
 				 if(timer!=null)
 				 {
@@ -576,7 +581,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 						@Override
 						public void onAnimationEnd(Animator animation)
 						{
-							chatThreadActivity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+							((ChatThreadActivity)getActivity()).updateActionBarColor(new ColorDrawable(Color.BLACK));
 						    closeFragment();
 							
 						}
@@ -598,8 +603,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private void closeFragment()
 	{
-		Utils.unblockOrientationChange(chatThreadActivity);
+		Utils.unblockOrientationChange((ChatThreadActivity)getActivity());
 		dismiss();	
+	}
+	
+	public void setConnectionListner(OfflineConnectionRequestListener  listener)
+	{
+		this.listener =listener;
 	}
 	
 }

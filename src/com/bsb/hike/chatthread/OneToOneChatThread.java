@@ -1440,8 +1440,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void startFreeHikeAnimation()
 	{
 		Utils.blockOrientationChange(activity);
-		offlineAnimationFragment = new OfflineAnimationFragment(msisdn,activity,this);
+		offlineAnimationFragment = OfflineAnimationFragment.newInstance(msisdn);
 		offlineAnimationFragment.setCancelable(false);
+		offlineAnimationFragment.setConnectionListner(this);
 		offlineAnimationFragment.show(activity.getSupportFragmentManager(), OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
 	}
 
@@ -1510,20 +1511,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				return;
 			}
-			String firstMessage = getResources().getString(R.string.disconnect_warning,mContactInfo.getFirstName());
-			ContactInfo connectedContactInfo  = ContactManager.getInstance().getContact(connectedMsisdn);
-			String connectedContactFirstName = connectedMsisdn;
-			if(connectedContactInfo!=null && !TextUtils.isEmpty(connectedContactInfo.getFirstName()))
-			{
-				connectedContactFirstName = connectedContactInfo.getFirstName();
-			}
-			String secondMessage = getResources().getString(R.string.connected_warning,connectedContactFirstName);
-			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectedMsisdn);
-			if (drawable == null)
-			{
-				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectedMsisdn, false);
-			}
-			offlineDisconnectFragment = new OfflineDisconnectFragment(firstMessage,secondMessage,drawable,this);
+			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn, connectedMsisdn);
 		}
 		else
 		{
@@ -1532,15 +1520,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				return;
 			}
-			String firstMessage = getResources().getString(R.string.cancel_connection,mContactInfo.getFirstName());
-			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
-			if (drawable == null)
-			{
-				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
-			}
-			offlineDisconnectFragment = new OfflineDisconnectFragment(firstMessage,"",drawable,this);
+			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn, "");
 		}
-	
+		offlineDisconnectFragment.setConnectionListner(this);
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 		activity.findViewById(R.id.animation_layout).setVisibility(View.VISIBLE);
 		fragmentTransaction.replace(R.id.animation_layout, offlineDisconnectFragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
