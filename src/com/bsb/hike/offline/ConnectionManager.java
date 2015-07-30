@@ -243,6 +243,7 @@ public class ConnectionManager implements ChannelListener
 						distinctNetworks.put(scanResult.SSID, scanResult);
 					}
 				}
+				break;
 			}
 		}
 		return distinctNetworks;
@@ -319,6 +320,10 @@ public class ConnectionManager implements ChannelListener
 		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP); 
 		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP); 
 		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+		
+		if (isHTC)
+			setHTCSSID(myConfig);
+		
 		try {
 			result = (Boolean) enableWifi.invoke(wifiManager, myConfig,status);
 		} 
@@ -330,6 +335,60 @@ public class ConnectionManager implements ChannelListener
 		}
 		
 		return result;
+	}
+	
+	private void setHTCSSID(WifiConfiguration config)
+	{
+		try
+		{
+			Field mWifiApProfileField = WifiConfiguration.class.getDeclaredField("mWifiApProfile");
+			mWifiApProfileField.setAccessible(true);
+			Object hotSpotProfile = mWifiApProfileField.get(config);
+			mWifiApProfileField.setAccessible(false);
+
+			if (hotSpotProfile != null)
+			{
+				setField(hotSpotProfile, "SSID", config.SSID);
+				setField(hotSpotProfile, "key", config.preSharedKey);
+				setField(hotSpotProfile, "secureType", "wpa-psk");
+				setField(hotSpotProfile, "dhcpEnable", 1);
+				setField(hotSpotProfile, "maxConns", 8);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void setField(Object object, String field, String value)
+	{	
+		try
+		{
+			Field statusField = object.getClass().getDeclaredField(field);
+			statusField.setAccessible(true);
+			statusField.set(object, value);
+			statusField.setAccessible(false);
+		}
+		catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void setField(Object object, String field, int value)
+	{
+		try
+		{
+			Field statusField = object.getClass().getDeclaredField(field);
+			statusField.setAccessible(true);
+			statusField.set(object, value);
+			statusField.setAccessible(false);
+		}
+		catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private void saveCurrentHotspotSSID() 
@@ -515,15 +574,22 @@ public class ConnectionManager implements ChannelListener
 	
 	public String getHostAddress()
 	{
-		String host = null;
-		if (isHotspotCreated())
+		String host = OfflineUtils.getIPFromMac(null);
+		int tries = 0;
+		while(TextUtils.isEmpty(host))
 		{
+			try{
+				Thread.sleep(100);
+			}
+			catch (InterruptedException e){
+				e.printStackTrace();
+			}
 			host = OfflineUtils.getIPFromMac(null);
+			tries++;
+			if (tries > 150)
+				break;
 		}
-		else
-		{
-			host = OfflineConstants.IP_SERVER;
-		}
+		Logger.d(TAG, "No. of tries is: " + tries);
 		return host;
 	}
 
