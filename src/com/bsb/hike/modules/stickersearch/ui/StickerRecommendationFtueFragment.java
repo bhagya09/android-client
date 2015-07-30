@@ -158,7 +158,9 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 			stickerRecommendFtueStep1.setVisibility(View.GONE);
 			stickerRecommendFtueStep2.setVisibility(View.VISIBLE);
 			
-			TranslateAnimation slideIn = new TranslateAnimation(104, 0, 0, 0);
+			float startOffset = StickerSearchUtils.getStickerSize();
+			
+			TranslateAnimation slideIn = new TranslateAnimation(startOffset, 0, 0, 0);
 			slideIn.setInterpolator(new LinearInterpolator());
 			slideIn.setDuration(400);
 			tvHeadingFtueView2.startAnimation(slideIn);
