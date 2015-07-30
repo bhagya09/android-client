@@ -2,7 +2,8 @@ package com.bsb.hike.ui.fragments;
 
 import java.lang.ref.WeakReference;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import android.support.v4.app.Fragment;
+
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
@@ -14,7 +15,7 @@ import com.bsb.hike.utils.Utils;
  * It ensures that all File I/O are in in sync as concurrent Del/creating/renaming Files will cause issues.So this does those operations on keeping a lock
  *
  */
-public class HeadlessImageWorkerFragment extends SherlockFragment
+public class HeadlessImageWorkerFragment extends Fragment
 {
 
 	private static final String TAG = "dp_woker";

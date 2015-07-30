@@ -1,13 +1,23 @@
 package com.bsb.hike.chatHead;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -17,20 +27,6 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
-import android.content.Context;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 {
@@ -50,10 +46,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private static ArrayList<ListViewItem> mListViewItems;
 
-    private static TextView mainSelectAllText;
-
-	private static TextView sideSelectAllText;
-
 	private static CheckBox selectAllCheckbox;
 	
 	private static ChatHeadSettingsArrayAdapter listAdapter;
@@ -70,7 +62,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	{
 		creatingArrayList();
 		listAdapter = new ChatHeadSettingsArrayAdapter(this, R.layout.settings_sticker_share_item, mListViewItems);
-		initialisingViewsUsingID();
+		selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
 		settingOnClickEvent();
 		settingSelectAllText();
 		ListView listView = (ListView) findViewById(R.id.list_items);
@@ -97,14 +89,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 				onSelectAllCheckboxClick();
 			}
 		});
-	}
-
-	private void initialisingViewsUsingID()
-	{
-		mainSelectAllText = (TextView) findViewById(R.id.main_text_select_all);
-		sideSelectAllText = (TextView) findViewById(R.id.side_text_select_all);
-		selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
-
 	}
 
 	private void creatingArrayList()
@@ -175,25 +159,10 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private static void settingSelectAllText()
 	{
-		boolean allChecked = areAllItemsCheckedOrUnchecked(true);
-		if (allChecked)
-		{
-			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_deselect_all));
-			sideSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.sticker_widget_hide));
-		}
-		else
-		{
-			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_select_all));
-			sideSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.sticker_widget_show));
-			
-		}
-		selectAllCheckbox.setChecked(allChecked);
+		selectAllCheckbox.setChecked(areAllItemsCheckedOrUnchecked(true));
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, !areAllItemsCheckedOrUnchecked(false));
-		
-
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
-		ChatHeadUtils.startOrStopService(true);
 	}
 
 	static boolean areAllItemsCheckedOrUnchecked(boolean allItemsExpectedChecked)
@@ -297,5 +266,12 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		}
 
 	}
-
+	
+	
+	@Override
+	protected void onStop()
+	{
+		ChatHeadUtils.startOrStopService(true);
+		super.onStop();
+	}
 }

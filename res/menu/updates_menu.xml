@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
         android:id="@+id/activity_feed"
-        android:showAsAction="always"
-        android:actionLayout="@layout/activity_feed_icon_view"
+        app:showAsAction="always"
+        app:actionLayout="@layout/activity_feed_icon_view"
         android:title="@string/actionbar_activity_feed_title"/>
     <item
         android:id="@+id/overflow_menu"
-        android:actionLayout="@layout/overflow_icon_view"
-        android:showAsAction="always"
+        app:actionLayout="@layout/overflow_icon_view"
+        app:showAsAction="always"
         android:title="@string/other">
     </item>
 

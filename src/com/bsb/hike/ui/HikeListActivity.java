@@ -20,6 +20,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +40,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -147,7 +148,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			postText.setText(getString(R.string.send_invite, selectedContacts.size()));
 		}
-		backIcon.setImageResource(R.drawable.ic_back);
+//		backIcon.setImageResource(R.drawable.ic_back);
 		setLabel();
 	}
 
@@ -160,7 +161,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
-		backIcon = (ImageView) actionBarView.findViewById(R.id.abs__up);
+		backIcon = (ImageView) actionBarView.findViewById(R.id.up);
 		title = (TextView) actionBarView.findViewById(R.id.title);
 
 		arrow = (ImageView) actionBarView.findViewById(R.id.arrow);
@@ -220,7 +221,9 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				{
 					if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, false))
 					{
-						intent = new Intent(HikeListActivity.this, CreditsActivity.class);
+						intent = new Intent(HikeListActivity.this, HikePreferences.class);
+						intent.putExtra(HikeConstants.Extras.PREF, R.xml.sms_preferences);
+						intent.putExtra(HikeConstants.Extras.TITLE, R.string.free_sms_txt);
 					}
 					else
 					{
@@ -237,6 +240,8 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		init();
 	}

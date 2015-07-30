@@ -477,9 +477,9 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         List<Cell> lastPattern = mLockPatternView != null ? mLockPatternView
                 .getPattern() : null;
                 
-        if(getSupportActionBar() != null)
+        if(getActionBar() != null)
         {
-        	getSupportActionBar().hide();
+        	getActionBar().hide();
         }
 
         setContentView(R.layout.alp_42447968_lock_pattern_activity);

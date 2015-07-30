@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="53dp"
+    android:background="@drawable/list_item_ripple" >
+
+    <LinearLayout
+        android:id="@+id/image_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="14dp"
+        android:gravity="center" >
+
+        <RelativeLayout
+            android:id="@+id/avatar_container"
+            android:layout_width="36dp"
+            android:layout_height="36dp" >
+
+            <com.bsb.hike.view.RoundedImageView
+                android:id="@+id/avatar"
+                style="@style/AvatarStyle.Padding" />
+
+            <ImageView
+                android:id="@+id/avatar_frame"
+                style="@style/AvatarStyle" />
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/add_participant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="11dp"
+            android:src="@drawable/ic_invite_to_hike"
+            android:visibility="gone" />
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:background="@drawable/bg_compose_tag"
+        android:minWidth="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+		android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:layout_marginRight="16dp"   
+        android:visibility="gone"
+        android:id="@+id/owner_indicator" >
+        
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/owner_indicator_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/group_admin"
+        android:textColor="@color/blue_hike"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:textSize="11sp"
+        android:layout_gravity="center"
+        android:textStyle="normal"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/details_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="6dp"
+        android:layout_toRightOf="@id/image_container"
+        android:layout_toLeftOf="@id/owner_indicator"
+        android:orientation="horizontal" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/name"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="Rishabh Sharma" 
+            android:layout_centerVertical="true"
+            style="@style/SettingsHeaderItemTextView"/>
+        
+             <View
+                 android:id="@+id/divider"
+                 android:layout_width="1dp"
+                 android:layout_height="14dp"
+                 android:layout_centerVertical="true"
+                 android:layout_marginLeft="6dp"
+                 android:layout_marginRight="6dp"
+                 android:layout_toRightOf="@id/name"
+                 android:background="@color/home_screen_list_divider"
+                 android:visibility="gone" />
+             
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/telephone"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:layout_toRightOf="@id/divider"
+            android:text="Rishabh Sharma"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            style="@style/SettingsHeaderSubItemTextView" />
+        
+    </RelativeLayout>
+
+    <View
+        style="@style/Divider"
+        android:background="@drawable/setting_list_divider"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

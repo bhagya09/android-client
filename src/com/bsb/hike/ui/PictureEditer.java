@@ -24,8 +24,9 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Window;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -94,14 +95,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		
 		Logger.d(TAG, "Picture Editer onCreate");
-		
+		getWindow().requestFeature((int) Window.FEATURE_ACTION_BAR_OVERLAY);
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 
 		super.onCreate(savedInstanceState);
-
-		getWindow().requestFeature((int) Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -316,6 +314,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		mActionBarDoneContainer.setOnClickListener(clickHandler);
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	public class PhotoEditViewPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter

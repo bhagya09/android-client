@@ -743,10 +743,12 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{
 				contactView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_group, 0, 0, 0);
+				contactView.setCompoundDrawablePadding(context.getResources().getDimensionPixelOffset(R.dimen.home_list_header_drawable_padding));
 		}
 		else
 		{
 			contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+			contactView.setCompoundDrawablePadding(0);
 		}
 	}
 
@@ -994,7 +996,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else
 		{
-			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
+			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
 		}
 	}
 

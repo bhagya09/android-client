@@ -2,11 +2,21 @@ package com.bsb.hike.ui;
 
 import java.util.ArrayList;
 
+import android.R;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -17,7 +27,7 @@ import com.bsb.hike.utils.Logger;
  * 
  * Array of destination intents is must for this activity otherwise it will exit with Result code RESULT_CANCELED
  */
-public abstract class HikeBaseActivity extends SherlockFragmentActivity
+public abstract class HikeBaseActivity extends AppCompatActivity
 {
 	public static final String DESTINATION_INTENT = "di";
 
@@ -33,7 +43,7 @@ public abstract class HikeBaseActivity extends SherlockFragmentActivity
 		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
-
+		setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_BLUE);
 		if (!intent.hasExtra(HikeBaseActivity.DESTINATION_INTENT))
 		{
 			Logger.d(TAG, "Destination intents not present. Nothing to do!");
@@ -176,6 +186,28 @@ public abstract class HikeBaseActivity extends SherlockFragmentActivity
 			setResult(RESULT_OK, data);
 			finish();
 		}
+		
+	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		ActionBar actionBar=getSupportActionBar();
+		if(actionBar!=null)
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		return super.onCreateOptionsMenu(menu);
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		if(item.getItemId()==R.id.home)
+		{
+			onBackPressed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	protected void setStatusBarColor(Window window,String color){
+		StatusBarColorChanger.setStatusBarColor(window, color);
+	}
 }

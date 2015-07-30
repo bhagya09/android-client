@@ -108,7 +108,7 @@ public class AudioRecordView
 	private void initView()
 	{
 
-		dialog = new HikeDialog(activity, R.style.Theme_CustomDialog, AUDIO_RECORD_VIEW_ID);
+		dialog = new HikeDialog(activity, AUDIO_RECORD_VIEW_ID);
 
 		dialog.setContentView(R.layout.record_audio_dialog);
 

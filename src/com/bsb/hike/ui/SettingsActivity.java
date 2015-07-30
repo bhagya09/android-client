@@ -2,17 +2,14 @@ package com.bsb.hike.ui;
 
 import java.util.ArrayList;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,14 +23,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -74,6 +68,31 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	{
 		SETTINGS, VERSION
 	};
+	
+	private static class ViewHolder
+	{
+		TextView header;
+
+		TextView summary;
+
+		ImageView imageView;
+
+		int id = -1;
+	}
+	
+	private static class SettingsDisplayPojo
+	{
+		String text;
+		int drawableResId;
+		int id;
+		
+		public SettingsDisplayPojo(String text, int id, int drawableResId)
+		{
+			this.text = text;
+			this.id = id;
+			this.drawableResId = drawableResId;
+		}
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -81,19 +100,20 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.settings);
 
-		ArrayList<String> items = new ArrayList<String>();
+		ArrayList<SettingsDisplayPojo> items = new ArrayList<SettingsDisplayPojo>();
 
-		items.add(getString(R.string.notifications));
-		items.add(getString(R.string.settings_media));
-		items.add(getString(R.string.settings_chat));
+		items.add(new SettingsDisplayPojo(getString(R.string.notifications), R.string.notifications, R.drawable.ic_notifications_settings));
+		items.add(new SettingsDisplayPojo(getString(R.string.settings_media), R.string.settings_media, R.drawable.ic_auto_download_media_settings));
+		
+		items.add(new SettingsDisplayPojo(getString(R.string.settings_chat), R.string.settings_chat, R.drawable.ic_settings_chat));
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
 			int credits = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
-			items.add(getString(R.string.sms_with_credits, credits));
+			items.add(new SettingsDisplayPojo(getString(R.string.sms_with_credits, credits), R.string.sms_with_credits, R.drawable.ic_sms_settings));
 		}
 		else
 		{
-			items.add(getString(R.string.sms));
+			items.add(new SettingsDisplayPojo(getString(R.string.sms), R.string.sms, R.drawable.ic_sms_settings));
 		}
 
 		// Check for connect apps in shared pref
@@ -102,53 +122,20 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 		if (isConnectedAppsPresent)
 		{
-			items.add(getString(R.string.connected_apps));
+			items.add(new SettingsDisplayPojo(getString(R.string.connected_apps), R.string.connected_apps, R.drawable.ic_conn_apps));
 		}
-		items.add(getString(R.string.manage_account));
-		items.add(getString(R.string.privacy));
+		items.add(new SettingsDisplayPojo(getString(R.string.manage_account), R.string.manage_account, R.drawable.ic_account_settings));
+		items.add(new SettingsDisplayPojo(getString(R.string.privacy), R.string.privacy, R.drawable.ic_privacy_settings));
     	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
 		{
-			items.add(getString(R.string.settings_share_stickers));
+			items.add(new SettingsDisplayPojo(getString(R.string.settings_share_stickers), R.string.settings_share_stickers, R.drawable.settings_icon_sticker_widget));
 		}
-		items.add(getString(R.string.help));
+		items.add(new SettingsDisplayPojo(getString(R.string.help), R.string.help, R.drawable.ic_help_settings));
+		
+		//Last item is being added as null for the app version TextView
 		items.add(null);
-
-		final ArrayList<String> itemsSummary = new ArrayList<String>();
-
-		itemsSummary.add(getString(R.string.notifications_hintext));
-		itemsSummary.add(getString(R.string.media_settings_hinttext));
-		itemsSummary.add(getString(R.string.sms_setting_hinttext));
-		if (isConnectedAppsPresent)
-		{
-			itemsSummary.add(getString(R.string.connected_apps_hinttext));
-		}
-		itemsSummary.add(getString(R.string.account_hintttext));
-		itemsSummary.add(getString(R.string.privacy_setting_hinttext));
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
-		{
-			itemsSummary.add(getString(R.string.settings_share_stickers_hintext));
-		}
-		itemsSummary.add(getString(R.string.help_hinttext));
-
-		final ArrayList<Integer> itemIcons = new ArrayList<Integer>();
-
-		itemIcons.add(R.drawable.ic_notifications_settings);
-		itemIcons.add(R.drawable.ic_auto_download_media_settings);
-		itemIcons.add(R.drawable.ic_settings_chat);
-		itemIcons.add(R.drawable.ic_sms_settings);
-		if (isConnectedAppsPresent)
-		{
-			itemIcons.add(R.drawable.ic_conn_apps);
-		}
-		itemIcons.add(R.drawable.ic_account_settings);
-		itemIcons.add(R.drawable.ic_privacy_settings);
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
-		{
-			itemIcons.add(R.drawable.settings_icon_sticker_widget);
-		}
-		itemIcons.add(R.drawable.ic_help_settings);
-
-		ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, R.layout.setting_item, R.id.item, items)
+		
+		ArrayAdapter<SettingsDisplayPojo> listAdapter = new ArrayAdapter<SettingsDisplayPojo>(this, R.layout.setting_item, R.id.item, items)
 		{
 
 			@Override
@@ -174,30 +161,41 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 			public View getView(int position, View convertView, ViewGroup parent)
 			{
 				ViewType viewType = ViewType.values()[getItemViewType(position)];
+				ViewHolder viewHolder = null;
+				
 				if (convertView == null)
 				{
 					switch (viewType)
 					{
 					case SETTINGS:
 						convertView = getLayoutInflater().inflate(R.layout.setting_item, null);
+						viewHolder = new ViewHolder();
+						viewHolder.header = (TextView) convertView.findViewById(R.id.item);
+						viewHolder.summary = (TextView) convertView.findViewById(R.id.summary);
+						viewHolder.imageView = (ImageView) convertView.findViewById(R.id.icon);
+						convertView.setTag(viewHolder);
 						break;
 
 					case VERSION:
 						convertView = getLayoutInflater().inflate(R.layout.app_version_item, parent, false);
+						convertView.setTag(null);
 						break;
 					}
+				}
+				
+				else
+				{
+					viewHolder = (ViewHolder) convertView.getTag();
 				}
 
 				switch (viewType)
 				{
 				case SETTINGS:
-					TextView header = (TextView) convertView.findViewById(R.id.item);
-					TextView summary = (TextView) convertView.findViewById(R.id.summary);
-					summary.setVisibility(View.GONE);
-					ImageView iconImage = (ImageView) convertView.findViewById(R.id.icon);
-
-					header.setText(getItem(position));
-					iconImage.setImageResource(itemIcons.get(position));
+					viewHolder.summary.setVisibility(View.GONE);
+					SettingsDisplayPojo settingsObj = getItem(position);
+					viewHolder.header.setText(settingsObj.text);
+					viewHolder.imageView.setImageResource(settingsObj.drawableResId);
+					viewHolder.id = (settingsObj.id);
 					break;
 
 				case VERSION:
@@ -308,141 +306,58 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
-		if (isConnectedAppsPresent)
+		ViewHolder holder = (ViewHolder) view.getTag();
+
+		if (holder != null)
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
+			switch (holder.id)
 			{
-				switch (position)
-				{
-				case 1:
-					IntentFactory.openSettingNotification(this);
-					break;
-				case 2:
-					IntentFactory.openSettingMedia(this);
-					break;
-				case 3:
-					IntentFactory.openSettingChat(this);
-					break;
-				case 4:
-					IntentFactory.openSettingSMS(this);
-					break;
-				case 5:
-					IntentFactory.openConnectedApps(this);
-					break;
-				case 6:
-					IntentFactory.openSettingAccount(this);
-					break;
-				case 7:
-					HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
-					IntentFactory.openSettingPrivacy(this);
-					break;
-				case 8:
-					HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
-					IntentFactory.openSettingStickerOnOtherApp(this);
-					break;
-				case 9:
-					IntentFactory.openSettingHelp(this);
-					break;
-				}
-			}
-			else
-			{
-				switch (position)
-				{
-				case 1:
-					IntentFactory.openSettingNotification(this);
-					break;
-				case 2:
-					IntentFactory.openSettingMedia(this);
-					break;
-				case 3:
-					IntentFactory.openSettingChat(this);
-					break;
-				case 4:
-					IntentFactory.openSettingSMS(this);
-					break;
-				case 5:
-					IntentFactory.openConnectedApps(this);
-					break;
-				case 6:
-					IntentFactory.openSettingAccount(this);
-					break;
-				case 7:
-					HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
-					IntentFactory.openSettingPrivacy(this);
-					break;
-				case 8:
-					IntentFactory.openSettingHelp(this);
-					break;
-				}
-			}
-		}
-		else
-		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.areWhitelistedPackagesSharable(this))
-			{
-				switch (position)
-				{
-				case 1:
-					IntentFactory.openSettingNotification(this);
-					break;
-				case 2:
-					IntentFactory.openSettingMedia(this);
-					break;
-				case 3:
-					IntentFactory.openSettingChat(this);
-					break;
-				case 4:
-					IntentFactory.openSettingSMS(this);
-					break;
-				case 5:
-					IntentFactory.openSettingAccount(this);
-					break;
-				case 6:
-					HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
-					IntentFactory.openSettingPrivacy(this);
-					break;
-				case 7:
-					HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
-					IntentFactory.openSettingStickerOnOtherApp(this);
-					break;
-				case 8:
-					IntentFactory.openSettingHelp(this);
-					break;
-				}
-			}
-			else
-			{
-				switch (position)
-				{
-				case 1:
-					IntentFactory.openSettingNotification(this);
-					break;
-				case 2:
-					IntentFactory.openSettingMedia(this);
-					break;
-				case 3:
-					IntentFactory.openSettingChat(this);
-					break;
-				case 4:
-					IntentFactory.openSettingSMS(this);
-					break;
-				case 5:
-					IntentFactory.openSettingAccount(this);
-					break;
-				case 6:
-					HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
-					IntentFactory.openSettingPrivacy(this);
-					break;
-				case 7:
-					IntentFactory.openSettingHelp(this);
-					break;
-				}
+			case R.string.notifications:
+				IntentFactory.openSettingNotification(this);
+				break;
+
+			case R.string.settings_media:
+				IntentFactory.openSettingMedia(this);
+				break;
+
+			case R.string.settings_chat:
+				IntentFactory.openSettingChat(this);
+				break;
+
+			case R.string.sms_with_credits:
+			case R.string.sms:
+				IntentFactory.openSettingSMS(this);
+				break;
+
+			case R.string.connected_apps:
+				IntentFactory.openConnectedApps(this);
+				break;
+
+			case R.string.manage_account:
+				IntentFactory.openSettingAccount(this);
+				break;
+
+			case R.string.privacy:
+				HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+				IntentFactory.openSettingPrivacy(this);
+				break;
+
+			case R.string.settings_share_stickers:
+				IntentFactory.openStickerSettings(this);
+				break;
+
+			case R.string.help:
+				IntentFactory.openSettingHelp(this);
+				break;
+			default:
+				break;
 			}
 		}
 	}
