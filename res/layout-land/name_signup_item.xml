@@ -1,56 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/name_layout"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:weightSum="520" >
+    android:layout_height="match_parent" >
 
     <LinearLayout
+        android:id="@+id/name_layout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="254"
-        android:weightSum="1184"
-        android:orientation="horizontal" >
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:weightSum="520" >
 
-        <RelativeLayout
-            android:id="@+id/avatar_border"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="424"
-            android:gravity="center_vertical|right"
-            android:paddingRight="20dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="254"
+            android:orientation="horizontal"
+            android:weightSum="1184" >
 
-            <include layout="@layout/signup_profile_pic" />
-        </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/avatar_border"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="424"
+                android:gravity="center_vertical|right"
+                android:paddingRight="20dp" >
 
-        <RelativeLayout
-            android:id="@+id/input_container"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="758"
-            android:gravity="center_vertical"
-            android:paddingLeft="7dp"
-            android:paddingRight="7dp" >
+                <include layout="@layout/signup_profile_pic" />
+            </RelativeLayout>
 
-            <com.bsb.hike.view.CustomFontEditText
-                android:id="@+id/et_enter_name"
-                style="@style/NameInput"
-                android:imeOptions="actionNext"
-                android:hint="@string/your_name" />
+            <RelativeLayout
+                android:id="@+id/input_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="758"
+                android:gravity="center_vertical"
+                android:paddingLeft="7dp"
+                android:paddingRight="7dp" >
 
-            <com.bsb.hike.view.CustomFontEditText
-                android:id="@+id/birthday"
-                style="@style/NameInput"
-                android:layout_centerVertical="true"
-                android:clickable="true"
-                android:drawableLeft="@drawable/ic_birthday_common"
-                android:paddingTop="18dp"
-                android:hint="@string/how_young_are_you"
-                android:inputType="number"
-                android:maxLength="2" />
-        </RelativeLayout>
+                <com.bsb.hike.view.CustomFontEditText
+                    android:id="@+id/et_enter_name"
+                    style="@style/NameInput"
+                    android:hint="@string/your_name"
+                    android:imeOptions="actionNext" />
+
+                <com.bsb.hike.view.CustomFontEditText
+                    android:id="@+id/birthday"
+                    style="@style/NameInput"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:drawableLeft="@drawable/ic_birthday_common"
+                    android:hint="@string/how_young_are_you"
+                    android:inputType="number"
+                    android:maxLength="2"
+                    android:paddingTop="18dp" />
+            </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>
