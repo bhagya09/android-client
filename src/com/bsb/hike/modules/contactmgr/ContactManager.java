@@ -2303,4 +2303,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return hDb.getMsisdnsForMissingPlatformUID();
 	}
+
+	public void setParticipantAdmin(String groupId, String msisdn) {
+		transientCache.updateGroupParticipantDetail(groupId,msisdn);
+		
+	}
 }
