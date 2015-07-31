@@ -1138,11 +1138,12 @@ public class StickerSearchHostManager
 			int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
 			int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
 
+			stickers = new LinkedHashSet<Sticker>();
+
 			ArrayList<StickerDataContainer> timePrioritizedStickerList = new ArrayList<StickerDataContainer>();
 			ArrayList<StickerDataContainer> tempStickerDataList = new ArrayList<StickerDataContainer>();
 			TreeSet<StickerDataContainer> leastButSignificantStickerDataList = new TreeSet<StickerDataContainer>();
-			stickers = new LinkedHashSet<Sticker>();
-			StickerDataContainer sticker;
+			StickerDataContainer stickerDataContainer;
 
 			// Calculate peak frequencies
 			float largestTrendingFrequency = Float.MIN_VALUE;
@@ -1155,25 +1156,25 @@ public class StickerSearchHostManager
 
 			for (int i = 0; i < count; i++)
 			{
-				sticker = stickerData.get(i);
-				if (sticker != null)
+				stickerDataContainer = stickerData.get(i);
+				if (stickerDataContainer != null)
 				{
 					// Trending frequency
-					stickerTrendingFrequency = sticker.getTrendingFrequency();
+					stickerTrendingFrequency = stickerDataContainer.getTrendingFrequency();
 					if (stickerTrendingFrequency > largestTrendingFrequency)
 					{
 						largestTrendingFrequency = stickerTrendingFrequency;
 					}
 
 					// Local frequency
-					stickerLocalFrequency = sticker.getLocalFrequency();
+					stickerLocalFrequency = stickerDataContainer.getLocalFrequency();
 					if (stickerLocalFrequency > largestLocalFrequency)
 					{
 						largestLocalFrequency = stickerLocalFrequency;
 					}
 
 					// Global frequency
-					stickerGlobalFrequency = sticker.getGlobalFrequency();
+					stickerGlobalFrequency = stickerDataContainer.getGlobalFrequency();
 					if (stickerGlobalFrequency > largestGlobalFrequency)
 					{
 						largestGlobalFrequency = stickerGlobalFrequency;
@@ -1198,57 +1199,60 @@ public class StickerSearchHostManager
 			// Calculate overall score
 			for (int i = 0; i < count; i++)
 			{
-				sticker = stickerData.get(i);
-				if (sticker != null)
+				stickerDataContainer = stickerData.get(i);
+				if (stickerDataContainer != null)
 				{
 
-					int stickerMometCode = sticker.getMomentCode();
+					int stickerMometCode = stickerDataContainer.getMomentCode();
 					float phraseMatchScore = computeAnalogousScoreForExactMatch(searchKey,
-							sticker.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
+							stickerDataContainer.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
 
-					if (sticker.getExactMatchOrder() == -1)
+					if (stickerDataContainer.getExactMatchOrder() == -1)
 					{
-						sticker.setScore(
-								phraseMatchScore,
-								((matchScoreWeitage * phraseMatchScore) + 0.00f + (trendingFrequencyWeitage * sticker.getTrendingFrequency() / largestTrendingFrequency)
-										+ (localFrequencyWeitage * sticker.getLocalFrequency() / largestLocalFrequency)
-										+ (globalFrequencyWeitage * sticker.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
-										: 0.00f)));
+						stickerDataContainer
+								.setScore(
+										phraseMatchScore,
+										((matchScoreWeitage * phraseMatchScore) + 0.00f
+												+ (trendingFrequencyWeitage * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
+												+ (localFrequencyWeitage * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
+												+ (globalFrequencyWeitage * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
+												: 0.00f)));
 					}
 					else
 					{
-						sticker.setScore(
-								phraseMatchScore,
-								((matchScoreWeitage * phraseMatchScore)
-										+ (exactMatchWeitage * ((phraseMatchScore > 0.70f) ? phraseMatchScore : 0.00f) / (sticker.getExactMatchOrder() + 1))
-										+ (trendingFrequencyWeitage * sticker.getTrendingFrequency() / largestTrendingFrequency)
-										+ (localFrequencyWeitage * sticker.getLocalFrequency() / largestLocalFrequency)
-										+ (globalFrequencyWeitage * sticker.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
-										: 0.00f)));
+						stickerDataContainer
+								.setScore(
+										phraseMatchScore,
+										((matchScoreWeitage * phraseMatchScore)
+												+ (exactMatchWeitage * ((phraseMatchScore > 0.70f) ? phraseMatchScore : 0.00f) / (stickerDataContainer.getExactMatchOrder() + 1))
+												+ (trendingFrequencyWeitage * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
+												+ (localFrequencyWeitage * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
+												+ (globalFrequencyWeitage * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
+												: 0.00f)));
 					}
 
 					if (currentMomentTerminalCode == stickerMometCode)
 					{
-						timePrioritizedStickerList.add(sticker);
+						timePrioritizedStickerList.add(stickerDataContainer);
 					}
 					else if (phraseMatchScore >= minimumMatchingScore)
 					{
-						tempStickerDataList.add(sticker);
+						tempStickerDataList.add(stickerDataContainer);
 					}
 					else
 					{
 						if (leastButSignificantStickerDataList.size() >= NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL)
 						{
 							StickerDataContainer currentLeastSignificantSticker = leastButSignificantStickerDataList.last();
-							if (currentLeastSignificantSticker.compareTo(sticker) == 1)
+							if (currentLeastSignificantSticker.compareTo(stickerDataContainer) == 1)
 							{
 								leastButSignificantStickerDataList.pollLast();
-								leastButSignificantStickerDataList.add(sticker);
+								leastButSignificantStickerDataList.add(stickerDataContainer);
 							}
 						}
 						else
 						{
-							leastButSignificantStickerDataList.add(sticker);
+							leastButSignificantStickerDataList.add(stickerDataContainer);
 						}
 					}
 				}
@@ -1261,8 +1265,8 @@ public class StickerSearchHostManager
 				Collections.sort(tempStickerDataList);
 				for (int i = 0; i < count; i++)
 				{
-					sticker = tempStickerDataList.get(i);
-					stickers.add(StickerManager.getInstance().getStickerFromSetString(sticker.getStickerCode(), sticker.getStickerAvailabilityStatus()));
+					stickerDataContainer = tempStickerDataList.get(i);
+					stickers.add(StickerManager.getInstance().getStickerFromSetString(stickerDataContainer.getStickerCode(), stickerDataContainer.getStickerAvailabilityStatus()));
 				}
 
 				tempStickerDataList.clear();
