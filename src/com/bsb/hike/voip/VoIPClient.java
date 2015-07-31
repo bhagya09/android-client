@@ -405,26 +405,26 @@ public class VoIPClient  {
 				while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
 					counter++;
 					try {
-						InetAddress host = null;
-						try {
-							host = InetAddress.getByName(VoIPConstants.ICEServerName);
-						} catch (UnknownHostException e) {
-							// Fall back to hardcoded IPs
-							Logger.w(tag, "UnknownHostException while retrieving relay host.");
-							host = VoIPUtils.getRelayIpFromHardcodedAddresses();
-						}
-						
-						if (host == null) {
-							Logger.e(tag, "Unable to get relay server's IP address.");
-							return;
-						}
-						
 						/**
 						 * If we are initiating the connection, then we set the relay server
 						 * to be used by both clients. 
 						 * Also check if the relay has already been set (in case of conferences)
 						 */
 						if (!isInitiator() && TextUtils.isEmpty(getRelayAddress())) {
+							InetAddress host = null;
+							try {
+								host = InetAddress.getByName(VoIPConstants.ICEServerName);
+							} catch (UnknownHostException e) {
+								// Fall back to hardcoded IPs
+								Logger.w(tag, "UnknownHostException while retrieving relay host.");
+								host = VoIPUtils.getRelayIpFromHardcodedAddresses();
+							}
+							
+							if (host == null) {
+								Logger.e(tag, "Unable to get relay server's IP address.");
+								return;
+							}
+							
 							setRelayAddress(host.getHostAddress());
 							setRelayPort(VoIPUtils.getRelayPort(context));
 						}
@@ -480,6 +480,10 @@ public class VoIPClient  {
 	}
 
 	public boolean haveExternalSocketInfo() {
+		
+		if (socket == null)
+			return false;
+		
 		if (getOurExternalIPAddress() != null && 
 				!getOurExternalIPAddress().isEmpty() && 
 				getOurExternalPort() > 0)
@@ -658,6 +662,7 @@ public class VoIPClient  {
 		
 		if (socket == null) {
 			Logger.w(tag, "establishConnection() called with null socket.");
+			stop();
 			return;
 		}
 		
@@ -747,9 +752,11 @@ public class VoIPClient  {
 					}
 				} else {
 					Logger.d(tag, "UDP connection failure! :(");
-					sendHandlerMessage(VoIPConstants.MSG_CONNECTION_FAILURE);
-					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
-					stop();
+					if (!reconnectForConference()) {
+						sendHandlerMessage(VoIPConstants.MSG_CONNECTION_FAILURE);
+						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
+						stop();
+					}
 				}
 			}
 		}).start();
@@ -982,7 +989,7 @@ public class VoIPClient  {
 				
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
 				if (!isInitiator() && !reconnecting && !isInAHostedConference) {
-					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber());
+					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber(), null);
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
 				stop();					

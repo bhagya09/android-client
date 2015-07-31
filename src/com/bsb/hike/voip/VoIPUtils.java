@@ -185,21 +185,25 @@ public class VoIPUtils {
 
     /**
      * Put a missed call notification on the other client's chat thread. 
-     * @param client
+     * @param toMsisdn
+     * @param fromMsisdn Pass null to automatically use your own msisdn.
      */
-	public static void sendMissedCallNotificationToPartner(String msisdn) {
+	public static void sendMissedCallNotificationToPartner(String toMsisdn, String fromMsisdn) {
 
 		try {
-			JSONObject socketData = new JSONObject();
-			socketData.put("time", System.currentTimeMillis());
+			JSONObject metaData = new JSONObject();
+			metaData.put("time", System.currentTimeMillis());
+			
+			if (!TextUtils.isEmpty(fromMsisdn))
+				metaData.put(HikeConstants.MSISDN, fromMsisdn);
 			
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
 			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
-			data.put(HikeConstants.METADATA, socketData);
+			data.put(HikeConstants.METADATA, metaData);
 
 			JSONObject message = new JSONObject();
-			message.put(HikeConstants.TO, msisdn);
+			message.put(HikeConstants.TO, toMsisdn);
 			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING);
 			message.put(HikeConstants.DATA, data);
@@ -588,8 +592,15 @@ public class VoIPUtils {
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING)) 
 			{
 				Logger.d(tag, "Adding a missed call to our chat history.");
+				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+
 				VoIPClient clientPartner = new VoIPClient(context, null);
-				clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
+				
+				if (metadataJSON.has(HikeConstants.MSISDN))
+					clientPartner.setPhoneNumber(metadataJSON.getString(HikeConstants.MSISDN));
+				else
+					clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
+				
 				clientPartner.setInitiator(true);
 				VoIPUtils.addMessageToChatThread(context, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, jsonObj.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.TIMESTAMP), true);
 			}

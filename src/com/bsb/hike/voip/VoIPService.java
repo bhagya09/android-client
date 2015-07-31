@@ -387,9 +387,9 @@ public class VoIPService extends Service {
 		// Call rejection message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
 			Logger.d(tag, "Call cancelled message from: " + msisdn);
-			if (keepRunning == true && getClient() != null && getClient().getPhoneNumber().equals(msisdn)) {
-				Logger.w(tag, "Hanging up call because of call cancelled message.");
-				client.hangUp();
+			if (keepRunning == true && getClient(msisdn) != null) {
+				Logger.w(tag, "Hanging up " + msisdn + " because of call cancelled message.");
+				getClient(msisdn).hangUp();
 			} 
 			return returnInt;
 		}
@@ -809,7 +809,7 @@ public class VoIPService extends Service {
 			return;
 		
 		int callDuration = getCallDuration();
-		String durationString = (callDuration == 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
+		String durationString = (callDuration <= 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
 
 		String title = null;
 		if (client.getName() == null)
@@ -1064,7 +1064,10 @@ public class VoIPService extends Service {
 			// Put a call summary in the group chat thread. 
 			VoIPClient client = new VoIPClient(null, null);
 			client.setPhoneNumber(groupChatMsisdn);
-			VoIPUtils.addMessageToChatThread(getApplicationContext(), client, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+			int duration = getCallDuration();
+			if (duration < 0)
+				duration = 0;
+			VoIPUtils.addMessageToChatThread(getApplicationContext(), client, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, duration, -1, true);
 			groupChatMsisdn = null;
 		}
 
@@ -1543,7 +1546,7 @@ public class VoIPService extends Service {
 							// AEC
 							if (solicallAec != null && aecEnabled && aecSpeakerSignal && aecMicSignal) {
 								index = 0;
-								while (index < dp.getData().length) {
+								while (dp.getData() != null && index < dp.getData().length) {
 									size = Math.min(SolicallWrapper.SOLICALL_FRAME_SIZE * 2, dp.getLength() - index);
 									System.arraycopy(dp.getData(), index, solicallSpeakerBuffer, 0, size);
 									solicallAec.processSpeaker(solicallSpeakerBuffer);
@@ -1923,6 +1926,10 @@ public class VoIPService extends Service {
 		if (client.reconnecting || client.audioStarted || keepRunning == false)
 			return;
 
+		// Close all system dialogs and/or the notification bar
+		Intent closeDiaogs = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+		getApplicationContext().sendBroadcast(closeDiaogs);
+		
 		synchronized (this) {
 			
 			if (isRingingIncoming == true)
@@ -2077,8 +2084,9 @@ public class VoIPService extends Service {
 			int seconds;
 			if (chronometer != null) {
 				seconds = (int) ((SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000);
-			} else
-				seconds = 0;
+			} else {
+				seconds = -1;
+			}
 			return seconds;
 		} else {
 			VoIPClient client = getClient();
@@ -2274,11 +2282,14 @@ public class VoIPService extends Service {
 
 	public void processErrorIntent(String action, String msisdn) {
 		Logger.w(tag, msisdn + " returned an error message: " + action);
-		removeFromClients(msisdn);
+		VoIPClient client = getClient(msisdn);
 		
-		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) {
-			VoIPUtils.sendMissedCallNotificationToPartner(msisdn);
+		if (action.equals(VoIPConstants.PARTNER_IN_CALL) && client != null) {
+			VoIPUtils.sendMissedCallNotificationToPartner(msisdn, 
+					TextUtils.isEmpty(client.groupChatMsisdn) ? null : client.groupChatMsisdn);
 		}
+
+		removeFromClients(msisdn);
 	}
 }
 
