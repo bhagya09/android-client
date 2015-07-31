@@ -6,7 +6,6 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -31,8 +30,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +42,10 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
+import com.bsb.hike.dialog.DialogUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -82,7 +83,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	ProgressDialog mDialog;
 
-	private boolean isDeleting;
 	private Toolbar _toolBar;
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
 	
@@ -1667,92 +1667,49 @@ private void setupToolBar(int titleRes){
 	
 	private void showSMSDialog()
 	{
-		final Dialog dialog = new Dialog(this, R.style.Theme_CustomDialog);
-		dialog.setContentView(R.layout.sms_undelivered_popup);
+		final CustomAlertRadioButtonDialog dialog = new CustomAlertRadioButtonDialog(this, HikeDialogFactory.SMS_PREF_DIALOG,  DialogUtils.getSMSOptions(this), new RadioButtonItemCheckedListener()
+		{
+			@Override
+			public void onRadioButtonItemClicked(RadioButtonPojo whichItem, CustomAlertRadioButtonDialog dialog)
+			{
+				dialog.selectedRadioGroup = whichItem;
+			}
+			
+		});
+		
 		dialog.setCancelable(true);
-
-		TextView popupHeader = (TextView) dialog.findViewById(R.id.popup_header);
-		View hikeSMS = dialog.findViewById(R.id.hike_sms_container);
-		View nativeSMS = dialog.findViewById(R.id.native_sms_container);
-		TextView nativeHeader = (TextView) dialog.findViewById(R.id.native_sms_header);
-		TextView nativeSubtext = (TextView) dialog.findViewById(R.id.native_sms_subtext);
-		TextView hikeSmsHeader = (TextView) dialog.findViewById(R.id.hike_sms_header);
-		TextView hikeSmsSubtext = (TextView) dialog.findViewById(R.id.hike_sms_subtext);
 		
-		popupHeader.setText(getString(R.string.choose_setting));
-		hikeSmsSubtext.setText(getString(R.string.free_hike_sms_subtext, getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0)));
+		dialog.setTitle(R.string.choose_setting);
+		dialog.setPositiveButton(R.string.always, null);
+		dialog.setNegativeButton(R.string.just_once, null);
 		
-		final CheckBox sendHike = (CheckBox) dialog.findViewById(R.id.hike_sms_checkbox);
-
-		final CheckBox sendNative = (CheckBox) dialog.findViewById(R.id.native_sms_checkbox);
-
-		final Button alwaysBtn = (Button) dialog.findViewById(R.id.btn_always);
-		final Button justOnceBtn = (Button) dialog.findViewById(R.id.btn_just_once);
-		
-		boolean sendNativeAlwaysPref = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.SEND_UNDELIVERED_AS_NATIVE_PREF, false);
-		
-		sendHike.setChecked(!sendNativeAlwaysPref);
-		sendNative.setChecked(sendNativeAlwaysPref);
-
-		nativeHeader.setText(R.string.regular_sms);
-		hikeSmsHeader.setText(R.string.free_hike_sms);
-
-		OnClickListener hikeSMSOnClickListener =  new OnClickListener()
+		dialog.buttonPositive.setOnClickListener(new OnClickListener()
 		{
-
 			@Override
 			public void onClick(View v)
 			{
-				sendHike.setChecked(true);
-				sendNative.setChecked(false);
-			}
-		};
-		
-		OnClickListener nativeSMSOnClickListener =  new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				sendHike.setChecked(false);
-				sendNative.setChecked(true);
-			}
-		};
-		
-		hikeSMS.setOnClickListener(hikeSMSOnClickListener);
-		sendHike.setOnClickListener(hikeSMSOnClickListener);
-		nativeSMS.setOnClickListener(nativeSMSOnClickListener);
-		sendNative.setOnClickListener(nativeSMSOnClickListener);
-
-		alwaysBtn.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				if (!sendHike.isChecked() && !PreferenceManager.getDefaultSharedPreferences(HikePreferences.this).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
+				if (dialog.getCheckedRadioButtonId() != R.string.free_hike_sms && !PreferenceManager.getDefaultSharedPreferences(HikePreferences.this).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
 				{
-					showSMSClientDialog(sendHike.isChecked());
+					showSMSClientDialog(dialog.getCheckedRadioButtonId() == R.string.free_hike_sms);
 				}
 				else
 				{
-					smsDialogActionClicked(true, sendHike.isChecked());
+					smsDialogActionClicked(true, dialog.getCheckedRadioButtonId() == R.string.free_hike_sms);
 				}
 				dialog.dismiss();
 			}
 		});
 		
-		justOnceBtn.setOnClickListener(new OnClickListener()
+		dialog.buttonNegative.setOnClickListener(new OnClickListener()
 		{
-
 			@Override
 			public void onClick(View v)
 			{
-				smsDialogActionClicked(false, sendHike.isChecked());
+				smsDialogActionClicked(false, dialog.getCheckedRadioButtonId() == R.string.free_hike_sms);
 				dialog.dismiss();
 			}
 		});
-
+		
 		dialog.show();
 	}
 	

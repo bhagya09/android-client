@@ -1,34 +1,49 @@
 package com.bsb.hike.dialog;
 
-import android.content.Context;
-import android.widget.CheckBox;
+import java.util.List;
 
 import com.bsb.hike.R;
 
-public class H20Dialog extends HikeDialog
+import android.content.Context;
+
+public class H20Dialog extends CustomAlertRadioButtonDialog
 {
-	private CheckBox hikeSMSCheckBox;
 
-	public H20Dialog(Context context, int id)
+	public H20Dialog(Context context, int dialogId, List<RadioButtonPojo> radioButtonPojo, RadioButtonItemCheckedListener listener)
 	{
-		super(context, id);
-		initViews();
+		super(context, dialogId, radioButtonPojo, listener);
 	}
 
-	public H20Dialog(Context context, int theme, int id)
+	public void editH20Groups(int freeHikeSms, int regularSms, String freeHikeSmsText)
 	{
-		super(context, theme, id);
-		initViews();
-	}
+		for (RadioButtonPojo pojo : radioButtonPojoList)
+		{
+			if (pojo.id == freeHikeSms)
+			{
+				pojo.enabled = false;
+				pojo.isChecked = false;
+				pojo.subText = freeHikeSmsText;
+			}
 
-	private void initViews()
-	{
-		this.setContentView(R.layout.sms_undelivered_popup);
-		hikeSMSCheckBox = (CheckBox) this.findViewById(R.id.hike_sms_checkbox);
+			if (pojo.id == regularSms)
+			{
+				pojo.isChecked = true;
+			}
+		}
+
+		mAdapter.notifyDataSetChanged();
 	}
 
 	public boolean isHikeSMSChecked()
 	{
-		return hikeSMSCheckBox.isChecked();
+
+		for (RadioButtonPojo pojo : radioButtonPojoList)
+		{
+			if (pojo.id == R.string.free_hike_sms)
+			{
+				return pojo.isChecked;
+			}
+		}
+		return false;
 	}
 }

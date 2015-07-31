@@ -27,29 +27,39 @@ public class CustomAlertDialog extends HikeDialog
 
 	TextView message;
 
-	CheckBox checkBox;
+	private CheckBox checkBox;
 
 	View buttonPanel;
 
-	Button buttonPositive;
+	public Button buttonPositive;
 
-	Button buttonNegative;
+	public Button buttonNegative;
 
 	Button buttonNeutral;
 	
 	ProgressBar mProgressIndeterminate;
+	
+	private static final int DEFAULT_LAYOUT_RESID = R.layout.custom_dialog;
+	
+	private int layoutResId;
 
 	public CustomAlertDialog(Context context, int dialogId)
 	{
+		this(context, dialogId, DEFAULT_LAYOUT_RESID);
+	}
+	
+	public CustomAlertDialog(Context context, int dialogId, int layoutResId)
+	{
 		super(context, dialogId);
 		this.mContext = context;
+		this.layoutResId = layoutResId;
 		initViews();
 	}
 
 	private void initViews()
 	{
 		// this.setContentView(R.layout.operator_alert_popup);
-		this.setContentView(R.layout.custom_dialog);
+		this.setContentView(layoutResId);
 		this.setCancelable(true);
 
 		titleTemplate = (View) this.findViewById(R.id.title_template);
