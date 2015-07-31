@@ -642,6 +642,21 @@ public class ChatHeadService extends Service
 	{
 
 		@Override
+		public void onLongPress(MotionEvent e)
+		{
+			Logger.d("MotionEvent", "long press evnet");
+			try
+			{
+				windowManager.addView(closeHead, closeHeadParams);
+			}
+			catch (Exception e1)
+			{
+				Logger.d("Exception","unable to add view on WindowManager");
+			}
+			super.onLongPress(e);
+		}
+
+		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
 		{
 			Logger.d("MotionEvent", "scrolled");
