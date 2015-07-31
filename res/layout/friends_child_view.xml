@@ -13,7 +13,7 @@
              android:layout_width="@dimen/compose_avatar_dimen"
              android:layout_height="@dimen/compose_avatar_dimen"
              style="@style/RoundedStyle"
-             android:layout_alignParentStart="true"
+             android:layout_alignParentLeft="true"
              android:layout_centerVertical="true" />
         
         <RelativeLayout android:id="@+id/action_container"
