@@ -30,6 +30,7 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -229,8 +230,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			createGroup = bundle.getBoolean(HikeConstants.Extras.CREATE_GROUP);
 		}
 		
-		if (getIntent().hasExtra(HikeConstants.Extras.ADD_TO_CONFERENCE))
+		if (getIntent().hasExtra(HikeConstants.Extras.ADD_TO_CONFERENCE)) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 			addToConference = true;
+		}
 		
 		isForwardingMessage = getIntent().getBooleanExtra(HikeConstants.Extras.FORWARD_MESSAGE, false);
 		isSharingFile = getIntent().getType() != null;
