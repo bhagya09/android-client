@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
+import org.apache.http.impl.execchain.MinimalClientExec;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -555,10 +556,10 @@ public abstract class JavascriptBridge
 	}
 	
 	private void handlePickFileResult(int resultCode, Intent data)
-	{	Logger.d("FileUpload", "handlepickfileresult");
+	{	
 		if(resultCode == Activity.RESULT_OK)
 		{
-			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);	
+			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();	
 			
 			if(TextUtils.isEmpty(filepath))
 				{
@@ -568,19 +569,22 @@ public abstract class JavascriptBridge
 			else
 			{
 			Logger.d("FileUpload", "Path of selected file :" + filepath);
-			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath);
-			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
+			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
+			Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
 			JSONObject json = new JSONObject();
 			try
 			{
 				json.put("filePath", filepath);
 				json.put("mimeType", mimeType);
 				json.put("filesize",  (new File(filepath)).length());
-				callbackToJS(this.id, json.toString());
+				String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
+				Logger.d("FileUpload",  " Choose File >>calling callbacktoJS "+ id);
+				callbackToJS(id, json.toString());
 			}
 			catch (JSONException e)
 			{
-				e.printStackTrace();
+				Logger.e("FileUpload", "Unable to send in Json");
 			}
 			
 		}
@@ -632,11 +636,11 @@ public abstract class JavascriptBridge
 	{
 		if (TextUtils.isEmpty(id))
 		{
-			Logger.e(tag, "Empty function name when calling the JS back");
+			Logger.e(tag, "Empty ID name when calling the JS back");
 			return;
 		}
 		if (mHandler == null)
-		{
+		{	Logger.e(tag,"callbacck to JS is empty nHandler");
 			return;
 		}
 		mHandler.post(new Runnable()
@@ -644,9 +648,13 @@ public abstract class JavascriptBridge
 			@Override
 			public void run()
 			{
-				if(mWebView.isWebViewShowing())
-				{
+				if(!mWebView.isWebViewDestroyed())
+				{	Logger.d(tag,"Inside call back to js with id "+ id );
 					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+				}
+				else
+				{
+					Logger.e(tag, "CallBackToJs>>WebView not showing");
 				}
 			}
 		});
@@ -673,7 +681,7 @@ public abstract class JavascriptBridge
 
 	/**
 	 * Platform Bridge Version 3
-	 * call this function to call the non-messaging bot
+	 * call this function to call the non-messaging bot`
 	 * @param id : : the id of the function that native will call to call the js .
 	 * @param msisdn: the msisdn of the non-messaging bot to be opened.
 	 * returns Success if success and failure if failure.
@@ -722,15 +730,7 @@ public abstract class JavascriptBridge
 	 */
 	
 	
-	/**
-	 * id and requestCode generated at the time of calling chooseFile() and onActivityResult()
-	 */
-	
-	public void saveId(String id)
-	{
-		this.id=id;
-	}
-	
+
 	/**
 	 * Platform Bridge Version 3
 	 * call this function to upload multiple files to the server
@@ -741,7 +741,7 @@ public abstract class JavascriptBridge
 	 */
 	@JavascriptInterface
 	public void uploadFile(final String id,String data)
-	{	Logger.d("FileUpload","UploadFile with ID "+this.id);
+	{	Logger.d("FileUpload","input , uplaodFile with ID "+id);
 		if(data == null)
 		{
 			callbackToJS(id, "Data field Null");
@@ -787,7 +787,7 @@ public abstract class JavascriptBridge
 			@Override
 			public void onRequestFailure(String response)
 			{
-				Logger.d("FileUpload", "Failure Response from the server is ----->" + response);
+				Logger.d("FileUpload", "Failure Response from the server is ----->" + response + ", id is" + id);
 				callbackToJS(id, "");
 				File tempFile = new File(tempFilePath);
 				if(tempFile.exists())
@@ -799,7 +799,7 @@ public abstract class JavascriptBridge
 			@Override
 			public void onRequestSuccess(String response)
 			{
-				Logger.d("FileUpload", "Success Response from the server is ----->" + response);
+				Logger.d("FileUpload", "Success Response from the server is ----->" + response+ ", id is" + id);
 				callbackToJS(id, response);
 				File tempFile = new File(tempFilePath);
 				if(tempFile.exists())

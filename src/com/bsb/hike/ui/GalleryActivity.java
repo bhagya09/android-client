@@ -500,7 +500,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			@Override
 			public void onClick(View v)
 			{
-				Intent intent = new Intent();
+				Intent intent = getIntent();
 				ArrayList<GalleryItem> temp = new ArrayList<GalleryItem>(selectedGalleryItems.values());
 				
 				Bundle bundle = new Bundle();
@@ -591,7 +591,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			switch(requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
-				setResult(RESULT_OK, data);
+				setResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
 				finish();
 				break;
 			case HikeConstants.CAMERA_RESULT:

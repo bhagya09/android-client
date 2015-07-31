@@ -191,5 +191,11 @@ public class CustomWebView extends WebView
 	{
 		return this.isShowing;
 	}
-
+	
+	public boolean isWebViewDestroyed()
+	{
+		return this.isDestroyed;
+	}
 }
+
+
