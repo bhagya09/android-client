@@ -1616,8 +1616,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			
 			View mBottomView = activity.findViewById(R.id.bottom_panel);
+			int lastVisiblePosition = -1;
+			int count = -1;
+			if (mConversationsView != null)
+			{
+				lastVisiblePosition = mConversationsView.getLastVisiblePosition();
+				count = mConversationsView.getCount();
+			}
 			mBottomView.setVisibility(View.VISIBLE);
-			tryScrollingToBottom(messages.get(messages.size()-1), 0);
+			if (lastVisiblePosition == count - 1)
+				uiHandler.sendEmptyMessage(SCROLL_TO_END);
 			setupDefaultActionBar(false);
 			messageSearchManager.deactivate();
 			mAdapter.setSearchText(null);
