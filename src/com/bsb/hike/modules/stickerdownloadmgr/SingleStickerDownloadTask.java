@@ -206,6 +206,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 							File smallImage = new File(smallStickerPath);
 							BitmapUtils.saveBitmapToFile(smallImage, thumbnail);
 							thumbnail.recycle();
+							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
 						}
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
