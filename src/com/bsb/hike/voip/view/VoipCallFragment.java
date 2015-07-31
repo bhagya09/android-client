@@ -250,6 +250,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			voipService.dismissNotification();
 		}
 		
+		if(callDuration!=null)
+		{
+			callDuration.stop();
+		}
+
 		try 
 		{
 			if (isBound) 
@@ -401,11 +406,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 		catch (IllegalArgumentException e) {
 			Logger.d(tag, "shutdown() exception: " + e.toString());
-		}
-
-		if(callDuration!=null)
-		{
-			callDuration.stop();
 		}
 
 		if(activity.isShowingCallFailedFragment())
@@ -747,7 +747,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				
 			case HOSTING_CONFERENCE:
 				callDuration.setText("");
-				if (voipService.recordingAndPlaybackRunning)
+				if (voipService.recordingAndPlaybackRunning) 
 					startCallDuration();
 				break;
 				
@@ -764,9 +764,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
 		anim.setDuration(500);
 
-		callDuration.startAnimation(anim);
-		callDuration.setBase((SystemClock.elapsedRealtime() - 1000*voipService.getCallDuration()));
-		callDuration.start();
+		int duration = voipService.getCallDuration();
+		if (duration >= 0) {
+			callDuration.startAnimation(anim);
+			callDuration.setBase((SystemClock.elapsedRealtime() - 1000 * duration));
+			callDuration.start();
+		}
 	}
 
 	private void setContactDetails()

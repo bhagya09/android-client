@@ -809,7 +809,7 @@ public class VoIPService extends Service {
 			return;
 		
 		int callDuration = getCallDuration();
-		String durationString = (callDuration == 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
+		String durationString = (callDuration <= 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
 
 		String title = null;
 		if (client.getName() == null)
@@ -2081,8 +2081,9 @@ public class VoIPService extends Service {
 			int seconds;
 			if (chronometer != null) {
 				seconds = (int) ((SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000);
-			} else
-				seconds = 0;
+			} else {
+				seconds = -1;
+			}
 			return seconds;
 		} else {
 			VoIPClient client = getClient();
