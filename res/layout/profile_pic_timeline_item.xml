@@ -102,10 +102,10 @@
                     android:textStyle="italic" />
             </LinearLayout>
 
-            <com.bsb.hike.ui.utils.RecyclingImageView
+            <com.bsb.hike.ui.utils.SquareRecyclingImageView
                 android:id="@+id/profile_pic"
                 android:layout_width="match_parent"
-                android:layout_height="290dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@+id/details_content"
                 android:onClick="onViewImageClicked"
                 android:scaleType="centerCrop"
