@@ -661,7 +661,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			GroupParticipant groupParticipant = groupParticipants.getFirst();
 			
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
-			if (contactInfo.getMsisdn().equals(groupConversation.getConversationOwner())||groupParticipant.isAdmin())
+			if (groupParticipant.isAdmin())
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 			}
