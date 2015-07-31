@@ -18,7 +18,7 @@
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/count"
             style="@style/ListSectionTextView"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentRight="true" />
     </RelativeLayout>
 
 </LinearLayout>
