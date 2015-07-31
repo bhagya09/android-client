@@ -120,6 +120,7 @@ import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.TextDrawable;
+import com.bsb.hike.voip.VoIPUtils;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -1119,6 +1120,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if ((v != null) && (v.getTag() instanceof VideoViewHolder))
 					{
 						videoHolder = (VideoViewHolder) v.getTag();
+						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						videoHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 					else
 					{
@@ -1128,6 +1131,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						videoHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						videoHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						videoHolder.fileDetails = v.findViewById(R.id.file_details);
 						videoHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1150,6 +1154,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if ((v != null) && (v.getTag() instanceof VideoViewHolder))
 					{
 						videoHolder = (VideoViewHolder) v.getTag();
+						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						videoHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 					else
 					{
@@ -1160,6 +1166,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						videoHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						videoHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						videoHolder.fileDetails = v.findViewById(R.id.file_details);
 						videoHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1282,6 +1289,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if ((v != null) && (v.getTag() instanceof ImageViewHolder))
 					{
 						imageHolder = (ImageViewHolder) v.getTag();
+						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 					else
 					{
@@ -1291,6 +1300,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						imageHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						imageHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						imageHolder.fileDetails = v.findViewById(R.id.file_details);
 						imageHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1311,6 +1321,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if ((v != null) && (v.getTag() instanceof ImageViewHolder))
 					{
 						imageHolder = (ImageViewHolder) v.getTag();
+						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 					else
 					{
@@ -1321,6 +1333,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						imageHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						imageHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						imageHolder.fileDetails = v.findViewById(R.id.file_details);
 						imageHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1432,6 +1445,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						imageHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						imageHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						imageHolder.fileDetails = v.findViewById(R.id.file_details);
 						imageHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1449,6 +1463,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					else
 					{
 						imageHolder = (ImageViewHolder) v.getTag();
+						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 				}
 				else if (viewType == ViewType.LOCATION_RECEIVE)
@@ -1462,6 +1478,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						imageHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						imageHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						imageHolder.fileDetails = v.findViewById(R.id.file_details);
 						imageHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1483,6 +1500,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					else
 					{
 						imageHolder = (ImageViewHolder) v.getTag();
+						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 				}
 				dayHolder = imageHolder;
@@ -1549,6 +1568,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						fileHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						fileHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						fileHolder.fileDetails = v.findViewById(R.id.file_details);
 						fileHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1566,6 +1586,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					else
 					{
 						fileHolder = (FileViewHolder) v.getTag();
+						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 				}
 				else if (viewType == ViewType.CONTACT_RECEIVE)
@@ -1579,6 +1601,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						fileHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						fileHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						fileHolder.fileDetails = v.findViewById(R.id.file_details);
 						fileHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1600,6 +1623,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					else
 					{
 						fileHolder = (FileViewHolder) v.getTag();
+						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 				}
 				dayHolder = fileHolder;
@@ -1677,6 +1702,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if ((v != null) && (v.getTag() instanceof FileViewHolder))
 					{
 						fileHolder = (FileViewHolder) v.getTag();
+						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 					else
 					{
@@ -1687,6 +1714,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						fileHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						fileHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						fileHolder.fileDetails = v.findViewById(R.id.file_details);
 						fileHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -1707,6 +1735,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if ((v != null) && (v.getTag() instanceof FileViewHolder))
 					{
 						fileHolder = (FileViewHolder) v.getTag();
+						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 					}
 					else
 					{
@@ -1718,6 +1748,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						fileHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
 						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 						fileHolder.ftAction = (ImageView) v.findViewById(R.id.action);
 						fileHolder.fileDetails = v.findViewById(R.id.file_details);
 						fileHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
@@ -2792,6 +2823,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile.getFile(), isSent);
 		int chunkSize = FileTransferManager.getInstance(context).getChunkSize(msgId);
+		int fakeProgress = FileTransferManager.getInstance(context).getAnimatedProgress(msgId);
+		if(fakeProgress == 0)
+			fakeProgress = progress;
 		if (fss.getTotalSize() <= 0 && isSent && fss.getFTState() != FTState.ERROR)
 		{
 			showTransferInitialization(holder, hikeFile);
@@ -2801,31 +2835,24 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			float animatedProgress = 5 * 0.01f;
 			if (fss.getTotalSize() > 0 && chunkSize > 0)
 			{
-				animatedProgress = (float) chunkSize;
-				animatedProgress = animatedProgress / fss.getTotalSize();
-			}
-			if (holder.circularProgress.getRelatedMsgId() == -1 || holder.circularProgress.getCurrentProgress() > animatedProgress
-					|| holder.circularProgress.getCurrentProgress() == 1.0f)
-			{
-				holder.circularProgress.resetProgress();
+				animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), 0);
 			}
 			if (Utils.isHoneycombOrHigher())
 			{
 				holder.circularProgress.stopAnimation();
-				holder.circularProgress.setAnimatedProgress(0, (int) (animatedProgress * 100), 6 * 1000);
+				holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
 			}
 			else
 			{
 				holder.circularProgress.setProgress(animatedProgress);
 			}
-			holder.circularProgress.setRelatedMsgId(msgId);
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
 		else if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.ERROR)
 		{
 			if (progress < 100)
-				holder.circularProgress.setProgress(progress * 0.01f);
+				holder.circularProgress.setProgress(fakeProgress * 0.01f);
 			if (Utils.isHoneycombOrHigher())
 				holder.circularProgress.stopAnimation();
 			if (fss.getFTState() == FTState.IN_PROGRESS)
@@ -2833,8 +2860,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				float animatedProgress = 5 * 0.01f;
 				if (fss.getTotalSize() > 0)
 				{
-					animatedProgress = (float) chunkSize;
-					animatedProgress = animatedProgress / fss.getTotalSize();
+					animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), progress);
 				}
 				if (Utils.isHoneycombOrHigher())
 				{
@@ -2843,7 +2869,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						holder.circularProgress.setAnimatedProgress((int) (holder.circularProgress.getCurrentProgress() * 100), progress, 300);
 					}
 					else
-						holder.circularProgress.setAnimatedProgress(progress, progress + (int) (animatedProgress * 100), 6 * 1000);
+					{
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
+					}
 				}
 			}
 			holder.circularProgress.setVisibility(View.VISIBLE);
@@ -2853,6 +2881,25 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			showTransferInitialization(holder, hikeFile);
 		}
+	}
+
+	private float getTargetProgress(int chunkSize, int totalSize, int progress)
+	{
+		float resultProgress = (float) chunkSize;
+		resultProgress = resultProgress / totalSize;
+		/*
+		 * If only one chunk is there then fake progress will animate to 70% else it will target for 90%
+		 */
+		if (progress == 0 && resultProgress == 1f)
+		{
+			resultProgress = 0.70f;
+		}
+		else
+		{
+			float currentProgress = resultProgress * 100;
+			resultProgress = (90f * currentProgress/100f)/100f ;
+		}
+		return resultProgress;
 	}
 
 	public boolean ifFirstMessageFromRecepient(ConvMessage convMessage, int position)
@@ -2912,6 +2959,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				optionsList.add(context.getString(R.string.add_to_contacts));
 			}
 			optionsList.add(context.getString(R.string.send_message));
+			optionsList.add(context.getString(R.string.call));
 			final String[] options = new String[optionsList.size()];
 			optionsList.toArray(options);
 
@@ -2945,6 +2993,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, message.getGroupParticipantMsisdn(), true);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						context.startActivity(intent);
+					}
+					else if ((context.getString(R.string.call)).equals(option))
+					{
+						Utils.onCallClicked(context, message.getGroupParticipantMsisdn(), VoIPUtils.CallSource.GROUP_CHAT);
 					}
 				}
 			});

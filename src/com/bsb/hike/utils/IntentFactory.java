@@ -832,6 +832,13 @@ public class IntentFactory
 		return intent;
 	}
 
+	/**
+	 * Retrieves an intent to make an outgoing voip call. 
+	 * @param context
+	 * @param msisdn
+	 * @param source
+	 * @return
+	 */
 	public static Intent getVoipCallIntent(Context context, String msisdn, VoIPUtils.CallSource source)
 	{
 		Intent intent = new Intent(context, VoIPService.class);
