@@ -989,7 +989,7 @@ public class VoIPClient  {
 				
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
 				if (!isInitiator() && !reconnecting && !isInAHostedConference) {
-					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber());
+					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber(), null);
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
 				stop();					

@@ -2279,11 +2279,14 @@ public class VoIPService extends Service {
 
 	public void processErrorIntent(String action, String msisdn) {
 		Logger.w(tag, msisdn + " returned an error message: " + action);
-		removeFromClients(msisdn);
+		VoIPClient client = getClient(msisdn);
 		
-		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) {
-			VoIPUtils.sendMissedCallNotificationToPartner(msisdn);
+		if (action.equals(VoIPConstants.PARTNER_IN_CALL) && client != null) {
+			VoIPUtils.sendMissedCallNotificationToPartner(msisdn, 
+					TextUtils.isEmpty(client.groupChatMsisdn) ? null : client.groupChatMsisdn);
 		}
+
+		removeFromClients(msisdn);
 	}
 }
 
