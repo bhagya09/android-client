@@ -36,9 +36,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
-	private static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
+	public static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
 
-	private static final String TAG_REBALANCING = "HSSDB$Rebalancing";
+	public static final String TAG_REBALANCING = "HSSDB$Rebalancing";
 
 	private volatile int sMaxSelectionCount;
 
@@ -334,7 +334,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		long rowId;
 		long existingTagsCount = 0;
 		long newTagsCount = 0;
-		boolean isExistingTag;
 		String tag;
 
 		try
@@ -375,38 +374,55 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					}
 					finally
 					{
-						if (c != null)
+
+						if ((c != null) && c.moveToNext())
 						{
-							isExistingTag = (c.getCount() > 0);
+							existingTagsCount++;
+
+							ContentValues existingCv = new ContentValues();
+							existingCv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY,
+									c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY)));
+							existingCv
+									.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME)));
+							existingCv
+									.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY)));
+							existingCv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY)));
+
 							c.close();
 							c = null;
 
-							if (isExistingTag)
+							if (!cv.equals(existingCv))
 							{
-								existingTagsCount++;
-
 								mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
 										+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
 										+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER, new String[] { tag, stickerCode });
 							}
+
+							existingCv.clear();
+						}
+						else
+						{
+							if (c != null)
+							{
+								c.close();
+								c = null;
+							}
+
+							cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, tag);
+							cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerCode);
+							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
+
+							rowId = mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv);
+
+							if (rowId < HikeStickerSearchBaseConstants.SQLITE_FIRST_INTEGER_ROW_ID)
+							{
+								Logger.e(TAG, "Error while inserting tag '" + tag + "' into database !!!");
+							}
 							else
 							{
-								cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, tag);
-								cv.put(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, stickerCode);
-								cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
-
-								rowId = mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, cv);
-
-								if (rowId < HikeStickerSearchBaseConstants.SQLITE_FIRST_INTEGER_ROW_ID)
-								{
-									Logger.e(TAG, "Error while inserting tag '" + tag + "' into database !!!");
-								}
-								else
-								{
-									newTagsCount++;
-									newTags.add(tag);
-									rows.add(rowId);
-								}
+								newTagsCount++;
+								newTags.add(tag);
+								rows.add(rowId);
 							}
 						}
 					}

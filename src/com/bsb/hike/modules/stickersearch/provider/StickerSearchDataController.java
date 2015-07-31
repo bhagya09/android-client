@@ -17,7 +17,6 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -468,7 +467,7 @@ public enum StickerSearchDataController
 				}
 				catch (Exception e)
 				{
-					Logger.e(TAG, "Error while inserting tags !!!", e);
+					Logger.e(HikeStickerSearchDatabase.TAG, "Error while inserting tags !!!", e);
 				}
 			}
 		}
@@ -525,7 +524,7 @@ public enum StickerSearchDataController
 			}
 			catch (Exception e)
 			{
-				Logger.wtf(TAG, "Error while performing summarization and other updates !!!", e);
+				Logger.wtf(HikeStickerSearchDatabase.TAG_REBALANCING, "Error while performing summarization and other updates !!!", e);
 				return true;
 			}
 		}
