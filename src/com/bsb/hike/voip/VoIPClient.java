@@ -573,23 +573,12 @@ public class VoIPClient  {
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
-						
-						// If we are hosting a conference, then keep trying to connect
-						// to our lost participant.
 						if (isInAHostedConference) {
 							if (reconnectForConference()) {
 								Thread.currentThread().interrupt();
 								return;
 							}
 						}
-						
-						// If we are in a hosted conference, the host will keep trying to 
-						// reconnect to us. 
-						if (isHostingConference) {
-							Logger.d(tag, "Waiting for conference host to reconnect to us.");
-							return;
-						}
-						
 						Logger.w(tag, "Giving up on connection.");
 						hangUp();
 						break;
