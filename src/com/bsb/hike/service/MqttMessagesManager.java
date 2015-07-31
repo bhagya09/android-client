@@ -232,13 +232,14 @@ public class MqttMessagesManager
 		String groupId = jsonObj.getString(HikeConstants.TO);
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
 		
-		String fromMSISDN = jsonObj.getString(HikeConstants.FROM);
+		//String fromMSISDN = jsonObj.getString(HikeConstants.FROM);
 		
-		boolean groupDpSetByMe = fromMSISDN.equals(HikeMessengerApp.getInstance().getMsisdn());
+		//boolean groupDpSetByMe = fromMSISDN.equals(HikeMessengerApp.getInstance().getMsisdn());
 		
+		//Removing this check for now need a server check to cover all scenarios
 		//processing the MQTT request for group DP change only when DP updated by contact or no DP image present for this group(Re-Signup case)
-		if(!groupDpSetByMe || !(new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT+File.separator+Utils.getProfileImageFileName(groupId)).exists()))
-		{
+		//if(!groupDpSetByMe || !(new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT+File.separator+Utils.getProfileImageFileName(groupId)).exists()))
+		//{
 			String newIconIdentifier = null;
 			ContactManager conMgr = ContactManager.getInstance();
 			if (iconBase64.length() < 6)
@@ -268,7 +269,7 @@ public class MqttMessagesManager
 
 			// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
 			autoDownloadGroupImage(groupId);
-		}
+		//}
 		
 		boolean saveStatusMsg = true;
 		if (jsonObj.has(HikeConstants.METADATA)) {
