@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.request.facade;
 
+import java.net.URL;
 import java.util.List;
 
 import com.bsb.hike.modules.httpmgr.Header;
@@ -16,12 +17,29 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
  */
 public class RequestFacade implements IRequestFacade
 {
-
 	private Request<?> request;
 
 	public RequestFacade(Request<?> request)
 	{
 		this.request = request;
+	}
+
+	@Override
+	public URL getUrl()
+	{
+		return request.getUrl();
+	}
+
+	@Override
+	public void setUrl(URL url)
+	{
+		request.setUrl(url);
+	}
+
+	@Override
+	public String getMethod()
+	{
+		return request.getMethod();
 	}
 
 	@Override

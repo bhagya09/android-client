@@ -2,6 +2,7 @@ package com.bsb.hike.tasks;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.updateAddressBookRequest;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class UpdateAddressBookTask
 			{
 				resultObject = null;
 				// TODO Below code is for investigating an issue where invalid json is received at server end , should be removed once issue is solved
-				if (httpException.getErrorCode() == HttpException.REASON_CODE_SERVER_ERROR)
+				if (httpException.getErrorCode() == HttpURLConnection.HTTP_BAD_REQUEST)
 				{
 					IRequestBody requestBody = requestToken.getRequestBody();
 					if (requestBody instanceof JsonBody)
