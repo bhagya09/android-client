@@ -31,18 +31,10 @@ import com.bsb.hike.view.TouchImageView;
 
 
 
-public class SharedMediaAdapter extends PagerAdapter implements OnClickListener, SuccessfulImageLoadingListener
+public class SharedMediaAdapter extends PagerAdapter
 {
-	private  SharedFileImageLoader sharedMediaLoader;
-
 	private  ArrayList<HikeSharedFile> sharedMediaItemList;
 
-	private Context context;
-
-	private PhotoViewerFragment photoViewerFragment;
-
-	private Handler mHandler;
-	
 	private static final String TAG = "SharedMediaAdapter";
     
     private final FragmentManager mFragmentManager;
@@ -60,14 +52,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
     public SharedMediaAdapter(FragmentManager fm,Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItemList, String msisdn, ViewPager viewPager, PhotoViewerFragment photoViewerFragment)
 	{
 		this(fm);
-		this.context = context;
-		sharedMediaLoader = new SharedFileImageLoader(context, size_image,false);
-		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
-		sharedMediaLoader.setCachingEnabled(false);
-		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
 		this.sharedMediaItemList = sharedMediaItemList;
-		this.photoViewerFragment = photoViewerFragment;
-		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 	}
     
     public SharedMediaAdapter(FragmentManager fm) {
@@ -92,7 +77,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	
 	public SharedMediaCustomFragment getItem (int position)
 	{
-		return SharedMediaCustomFragment.newInstance(position,sharedMediaLoader,sharedMediaItemList.get(position),this);
+		return SharedMediaCustomFragment.newInstance(position,sharedMediaItemList.get(position));
 	}
 	
 
@@ -264,84 +249,8 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
         }
     }
     
-
-	@Override
-	public void onClick(View v)
+	public static class SharedMediaCustomFragment extends Fragment
 	{
-		HikeSharedFile sharedMediaItem = (HikeSharedFile) v.getTag();
-		switch (sharedMediaItem.getHikeFileType())
-		{
-		case IMAGE:
-			photoViewerFragment.toggleViewsVisibility();
-			break;
-		case VIDEO:
-			HikeSharedFile.openFile(sharedMediaItem, context);
-			break;
-		default:
-			break;
-		}
-	}
-	
-	/**
-	 * This is done via post runnable so that this "removing loader"
-	 * gets queued into loop and is performed after image is shown in view pager
-	 * 
-	 * Note:- Doing directly without post via Runnable, first loader is removed and
-	 * then image is shown to user, so there is no loader seen or there is black screen shown
-	 */
-	@Override
-	public void onSuccessfulImageLoaded(final ImageView imageView)
-	{
-		if(photoViewerFragment.isAdded())
-		{
-			RemoveLoaderRunnable removeLoaderRunnable = new RemoveLoaderRunnable(imageView);
-			mHandler.post(removeLoaderRunnable);
-		}
-		
-	}
-	
-	public static class RemoveLoaderRunnable implements Runnable
-	{
-		private ImageView imageView;
-		
-		public RemoveLoaderRunnable(ImageView imageView)
-		{
-			this.imageView = imageView;
-		}
-		
-		@Override
-		public void run()
-		{
-			if(imageView == null)
-			{
-				return;
-			}
-			
-			View parent = imageView.getRootView();
-			
-			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
-			{
-				parent.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-			}
-		}
-		
-	}
-
-	// To remove any Callbacks in Handler
-	public void onDestroy()
-	{
-		if(mHandler!=null)
-		{
-			mHandler.removeCallbacksAndMessages(null);
-		}
-	}
-	
-	public SharedFileImageLoader getSharedFileImageLoader()
-	{
-		return sharedMediaLoader;
-	}
-	
-	public static class SharedMediaCustomFragment extends Fragment {
 
 		private String pathTag;
 		
@@ -353,26 +262,57 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		
 		private SharedFileImageLoader mLoader;
 		
+		public static String SHARED_FILE_NAME = "smfile";
+		
+		public static String SHARED_VIEW_INDEX = "smindex";
+		
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
-		public static SharedMediaCustomFragment newInstance(int position,SharedFileImageLoader loader,HikeSharedFile file,OnClickListener listener) {
+		public static SharedMediaCustomFragment newInstance(int position,HikeSharedFile file) {
 
 			SharedMediaCustomFragment fragment = new SharedMediaCustomFragment();
+			
+			Bundle data = new Bundle();
+			data.putParcelable(SHARED_FILE_NAME, file);
+			data.putInt(SHARED_VIEW_INDEX, position);
+			
+			fragment.setArguments(data);
 			fragment.setPathTag(file.getExactFilePath());
-			fragment.mListener = listener;
-			fragment.mLoader = loader;
-			fragment.mFile = file;
-			fragment.setPosition(position);
 			return fragment;
 		}
 
 		public SharedMediaCustomFragment() {
 		}
 		
+		
+		
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			
+			Bundle data = null;
+			
+			if(savedInstanceState != null)
+			{
+				data = savedInstanceState;
+			}
+			else
+			{
+				data = getArguments();
+			}
+			
+			this.mFile = data.getParcelable(SHARED_FILE_NAME);
+			this.pos = data.getInt(SHARED_VIEW_INDEX);
+			this.setPathTag(mFile.getExactFilePath());
+			this.mListener = (PhotoViewerFragment)getParentFragment();
+			
+		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+			
+			this.mLoader = ((PhotoViewerFragment)getParentFragment()).getImageLoader();
 			
 			View argView = inflater.inflate(R.layout.gallery_layout_item, container, false);
 			
@@ -397,7 +337,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 				videPlayButton.setVisibility(View.GONE);
 			}
 
-			if (mFile.exactFilePathFileExists())
+			if (mFile.exactFilePathFileExists() && mLoader!=null)
 			{
 				mLoader.loadImage(mFile.getImageLoaderKey(true), galleryImageView);
 			}
@@ -413,6 +353,16 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 			galleryImageView.setOnClickListener(mListener);
 			return argView;
 
+		}
+		
+		
+
+		@Override
+		public void onSaveInstanceState(Bundle outState) {
+
+			outState.putParcelable(SHARED_FILE_NAME, mFile);
+			outState.putInt(SHARED_VIEW_INDEX, pos);
+			super.onSaveInstanceState(outState);
 		}
 
 		public String getPathTag() {
@@ -431,7 +381,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		public void setPosition(int pos) {
 			this.pos = pos;
 		}
-
+		
 	}
 
 
