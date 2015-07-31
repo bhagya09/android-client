@@ -405,26 +405,26 @@ public class VoIPClient  {
 				while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
 					counter++;
 					try {
-						InetAddress host = null;
-						try {
-							host = InetAddress.getByName(VoIPConstants.ICEServerName);
-						} catch (UnknownHostException e) {
-							// Fall back to hardcoded IPs
-							Logger.w(tag, "UnknownHostException while retrieving relay host.");
-							host = VoIPUtils.getRelayIpFromHardcodedAddresses();
-						}
-						
-						if (host == null) {
-							Logger.e(tag, "Unable to get relay server's IP address.");
-							return;
-						}
-						
 						/**
 						 * If we are initiating the connection, then we set the relay server
 						 * to be used by both clients. 
 						 * Also check if the relay has already been set (in case of conferences)
 						 */
 						if (!isInitiator() && TextUtils.isEmpty(getRelayAddress())) {
+							InetAddress host = null;
+							try {
+								host = InetAddress.getByName(VoIPConstants.ICEServerName);
+							} catch (UnknownHostException e) {
+								// Fall back to hardcoded IPs
+								Logger.w(tag, "UnknownHostException while retrieving relay host.");
+								host = VoIPUtils.getRelayIpFromHardcodedAddresses();
+							}
+							
+							if (host == null) {
+								Logger.e(tag, "Unable to get relay server's IP address.");
+								return;
+							}
+							
 							setRelayAddress(host.getHostAddress());
 							setRelayPort(VoIPUtils.getRelayPort(context));
 						}

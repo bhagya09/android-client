@@ -1064,7 +1064,10 @@ public class VoIPService extends Service {
 			// Put a call summary in the group chat thread. 
 			VoIPClient client = new VoIPClient(null, null);
 			client.setPhoneNumber(groupChatMsisdn);
-			VoIPUtils.addMessageToChatThread(getApplicationContext(), client, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+			int duration = getCallDuration();
+			if (duration < 0)
+				duration = 0;
+			VoIPUtils.addMessageToChatThread(getApplicationContext(), client, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, duration, -1, true);
 			groupChatMsisdn = null;
 		}
 
