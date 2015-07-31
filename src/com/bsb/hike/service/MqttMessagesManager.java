@@ -470,11 +470,9 @@ public class MqttMessagesManager
 		if (!groupRevived && gcjAdd != HikeConstants.NEW_PARTICIPANT)
 		{
 			if(metadata!=null){
-				this.convDb.setGroupCreationTime(oneToNConversation.getMsisdn(),  oneToNConversation.getCreationDate());
-				if(metadata.has(HikeConstants.GROUP_SETTING)){
-					this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(), metadata.optInt(HikeConstants.GROUP_SETTING),-1, new ContentValues());
-					Logger.d(getClass().getSimpleName(), "GCJ Message - GS setting change");
-				}
+				
+			    this.convDb.setGroupCreationTime(oneToNConversation.getMsisdn(),  oneToNConversation.getCreationDate());
+				changeGroupSettings(oneToNConversation, metadata);
 			}
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
 			return;
@@ -547,10 +545,28 @@ public class MqttMessagesManager
 					 * This exception is thrown for unknown themes. Do nothing
 					 */
 				}
+			
 			}
+			changeGroupSettings(oneToNConversation, metadata);
 		}
 
 		saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
+	}
+
+	private void changeGroupSettings(OneToNConversation oneToNConversation,
+			JSONObject metadata) {
+		int role =0;
+		if(metadata.has(HikeConstants.ROLE)){
+			role = metadata.optInt(HikeConstants.ROLE);
+		}
+		int setting = -1;
+		if(metadata.has(HikeConstants.GROUP_SETTING)){
+			setting = metadata.optInt(HikeConstants.GROUP_SETTING);
+		}
+		if(setting>-1 ||role>-1){
+			this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(),setting,role, new ContentValues());
+			Logger.d(getClass().getSimpleName(), "GCJ Message - GS setting change");
+		}
 	}
 
 	private void saveGCLeave(JSONObject jsonObj) throws JSONException
@@ -1299,11 +1315,6 @@ public class MqttMessagesManager
 
 			handleSendNativeInviteKey(sendNativeInvite, showFreeInvitePopup, null, null, editor);
 		}
-		if (data.has(HikeConstants.GROUPS))
-		{
-			JSONObject groups = data.getJSONObject(HikeConstants.GROUPS);
-			saveGroupProperties(groups);
-		}
 		if (data.has(HikeConstants.ACCOUNT))
 		{
 			JSONObject account = data.getJSONObject(HikeConstants.ACCOUNT);
@@ -1492,22 +1503,6 @@ public class MqttMessagesManager
 				NUXManager.getInstance().parseNuxPacket(mmobObject.getJSONObject(HikeConstants.NUX).toString());
 		}
 		
-	}
-
-	private void saveGroupProperties(JSONObject groups) {
-		JSONArray gids = groups.names();
-		if (gids == null) {
-			return;
-		}
-		for (int i = 0; i < gids.length(); i++) {
-			String msisdn = gids.optString(i);
-
-			JSONObject grpInfo = groups.optJSONObject(msisdn);
-
-			if (grpInfo.has(HikeConstants.ROLE)) {
-				this.convDb.changeGroupSettings(msisdn, -1, grpInfo.optInt(HikeConstants.ROLE), new ContentValues());
-			}
-		}
 	}
 
 	private void saveUserOptIn(JSONObject jsonObj) throws JSONException
