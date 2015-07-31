@@ -440,7 +440,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, true);
 		}
 		avatarImageView.setScaleType(ScaleType.FIT_CENTER);
 		avatarImageView.setImageDrawable(drawable);
