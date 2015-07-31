@@ -1616,8 +1616,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			
 			View mBottomView = activity.findViewById(R.id.bottom_panel);
-			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 			mBottomView.setVisibility(View.VISIBLE);
+			tryScrollingToBottom(messages.get(messages.size()-1), 0);
 			setupDefaultActionBar(false);
 			messageSearchManager.deactivate();
 			mAdapter.setSearchText(null);
