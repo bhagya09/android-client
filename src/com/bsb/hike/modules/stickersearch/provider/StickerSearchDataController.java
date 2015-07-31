@@ -510,7 +510,7 @@ public enum StickerSearchDataController
 
 		synchronized (StickerSearchDataController.class)
 		{
-			return HikeStickerSearchDatabase.getInstance().startRebalancing();
+			return HikeStickerSearchDatabase.getInstance().summarizeAndDoRebalancing();
 		}
 	}
 }

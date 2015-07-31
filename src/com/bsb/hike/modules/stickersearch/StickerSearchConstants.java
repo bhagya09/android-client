@@ -37,11 +37,29 @@ public class StickerSearchConstants
 	// ====================================================Generic constants for searching text]]
 
 	// Constants used in summary calculation===================================================[[
-	public static final long TIME_WINDOW_LOCAL_SUMMERY = 14 * 24 * 60 * 60 * 1000l; // 14 days period in milliseconds
+	public static final int TIME_WINDOW_TRENDING_CARRY_ON = 3; // 3 days period
 
-	public static final long TIME_WINDOWCURRENT_SUMMERY = 3 * 24 * 60 * 60 * 1000L; // 3 days period in milliseconds
+	public static final int TIME_WINDOW_LOCAL_CARRY_ON = 14; // 14 days period
 
-	public static final float MAXIMUM_FREQUENCY = 100.00f; // relative count
+	public static final int TIME_WINDOW_GLOBAL_CARRY_ON = 21; // 21 days period
+
+	public static final long TIME_WINDOW_TRENDING_SUMMERY = TIME_WINDOW_TRENDING_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
+
+	public static final long TIME_WINDOW_LOCAL_SUMMERY = TIME_WINDOW_LOCAL_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
+
+	public static final long TIME_WINDOW_GLOBAL_SUMMERY = TIME_WINDOW_GLOBAL_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
+
+	public static final long TEST_TIME_WINDOW_TRENDING_SUMMERY = 15 * 60 * 1000L; // period in milliseconds
+
+	public static final long TEST_TIME_WINDOW_LOCAL_SUMMERY = 30 * 60 * 1000L; // period in milliseconds
+
+	public static final long TEST_TIME_WINDOW_GLOBAL_SUMMERY = 45 * 60 * 1000L; // period in milliseconds
+
+	public static final float MAXIMUM_FREQUENCY_TRENDING = 2E+2f; // relative count
+
+	public static final float MAXIMUM_FREQUENCY_LOCAL = 1E+3f; // relative count
+
+	public static final float MAXIMUM_FREQUENCY_GLOBAL = 1.5E+3f; // relative count
 
 	// ====================================================Constants used in summary calculation]]
 
@@ -63,9 +81,9 @@ public class StickerSearchConstants
 
 	public static final float WEITAGE_CONTEXT_MOMENT = 0.10f;
 
-	public static final float RATIO_TRENDING_FREQUENCY = 0.50f;
+	public static final float RATIO_TRENDING_FREQUENCY = 0.59f;
 
-	public static final float RATIO_LOCAL_FREQUENCY = 0.37f;
+	public static final float RATIO_LOCAL_FREQUENCY = 0.28f;
 
 	public static final float RATIO_GLOBAL_FREQUENCY = 0.13f;
 
@@ -78,6 +96,16 @@ public class StickerSearchConstants
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_PREDICTIVE = 0.20f;
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
+
+	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
+
+	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING = 0;
+
+	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL = 1;
+
+	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL = 2;
+
+	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT = 3;
 
 	// ====================================================Constants used for calculating score]]
 

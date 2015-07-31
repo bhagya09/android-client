@@ -6,6 +6,10 @@
 
 package com.bsb.hike.modules.stickersearch.provider.db;
 
+import java.util.ArrayList;
+
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 
 public class StickerDataContainer implements Comparable<StickerDataContainer>
@@ -42,11 +46,14 @@ public class StickerDataContainer implements Comparable<StickerDataContainer>
 
 	private float mRecommendationScore;
 
+	private ArrayList<Float> mFrequencies;
+
 	public StickerDataContainer(String stickerCode, String tag, String overallFrequencyFunction, int exactMatchOrder, int momentCode, int stickerAvailability)
 	{
 		mStickerCode = stickerCode;
 		mTag = tag;
 		mOverallFrequencyFunction = overallFrequencyFunction;
+		mFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT, Float.class);
 		mExactMatchOrder = exactMatchOrder;
 		mMomentCode = momentCode;
 		mStickerAvailability = stickerAvailability;
@@ -130,6 +137,42 @@ public class StickerDataContainer implements Comparable<StickerDataContainer>
 		mRecommendationScore = overallScore;
 	}
 
+	public float getTrendingFrequency()
+	{
+		if (mFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING)
+		{
+			return mFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING);
+		}
+		else
+		{
+			return StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+	}
+
+	public float getLocalFrequency()
+	{
+		if (mFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL)
+		{
+			return mFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL);
+		}
+		else
+		{
+			return StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+	}
+
+	public float getGlobalFrequency()
+	{
+		if (mFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL)
+		{
+			return mFrequencies.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL);
+		}
+		else
+		{
+			return StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+	}
+
 	public float getMatchingScore()
 	{
 		return mMatchingScore;
@@ -180,9 +223,8 @@ public class StickerDataContainer implements Comparable<StickerDataContainer>
 	}
 
 	@Override
-	/* LHS = RHS ==> return 0;
-	 * LHS > RHS ==> return -1;
-	 * LHS < RHS ==> return 1;
+	/*
+	 * LHS = RHS ==> return 0; LHS > RHS ==> return -1; LHS < RHS ==> return 1;
 	 */
 	public int compareTo(StickerDataContainer obj)
 	{
