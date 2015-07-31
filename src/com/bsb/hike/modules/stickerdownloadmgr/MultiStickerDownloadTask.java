@@ -217,6 +217,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 							{
 								byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
+								StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
+								
 							}
 							catch (FileNotFoundException e)
 							{

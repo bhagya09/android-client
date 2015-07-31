@@ -1828,6 +1828,18 @@ public class StickerManager
 
 		return pair;
 	}
+	
+	public void saveInStickerTagSet(String stickerId, String categoryId)
+	{
+		Set<String> newCategorySet = new HashSet<String>(1);
+		newCategorySet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
+		Set<String> existingSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+		if(!Utils.isEmpty(existingSet))
+		{
+			newCategorySet.addAll(existingSet);
+		}
+		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, newCategorySet);
+	}
 
 	public void addRecentStickerToPallete(Sticker sticker)
 	{
