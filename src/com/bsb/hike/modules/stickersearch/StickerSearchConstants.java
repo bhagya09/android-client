@@ -37,11 +37,23 @@ public class StickerSearchConstants
 	// ====================================================Generic constants for searching text]]
 
 	// Constants used in summary calculation===================================================[[
-	public static final long TIME_WINDOW_LOCAL_SUMMERY = 14 * 24 * 60 * 60 * 1000l; // 14 days period in milliseconds
+	public static final int TIME_WINDOW_TRENDING_CARRY_ON = 3; // 3 days period
 
-	public static final long TIME_WINDOWCURRENT_SUMMERY = 3 * 24 * 60 * 60 * 1000L; // 3 days period in milliseconds
+	public static final int TIME_WINDOW_LOCAL_CARRY_ON = 14; // 14 days period
 
-	public static final float MAXIMUM_FREQUENCY = 100.00f; // relative count
+	public static final int TIME_WINDOW_GLOBAL_CARRY_ON = 21; // 21 days period
+
+	public static final long TIME_WINDOW_TRENDING_SUMMERY = TIME_WINDOW_TRENDING_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
+
+	public static final long TIME_WINDOW_LOCAL_SUMMERY = TIME_WINDOW_LOCAL_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
+
+	public static final long TIME_WINDOW_GLOBAL_SUMMERY = TIME_WINDOW_GLOBAL_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
+
+	public static final float MAXIMUM_FREQUENCY_TRENDING = 2E+2f; // relative count
+
+	public static final float MAXIMUM_FREQUENCY_LOCAL = 1E+3f; // relative count
+
+	public static final float MAXIMUM_FREQUENCY_GLOBAL = 1.5E+3f; // relative count
 
 	// ====================================================Constants used in summary calculation]]
 

@@ -6,9 +6,11 @@
 
 package com.bsb.hike.modules.stickersearch.provider.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,7 +38,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
 	private static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
 
-	private static final String TAG_REBALANCING = TAG + "$Rebalancing";
+	private static final String TAG_REBALANCING = "HSSDB$Rebalancing";
 
 	private volatile int sMaxSelectionCount;
 
@@ -1068,6 +1070,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				ContentValues cv = new ContentValues();
 				cv.put(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY, compositeFrequency);
+				cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, 0);
 
 				int remainingCount = totalCount;
 				int currentCount;
@@ -1097,41 +1100,56 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public boolean startRebalancing()
+	public boolean summarizeAndDoRebalancing()
 	{
-		Logger.i(TAG, "startRebalancing()");
-
-		Cursor c = null;
-		long count = 0;
 		long currentTime = System.currentTimeMillis();
+		Cursor c = null;
+		long totalTagCount = 0;
 
 		try
 		{
 			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID }, null, null, null, null,
-					HikeStickerSearchBaseConstants.UNIQUE_ID + " DESC", "1");
-			if (c != null && c.moveToFirst())
-			{
-				count = c.getLong(0);
-			}
+					HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_DESCENDING, "1");
 		}
 		finally
 		{
 			if (c != null)
 			{
+				if (c.moveToFirst())
+				{
+					totalTagCount = c.getLong(c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID));
+				}
+
 				c.close();
 				c = null;
 			}
 			SQLiteDatabase.releaseMemory();
 		}
 
-		if (count > 0)
+		Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), total tags entered till now = " + totalTagCount);
+
+		if (totalTagCount > 0)
 		{
-			int maxFrequency = Integer.MIN_VALUE;
-			int minFrequency = Integer.MIN_VALUE;
-			long remainingCount = count;
+			long previousTime = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_SUMMERIZATION_TIME, currentTime);
+			long intervalFromPreviousSummeryTime = currentTime - previousTime;
+
+			boolean isGlobalSummeryTime = intervalFromPreviousSummeryTime >= StickerSearchConstants.TIME_WINDOW_GLOBAL_SUMMERY;
+			boolean isLocalSummeryTime = !isGlobalSummeryTime && (intervalFromPreviousSummeryTime >= StickerSearchConstants.TIME_WINDOW_LOCAL_SUMMERY);
+			boolean isTrendingSummeryTime = !isLocalSummeryTime && (intervalFromPreviousSummeryTime >= StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
+
+			ArrayList<String> rowsIds = new ArrayList<String>();
+			ArrayList<Character> virtualTableInfo = new ArrayList<Character>();
+			ArrayList<Float> trendingFrequencies = new ArrayList<Float>();
+			ArrayList<Float> localFrequencies = new ArrayList<Float>();
+			ArrayList<Float> globalFrequencies = new ArrayList<Float>();
+			ArrayList<Integer> ages = new ArrayList<Integer>();
+
+			ArrayList<Float> slottedFrequenciesPerSticker;
+			int actualTagCount;
+			long remainingCount = totalTagCount;
 			int currentCount;
 
-			for (long i = 0; i < count;)
+			for (long i = 0; i < totalTagCount;)
 			{
 				currentCount = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
 						: (int) remainingCount;
@@ -1139,37 +1157,34 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				try
 				{
-					c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + "<=" + i, null, null, null,
-							HikeStickerSearchBaseConstants.UNIQUE_ID + " DESC", String.valueOf(currentCount));
-					if (c != null && c.getCount() > 0)
+					c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID,
+							HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE, HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE,
+							HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY }, HikeStickerSearchBaseConstants.UNIQUE_ID
+							+ HikeStickerSearchBaseConstants.SYNTAX_LESS_THAN_OR_EQUALS + i, null, null, null, HikeStickerSearchBaseConstants.UNIQUE_ID
+							+ HikeStickerSearchBaseConstants.SYNTAX_DESCENDING, String.valueOf(currentCount));
+
+					actualTagCount = (c == null) ? 0 : c.getCount();
+
+					if (actualTagCount > 0)
 					{
-						ArrayList<Integer> frequencies = new ArrayList<Integer>(c.getCount());
+						int rowIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
+						int ageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
+						int compositeFrequencyIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY);
+						int tagIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE);
+
 						while (c.moveToNext())
 						{
-							if (c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY)) == null)
-							{
-								frequencies.add(0);
-							}
-							else
-							{
-								frequencies.add(Integer.parseInt(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY))));
-							}
+							rowsIds.add(c.getString(rowIdIndex));
+							virtualTableInfo.add(c.getString(tagIndex).charAt(0));
+							ages.add(c.getInt(ageIndex));
+
+							slottedFrequenciesPerSticker = StickerSearchUtility.getIndividualNumericValues(c.getString(compositeFrequencyIndex),
+									StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT, Float.class);
+
+							trendingFrequencies.add(slottedFrequenciesPerSticker.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING));
+							trendingFrequencies.add(slottedFrequenciesPerSticker.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL));
+							trendingFrequencies.add(slottedFrequenciesPerSticker.get(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL));
 						}
-
-						int currentMax = Collections.max(frequencies);
-						int currentMin = Collections.min(frequencies);
-
-						if (maxFrequency < currentMax)
-						{
-							maxFrequency = currentMax;
-						}
-
-						if (minFrequency > currentMin)
-						{
-							minFrequency = currentMin;
-						}
-
-						frequencies.clear();
 					}
 				}
 				finally
@@ -1185,127 +1200,203 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				remainingCount -= currentCount;
 			}
 
-			if (maxFrequency > Integer.MIN_VALUE && minFrequency > Integer.MIN_VALUE)
+			int actualTotalTagCount = rowsIds.size();
+
+			// Do summarization first
+			if (isTrendingSummeryTime)
 			{
-				ArrayList<String> tagList = new ArrayList<String>();
-				ArrayList<String> stickerList = new ArrayList<String>();
-				ArrayList<Long> rowIdList = new ArrayList<Long>();
-				ArrayList<Integer> ageList = new ArrayList<Integer>();
-				double thresholdFrequency = 0.4 * maxFrequency + 0.6 * minFrequency;
-				double standardDeviation = Math.sqrt((Math.pow((maxFrequency - thresholdFrequency), 2) + Math.pow((thresholdFrequency - minFrequency), 2)) / 2);
-				int cuttOffFrequency = (int) (thresholdFrequency - standardDeviation + 0.5);
-				int frequency;
-				remainingCount = count;
+				float maxTrendingFrequency = Collections.max(trendingFrequencies);
 
-				for (long i = 0; i < count;)
+				if (maxTrendingFrequency > StickerSearchConstants.MAXIMUM_FREQUENCY_TRENDING)
 				{
-					currentCount = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
-							: (int) remainingCount;
-					i = i + currentCount;
-
-					try
+					for (int i = 0; i < actualTotalTagCount; i++)
 					{
-						c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + "<=" + i, null, null, null,
-								HikeStickerSearchBaseConstants.UNIQUE_ID + " DESC", String.valueOf(currentCount));
-						if (c != null)
-						{
-							while (c.moveToNext())
-							{
-								if (c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY)) == null)
-								{
-									frequency = 0;
-								}
-								else
-								{
-									frequency = Integer.parseInt(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY)));
-								}
-
-								if (frequency < cuttOffFrequency)
-								{
-									tagList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)));
-									stickerList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
-									rowIdList.add(c.getLong(c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID)));
-									ageList.add(c.getInt(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE)));
-								}
-							}
-						}
+						trendingFrequencies.set(i, (trendingFrequencies.get(i) * StickerSearchConstants.MAXIMUM_FREQUENCY_TRENDING / maxTrendingFrequency));
 					}
-					finally
-					{
-						if (c != null)
-						{
-							c.close();
-							c = null;
-						}
-						SQLiteDatabase.releaseMemory();
-					}
-
-					remainingCount -= currentCount;
 				}
 
-				count = rowIdList.size();
-				remainingCount = count;
-				long thresholdTime = 7 * 24 * 3600 * 1000;
-				long previousTime = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_SUMMERIZATION_TIME, currentTime);
-				boolean deleting = ((currentTime - previousTime) > thresholdTime);
+				float ratioToCarryForwardTrendingTowardsLocal = StickerSearchConstants.TIME_WINDOW_TRENDING_CARRY_ON / StickerSearchConstants.TIME_WINDOW_LOCAL_CARRY_ON;
+				float plainTrendingFrequency;
+				for (int i = 0; i < actualTotalTagCount; i++)
+				{
+					plainTrendingFrequency = trendingFrequencies.get(i);
+					localFrequencies.set(i, (localFrequencies.get(i) + plainTrendingFrequency * ratioToCarryForwardTrendingTowardsLocal));
+					ages.set(i, (ages.get(i) + 1));
+				}
+
+				Logger.i(TAG_REBALANCING, "Trending summerization is done today at time:: " + new Date().toString());
+			}
+			else if (isLocalSummeryTime)
+			{
+				float maxLocalFrequency = Collections.max(localFrequencies);
+
+				if (maxLocalFrequency > StickerSearchConstants.MAXIMUM_FREQUENCY_LOCAL)
+				{
+					for (int i = 0; i < actualTotalTagCount; i++)
+					{
+						localFrequencies.set(i, (localFrequencies.get(i) * StickerSearchConstants.MAXIMUM_FREQUENCY_LOCAL / maxLocalFrequency));
+					}
+				}
+
+				float ratioToCarryForwardLocalTowardsGlobal = StickerSearchConstants.TIME_WINDOW_LOCAL_CARRY_ON / StickerSearchConstants.TIME_WINDOW_GLOBAL_CARRY_ON;
+				float plainLocalFrequency;
+				for (int i = 0; i < actualTotalTagCount; i++)
+				{
+					plainLocalFrequency = localFrequencies.get(i);
+					globalFrequencies.set(i, (globalFrequencies.get(i) + plainLocalFrequency * ratioToCarryForwardLocalTowardsGlobal));
+					ages.set(i, (ages.get(i) + 1));
+				}
+
+				Logger.i(TAG_REBALANCING, "Local summerization is done today at time:: " + new Date().toString());
+			}
+			else if (isGlobalSummeryTime)
+			{
+				float maxGlobalFrequency = Collections.max(globalFrequencies);
+
+				if (maxGlobalFrequency > StickerSearchConstants.MAXIMUM_FREQUENCY_GLOBAL)
+				{
+					for (int i = 0; i < actualTotalTagCount; i++)
+					{
+						globalFrequencies.set(i, (globalFrequencies.get(i) * StickerSearchConstants.MAXIMUM_FREQUENCY_GLOBAL / maxGlobalFrequency));
+					}
+				}
+
+				for (int i = 0; i < actualTotalTagCount; i++)
+				{
+					ages.set(i, (ages.get(i) + 1));
+				}
+
+				Logger.i(TAG_REBALANCING, "Global summerization is done today at time:: " + new Date().toString());
+			}
+			else
+			{
+				Logger.i(TAG_REBALANCING, "Rebalancing and summerization is not required today at time:: " + new Date().toString());
+
+				rowsIds.clear();
+				virtualTableInfo.clear();
+				ages.clear();
+				trendingFrequencies.clear();
+				localFrequencies.clear();
+				globalFrequencies.clear();
+			}
+
+			// Do re-balancing with updated summarized data, if required to do so
+			actualTotalTagCount = rowsIds.size();
+			int cuttOffTagDataSize = (int) (HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY * HikeStickerSearchBaseConstants.THRESHOLD_PRIMARY_TABLE_CAPACITY);
+
+			if (actualTotalTagCount < cuttOffTagDataSize)
+			{
+				// Check internal memory issues
+				File file = mContext.getDatabasePath(HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH);
+				long dbSize = file.length();
+				long availableSizeInBytes = file.getFreeSpace();
+				long possibleDbExpansionSize = (long) (dbSize * HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_EXPANSION_RATIO);
+
+				if (availableSizeInBytes < possibleDbExpansionSize)
+				{
+					Logger.w(TAG_REBALANCING, "Internal memory seems to be getting full in few days. Let's shrink sticker search database.");
+					cuttOffTagDataSize = (int) (actualTotalTagCount * HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_RATIO);
+				}
+			}
+
+			ArrayList<String> eliminatedRowsIds = new ArrayList<String>();
+			ArrayList<Character> eliminatedRowsVirtualTableInfo = new ArrayList<Character>();
+			ArrayList<Integer> eliminatedIndices = new ArrayList<Integer>();
+
+			// Check if re-balancing is still required after several trails
+			if (actualTotalTagCount >= cuttOffTagDataSize)
+			{
+				Logger.i(TAG_REBALANCING, "Global rebalancing is triggered today at time:: " + new Date().toString());
+
+				// Calculate overall frequency
+				ArrayList<Float> overallFrequencies = new ArrayList<Float>(actualTotalTagCount);
+
+				for (int i = 0; i < actualTotalTagCount; i++)
+				{
+					overallFrequencies.add(trendingFrequencies.get(i) + localFrequencies.get(i) + globalFrequencies.get(i));
+				}
+
+				int oldestAge;
+				int retainedCount = actualTotalTagCount;
+				ArrayList<Integer> eliminatingIndices = new ArrayList<Integer>();
+				ArrayList<Float> eliminatingFrequencies = new ArrayList<Float>();
+				ArrayList<Float> tempFrequencies = new ArrayList<Float>();
+				int eliminatingCount;
+
+				// Determine, which id's are needed to delete
+				while (retainedCount >= cuttOffTagDataSize)
+				{
+					oldestAge = Collections.max(ages);
+
+					// Delete based on age w.r.t. frequency in older to newer order
+					for (int i = 0; i < actualTotalTagCount; i++)
+					{
+						if (ages.get(i) == oldestAge)
+						{
+							tempFrequencies.add(overallFrequencies.get(i));
+							eliminatingFrequencies.add(overallFrequencies.get(i));
+							eliminatingIndices.add(i);
+						}
+					}
+
+					eliminatingCount = tempFrequencies.size();
+					if (eliminatingCount > 0)
+					{
+						Collections.sort(tempFrequencies);
+						int middleIndex = eliminatingCount / 2;
+						float medianFrequency = ((eliminatingCount % 2) == 0) ? (tempFrequencies.get(middleIndex - 1) + tempFrequencies.get(middleIndex)) / 2 : tempFrequencies
+								.get(middleIndex);
+
+						for (int j = 0; (j < eliminatingCount) && (retainedCount >= cuttOffTagDataSize); j++)
+						{
+							if (eliminatingFrequencies.get(j) <= medianFrequency)
+							{
+								eliminatedRowsIds.add(rowsIds.get(eliminatingIndices.get(j)));
+								eliminatedRowsVirtualTableInfo.add(virtualTableInfo.get(eliminatingIndices.get(j)));
+								eliminatedIndices.add(eliminatingIndices.get(j));
+								retainedCount--;
+							}
+						}
+
+						tempFrequencies.clear();
+						eliminatingFrequencies.clear();
+						eliminatingIndices.clear();
+					}
+
+				}
+			}
+
+			ages.clear();
+
+			int totalReferenceCount = eliminatedRowsIds.size();
+
+			// Delete rows, if needed
+			if (totalReferenceCount > 0)
+			{
+				Logger.i(TAG_REBALANCING, "Global elimination is triggered today at time:: " + new Date().toString());
 				String table;
 
 				try
 				{
 					mDb.beginTransaction();
 
-					for (int i = 0; i < count;)
+					for (int i = 0; i < totalReferenceCount; i++)
 					{
-						currentCount = (remainingCount / HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER) > 0 ? HikeStickerSearchBaseConstants.SQLITE_LIMIT_VARIABLE_NUMBER
-								: (int) remainingCount;
+						Logger.v(TAG_REBALANCING, "Deleting row id: " + eliminatedRowsIds.get(i) + " w.r.t. virtual table: " + eliminatedRowsVirtualTableInfo.get(i));
 
-						for (int j = 0; j < currentCount; j++)
-						{
-							// changed for testing only
-							if (deleting && ageList.get(i) == 15)
-							{
-								Logger.v(TAG_REBALANCING, "Deleting tag: " + tagList.get(i) + " w.r.t. sticker: " + stickerList.get(i));
+						table = eliminatedRowsVirtualTableInfo.get(i) > 'Z' || eliminatedRowsVirtualTableInfo.get(i) < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
+								: HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + eliminatedRowsVirtualTableInfo.get(i);
 
-								char[] array = tagList.get(i).toCharArray();
-								table = array[0] > 'Z' || array[0] < 'A' ? HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH
-										: HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + array[0];
+						mDb.delete(table, HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + eliminatedRowsIds.get(i)
+								+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_END, null);
 
-								mDb.delete(table,
-										HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + String.valueOf(rowIdList.get(i))
-												+ HikeStickerSearchBaseConstants.SYNTAX_MATCH_END, null);
-								mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID
-										+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER, new String[] { String.valueOf(rowIdList.get(i++)) });
-							}
-							else
-							{
-								int updatedAge;
-								if (ageList.get(i) == 15)
-								{
-									updatedAge = 1;
-								}
-								else
-								{
-									updatedAge = ageList.get(i) + 1;
-								}
+						mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID
+								+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER, new String[] { eliminatedRowsIds.get(i) });
 
-								Logger.v(TAG_REBALANCING, "Aging tag: " + tagList.get(i) + " with age = " + updatedAge + " w.r.t. sticker: " + stickerList.get(i));
-
-								ContentValues cv = new ContentValues();
-								cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, updatedAge);
-								mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.UNIQUE_ID
-										+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER, new String[] { String.valueOf(rowIdList.get(i++)) });
-							}
-						}
-
-						remainingCount -= currentCount;
-						try
-						{
-							Thread.sleep(5);
-						}
-						catch (InterruptedException e)
-						{
-							e.printStackTrace();
-						}
+						rowsIds.set(eliminatedIndices.get(i), null);
+						trendingFrequencies.set(eliminatedIndices.get(i), null);
+						localFrequencies.set(eliminatedIndices.get(i), null);
+						globalFrequencies.set(eliminatedIndices.get(i), null);
 					}
 
 					mDb.setTransactionSuccessful();
@@ -1315,10 +1406,70 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					mDb.endTransaction();
 					SQLiteDatabase.releaseMemory();
 				}
+
+				virtualTableInfo.clear();
+				eliminatedRowsIds.clear();
+				eliminatedIndices.clear();
+				eliminatedRowsVirtualTableInfo.clear();
+
+				// Update remaining data in primary table
+				for (int i = 0; i < totalReferenceCount; i++)
+				{
+					rowsIds.remove(null);
+					trendingFrequencies.remove(null);
+					localFrequencies.remove(null);
+					globalFrequencies.remove(null);
+				}
+
+				Logger.i(TAG_REBALANCING, "Global elimination data removal size = " + totalReferenceCount);
+				Logger.i(TAG_REBALANCING, "Global elimination is done today at time:: " + new Date().toString());
 			}
+
+			// Update rows, if needed
+			Logger.i(TAG_REBALANCING, "Global summarized data update is triggered today at time:: " + new Date().toString());
+			int retainedDataCount = rowsIds.size();
+			ArrayList<Float> frequencyListPerStciker = new ArrayList<Float>(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT);
+			StringBuilder outputBuilder = new StringBuilder();
+
+			try
+			{
+				mDb.beginTransaction();
+
+				for (int i = 0; i < retainedDataCount; i++)
+				{
+					frequencyListPerStciker.add(trendingFrequencies.get(i));
+					frequencyListPerStciker.add(localFrequencies.get(i));
+					frequencyListPerStciker.add(globalFrequencies.get(i));
+
+					ContentValues cv = new ContentValues();
+					cv.put(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY, StickerSearchUtility.getCompositeNumericValues(outputBuilder, frequencyListPerStciker));
+
+					mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.UNIQUE_ID
+							+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER, new String[] { rowsIds.get(i) });
+				}
+
+				mDb.setTransactionSuccessful();
+			}
+			finally
+			{
+				mDb.endTransaction();
+			}
+
+			Logger.i(TAG_REBALANCING, "Global summarized data update size = " + retainedDataCount);
+			Logger.i(TAG_REBALANCING, "Global summarized data update is done today at time:: " + new Date().toString());
+
+			rowsIds.clear();
+			trendingFrequencies.clear();
+			localFrequencies.clear();
+			globalFrequencies.clear();
+		}
+		else
+		{
+			Logger.i(TAG_REBALANCING, "Primary table is empty at time:: " + new Date().toString());
 		}
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_LAST_SUMMERIZATION_TIME, currentTime);
+
 		return true;
 	}
 }

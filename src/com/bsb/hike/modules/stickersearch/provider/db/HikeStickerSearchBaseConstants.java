@@ -30,7 +30,15 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MAXIMUM_DYNAMIC_TABLE_CAPACITY = 10000; // Changeable in future based on memory usage
 
-	public static final float THRESHOLD_DYNAMIC_TABLE_CAPACITY = 0.90f; // 90 percent // Changeable in future based on memory usage
+	public static final float THRESHOLD_DYNAMIC_TABLE_CAPACITY = 0.80f; // 80 percent // Changeable in future based on memory usage
+
+	public static final int MAXIMUM_PRIMARY_TABLE_CAPACITY = 1000000; // Changeable in future based on memory usage
+
+	public static final float THRESHOLD_PRIMARY_TABLE_CAPACITY = 0.70f; // 70 percent // Changeable in future based on memory usage
+
+	public static final float THRESHOLD_DATABASE_EXPANSION_RATIO = 0.20f; // 20 percent // Changeable in future based on memory usage
+
+	public static final float THRESHOLD_DATABASE_FORCED_SHRINK_RATIO = 0.90f; // 80 percent // Changeable in future based on memory usage
 
 	// ==============================Dynamic tables used for Sticker-Tag relation and recommendations]]
 
@@ -133,6 +141,10 @@ public class HikeStickerSearchBaseConstants
 	public static final String SYNTAX_SINGLE_PARAMETER = "=?";
 
 	public static final String SYNTAX_SINGLE_PARAMETER_NEXT = "=? AND ";
+
+	public static final String SYNTAX_DESCENDING = " DESC";
+
+	public static final String SYNTAX_LESS_THAN_OR_EQUALS = "<=";
 
 	// Entity type constants
 	public static final int ENTITY_INIT_MARKER = 0; // Reserved
