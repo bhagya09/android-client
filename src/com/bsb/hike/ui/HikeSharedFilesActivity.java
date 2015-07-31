@@ -60,8 +60,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 {
 	static String MULTISELECT_MODE = "multi_mode";
 	static String MULTISELECT_KEYS = "multi_keys";
-	private String IS_PHOTO_FRAGMENT_ATTACHED = "is_pf";
-	private String CLICKED_ITEM = "pos";
 	private String SHARED_FILE_LIST = "s_f_l";
 	
 	private List<HikeSharedFile> sharedFilesList;
@@ -72,8 +70,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 	private boolean multiSelectMode;
 	
-	private boolean wasFragmentAttached;
-
 	private HashSet<Long> selectedSharedFileItems;
 
 	private TextView multiSelectTitle;
@@ -97,8 +93,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	private String[] nameArray = null;
 	
 	private String TAG = "HikeSharedFilesActivity";
-	
-	private int pos;
 	
 	public boolean isMultiSelectMode()
 	{
@@ -127,12 +121,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		{
 			data = savedInstanceState;
 			
-			wasFragmentAttached = data.getBoolean(IS_PHOTO_FRAGMENT_ATTACHED);
-			
 			sharedFilesList = data.getParcelableArrayList(SHARED_FILE_LIST);
-			
-			pos = data.getInt(CLICKED_ITEM);
-			
 		}
 		else
 		{
@@ -453,8 +442,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 
-			pos = position;
-			
 			ArrayList<HikeSharedFile> sharedMediaItems = new ArrayList<HikeSharedFile>(sharedFilesList.size());
 			sharedMediaItems.addAll(sharedFilesList);
 			Collections.reverse(sharedMediaItems);
@@ -644,15 +631,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		// TODO Auto-generated method stub
 		super.onResume();
 		
-		if(wasFragmentAttached)
-		{
-			ArrayList<HikeSharedFile> sharedMediaItems = new ArrayList<HikeSharedFile>(sharedFilesList.size());
-			sharedMediaItems.addAll(sharedFilesList);
-			Collections.reverse(sharedMediaItems);
-			PhotoViewerFragment.openPhoto(R.id.parent_layout, HikeSharedFilesActivity.this, sharedMediaItems, 
-					false, sharedMediaItems.size()-pos-1, msisdn, conversationName, isGroup, msisdnArray, nameArray);
-		}
-		
 		if(adapter != null)
 		{
 			adapter.getSharedFileImageLoader().setExitTasksEarly(false);
@@ -699,12 +677,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putAll(getIntent().getExtras());
-		
-		wasFragmentAttached = removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
-		
-		outState.putBoolean(IS_PHOTO_FRAGMENT_ATTACHED, wasFragmentAttached);
-		
-		outState.putInt(CLICKED_ITEM, pos);
 		
 		outState.putParcelableArrayList(SHARED_FILE_LIST, (ArrayList<HikeSharedFile>) sharedFilesList);
 		
