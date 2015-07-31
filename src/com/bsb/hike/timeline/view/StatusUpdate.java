@@ -15,6 +15,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -181,20 +182,29 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		});
 
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
+		
+		statusTxt.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				hideEmojiOrMoodLayout();
+			}
+		});
 
 		if (mActivityTask.emojiShowing)
 		{
 			showEmojiSelector();
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		}
 		else if (mActivityTask.moodShowing)
 		{
 			showMoodSelector();
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		}
 		else
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 			toggleEnablePostButton();
 		}
 
@@ -230,12 +240,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (mActivityTask.moodShowing || mActivityTask.emojiShowing)
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		}
 
 		else
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		}
 	}
 
@@ -308,7 +318,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (emojiParent.getVisibility() == View.VISIBLE)
 		{
 			mActivityTask.emojiShowing = false;
-			emojiParent.setVisibility(View.GONE);
+			hideEmojiOrMoodLayout();
 		}
 		else
 		{
@@ -321,7 +331,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (emojiParent.getVisibility() == View.VISIBLE)
 		{
 			mActivityTask.emojiShowing = false;
-			emojiParent.setVisibility(View.GONE);
+			hideEmojiOrMoodLayout();
 		}
 		showMoodSelector();
 		setTitle();
@@ -427,6 +437,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private void showEmojiSelector()
 	{
 		Utils.hideSoftKeyboard(this, statusTxt);
+		
+		hideEmojiOrMoodLayout();
 		
 		addMoodLayout.setVisibility(View.GONE);
 
