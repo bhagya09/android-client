@@ -1102,8 +1102,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public boolean summarizeAndDoRebalancing()
 	{
+		boolean isTestModeOn = StickerSearchUtility.isTestModeForSRModule();
+
+		int MAXIMUM_PRIMARY_TABLE_CAPACITY = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY
+				: HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY;
+		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY;
+		long TIME_WINDOW_LOCAL_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_LOCAL_SUMMERY : StickerSearchConstants.TIME_WINDOW_LOCAL_SUMMERY;
+		long TIME_WINDOW_GLOBAL_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_GLOBAL_SUMMERY : StickerSearchConstants.TIME_WINDOW_GLOBAL_SUMMERY;
+
 		long currentTime = System.currentTimeMillis();
 		Date date = new Date();
+
 		Cursor c = null;
 		long totalTagCount = 0;
 
@@ -1137,9 +1146,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Previous time = " + previousTime + " milliseconds.");
 			Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Time difference from previous operation = " + intervalFromPreviousSummeryTime + " milliseconds.");
 
-			boolean isGlobalSummeryTime = intervalFromPreviousSummeryTime >= StickerSearchConstants.TIME_WINDOW_GLOBAL_SUMMERY;
-			boolean isLocalSummeryTime = !isGlobalSummeryTime && (intervalFromPreviousSummeryTime >= StickerSearchConstants.TIME_WINDOW_LOCAL_SUMMERY);
-			boolean isTrendingSummeryTime = !isLocalSummeryTime && (intervalFromPreviousSummeryTime >= StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
+			boolean isGlobalSummeryTime = intervalFromPreviousSummeryTime >= TIME_WINDOW_GLOBAL_SUMMERY;
+			boolean isLocalSummeryTime = !isGlobalSummeryTime && (intervalFromPreviousSummeryTime >= TIME_WINDOW_LOCAL_SUMMERY);
+			boolean isTrendingSummeryTime = !isLocalSummeryTime && (intervalFromPreviousSummeryTime >= TIME_WINDOW_TRENDING_SUMMERY);
 
 			ArrayList<String> rowsIds = new ArrayList<String>();
 			ArrayList<Character> virtualTableInfo = new ArrayList<Character>();
@@ -1288,7 +1297,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 
 			// Do re-balancing with updated summarized data, if required to do so
-			int cuttOffTagDataSize = (int) (HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY * HikeStickerSearchBaseConstants.THRESHOLD_PRIMARY_TABLE_CAPACITY);
+			int cuttOffTagDataSize = (int) (MAXIMUM_PRIMARY_TABLE_CAPACITY * HikeStickerSearchBaseConstants.THRESHOLD_PRIMARY_TABLE_CAPACITY);
 
 			if (existingTotalTagCount < cuttOffTagDataSize)
 			{

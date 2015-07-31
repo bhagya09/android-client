@@ -34,6 +34,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MAXIMUM_PRIMARY_TABLE_CAPACITY = 500000; // Changeable in future based on memory usage
 
+	public static final int TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY = 10000; // Changeable in future based on memory usage
+
 	public static final float THRESHOLD_PRIMARY_TABLE_CAPACITY = 0.70f; // 70 percent // Changeable in future based on memory usage
 
 	public static final float THRESHOLD_DATABASE_EXPANSION_RATIO = 0.20f; // 20 percent // Changeable in future based on memory usage
