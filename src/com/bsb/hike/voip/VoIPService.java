@@ -387,9 +387,9 @@ public class VoIPService extends Service {
 		// Call rejection message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
 			Logger.d(tag, "Call cancelled message from: " + msisdn);
-			if (keepRunning == true && getClient() != null && getClient().getPhoneNumber().equals(msisdn)) {
-				Logger.w(tag, "Hanging up call because of call cancelled message.");
-				client.hangUp();
+			if (keepRunning == true && getClient(msisdn) != null) {
+				Logger.w(tag, "Hanging up " + msisdn + " because of call cancelled message.");
+				getClient(msisdn).hangUp();
 			} 
 			return returnInt;
 		}
@@ -603,7 +603,6 @@ public class VoIPService extends Service {
 				}
 			} else {
 				// Outgoing call to single recipient
-				groupChatMsisdn = null;
 				if (clients.size() > 0 && !VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + 1))
 					return returnInt;
 				
@@ -1544,7 +1543,7 @@ public class VoIPService extends Service {
 							// AEC
 							if (solicallAec != null && aecEnabled && aecSpeakerSignal && aecMicSignal) {
 								index = 0;
-								while (index < dp.getData().length) {
+								while (dp.getData() != null && index < dp.getData().length) {
 									size = Math.min(SolicallWrapper.SOLICALL_FRAME_SIZE * 2, dp.getLength() - index);
 									System.arraycopy(dp.getData(), index, solicallSpeakerBuffer, 0, size);
 									solicallAec.processSpeaker(solicallSpeakerBuffer);

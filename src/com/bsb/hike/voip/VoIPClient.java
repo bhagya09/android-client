@@ -480,6 +480,10 @@ public class VoIPClient  {
 	}
 
 	public boolean haveExternalSocketInfo() {
+		
+		if (socket == null)
+			return false;
+		
 		if (getOurExternalIPAddress() != null && 
 				!getOurExternalIPAddress().isEmpty() && 
 				getOurExternalPort() > 0)
@@ -569,12 +573,23 @@ public class VoIPClient  {
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
+						
+						// If we are hosting a conference, then keep trying to connect
+						// to our lost participant.
 						if (isInAHostedConference) {
 							if (reconnectForConference()) {
 								Thread.currentThread().interrupt();
 								return;
 							}
 						}
+						
+						// If we are in a hosted conference, the host will keep trying to 
+						// reconnect to us. 
+						if (isHostingConference) {
+							Logger.d(tag, "Waiting for conference host to reconnect to us.");
+							return;
+						}
+						
 						Logger.w(tag, "Giving up on connection.");
 						hangUp();
 						break;
@@ -658,6 +673,7 @@ public class VoIPClient  {
 		
 		if (socket == null) {
 			Logger.w(tag, "establishConnection() called with null socket.");
+			stop();
 			return;
 		}
 		
@@ -747,9 +763,11 @@ public class VoIPClient  {
 					}
 				} else {
 					Logger.d(tag, "UDP connection failure! :(");
-					sendHandlerMessage(VoIPConstants.MSG_CONNECTION_FAILURE);
-					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
-					stop();
+					if (!reconnectForConference()) {
+						sendHandlerMessage(VoIPConstants.MSG_CONNECTION_FAILURE);
+						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
+						stop();
+					}
 				}
 			}
 		}).start();
