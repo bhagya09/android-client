@@ -52,6 +52,10 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private SharedPreferences accountPrefs;
 	
 	private int unreadCounter = -1;
+	
+	public static final int NO_FEED_PRESENT = -1;
+	
+	public static final int FETCH_FEED_FROM_DB = -2;
 
 	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED, HikePubSub.ACTIVITY_FEED_COUNT_CHANGED };
 
@@ -411,18 +415,31 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 				final TextView activityFeedTopBarIndicator = (TextView) activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
 				if (activityFeedTopBarIndicator != null)
 				{
-					activityFeedMenuItem.setVisible(true);
-					if (count > 9)
+					if(count ==  NO_FEED_PRESENT)
 					{
-						activityFeedTopBarIndicator.setText("9+");
+						activityFeedMenuItem.setVisible(false);
 					}
-					else if (count > 0)
+					else
 					{
-						activityFeedTopBarIndicator.setText(String.valueOf(count));
+						activityFeedMenuItem.setVisible(true);
+						if(count == 0)
+						{
+							activityFeedTopBarIndicator.setVisibility(View.GONE);
+						}
+						else 
+						{
+							if (count > 9)
+							{
+								activityFeedTopBarIndicator.setText("9+");
+							}
+							else if (count > 0)
+							{
+								activityFeedTopBarIndicator.setText(String.valueOf(count));
+							}
+							activityFeedTopBarIndicator.setVisibility(View.VISIBLE);
+							activityFeedTopBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+						}
 					}
-					activityFeedMenuItem.setVisible(true);
-					activityFeedTopBarIndicator.setVisibility(View.VISIBLE);
-					activityFeedTopBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 				}
 			}
 		});
@@ -456,13 +473,19 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		@Override
 		protected Integer doInBackground(Void... params)
 		{
-			return HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+			if(HikeConversationsDatabase.getInstance().isAnyFeedEntryPresent())
+			{
+				return HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+			}
+			else
+			{
+				return NO_FEED_PRESENT;
+			}
 		}
 		
 		@Override
 		protected void onPostExecute(Integer result)
 		{
-			//updateFeedsNotification(result);
 			unreadCounter = result;
 		}
 		

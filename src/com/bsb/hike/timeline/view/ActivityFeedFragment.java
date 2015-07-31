@@ -54,7 +54,6 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		mActivityFeedRecyclerView = (RecyclerView) parent.findViewById(R.id.activityFeedRecycleView);
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mActivityFeedRecyclerView.setLayoutManager(mLayoutManager);
-		mActivityFeedRecyclerView.addItemDecoration(new DividerItemDecoration(HikeMessengerApp.getInstance().getApplicationContext(), DividerItemDecoration.VERTICAL_LIST));
 		return parent;
 	}
 
@@ -82,26 +81,6 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		{
 			fetchUpdates.execute();
 		}
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState)
-	{
-		/*
-		 * We post execute setupActionBar in ChatThread; So to handle action bar of media viewer on rotation we need to do its action bar setup after activity is created and post
-		 * UI this runnable
-		 */
-		(new Handler()).post(new Runnable()
-		{
-
-			@Override
-			public void run()
-			{
-				setupActionBar();
-			}
-		});
-
-		super.onActivityCreated(savedInstanceState);
 	}
 
 	@Override

@@ -29,9 +29,9 @@ import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.PostDetailsActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
@@ -265,14 +265,18 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 				}
 			}
 
-			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(),
-					statusMessage.getMsisdn()), true);
-			// Add anything else to the intent
-			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-			// TODO
-			// mContext.finish();
+			if (mActivity.get() != null)
+			{
+				Intent intent = new Intent(mActivity.get(), PostDetailsActivity.class);
+				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
+
+				if (statusMessage.getActionsData() != null)
+				{
+					intent.putStringArrayListExtra(HikeConstants.MSISDNS, statusMessage.getActionsData().getAllMsisdn());
+				}
+
+				startActivity(intent);
+			}
 		}
 	};
 

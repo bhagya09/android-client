@@ -95,6 +95,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
+import com.bsb.hike.timeline.view.TimelineActivity;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -1445,7 +1446,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
 		
 			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
-			fireUpdateNotificationIconPubsub(-1);
+		fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
 		}
 
 		return isComplete;
@@ -1572,7 +1573,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
 		
 			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
-			fireUpdateNotificationIconPubsub(-1);
+			if(!isAnyFeedEntryPresent())
+			{
+				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
+			}
+			else
+			{
+				fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+			}
 		}
 
 		return isComplete;
@@ -1582,12 +1590,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * Updates Icon for ActivityFeedNotification with 
 	 * @param count number of unread feeds
 	 * 
-	 * count = -1 :-  go for DB fetch
+	 * count = FETCH_FEED_FROM_DB :-  go for DB fetch
+	 *       = NO_FEED_PRESENT :-  feed table empty, returning -1
 	 * else:- show count value as it is
 	 */
 	private void fireUpdateNotificationIconPubsub(int count)
 	{
-		if(count == -1)
+		if(count == TimelineActivity.FETCH_FEED_FROM_DB)
 		{
 			count = getUnreadActivityFeedCount();
 		}
@@ -1609,6 +1618,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			rowID = cursor.getCount();
 		}
 		return rowID;
+	}
+	
+	public boolean isAnyFeedEntryPresent()
+	{
+		String count = "SELECT count(*) FROM " + DBConstants.FEED_TABLE;
+		Cursor mcursor = mDb.rawQuery(count, null);
+		if(mcursor != null && mcursor.moveToFirst())
+		{
+			int icount = mcursor.getInt(0);
+			if(icount > 0)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
