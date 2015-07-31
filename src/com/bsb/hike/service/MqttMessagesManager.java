@@ -576,6 +576,7 @@ public class MqttMessagesManager
 		} else {
 
 			if (this.convDb.setParticipantAdmin(groupId, msisdn) > 0) {
+				ContactManager.getInstance().setParticipantAdmin(groupId, msisdn);
 				saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
 			}
 			changeGroupSettings(jsonObj, false);
