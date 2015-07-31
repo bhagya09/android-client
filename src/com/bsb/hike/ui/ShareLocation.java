@@ -137,7 +137,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private TextView title;
 
-	private ImageView backIcon;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -303,8 +302,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private void init()
 	{
-		backIcon.setImageResource(R.drawable.ic_back);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
+		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 	}
 
 	private void setupActionBar()
@@ -316,7 +314,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
-		backIcon = (ImageView) actionBarView.findViewById(R.id.up);
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.share_location);
 
