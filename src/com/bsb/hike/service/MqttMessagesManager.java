@@ -4094,17 +4094,19 @@ public class MqttMessagesManager
 	private void saveTimelineFTUEPrefferedContacts(JSONObject jsonObj)
 	{
 		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
-		String msisdnString = data.optString(HikeConstants.CONTACTS);
+		JSONArray msisdnArray = data.optJSONArray(HikeConstants.CONTACTS);
 		String number = data.optString(HikeConstants.COUNT);
-		Set<String> msisdnSet = null;
-		msisdnString = msisdnString.substring(1, msisdnString.length()-1);
-		if(!TextUtils.isEmpty(msisdnString))
+		Set<String> msisdnSet = new HashSet<String>();
+		if (msisdnArray != null)
 		{
-			String[] msisdnArray = msisdnString.split(",");
-			msisdnSet = new HashSet<String>(Arrays.asList(msisdnArray));
+			for (int i = 0; i < msisdnArray.length(); i++)
+			{
+				msisdnSet.add(msisdnArray.optString(i));
+			}
 		}
 		HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, Integer.parseInt(number));
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, null);
 	}
 }

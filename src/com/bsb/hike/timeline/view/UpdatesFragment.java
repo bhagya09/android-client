@@ -244,7 +244,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 						int shownCounter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
 						if(shownCounter != 0)
 						{
-							ContactInfo currentCardContact = mFtueFriendList.get(shownCounter);
+							ContactInfo currentCardContact = mFtueFriendList.get(shownCounter-1);
 							mFtueFriendList = new ArrayList<ContactInfo>();
 							mFtueFriendList.addAll(getFtueFriendList());
 							mFtueFriendList.add(0, currentCardContact);
@@ -295,7 +295,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		if(mFtueFriendList.isEmpty())
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+			
+			//counter = 0, means not shown init card so no need to change
+			// counter != 0, means init card is shown so do it 1
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0) != 0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
+			}
 			timelineCardsAdapter.removeAllFTUEItems();
 			ftueStatusMessage = null;
 			return;
