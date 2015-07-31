@@ -76,8 +76,8 @@
         <item name="android:listSelector">@drawable/listripple</item>
     </style>
     
-     <style name="ButtonCustomDialog" parent="ButtonCustomDialogParent">
-     	<item name="android:background">@drawable/listripple</item>    
+     <style name="ButtonCustomDialog" parent="ButtonCustomDialogBase">
+     	<item name="android:background">@drawable/list_item_ripple</item>    
      </style>
     
 </resources>

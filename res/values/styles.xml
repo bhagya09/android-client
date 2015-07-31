@@ -922,7 +922,7 @@
         <item name="android:paddingRight">16dp</item>
     </style>
     
-     <style name="ButtonCustomDialogParent" parent = "Widget.AppCompat.Button.Borderless.Colored">
+     <style name="ButtonCustomDialogBase">
         <item name="android:paddingBottom">10dp</item>
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingLeft">8dp</item>
@@ -930,10 +930,12 @@
         <item name="android:textStyle">bold|italic</item>
         <item name="android:textColor">@color/unread_message</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:background">@drawable/list_item</item>
+        <item name="android:minWidth">0dp</item>
     </style>
 
-    <style name="ButtonCustomDialog" parent = "ButtonCustomDialogParent" />
+    <style name="ButtonCustomDialog" parent = "ButtonCustomDialogBase">
+        <item name="android:background">@drawable/list_item</item>
+    </style>
 	
 	<style name="ProfileHeaderText" parent="BaseStyleTextView">
 	    <item name="android:layout_width">wrap_content</item>
