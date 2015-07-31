@@ -157,7 +157,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
-			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED ,HikePubSub.GROUP_OWNER_CHANGE};
+			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED};
 
 	private String[] contactInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 			HikePubSub.STATUS_MESSAGE_RECEIVED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST,
@@ -2098,41 +2098,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					}
 				});
 			}
-		}
-        else if (HikePubSub.GROUP_OWNER_CHANGE.equals(type)) {
-			JSONObject jsonObj = (JSONObject) object;
-			try {
-				String groupId = jsonObj.getString(HikeConstants.TO);
-				String mymsisdn = preferences.getString(
-						HikeMessengerApp.MSISDN_SETTING, "");
-				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-				String msisdn = data.getString(HikeConstants.MSISDN);
-				if (!msisdn.equalsIgnoreCase(mymsisdn)) {
-					GroupParticipant grpParticipant = participantMap
-							.get(msisdn).getFirst();
-					grpParticipant
-							.setType(GroupParticipant.Participant_Type.ADMIN);
-				} else {
-					oneToNConversation.getMetadata().setMyselfAsAdmin(
-							GroupParticipant.Participant_Type.ADMIN);
-				}
-				if (mLocalMSISDN.equals(groupId)) {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							setupGroupProfileList();
-							// updateProfileHeaderView();
-							profileAdapter.notifyDataSetChanged();
-						}
-					});
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		if (HikePubSub.PARTICIPANT_LEFT_ONETONCONV.equals(type))
+		}else if (HikePubSub.PARTICIPANT_LEFT_ONETONCONV.equals(type))
 		{
 			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
 			{
@@ -2151,8 +2117,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				});
 			}
 		}
-		
-		if (HikePubSub.ONETONCONV_ADMIN_UPDATE.equals(type))
+		else if (HikePubSub.ONETONCONV_ADMIN_UPDATE.equals(type))
 		{
 			JSONObject json = (JSONObject) object;
 			if (mLocalMSISDN.equals((json).optString(HikeConstants.TO)))
