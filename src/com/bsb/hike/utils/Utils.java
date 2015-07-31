@@ -229,7 +229,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
-
 	public static Pattern shortCodeRegex;
 
 	public static Pattern msisdnRegex;
@@ -6320,19 +6319,15 @@ public class Utils
 	 */
 	public static boolean isBlank(final CharSequence s)
 	{
-
 		boolean result = true;
 		int length = ((s == null) ? 0 : s.length());
 
-		if (length > 0)
+		for (int i = 0; i < length; i++)
 		{
-			for (int i = 0; i < length; i++)
+			if (!Character.isWhitespace(s.charAt(i)))
 			{
-				if (!Character.isWhitespace(s.charAt(i)))
-				{
-					result = false;
-					break;
-				}
+				result = false;
+				break;
 			}
 		}
 

@@ -49,11 +49,11 @@ public class StickerSearchConstants
 
 	public static final long TIME_WINDOW_GLOBAL_SUMMERY = TIME_WINDOW_GLOBAL_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
 
-	public static final long TEST_TIME_WINDOW_TRENDING_SUMMERY = 15 * 60 * 1000L; // period in milliseconds
+	public static final long TEST_TIME_WINDOW_TRENDING_SUMMERY = 15 * 60 * 1000L; // 15 minute period in milliseconds
 
-	public static final long TEST_TIME_WINDOW_LOCAL_SUMMERY = 30 * 60 * 1000L; // period in milliseconds
+	public static final long TEST_TIME_WINDOW_LOCAL_SUMMERY = 30 * 60 * 1000L; // 30 minute period in milliseconds
 
-	public static final long TEST_TIME_WINDOW_GLOBAL_SUMMERY = 45 * 60 * 1000L; // period in milliseconds
+	public static final long TEST_TIME_WINDOW_GLOBAL_SUMMERY = 45 * 60 * 1000L; // 45 minute period in milliseconds
 
 	public static final float MAXIMUM_FREQUENCY_TRENDING = 2E+2f; // relative count
 
