@@ -602,7 +602,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void shouldDisplayAddParticipantOption(Menu menu) {
 		try {
 			if (isAdmin
-					|| isGroupOwner
 					|| oneToNConversation.getMetadata().getAddMembersRight() == OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ALL_CAN_ADD)
 			{
 			   menu.findItem(R.id.add_people).setVisible(true);
@@ -1052,7 +1051,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	private void shouldAddGroupSettings()
 	{
-		if(isAdmin||isGroupOwner){
+		if(isAdmin){
 			profileItems.add(new ProfileItem.ProfileGroupItem(ProfileItem.GROUP_SETTINGS, null));
 		}
 	}
@@ -1213,7 +1212,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		//Add -> Add member tab
 		try {
 			if (isAdmin
-					|| isGroupOwner
 					|| oneToNConversation.getMetadata().getAddMembersRight() == OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ALL_CAN_ADD)
 			{
 				profileItems.add(new ProfileItem.ProfileGroupItem(
@@ -2670,7 +2668,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 				
 			}
-			if (isAdmin||isGroupOwner) {
+			if (isAdmin) {
 				if (!groupParticipant.isAdmin() && !groupParticipant.getContactInfo().getMsisdn().equals(oneToNConversation.getConversationOwner())) {
 					optionsList.add(getString(R.string.make_admin));
 				}
