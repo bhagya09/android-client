@@ -150,7 +150,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			mUploadStatus = savedInstanceState.getByte(UPLOAD_STATUS_KEY) ;
 			
 			//if upload was statrted before and the token to be uploaded no longer exists, we can assume the file was uploaded
-			if(mUploadStatus == UPLOAD_INPROGRESS)
+			if(mUploadStatus == UPLOAD_INPROGRESS  || mUploadStatus == UPLOAD_STALE)
 			{
 				if(HikeImageUploader.getProfileRequestToken() == null)
 				{
