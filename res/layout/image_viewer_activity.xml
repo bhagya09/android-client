@@ -34,9 +34,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="25dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
+            android:layout_marginTop="25dp"
             android:text="Your caption here!Your caption here!Your caption here!Your caption here!Your caption here!"
             android:textColor="@android:color/white"
             android:textSize="18sp"
@@ -57,14 +57,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:visibility="gone" >
+        android:orientation="vertical" >
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/text_view_caption"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_margin="10dp"
+            android:layout_weight="1"
             android:padding="10dp"
             android:text="Your caption here!"
             android:textColor="@android:color/white"
@@ -80,19 +80,35 @@
             android:background="#22FFFFFF"
             android:padding="5dp" />
 
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/text_view_count"
+        <LinearLayout
+            android:id="@+id/actions_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:drawableLeft="@drawable/ic_loved"
-            android:drawablePadding="10dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
             android:gravity="center_vertical"
-            android:padding="10dp"
-            android:text="0 people(s) like this photo"
-            android:textColor="@android:color/white"
-            android:textSize="10dp"
-            android:textStyle="italic" />
+            android:orientation="horizontal" >
+
+            <CheckBox
+                android:id="@+id/btn_love"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:button="@drawable/btn_love_selector"
+                android:text=""
+                android:textColor="#CCCCCC" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/text_view_count"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="0 people(s) like this photo"
+                android:textColor="@android:color/white"
+                android:textSize="14dp"
+                android:textStyle="italic" />
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

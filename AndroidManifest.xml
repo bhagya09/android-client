@@ -308,7 +308,7 @@
             android:screenOrientation="portrait" >
         </activity>
          <activity
-            android:name="com.bsb.hike.timeline.view.PostDetailsActivity"
+            android:name="com.bsb.hike.timeline.view.TimelineSummaryActivity"
             android:launchMode="singleTop"
             android:theme="@style/Transparent"
             android:screenOrientation="portrait" >

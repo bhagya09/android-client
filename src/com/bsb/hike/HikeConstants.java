@@ -1179,6 +1179,8 @@ public class HikeConstants
 		public static final String NAME = "name";
 
 		public static final String PREV_MSISDN = "prevMsisdn";
+		
+		public static final String LOVED_BY_SELF = "selfLove";
 
 		public static final String PREV_NAME = "prevName";
 		

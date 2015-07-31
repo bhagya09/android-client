@@ -2,6 +2,9 @@ package com.bsb.hike.timeline.view;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -19,8 +22,11 @@ import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,14 +41,23 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.timeline.adapter.DisplayContactsAdapter;
+import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
 import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
@@ -58,7 +73,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
  * @author Atul M
  * 
  */
-public class PostDetailsActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
+public class TimelineSummaryActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -70,7 +85,7 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 
 	private View fadeScreen;
 
-	private final String TAG = PostDetailsActivity.class.getSimpleName();
+	private final String TAG = TimelineSummaryActivity.class.getSimpleName();
 
 	private HeadlessImageDownloaderFragment mImageWorkerFragment;
 
@@ -129,11 +144,15 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 
 	private ActionBar actionBar;
 
+	private CheckBox checkBoxLove;
+
+	private boolean isLikedByMe;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		overridePendingTransition(0, 0);
-		
+
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		super.onCreate(savedInstanceState);
@@ -150,8 +169,12 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 
 		// TODO think of a better place to do this without breaking animation
 		statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
+		
+		checkBoxLove.setTag(statusMessage);
 
 		msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
+
+		isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
 
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
@@ -188,6 +211,30 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 		setupActionBar();
 	}
 
+	private void notifyUI()
+	{
+		checkBoxLove.setOnCheckedChangeListener(null);
+		if (isLikedByMe)
+		{
+			checkBoxLove.setChecked(true);
+		}
+		else
+		{
+			checkBoxLove.setChecked(false);
+		}
+
+		// Set count
+		if (isTextStatusMessage)
+		{
+			textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+		}
+		else
+		{
+			textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
+		}
+		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
+	}
+
 	private void initReferences()
 	{
 		imageView = (ImageView) findViewById(R.id.image);
@@ -196,6 +243,7 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 		infoContainer = findViewById(R.id.image_info_container);
 		textViewCaption = (TextView) findViewById(R.id.text_view_caption);
 		textViewCounts = (TextView) findViewById(R.id.text_view_count);
+		checkBoxLove = (CheckBox) findViewById(R.id.btn_love);
 		fullTextView = (TextView) findViewById(R.id.text_view_full);
 		contentContainer = findViewById(R.id.content_container);
 		imageInfoDivider = findViewById(R.id.imageInfoDivider);
@@ -221,6 +269,8 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 
 		infoContainer.setVisibility(View.VISIBLE);
 
+		notifyUI();
+
 		if (isTextStatusMessage)
 		{
 			imageInfoDivider.setVisibility(View.GONE);
@@ -234,15 +284,6 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 
 		if (msisdns != null && !msisdns.isEmpty())
 		{
-			if (isTextStatusMessage)
-			{
-				textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
-			}
-			else
-			{
-				textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
-			}
-
 			textViewCounts.setOnClickListener(new View.OnClickListener()
 			{
 
@@ -308,15 +349,15 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 	@Override
 	public void onBackPressed()
 	{
-//		runExitAnimation(new Runnable()
-//		{
-//			public void run()
-//			{
-				finish();
-//			}
-//		});
-//
-//		actionBar.hide();
+		// runExitAnimation(new Runnable()
+		// {
+		// public void run()
+		// {
+		finish();
+		// }
+		// });
+		//
+		// actionBar.hide();
 	}
 
 	@Override
@@ -325,7 +366,7 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 		super.finish();
 
 		// override transitions to skip the standard window animations
-//		overridePendingTransition(0, 0);
+		// overridePendingTransition(0, 0);
 	}
 
 	private void showImage()
@@ -400,11 +441,11 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 	{
 		if (HikePubSub.ICON_CHANGED.equals(type))
 		{
-			ContactInfo contactInfo = Utils.getUserContactInfo(PostDetailsActivity.this.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0));
+			ContactInfo contactInfo = Utils.getUserContactInfo(TimelineSummaryActivity.this.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0));
 
 			if (contactInfo.getMsisdn().equals((String) object))
 			{
-				PostDetailsActivity.this.runOnUiThread(new Runnable()
+				TimelineSummaryActivity.this.runOnUiThread(new Runnable()
 				{
 
 					@Override
@@ -486,7 +527,7 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 	// TODO Move to HikeDialogFactory
 	public void showLikesContactsDialog()
 	{
-		final HikeDialog dialog = new HikeDialog(PostDetailsActivity.this, R.style.Theme_CustomDialog, 11);
+		final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, 11);
 		dialog.setContentView(R.layout.display_contacts_dialog);
 		dialog.setCancelable(true);
 
@@ -499,7 +540,7 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
 			{
-				Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(PostDetailsActivity.this,
+				Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this,
 						ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), true);
 				// Add anything else to the intent
 				intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
@@ -587,4 +628,117 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 		avatar.setScaleType(ScaleType.FIT_CENTER);
 		avatar.setImageDrawable(drawable);
 	}
+
+	private OnCheckedChangeListener onLoveToggleListener = new OnCheckedChangeListener()
+	{
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+		{
+			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
+
+			JSONObject json = new JSONObject();
+
+			try
+			{
+				json.put(HikeConstants.SU_ID, statusMessage.getMappedId());
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+
+			if (isChecked)
+			{
+				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
+				{
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						JSONObject response = (JSONObject) result.getBody().getContent();
+						if (response.optString("stat").equals("ok"))
+						{
+							// Increment like count in actions table
+							String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+
+							ArrayList<String> actorList = new ArrayList<String>();
+							actorList.add(selfMsisdn);
+
+							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
+									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
+
+							isLikedByMe = true;
+
+							msisdns.add(selfMsisdn);
+
+							notifyUI();
+
+							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
+									.getMappedId());
+
+							HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
+						}
+					}
+
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+						// Do nothing
+					}
+
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
+					}
+				}, null);
+				token.execute();
+			}
+			else
+			{
+				RequestToken token = HttpRequests.removeLoveLink(json, new IRequestListener()
+				{
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						JSONObject response = (JSONObject) result.getBody().getContent();
+						if (response.optString("stat").equals("ok"))
+						{
+							// Decrement like count in actions table
+							String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+
+							ArrayList<String> actorList = new ArrayList<String>();
+							actorList.add(selfMsisdn);
+
+							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
+									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
+
+							isLikedByMe = false;
+
+							msisdns.remove(selfMsisdn);
+
+							notifyUI();
+
+							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
+									.getMappedId());
+
+							HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
+						}
+					}
+
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+						// Do nothing
+					}
+
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
+					}
+				}, null);
+				token.execute();
+			}
+		}
+	};
 }

@@ -45,6 +45,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -68,7 +69,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
-import com.bsb.hike.timeline.view.PostDetailsActivity;
+import com.bsb.hike.timeline.view.TimelineSummaryActivity;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
@@ -644,7 +645,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		// Done to support Quick Return
 		if (position == 0)
 		{
-			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(45), 0, 0);
+			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(50), 0, 0);
 		}
 		else
 		{
@@ -705,12 +706,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (mActivity.get() != null)
 			{
 				StatusMessage statusMessage = (StatusMessage) v.getTag();
-				Intent intent = new Intent(mActivity.get(), PostDetailsActivity.class);
+				Intent intent = new Intent(mActivity.get(), TimelineSummaryActivity.class);
 				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
 				
 				if(statusMessage.getActionsData() != null)
 				{
 					intent.putStringArrayListExtra(HikeConstants.MSISDNS, statusMessage.getActionsData().getAllMsisdn());
+					intent.putExtra(HikeConstants.Extras.LOVED_BY_SELF, statusMessage.getActionsData().isLikedBySelf());
 				}
 				
 				startActivity(intent);

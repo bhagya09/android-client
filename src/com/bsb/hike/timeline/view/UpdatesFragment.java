@@ -123,7 +123,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		mUpdatesList.setAdapter(timelineCardsAdapter);
 
 		QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
-				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(45)).isSnappable(false).build();
+				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
 
 		mUpdatesList.setOnScrollListener(scrollListener);
 
@@ -257,7 +257,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		int cardCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER, 4);
 		ContactInfo contact = null;
 		if (counter == 0)
-		{
+		{ 
 			// To SHOW BASIC CARD
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_INIT, null, null, null, null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
