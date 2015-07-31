@@ -116,6 +116,7 @@ import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.TextDrawable;
+import com.bsb.hike.voip.VoIPUtils;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -2933,6 +2934,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				optionsList.add(context.getString(R.string.add_to_contacts));
 			}
 			optionsList.add(context.getString(R.string.send_message));
+			optionsList.add(context.getString(R.string.call));
 			final String[] options = new String[optionsList.size()];
 			optionsList.toArray(options);
 
@@ -2966,6 +2968,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, message.getGroupParticipantMsisdn(), true);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						context.startActivity(intent);
+					}
+					else if ((context.getString(R.string.call)).equals(option))
+					{
+						Utils.onCallClicked(context, message.getGroupParticipantMsisdn(), VoIPUtils.CallSource.GROUP_CHAT);
 					}
 				}
 			});
