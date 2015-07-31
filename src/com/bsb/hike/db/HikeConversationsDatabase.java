@@ -1624,9 +1624,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		String count = "SELECT count(*) FROM " + DBConstants.FEED_TABLE;
 		Cursor mcursor = mDb.rawQuery(count, null);
-		if(mcursor != null)
+		if(mcursor != null && mcursor.moveToFirst())
 		{
-			mcursor.moveToFirst();
 			int icount = mcursor.getInt(0);
 			if(icount > 0)
 			{
