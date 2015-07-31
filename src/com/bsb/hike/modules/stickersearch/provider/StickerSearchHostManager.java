@@ -909,8 +909,8 @@ public class StickerSearchHostManager
 			if (count > 1)
 			{
 				String nextWord;
-				String firstWord = selectedTextInPhrase.get(0);
 				Collections.reverse(selectedTextInPhrase);
+				String firstWord = selectedTextInPhrase.get(0);
 				searchText.append(firstWord);
 
 				for (j = 1; j < count; j++)
