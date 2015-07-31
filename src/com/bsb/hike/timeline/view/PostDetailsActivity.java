@@ -216,7 +216,7 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 		float alphaFinal = isTextStatusMessage ? 1f : 0.95f;
 
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, alphaFinal);
-		bgAnim.setDuration(600);
+		bgAnim.setDuration(400);
 		bgAnim.start();
 
 		infoContainer.setVisibility(View.VISIBLE);
@@ -308,15 +308,15 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 	@Override
 	public void onBackPressed()
 	{
-		runExitAnimation(new Runnable()
-		{
-			public void run()
-			{
+//		runExitAnimation(new Runnable()
+//		{
+//			public void run()
+//			{
 				finish();
-			}
-		});
-
-		actionBar.hide();
+//			}
+//		});
+//
+//		actionBar.hide();
 	}
 
 	@Override
@@ -325,7 +325,7 @@ public class PostDetailsActivity extends AppCompatActivity implements OnClickLis
 		super.finish();
 
 		// override transitions to skip the standard window animations
-		overridePendingTransition(0, 0);
+//		overridePendingTransition(0, 0);
 	}
 
 	private void showImage()
