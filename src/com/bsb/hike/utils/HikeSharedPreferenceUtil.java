@@ -101,6 +101,12 @@ public class HikeSharedPreferenceUtil
 		editor.putInt(key, value);
 		return editor.commit();
 	}
+	
+	public synchronized boolean saveStringSet(String key, Set<String> stringSet)
+	{
+		editor.putStringSet(key, stringSet);
+		return editor.commit();
+	}
 
 	/*
 	 * public synchronized boolean saveData(String key, Set<String> value) { //editor.putStringSet(key, value); return editor.commit(); }
@@ -123,6 +129,7 @@ public class HikeSharedPreferenceUtil
 	}
 	
 	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues) {
+		
 		return hikeSharedPreferences.getStringSet(key, defaultValues);
 	}
 

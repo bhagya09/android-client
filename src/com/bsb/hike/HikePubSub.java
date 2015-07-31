@@ -406,6 +406,8 @@ public class HikePubSub implements Runnable
 
 	public static final String ACTIVITY_FEED_COUNT_CHANGED = "update_activity_feed_icon_notification";
 	
+	public static final String TIMELINE_FTUE_LIST_UPDATE = "timeline_ftue_list_update";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

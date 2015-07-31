@@ -4288,7 +4288,7 @@ public class Utils
 		}, contactInfo.getFirstName());
 	}
 
-	private static void toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
+	public static void toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
 	{
 		FavoriteType favoriteType;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)

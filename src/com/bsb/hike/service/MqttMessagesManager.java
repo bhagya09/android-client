@@ -3,6 +3,7 @@ package com.bsb.hike.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2200,17 +2201,11 @@ public class MqttMessagesManager
 			boolean enableTimelineFTUE = data.getBoolean(HikeConstants.ENABLE_TIMELINE_FTUE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, enableTimelineFTUE);
 		}
-		if (data.has(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER))
-		{
-			int cardCounter = data.getInt(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER, cardCounter);
-		}
 		if (data.has(HikeConstants.NOTIFICATIONS_PRIORITY))
 		{
 			int priority = data.getInt(HikeConstants.NOTIFICATIONS_PRIORITY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);
 		}
-
 		if (data.has(MqttConstants.MQTT_PING_SENDER))
 		{
 			int pingSender = data.getInt(MqttConstants.MQTT_PING_SENDER);
@@ -3448,6 +3443,10 @@ public class MqttMessagesManager
 		{
 			saveActivityUpdate(jsonObj);
 		}
+		else if (HikeConstants.MqttMessageTypes.TIMELINE_PREFFERED_CONTACTS.equals(type))
+		{
+			saveTimelineFTUEPrefferedContacts(jsonObj);
+		}
 	}
 
 	private void saveActivityUpdate(final JSONObject jsonObj)
@@ -4092,4 +4091,20 @@ public class MqttMessagesManager
 		}
 	}
 
+	private void saveTimelineFTUEPrefferedContacts(JSONObject jsonObj)
+	{
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		String msisdnString = data.optString(HikeConstants.CONTACTS);
+		String number = data.optString(HikeConstants.COUNT);
+		Set<String> msisdnSet = null;
+		msisdnString = msisdnString.substring(1, msisdnString.length()-1);
+		if(!TextUtils.isEmpty(msisdnString))
+		{
+			String[] msisdnArray = msisdnString.split(",");
+			msisdnSet = new HashSet<String>(Arrays.asList(msisdnArray));
+		}
+		HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, Integer.parseInt(number));
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
+	}
 }
