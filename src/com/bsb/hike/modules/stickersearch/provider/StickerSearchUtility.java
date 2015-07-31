@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
@@ -21,6 +22,12 @@ import android.util.Pair;
 
 public class StickerSearchUtility
 {
+	/* Determine if QA testing is enabled for making longer processes to shorter processes */
+	public static boolean isTestModeForSRModule()
+	{
+		return Utils.isTestMode(HikeConstants.MODULE_STICKER_SEARCH);
+	}
+
 	/* Determine if given character is special character */
 	public static boolean isSpecialCharacter(char c)
 	{
