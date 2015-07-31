@@ -26,7 +26,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategori
 public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
 
-	private static String TAG = "StickerTagDownloadTask";
+	private static String TAG = StickerTagDownloadTask.class.getSimpleName();
 
 	private static int requestStep = 0;
 
