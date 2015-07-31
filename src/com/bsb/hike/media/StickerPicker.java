@@ -566,7 +566,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			ChatHeadService.dismissed = 0;
 
 		}
-		else if (ChatHeadUtils.shareCount >= ChatHeadUtils.shareLimit)
+		else if (HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) >= ChatHeadUtils.shareLimit)
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.SHARE_LIMIT);
@@ -592,11 +592,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private void initLayoutComponentsView()
 	{
 		chatHeadMainLayout.setVisibility(View.VISIBLE);
-		chatHeadMainText.setText(String.format(mContext.getString(R.string.stickers_sent_today), ChatHeadUtils.shareCount, ChatHeadUtils.shareLimit));
+		chatHeadMainText.setText(String.format(mContext.getString(R.string.stickers_sent_today), HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0), ChatHeadUtils.shareLimit));
 		int progress;
 		if (ChatHeadUtils.shareLimit != 0)
 		{
-			progress = (int) ((ChatHeadUtils.shareCount * 100) / ChatHeadUtils.shareLimit);
+			progress = (int) ((HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) * 100) / ChatHeadUtils.shareLimit);
 		}
 		else
 		{
@@ -643,7 +643,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadstickerPickerView = getView(context.getResources().getConfiguration().orientation);
 		findindViewById();
 		layout.addView(chatHeadstickerPickerView);
-		if (ChatHeadService.dismissed > HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, ChatHeadConstants.DISMISS_CONST) || ChatHeadUtils.shareCount >= ChatHeadUtils.shareLimit)
+		if (ChatHeadService.dismissed > HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, ChatHeadConstants.DISMISS_CONST) || HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) >= ChatHeadUtils.shareLimit)
 		{
 			infoIconClick();
 		}
