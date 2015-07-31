@@ -8,8 +8,9 @@
     
      <RelativeLayout
          android:id="@+id/action_container"
-         android:layout_width="60dp"
+         android:layout_width="wrap_content"
          android:layout_height="match_parent"
+         android:gravity="right"
          android:layout_alignParentRight="true"
          android:layout_centerVertical="true" >
 
@@ -19,7 +20,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="@dimen/contact_list_item_padding"
         android:button="@drawable/hike_list_item_checkbox"
         android:clickable="false"
         android:focusable="false"
@@ -39,9 +39,8 @@
  
      <ImageView
          android:id="@+id/invite_icon"
-         android:layout_width="match_parent"
+         android:layout_width="32dp"
          android:layout_height="match_parent"
-         android:layout_alignParentRight="true"
          android:layout_centerVertical="true"
          android:scaleType="centerInside"
          android:background="@drawable/list_item"
@@ -61,7 +60,7 @@
 
     <LinearLayout
         android:id="@+id/name_num_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/contact_image"
         android:layout_toLeftOf="@id/action_container"
