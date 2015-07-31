@@ -30,7 +30,7 @@ import com.bsb.hike.utils.Utils;
 
 public class ChatHeadUtils
 {
-	public static int shareCount, totalShareCount, noOfDays, shareLimit, maxDismissLimit;
+	public static int shareCount, noOfDays, shareLimit, maxDismissLimit;
 	
 	public static final String SERVICE_START_DATE= "strtDate";
 	
@@ -86,7 +86,6 @@ public class ChatHeadUtils
 		{
 			noOfDays = 1;
 		}
-		totalShareCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0);
 		shareLimit = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.STICKERS_PER_DAY, HikeConstants.ChatHead.DEFAULT_NO_STICKERS_PER_DAY) + HikeSharedPreferenceUtil
 				.getInstance().getData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0));
 		maxDismissLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, ChatHeadConstants.DISMISS_CONST);

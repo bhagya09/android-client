@@ -575,7 +575,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		initLayoutComponentsView();
 		chatHeadDisableSideText.setVisibility(View.GONE);
 		chatHeadTotalStickersText.setVisibility(View.VISIBLE);
-		chatHeadTotalStickersText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadUtils.totalShareCount, ChatHeadUtils.noOfDays));
+		chatHeadTotalStickersText.setText(String.format(mContext.getString(R.string.total_sticker_sent), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0), ChatHeadUtils.noOfDays));
 		// we are doing this because we need to consume this touch event here and don't want to pass further
 	    chatHeadInfoIconLayout.setOnTouchListener(new View.OnTouchListener()
 		{	
@@ -619,8 +619,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadDisableLayout.setVisibility(View.GONE);
 		chatHeadDisableSideText.setVisibility(View.GONE);
 		chatHeadTotalStickersText.setVisibility(View.VISIBLE);
-		chatHeadTotalStickersText.setText(String.format(mContext.getString(R.string.total_sticker_sent), ChatHeadUtils.totalShareCount, ChatHeadUtils.noOfDays));
-			}
+		chatHeadTotalStickersText.setText(String.format(mContext.getString(R.string.total_sticker_sent), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0), ChatHeadUtils.noOfDays));
+	}
 
 	public void setOnClick()
 	{
