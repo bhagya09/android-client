@@ -603,6 +603,7 @@ public class VoIPService extends Service {
 				}
 			} else {
 				// Outgoing call to single recipient
+				groupChatMsisdn = null;
 				if (clients.size() > 0 && !VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + 1))
 					return returnInt;
 				
@@ -1923,6 +1924,10 @@ public class VoIPService extends Service {
 		if (client.reconnecting || client.audioStarted || keepRunning == false)
 			return;
 
+		// Close all system dialogs and/or the notification bar
+		Intent closeDiaogs = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+		getApplicationContext().sendBroadcast(closeDiaogs);
+		
 		synchronized (this) {
 			
 			if (isRingingIncoming == true)
