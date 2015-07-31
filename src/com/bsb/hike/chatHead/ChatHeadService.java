@@ -311,7 +311,14 @@ public class ChatHeadService extends Service
 		{
 			if (ChatHeadLayout.getOverlayView() == null || !ChatHeadLayout.getOverlayView().isShown())
 			{
-				windowManager.addView(ChatHeadLayout.attachPicker(context), stickerPickerParams);
+				try
+				{
+					windowManager.addView(ChatHeadLayout.attachPicker(context), stickerPickerParams);
+				}
+				catch (Exception e)
+				{
+					Logger.d(TAG, "cretae and open sticker picker layout");
+				}
 				ChatHeadLayout.getOverlayView().setOnTouchListener(new View.OnTouchListener()
 				{
 					
@@ -396,12 +403,27 @@ public class ChatHeadService extends Service
 				{
 					ChatHeadService.toShow = false;
 					setChatHeadParams();
-					windowManager.updateViewLayout(chatHead, chatHeadParams);
+					try
+					{
+						windowManager.updateViewLayout(chatHead, chatHeadParams);
+					}
+					catch (Exception e)
+					{
+						Logger.d(TAG, "updating chat head params");
+					}
+					
 					chatHead.setVisibility(View.INVISIBLE);
 				}
 				if (closeHead.isShown())
 				{
-					windowManager.removeView(closeHead);
+					try
+					{
+						windowManager.removeView(closeHead);
+					}
+					catch (Exception e)
+					{
+						Logger.d(TAG, "removing close head");
+					}
 				}
 			}
 			else
@@ -439,7 +461,14 @@ public class ChatHeadService extends Service
 		}
 		if (closeHead.isShown())
 		{
-			windowManager.removeView(closeHead);
+			try
+			{
+				windowManager.removeView(closeHead);
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG, "removing close head");
+			}
 		}
 	}
 
@@ -685,7 +714,14 @@ public class ChatHeadService extends Service
 		}
 		if (closeHead.isShown())
 		{
-			windowManager.removeView(closeHead);
+			try
+			{
+				windowManager.removeView(closeHead);
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG, "removing close head");
+			}
 		}
 	}
 

@@ -50,8 +50,6 @@ public class ChatHeadLayout implements StickerPickerListener
 	
 	public static View detachPicker(Context context)
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, ChatHeadUtils.shareCount);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, ChatHeadUtils.totalShareCount);
 		picker.stoppingChatHeadActivity();
 		return overlayScreenViewGroup;
 	
@@ -60,12 +58,12 @@ public class ChatHeadLayout implements StickerPickerListener
 	@Override
 	public void stickerSelected(Sticker sticker, String source)
 	{
-		if (ChatHeadUtils.shareCount < ChatHeadUtils.shareLimit)
+		if (HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) < ChatHeadUtils.shareLimit)
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHARE, ChatHeadService.foregroundAppName, sticker.getCategoryId(),
 					sticker.getStickerId(), source);
-			ChatHeadUtils.shareCount++;
-			ChatHeadUtils.totalShareCount++;
+			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0)+1);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT,0)+1));
 			String filePathBmp = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
 		    ChatHeadService.getInstance().resetPosition(ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
 			ChatHeadService.dismissed = 0;
