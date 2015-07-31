@@ -1664,7 +1664,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				fileHolder.fileName.setVisibility(View.VISIBLE);
 				fileHolder.fileDetails.setVisibility(View.VISIBLE);
 
-				if ((convMessage.isOfflineMessage() || !convMessage.isSent()) || (convMessage.isSent() && !TextUtils.isEmpty(hikeFile.getFileKey())))
+				if ( !convMessage.isSent() || (convMessage.isSent() && !TextUtils.isEmpty(hikeFile.getFileKey())))
 				{
 					fileHolder.circularProgressBg.setVisibility(View.GONE);
 				}

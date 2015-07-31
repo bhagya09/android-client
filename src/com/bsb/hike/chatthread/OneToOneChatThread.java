@@ -1480,7 +1480,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 				startFreeHikeAnimation();
 			}
-			OfflineUtils.sendOfflineRequestPacket(msisdn);
+			//OfflineUtils.sendOfflineRequestPacket(msisdn);
 			showToast(R.string.scan_process_started);
 			if(offlineController==null)
 			{
