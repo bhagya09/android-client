@@ -56,6 +56,9 @@ public final class HikeHostNameVerifier implements HostnameVerifier {
 
   private static final int ALT_DNS_NAME = 2;
   private static final int ALT_IPA_NAME = 7;
+  private List<String> prodHostIps;
+  private List<String> platformHostIps;
+  private List<String> ftHostIps;
 
   public HikeHostNameVerifier() {
   }
@@ -76,28 +79,55 @@ public final class HikeHostNameVerifier implements HostnameVerifier {
         : verifyHostName(host, certificate);
   }
 
-  static boolean verifyAsIpAddress(String host) {
+  public static boolean verifyAsIpAddress(String host) {
     return VERIFY_AS_IP_ADDRESS.matcher(host).matches();
   }
 
   /**
    * Returns true if {@code certificate} matches {@code ipAddress}.
    */
-  private boolean verifyIpAddress(String ipAddress, X509Certificate certificate) {
-    List<String> altNames = getSubjectAltNames(certificate, ALT_IPA_NAME);
-    for (int i = 0, size = altNames.size(); i < size; i++) {
-      if (ipAddress.equalsIgnoreCase(altNames.get(i))) {
-        return true;
-      }
+  public boolean verifyIpAddress(String ipAddress, X509Certificate certificate) {
+    List<String> subjectAltNames = getSubjectAltNames(certificate, ALT_IPA_NAME);
+    String [] altNames = new String[subjectAltNames.size()];
+    for (int i = 0, size = subjectAltNames.size(); i < size; i++)
+    {
+    	altNames[i] = subjectAltNames.get(i);
     }
-    
-    return HttpManager.getProductionHostUris().contains(ipAddress) || HttpManager.getPlatformProductionHostUris().contains(ipAddress);
+    return verifyIpAddress(ipAddress, altNames);
+  }
+
+	/**
+	 * Returns true if {@code altNames} matches {@code ipAddress}.
+	 */
+	public boolean verifyIpAddress(String ipAddress, String[] altNames) {
+		for (int i = 0, size = altNames.length; i < size; i++) {
+			if (ipAddress.equalsIgnoreCase(altNames[i])) {
+				return true;
+			}
+		}
+		return verifyDefinedHost(ipAddress);
+	}
+
+  /**
+   * Returns true if {@code ipAddress} matches one of defined list of host.
+   * @param ipAddress
+   */
+  private boolean verifyDefinedHost(String ipAddress)
+  {
+	  boolean result = false;
+	  if(prodHostIps != null && prodHostIps.size() > 0)
+		  result = prodHostIps.contains(ipAddress);
+	  if(platformHostIps != null && platformHostIps.size() > 0)
+		  result = result || platformHostIps.contains(ipAddress);
+	  if(ftHostIps != null && ftHostIps.size() > 0)
+		  result = result || ftHostIps.contains(ipAddress);
+	  return result;
   }
 
   /**
    * Returns true if {@code certificate} matches {@code hostName}.
    */
-  private boolean verifyHostName(String hostName, X509Certificate certificate) {
+  public boolean verifyHostName(String hostName, X509Certificate certificate) {
     hostName = hostName.toLowerCase(Locale.US);
     boolean hasDns = false;
     List<String> altNames = getSubjectAltNames(certificate, ALT_DNS_NAME);
@@ -165,7 +195,7 @@ public final class HikeHostNameVerifier implements HostnameVerifier {
    * @param pattern domain name pattern from certificate. May be a wildcard pattern such as
    *        {@code *.android.com}.
    */
-  private boolean verifyHostName(String hostName, String pattern) {
+  public boolean verifyHostName(String hostName, String pattern) {
     // Basic sanity checks
     // Check length == 0 instead of .isEmpty() to support Java 5.
     if ((hostName == null) || (hostName.length() == 0) || (hostName.startsWith("."))
@@ -252,4 +282,28 @@ public final class HikeHostNameVerifier implements HostnameVerifier {
     // hostName matches pattern
     return true;
   }
+
+  	/**
+  	 * Set prod host to make them white listed
+  	 * @param prodHostIps
+  	 */
+  	public void setProdHostIps(List<String> prodHostIps) {
+		this.prodHostIps = prodHostIps;
+	}
+
+  	/**
+  	 * Set Platform host to make them white listed
+  	 * @param platformHostIps
+  	 */
+	public void setPlatformHostIps(List<String> platformHostIps) {
+		this.platformHostIps = platformHostIps;
+	}
+
+	/**
+  	 * Set FT host to make them white listed
+  	 * @param ftHostIps
+  	 */
+	public void setFtHostIps(List<String> ftHostIps) {
+		this.ftHostIps = ftHostIps;
+	}
 }

@@ -97,7 +97,7 @@ public class FileTransferManager extends BroadcastReceiver
 
 	public static String UNABLE_TO_DOWNLOAD = "unable_to_download";
 
-	List<String> ftHostURIs = null;
+	private List<String> ftHostURIs = null;
 
 	public static final int FAKE_PROGRESS_DURATION = 8 * 1000;
 
@@ -1013,5 +1013,14 @@ public class FileTransferManager extends BroadcastReceiver
 			host = ftHostURIs.get(index);
 		}
 		return host;
+	}
+
+	/**
+	 * Returns FT fallback Host
+	 * @return List<String>
+	 */
+	public List<String> getFTHostUris()
+	{
+		return this.ftHostURIs;
 	}
 }
