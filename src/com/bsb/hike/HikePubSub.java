@@ -78,8 +78,6 @@ public class HikePubSub implements Runnable
 
 	public static final String NEW_CONVERSATION = "newconv";
 	
-	public static final String GROUP_OWNER_CHANGE = "changeowner";
-
 	/*
 	 * Broadcast after we've received a message and written it to our DB. Status is RECEIVED_UNREAD
 	 */

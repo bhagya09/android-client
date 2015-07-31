@@ -2796,13 +2796,19 @@ public class MqttMessagesManager
 	private void saveGroupOwnerChange(JSONObject jsonObj) throws JSONException
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
-
 		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
 		String msisdn = data.getString(HikeConstants.MSISDN);
 
-		convDb.changeGroupOwner(groupId, msisdn);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_OWNER_CHANGE, jsonObj);
+		if (msisdn.equalsIgnoreCase(userMsisdn)) {
+			this.convDb.changeGroupSettings(groupId, -1, 1,
+					new ContentValues());
+		} else {
 
+			if (this.convDb.setParticipantAdmin(groupId, msisdn) > 0) {
+				ContactManager.getInstance().setParticipantAdmin(groupId, msisdn);
+			}
+		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ONETONCONV_ADMIN_UPDATE, jsonObj);
 	}
 
 	private void saveRequestDP(JSONObject jsonObj) throws JSONException
