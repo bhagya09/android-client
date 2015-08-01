@@ -2315,6 +2315,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return hDb.getMsisdnsForMissingPlatformUID();
 	}
+
 	
 	public String getSelfMsisdn()
 	{
@@ -2324,5 +2325,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void setSelfMsisdn(String msisdn)
 	{
 		this.selfMsisdn = msisdn;
+	}
+
+
+	public void setParticipantAdmin(String groupId, String msisdn) {
+		transientCache.updateGroupParticipantDetail(groupId,msisdn);
 	}
 }

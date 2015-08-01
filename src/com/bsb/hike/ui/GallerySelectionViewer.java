@@ -607,7 +607,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 					}
 					
 					String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(GallerySelectionViewer.this, msisdn, false);
+					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(GallerySelectionViewer.this, msisdn, false, false);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
