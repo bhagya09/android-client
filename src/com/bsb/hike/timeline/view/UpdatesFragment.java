@@ -1,7 +1,9 @@
 package com.bsb.hike.timeline.view;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,8 +59,6 @@ import com.google.gson.GsonBuilder;
 public class UpdatesFragment extends Fragment implements Listener, OnClickListener
 {
 
-	private StatusMessage noStatusMessage;
-
 	private StatusMessage ftueStatusMessage;
 
 	private TimelineCardsAdapter timelineCardsAdapter;
@@ -69,8 +69,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private List<StatusMessage> statusMessages;
 
-	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED,
-			HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE };
+	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED,
+			HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, 
+			HikePubSub.TIMELINE_FTUE_LIST_UPDATE};
 
 	private String[] friendMsisdns;
 
@@ -83,8 +84,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private TimelineActions actionsData = new TimelineActions();
 
 	private Gson gson;
-
-	private List<String> mFtueFriendList;
+	
+	private List<ContactInfo> mFtueFriendList;
+	
+	/**
+	 * When packet is not received, in this case , this tell
+	 * how many referred contacts have to be shown which we received from postAddressBook
+	 */
+	private final int MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY = 4;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -114,8 +121,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		userMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, "");
 
 		statusMessages = new ArrayList<StatusMessage>();
-
-		mFtueFriendList = new ArrayList<String>();
+		
+		mFtueFriendList = new ArrayList<ContactInfo>();
 
 		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager());
 		timelineCardsAdapter.setActionsData(actionsData);
@@ -231,6 +238,35 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			});
 		}
+		else if(HikePubSub.TIMELINE_FTUE_LIST_UPDATE.equals(type))
+		{
+			if(shouldAddFTUEItem())
+			{
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						int shownCounter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+						if(shownCounter != 0)
+						{
+							ContactInfo currentCardContact = mFtueFriendList.get(shownCounter-1);
+							mFtueFriendList = new ArrayList<ContactInfo>();
+							mFtueFriendList.addAll(getFtueFriendList());
+							mFtueFriendList.add(0, currentCardContact);
+						}
+						else
+						{
+							mFtueFriendList = getFtueFriendList();
+						}
+						timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
+						addFTUEItem();
+						notifyVisibleItems();
+					}
+
+				}, 0);
+			}
+		}
 	}
 
 	private int getStartIndex()
@@ -245,16 +281,38 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private boolean shouldAddFTUEItem()
 	{
-		return false;
-		/*
-		 * if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true)) { return true; } else { ftueStatusMessage = null; return false; }
-		 */
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
+		{
+			return true;
+		}
+		else
+		{
+			ftueStatusMessage = null;
+			return false;
+		}
 	}
 
 	private void addFTUEItem()
 	{
 		int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
-		int cardCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_TOTAL_CARD_COUNTER, 4);
+		int cardCount = mFtueFriendList.size();
+		
+		//If no msisdn to show, then no need to show FTUE
+		if(mFtueFriendList.isEmpty())
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
+			
+			//counter = 0, means not shown init card so no need to change
+			// counter != 0, means init card is shown so do it 1
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0) != 0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
+			}
+			timelineCardsAdapter.removeAllFTUEItems();
+			ftueStatusMessage = null;
+			return;
+		}
+		
 		ContactInfo contact = null;
 		if (counter == 0)
 		{ 
@@ -265,8 +323,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		else if (counter <= cardCount)
 		{
-			// To SHOW Fav Card
-			contact = ContactManager.getInstance().getContact(mFtueFriendList.get(counter - 1));
+			//To SHOW Fav Card
+			contact = mFtueFriendList.get(counter - 1);
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
 			return;
@@ -395,15 +453,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					@Override
 					public void run()
 					{
-
-						HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
-						String mymsisdn = settings.getData(HikeMessengerApp.MSISDN_SETTING, "");
-						mFtueFriendList = new ArrayList<String>(Utils.getServerRecommendedContactsSelection(settings.getData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null),
-								mymsisdn));
+						mFtueFriendList = getFtueFriendList();
 						timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
 						addFTUEItem();
 						notifyVisibleItems();
 					}
+
 				}, 0);
 			}
 
@@ -412,6 +467,57 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	}
 
+	/**
+	 * returns FTUE list to be shown in Timeline FTUE
+	 * 
+	 * case A) Got List from msisdn's received from FTUE packet, 
+	 * 			get 'N' non frnd Contacts  'N' received in packet
+	 * case B) List from msisdn's received from FTUE packet is not there
+	 * 		   now go for fetching max 4 msisdn from List reveived on sign up
+	 * @return
+	 */
+	private List<ContactInfo> getFtueFriendList()
+	{
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		Set<String> msisdnSet = settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null);
+		List<ContactInfo> finalContactLsit = new ArrayList<ContactInfo>();
+		int finalCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, 4);
+		boolean isFromSignUpList = false;
+		boolean isFromPacketList = false;
+		if(msisdnSet == null)
+		{
+			String mymsisdn = settings.getData(HikeMessengerApp.MSISDN_SETTING, "");
+			String list = settings.getData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null);
+			msisdnSet = Utils.getServerRecommendedContactsSelection(list, mymsisdn);
+			isFromSignUpList = true;
+		}
+		else
+		{
+			isFromPacketList = true;
+		}
+		int counter = 0;
+		Iterator<String> iterator = msisdnSet.iterator();
+		while(iterator.hasNext())
+		{
+			String id = iterator.next();
+			ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
+			if(c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+			{
+				finalContactLsit.add(c);
+				counter++;
+			}
+			if(isFromSignUpList && counter == MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY)
+			{
+				break;
+			}
+			else if(isFromPacketList && counter == finalCount)
+			{
+				break;
+			}
+		}
+		return finalContactLsit;
+	}
+	
 	private IRequestListener actionUpdatesReqListener = new IRequestListener()
 	{
 		@Override
