@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1296"
-    android:versionName="3.9.8.82.4.referral_extra_section" >
+    android:versionCode="1300"
+    android:versionName="3.9.8.82.20.1.chat_head_wm" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -317,15 +317,6 @@
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity
-            android:name=".chatHead.ChatHeadActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:noHistory="true"
-            android:excludeFromRecents="true"
-            android:taskAffinity="com.bsb.hike.chatHead"
-            android:launchMode="singleInstance">
-		</activity>
-		<activity
             android:name=".chatHead.StickerShareSettings"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>

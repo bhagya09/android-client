@@ -39,7 +39,6 @@ import com.bsb.hike.R.string;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.chatHead.ChatHeadActivity;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -106,10 +105,7 @@ public class UserLogInfo {
 	private final static byte RUNNING_PROCESS_BIT = 0;
 	private final static byte FOREGROUND_TASK_BIT = 1;
 	
-
 	private static int flags;
-	
-	private static boolean hikeStickerActivityForegrounded = false;
 	
 	public static class SessionLogPojo{
 		final String packageName;
@@ -695,7 +691,7 @@ public class UserLogInfo {
 	{
 		long sessionTime = System.currentTimeMillis() - sesstionTime;
 		
-		if (sessionTime > MIN_SESSION_RECORD_TIME && !hikeStickerActivityForegrounded)
+		if (sessionTime > MIN_SESSION_RECORD_TIME)
 		{
 			HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(USER_LOG_SHARED_PREFS);
 			String[] loggedParams = userPrefs.getData(packageName, "0:0").split(":");
@@ -707,42 +703,7 @@ public class UserLogInfo {
 			int sessions = Integer.parseInt(loggedParams[1]) + 1;
 			userPrefs.saveData(packageName, duration + ":" + sessions);
 			Logger.d(TAG, "time : " + sessionTime + " of " + packageName);
-		}
-
-		ComponentName componentInfo = null;
-		ActivityManager am = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Activity.ACTIVITY_SERVICE);
-		try
-		{
-			if (Utils.isLollipopOrHigher())
-			{
-				List<ActivityManager.AppTask> appTask = am.getAppTasks();
-				if(appTask != null && !appTask.isEmpty())
-				{
-					componentInfo = appTask.get(0).getTaskInfo().origActivity;
-				}
-			}
-			else
-			{
-				List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-				if(taskInfo != null && !taskInfo.isEmpty())
-				{
-					componentInfo = taskInfo.get(0).topActivity;
-				}
-			}
-		}
-		catch (SecurityException se)
-		{
-			Logger.d(TAG, "SecurityException while recording tasks");
-		}
-		catch (Exception e)
-		{
-			Logger.d(TAG, "Exception while recording tasks");
-		}
-
-		if(componentInfo != null)
-		{
-			hikeStickerActivityForegrounded = componentInfo.getClassName().equals(ChatHeadActivity.class.getName());
-		}
+		}	
 	}
 	
 }
