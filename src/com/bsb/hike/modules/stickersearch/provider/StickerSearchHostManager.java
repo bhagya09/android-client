@@ -1074,16 +1074,16 @@ public class StickerSearchHostManager
 			{
 				if (exactSearch)
 				{
-					if (currentPhrase.length() == 1)
+					if ((currentPhrase.length() == 1) && (isFirstValidWord))
 					{
 						tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_CHARACTER);
 					}
-					else
+					else if (currentPhrase.length() > 1)
 					{
 						tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_WORD_EXACT);
 					}
 				}
-				else
+				else if (currentPhrase.length() > 1)
 				{
 					tempSelectedStickers = getOrderedStickers((currentPhrase + StickerSearchConstants.STRING_PREDICATE),
 							StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_WORD_PREDICTIVE);
