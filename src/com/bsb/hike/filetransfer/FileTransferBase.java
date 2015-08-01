@@ -29,6 +29,8 @@ import android.os.Handler;
 import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.httpmgr.hikehttp.hostnameverifier.HikeHostNameVerifier;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.Logger;
@@ -312,6 +314,9 @@ public abstract class FileTransferBase implements Callable<FTResult>
 		if (AccountUtils.ssl)
 		{
 			((HttpsURLConnection) conn).setSSLSocketFactory(HikeSSLUtil.getSSLSocketFactory());
+			HikeHostNameVerifier hostVerifier = new HikeHostNameVerifier();
+			hostVerifier.setFtHostIps(FileTransferManager.getInstance(context).getFTHostUris());
+			((HttpsURLConnection) conn).setHostnameVerifier(hostVerifier);
 		}
 		AccountUtils.addUserAgent(conn);
 		AccountUtils.setNoTransform(conn);;
@@ -352,8 +357,6 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	public URL getUpdatedURL(URL mUrl, String logText, String taskType, URL baseUrl)
 	{
 		URL resultUrl = mUrl;
-		if(AccountUtils.ssl)
-			return baseUrl;
 		switch (mExceptionType) {
 			case UNKNOWN_HOST:
 			case HOST_CONNECT_EXCEPTION:
