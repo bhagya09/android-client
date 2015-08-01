@@ -983,10 +983,10 @@ public class VoIPClient  {
 
 				if (reconnectForConference()) 
 					return;
-
+				
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
-				if (!isInitiator() && !reconnecting && !isInAHostedConference) {
-					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber(), null);
+				if (!isInitiator() && !reconnecting) {
+					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber(), groupChatMsisdn);
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
 				stop();					
@@ -1489,7 +1489,7 @@ public class VoIPClient  {
 
 	public void sendAnalyticsEvent(String ek, int value)
 	{
-		Logger.d(tag + " Analytics", "Logging event: " + ek);
+//		Logger.d(tag + " Analytics", "Logging event: " + ek);
 		try
 		{
 			JSONObject metadata = new JSONObject();
@@ -2006,6 +2006,10 @@ public class VoIPClient  {
 	}
 	
 	private boolean reconnectForConference() {
+		
+		// The version check is a little bit of a hack. 
+		// If we have never managed to connect to a client, we won't even know the version
+		// and hence a reconnect will not be attempted. 
 		if (version >= 2 && isInAHostedConference && keepRunning) {
 			reconnecting = false;
 			

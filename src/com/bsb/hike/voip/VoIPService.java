@@ -224,7 +224,7 @@ public class VoIPService extends Service {
 				if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
 					stop();
 				else {
-					Logger.d(tag, msisdn + " has quit the conference.");
+//					Logger.d(tag, msisdn + " has quit the conference.");
 					removeFromClients(msisdn);
 					playFromSoundPool(SOUND_DECLINE, false);
 				}
