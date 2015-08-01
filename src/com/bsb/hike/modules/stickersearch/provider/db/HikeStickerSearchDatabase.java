@@ -1126,9 +1126,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		int MAXIMUM_PRIMARY_TABLE_CAPACITY = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY
 				: HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY;
-		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY;
-		long TIME_WINDOW_LOCAL_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_LOCAL_SUMMERY : StickerSearchConstants.TIME_WINDOW_LOCAL_SUMMERY;
-		long TIME_WINDOW_GLOBAL_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_GLOBAL_SUMMERY : StickerSearchConstants.TIME_WINDOW_GLOBAL_SUMMERY;
+
+		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : HikeSharedPreferenceUtil.getInstance().getData(
+				HikeMessengerApp.STICKER_TAG_SUMMERY_TRENDING, StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
+
+		long TIME_WINDOW_LOCAL_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_LOCAL_SUMMERY : HikeSharedPreferenceUtil.getInstance().getData(
+				HikeMessengerApp.STICKER_TAG_SUMMERY_LOCAL, StickerSearchConstants.TIME_WINDOW_LOCAL_SUMMERY);
+
+		long TIME_WINDOW_GLOBAL_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_GLOBAL_SUMMERY : HikeSharedPreferenceUtil.getInstance().getData(
+				HikeMessengerApp.STICKER_TAG_SUMMERY_GLOBAL, StickerSearchConstants.TIME_WINDOW_GLOBAL_SUMMERY);
 
 		Cursor c = null;
 		long totalTagCount = 0;
@@ -1260,16 +1266,19 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				// Compute proportional trending frequencies first for all sticker-tags
 				float maxTrendingFrequency = Collections.max(trendingFrequencies);
 
-				if (maxTrendingFrequency > StickerSearchConstants.MAXIMUM_FREQUENCY_TRENDING)
+				float MAXIMUM_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAX_FREQUENCY_TRENDING,
+						StickerSearchConstants.MAXIMUM_FREQUENCY_TRENDING);
+
+				if (maxTrendingFrequency > MAXIMUM_FREQUENCY_TRENDING)
 				{
 					for (int i = 0; i < existingTotalTagCount; i++)
 					{
-						trendingFrequencies.set(i, (trendingFrequencies.get(i) * StickerSearchConstants.MAXIMUM_FREQUENCY_TRENDING / maxTrendingFrequency));
+						trendingFrequencies.set(i, (trendingFrequencies.get(i) * MAXIMUM_FREQUENCY_TRENDING / maxTrendingFrequency));
 					}
 				}
 
 				// Perform proportional shift from trending to local on day to day basis
-				float ratioToCarryForwardTrendingTowardsLocal = StickerSearchConstants.TIME_WINDOW_TRENDING_CARRY_ON / StickerSearchConstants.TIME_WINDOW_LOCAL_CARRY_ON;
+				float ratioToCarryForwardTrendingTowardsLocal = TIME_WINDOW_TRENDING_SUMMERY / TIME_WINDOW_LOCAL_SUMMERY;
 
 				for (int i = 0; i < existingTotalTagCount; i++)
 				{
@@ -1285,16 +1294,19 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				// Compute proportional local frequencies first for all sticker-tags
 				float maxLocalFrequency = Collections.max(localFrequencies);
 
-				if (maxLocalFrequency > StickerSearchConstants.MAXIMUM_FREQUENCY_LOCAL)
+				float MAXIMUM_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAX_FREQUENCY_LOCAL,
+						StickerSearchConstants.MAXIMUM_FREQUENCY_LOCAL);
+
+				if (maxLocalFrequency > MAXIMUM_FREQUENCY_LOCAL)
 				{
 					for (int i = 0; i < existingTotalTagCount; i++)
 					{
-						localFrequencies.set(i, (localFrequencies.get(i) * StickerSearchConstants.MAXIMUM_FREQUENCY_LOCAL / maxLocalFrequency));
+						localFrequencies.set(i, (localFrequencies.get(i) * MAXIMUM_FREQUENCY_LOCAL / maxLocalFrequency));
 					}
 				}
 
 				// Perform proportional shift from local to global on day to day basis
-				float ratioToCarryForwardLocalTowardsGlobal = StickerSearchConstants.TIME_WINDOW_LOCAL_CARRY_ON / StickerSearchConstants.TIME_WINDOW_GLOBAL_CARRY_ON;
+				float ratioToCarryForwardLocalTowardsGlobal = TIME_WINDOW_LOCAL_SUMMERY / TIME_WINDOW_GLOBAL_SUMMERY;
 
 				for (int i = 0; i < existingTotalTagCount; i++)
 				{
@@ -1310,11 +1322,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				// Compute proportional global frequencies first for all sticker-tags
 				float maxGlobalFrequency = Collections.max(globalFrequencies);
 
-				if (maxGlobalFrequency > StickerSearchConstants.MAXIMUM_FREQUENCY_GLOBAL)
+				float MAXIMUM_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAX_FREQUENCY_GLOBAL,
+						StickerSearchConstants.MAXIMUM_FREQUENCY_GLOBAL);
+
+				if (maxGlobalFrequency > MAXIMUM_FREQUENCY_GLOBAL)
 				{
 					for (int i = 0; i < existingTotalTagCount; i++)
 					{
-						globalFrequencies.set(i, (globalFrequencies.get(i) * StickerSearchConstants.MAXIMUM_FREQUENCY_GLOBAL / maxGlobalFrequency));
+						globalFrequencies.set(i, (globalFrequencies.get(i) * MAXIMUM_FREQUENCY_GLOBAL / maxGlobalFrequency));
 					}
 				}
 

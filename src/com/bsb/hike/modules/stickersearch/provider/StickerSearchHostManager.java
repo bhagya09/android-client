@@ -23,6 +23,7 @@ import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility.TextMatc
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.modules.stickersearch.provider.db.StickerDataContainer;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -80,11 +81,48 @@ public class StickerSearchHostManager
 
 	private static volatile StickerSearchHostManager sStickerSearchHostManager;
 
+	private static float WEITAGE_MATCH_LATERAL;
+
+	private static float WEITAGE_EXACT_MATCH;
+
+	private static float WEITAGE_FREQUENCY_TRENDING;
+
+	private static float WEITAGE_FREQUENCY_LOCAL;
+
+	private static float WEITAGE_FREQUENCY_GLOBAL;
+
+	private static float WEITAGE_CONTEXT_MOMENT;
+
+	private static float LIMIT_AUTO_CORRECTION;
+
+	private static float LIMIT_EXACT_MATCH;
+
 	private StickerSearchHostManager(Context context)
 	{
 		sWords = new LinkedList<Word>();
 		mCurrentTextSignificantLength = 0;
+
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()) + 1;
+
+		WEITAGE_MATCH_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_MATCH_LATERAL, StickerSearchConstants.WEITAGE_MATCH_LATERAL);
+
+		WEITAGE_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_EXACT_MATCH, StickerSearchConstants.WEITAGE_EXACT_MATCH);
+
+		WEITAGE_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+				* HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_FREQUENCY_TRENDING_RATIO, StickerSearchConstants.RATIO_TRENDING_FREQUENCY);
+
+		WEITAGE_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+				* HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_FREQUENCY_LOCAL_RATIO, StickerSearchConstants.RATIO_LOCAL_FREQUENCY);
+
+		WEITAGE_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+				* HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_FREQUENCY_GLOBAL_RATIO, StickerSearchConstants.RATIO_GLOBAL_FREQUENCY);
+
+		WEITAGE_CONTEXT_MOMENT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_CONTEXT_MOMENT,
+				StickerSearchConstants.WEITAGE_CONTEXT_MOMENT);
+
+		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
+
+		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
 	}
 
 	/* Get the instance of this class from outside */
@@ -302,7 +340,7 @@ public class StickerSearchHostManager
 							continue;
 						}
 						searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-						searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * 0.7 + 0.5)) : nextWord));
+						searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 						maxPermutationSize--;
 						lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 					}
@@ -457,7 +495,7 @@ public class StickerSearchHostManager
 											continue;
 										}
 										searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-										searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * 0.7 + 0.5)) : nextWord));
+										searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 										currentMaxPermutationSize--;
 										lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 									}
@@ -583,7 +621,7 @@ public class StickerSearchHostManager
 										continue;
 									}
 									searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-									searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * 0.7 + 0.5)) : nextWord));
+									searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 									currentMaxPermutationSize--;
 									lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 								}
@@ -917,7 +955,7 @@ public class StickerSearchHostManager
 				{
 					searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
 					nextWord = selectedTextInPhrase.get(j);
-					searchText.append((nextWord.length() > 3) ? nextWord.subSequence(0, (int) (nextWord.length() * 0.7 + 0.5)) : nextWord).toString();
+					searchText.append((nextWord.length() > 3) ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord).toString();
 				}
 
 				currentPhrase = searchText.toString().toUpperCase(Locale.ENGLISH);
@@ -1014,7 +1052,7 @@ public class StickerSearchHostManager
 					continue;
 				}
 				searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-				searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * 0.7 + 0.5)) : nextWord));
+				searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 				currentMaxPermutationSize--;
 				lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 			}
@@ -1128,12 +1166,12 @@ public class StickerSearchHostManager
 
 		if (count > 0)
 		{
-			float matchScoreWeitage = StickerSearchConstants.WEITAGE_MATCH_SCORE;
-			float exactMatchWeitage = StickerSearchConstants.WEITAGE_EXACT_MATCH;
-			float trendingFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_TRENDING_FREQUENCY;
-			float localFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_LOCAL_FREQUENCY;
-			float globalFrequencyWeitage = StickerSearchConstants.WEITAGE_FREQUENCY * StickerSearchConstants.RATIO_GLOBAL_FREQUENCY;
-			float contextMomentWeitage = StickerSearchConstants.WEITAGE_CONTEXT_MOMENT;
+			float matchScoreWeitage = WEITAGE_MATCH_LATERAL;
+			float exactMatchWeitage = WEITAGE_EXACT_MATCH;
+			float trendingFrequencyWeitage = WEITAGE_FREQUENCY_TRENDING;
+			float localFrequencyWeitage = WEITAGE_FREQUENCY_LOCAL;
+			float globalFrequencyWeitage = WEITAGE_FREQUENCY_GLOBAL;
+			float contextMomentWeitage = WEITAGE_CONTEXT_MOMENT;
 
 			int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
 			int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
@@ -1224,7 +1262,8 @@ public class StickerSearchHostManager
 								.setScore(
 										phraseMatchScore,
 										((matchScoreWeitage * phraseMatchScore)
-												+ (exactMatchWeitage * ((phraseMatchScore > 0.70f) ? phraseMatchScore : 0.00f) / (stickerDataContainer.getExactMatchOrder() + 1))
+												+ (exactMatchWeitage * ((phraseMatchScore > LIMIT_EXACT_MATCH) ? phraseMatchScore : 0.00f) / (stickerDataContainer
+														.getExactMatchOrder() + 1))
 												+ (trendingFrequencyWeitage * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
 												+ (localFrequencyWeitage * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
 												+ (globalFrequencyWeitage * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
@@ -1581,7 +1620,6 @@ public class StickerSearchHostManager
 
 		private void clear()
 		{
-
 			mValue = null;
 			if (mStickerInfo != null)
 			{
