@@ -455,7 +455,7 @@ public class AccountUtils
 		}
 	}
 
-	public static int getBytesUploaded(String sessionId, String mUrl) throws ClientProtocolException, IOException
+	public static int getBytesUploaded(String sessionId, String mUrl, Scheme scheme) throws ClientProtocolException, IOException
 	{
 		int val = 0;
 		HttpRequestBase req = new HttpGet(mUrl);
@@ -463,6 +463,7 @@ public class AccountUtils
 		req.addHeader("X-SESSION-ID", sessionId);
 		AccountUtils.setNoTransform(req);
 		HttpClient httpclient = getClient(req);
+		httpclient.getConnectionManager().getSchemeRegistry().register(scheme);
 		HttpResponse response = httpclient.execute(req);
 		StatusLine statusLine = response.getStatusLine();
 		if (statusLine.getStatusCode() == HttpStatus.SC_OK)
