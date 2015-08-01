@@ -31,11 +31,12 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Pair;
 
-import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -123,8 +124,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String CONTACT_LIST_EMPTY = "contactlistempty";
 
 	public static final String SMS_SETTING = "smscredits";
-
-	public static final String NAME = "name";
 
 	public static final String ACCEPT_TERMS = "acceptterms";
 

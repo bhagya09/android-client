@@ -1149,7 +1149,6 @@ public class StickerSearchHostManager
 		Logger.i(TAG, "getOrderedStickers(" + searchKey + ", " + minimumMatchingScore + ")");
 
 		LinkedHashSet<Sticker> stickers = null;
-		Logger.v(TAG, "Existing search keys in cache: " + sCacheForLocalSearch.keySet());
 
 		ArrayList<StickerDataContainer> cachedStickerData = sCacheForLocalSearch.get(searchKey);
 

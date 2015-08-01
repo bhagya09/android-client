@@ -494,6 +494,16 @@ public class HikeConstants
 	
 	public static final String CAN_EDIT_DP = "canEditDP";
 	
+	public static final String SERVICE = "srv";
+	
+	public static final String CREATE = "crt";
+	
+	public static final String STICKEY_SERVICE = "stky";
+	
+	public static final String HIKE_SERVICE = "hike";
+	
+	
+	
 	public static final String HTTP_STATUS_ID = "?status_id=";
 	
 	// @GM
@@ -628,6 +638,19 @@ public class HikeConstants
 	public static final String BROADCAST_ID_PREFIX = "b:";
 	
 	public static final String AVATAR = "avatar";
+	
+	public class InviteSection
+	{
+		public static final String INVITE_SECTION = "invite_section";
+
+		public static final String SHOW_EXTRA_INVITE_SECTION = "show_invite_section";
+
+		public static final String INVITE_SECTION_MAIN_TEXT = "invite_main_text";
+
+		public static final String INVITE_SECTION_BOTTOM_TEXT = "invite_bottom_text";
+
+		public static final String INVITE_SECTION_IMAGE = "invite_image";
+	}
 
 	/* Constant used to name the preference file which saves the drafts */
 	public static final String DRAFT_SETTING = "draftSetting";
@@ -1635,6 +1658,16 @@ public class HikeConstants
 		public static final String LAST_MESSAGE_TIMESTAMP = "lastMessageTimeStamp";
 
 		public static final String ENABLE_SEND_LOGS = "ulogs_on";
+		
+		public static final String HAS_CUSTOM_ICON = "h_cus_icon";
+		
+		public static final String IS_PROFILE_PIC_DOWNLOAD = "is_profile_pic_download";
+		
+		public static final String BYTES = "bytes";
+	
+		public static final String DEL_SCR_FILE_ON_CALL_FAIL = "del_tmp_file_call_fail";
+		
+		public static final String DEL_PREV_MSISDN_PIC = "del_prev_msisdn_pic";
 	}
 
 	public static final class LogEvent
@@ -2178,6 +2211,8 @@ public class HikeConstants
 		public static final String PHOTOS_SET_AS_DP = "phSetDP";
 		
 		public static final String PHOTOS_SEND_TO = "phSend";
+		
+		public static final String PHOTOS_UNABLE_TO_LOAD = "phImgNotLoad";
 		
 		
 		
@@ -2964,6 +2999,12 @@ public class HikeConstants
 
 	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
 
+	public static final String TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT = "headlessimage_down_fragment";
+	
+	public static final String TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT = "headlessimage_up_fragment";
+
+	public static final String IMAGE_PATHS = "image-paths";
+
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 	
 	public static final String  MODULE_STICKER_SEARCH = "stickersearch";
@@ -2974,8 +3015,14 @@ public class HikeConstants
 
 	public static final String NOTIFICATIONS_PRIORITY = "npc";
 
+	public static final String SEND_TIMESTAMP = "c";
+
 	public static final String FT_HOST_IPS = "ftHostIps";
 	
+	public static final String HTTP_HOST_IPS = "httpHostIps";
+
+	public static final String HTTP_HOST_PLATFORM_IPS = "httpHostPlfIps";
+
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
 	
 	public static class IntentAction
@@ -2999,4 +3046,8 @@ public class HikeConstants
 	public static final String STICKER_RECOMMENDATION_ENABLED = "sre";
 	
 	public static final String STICKER_TAG_REFRESH_TIME = "strt";
+
+	public static final String CALLBACK_ID ="callbackid";
+
+	public static final String DEVICE_DETAILS = "dd";
 }

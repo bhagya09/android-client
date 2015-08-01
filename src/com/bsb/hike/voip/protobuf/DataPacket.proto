@@ -24,4 +24,7 @@ message DataPacket {
 	}
 	
 	repeated BroadcastHost broadcastList = 11;
+	
+	// Added in v3
+	repeated bytes dataList = 12;
 }

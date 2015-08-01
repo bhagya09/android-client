@@ -1393,7 +1393,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void fetchPersistentData()
 	{
-		nameTxt = preferences.getString(HikeMessengerApp.NAME, "Set a name!");
+		nameTxt = preferences.getString(HikeMessengerApp.NAME_SETTING, "Set a name!");
 		setLocalMsisdn(preferences.getString(HikeMessengerApp.MSISDN_SETTING, null));
 		emailTxt = preferences.getString(HikeConstants.Extras.EMAIL, "");
 		lastSavedGender = preferences.getInt(HikeConstants.Extras.GENDER, 0);
@@ -3041,17 +3041,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public String profileImageCropped()
 	{
 		String path = super.profileImageCropped();
-		String httpApi = null;
 		
 		if ((this.profileType == ProfileType.USER_PROFILE || this.profileType == ProfileType.USER_PROFILE_EDIT))
 		{
-			httpApi = AccountUtils.USER_DP_UPDATE_URL;
+			uploadProfilePicture(mLocalMSISDN);
 		}
 		else if(this.profileType == ProfileType.GROUP_INFO)
 		{			
-			httpApi = AccountUtils.GROUP_DP_UPDATE_URL_PREFIX + oneToNConversation.getMsisdn() + AccountUtils.GROUP_DP_UPDATE_URL_SUFFIX;
+			uploadProfilePicture(oneToNConversation.getMsisdn());
 		}
-		uploadProfilePicture(httpApi);			
 		return path;
 	}
 		
