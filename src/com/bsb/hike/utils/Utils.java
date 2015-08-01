@@ -1853,8 +1853,10 @@ public class Utils
 
 	public static boolean shouldChangeMessageState(ConvMessage convMessage, int stateOrdinal)
 	{
+	
 		if (convMessage == null || convMessage.getTypingNotification() != null || convMessage.getUnreadCount() != -1)
 		{
+			Logger.d("BufRef","ConvMessage is null" + convMessage);
 			return false;
 		}
 		int minStatusOrdinal;
@@ -1870,8 +1872,10 @@ public class Utils
 			maxStatusOrdinal = stateOrdinal;
 		}
 
+		
 		int convMessageStateOrdinal = convMessage.getState().ordinal();
 
+		Logger.d("BugRef","Ordinal state of our ConvMessage is "+convMessageStateOrdinal);
 		if (convMessageStateOrdinal <= maxStatusOrdinal && convMessageStateOrdinal >= minStatusOrdinal)
 		{
 			return true;
