@@ -3269,24 +3269,30 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected boolean onMessageDelivered(Object object)
 	{
 
+		
 		Pair<String, Long> pair = (Pair<String, Long>) object;
 		// If the msisdn don't match we simply return
 		if (!mConversation.getMsisdn().equals(pair.first))
 		{
 			return false;
 		}
+		
 		long msgID = pair.second;
+		Logger.d("BugRef","in OnMessage Delivered  .. msg id is "+ msgID);
 		// TODO we could keep a map of msgId -> conversation objects
 		// somewhere to make this faster
 		ConvMessage msg = findMessageById(msgID);
 		if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_DELIVERED.ordinal()))
 		{
+			Logger.d("BugRef","Going to update state for msg ID"+msgID);
 			// Adding file key for file transfer message in offline mode
 			if (msg.isOfflineMessage() && OfflineUtils.isFileTransferMessage(msg.serialize()))
 			{
+				Logger.d("BugRef","UPDATING FILE KEY FOR   .. msg id is "+ msgID);
 				if (TextUtils.isEmpty(msg.getMetadata().getHikeFiles().get(0).getFileKey()))
 				{
 					msg.getMetadata().getHikeFiles().get(0).setFileKey("OfflineFileKey" + System.currentTimeMillis() / 1000);
+					Logger.d("BugRef","UPDATIED FILE KEY FOR   .. msg id is "+ msgID);
 				}
 			}
 			msg.setState(ConvMessage.State.SENT_DELIVERED);
