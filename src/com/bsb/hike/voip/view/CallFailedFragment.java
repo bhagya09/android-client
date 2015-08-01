@@ -67,6 +67,7 @@ public class CallFailedFragment extends SherlockFragment
 			public void onClick(View v) {
 				if(enableRedial)
 				{
+					((CallFailedFragListener)getSherlockActivity()).removeCallFailedFragment();
 					Intent intent = IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
 					getSherlockActivity().startService(intent);
 				}

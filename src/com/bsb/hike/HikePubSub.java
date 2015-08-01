@@ -399,6 +399,8 @@ public class HikePubSub implements Runnable
 	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
+
+	public static final String PORTS_CHANGED = "portsChanged";
 	
 	private final Thread mThread;
 
