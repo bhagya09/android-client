@@ -2251,6 +2251,12 @@ public class MqttMessagesManager
 			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
 		}
+		if (data.has(HikeConstants.CHAT_SEARCH_ENABLED))
+		{
+			boolean chatSearchEnable = data.getBoolean(HikeConstants.CHAT_SEARCH_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_SEARCH_ENABLED, chatSearchEnable);
+		}
+
 		if (data.has(HikeConstants.INVITE_TOKEN))
 		{
 			editor.putString(HikeConstants.INVITE_TOKEN, data.getString(HikeConstants.INVITE_TOKEN));
