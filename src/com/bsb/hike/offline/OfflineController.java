@@ -561,6 +561,16 @@ public class OfflineController
 	public String getConnectingDevice() 
 	{
 		return offlineManager.getConnectingDevice();
+	}
+
+	public ConvMessage getMessage(long msgID)
+	{
+		FileTransferModel ftm = fileManager.getConvMessageFromCurrentSendingFiles(msgID);
+		if (ftm != null)
+		{
+			return ftm.getConvMessage();
+		}
+		return null;
 	}	
 
 }

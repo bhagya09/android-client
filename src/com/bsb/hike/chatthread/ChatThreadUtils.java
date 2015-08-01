@@ -390,6 +390,11 @@ public class ChatThreadUtils
 	{
 		if (message.isSent() && message.isFileTransferMessage())
 		{
+			if (message.isOfflineMessage())
+			{
+				ConvMessage msg = OfflineController.getInstance().getMessage(message.getMsgID());
+				return msg;
+			}
 			ConvMessage msg = FileTransferManager.getInstance(context).getMessage(message.getMsgID());
 			return msg;
 		}
