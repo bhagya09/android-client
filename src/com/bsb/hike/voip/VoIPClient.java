@@ -879,6 +879,7 @@ public class VoIPClient  {
 			setCallStatus(VoIPConstants.CallStatus.ENDED);
 		}
 
+		// Call summary in chat thread
 		if (TextUtils.isEmpty(groupChatMsisdn)) {
 			VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
 		}
