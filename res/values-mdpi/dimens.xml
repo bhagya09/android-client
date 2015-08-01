@@ -34,4 +34,6 @@
 	<dimen name="photos_filters_preview_padding">7dp</dimen>
 	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
 	<dimen name="broadcast_ftue_text_right_padding">15dp</dimen>
+	<dimen name="photos_selector_top_padding">4dp</dimen>
+	<dimen name="preview_brush_width">38dp</dimen>
 </resources>

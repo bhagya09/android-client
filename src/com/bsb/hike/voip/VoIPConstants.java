@@ -8,12 +8,14 @@ public class VoIPConstants {
 	 * <p>Current VoIP protocol version.</p>
 	 * <p>Added in <b>v2</b>: <br/>
 	 * - Conference support
+	 * <p>Added in <b>v3</b>: <br/>
+	 * - Congestion control
 	 * </p>
 	 */
-	public static final int VOIP_VERSION = 2;
+	public static final int VOIP_VERSION = 3;
 	
 	// Relay and ICE server 
-	public static final String ICEServerName = "relay.hike.in";	 
+	public static final String ICEServerName = "relay.hike.in";	 // Staging: 54.179.137.97, Production: relay.hike.in 
 	public static final int ICEServerPort = 9998; 
 	final static String[] ICEServerIpAddresses = {"52.74.88.97", "52.74.113.80"};
 
@@ -34,13 +36,36 @@ public class VoIPConstants {
 	/**
 	 * Maximum size of a group to launch a conference call directly
 	 */
-	public static final int MAXIMUM_GROUP_CHAT_SIZE = 10;
+	public static final int MAXIMUM_GROUP_CHAT_SIZE = 100;
 	
 	/**
 	 * If a client does not provide audio data continuously this many times, 
 	 * we assume they are not speaking. 
 	 */
 	public static final int PLC_LIMIT = 5;
+
+	/**
+	 * If packet loss increases beyond this threshold, congestion control
+	 * will be triggered. 
+	 */
+	public static final int ACCEPTABLE_PACKET_LOSS = 10;
+
+	/**
+	 * If the number of participants in a conference exceeds this threshold, 
+	 * clients will stop transmitting audio completely when they do not
+	 * detect a voice signal from their mic. 
+	 */
+	public static final int CONFERENCE_THRESHOLD = 10;
+
+	/**
+	 * Number of seconds to wait for before triggering congestion control again.
+	 */
+	public static final int CONGESTION_CONTROL_REPEAT_THRESHOLD = 3;
+
+	/**
+	 * Number of ms to wait before broadcasting the list of clients again. 
+	 */
+	public static final int CONFERENCE_CLIENTS_LIST_BROADCAST_REPEAT = 2000;
 	
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
@@ -91,7 +116,6 @@ public class VoIPConstants {
 	public static final int MSG_STOP_RECONNECTION_BEEPS = 22;
 	public static final int MSG_CONNECTED = 23;
 	public static final int MSG_JOINED_CONFERENCE = 24;
-	public static final int MSG_LEFT_CONFERENCE = 25;
 	public static final int MSG_UPDATE_CONTACT_DETAILS = 26;
 	public static final int MSG_UPDATE_SPEAKING = 27;
 	public static final int MSG_BLUETOOTH_SHOW = 28;
@@ -189,6 +213,17 @@ public class VoIPConstants {
 		public static final String INCOMING_CALL = "incomingCall";
 		
 		public static final String VOIP_VERSION = "version";
+		
+		public static final String CONFERENCE = "conf";
+		
+		public static final String REMOVE_FAILED_FRAGMENT = "removeFailedFrag";
+		
+		public static final String STATUS = "st";
+		
+		public static final String SPEAKING = "sp";
+		
+		public static final String VOIP_CLIENTS = "cl";
+		
 	}
 
 	
@@ -204,6 +239,13 @@ public class VoIPConstants {
 		UNKNOWN
 	}
 
+	/**
+	 * Current status of a VoIP Client. 
+	 * <p>
+	 * <b>IMPORTANT: </b> Do not change the order of this enum. We use the ordinal values.
+	 * </p>
+	 *
+	 */
 	public static enum CallStatus
 	{
 		OUTGOING_CONNECTING, 

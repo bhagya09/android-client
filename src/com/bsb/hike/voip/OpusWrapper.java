@@ -81,6 +81,8 @@ public class OpusWrapper {
 	public void setEncoderBitrate(int bitrate) {
 		if (encoder == 0)
 			return;
+		
+//		Logger.d(VoIPConstants.TAG, "Encoder bitrate changed to: " + bitrate);
 		opus_set_bitrate(encoder, bitrate);
 	}
 	

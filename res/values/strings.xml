@@ -990,7 +990,6 @@
     <string name="ftue_status_update_card_header">Express yourself</string>
     <string name="ftue_status_update_card_msg">Tap here to post a status update. Only your favorites can see them.</string>
     <string name="earn_free_sms">Earn free SMS</string>
-    <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing Stickers, the ability to choose who sees my Last Seen and some really cool Chat Themes. \n\nThe best part? Hike has thing called Hidden Mode that lets you hide your private chats, from the world! Awesome!\n\nDownload it like asap from http://hike.in!</string>
     <string name="email_subject">hike up your life</string>
     <string name="ftue_card_header_last_seen">Last seen</string>
     <string name="ftue_card_body_last_seen">Only favorites can see your last seen &amp; status updates</string>
@@ -1308,6 +1307,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_signal_weak">WEAK</string>
     <string name="voip_signal_excellent">EXCELLENT</string>
     <string name="voip_conference_label">Conference Call</string>
+    <string name="voip_conference_waiting_for_participants_info">Waiting for conference info...</string>
     <string name="hike_calls">Hike Calls</string>
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>
@@ -1515,7 +1515,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
-	<string name="edit_photos">New Photo</string>
+	<string name="edit_photos">New photo</string>
 	<string name="gif_not_working">Invalid GIF</string>
 	<string name="gif_sent">GIF</string>
 	<string name="gif_received">Sent you a GIF</string>
@@ -1554,7 +1554,19 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="unknown_server_error">Unable to download the file.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
+	<string name="task_already_running">Task already running</string>
     <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
-    
+    <string name="invite_friends_earn_rewards">Invite friends to hike and earn rewards</string>
+    <string name="your_referral_code">Your <b>referral</b> code</string>
+    <string name="share_referral_code">Share your referral code anywhere and earn rewards for every friend who joins through your invite</string>
+    <string name="copied_to_clipboard">Copied to clipboard.</string>
+    <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing Stickers, the ability to choose who sees my Last Seen and some really cool Chat Themes. \n\nThe best part? Hike has thing called Hidden Mode that lets you hide your private chats, from the world! Awesome!\n\nDownload it like asap from http://hike.in/%1$s</string>
+    <string name="photos_image_greater_than_edit_limit">File too large to edit!</string>
+    <string name="multi_edit_undo_warning">Discard all image editing changes?</string>
+    <string name="multi_edit_undo_warning_header">Discard Changes?</string>
+    <string name="photos_oom_upload">Unable to Upload Image\nNot Enough Memory On Device.</string>
+    <string name="goto_timeline">Go to Timeline.</string>
+    <string name="contacts_sync_error">Contact sync failed. Please try again</string>
+    <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
 </resources>
