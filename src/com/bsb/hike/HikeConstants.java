@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Environment;
 
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 public class HikeConstants
 {
@@ -454,7 +453,13 @@ public class HikeConstants
 	public static final String SEND_ENTER_PREF = "enterSendPref";
 		
 	public static final String DOUBLE_TAP_PREF = "doubleTapPref";
+	
+	public static final String STICKER_REORDER_PREF = "stickerReOrderPref";
 
+	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
+	
+	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
+	
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
 
 	public static final String RESET_STEALTH_PREF = "resetStealthPref";
@@ -1043,6 +1048,10 @@ public class HikeConstants
 	public static final int RETRY_WAIT_ADDITION = 2;
 
 	public static final String IMAGE_FRAGMENT_TAG = "imageFragmentTag";
+	
+	public static final String STICKER_RECOMMENDATION_FRAGMENT_TAG = "stickerRecommendationFragmentTag";
+	
+	public static final String STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG = "stickerRecommendationFragmentFtueTag";
 
 	public static final String SHOW_STEALTH_POPUP = "stlthrmd";
 
@@ -1622,6 +1631,8 @@ public class HikeConstants
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
+		
+		public static final String LAST_MESSAGE_TIMESTAMP = "lastMessageTimeStamp";
 
 		public static final String ENABLE_SEND_LOGS = "ulogs_on";
 	}
@@ -1916,11 +1927,29 @@ public class HikeConstants
 
 		public static final String PIN_HISTORY_VIA_PIN_CLICK = "pinHistoryViaPinClick";
 
-		public static final String STICKER_BTN_CLICKED = "stickerBtnClicked";
+		public static final String STICKER_BTN_CLICKED = "sBnc";
 
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
+		
+		public static final String STKR_SHOP_BTN_CLICKED_FROM_RECOMMENDATION_FTUE = "ftshpck";
 
 		public static final String STICKER_SETTING_BTN_CLICKED = "stickerSettingBtnClicked";
+		
+		public static final String STICKER_RECOMMENDATION_PANEL_SETTINGS_BTN_CLICKED = "srps";
+		
+		public static final String STICKER_RECOMMENDATION_MANUAL_SETTING_STATE = "srMTs";
+		
+		public static final String STICKER_RECOMMENDATION_AUTOPOPUP_SETTING_STATE = "srATs";
+		
+		public static final String STICKER_RECOMMENDATION_REJECTION_KEY = "srCrP";
+		
+		public static final String STICKER_RECOMMENDATION_FTUE1_REJECTION_KEY = "srCrFt1";
+		
+		public static final String STICKER_RECOMMENDATION_FTUE2_REJECTION_KEY = "srCrFt2";
+		
+		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
+		
+		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
 		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
 
@@ -2881,6 +2910,8 @@ public class HikeConstants
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
+	public static final String CATEGORY_ID_LIST = "sId_list";
+	
 	public static final String HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE = "contact_pick_result_for_conference";
 
 	public static final String NOTIFIACTION_DELAY_GROUP = "gnt";
@@ -2914,8 +2945,15 @@ public class HikeConstants
 	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
 	
 	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
+	
+	public static final String PACKS = "packs";
+	
+	public static final String STICKERS = "stkrs";
+	
+	public static final String IMAGE = "img";
 
 	public static final String OTHER_EXCEPTION_LOGGING = "otherExLoging";
+	
 	public static final String HTTP_EXCEPTION_LOGGING = "httpExc";
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
@@ -2928,9 +2966,37 @@ public class HikeConstants
 
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 	
+	public static final String  MODULE_STICKER_SEARCH = "stickersearch";
+	
+	public static final String NUMBER_OF_PACKS = "np";
+	
+	public static final String PACK_DATA = "pd";
+
 	public static final String NOTIFICATIONS_PRIORITY = "npc";
 
 	public static final String FT_HOST_IPS = "ftHostIps";
 	
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+	
+	public static class IntentAction
+	{
+		public static final String ACTION_KEYBOARD_OPEN = "com.bsb.hike.action.keyboardopen";
+		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
+	}
+	
+	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
+	
+	public static final String TAGGED_PHRASE = "tg";
+	
+	public static final String TAP_WORD = "tap";
+	
+	public static final String ACCURACY = "ac";
+	
+	public static final String STICKER_ID = "stkId";
+	
+	public static final String CATEGORY_ID = "catId";
+	
+	public static final String STICKER_RECOMMENDATION_ENABLED = "sre";
+	
+	public static final String STICKER_TAG_REFRESH_TIME = "strt";
 }

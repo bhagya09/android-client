@@ -714,11 +714,7 @@ public class VoIPUtils {
 	 */
 	public static InetAddress getRelayIpFromHardcodedAddresses() {
 
-		Set<String> ipSet = null;
-		
-		if (Utils.isHoneycombOrHigher())
-			ipSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.VOIP_RELAY_IPS, null);
-		
+		Set<String> ipSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.VOIP_RELAY_IPS, null);
 		Random random = new Random();
 		int index = 0;
 		InetAddress address = null;
