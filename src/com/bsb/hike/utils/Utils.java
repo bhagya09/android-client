@@ -905,6 +905,25 @@ public class Utils
 		return highlight;
 	}
 
+	public static String getDeviceId(Context context)
+	{
+		String deviceId = null;
+		try
+		{
+			deviceId = getHashedDeviceId(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID));
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			e.printStackTrace();
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		return deviceId;
+	}
+
+	
 	public static void recordDeviceDetails(Context context)
 	{
 		try
@@ -928,19 +947,6 @@ public class Utils
 			TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
 			String osVersion = Build.VERSION.RELEASE;
-			String deviceId = null;
-			try
-			{
-				deviceId = getHashedDeviceId(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID));
-			}
-			catch (NoSuchAlgorithmException e)
-			{
-				e.printStackTrace();
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				e.printStackTrace();
-			}
 			String os = "Android";
 			String carrier = manager.getNetworkOperatorName();
 			String device = Build.MANUFACTURER + " " + Build.MODEL;
@@ -954,7 +960,7 @@ public class Utils
 					metadata.put(entry.getKey(), entry.getValue());
 				}
 			}
-			metadata.put(HikeConstants.LogEvent.DEVICE_ID, deviceId);
+			metadata.put(HikeConstants.LogEvent.DEVICE_ID, getDeviceId(context));
 			metadata.put(HikeConstants.LogEvent.OS, os);
 			metadata.put(HikeConstants.LogEvent.OS_VERSION, osVersion);
 			metadata.put(HikeConstants.LogEvent.DEVICE, device);
