@@ -1153,7 +1153,7 @@ public class StickerSearchHostManager
 
 		ArrayList<StickerDataContainer> cachedStickerData = sCacheForLocalSearch.get(searchKey);
 
-		if ((cachedStickerData != null) && (cachedStickerData.size() > 0))
+		if (!Utils.isEmpty(cachedStickerData))
 		{
 			String plainSearchKey = searchKey.replaceAll(StickerSearchConstants.REGEX_PREDICATE, StickerSearchConstants.STRING_EMPTY);
 
