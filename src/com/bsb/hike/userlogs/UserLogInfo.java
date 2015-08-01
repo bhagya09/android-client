@@ -33,6 +33,7 @@ import android.provider.CallLog;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.bsb.hike.GCMIntentService;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R.string;
@@ -49,6 +50,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.google.android.gcm.GCMRegistrar;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -72,6 +74,7 @@ public class UserLogInfo {
 	public static final int ADVERTISIND_ID_FLAG = 8;
 	public static final int FETCH_LOG_FLAG = 16;
 	public static final int PHONE_SPEC = 32;
+	public static final int DEVICE_DETAILS = 64;
 	
 	
 	private static final long milliSecInDay = 1000 * 60 * 60 * 24;
@@ -250,6 +253,7 @@ public class UserLogInfo {
 			case (LOCATION_ANALYTICS_FLAG): jsonKey = HikeConstants.LOCATION_LOG_ANALYTICS; break;
 			case (FETCH_LOG_FLAG): jsonKey = HikeConstants.SESSION_LOG_TRACKING; break;
 			case (PHONE_SPEC): jsonKey = HikeConstants.PHONE_SPEC; break;
+			case (DEVICE_DETAILS): jsonKey = HikeConstants.DEVICE_DETAILS; break;
 			
 		}
 		return jsonKey;
@@ -286,6 +290,17 @@ public class UserLogInfo {
 		return null;
 	}
 	
+	private static JSONArray getDeviceDetails() throws JSONException
+	{
+		Context  context = HikeMessengerApp.getInstance().getApplicationContext();
+		JSONObject deviceDetails = Utils.getPostDeviceDetails(context);
+		deviceDetails.put(GCMIntentService.DEV_TOKEN, GCMRegistrar.getRegistrationId(context));
+        deviceDetails.put(HikeConstants.LogEvent.DEVICE_ID, Utils.getDeviceId(context));
+        Logger.d("Device Details", deviceDetails.toString());
+        return new JSONArray().put(deviceDetails);
+	}
+	
+	
 	private static JSONArray collectLogs(int flag) throws JSONException{	
 		switch(flag){
 			case APP_ANALYTICS_FLAG : return getJSONAppArray(getAppLogs()); 
@@ -294,6 +309,7 @@ public class UserLogInfo {
 			case ADVERTISIND_ID_FLAG : return getAdvertisingId();
 			case FETCH_LOG_FLAG : return getJSONLogArray(getLogsFor(HikeConstants.SESSION_LOG_TRACKING));
 			case PHONE_SPEC:  return PhoneSpecUtils.getPhoneSpec();
+			case DEVICE_DETAILS:  return getDeviceDetails();
 			default : return null;
 		}
 	}
@@ -458,6 +474,10 @@ public class UserLogInfo {
 		if(data.optBoolean(HikeConstants.PHONE_SPEC))
 		{
 			flags |= UserLogInfo.PHONE_SPEC;
+		}
+		if(data.optBoolean(HikeConstants.DEVICE_DETAILS))
+		{
+			flags |= UserLogInfo.DEVICE_DETAILS;
 		}
 		
 		if(flags == 0) 
