@@ -381,14 +381,12 @@ public class PlatformUtils
 		createBotMqttAnalytics(key, botInfo, null);
 	}
 
-	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject metadata)
+	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
-		if (metadata == null)
-		{
-			metadata = new JSONObject();
-		}
+
 		try
 		{
+			JSONObject metadata = json == null ? new JSONObject() : new JSONObject(json.toString());
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.NON_UI_EVENT);
 
