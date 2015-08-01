@@ -1057,6 +1057,7 @@ public class VoIPClient  {
 				packet = new DatagramPacket(packetData, packetData.length, getCachedInetAddress(), getPreferredPort());
 				
 			socket.send(packet);
+			
 			totalBytesSent += packet.getLength();
 			totalPacketsSent++;
 		} catch (IOException e) {
