@@ -3041,17 +3041,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public String profileImageCropped()
 	{
 		String path = super.profileImageCropped();
-		String httpApi = null;
 		
 		if ((this.profileType == ProfileType.USER_PROFILE || this.profileType == ProfileType.USER_PROFILE_EDIT))
 		{
-			httpApi = AccountUtils.USER_DP_UPDATE_URL;
+			uploadProfilePicture(mLocalMSISDN);
 		}
 		else if(this.profileType == ProfileType.GROUP_INFO)
 		{			
-			httpApi = AccountUtils.GROUP_DP_UPDATE_URL_PREFIX + oneToNConversation.getMsisdn() + AccountUtils.GROUP_DP_UPDATE_URL_SUFFIX;
+			uploadProfilePicture(oneToNConversation.getMsisdn());
 		}
-		uploadProfilePicture(httpApi);			
 		return path;
 	}
 		

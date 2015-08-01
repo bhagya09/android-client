@@ -21,7 +21,6 @@ import java.net.URL;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,8 +75,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -133,7 +132,6 @@ import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -207,7 +205,6 @@ import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -1063,7 +1060,9 @@ public class Utils
 
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
+	
 		String myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		
 		long userJoinTime = prefs.getLong(HikeMessengerApp.USER_JOIN_TIME, 0);
 
 		String myName;
@@ -1388,9 +1387,10 @@ public class Utils
 	{
 		String result = null;
 		Cursor cursor = null;
+		String[] projection = { MediaStore.Images.Media.DATA };
 		try
 		{
-			cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+			cursor = mContext.getContentResolver().query(uri, projection, null, null, null);
 			if (cursor == null)
 			{
 				result = uri.getPath();
@@ -1404,10 +1404,7 @@ public class Utils
 					{
 						result = cursor.getString(idx);
 					}
-					else if(isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
-					{
-						result = getPathFromDocumentedUri(uri, mContext);
-					}
+					
 				}
 				else
 				{
@@ -1423,6 +1420,18 @@ public class Utils
 		{
 			if (cursor != null)
 				cursor.close();
+		}
+		
+		try
+		{
+			if(result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+			{
+				result = getPathFromDocumentedUri(uri, mContext);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 		return result;
 	}
@@ -2432,9 +2441,21 @@ public class Utils
 
 	public static String getTempProfileImageFileName(String msisdn)
 	{
-		return getValidFileNameForMsisdn(msisdn) + "_tmp.jpg";
+		return getTempProfileImageFileName(msisdn, false);
 	}
 
+	public static String getTempProfileImageFileName(String msisdn,boolean useTimeStamp)
+	{
+		String suffix = "_tmp.jpg";
+		
+		if(useTimeStamp)
+		{
+			suffix = Long.toString(System.currentTimeMillis())+suffix;
+		}
+		
+		return getValidFileNameForMsisdn(msisdn) +suffix;
+	}
+	
 	public static String getProfileImageFileName(String msisdn)
 	{
 		return getValidFileNameForMsisdn(msisdn) + ".jpg";
@@ -2452,6 +2473,45 @@ public class Utils
 		(new File(path, fileName)).delete();
 	}
 
+	public static boolean renameFiles(String newFilePath, String oldFilePath)
+	{
+		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
+		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
+		{
+			File tempFile = new File(oldFilePath);
+			File newFile = new File(newFilePath);
+			if(tempFile.exists())
+			{
+				return tempFile.renameTo(newFile);
+			}
+			return false;
+		}
+		else
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			return false;
+		}
+	}
+
+	public static boolean removeFile(String tmpFilePath)
+	{
+		if(!TextUtils.isEmpty(tmpFilePath))
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			File file = new File(tmpFilePath);
+			if(file.exists())
+			{
+				return file.delete();
+			}
+			return false;
+		}
+		else
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			return false;
+		}
+	}
+	
 	public static void vibrateNudgeReceived(Context context)
 	{
 		String VIB_OFF = context.getResources().getString(R.string.vib_off);
@@ -3160,6 +3220,17 @@ public class Utils
 			}
 		}
 		file.delete();
+	}
+	
+	public static void deleteFile(Context context,String filename,HikeFileType type)
+	{
+		if(TextUtils.isEmpty(filename))
+		{
+			return;
+		}
+		
+		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
+		temp.delete(context);
 	}
 
 	public static void sendLogEvent(JSONObject data)
@@ -6044,11 +6115,6 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
-		if (Build.MANUFACTURER != null && Build.MANUFACTURER.toLowerCase().startsWith("asus"))
-		{
-			return false;
-		}
-
 		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
 		{
 			return false;
@@ -6373,6 +6439,20 @@ public class Utils
 		return formedUri;
 	}
 	
+	public static void deleteFiles(Context context,ArrayList<String> fileNames,HikeFileType type)
+	{
+		if(fileNames == null || fileNames.isEmpty())
+		{
+			return;
+		}
+		
+		for(String filepath : fileNames)
+		{
+			deleteFile(context, filepath, type);
+		}
+		
+	}
+
 	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
 	{
 		if (db != null)
