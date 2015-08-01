@@ -1149,6 +1149,7 @@ public class StickerSearchHostManager
 		Logger.i(TAG, "getOrderedStickers(" + searchKey + ", " + minimumMatchingScore + ")");
 
 		LinkedHashSet<Sticker> stickers = null;
+		Logger.v(TAG, "Existing search keys in cache: " + sCacheForLocalSearch.keySet());
 
 		ArrayList<StickerDataContainer> cachedStickerData = sCacheForLocalSearch.get(searchKey);
 
@@ -1188,6 +1189,7 @@ public class StickerSearchHostManager
 
 			int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
 			int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
+			Logger.v(TAG, "contextMomentCode = " + contextMomentCode + ", currentMomentTerminalCode = " + currentMomentTerminalCode);
 
 			stickers = new LinkedHashSet<Sticker>();
 
@@ -1253,7 +1255,6 @@ public class StickerSearchHostManager
 				stickerDataContainer = stickerData.get(i);
 				if (stickerDataContainer != null)
 				{
-
 					int stickerMometCode = stickerDataContainer.getMomentCode();
 					float phraseMatchScore = computeAnalogousScoreForExactMatch(searchKey,
 							stickerDataContainer.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
@@ -1334,12 +1335,15 @@ public class StickerSearchHostManager
 			}
 
 			// Apply time division, if such stickers are found after ordering
-			if (timePrioritizedStickerList.size() > 0)
+			int timelyStcikersCount = timePrioritizedStickerList.size();
+
+			if (timelyStcikersCount > 0)
 			{
 				Collections.sort(timePrioritizedStickerList);
 				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>();
-				for (StickerDataContainer timelySticker : leastButSignificantStickerDataList)
+				for (int i = 0; i < timelyStcikersCount; i++)
 				{
+					StickerDataContainer timelySticker = timePrioritizedStickerList.get(i);
 					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(timelySticker.getStickerCode(), timelySticker.getStickerAvailabilityStatus()));
 				}
 
