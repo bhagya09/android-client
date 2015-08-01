@@ -2497,10 +2497,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return muteInt == 0 ? false : true;
 	}
 
-	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxMsgId)
+	public List<ConvMessage> getConversationThread(String msisdn, int limit, Conversation conversation, long maxMsgId, long minMsgId)
 	{
 		String limitStr = (limit == -1) ? null : new Integer(limit).toString();
-		String selection = DBConstants.MSISDN + " = ?" + (maxMsgId == -1 ? "" : " AND " + DBConstants.MESSAGE_ID + "<" + maxMsgId);
+		String selection = DBConstants.MSISDN + " = ?";
+		if (maxMsgId != -1)
+		{
+			selection = selection + " AND " + DBConstants.MESSAGE_ID + "<" + maxMsgId;
+		}
+		if (minMsgId != -1)
+		{
+			selection = selection + " AND " + DBConstants.MESSAGE_ID + ">" + minMsgId;
+		}
 		Cursor c = null;
 		try
 		{
@@ -2627,11 +2635,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				if (limit != -1 && unreadCount > limit)
 				{
-					messages = getConversationThread(msisdn, unreadCount, conv, -1);
+					messages = getConversationThread(msisdn, unreadCount, conv, -1, -1);
 				}
 				else
 				{
-					messages = getConversationThread(msisdn, limit, conv, -1);
+					messages = getConversationThread(msisdn, limit, conv, -1, -1);
 				}
 				conv.setMessages(messages);
 			}

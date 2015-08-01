@@ -22,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
@@ -355,25 +356,33 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	 * @param path of the bitmap
 	 */
 	private void setGroupPreivewBitmap(String path)
-	{
-		Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(path, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
-				Bitmap.Config.RGB_565, true, false);
+    {
+        Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(path, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
+                Bitmap.Config.RGB_565, true, false);
+        
+        if(tempBitmap == null)
+        {
+            Toast.makeText(getApplicationContext(), R.string.photos_oom_upload, Toast.LENGTH_LONG).show();
+            return;
+        }
 
-		groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
-		convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
-		if (editImageIcon != null) {
-			editImageIcon.setImageResource(R.drawable.ic_edit_group);
-		}
+        groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
+        convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
+        if (editImageIcon != null) {
+            editImageIcon.setImageResource(R.drawable.ic_edit_group);
+        }
 
-		/*
-		 * Saving the icon in the DB.
-		 */
-		byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
+        /*
+         * Saving the icon in the DB.
+         */
+        byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
 
-		tempBitmap.recycle();
-		ContactManager.getInstance().setIcon(convId, bytes, false);
-	}
-
+        if(!tempBitmap.isRecycled())
+        {
+            tempBitmap.recycle();
+        }
+        ContactManager.getInstance().setIcon(convId, bytes, false);
+    }
 	private void sendBroadCastAnalytics()
 	{
 		try

@@ -12,12 +12,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.ProfileImageDownloader;
@@ -37,15 +35,17 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 
 	private LoaderListener loaderListener;
 
-	String basePath;
+	private String basePath;
 
-	String mappedId;
+	private String mappedId;
 
-	boolean hasCustomImage;
+	private boolean hasCustomImage;
 	
-	boolean isStatusImage;
+	private boolean isStatusImage;
+	
+	private boolean isResultReq;
 
-	public ProfileImageLoader(Context context, String msisdn, ImageView imageView, int imageSize, boolean isStatusImage) 
+	public ProfileImageLoader(Context context, String msisdn, ImageView imageView, int imageSize, boolean isStatusImage, boolean isResultReq) 
 	{
 		this.context = context;
 		this.msisdn = msisdn;
@@ -55,6 +55,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		basePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		mappedId = msisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
 		this.isStatusImage = isStatusImage;
+		this.isResultReq = isResultReq;
 	}
 
 	/*
@@ -145,7 +146,14 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 				BitmapDrawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 				setImageDrawable(drawable);
 
-				loaderManager.initLoader(0, null, this);
+				if(isResultReq && loaderListener != null)
+				{
+					loaderListener.startDownloading();
+				}
+				else
+				{
+					loaderManager.initLoader(0, null, this);
+				}
 			}
 		}
 		else
@@ -155,7 +163,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		return hasCustomImage;
 	}
 
-	private void loadFromFile() 
+	public void loadFromFile() 
 	{
 		String fileName = Utils.getProfileImageFileName(msisdn);
 
@@ -244,5 +252,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1);
 
 		public void onLoaderReset(Loader<Boolean> arg0);
+		
+		void startDownloading();
 	}
 }

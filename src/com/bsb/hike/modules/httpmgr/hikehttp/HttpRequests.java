@@ -12,10 +12,6 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
@@ -26,6 +22,10 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendUse
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.setProfileUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.signUpPinCallBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
@@ -37,13 +37,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bsb.hike.modules.httpmgr.request.StringRequest;
-import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONObject;
 
-import com.bsb.hike.HikeConstants;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -56,12 +54,14 @@ import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
+import com.bsb.hike.modules.httpmgr.request.StringRequest;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -475,6 +475,11 @@ public class HttpRequests
 	
 	public static RequestToken downloadImageTaskRequest(String id, String fileName, String filePath, boolean hasCustomIcon, boolean statusImage, String url, IRequestListener requestListener)
 	{
+		return downloadImageTaskRequest(id,fileName,filePath,hasCustomIcon,statusImage,url,false,requestListener);
+	}
+	
+	public static RequestToken downloadImageTaskRequest(String id, String fileName, String filePath, boolean hasCustomIcon, boolean statusImage, String url,boolean forceCreateNewToken, IRequestListener requestListener)
+	{
 		String urlString;
 		
 		if (TextUtils.isEmpty(url))
@@ -501,12 +506,21 @@ public class HttpRequests
 		{
 			urlString = url;
 		}
-		RequestToken requestToken = new FileRequest.Builder()
+		
+		FileRequest.Builder builder = new FileRequest.Builder()
 				.setUrl(urlString)
 				.setFile(filePath)
 				.setRequestListener(requestListener)
-				.get()
-				.build();
+				.get();
+		
+		if(forceCreateNewToken)
+		{
+			//this should be done when new image needs to be downloaded irrespectve of a previous download is running on the same URL
+			builder.setId(id+"_"+System.currentTimeMillis());
+		}
+			
+		RequestToken requestToken = builder.build();
+		
 		return requestToken;		
 	}
 	

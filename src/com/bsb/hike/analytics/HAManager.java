@@ -671,6 +671,24 @@ public class HAManager
 
 	}
 	
+	public void serviceEventAnalytics(String eventType, String serviceName)
+	{		
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.SERVICE);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.SERVICE, serviceName);
+			metadata.put(HikeConstants.TIMESTAMP, System.currentTimeMillis());
+			record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.SERVICE_STATS, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
 	
 	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
 	{
