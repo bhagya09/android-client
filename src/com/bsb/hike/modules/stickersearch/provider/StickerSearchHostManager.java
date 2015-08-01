@@ -889,7 +889,7 @@ public class StickerSearchHostManager
 	}
 
 	private Pair<String, LinkedHashSet<Sticker>> computeProbableStickers(String currentString, ArrayList<String> wordList, ArrayList<Integer> startIndexList,
-			ArrayList<Integer> endIndexList, String word, int wordIndexInText, boolean isFirstValidWord)
+			ArrayList<Integer> endIndexList, String word, int wordIndexInText, boolean isFirstValidWordOfSingleCharacter)
 	{
 		LinkedHashSet<Sticker> stickers = new LinkedHashSet<Sticker>();
 		LinkedHashSet<Sticker> tempSelectedStickers = null;
@@ -904,9 +904,12 @@ public class StickerSearchHostManager
 		// determine if exact match is needed
 		int actualStartOfWord = startIndexList.get(wordIndexInText);
 		int actualEndOfWord = endIndexList.get(wordIndexInText) - 1;
+		Logger.v(TAG, "ActualStartOfWord = " + actualStartOfWord + ", ActualEndOfWord = " + actualEndOfWord);
+		Logger.v(TAG, "CurrentTextEditingStartIndex = " + mCurrentTextEditingStartIndex + ", CurrentTextEditingEndIndex = " + mCurrentTextEditingEndIndex);
+		Logger.v(TAG, "isFirstValidWordOfSingleCharacter = " + (isFirstValidWordOfSingleCharacter && (word.length() == 1)));
 		boolean exactSearch = !((actualStartOfWord > mCurrentTextEditingStartIndex) ? ((actualStartOfWord <= mCurrentTextEditingEndIndex) && (actualEndOfWord == mCurrentTextEditingEndIndex))
 				: (actualEndOfWord >= mCurrentTextEditingEndIndex))
-				|| (isFirstValidWord && (word.length() == 1));
+				|| (isFirstValidWordOfSingleCharacter && (word.length() == 1));
 
 		// pre-phrase part
 		int j;
@@ -1074,7 +1077,7 @@ public class StickerSearchHostManager
 			{
 				if (exactSearch)
 				{
-					if ((currentPhrase.length() == 1) && (isFirstValidWord))
+					if ((currentPhrase.length() == 1) && (isFirstValidWordOfSingleCharacter))
 					{
 						tempSelectedStickers = getOrderedStickers(currentPhrase, StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_CHARACTER);
 					}
@@ -1143,17 +1146,25 @@ public class StickerSearchHostManager
 
 	private LinkedHashSet<Sticker> getOrderedStickers(String searchKey, float minimumMatchingScore)
 	{
-		String plainSearchKey = searchKey.replaceAll(StickerSearchConstants.REGEX_PREDICATE, StickerSearchConstants.STRING_EMPTY);
+		Logger.i(TAG, "getOrderedStickers(" + searchKey + ", " + minimumMatchingScore + ")");
+
 		LinkedHashSet<Sticker> stickers = null;
 
-		if (sCacheForLocalOrderedStickers.containsKey(plainSearchKey))
+		ArrayList<StickerDataContainer> cachedStickerData = sCacheForLocalSearch.get(searchKey);
+
+		if ((cachedStickerData != null) && (cachedStickerData.size() > 0))
 		{
-			stickers = sCacheForLocalOrderedStickers.get(plainSearchKey);
-		}
-		else
-		{
-			stickers = computeOrderingAndGetStickers(plainSearchKey, sCacheForLocalSearch.get(searchKey), minimumMatchingScore);
-			sCacheForLocalOrderedStickers.put(plainSearchKey, stickers);
+			String plainSearchKey = searchKey.replaceAll(StickerSearchConstants.REGEX_PREDICATE, StickerSearchConstants.STRING_EMPTY);
+
+			if (sCacheForLocalOrderedStickers.containsKey(plainSearchKey))
+			{
+				stickers = sCacheForLocalOrderedStickers.get(plainSearchKey);
+			}
+			else
+			{
+				stickers = computeOrderingAndGetStickers(plainSearchKey, cachedStickerData, minimumMatchingScore);
+				sCacheForLocalOrderedStickers.put(plainSearchKey, stickers);
+			}
 		}
 
 		return stickers;
@@ -1161,6 +1172,8 @@ public class StickerSearchHostManager
 
 	private LinkedHashSet<Sticker> computeOrderingAndGetStickers(String searchKey, ArrayList<StickerDataContainer> stickerData, float minimumMatchingScore)
 	{
+		Logger.i(TAG, "computeOrderingAndGetStickers(" + searchKey + ", " + stickerData + ", " + minimumMatchingScore + ")");
+
 		LinkedHashSet<Sticker> stickers = null;
 		int count = (stickerData == null) ? 0 : stickerData.size();
 
