@@ -48,6 +48,8 @@ public class HikeConstants
 	public static final String SUB_TYPE = "st";
 	
 	public static final String GROUP_CHAT_TIMESTAMP = "gts";
+	
+	public static final String GROUP_CREATOR = "c";
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -76,6 +78,16 @@ public class HikeConstants
 	public static final String NAME = "name";
 
 	public static final String MSISDN = "msisdn";
+	
+	public static final String ADMIN = "admin";
+	
+	public static final String ADMIN_MSISDN = "admin_msisdn";
+	
+	public static final String GROUP_SETTING = "gs";
+	
+	public static final String GROUP_TYPE = "gt";
+	
+	public static final String SETTING = "setting";
 
 	public static final String BOT_THUMBNAIL = "dp";
 
@@ -128,6 +140,8 @@ public class HikeConstants
 	public static final String CREDITS = "credits";
 
 	public static final String ON_HIKE = "onhike";
+	
+	public static final String ROLE = "role";
 	
 	public static final String IS_BROADCAST = "isBroadcast";
 
@@ -212,6 +226,8 @@ public class HikeConstants
 	public static final String ONE_TO_ONE_CONVERSATION = "oc";
 
 	public static final String MUTED = "muted";
+	
+	public static final String GROUPS = "groups";
 
 	public static final String POST_AB = "postab";
 	
@@ -1053,11 +1069,15 @@ public class HikeConstants
 	public static final String HIKE_OFFLINE_NOTIFICATION_PREF = "hikeOfflineNotificationPref";
 
 	public static final String PIN = "pin";
+	
+	public static final String RIGHTS = "rights";
 
 	public static final String UNREAD_COUNT = "unreadCount";
 
 	public static final String TO_SHOW = "toShow";
-
+	
+	public static final String ADD_MEMBERS = "addMembers";
+	
 	public static final String PIN_DISPLAYED = "displayed";
 
 	public static final int MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY = 51;
@@ -1411,6 +1431,8 @@ public class HikeConstants
 
 		public static final String CREATE_GROUP = "createGroup";
 		
+		public static final String CREATE_GROUP_SETTINGS = "createGroupSettings";
+		
 		public static final String CREATE_BROADCAST = "createBroadcast";
 		
 		public static final String COMPOSE_MODE = "composeMode";
@@ -1624,6 +1646,8 @@ public class HikeConstants
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 
 		public static final String ENABLE_SEND_LOGS = "ulogs_on";
+
+		public static final String NEW_GROUP = "newGroups";
 	}
 
 	public static final class LogEvent
@@ -2206,6 +2230,10 @@ public class HikeConstants
 		public static final String INVITE_INFO = "ii";
 
 		public static final String GROUP_CHAT_JOIN = "gcj";
+		
+		public static final String GROUP_ADMIN_UPDATE = "gaa";
+		
+		public static final String GROUP_SETTINGS_CHANGE = "gsc";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
 
@@ -2846,7 +2874,12 @@ public class HikeConstants
 		public static final int OTHER = 11;
 
 	}
-	
+	public static  class GROUPS_TYPE
+	{
+		public static final int OLD_GROUPS = 0;
+
+		public static final int MULTI_ADMIN = 1;
+	}
 	public static final  String NOTIFICATION_RETRY_JSON="notifretry";
 
 	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";

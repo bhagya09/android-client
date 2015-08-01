@@ -207,6 +207,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	int type = HikeConstants.Extras.NOT_SHAREABLE;
 	
 	private Menu mainMenu;
+
+	private int gcSettings = -1;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -244,6 +246,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		// was passed to add group participants.
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
 		{
+			if(getIntent().hasExtra(HikeConstants.Extras.CREATE_GROUP_SETTINGS)){
+				gcSettings = getIntent().getIntExtra(HikeConstants.Extras.CREATE_GROUP_SETTINGS, -1);
+			}
 			existingGroupOrBroadcastId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT);
 		}
 		else if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
@@ -256,6 +261,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			Bundle bundle = getIntent().getBundleExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE);
 			oneToNConvName = bundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
 			oneToNConvId = bundle.getString(HikeConstants.Extras.CONVERSATION_ID);
+			gcSettings = bundle.getInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS);
 		}
 		
 		if (savedInstanceState != null)
@@ -1041,7 +1047,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					createBroadcast = broadcastBundle.getBoolean(HikeConstants.Extras.CREATE_BROADCAST, true);
 					oneToNConvName = broadcastBundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
 					oneToNConvId = broadcastBundle.getString(HikeConstants.Extras.CONVERSATION_ID);
-					OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
+					OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, -1);
 					break;
 			}
 			
@@ -1183,7 +1189,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 				{
-					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
+					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, -1);
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
@@ -1193,8 +1199,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						Toast.makeText(getApplicationContext(), getString(R.string.minContactInGroupErr, MIN_MEMBERS_GROUP_CHAT), Toast.LENGTH_SHORT).show();
 						return;
 					}
-					
-					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
+					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
 				{
@@ -1343,7 +1348,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			
 			Intent intent = null;
 			if (arrayList.size() == 1) {
-				intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true);
+				intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true, false);
 			} else {
 				intent = Utils.getHomeActivityIntent(this);
 			}
@@ -1384,7 +1389,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			if(arrayList.size()==1)
 			{
 				// forwarding to 1 is special case , we want to create conversation if does not exist and land to recipient
-				intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false);
+				intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false, false);
 				intent.putExtras(presentIntent);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
@@ -1405,12 +1410,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						else
 						{
-							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false);
 						}
 					}
 					else
 					{
-						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false);
 					}
 
 				}
@@ -1907,7 +1912,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				@Override
 				public void run()
 				{
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, msisdn, false); 
+					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, msisdn, false, false); 
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
