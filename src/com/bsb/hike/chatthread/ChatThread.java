@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -86,7 +87,6 @@ import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -129,6 +129,8 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -151,10 +153,13 @@ import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
  * 
@@ -166,7 +171,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
 		OverflowViewListener, OnSoftKeyboardListener
 {
-	private static final String TAG = "chatthread";
+	private static final String TAG = ChatThread.class.getSimpleName();
 
 	protected static final int FETCH_CONV = 1;
 
@@ -281,7 +286,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected boolean reachedEnd = false;
 	
-	private boolean _doubleTapPref = false;
+	private volatile boolean _doubleTapPref = false;
 
 
 	private int currentFirstVisibleItem = Integer.MAX_VALUE;
@@ -326,6 +331,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected HikeDialog dialog;
 	
+	private StickerTagWatcher stickerTagWatcher;
+	
 	protected int mCurrentActionMode;
 
 	private boolean shouldKeyboardPopupShow;
@@ -345,7 +352,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					mStickerPicker.notifyDataSetChanged();
 					mStickerPicker.setRefreshStickers(true);
 				}
+				break;
+			case ACTION_KEYBOARD_CLOSED:
+				dismissStickerRecommendationPopup();
+				break;
 			}
+			
 		}
 	}
 
@@ -544,8 +556,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public void onCreate(Bundle savedState)
 	{
+		Logger.i(TAG, "onCreate(" + savedState + ")");
+
 		this.savedState = savedState;
 		init();
+		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
@@ -590,7 +605,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		audioRecordView = new AudioRecordView(activity, this);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-		
+		mComposeView.setOnClickListener(this);
 		initShareablePopup();
 
 		initActionMode();
@@ -599,16 +614,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		showNetworkError(ChatThreadUtils.checkNetworkError());
 		defineEnterAction();
+		
+		setupStickerSearch();
 	}
 
 	private void defineEnterAction() {
+		
 		if (mComposeView != null) {
 			//if send on enter setting is unchecked then send button will send the cursor to the next line.
 			if (!PreferenceManager.getDefaultSharedPreferences(
 					activity.getApplicationContext()).getBoolean(
-					HikeConstants.SEND_ENTER_PREF, false)) {
+					HikeConstants.SEND_ENTER_PREF, false))
+			{
 				mComposeView.setInputType(mComposeView.getInputType()
 						| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+			}
+			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
+			{
+				mComposeView.setInputType(mComposeView.getInputType()
+						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 			}
 			//Its a workaround to set the multiline editfield when android:imeOptions="actionSend".
     		mComposeView.setHorizontallyScrolling(false);
@@ -627,16 +651,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			int[] mEatOuterTouchIds =null;
 			if (shouldKeyboardPopupShow)
 			{
-				 mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message , R.id.msg_compose};	
+				 mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message , R.id.msg_compose, R.id.sticker_recommendation_parent};	
 			}else{
-				 mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message };
+				 mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.sticker_recommendation_parent};
 			}
 
 			initStickerPicker();
 			initEmoticonPicker();
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
-					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this,this);
+					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this, this);
 		}
 
 		else
@@ -1038,6 +1062,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
 			break;
+		case R.id.msg_compose:
+			if (mShareablePopupLayout.isShowing())
+			{
+				mShareablePopupLayout.dismiss();
+			}
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
@@ -1053,7 +1082,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		else
 		{
+			sendMessageForStickerRecommendLearning();
 			sendMessage();
+			dismissStickerRecommendationPopup();
+			dismissStickerRecommendTip();
 		}
 	}
 
@@ -1064,7 +1096,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	protected void sendMessage()
 	{
-		sendMessage(createConvMessageFromCompose());
+		ConvMessage convMessage = createConvMessageFromCompose();
+		sendMessage(convMessage);
 	}
 
 	protected ConvMessage createConvMessageFromCompose()
@@ -1099,6 +1132,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
+	private void sendMessageForStickerRecommendLearning()
+	{
+		String message = mComposeView.getText().toString();
+		if (TextUtils.isEmpty(message))
+		{
+			return;
+		}
+		StickerSearchManager.getInstance().sentMessage(message, null, null, null);
+		
+		if(stickerTagWatcher!= null)
+		{
+			stickerTagWatcher.sendIgnoreAnalytics();
+		}
+	}
+	
 	protected void audioRecordClicked()
 	{
 		showAudioRecordView();
@@ -1115,6 +1163,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		initStickerPicker();
 		
 		closeStickerTip();
+		StickerManager.getInstance().sendStickerButtonClickAnalytics();
 		
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
@@ -1137,20 +1186,31 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_TIP) || (!mTips.seenTip(ChatThreadTips.STICKER_TIP)))
 		{
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
-			recordFirstTimeStickerClick();
-		}
-	}
-
-	private void recordFirstTimeStickerClick()
-	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKED_BTN_CLICKED_FIRST_TIME, false))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKED_BTN_CLICKED_FIRST_TIME, true);
-
-			HAManager.getInstance().record(HikeConstants.LogEvent.STICKER_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
 		}
 	}
 	
+	public void showStickerRecommendTip()
+	{
+		mTips.showStickerRecommendFtueTip();
+	}
+	
+	public void dismissStickerRecommendTip()
+	{
+		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		{
+			mTips.hideTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		}
+	}
+	
+	public void setStickerRecommendFtueTipSeen()
+	{
+		if (mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		{
+			Logger.d(TAG, "set sticker recommend tip seen : " + true);
+			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		}
+	}
+
 	private void setStickerButtonSelected(boolean selected)
 	{
 		activity.findViewById(R.id.sticker_btn).setSelected(selected);
@@ -1327,7 +1387,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return true;
 		}
-
+		
+		if(dismissStickerRecommendationPopup())
+		{
+			return true;
+		}
+		
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
@@ -1469,6 +1534,32 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
+	private void setupStickerSearch()
+	{
+		if(!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
+		{
+			return;
+		}	
+		
+		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
+		mComposeView.addTextChangedListener(stickerTagWatcher);
+	}
+	
+	public boolean dismissStickerRecommendationPopup()
+	{
+		if(stickerTagWatcher == null)
+		{
+			return false;
+		}
+
+		if(stickerTagWatcher.isStickerRecommnedPoupShowing())
+		{
+			stickerTagWatcher.dismissStickerSearchPopup();;
+			return true;
+		}
+		return false;
+	}
+	
 	protected void setupSearchMode(String text)
 	{
 		searchText = text;
@@ -1789,6 +1880,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void stickerSelected(Sticker sticker, String sourceOfSticker)
 	{
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
+		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		sendSticker(sticker, sourceOfSticker);
 	}
 
@@ -2005,6 +2097,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		IntentFilter intentFilter = new IntentFilter(StickerManager.STICKERS_UPDATED);
 		intentFilter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
 		intentFilter.addAction(StickerManager.STICKERS_DOWNLOADED);
+		intentFilter.addAction(ACTION_KEYBOARD_CLOSED);
 
 		LocalBroadcastManager.getInstance(activity.getBaseContext()).registerReceiver(mBroadCastReceiver, intentFilter);
 		
@@ -2066,7 +2159,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView.setOnTouchListener(this);
 
 		mComposeView.setOnKeyListener(this);
-
 	}
 
 	/*
@@ -3179,6 +3271,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		case R.id.msg_compose:
 
+			if(stickerTagWatcher != null)
+			{
+				stickerTagWatcher.onTouch(v, event);
+			}
+			
 			/**
 			 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
 			 * http://code.google.com/p/android/issues/detail?id=2516
@@ -3186,7 +3283,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS)
 			{
 				mComposeView.requestFocusFromTouch();
-
 			}
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 
@@ -3415,14 +3511,59 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
         case HikePubSub.MUTE_CONVERSATION_TOGGLED:
 			onMuteConversationToggled(object);
 			break;
+        case HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED:
+        	onStickerRecommendPreferenceChanged();
         case HikePubSub.STEALTH_CONVERSATION_MARKED:
         case HikePubSub.STEALTH_CONVERSATION_UNMARKED:
         	onConversationStealthToggle(object,HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type));
 			break;
+        case HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED:
+        	onEnterToSendSettingsChanged();
+        	break;
+        case HikePubSub.NUDGE_SETTINGS_CHANGED:
+        	onNudgeSettingsChnaged();
+        	break;
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
 		}
+	}
+	
+	private void onNudgeSettingsChnaged()
+	{
+		_doubleTapPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.DOUBLE_TAP_PREF, true);
+	}
+	
+	private void onEnterToSendSettingsChanged()
+	{
+		activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				defineEnterAction();
+			}
+		});
+	}
+	
+	private void onStickerRecommendPreferenceChanged()
+	{
+		activity.runOnUiThread(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+				{
+					setupStickerSearch();
+				}
+				else
+				{
+					releaseStickerSearchResources();
+				}
+			}
+		});
 	}
 	
 	private void onConversationStealthToggle(Object object, boolean markStealth)
@@ -3514,7 +3655,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 			}
-
+			
 			sendUIMessage(MESSAGE_RECEIVED, message);
 
 		}
@@ -3601,7 +3742,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
-				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ};
+				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -3637,6 +3778,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
+		setStickerRecommendFtueTipSeen();
+		
 		hideActionMode();
 
 		removePubSubListeners();
@@ -3654,6 +3797,51 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(null);
 		
 		releaseActionBarResources();
+		
+		releaseShareablePopUpResources();
+		
+		releaseStickerResources();
+		
+		releaseEmoticonResources();
+		
+		releaseStickerSearchResources();
+	}
+	
+	private void releaseShareablePopUpResources()
+	{
+		if(mShareablePopupLayout != null)
+		{
+			mShareablePopupLayout.releaseResources();
+		}
+		mShareablePopupLayout = null;
+	}
+	
+	private void releaseStickerResources()
+	{
+		if(mStickerPicker != null)
+		{
+			mStickerPicker.releaseResources();
+		}
+		mStickerPicker = null;
+	}
+	
+	private void releaseEmoticonResources()
+	{
+		if(mEmoticonPicker != null)
+		{
+			mEmoticonPicker.releaseReources();
+		}
+		mEmoticonPicker = null;
+	}
+	
+	private void releaseStickerSearchResources()
+	{
+		if(stickerTagWatcher != null)
+		{
+			stickerTagWatcher.releaseResources();
+			mComposeView.removeTextChangedListener(stickerTagWatcher);
+			stickerTagWatcher = null;
+		}
 	}
 	
 	private void releaseActionBarResources()
@@ -3665,7 +3853,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void releaseStickerAndEmoticon()
+	private void dismissShareablePopup()
 	{
 		/**
 		 * It is important that along with releasing resources for Stickers/Emoticons, we also close their windows to prevent any BadWindow Exceptions later on.
@@ -3673,17 +3861,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
-		}
-		
-		mShareablePopupLayout.releaseResources();
-		
-		if (mStickerPicker != null)
-		{
-			mStickerPicker.releaseResources();
-		}
-		if (mEmoticonPicker != null)
-		{	
-			mEmoticonPicker.releaseReources();
 		}
 	}
 
@@ -3766,7 +3943,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	protected void onStop()
 	{
-		releaseStickerAndEmoticon();
+		dismissShareablePopup();
+		dismissStickerRecommendationPopup();
 		saveDraft();
 	}
 	
@@ -4956,12 +5134,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
+		
 	}
 
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after)
 	{
 	}
+	
 
 	/**
 	 * Used to handle clicks on the Overlay mode when ActionMode is enabled
@@ -4992,6 +5172,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
+		}
+		
+		if (stickerTagWatcher != null)
+		{
+			stickerTagWatcher.dismissStickerSearchPopup();
 		}
 		
 		/**
@@ -5167,8 +5352,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	/**
 	 * Close the keyboard. Since we are going to a different fragment Reset the application Flags
 	 */
-	public void onAttachFragment()
+	public void onAttachFragment(Fragment fragment)
 	{
+		if(fragment.getTag() == HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG || fragment.getTag() == HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG)
+		{
+			return;
+		}
+		
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
 		saveCurrentActionMode();
@@ -5201,6 +5391,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		
 		return false;
+	}
+	
+	public boolean isKeyboardOpen()
+	{
+		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
+		{
+			return false;
+		}
+		return true;
 	}
 	
 	@Override
@@ -5476,5 +5675,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onRestoreInstanceState(Bundle savedInstanceState) 
 	{
 		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
+	}
+	
+	public void clearComposeText()
+	{
+		if(mComposeView != null)
+		{
+			mComposeView.setText("");
+		}
+	}
+	
+	public void selectAllComposeText()
+	{
+			
 	}
 }

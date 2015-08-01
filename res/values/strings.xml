@@ -1523,6 +1523,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
+	<string name="sticker_recommendation_setting_info">Tap on blue words for suggestions</string>
+	<string name="sticker_recommendation_setting_header">Sticker Suggestion:Tap Mode</string>
 	<string name="stickers_sent_today">%1$d/%2$d stickers sent today</string>
 	<string name="disable_from_hike_settings">Disable permanently from hike Settings</string>
 	<string name="total_sticker_sent">You sent %1$d stickers in the last %2$d days</string>
@@ -1549,6 +1551,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="cont_desc_photos_tab_filter">TabFilter</string>
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
 	<string name="now">Now</string>
+	<string name="sticker_recommend_tip">Tap on blue words.</string>
 	<string name="group_participant_info">You can add upto 500 members to a group</string>
 	<string name="make_admin">Make Admin</string>
 	<string name="admin_updating">Making %1$s an Admin</string>
@@ -1569,6 +1572,16 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="unknown_server_error">Unable to download the file.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
+    <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
+    <string name="sticker_reorder_setting_header">Change sticker pack order</string>
+	<string name="unknown_server_error">Unable to download the file.</string>
+    <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
+    <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
+    <string name="sticker_recommendation_autopopup_setting_info">Show suggestions automatically as I type</string>
+	<string name="sticker_recommendation_autopopup_setting_header">Sticker Suggestion: Auto Mode</string>
+	<string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
+	<string name="tap_on_sticker_to_send">Tap on sticker to send</string>
+	<string name="download_from_shop">Download stickers from shop for better suggestions</string>
     <string name="more">More</string>
 	<string name="task_already_running">Task already running</string>
     <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
