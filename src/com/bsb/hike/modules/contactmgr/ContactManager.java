@@ -75,6 +75,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	
 	private String selfMsisdn;
 
+	public static final byte SYNC_CONTACTS_CHANGED = 0;
+
+	public static final byte SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK = 1;
+
+	public static final byte SYNC_CONTACTS_DB_IN_SYNC = 2;
+
+	public static final byte SYNC_CONTACTS_ERROR = 3;
+
 	private ContactManager()
 	{
 		context = HikeMessengerApp.getInstance().getApplicationContext();
@@ -1403,13 +1411,13 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * 
 	 * @param ctx
 	 */
-	public boolean syncUpdates(Context ctx)
+	public byte syncUpdates(Context ctx)
 	{
 		// Moving check if User is online to the calling class (HikeService.ContactsChanged) 
 		List<ContactInfo> newContacts = getContacts(ctx);
 		if (newContacts == null)
 		{
-			return false;
+			return SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK;
 		}
 
 		Map<String, List<ContactInfo>> new_contacts_by_id = convertToMap(newContacts);
@@ -1533,7 +1541,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		if ((new_contacts_by_id.isEmpty()) && (hike_contacts_by_id.isEmpty()))
 		{
 			Logger.d("ContactUtils", "DB in sync");
-			return false;
+			return SYNC_CONTACTS_DB_IN_SYNC;
 		}
 
 		try
@@ -1560,7 +1568,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			if (updatedContacts == null)
 			{
 				Logger.e("ContactUtils", " updated contacts is null some error occurred during request execution");
-				return false;
+				return SYNC_CONTACTS_ERROR;
 			}
 
 			List<ContactInfo> contactsToDelete = new ArrayList<ContactInfo>();
@@ -1615,8 +1623,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		catch (Exception e)
 		{
 			Logger.e("ContactUtils", "error updating addressbook", e);
+			return SYNC_CONTACTS_ERROR;
 		}
-		return true;
+		return SYNC_CONTACTS_CHANGED;
 	}
 
 	private boolean areListsEqual(List<ContactInfo> list1, List<ContactInfo> list2)

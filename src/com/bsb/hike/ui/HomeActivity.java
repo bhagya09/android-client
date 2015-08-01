@@ -1504,15 +1504,29 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (HikePubSub.CONTACT_SYNCED.equals(type))
 		{
-			Boolean[] ret = (Boolean[]) object;
-			final boolean manualSync = ret[0];
+			Pair<Boolean, Byte> ret = (Pair<Boolean, Byte>) object;
+			final boolean manualSync = ret.first;
+			final byte contactSyncResult = ret.second;
 			runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					if(manualSync)
-						Toast.makeText(getApplicationContext(), R.string.contacts_synced, Toast.LENGTH_SHORT).show();
+					if (manualSync)
+					{
+						if (contactSyncResult == ContactManager.SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK)
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_sync_no_contacts_found, Toast.LENGTH_SHORT).show();
+						}
+						else if (contactSyncResult == ContactManager.SYNC_CONTACTS_ERROR)
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_sync_error, Toast.LENGTH_SHORT).show();
+						}
+						else
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_synced, Toast.LENGTH_SHORT).show();
+						}
+					}
 				}
 			});
 		}
