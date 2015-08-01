@@ -23,6 +23,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -79,10 +80,10 @@ public class HikeService extends Service
 				Logger.d("ContactsChanged", "calling syncUpdates, manualSync = " + manualSync);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNC_STARTED, null);
 
-				boolean contactsChanged = ContactManager.getInstance().syncUpdates(this.context);
+				byte contactSyncResult = ContactManager.getInstance().syncUpdates(this.context);
 
 				HikeMessengerApp.syncingContacts = false;
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Boolean[] { manualSync, contactsChanged });
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Pair<Boolean, Byte>(manualSync, contactSyncResult));
 			}
 
 		}

@@ -59,8 +59,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
-import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
-import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -148,7 +147,7 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(lastSeenUrl() + "/" + msisdn)
@@ -160,7 +159,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken BulkLastSeenRequest(IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken BulkLastSeenRequest(IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(bulkLastSeenUrl())
@@ -191,7 +190,7 @@ public class HttpRequests
 				.setUrl(url)
 				.setFile(filePath)
 				.setRequestListener(requestListener)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -200,7 +199,7 @@ public class HttpRequests
 	{
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setHeaders(headers)
 				.setRequestType(REQUEST_TYPE_LONG)
@@ -215,7 +214,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
 				.post(body)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
 				.setHeaders(headers)
@@ -229,7 +228,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.post(null)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.build();
@@ -349,7 +348,7 @@ public class HttpRequests
 		ByteArrayRequest.Builder builder = new ByteArrayRequest.Builder().
 				setUrl(url).
 				setRequestType(Request.REQUEST_TYPE_SHORT).
-				setRetryPolicy(new DefaultRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier)).
+				setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier)).
 				setRequestListener(requestListener);
 
 		if (requestType.equals(HikeConstants.POST))

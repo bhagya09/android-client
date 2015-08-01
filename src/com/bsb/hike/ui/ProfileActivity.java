@@ -1393,7 +1393,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void fetchPersistentData()
 	{
-		nameTxt = preferences.getString(HikeMessengerApp.NAME, "Set a name!");
+		nameTxt = preferences.getString(HikeMessengerApp.NAME_SETTING, "Set a name!");
 		setLocalMsisdn(preferences.getString(HikeMessengerApp.MSISDN_SETTING, null));
 		emailTxt = preferences.getString(HikeConstants.Extras.EMAIL, "");
 		lastSavedGender = preferences.getInt(HikeConstants.Extras.GENDER, 0);

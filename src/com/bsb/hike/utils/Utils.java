@@ -21,7 +21,6 @@ import java.net.URL;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,12 +75,13 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -132,7 +132,6 @@ import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -179,6 +178,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
@@ -205,7 +205,6 @@ import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -614,6 +613,11 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
+		
+		/*
+		 * Just after pin validation we need to set self msisdn field in ContactManager
+		 */
+		ContactManager.getInstance().setSelfMsisdn(accountInfo.getMsisdn());
 	}
 
 	/*
@@ -1694,16 +1698,19 @@ public class Utils
 		catch (FileNotFoundException e)
 		{
 			Logger.e("Utils", "File not found while copying", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "1.Exception on Compress Image", e);
 			return false;
 		}
 		catch (IOException e)
 		{
 			Logger.e("Utils", "Error while reading/writing/closing file", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "2.Exception on Compress Image", e);
 			return false;
 		}
 		catch (Exception ex)
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "3.Exception on Compress Image", ex);
 			return false;
 		}
 		finally
@@ -6169,9 +6176,11 @@ public class Utils
 		} catch (FileNotFoundException e1) {
 			result = false;
 			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "1.Exception on moving file", e1);
 		} catch (Exception e2) {
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "2.Exception on moving file", e2);
 		} finally {
 			closeStreams(in, out);
 		}
@@ -6453,4 +6462,26 @@ public class Utils
 		
 	}
 
+	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
+	{
+		if (db != null)
+		{
+			Cursor cursor = db.rawQuery("pragma table_info(" + tableName + ")", null);
+			if (cursor != null)
+			{
+				while (cursor.moveToNext())
+				{
+					String columnName = cursor.getString(1);
+					if (givenColumnName.equals(columnName))
+					{
+						Logger.e("Utils", "ifColumnExistsInTable : " + givenColumnName + " column exists in " + tableName + " table");
+						return true;
+					}
+				}
+			}
+		}
+
+		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
+		return false;
+	}
 }

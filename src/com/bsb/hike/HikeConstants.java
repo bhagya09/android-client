@@ -2947,7 +2947,11 @@ public class HikeConstants
 	
 	public static final String NOTIFICATIONS_PRIORITY = "npc";
 
+	public static final String SEND_TIMESTAMP = "c";
+
 	public static final String FT_HOST_IPS = "ftHostIps";
 	
+	public static final String HTTP_HOST_IPS = "httpHostIps";
+
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
 }

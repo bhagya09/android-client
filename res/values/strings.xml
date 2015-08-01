@@ -1308,6 +1308,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_signal_weak">WEAK</string>
     <string name="voip_signal_excellent">EXCELLENT</string>
     <string name="voip_conference_label">Conference Call</string>
+    <string name="voip_conference_waiting_for_participants_info">Waiting for conference info...</string>
     <string name="hike_calls">Hike Calls</string>
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>
@@ -1562,4 +1563,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="multi_edit_undo_warning_header">Discard Changes?</string>
     <string name="photos_oom_upload">Unable to Upload Image\nNot Enough Memory On Device.</string>
     <string name="goto_timeline">Go to Timeline.</string>
+    <string name="contacts_sync_error">Contact sync failed. Please try again</string>
+    <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
 </resources>
