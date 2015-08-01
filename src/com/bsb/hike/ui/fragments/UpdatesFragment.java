@@ -444,7 +444,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 				return;
 			}
 
-			String name = Utils.getFirstName(prefs.getString(HikeMessengerApp.NAME_SETTING, null));
+			String name = Utils.getFirstName(prefs.getString(HikeMessengerApp.NAME_SETTING, ""));
 			String lastStatus = prefs.getString(HikeMessengerApp.LAST_STATUS, "");
 
 			/*

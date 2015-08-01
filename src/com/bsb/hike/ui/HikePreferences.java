@@ -3,6 +3,7 @@ package com.bsb.hike.ui;
 import java.util.Locale;
 import java.util.Map;
 
+import com.bsb.hike.utils.IntentFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -648,31 +649,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.HELP_FEEDBACK_PREF.equals(preference.getKey()))
 		{
 			Logger.d(getClass().getSimpleName(), "contact preference selected");
-			Intent intent = new Intent(Intent.ACTION_SENDTO);
-			intent.setData(Uri.parse("mailto:" + HikeConstants.MAIL));
-
-			StringBuilder message = new StringBuilder("\n\n");
-
-			try
-			{
-				message.append(getString(R.string.hike_version) + " " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "\n");
-			}
-			catch (NameNotFoundException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			message.append(getString(R.string.device_name) + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
-
-			message.append(getString(R.string.android_version) + " " + Build.VERSION.RELEASE + "\n");
-
-			String msisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, "");
-			message.append(getString(R.string.msisdn) + " " + msisdn);
-
-			intent.putExtra(Intent.EXTRA_TEXT, message.toString());
-			intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback_on_hike));
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			Intent intent = IntentFactory.getEmailOpenIntent(HikePreferences.this);
 			try
 			{
 				startActivity(intent);
@@ -1013,6 +990,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{
+			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.SSL_PREF, isChecked).commit();
 			Utils.setupUri();
 			HttpRequestConstants.toggleSSL();
 			LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.SSL_PREFERENCE_CHANGED));

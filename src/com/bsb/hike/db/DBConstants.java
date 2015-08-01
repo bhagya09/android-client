@@ -5,7 +5,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 40;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 41;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -339,4 +339,6 @@ public interface DBConstants
 	public static final String PRIVATE_DATA = "pd";
 
 	public static final String MESSAGE_TABLE_NAMESPACE_INDEX = "messageNamespaceIndex";
+
+	public static final String SEND_TIMESTAMP = "sendTimestamp";
 }

@@ -369,7 +369,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			//Todo prevent deleting of .nomedia on app start
 			Utils.makeNoMediaFile(dir, true);
 
-			String fileName = Utils.getTempProfileImageFileName(mOriginalName);
+			String fileName = Utils.getTempProfileImageFileName(mOriginalName,true);
 			final String destFilePath = directory + File.separator + fileName;
 			file = new File(destFilePath);
 		}

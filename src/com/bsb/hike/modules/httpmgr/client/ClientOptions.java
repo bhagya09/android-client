@@ -12,6 +12,8 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.httpmgr.hikehttp.hostnameverifier.HikeHostNameVerifier;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.squareup.okhttp.Authenticator;
@@ -549,6 +551,9 @@ public class ClientOptions
 		int readTimeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.OKHTTP_READ_TIMEOUT, Defaults.READ_TIMEOUT_MILLIS);
 		int writeTimeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.OKHTTP_WRITE_TIMEOUT, Defaults.WRITE_TIMEOUT_MILLIS);
 
+		HikeHostNameVerifier hostVerifier = new HikeHostNameVerifier();
+		hostVerifier.setProdHostIps(HttpManager.getProductionHostUris());
+		hostVerifier.setPlatformHostIps(HttpManager.getPlatformProductionHostUris());
 		LogFull.d("Connect Timeout : " + connectTimeout + "\n Read timeout : " + readTimeout + "\n Write timeout : " + writeTimeout);
 
 		ClientOptions defaultClientOptions = new ClientOptions.Builder()
@@ -557,6 +562,7 @@ public class ClientOptions
 				.setWriteTimeout(writeTimeout, TimeUnit.MILLISECONDS)
 				.setSocketFactory(Defaults.SOCKET_FACTORY)
 				.setSslSocketFactory(Defaults.SSL_SOCKET_FACTORY)
+				.setHostnameVerifier(hostVerifier)
 				.build();
 		return defaultClientOptions;
 	}
