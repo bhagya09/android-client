@@ -1258,6 +1258,29 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			Logger.v(TAG_REBALANCING, "Read data in total blocks = " + blockCount);
 
 			// Frequency shifting must be carried out in following order only
+			// Before shifting==>
+			//
+			// Today ending at 4 am
+			// |||
+			// |||
+			// ^^^
+			// -------------------------Global
+			// ===--------------===Local
+			// ===--------Trending
+			//
+			// <== Order of shifting ('===' represents proportional shift, ':::' represents vacant space to be filled in next period and '---' represents pure cumulative frequency)
+			//
+			//
+			// After shifting==>
+			// :::-----------------------Global
+			// :::---------------Local
+			// :::-------Trending
+			// ^^^
+			// |||
+			// |||
+			// Tomorrow starting after 4 am
+			//
+
 			int existingTotalTagCount = rowsIds.size();
 
 			// Prepare trending summarization
