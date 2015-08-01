@@ -86,6 +86,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private Gson gson;
 	
 	private List<ContactInfo> mFtueFriendList;
+	
+	/**
+	 * When packet is not received, in this case , this tell
+	 * how many referred contacts have to be shown which we received from postAddressBook
+	 */
+	private final int MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY = 4;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -500,7 +506,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				finalContactLsit.add(c);
 				counter++;
 			}
-			if(isFromSignUpList && counter == 4)
+			if(isFromSignUpList && counter == MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY)
 			{
 				break;
 			}

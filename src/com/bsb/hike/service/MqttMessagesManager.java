@@ -4096,9 +4096,10 @@ public class MqttMessagesManager
 		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 		JSONArray msisdnArray = data.optJSONArray(HikeConstants.CONTACTS);
 		String number = data.optString(HikeConstants.COUNT);
-		Set<String> msisdnSet = new HashSet<String>();
+		Set<String> msisdnSet = null;
 		if (msisdnArray != null)
 		{
+			msisdnSet = new HashSet<String>();
 			for (int i = 0; i < msisdnArray.length(); i++)
 			{
 				msisdnSet.add(msisdnArray.optString(i));
