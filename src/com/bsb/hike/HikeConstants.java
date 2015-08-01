@@ -3047,6 +3047,8 @@ public class HikeConstants
 	
 	public static final String STICKER_TAG_REFRESH_TIME = "strt";
 
+	public static final String CHAT_SEARCH_ENABLED = "cts_e";
+
 	public static final String CALLBACK_ID ="callbackid";
 
 	public static final String DEVICE_DETAILS = "dd";

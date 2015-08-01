@@ -2281,6 +2281,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_TAG_REFRESH_PERIOD, tagRefreshTime);
 		}
 		
+		if (data.has(HikeConstants.CHAT_SEARCH_ENABLED))
+		{
+			boolean chatSearchEnable = data.getBoolean(HikeConstants.CHAT_SEARCH_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_SEARCH_ENABLED, chatSearchEnable);
+		}
+
 		if (data.has(HikeConstants.INVITE_TOKEN))
 		{
 			editor.putString(HikeConstants.INVITE_TOKEN, data.getString(HikeConstants.INVITE_TOKEN));

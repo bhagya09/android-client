@@ -252,6 +252,10 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
+	
+	public static int displayWidthPixels;
+	
+	public static int displayHeightPixels;
 
 	private static final String defaultCountryName = "India";
 
@@ -1029,6 +1033,8 @@ public class Utils
 		Utils.scaledDensityMultiplier = displayMetrics.scaledDensity;
 		Utils.densityDpi = displayMetrics.densityDpi;
 		Utils.densityMultiplier = displayMetrics.density;
+		Utils.displayWidthPixels = displayMetrics.widthPixels;
+		Utils.displayHeightPixels = displayMetrics.heightPixels;
 	}
 
 	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
@@ -2732,12 +2738,12 @@ public class Utils
 		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(v, flags);
 	}
-
-	// public static void showSoftKeyboard(Context context)
-	// {
-	// InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-	// imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-	// }
+	
+	public static void toggleSoftKeyboard(Context context)
+	{
+		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+	}
 
 	public static void sendLocaleToServer(Context context)
 	{
@@ -6602,6 +6608,14 @@ public class Utils
 	}
 
 						
+	public static void preFillArrayList(List<?> list, int capacity)
+	{
+		for(int i = 0; i < capacity; i++)
+		{
+			list.add(null);
+		}
+	}
+	
 	public static void deleteFiles(Context context,ArrayList<String> fileNames,HikeFileType type)
 	{
 		if(fileNames == null || fileNames.isEmpty())
