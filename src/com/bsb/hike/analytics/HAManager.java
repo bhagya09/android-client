@@ -817,12 +817,14 @@ public class HAManager
 
 	private void botOpenMqttAnalytics(JSONObject metadata)
 	{
+
 		try
 		{
-			metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN_MQTT);
+			JSONObject mqttMetadata = new JSONObject(metadata.toString());
+			mqttMetadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN_MQTT);
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.CHAT_ANALYTICS);
-			data.put(HikeConstants.METADATA, metadata);
+			data.put(HikeConstants.METADATA, mqttMetadata);
 
 			Utils.sendLogEvent(data, AnalyticsConstants.NON_UI_EVENT, null);
 		}

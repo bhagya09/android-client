@@ -116,7 +116,33 @@ public class HttpManager
 	public static void setPlatformProductionHostUris()
 	{
 		platformProductionHostUris = new ArrayList<String>();
-		// TODO
+		String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_HOST_PLATFORM_IPS, "");
+		JSONArray ipArray = null;
+		try
+		{
+			ipArray = new JSONArray(ipString);
+		}
+		catch (JSONException e)
+		{
+			LogFull.e("Exception while parsing = ", e);
+		}
+
+		if (null != ipArray && ipArray.length() > 0)
+		{
+			int len = ipArray.length();
+			for (int i = 0; i < len; i++)
+			{
+				if (ipArray.optString(i) != null)
+				{
+					platformProductionHostUris.add(ipArray.optString(i));
+				}
+			}
+		}
+		else
+		{
+			platformProductionHostUris.add("54.169.191.117");
+			platformProductionHostUris.add("54.169.191.118");
+		}
 	}
 
 	public static List<String> getProductionHostUris()
