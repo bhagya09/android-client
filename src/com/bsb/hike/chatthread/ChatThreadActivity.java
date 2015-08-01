@@ -119,7 +119,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		else if (HikeConstants.Extras.GROUP_CHAT_THREAD.equals(whichChatThread))
 		{
-			chatThread = new GroupChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
+			chatThread = new GroupChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN),  intent.getBooleanExtra(HikeConstants.Extras.NEW_GROUP, false));
 		}
 		else if (HikeConstants.Extras.BROADCAST_CHAT_THREAD.equals(whichChatThread))
 		{
