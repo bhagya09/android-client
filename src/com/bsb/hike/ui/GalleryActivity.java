@@ -922,6 +922,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		ArrayList<String> initialEditList = getIntent().getStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST);
 		
+		if(initialEditList == null)
+		{
+			return;
+		}
+		
 		initialEditList.removeAll(editedImages);
 		
 		Utils.deleteFiles(getApplicationContext(), initialEditList, HikeFileType.IMAGE);

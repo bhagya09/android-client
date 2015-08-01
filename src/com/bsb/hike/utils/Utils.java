@@ -1061,16 +1061,7 @@ public class Utils
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
 	
-		String myMsisdn = null;
-		
-		if(!TextUtils.isEmpty(HikeMessengerApp.getInstance().getMsisdn()))
-		{
-			myMsisdn =  HikeMessengerApp.getInstance().getMsisdn();
-		}
-		else
-		{
-			myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-		}
+		String myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
 		
 		long userJoinTime = prefs.getLong(HikeMessengerApp.USER_JOIN_TIME, 0);
 

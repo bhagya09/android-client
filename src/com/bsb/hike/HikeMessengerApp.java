@@ -1047,14 +1047,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		}
 	}
 
-	public String getMsisdn() {
-		if(TextUtils.isEmpty(msisdn))
-		{
-			HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-		}
-		return msisdn;
-	}
-	
 	private Runnable appStateChangedRunnable = new Runnable()
 	{
 		
