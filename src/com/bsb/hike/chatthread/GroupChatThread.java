@@ -105,7 +105,7 @@ public class GroupChatThread extends OneToNChatThread
 		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat)
 		{
 			try {
-				if(oneToNConversation.getMetadata().amIAdmin()||oneToNConversation.getConversationOwner().equalsIgnoreCase(activity.getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, ""))){
+				if(oneToNConversation.getMetadata().amIAdmin()){
 					showMultiAdminTip(activity);
 				}
 			} catch (JSONException e) {

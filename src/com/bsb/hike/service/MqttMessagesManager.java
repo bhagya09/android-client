@@ -2808,7 +2808,7 @@ public class MqttMessagesManager
 				ContactManager.getInstance().setParticipantAdmin(groupId, msisdn);
 			}
 		}
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ONETONCONV_ADMIN_UPDATE, jsonObj);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_OWNER_CHANGE, jsonObj);
 	}
 
 	private void saveRequestDP(JSONObject jsonObj) throws JSONException

@@ -157,7 +157,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
-			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED};
+			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED,HikePubSub.GROUP_OWNER_CHANGE};
 
 	private String[] contactInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 			HikePubSub.STATUS_MESSAGE_RECEIVED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST,
@@ -2126,6 +2126,24 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				String msisdn = data.optString(HikeConstants.ADMIN_MSISDN);
 				updateUIForAdminChange(msisdn);
 			}
+		}else if (HikePubSub.GROUP_OWNER_CHANGE.equals(type))
+		{
+			JSONObject jsonObj = (JSONObject) object;
+			if (mLocalMSISDN.equals((jsonObj).optString(HikeConstants.TO)))
+			{
+			
+				JSONObject data;
+				try {
+					data = jsonObj.getJSONObject(HikeConstants.DATA);
+					String msisdn = data.getString(HikeConstants.MSISDN);
+					updateUIForAdminChange(msisdn);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}		
+		
+			}
+
 		}
 		else if (HikePubSub.PARTICIPANT_JOINED_ONETONCONV.equals(type))
 		{
@@ -2634,7 +2652,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				
 			}
 			if (isAdmin) {
-				if (!groupParticipant.isAdmin() && !groupParticipant.getContactInfo().getMsisdn().equals(oneToNConversation.getConversationOwner())) {
+				if (!groupParticipant.isAdmin()) {
 					optionsList.add(getString(R.string.make_admin));
 				}
 				optionsList.add(getString(R.string.remove_from_group));
