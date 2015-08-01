@@ -596,6 +596,8 @@ public class ChatHeadService extends Service
 	{
 		super.onCreate();
 
+		HAManager.getInstance().serviceEventAnalytics(HikeConstants.CREATE, HikeConstants.STICKEY_SERVICE);
+		
 		instance = this;
 
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
