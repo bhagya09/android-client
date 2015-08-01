@@ -573,11 +573,9 @@ public class VoIPClient  {
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
-						if (isInAHostedConference) {
-							if (reconnectForConference()) {
-								Thread.currentThread().interrupt();
-								return;
-							}
+						if (reconnectForConference()) {
+							Thread.currentThread().interrupt();
+							return;
 						}
 						Logger.w(tag, "Giving up on connection.");
 						hangUp();
@@ -982,11 +980,9 @@ public class VoIPClient  {
 					}
 				}
 
-				if (isInAHostedConference) {
-					if (reconnectForConference()) 
-						return;
-				}
-				
+				if (reconnectForConference()) 
+					return;
+
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
 				if (!isInitiator() && !reconnecting && !isInAHostedConference) {
 					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber(), null);
@@ -2009,7 +2005,7 @@ public class VoIPClient  {
 	}
 	
 	private boolean reconnectForConference() {
-		if (version >= 2) {
+		if (version >= 2 && isInAHostedConference && keepRunning) {
 			reconnecting = false;
 			
 			// Socket info timeout thread will be running since we will 
