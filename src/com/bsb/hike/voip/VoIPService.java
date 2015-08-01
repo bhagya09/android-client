@@ -53,6 +53,7 @@ import android.widget.Chronometer;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -637,6 +638,13 @@ public class VoIPService extends Service {
 		if (clients.containsKey(client.getPhoneNumber())) {
 			Logger.w(tag, "Client has already been added.");
 			restoreActivity();
+			return;
+		}
+		
+		// Check if we have blocked this user. 
+		// We won't get socket info back from the user, so a voip call will never work
+		if (ContactManager.getInstance().isBlocked(client.getPhoneNumber())) {
+			Logger.w(tag, "Not attempting call to " + client.getName() + " since they are blocked.");
 			return;
 		}
 		
