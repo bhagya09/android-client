@@ -53,6 +53,7 @@ import android.widget.Chronometer;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -223,7 +224,7 @@ public class VoIPService extends Service {
 				if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
 					stop();
 				else {
-					Logger.d(tag, msisdn + " has quit the conference.");
+//					Logger.d(tag, msisdn + " has quit the conference.");
 					removeFromClients(msisdn);
 					playFromSoundPool(SOUND_DECLINE, false);
 				}
@@ -451,7 +452,7 @@ public class VoIPService extends Service {
 			// playIncomingCallRingtone();
 		}
 
-		// Socket information
+		// INCOMING CALL
 		if (action.equals(VoIPConstants.Extras.SET_PARTNER_INFO)) 
 		{
 			
@@ -525,12 +526,12 @@ public class VoIPService extends Service {
 			client.socketInfoReceived = true;
 		}
 		
-		// We are initiating a VoIP call
+		// OUTGOING CALL
 		if (action.equals(VoIPConstants.Extras.OUTGOING_CALL)) 
 		{
-			// Edge case. 
 			String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
-
+			
+			// Error case: making a call to yourself
 			if (myMsisdn != null && myMsisdn.equals(msisdn)) 
 			{
 				Logger.wtf(tag, "Don't be ridiculous!");
@@ -549,7 +550,7 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
-			// Edge case: call button was hit for someone we are already speaking with. 
+			// Error case: call button was hit for someone we are already speaking with. 
 			if (getCallId() > 0 && getClient() != null && getClient().getPhoneNumber() != null && getClient().getPhoneNumber().equals(msisdn)) 
 			{
 				if (!getClient().connected) {
@@ -562,25 +563,26 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
+			// Error case: We are already in a voip call
 			if (getCallId() > 0 && !conferencingEnabled) 
 			{
 				Logger.e(tag, "Error. Already in a call.");
 				return returnInt;
 			}
 			
-			// Check if we are already in a conference call
+			// Error case: We are already in a conference call
 			if (getClient() != null && getClient().isHostingConference) {
 				Logger.e(tag, "Cannot place call while in a conference.");
 				restoreActivity();
 				return returnInt;
 			}
-			
-			// we are making an outgoing call
+
+			// All good. Initiate the call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
-			
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
 				// Group call
-				groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
+				if (intent.hasExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
+					groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
 				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
 				
 				if (!VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + msisdns.size()))
@@ -597,7 +599,9 @@ public class VoIPService extends Service {
 					client = new VoIPClient(getApplicationContext(), handler);
 					client.setPhoneNumber(phoneNumber);
 					client.isInAHostedConference = true;
-					client.groupChatMsisdn = groupChatMsisdn;
+					if (intent.hasExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
+						client.groupChatMsisdn = groupChatMsisdn;
+					
 					initiateOutgoingCall(client, callSource);
 					
 				}
@@ -634,6 +638,13 @@ public class VoIPService extends Service {
 		if (clients.containsKey(client.getPhoneNumber())) {
 			Logger.w(tag, "Client has already been added.");
 			restoreActivity();
+			return;
+		}
+		
+		// Check if we have blocked this user. 
+		// We won't get socket info back from the user, so a voip call will never work
+		if (ContactManager.getInstance().isBlocked(client.getPhoneNumber())) {
+			Logger.w(tag, "Not attempting call to " + client.getName() + " since they are blocked.");
 			return;
 		}
 		
