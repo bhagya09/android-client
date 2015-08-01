@@ -194,7 +194,11 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String KEY_PREF_IS_POPULATED = "is_populated";
 
-	public static final String KEY_PREF_LAST_SUMMERIZATION_TIME = "last_summerization_time";
+	public static final String KEY_PREF_LAST_TRENDING_SUMMERIZATION_TIME = "last_trending_summerization_time";
+
+	public static final String KEY_PREF_LAST_LOCAL_SUMMERIZATION_TIME = "last_local_summerization_time";
+
+	public static final String KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME = "last_global_summerization_time";
 
 	// ==============================================Constants used in shared_pref or system_db]]
 

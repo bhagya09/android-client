@@ -66,7 +66,7 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 //https://github.com/ACRA/acra/wiki/Backends
-@ReportsCrashes( customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
+@ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
 		ReportField.ANDROID_VERSION, ReportField.STACK_TRACE, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE })
 public class HikeMessengerApp extends Application implements HikePubSub.Listener
 {
@@ -81,13 +81,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String VOIP_SETTINGS = "voipsettings";
 
 	public static final String VOIP_AUDIO_GAIN = "voipaudiogain";
-	
+
 	public static final String VOIP_BITRATE_2G = "vb2g";
-	
+
 	public static final String VOIP_BITRATE_3G = "vb3g";
-	
+
 	public static final String VOIP_BITRATE_WIFI = "vbw";
-	
+
 	public static final String MSISDN_SETTING = "msisdn";
 
 	public static final String CARRIER_SETTING = "carrier";
@@ -107,7 +107,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
 
 	public static final String RESTORE_ACCOUNT_SETTING = "restore";
-	
+
 	public static final String SIGNUP_COMPLETE = "signup_complete";
 
 	public static final String RESTORING_BACKUP = "restoring_backup";
@@ -127,7 +127,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String NAME = "name";
 
 	public static final String ACCEPT_TERMS = "acceptterms";
-	
+
 	public static final String CONNECTED_ONCE = "connectedonce";
 
 	public static final String MESSAGES_LIST_TOOLTIP_DISMISSED = "messageslist_tooltip";
@@ -165,21 +165,21 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String TOTAL_CREDITS_PER_MONTH = HikeConstants.TOTAL_CREDITS_PER_MONTH;
 
 	public static final String PRODUCTION = "production";
-	
+
 	public static final String PRODUCTION_HOST_TOGGLE = "productionHostToggle";
 
 	public static final String CUSTOM_MQTT_HOST = "cmqttho";
-	
+
 	public static final String CUSTOM_MQTT_PORT = "cmmqttpo";
 
 	public static final String CUSTOM_HTTP_HOST = "cmhttpho";
-	
+
 	public static final String CUSTOM_HTTP_PORT = "chttppo";
 
 	public static final String COUNTRY_CODE = "countryCode";
 
 	public static final String FILE_PATH = "filePath";
-	
+
 	public static final String FILE_PATHS = "multi_filepaths";
 
 	public static final String TEMP_NAME = "tempName";
@@ -189,11 +189,11 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String TEMP_COUNTRY_CODE = "tempCountryCode";
 
 	public static final String GCM_ID_SENT_PRELOAD = "gcm_id_sent_preload";
-	
+
 	public static final String GCM_ID_SENT = "gcmIdSent";
 
 	public static final String BLOCK_NOTIFICATIONS = "blockNotification";
-	
+
 	public static final String DP_CHANGE_STATUS_ID = "dpstatusid";
 
 	private static final boolean TEST = false; // TODO:: test flag only : turn
@@ -214,11 +214,11 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String FACEBOOK_AUTH_COMPLETE = "facebookAuthComplete";
 
-	//public static final String TWITTER_TOKEN = "twitterToken";
+	// public static final String TWITTER_TOKEN = "twitterToken";
 
-	//public static final String TWITTER_TOKEN_SECRET = "twitterTokenSecret";
+	// public static final String TWITTER_TOKEN_SECRET = "twitterTokenSecret";
 
-	//public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
+	// public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
 
 	public static final String MSISDN_ENTERED = "msisdnEntered";
 
@@ -279,11 +279,11 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_SMS_SYNC_POPUP = "shownSMSSyncPopup";
 
 	public static final String SERVER_TIME_OFFSET = "serverTimeOffset";
-	
+
 	public static final String SERVER_TIME_OFFSET_MSEC = "serverTimeOffsetInMsec";
 
 	public static final String SHOWN_EMOTICON_TIP = "shownEmoticonTip1";
-	
+
 	public static final String SHOWN_PIN_TIP = "shownPinTip";
 
 	public static final String SHOWN_MOODS_TIP = "shownMoodsTip1";
@@ -367,7 +367,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_GROUP_CHAT_TIP = "shownGroupChatTip";
 
 	public static final String SHOWN_ADD_FAVORITE_TIP = "shownAddFavoriteTip";
-	
+
 	public static final String MQTT_IPS = "mqttIps";
 
 	public static final String STEALTH_ENCRYPTED_PATTERN = "stealthEncryptedPattern";
@@ -375,9 +375,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STEALTH_MODE = "stealthMode";
 
 	public static final String STEALTH_MODE_SETUP_DONE = "steatlhModeSetupDone";
-	
+
 	public static final String STEALTH_MODE_FTUE_DONE = "steatlhModeFtueDone";
-	
+
 	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
 
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
@@ -401,7 +401,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_WELCOME_TO_HIKE_CARD = "shownWelcomeToHikeCard";
 
 	public static final String FRIEND_REQ_COUNT = "frReqCount";
-	
+
 	public static final String HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE = "hasUnsetSmsPrefsOnKitkatUpgrade";
 
 	public static final String ATOMIC_POP_UP_TYPE_MAIN = "apuTypeMain";
@@ -425,13 +425,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String ATOMIC_POP_UP_STATUS = "stts";
 
 	public static final String ATOMIC_POP_UP_HTTP = "http";
-	
+
 	public static final String ATOMIC_POP_UP_APP_GENERIC = "app";
-	
+
 	public static final String ATOMIC_POP_UP_APP_GENERIC_WHAT = "appWhat";
-	
+
 	public static final String ATOMIC_POP_UP_HTTP_URL = "httpUrl";
-	
+
 	public static final String ATOMIC_POP_UP_NOTIF_MESSAGE = "apuNotifMessage";
 
 	public static final String ATOMIC_POP_UP_NOTIF_SCREEN = "apuNotifScreen";
@@ -445,17 +445,17 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String ATOMIC_POP_UP_MESSAGE_CHAT = "apuMessageChat";
 
 	public static final String SHOWN_DIWALI_POPUP = "shownDiwaliPopup";
-	
+
 	public static final String SHOWN_SHOP_ICON_BLUE = "shownShopIconBlue";
-	
+
 	public static final String IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN = "showCategoryReordering";
-	
+
 	public static final String STICKER_SETTING_CHECK_BOX_CLICKED = "stickerSettingCheckBoxClicked";
-	
+
 	public static final String STICKER_SETTING_UNCHECK_BOX_CLICKED = "stickerSettingUnCheckBoxClicked";
 
 	public static final String RETRY_NOTIFICATION_COOL_OFF_TIME = "retryNotificationCoolOffTime";
-	
+
 	public static final String LED_NOTIFICATION_COLOR_CODE = "led_notification_color_code";
 
 	public static final String NOTIFICATION_TONE_URI = "notificationToneUri";
@@ -477,9 +477,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String CT_SEARCH_CLICKED = "ctSearchClicked";
 
 	public static final String BULK_LAST_SEEN_PREF = "blsPref";
-	
+
 	public static final String TOGGLE_OK_HTTP = "toggleOkHttp";
-	
+
 	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
 
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
@@ -495,42 +495,73 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOW_BROADCAST_FTUE_SCREEN = "showBroadcastFtueScreen";
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
-	
+
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
 
 	public static final String SSL_ALLOWED = "sslAllowed";
 
 	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
-	
+
 	public static final String KEYBOARD_HEIGHT_PORTRAIT = "keyboardHeightPortrait";
 
 	public static final String KEYBOARD_HEIGHT_LANDSCAPE = "keyboardHeightLand";
 
 	public static CurrentState currentState = CurrentState.CLOSED;
-		
+
 	public static final String TAG_FIRST_TIME_DOWNLOAD = "tagFirstTimeDownload";
-	
+
 	public static final String DEFAULT_TAGS_DOWNLOADED = "defaultTagsDownloaded";
-	
+
 	public static final String STICKER_SET = "stickerSet";
-	
+
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
-	
+
 	public static final String STICKER_RECOMMEND_SCROLL_FTUE_COUNT = "stickerRecommendScrollFtueCount";
-	
+
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
-	
+
 	public static final String REBALANCING_TIME = "rebalancingTime";
-	
+
 	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
-	
+
 	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
-	
+
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
-	
+
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 
-	//private static Twitter twitter;
+	// Constants for sticker search
+	public static final String STICKER_TAG_SUMMERY_TRENDING = "stickerTagSummeryTrendingPeriod"; // long
+
+	public static final String STICKER_TAG_SUMMERY_LOCAL = "stickerTagSummeryLocalPeriod"; // long
+
+	public static final String STICKER_TAG_SUMMERY_GLOBAL = "stickerTagSummeryGlobalPeriod"; // long
+
+	public static final String STICKER_TAG_MAX_FREQUENCY_TRENDING = "stickerTagMaxTrendingFrequency"; // float
+
+	public static final String STICKER_TAG_MAX_FREQUENCY_LOCAL = "stickerTagMaxLocalFrequency"; // float
+
+	public static final String STICKER_TAG_MAX_FREQUENCY_GLOBAL = "stickerTagMaxGlobalFrequency"; // float
+
+	public static final String STICKER_SCORE_WEITAGE_MATCH_LATERAL = "stickerScoreWeitagePhraseMatch"; // float
+
+	public static final String STICKER_SCORE_WEITAGE_EXACT_MATCH = "stickerScoreWeitageExactMatch"; // float
+
+	public static final String STICKER_SCORE_WEITAGE_FREQUENCY = "stickerScoreWeitageFrequency"; // float
+
+	public static final String STICKER_SCORE_WEITAGE_CONTEXT_MOMENT = "stickerScoreWeitageContextMoment"; // float
+
+	public static final String STICKER_FREQUENCY_TRENDING_RATIO = "stickerTrendingFrequencyRatio"; // float
+
+	public static final String STICKER_FREQUENCY_LOCAL_RATIO = "stickerLocalFrequencyRatio"; // float
+
+	public static final String STICKER_FREQUENCY_GLOBAL_RATIO = "stickerGlobalFrequencyRatio"; // float
+
+	public static final String STICKER_TAG_LIMIT_AUTO_CORRECTION = "stickerTagAutoCorrectionLevel"; // float
+
+	public static final String STICKER_TAG_LIMIT_EXACT_MATCH = "stickerTagExactMatchMinLevel"; // float
+
+	// private static Twitter twitter;
 
 	private static HikePubSub mPubSubInstance;
 
@@ -559,11 +590,11 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static volatile boolean syncingContacts = false;
 
 	public Handler appStateHandler;
-	
+
 	private StickerManager sm;
-	
+
 	private static HikeMessengerApp _instance;
-	
+
 	RegisterToGCMTrigger mmRegisterToGCMTrigger = null;
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
@@ -581,7 +612,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	{
 		mInitialized.compareAndSet(true, false);
 	}
-	
+
 	public void setServiceAsConnected()
 	{
 		mInitialized.compareAndSet(false, true);
@@ -589,11 +620,11 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public void connectToService()
 	{
-		if(!Utils.isUserSignedUp(getApplicationContext(), false))
+		if (!Utils.isUserSignedUp(getApplicationContext(), false))
 		{
 			return;
 		}
-		
+
 		Logger.d("HikeMessengerApp", "calling connectToService:" + mInitialized);
 		if (!mInitialized.get())
 		{
@@ -602,12 +633,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 				if (!mInitialized.get())
 				{
 					Logger.d("HikeMessengerApp", "Initializing service");
-					
+
 					ComponentName service = HikeMessengerApp.this.startService(new Intent(HikeMessengerApp.this, HikeService.class));
-					
-					if(service!=null && service.getClassName().equals(HikeService.class.getName()))
+
+					if (service != null && service.getClassName().equals(HikeService.class.getName()))
 					{
-						//Service started
+						// Service started
 						setServiceAsConnected();
 					}
 					else
@@ -681,12 +712,14 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		return dataBfr.toString();
 	}
-@Override
-public void onTrimMemory(int level)
-{
-	// TODO Auto-generated method stub
-	super.onTrimMemory(level);
-}
+
+	@Override
+	public void onTrimMemory(int level)
+	{
+		// TODO Auto-generated method stub
+		super.onTrimMemory(level);
+	}
+
 	public void onCreate()
 	{
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -705,7 +738,7 @@ public void onTrimMemory(int level)
 		ErrorReporter.getInstance().setReportSender(customReportSender);
 
 		super.onCreate();
-		
+
 		_instance = this;
 
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
@@ -728,7 +761,7 @@ public void onTrimMemory(int level)
 			mEditor.putInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 0);
 			mEditor.commit();
 		}
-		
+
 		if (upgradeForDbVersion28 == -1)
 		{
 			Editor mEditor = settings.edit();
@@ -753,7 +786,7 @@ public void onTrimMemory(int level)
 			if (!currentAppVersion.equals(""))
 			{
 				Utils.resetUpdateParams(settings);
-				//for restore notification default setting
+				// for restore notification default setting
 				HikeNotificationUtils.restoreNotificationParams(getApplicationContext());
 			}
 
@@ -764,15 +797,14 @@ public void onTrimMemory(int level)
 			editor.putString(CURRENT_APP_VERSION, actualAppVersion);
 			editor.commit();
 		}
-		
+
 		initImportantAppComponents(settings);
-		
+
 		// if the setting value is 1 , this means the DB onUpgrade was called
 		// successfully.
-		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) ||
-				settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1 || settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 ||
-				settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1 || settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 ||
-				settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || TEST)
+		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
+				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -781,14 +813,14 @@ public void onTrimMemory(int level)
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		}
 
-		if(settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
+		if (settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
 		{
 			sm.doInitialSetup();
 		}
-		
-		//String twitterToken = settings.getString(HikeMessengerApp.TWITTER_TOKEN, "");
-		//String twitterTokenSecret = settings.getString(HikeMessengerApp.TWITTER_TOKEN_SECRET, "");
-		//makeTwitterInstance(twitterToken, twitterTokenSecret);
+
+		// String twitterToken = settings.getString(HikeMessengerApp.TWITTER_TOKEN, "");
+		// String twitterTokenSecret = settings.getString(HikeMessengerApp.TWITTER_TOKEN_SECRET, "");
+		// makeTwitterInstance(twitterToken, twitterTokenSecret);
 
 		setIndianUser(settings.getString(COUNTRY_CODE, "").equals(HikeConstants.INDIA_COUNTRY_CODE));
 
@@ -821,12 +853,11 @@ public void onTrimMemory(int level)
 			editor.putBoolean(HikeConstants.STATUS_BOOLEAN_PREF, preferenceManager.getInt(HikeConstants.STATUS_PREF, 0) == 0);
 			editor.commit();
 		}
-		
-		if(Utils.isKitkatOrHigher() && !HikeSharedPreferenceUtil.getInstance().getData(HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE, false))
+
+		if (Utils.isKitkatOrHigher() && !HikeSharedPreferenceUtil.getInstance().getData(HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE, false))
 		{
 			/*
-			 * On upgrade in kitkat or higher we need to reset sms setting preferences 
-			 * as we are now removing these settings from UI.
+			 * On upgrade in kitkat or higher we need to reset sms setting preferences as we are now removing these settings from UI.
 			 */
 			HikeSharedPreferenceUtil.getInstance().saveData(HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE, true);
 			Editor editor = preferenceManager.edit();
@@ -834,7 +865,7 @@ public void onTrimMemory(int level)
 			editor.remove(HikeConstants.RECEIVE_SMS_PREF);
 			editor.commit();
 		}
-		
+
 		if (token != null)
 		{
 			AccountUtils.setToken(token);
@@ -862,19 +893,18 @@ public void onTrimMemory(int level)
 
 		makeNoMediaFiles();
 
-		
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
 
 		if (Utils.isUserAuthenticated(this))
 		{
 			fetchPlatformIDIfNotPresent();
 		}
-		
+
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
 		StickerSearchManager.getInstance().removeDeletedStickerTags();
 	}
-	
+
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
@@ -887,17 +917,17 @@ public void onTrimMemory(int level)
 
 		sm = StickerManager.getInstance();
 		sm.init(getApplicationContext());
-		
+
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);
-		
+
 		Utils.setupServerURL(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true), Utils.switchSSLOn(getApplicationContext()));
 		HttpRequestConstants.setUpBase();
-		
+
 		typingNotificationMap = new HashMap<String, TypingNotification>();
 
 		initialiseListeners();
-		
+
 		hikeBotInfoMap = new ConcurrentHashMap<>();
 
 		initContactManager();
@@ -908,26 +938,25 @@ public void onTrimMemory(int level)
 		StealthModeManager.getInstance().initiate();
 
 		appStateHandler = new Handler();
-		
+
 		registerReceivers();
 
 		ProductInfoManager.getInstance().init();
-		
+
 		PlatformContent.init(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true));
-		
+
 		ChatHeadUtils.startOrStopService(false);
-		
+
 		StickerSearchManager.getInstance().initStickerSearchProiderSetupWizard();
 	}
 
 	/**
-	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on
-	 * success of this call.
+	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on success of this call.
 	 */
 	private void fetchPlatformIDIfNotPresent()
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
-		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null )
+		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
 		}
@@ -1067,7 +1096,7 @@ public void onTrimMemory(int level)
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		if(HikePubSub.CONNECTED_TO_MQTT.equals(type))
+		if (HikePubSub.CONNECTED_TO_MQTT.equals(type))
 		{
 			appStateHandler.post(appStateChangedRunnable);
 		}
@@ -1075,7 +1104,7 @@ public void onTrimMemory(int level)
 
 	private Runnable appStateChangedRunnable = new Runnable()
 	{
-		
+
 		@Override
 		public void run()
 		{
@@ -1085,5 +1114,5 @@ public void onTrimMemory(int level)
 			Utils.appStateChanged(HikeMessengerApp.this.getApplicationContext(), false, false, false, true, false);
 		}
 	};
-	
+
 }

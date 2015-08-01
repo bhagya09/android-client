@@ -56,7 +56,7 @@ public enum StickerSearchDataController
 
 		synchronized (StickerSearchDataController.class)
 		{
-			HikeStickerSearchDatabase.getInstance().deleteDataInTables(isNeedToClearAllData);;
+			HikeStickerSearchDatabase.getInstance().deleteDataInTables(isNeedToClearAllData);
 		}
 	}
 
@@ -460,7 +460,15 @@ public enum StickerSearchDataController
 			{
 				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Pack-Story data: " + packStoryData);
 				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Sticker-Tag data: " + stickersTagData);
-				HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
+
+				try
+				{
+					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
+				}
+				catch (Exception e)
+				{
+					Logger.e(HikeStickerSearchDatabase.TAG, "Error while inserting tags !!!", e);
+				}
 			}
 		}
 
@@ -510,7 +518,15 @@ public enum StickerSearchDataController
 
 		synchronized (StickerSearchDataController.class)
 		{
-			return HikeStickerSearchDatabase.getInstance().summarizeAndDoRebalancing();
+			try
+			{
+				return HikeStickerSearchDatabase.getInstance().summarizeAndDoRebalancing();
+			}
+			catch (Exception e)
+			{
+				Logger.wtf(HikeStickerSearchDatabase.TAG_REBALANCING, "Error while performing summarization and other updates !!!", e);
+				return true;
+			}
 		}
 	}
 }
