@@ -193,7 +193,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				}
 
 				Logger.d(TAG, "showStickerSearchPopup() is called: " + stickerList);
-
+				
+				FragmentManager fm = activity.getSupportFragmentManager();
+				
 				if (stickerRecommendView == null)
 				{
 					Logger.i(StickerTagWatcher.TAG, "sticker recommend view is null, initialising...");
@@ -206,28 +208,33 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 					Logger.i(StickerTagWatcher.TAG, "initialising fragment");
 
+					removeFragment(fm.findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG));
+					removeFragment(fm.findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG));
+					
 					fragment = StickerRecommendationFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
-					activity.getSupportFragmentManager().beginTransaction()
+					fm.beginTransaction()
 							.replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG).commitAllowingStateLoss();
+					fm.executePendingTransactions();
 				}
 
+				
 				dismissStickerRecommendFtueTip();
 				stickerRecommendView.setVisibility(View.VISIBLE);
 				
-				Logger.d(TAG, "fetch new list starting ..");
 				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
-				Logger.d(TAG, "fetch new list completed ..");
 				
 				if(!result.first) // no available stickers present show ftue
 				{
-					FragmentManager fm = activity.getSupportFragmentManager();
-					fragmentFtue = fm.findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG);
 					if(fragmentFtue == null)
 					{
+						Logger.i(StickerTagWatcher.TAG, "initialising ftue fragment");
+						
 						fragmentFtue = StickerRecommendationFtueFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
 						fm.beginTransaction()
 						.add(R.id.sticker_recommendation_parent, fragmentFtue, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG).commitAllowingStateLoss();
+						fm.executePendingTransactions();
 					}
+					
 					hideFragment(fragment);
 					showFragment(fragmentFtue);
 					((StickerRecommendationFtueFragment) fragmentFtue).setAndNotify(word, phrase, result.second);
@@ -421,6 +428,17 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		return (stickerRecommendView != null) && (stickerRecommendView.getVisibility() == View.VISIBLE);
 	}
 
+	private void removeFragment(Fragment fragment)
+	{
+		if ((activity != null) && (fragment != null))
+		{
+			FragmentManager fragmentManager = activity.getSupportFragmentManager();
+			fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
+			fragmentManager.executePendingTransactions();
+		}
+		fragment = null;
+	}
+	
 	private void hideFragment(Fragment fragment)
 	{
 		if ((activity != null) && (fragment != null))
@@ -446,6 +464,10 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void releaseResources()
 	{
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
+
+		fragment = null;
+		fragmentFtue = null;
+		
 		stickerRecommendView = null;
 		activity = null;
 
