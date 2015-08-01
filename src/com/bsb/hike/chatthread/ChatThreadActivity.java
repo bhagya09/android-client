@@ -165,6 +165,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if(processNewIntent(intent))
 		{
 			chatThread.onPreNewIntent();
+			chatThread.onDestroy();
 			init(intent);
 			setIntent(intent);
 			chatThread.onNewIntent();

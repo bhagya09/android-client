@@ -959,6 +959,7 @@ public class GroupChatThread extends OneToNChatThread
 
 			switch (overFlowMenuItem.id)
 			{
+			case R.string.voip_call_chat:
 			case R.string.group_profile:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !checkForDeadOrBlocked();

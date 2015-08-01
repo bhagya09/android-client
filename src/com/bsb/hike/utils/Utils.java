@@ -79,12 +79,13 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -182,6 +183,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
@@ -615,6 +617,11 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
+		
+		/*
+		 * Just after pin validation we need to set self msisdn field in ContactManager
+		 */
+		ContactManager.getInstance().setSelfMsisdn(accountInfo.getMsisdn());
 	}
 
 	/*
@@ -904,6 +911,25 @@ public class Utils
 		return highlight;
 	}
 
+	public static String getDeviceId(Context context)
+	{
+		String deviceId = null;
+		try
+		{
+			deviceId = getHashedDeviceId(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID));
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			e.printStackTrace();
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		return deviceId;
+	}
+
+	
 	public static void recordDeviceDetails(Context context)
 	{
 		try
@@ -927,19 +953,6 @@ public class Utils
 			TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
 			String osVersion = Build.VERSION.RELEASE;
-			String deviceId = null;
-			try
-			{
-				deviceId = getHashedDeviceId(Secure.getString(context.getContentResolver(), Secure.ANDROID_ID));
-			}
-			catch (NoSuchAlgorithmException e)
-			{
-				e.printStackTrace();
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				e.printStackTrace();
-			}
 			String os = "Android";
 			String carrier = manager.getNetworkOperatorName();
 			String device = Build.MANUFACTURER + " " + Build.MODEL;
@@ -953,7 +966,7 @@ public class Utils
 					metadata.put(entry.getKey(), entry.getValue());
 				}
 			}
-			metadata.put(HikeConstants.LogEvent.DEVICE_ID, deviceId);
+			metadata.put(HikeConstants.LogEvent.DEVICE_ID, getDeviceId(context));
 			metadata.put(HikeConstants.LogEvent.OS, os);
 			metadata.put(HikeConstants.LogEvent.OS_VERSION, osVersion);
 			metadata.put(HikeConstants.LogEvent.DEVICE, device);
@@ -1059,7 +1072,9 @@ public class Utils
 
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
+	
 		String myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		
 		long userJoinTime = prefs.getLong(HikeMessengerApp.USER_JOIN_TIME, 0);
 
 		String myName;
@@ -1384,9 +1399,10 @@ public class Utils
 	{
 		String result = null;
 		Cursor cursor = null;
+		String[] projection = { MediaStore.Images.Media.DATA };
 		try
 		{
-			cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+			cursor = mContext.getContentResolver().query(uri, projection, null, null, null);
 			if (cursor == null)
 			{
 				result = uri.getPath();
@@ -1399,10 +1415,6 @@ public class Utils
 					if (idx >= 0)
 					{
 						result = cursor.getString(idx);
-					}
-					else if (isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
-					{
-						result = getPathFromDocumentedUri(uri, mContext);
 					}
 				}
 				else
@@ -1419,6 +1431,18 @@ public class Utils
 		{
 			if (cursor != null)
 				cursor.close();
+		}
+		
+		try
+		{
+			if(result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+			{
+				result = getPathFromDocumentedUri(uri, mContext);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 		return result;
 	}
@@ -1680,16 +1704,19 @@ public class Utils
 		catch (FileNotFoundException e)
 		{
 			Logger.e("Utils", "File not found while copying", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "1.Exception on Compress Image", e);
 			return false;
 		}
 		catch (IOException e)
 		{
 			Logger.e("Utils", "Error while reading/writing/closing file", e);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "2.Exception on Compress Image", e);
 			return false;
 		}
 		catch (Exception ex)
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FTR_INIT_2_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "File", "3.Exception on Compress Image", ex);
 			return false;
 		}
 		finally
@@ -2429,9 +2456,21 @@ public class Utils
 
 	public static String getTempProfileImageFileName(String msisdn)
 	{
-		return getValidFileNameForMsisdn(msisdn) + "_tmp.jpg";
+		return getTempProfileImageFileName(msisdn, false);
 	}
 
+	public static String getTempProfileImageFileName(String msisdn,boolean useTimeStamp)
+	{
+		String suffix = "_tmp.jpg";
+		
+		if(useTimeStamp)
+		{
+			suffix = Long.toString(System.currentTimeMillis())+suffix;
+		}
+		
+		return getValidFileNameForMsisdn(msisdn) +suffix;
+	}
+	
 	public static String getProfileImageFileName(String msisdn)
 	{
 		return getValidFileNameForMsisdn(msisdn) + ".jpg";
@@ -2449,6 +2488,45 @@ public class Utils
 		(new File(path, fileName)).delete();
 	}
 
+	public static boolean renameFiles(String newFilePath, String oldFilePath)
+	{
+		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
+		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
+		{
+			File tempFile = new File(oldFilePath);
+			File newFile = new File(newFilePath);
+			if(tempFile.exists())
+			{
+				return tempFile.renameTo(newFile);
+			}
+			return false;
+		}
+		else
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			return false;
+		}
+	}
+
+	public static boolean removeFile(String tmpFilePath)
+	{
+		if(!TextUtils.isEmpty(tmpFilePath))
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			File file = new File(tmpFilePath);
+			if(file.exists())
+			{
+				return file.delete();
+			}
+			return false;
+		}
+		else
+		{
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			return false;
+		}
+	}
+	
 	public static void vibrateNudgeReceived(Context context)
 	{
 		String VIB_OFF = context.getResources().getString(R.string.vib_off);
@@ -3161,6 +3239,17 @@ public class Utils
 			}
 		}
 		file.delete();
+	}
+	
+	public static void deleteFile(Context context,String filename,HikeFileType type)
+	{
+		if(TextUtils.isEmpty(filename))
+		{
+			return;
+		}
+		
+		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
+		temp.delete(context);
 	}
 
 	public static void sendLogEvent(JSONObject data)
@@ -6047,11 +6136,6 @@ public class Utils
 
 	public static boolean isPhotosEditEnabled()
 	{
-		if (Build.MANUFACTURER != null && Build.MANUFACTURER.toLowerCase().startsWith("asus"))
-		{
-			return false;
-		}
-
 		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
 		{
 			return false;
@@ -6140,14 +6224,12 @@ public class Utils
 		{
 			result = false;
 			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
-		}
-		catch (Exception e2)
-		{
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "1.Exception on moving file", e1);
+		} catch (Exception e2) {
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
-		}
-		finally
-		{
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "2.Exception on moving file", e2);
+		} finally {
 			closeStreams(in, out);
 		}
 		return result;
@@ -6516,7 +6598,44 @@ public class Utils
 				}
 			}
 		}
-
 		return result;
+	}
+
+						
+	public static void deleteFiles(Context context,ArrayList<String> fileNames,HikeFileType type)
+	{
+		if(fileNames == null || fileNames.isEmpty())
+		{
+			return;
+		}
+		
+		for(String filepath : fileNames)
+		{
+			deleteFile(context, filepath, type);
+		}
+		
+	}
+
+	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
+	{
+		if (db != null)
+		{
+			Cursor cursor = db.rawQuery("pragma table_info(" + tableName + ")", null);
+			if (cursor != null)
+			{
+				while (cursor.moveToNext())
+				{
+					String columnName = cursor.getString(1);
+					if (givenColumnName.equals(columnName))
+					{
+						Logger.e("Utils", "ifColumnExistsInTable : " + givenColumnName + " column exists in " + tableName + " table");
+						return true;
+					}
+				}
+			}
+		}
+
+		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
+		return false;
 	}
 }
