@@ -956,7 +956,17 @@ public class UploadFileTask extends FileTransferBase
 			if (end == (length - 1) && responseString != null)
 			{
 				Logger.d(getClass().getSimpleName(), "response: " + responseString);
-				responseJson = new JSONObject(responseString);
+				try
+				{
+					responseJson = new JSONObject(responseString);
+				}
+				catch(JSONException e)
+				{
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.JSON_PARSING_ISSUE, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "Parsing response json received from server",
+							"Response = " + responseString, e);
+					raf.close();
+					throw e;
+				}
 				incrementBytesTransferred(chunkSize);
 				resetAndUpdate = true; // To update UI
 			}

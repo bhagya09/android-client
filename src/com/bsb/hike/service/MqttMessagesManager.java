@@ -1732,6 +1732,15 @@ public class MqttMessagesManager
 				LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.IPS_CHANGED).putExtra("ips", ipArray.toString()));
 			}
 		}
+		
+		if (data.has(MqttConstants.MQTT_PORTS))
+		{
+			JSONArray portsArray = data.getJSONArray(MqttConstants.MQTT_PORTS);
+			if (null != portsArray && portsArray.length() > 0)
+			{
+				LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.PORTS_CHANGED).putExtra(MqttConstants.MQTT_PORTS, portsArray.toString()));
+			}
+		}
 		// watsapp invite message
 		if (data.has(HikeConstants.WATSAPP_INVITE_ENABLED))
 		{
@@ -2345,7 +2354,16 @@ public class MqttMessagesManager
 		/*
 		 * Applying the offset.
 		 */
-		statusMessage.setTimeStamp(Utils.applyServerTimeOffset(context, statusMessage.getTimeStamp()));
+		long timeStamp = Utils.applyServerTimeOffset(context, statusMessage.getTimeStamp());
+		statusMessage.setTimeStamp(timeStamp);
+		if(jsonObj.has(HikeConstants.TIMESTAMP))
+		{
+			/*
+			 * We need to replace serverTimeOffsetApplied timestamp in jsonObject as well 
+			 */
+			jsonObj.put(HikeConstants.TIMESTAMP, timeStamp);
+		}
+		
 
 		ContactInfo contactInfo = conMgr.getContact(statusMessage.getMsisdn(), true, false);
 		FavoriteType favoriteType = contactInfo.getFavoriteType();
