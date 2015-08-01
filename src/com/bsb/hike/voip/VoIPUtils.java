@@ -337,7 +337,7 @@ public class VoIPUtils {
 
 	public static NotificationCompat.Action[] getMissedCallNotifActions(Context context, String msisdn)
 	{
-		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true);
+		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = null;
