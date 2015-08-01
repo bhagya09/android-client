@@ -216,17 +216,16 @@ public class VoIPService extends Service {
 			String msisdn = bundle.getString(VoIPConstants.MSISDN);
 			VoIPClient client = clients.get(msisdn);
 			
-			// Logger.d(logTag, "Received message: " + msg.what + " from: " + msisdn);
-			
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
 				Logger.d(tag, msisdn + " has stopped.");
-				if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
-					stop();
-				else {
-//					Logger.d(tag, msisdn + " has quit the conference.");
-					removeFromClients(msisdn);
-					playFromSoundPool(SOUND_DECLINE, false);
+				synchronized (clients) {
+					if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
+						stop();
+					else {
+						removeFromClients(msisdn);
+						playFromSoundPool(SOUND_DECLINE, false);
+					}
 				}
 				break;
 
