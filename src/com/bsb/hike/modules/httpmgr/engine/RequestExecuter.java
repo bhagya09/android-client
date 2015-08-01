@@ -1,8 +1,8 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_AUTH_FAILURE;
-
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_INTERRUPTED_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
@@ -152,8 +152,7 @@ public class RequestExecuter
 			}
 			catch (InterruptedException e)
 			{
-				LogFull.e(e, "excetion : ");
-				e.printStackTrace();
+				handleException(e, REASON_CODE_INTERRUPTED_EXCEPTION);
 			}
 		}
 	}
@@ -184,8 +183,8 @@ public class RequestExecuter
 				}
 				finally
 				{
+					LogFull.d("Process Async : request call execute method finally called");
 					finish(this);
-					request.setRequestCancellationListener(null);
 				}
 			}
 		};
