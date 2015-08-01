@@ -488,6 +488,16 @@ public class HikeConstants
 	
 	public static final String CAN_EDIT_DP = "canEditDP";
 	
+	public static final String SERVICE = "srv";
+	
+	public static final String CREATE = "crt";
+	
+	public static final String STICKEY_SERVICE = "stky";
+	
+	public static final String HIKE_SERVICE = "hike";
+	
+	
+	
 	public static final String HTTP_STATUS_ID = "?status_id=";
 	
 	// @GM
