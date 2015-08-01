@@ -218,13 +218,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		if (TextUtils.isEmpty(destinationFileHandle))
 		{
-			String directory = getEditImageSaveDirectory();
+			String directory = getEditImageSaveDirectory(true);
 			File dir = new File(directory);
 			if (!dir.exists())
 			{
 				dir.mkdirs();
 			}
-			destinationFileHandle = getEditImageSaveDirectory()+ File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+			destinationFileHandle = getEditImageSaveDirectory(true)+ File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		}
 
 		editView.setDestinationPath(destinationFileHandle);
@@ -862,9 +862,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		return clickHandler;
 	}
 	
-	public static String getEditImageSaveDirectory()
+	public static String getEditImageSaveDirectory(boolean includeRoot)
 	{
-		return HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT;
+		if(includeRoot)
+		{
+			return HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT;
+		}
+		return HikeConstants.IMAGE_ROOT;
 	}
 
 }
