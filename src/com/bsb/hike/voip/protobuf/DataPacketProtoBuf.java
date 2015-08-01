@@ -120,6 +120,31 @@ public final class DataPacketProtoBuf {
      * <code>repeated .DataPacket.BroadcastHost broadcastList = 11;</code>
      */
     int getBroadcastListCount();
+
+    /**
+     * <code>repeated bytes dataList = 12;</code>
+     *
+     * <pre>
+     * Added in v3
+     * </pre>
+     */
+    java.util.List<com.google.protobuf.ByteString> getDataListList();
+    /**
+     * <code>repeated bytes dataList = 12;</code>
+     *
+     * <pre>
+     * Added in v3
+     * </pre>
+     */
+    int getDataListCount();
+    /**
+     * <code>repeated bytes dataList = 12;</code>
+     *
+     * <pre>
+     * Added in v3
+     * </pre>
+     */
+    com.google.protobuf.ByteString getDataList(int index);
   }
   /**
    * Protobuf type {@code DataPacket}
@@ -230,6 +255,14 @@ public final class DataPacketProtoBuf {
               broadcastList_.add(input.readMessage(com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost.PARSER, extensionRegistry));
               break;
             }
+            case 98: {
+              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
+                dataList_ = new java.util.ArrayList<com.google.protobuf.ByteString>();
+                mutable_bitField0_ |= 0x00000800;
+              }
+              dataList_.add(input.readBytes());
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -240,6 +273,9 @@ public final class DataPacketProtoBuf {
       } finally {
         if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
           broadcastList_ = java.util.Collections.unmodifiableList(broadcastList_);
+        }
+        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
+          dataList_ = java.util.Collections.unmodifiableList(dataList_);
         }
         try {
           unknownFieldsCodedOutput.flush();
@@ -1004,6 +1040,40 @@ public final class DataPacketProtoBuf {
       return broadcastList_.get(index);
     }
 
+    public static final int DATALIST_FIELD_NUMBER = 12;
+    private java.util.List<com.google.protobuf.ByteString> dataList_;
+    /**
+     * <code>repeated bytes dataList = 12;</code>
+     *
+     * <pre>
+     * Added in v3
+     * </pre>
+     */
+    public java.util.List<com.google.protobuf.ByteString>
+        getDataListList() {
+      return dataList_;
+    }
+    /**
+     * <code>repeated bytes dataList = 12;</code>
+     *
+     * <pre>
+     * Added in v3
+     * </pre>
+     */
+    public int getDataListCount() {
+      return dataList_.size();
+    }
+    /**
+     * <code>repeated bytes dataList = 12;</code>
+     *
+     * <pre>
+     * Added in v3
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getDataList(int index) {
+      return dataList_.get(index);
+    }
+
     private void initFields() {
       encrypted_ = false;
       data_ = com.google.protobuf.ByteString.EMPTY;
@@ -1016,6 +1086,7 @@ public final class DataPacketProtoBuf {
       timestamp_ = 0L;
       isVoice_ = true;
       broadcastList_ = java.util.Collections.emptyList();
+      dataList_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1077,6 +1148,9 @@ public final class DataPacketProtoBuf {
       for (int i = 0; i < broadcastList_.size(); i++) {
         output.writeMessage(11, broadcastList_.get(i));
       }
+      for (int i = 0; i < dataList_.size(); i++) {
+        output.writeBytes(12, dataList_.get(i));
+      }
       output.writeRawBytes(unknownFields);
     }
 
@@ -1129,6 +1203,15 @@ public final class DataPacketProtoBuf {
       for (int i = 0; i < broadcastList_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(11, broadcastList_.get(i));
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < dataList_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(dataList_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getDataListList().size();
       }
       size += unknownFields.size();
       memoizedSerializedSize = size;
@@ -1246,6 +1329,8 @@ public final class DataPacketProtoBuf {
         bitField0_ = (bitField0_ & ~0x00000200);
         broadcastList_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000400);
+        dataList_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000800);
         return this;
       }
 
@@ -1314,6 +1399,11 @@ public final class DataPacketProtoBuf {
           bitField0_ = (bitField0_ & ~0x00000400);
         }
         result.broadcastList_ = broadcastList_;
+        if (((bitField0_ & 0x00000800) == 0x00000800)) {
+          dataList_ = java.util.Collections.unmodifiableList(dataList_);
+          bitField0_ = (bitField0_ & ~0x00000800);
+        }
+        result.dataList_ = dataList_;
         result.bitField0_ = to_bitField0_;
         return result;
       }
@@ -1359,6 +1449,16 @@ public final class DataPacketProtoBuf {
           } else {
             ensureBroadcastListIsMutable();
             broadcastList_.addAll(other.broadcastList_);
+          }
+          
+        }
+        if (!other.dataList_.isEmpty()) {
+          if (dataList_.isEmpty()) {
+            dataList_ = other.dataList_;
+            bitField0_ = (bitField0_ & ~0x00000800);
+          } else {
+            ensureDataListIsMutable();
+            dataList_.addAll(other.dataList_);
           }
           
         }
@@ -1893,6 +1993,106 @@ public final class DataPacketProtoBuf {
         ensureBroadcastListIsMutable();
         broadcastList_.remove(index);
 
+        return this;
+      }
+
+      private java.util.List<com.google.protobuf.ByteString> dataList_ = java.util.Collections.emptyList();
+      private void ensureDataListIsMutable() {
+        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
+          dataList_ = new java.util.ArrayList<com.google.protobuf.ByteString>(dataList_);
+          bitField0_ |= 0x00000800;
+         }
+      }
+      /**
+       * <code>repeated bytes dataList = 12;</code>
+       *
+       * <pre>
+       * Added in v3
+       * </pre>
+       */
+      public java.util.List<com.google.protobuf.ByteString>
+          getDataListList() {
+        return java.util.Collections.unmodifiableList(dataList_);
+      }
+      /**
+       * <code>repeated bytes dataList = 12;</code>
+       *
+       * <pre>
+       * Added in v3
+       * </pre>
+       */
+      public int getDataListCount() {
+        return dataList_.size();
+      }
+      /**
+       * <code>repeated bytes dataList = 12;</code>
+       *
+       * <pre>
+       * Added in v3
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getDataList(int index) {
+        return dataList_.get(index);
+      }
+      /**
+       * <code>repeated bytes dataList = 12;</code>
+       *
+       * <pre>
+       * Added in v3
+       * </pre>
+       */
+      public Builder setDataList(
+          int index, com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDataListIsMutable();
+        dataList_.set(index, value);
+        
+        return this;
+      }
+      /**
+       * <code>repeated bytes dataList = 12;</code>
+       *
+       * <pre>
+       * Added in v3
+       * </pre>
+       */
+      public Builder addDataList(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDataListIsMutable();
+        dataList_.add(value);
+        
+        return this;
+      }
+      /**
+       * <code>repeated bytes dataList = 12;</code>
+       *
+       * <pre>
+       * Added in v3
+       * </pre>
+       */
+      public Builder addAllDataList(
+          java.lang.Iterable<? extends com.google.protobuf.ByteString> values) {
+        ensureDataListIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, dataList_);
+        
+        return this;
+      }
+      /**
+       * <code>repeated bytes dataList = 12;</code>
+       *
+       * <pre>
+       * Added in v3
+       * </pre>
+       */
+      public Builder clearDataList() {
+        dataList_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000800);
+        
         return this;
       }
 

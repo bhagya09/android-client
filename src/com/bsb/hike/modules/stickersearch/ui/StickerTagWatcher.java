@@ -115,8 +115,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 		if (end > start)
 		{
-			removeAttachedSpans(start, end);
-			editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			try
+			{
+				removeAttachedSpans(start, end);
+				editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+			catch(Exception e)
+			{
+				Logger.e(TAG, "Error while executing highlight spanning !!!", e);
+			}
 		}
 	}
 
@@ -133,8 +140,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 		if (end > start)
 		{
-			removeAttachedSpans(start, end);
-			editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			try
+			{
+				removeAttachedSpans(start, end);
+				editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+			catch(Exception e)
+			{
+				Logger.e(TAG, "Error while executing unhighlight spanning !!!", e);
+			}
 		}
 	}
 

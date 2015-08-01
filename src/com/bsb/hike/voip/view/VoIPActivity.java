@@ -28,6 +28,7 @@ import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
 public class VoIPActivity extends SherlockFragmentActivity implements CallFragmentListener, CallFailedFragListener
 {
 	private VoipCallFragment mainFragment;
+	private String tag = VoIPConstants.TAG + " Activity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -64,7 +65,10 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 	protected void onNewIntent(Intent intent) 
 	{
 		super.onNewIntent(intent);
-		Logger.d(VoIPConstants.TAG, "VoIPActivity onNewIntent().");
+		
+		if (intent.hasExtra(VoIPConstants.Extras.REMOVE_FAILED_FRAGMENT) && isShowingCallFailedFragment())
+			removeCallFailedFragment();
+
 		if(mainFragment instanceof VoipCallFragment)
 		{
 			mainFragment.handleIntent(intent);

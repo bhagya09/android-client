@@ -415,5 +415,4 @@ public class StickerSearchManager
 	{
 		this.showAutopopupSettingOn = showAutopopupSettingOn;
 	}
-
 }

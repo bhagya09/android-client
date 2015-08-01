@@ -25,7 +25,7 @@ public class StickerSearchConstants
 	// Generic constants for periodic tasks====================================================[[
 	public static final int REBALACING_DEFAULT_TIME = 4; // 4 a.m.
 
-	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 7 * 24 * 60 * 60 * 1000l; // 7 days period in milliseconds
+	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L; // 7 days period in milliseconds
 
 	// ====================================================Generic constants for periodic tasks]]
 
@@ -37,23 +37,17 @@ public class StickerSearchConstants
 	// ====================================================Generic constants for searching text]]
 
 	// Constants used in summary calculation===================================================[[
-	public static final int TIME_WINDOW_TRENDING_CARRY_ON = 3; // 3 days period
+	public static final long TIME_WINDOW_TRENDING_SUMMERY = 3 * 24 * 60 * 60 * 1000L; // 3 days period in milliseconds
 
-	public static final int TIME_WINDOW_LOCAL_CARRY_ON = 14; // 14 days period
+	public static final long TIME_WINDOW_LOCAL_SUMMERY = 14 * 24 * 60 * 60 * 1000L; // 14 days period in milliseconds
 
-	public static final int TIME_WINDOW_GLOBAL_CARRY_ON = 21; // 21 days period
+	public static final long TIME_WINDOW_GLOBAL_SUMMERY = 21 * 24 * 60 * 60 * 1000L; // 21 days period in milliseconds
 
-	public static final long TIME_WINDOW_TRENDING_SUMMERY = TIME_WINDOW_TRENDING_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
+	public static final long TEST_TIME_WINDOW_TRENDING_SUMMERY = 15 * 60 * 1000L; // 15 minute period in milliseconds
 
-	public static final long TIME_WINDOW_LOCAL_SUMMERY = TIME_WINDOW_LOCAL_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
+	public static final long TEST_TIME_WINDOW_LOCAL_SUMMERY = 30 * 60 * 1000L; // 30 minute period in milliseconds
 
-	public static final long TIME_WINDOW_GLOBAL_SUMMERY = TIME_WINDOW_GLOBAL_CARRY_ON * 24 * 60 * 60 * 1000L; // period in milliseconds
-
-	public static final long TEST_TIME_WINDOW_TRENDING_SUMMERY = 15 * 60 * 1000L; // period in milliseconds
-
-	public static final long TEST_TIME_WINDOW_LOCAL_SUMMERY = 30 * 60 * 1000L; // period in milliseconds
-
-	public static final long TEST_TIME_WINDOW_GLOBAL_SUMMERY = 45 * 60 * 1000L; // period in milliseconds
+	public static final long TEST_TIME_WINDOW_GLOBAL_SUMMERY = 45 * 60 * 1000L; // 45 minute period in milliseconds
 
 	public static final float MAXIMUM_FREQUENCY_TRENDING = 2E+2f; // relative count
 
@@ -73,7 +67,11 @@ public class StickerSearchConstants
 	// ==============================================Constants used for selecting search result]]
 
 	// Constants used for calculating score====================================================[[
-	public static final float WEITAGE_MATCH_SCORE = 0.30f;
+	public static final float LIMIT_AUTO_CORRECTION = 0.70f; // 70 percent
+
+	public static final float LIMIT_EXACT_MATCH = 0.70f; // 70 percent
+
+	public static final float WEITAGE_MATCH_LATERAL = 0.30f;
 
 	public static final float WEITAGE_EXACT_MATCH = 0.32f;
 
