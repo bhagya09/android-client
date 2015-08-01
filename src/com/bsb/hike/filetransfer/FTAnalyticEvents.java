@@ -181,6 +181,8 @@ public class FTAnalyticEvents
 	public static final String JSON_PARSING_ISSUE = "json_parsing_issue";
 
 	public static final String HOST_FALLBACK = "host_fallback";
+
+	public static final String FT_STATE_READ_FAIL = "ft_state_read_fail";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
