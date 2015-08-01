@@ -2251,7 +2251,31 @@ public class MqttMessagesManager
 			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
 		}
-
+		if (data.has(HikeConstants.INVITE_TOKEN))
+		{
+			editor.putString(HikeConstants.INVITE_TOKEN, data.getString(HikeConstants.INVITE_TOKEN));
+		}
+		
+		if (data.has(HikeConstants.InviteSection.INVITE_SECTION))
+		{
+			JSONObject inviteSection = data.getJSONObject(HikeConstants.InviteSection.INVITE_SECTION); 
+			if (inviteSection.has(HikeConstants.InviteSection.SHOW_EXTRA_INVITE_SECTION))
+			{
+				editor.putBoolean(HikeConstants.InviteSection.SHOW_EXTRA_INVITE_SECTION, inviteSection.getBoolean(HikeConstants.InviteSection.SHOW_EXTRA_INVITE_SECTION));
+			}
+			if (inviteSection.has(HikeConstants.InviteSection.INVITE_SECTION_MAIN_TEXT))
+			{
+				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_MAIN_TEXT, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_MAIN_TEXT));
+			}
+			if (inviteSection.has(HikeConstants.InviteSection.INVITE_SECTION_BOTTOM_TEXT))
+			{
+				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_BOTTOM_TEXT, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_BOTTOM_TEXT));
+			}
+			if (inviteSection.has(HikeConstants.InviteSection.INVITE_SECTION_IMAGE))
+			{
+				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE));
+			}
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

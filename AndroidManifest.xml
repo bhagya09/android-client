@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1299"
-    android:versionName="3.9.8.82.20.1.cpr" >
-    
+    android:versionCode="1296"
+    android:versionName="3.9.8.82.4.referral_extra_section" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
