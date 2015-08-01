@@ -183,8 +183,8 @@ public class RequestExecuter
 				}
 				finally
 				{
+					LogFull.d("Process Async : request call execute method finally called");
 					finish(this);
-					request.setRequestCancellationListener(null);
 				}
 			}
 		};
