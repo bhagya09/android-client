@@ -465,9 +465,9 @@ public enum StickerSearchDataController
 				{
 					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
 				}
-				catch (Exception e)
+				catch (Throwable t)
 				{
-					Logger.e(HikeStickerSearchDatabase.TAG, "Error while inserting tags !!!", e);
+					Logger.e(HikeStickerSearchDatabase.TAG, "Error while inserting tags !!!", t);
 				}
 			}
 		}
@@ -522,9 +522,9 @@ public enum StickerSearchDataController
 			{
 				return HikeStickerSearchDatabase.getInstance().summarizeAndDoRebalancing();
 			}
-			catch (Exception e)
+			catch (Throwable t)
 			{
-				Logger.wtf(HikeStickerSearchDatabase.TAG_REBALANCING, "Error while performing summarization and other updates !!!", e);
+				Logger.wtf(HikeStickerSearchDatabase.TAG_REBALANCING, "Error while performing summarization and other updates !!!", t);
 				return true;
 			}
 		}
