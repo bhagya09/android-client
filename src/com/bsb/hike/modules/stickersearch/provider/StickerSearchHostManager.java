@@ -1340,7 +1340,9 @@ public class StickerSearchHostManager
 			if (timelyStcikersCount > 0)
 			{
 				Collections.sort(timePrioritizedStickerList);
+
 				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>();
+
 				for (int i = 0; i < timelyStcikersCount; i++)
 				{
 					StickerDataContainer timelySticker = timePrioritizedStickerList.get(i);

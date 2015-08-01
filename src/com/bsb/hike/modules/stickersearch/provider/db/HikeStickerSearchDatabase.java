@@ -1268,7 +1268,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			// ===--------------===Local
 			// ===--------Trending
 			//
-			// <== Order of shifting ('===' represents proportional shift, ':::' represents vacant space to be filled in next period and '---' represents pure cumulative frequency)
+			// ==> Order of shifting ('===' represents proportional shift, ':::' represents vacant space to be filled in next period and '---' represents pure cumulative frequency)
 			//
 			//
 			// After shifting==>
