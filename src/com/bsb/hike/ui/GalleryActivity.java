@@ -331,6 +331,30 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 	
+	//returns true if the filePath was edited in the current MultiEdit Flow
+	private boolean isImageEdited(String filePath)
+	{
+		if(editedImages == null || !filePath.contains(PictureEditer.getEditImageSaveDirectory(false)))
+		{
+			return false;
+		}
+		
+		String filename=(new File(filePath)).getName();
+		for(String editedImage:editedImages)
+		{
+			if(editedImage == null)
+			{
+				continue;
+			}
+			String editFilename=(new File(editedImage)).getName();
+			if(editFilename.equalsIgnoreCase(filename))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private boolean isValidFile(String filePath)
 	{
 		if (TextUtils.isEmpty(filePath))
@@ -352,7 +376,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			return false;
 		}
 		
-		if(editEnabled && editedImages != null && editedImages.contains(filePath))
+		if(editEnabled && isImageEdited(filePath))
 		{
 			//Skipping this file since this is a temp file created by multi-edit 
 			return false;
