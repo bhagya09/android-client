@@ -80,15 +80,18 @@ public class HttpManager
 
 	public static void setProductionHostUris()
 	{
-		String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_HOST_IPS, "");
 		JSONArray ipArray = null;
-		try
+		if (HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.HTTP_HOST_IPS))
 		{
-			ipArray = new JSONArray(ipString);
-		}
-		catch (JSONException e)
-		{
-			LogFull.e("Exception while parsing = ", e);
+			String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_HOST_IPS, "");
+			try
+			{
+				ipArray = new JSONArray(ipString);
+			}
+			catch (JSONException e)
+			{
+				LogFull.e("Exception while parsing : " + e);
+			}
 		}
 
 		if (null != ipArray && ipArray.length() > 0)
