@@ -1994,8 +1994,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else if (HikePubSub.CONTACT_SYNCED.equals(type))
 		{
-			Boolean[] ret = (Boolean[]) object;
-			final boolean contactsChanged = ret[1];
+			Pair<Boolean, Byte> ret = (Pair<Boolean, Byte>) object;
+			final byte contactSyncResult = ret.second;
 			runOnUiThread(new Runnable()
 			{
 
@@ -2003,7 +2003,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				public void run()
 				{
 					// Dont repopulate list if no sync changes
-					if(contactsChanged)
+					if (contactSyncResult == ContactManager.SYNC_CONTACTS_CHANGED)
 						adapter.executeFetchTask();
 					showProgressBarContactsSync(View.GONE);
 				}
