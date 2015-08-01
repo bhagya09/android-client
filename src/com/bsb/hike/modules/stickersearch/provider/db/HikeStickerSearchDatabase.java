@@ -1272,6 +1272,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			//
 			//
 			// After shifting==>
+			//
 			// :::-----------------------Global
 			// :::---------------Local
 			// :::-------Trending
