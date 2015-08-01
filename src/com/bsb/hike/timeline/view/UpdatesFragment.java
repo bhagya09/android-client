@@ -247,6 +247,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					@Override
 					public void run()
 					{
+						if (!isAdded())
+						{
+							return;
+						}
+						
 						int shownCounter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
 						if(shownCounter != 0)
 						{
