@@ -25,6 +25,7 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontButton;
 
@@ -225,7 +226,7 @@ public class BotChatThread extends OneToOneChatThread
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		}
-		if (configuration.isSearchInOverflowMenuEnabled())
+		if (configuration.isSearchInOverflowMenuEnabled() && (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true)))
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		}
