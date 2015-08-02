@@ -34,6 +34,8 @@ public class StickerSearchConstants
 
 	public static final int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = 75;
 
+	public static final float LIMIT_AUTO_CORRECTION = 0.70f; // 70 percent
+
 	// ====================================================Generic constants for searching text]]
 
 	// Constants used in summary calculation===================================================[[
@@ -67,8 +69,6 @@ public class StickerSearchConstants
 	// ==============================================Constants used for selecting search result]]
 
 	// Constants used for calculating score====================================================[[
-	public static final float LIMIT_AUTO_CORRECTION = 0.70f; // 70 percent
-
 	public static final float LIMIT_EXACT_MATCH = 0.70f; // 70 percent
 
 	public static final float WEITAGE_MATCH_LATERAL = 0.30f;
@@ -94,6 +94,8 @@ public class StickerSearchConstants
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_PREDICTIVE = 0.20f;
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
+
+	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.99f; // marginal full score = 99.99% but not 100% (nothing is perfect till its perfect)
 
 	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
 

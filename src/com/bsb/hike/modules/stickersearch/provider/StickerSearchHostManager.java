@@ -50,6 +50,8 @@ public class StickerSearchHostManager
 
 	private static float WEITAGE_CONTEXT_MOMENT;
 
+	private static float MARGINAL_FULL_SCORE_LATERAL;
+
 	private static float LIMIT_AUTO_CORRECTION;
 
 	private static float LIMIT_EXACT_MATCH;
@@ -119,6 +121,9 @@ public class StickerSearchHostManager
 
 		WEITAGE_CONTEXT_MOMENT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_CONTEXT_MOMENT,
 				StickerSearchConstants.WEITAGE_CONTEXT_MOMENT);
+
+		MARGINAL_FULL_SCORE_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL,
+				StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
 
 		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
 
@@ -1407,10 +1412,22 @@ public class StickerSearchHostManager
 
 			if (searchWordsCount > exactWordsCount)
 			{
+				// Apply first word full match prioritization before final scoring
+				if ((count < searchWordsCount) && (searchWords.get(0).equals(exactWords.get(0))))
+				{
+					count = count + MARGINAL_FULL_SCORE_LATERAL;
+				}
+
 				result = count / searchWordsCount;
 			}
 			else
 			{
+				// Apply first word full match prioritization before final scoring
+				if ((count < exactWordsCount) && (searchWords.get(0).equals(exactWords.get(0))))
+				{
+					count = count + MARGINAL_FULL_SCORE_LATERAL;
+				}
+
 				result = count / exactWordsCount;
 			}
 

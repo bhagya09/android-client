@@ -551,15 +551,17 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_SCORE_WEITAGE_CONTEXT_MOMENT = "stickerScoreWeitageContextMoment"; // float
 
+	public static final String STICKER_TAG_LIMIT_EXACT_MATCH = "stickerTagExactMatchMinLevel"; // float
+
+	public static final String STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL = "stickerScoreMarginalFirstWordFullMatch"; // float;
+
+	public static final String STICKER_TAG_LIMIT_AUTO_CORRECTION = "stickerTagAutoCorrectionLevel"; // float
+
 	public static final String STICKER_FREQUENCY_TRENDING_RATIO = "stickerTrendingFrequencyRatio"; // float
 
 	public static final String STICKER_FREQUENCY_LOCAL_RATIO = "stickerLocalFrequencyRatio"; // float
 
 	public static final String STICKER_FREQUENCY_GLOBAL_RATIO = "stickerGlobalFrequencyRatio"; // float
-
-	public static final String STICKER_TAG_LIMIT_AUTO_CORRECTION = "stickerTagAutoCorrectionLevel"; // float
-
-	public static final String STICKER_TAG_LIMIT_EXACT_MATCH = "stickerTagExactMatchMinLevel"; // float
 
 	// private static Twitter twitter;
 
