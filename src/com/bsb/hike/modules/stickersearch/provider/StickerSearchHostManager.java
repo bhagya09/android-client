@@ -345,7 +345,18 @@ public class StickerSearchHostManager
 					}
 					lastIndexInPhraseStartedWithPivot--;
 
+					// determine if exact match is needed
+					int actualStartOfWord = startList.get(i);
+					int actualEndOfWord = endList.get(i) - 1;
+					boolean exactSearch = !((actualStartOfWord > start) ? ((actualStartOfWord <= end) && (actualEndOfWord == end)) : (actualEndOfWord >= end));
+
 					String searchKey = searchText.toString().toUpperCase(Locale.ENGLISH);
+
+					// check if word about to search, is being edited currently after copy and paste
+					if ((lastIndexInPhraseStartedWithPivot == i) && !exactSearch)
+					{
+						searchKey = searchKey + StickerSearchConstants.STRING_PREDICATE;
+					}
 
 					if (!sCacheForLocalSearch.containsKey(searchKey))
 					{
@@ -387,10 +398,6 @@ public class StickerSearchHostManager
 
 						// word sticker data
 						ArrayList<StickerDataContainer> wordResult = null;
-						int actualStartOfWord = startList.get(i);
-						int actualEndOfWord = endList.get(i) - 1;
-						// determine if exact match is needed
-						boolean exactSearch = !((actualStartOfWord > start) ? ((actualStartOfWord <= end) && (actualEndOfWord == end)) : (actualEndOfWord >= end));
 
 						String partialSearchKey = value.toUpperCase(Locale.ENGLISH);
 						String wordSearchKey = partialSearchKey + (exactSearch ? StickerSearchConstants.STRING_EMPTY : StickerSearchConstants.STRING_PREDICATE);
@@ -413,7 +420,7 @@ public class StickerSearchHostManager
 								}
 								else if (wordResultList == null)
 								{
-									Logger.i(TAG, "Saving to cache, Word searchKey::" + searchKey + " ==> []");
+									Logger.i(TAG, "Saving to cache, Word searchKey::" + partialSearchKey + " ==> []");
 									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerDataContainer>());
 								}
 							}
@@ -422,7 +429,7 @@ public class StickerSearchHostManager
 								Logger.d(TAG, "Filtering word stickers from local cache, searchKey::" + wordSearchKey + " ==> " + wordResult);
 							}
 						}
-						else if (partialSearchKey.length() == 1 && j == 0)
+						else if ((partialSearchKey.length() == 1) && (j == 0))
 						{
 							wordResult = sCacheForLocalSearch.get(partialSearchKey);
 							if (wordResult == null)
@@ -439,7 +446,7 @@ public class StickerSearchHostManager
 								}
 								else if (wordResultList == null)
 								{
-									Logger.i(TAG, "Saving to cache, Single character word searchKey::" + searchKey + " ==> []");
+									Logger.i(TAG, "Saving to cache, Single character word searchKey::" + partialSearchKey + " ==> []");
 									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerDataContainer>());
 								}
 							}
@@ -472,7 +479,6 @@ public class StickerSearchHostManager
 								Logger.i(TAG, "Saving to cache, Phrase searchKey::" + searchKey + " ==> []");
 								sCacheForLocalSearch.put(searchKey, new ArrayList<StickerDataContainer>());
 
-								String currentPhrase;
 								int currentMaxPermutationSize;
 								maxPermutationSize = 3;
 								nextWord = null;
@@ -502,8 +508,7 @@ public class StickerSearchHostManager
 
 									searchKey = searchText.toString().toUpperCase(Locale.ENGLISH);
 
-									currentPhrase = searchKey;
-									if (currentPhrase.equals(previousPhrase))
+									if (searchKey.equals(previousPhrase))
 									{
 										continue;
 									}
@@ -548,7 +553,7 @@ public class StickerSearchHostManager
 										}
 									}
 
-									previousPhrase = currentPhrase;
+									previousPhrase = searchKey;
 								}
 							}
 
@@ -690,10 +695,7 @@ public class StickerSearchHostManager
 							if (((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0))) && ((value.length() > 1) || (j == 0)))
 							{
 								searchKey = value.toUpperCase(Locale.ENGLISH);
-								int actualStartOfWord = startList.get(i);
-								int actualEndOfWord = endList.get(i) - 1;
-								// determine if exact match is needed
-								boolean exactSearch = !((actualStartOfWord > start) ? ((actualStartOfWord <= end) && (actualEndOfWord == end)) : (actualEndOfWord >= end));
+
 								if (exactSearch)
 								{
 									savedStickers = sCacheForLocalSearch.get(searchKey);
