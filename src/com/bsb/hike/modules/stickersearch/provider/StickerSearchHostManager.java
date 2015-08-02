@@ -197,7 +197,7 @@ public class StickerSearchHostManager
 
 	public Pair<CharSequence, int[][]> onTextChange(CharSequence s, int start, int before, int count)
 	{
-		Logger.i(TAG, "onTextChanged(), Searching start: " + System.currentTimeMillis());
+		Logger.i(TAG, "onTextChanged(), Searching start at time: " + System.currentTimeMillis());
 
 		Pair<CharSequence, int[][]> result;
 
@@ -245,7 +245,7 @@ public class StickerSearchHostManager
 			result = null;
 		}
 
-		Logger.i(TAG, "onTextChanged(), Searching over time: " + System.currentTimeMillis());
+		Logger.i(TAG, "onTextChanged(), Searching over at time: " + System.currentTimeMillis());
 
 		return result;
 	}
@@ -284,7 +284,7 @@ public class StickerSearchHostManager
 				if (lastPossibleConsiderableIndex < wholeString.length())
 				{
 					char c = wholeString.charAt(lastPossibleConsiderableIndex);
-					if ((c == ' ') || (c == '\n') || (c == '\t') || (c == ',') || (c == '.') || (c == '@'))
+					if ((c == ' ') || (c == '\n') || (c == '\t') || (c == ',') || (c == '.') || (c == '?'))
 					{
 						mCurrentTextSignificantLength = lastPossibleConsiderableIndex;
 					}
@@ -457,7 +457,7 @@ public class StickerSearchHostManager
 						}
 						else
 						{
-							// remove separator if only phrase search type is present
+							// remove separator if only one search type (phrase but not word) is present
 							list.remove(null);
 						}
 
@@ -803,19 +803,21 @@ public class StickerSearchHostManager
 		Pair<String, LinkedHashSet<Sticker>> results = null;
 		String clickedWord = null;
 		String clickedPhrase = null;
+		int effectiveClickedWordIndex = -1;
 
 		for (int i = 0, j = 0; i < wordList.size(); i++)
 		{
 			String word = wordList.get(i).replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY);
 			if ((where >= startIndexList.get(i)) && (where <= endIndexList.get(i)))
 			{
-				Logger.d(TAG, "Clicked word index = " + i);
-				Logger.d(TAG, "Clicked word = " + word);
+				Logger.d(TAG, "onClickToSendSticker(), Clicked word index = " + i);
+				Logger.d(TAG, "onClickToSendSticker(), Clicked word = " + word);
 
 				if (word.length() > 0)
 				{
 					results = computeProbableStickers(currentString, wordList, startIndexList, endIndexList, word, i, (j == 0));
 					clickedWord = word;
+					effectiveClickedWordIndex = i;
 				}
 				else
 				{
@@ -838,24 +840,26 @@ public class StickerSearchHostManager
 					{
 						if (wordList.get(postIndex).length() > 0)
 						{
-							postInvalidCount = postInvalidCount - i;
+							postInvalidCount = postIndex - i;
 							break;
 						}
 					}
 
 					if ((preInvalidCount <= 0) && (postInvalidCount <= 0))
 					{
-						Logger.d(TAG, "onClickToSendSticker(), No valid combination of words is present in current sentence.");
+						Logger.d(TAG, "onClickToSendSticker(), No valid combination of words is present in current text.");
 					}
 					else
 					{
 						if (((preInvalidCount <= postInvalidCount) && (preInvalidCount > 0)) || (postInvalidCount <= 0))
 						{
-							results = computeProbableStickers(currentString, wordList, startIndexList, endIndexList, word, preIndex, (j == 0));
+							results = computeProbableStickers(currentString, wordList, startIndexList, endIndexList, wordList.get(preIndex), preIndex, (j == 0));
+							effectiveClickedWordIndex = preIndex;
 						}
 						else
 						{
-							results = computeProbableStickers(currentString, wordList, startIndexList, endIndexList, word, postIndex, (j == 0));
+							results = computeProbableStickers(currentString, wordList, startIndexList, endIndexList, wordList.get(postIndex), postIndex, (j == 0));
+							effectiveClickedWordIndex = postIndex;
 						}
 
 						clickedWord = word;
@@ -867,7 +871,8 @@ public class StickerSearchHostManager
 					clickedPhrase = results.first;
 					stickers = results.second;
 				}
-				Logger.d(TAG, "Fetched stickers: " + stickers);
+
+				Logger.d(TAG, "onClickToSendSticker(), Fetched stickers (effective clicked word index = " + effectiveClickedWordIndex + "): " + stickers);
 				break;
 			}
 			else if (word.length() > 0)
@@ -938,14 +943,10 @@ public class StickerSearchHostManager
 					firstWordIndexInPhraseEndedWithPivot = j;
 					count++;
 				}
-				else
-				{
-					currentMaxPermutationSize++;
-				}
 
 				j--;
 			}
-			Logger.i(TAG, "Clicked pre-phrase word list in reverse order = " + selectedTextInPhrase);
+			Logger.i(TAG, "computeProbableStickers(), Clicked pre-phrase word list in reverse order = " + selectedTextInPhrase);
 
 			if (count > 1)
 			{
@@ -954,6 +955,7 @@ public class StickerSearchHostManager
 				String firstWord = selectedTextInPhrase.get(0);
 				searchText.append(firstWord);
 
+				// build phrase from a group of some words
 				for (j = 1; j < count; j++)
 				{
 					searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
@@ -964,15 +966,13 @@ public class StickerSearchHostManager
 				currentPhrase = searchText.toString().toUpperCase(Locale.ENGLISH);
 				if (currentPhrase.equals(previousPhrase))
 				{
-					previousPhrase = currentPhrase;
-					j = wordIndexInText - 1;
 					selectedTextInPhrase.clear();
 					searchText.setLength(0);
 					maxPermutationSize--;
 					continue;
 				}
 
-				Logger.i(TAG, "Finding stickers for searched pre-phrase \"" + currentPhrase + "\"");
+				Logger.i(TAG, "computeProbableStickers(), Finding stickers for searched pre-phrase \"" + currentPhrase + "\"");
 
 				// Compute phrase search results having first word significant
 				if (firstWord.length() > 1)
@@ -1046,14 +1046,15 @@ public class StickerSearchHostManager
 			currentMaxPermutationSize = maxPermutationSize;
 			nextWord = null;
 
-			for (lastWordIndexInPhraseStartedWithPivot = wordIndexInText, lastIndexInPhraseStartedWithPivot = wordIndexInText + 1; currentMaxPermutationSize > 1
-					&& lastIndexInPhraseStartedWithPivot < wordList.size(); lastIndexInPhraseStartedWithPivot++)
+			for (lastWordIndexInPhraseStartedWithPivot = wordIndexInText, lastIndexInPhraseStartedWithPivot = wordIndexInText + 1; (currentMaxPermutationSize > 1)
+					&& (lastIndexInPhraseStartedWithPivot < wordList.size()); lastIndexInPhraseStartedWithPivot++)
 			{
 				nextWord = wordList.get(lastIndexInPhraseStartedWithPivot).replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY);
 				if (nextWord.length() == 0)
 				{
 					continue;
 				}
+
 				searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
 				searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 				currentMaxPermutationSize--;
@@ -1070,7 +1071,7 @@ public class StickerSearchHostManager
 				continue;
 			}
 
-			Logger.i(TAG, "Finding stickers for searched phrase \"" + currentPhrase + "\" with exactSearch: " + exactSearch);
+			Logger.i(TAG, "computeProbableStickers(), Finding stickers for searched phrase \"" + currentPhrase + "\" with exactSearch: " + exactSearch);
 
 			// Compute single word search results
 			if (lastWordIndexInPhraseStartedWithPivot == wordIndexInText)
