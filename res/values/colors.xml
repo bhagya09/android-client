@@ -434,6 +434,6 @@
     <color name="settings_text_header_color">#B8000000</color>
     <color name="settings_text_subheader_color">#7A000000</color>
     <color name="menu_text_color">#CC000000</color>
-    
+    <color name="bg_custom_dialog">#EEEEEE</color>
 </resources>
 	
