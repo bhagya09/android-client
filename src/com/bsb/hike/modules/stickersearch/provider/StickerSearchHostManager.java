@@ -1190,7 +1190,8 @@ public class StickerSearchHostManager
 
 			int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
 			int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
-			Logger.v(TAG, "contextMomentCode = " + contextMomentCode + ", currentMomentTerminalCode = " + currentMomentTerminalCode);
+			Logger.v(TAG, "computeOrderingAndGetStickers(), context tMoment is '" + TIME_CODE.getContinuer(contextMomentCode).name() + "' and terminal Moment is '"
+					+ TIME_CODE.getTerminal(currentMomentTerminalCode).name() + "'");
 
 			stickers = new LinkedHashSet<Sticker>();
 

@@ -222,7 +222,9 @@ public class HikeStickerSearchBaseConstants
 
 	// ------------------------------Add more in future; if required-----------------------------
 
-	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = 11;
+	public static final int MOMENT_CODE_FIRST_NON_TERMINAL = 11;
+
+	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = MOMENT_CODE_FIRST_NON_TERMINAL;
 
 	public static final int MOMENT_CODE_NOON_NON_TERMINAL = 12;
 
@@ -302,7 +304,6 @@ public class HikeStickerSearchBaseConstants
 
 		public static int getIdFromCategory(String tagCategory)
 		{
-
 			int id;
 
 			switch (tagCategory)
@@ -368,6 +369,38 @@ public class HikeStickerSearchBaseConstants
 		public int getId()
 		{
 			return mId;
+		}
+
+		public static TIME_CODE getTerminal(int identifier)
+		{
+			switch (identifier)
+			{
+			case -1:
+				return UNKNOWN;
+
+			case 0:
+				return MORNING;
+
+			case 1:
+				return NOON;
+
+			case 2:
+				return AFTER_NOON;
+
+			case 3:
+				return EVENING;
+
+			case 4:
+				return NIGHT;
+
+			default:
+				return INVALID;
+			}
+		}
+
+		public static TIME_CODE getContinuer(int identifier)
+		{
+			return getTerminal(identifier - MOMENT_CODE_FIRST_NON_TERMINAL);
 		}
 	}
 	// =======================================================States used for day time division]]
