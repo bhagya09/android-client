@@ -31,7 +31,6 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -1893,7 +1892,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		 */
 		try
 		{
-			int rightMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
+			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
 		}
 		catch (BadTokenException e)
@@ -1971,6 +1971,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			showAppropriateDialog();
 		}
+		
 		if (overFlowWindow != null && overFlowWindow.isShowing())
 		{
 			overFlowWindow.dismiss();
