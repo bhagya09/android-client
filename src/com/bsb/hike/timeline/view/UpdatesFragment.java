@@ -59,8 +59,6 @@ import com.google.gson.GsonBuilder;
 public class UpdatesFragment extends Fragment implements Listener, OnClickListener
 {
 
-	private StatusMessage ftueStatusMessage;
-
 	private TimelineCardsAdapter timelineCardsAdapter;
 
 	private String userMsisdn;
@@ -277,7 +275,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private int getStartIndex()
 	{
 		int startIndex = 0;
-		if (ftueStatusMessage != null)
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
 		{
 			startIndex++;
 		}
@@ -286,15 +284,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private boolean shouldAddFTUEItem()
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
-		{
-			return true;
-		}
-		else
-		{
-			ftueStatusMessage = null;
-			return false;
-		}
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
 	}
 
 	private void addFTUEItem()
@@ -314,10 +304,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
 			}
 			timelineCardsAdapter.removeAllFTUEItems();
-			ftueStatusMessage = null;
 			return;
 		}
-		
+		StatusMessage ftueStatusMessage = null;
 		ContactInfo contact = null;
 		if (counter == 0)
 		{ 
@@ -500,25 +489,33 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			isFromPacketList = true;
 		}
-		int counter = 0;
-		Iterator<String> iterator = msisdnSet.iterator();
-		while(iterator.hasNext())
+		if (msisdnSet != null)
 		{
-			String id = iterator.next();
-			ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
-			if(c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+			int counter = 0;
+			Iterator<String> iterator = msisdnSet.iterator();
+			while (iterator.hasNext())
 			{
-				finalContactLsit.add(c);
-				counter++;
+				String id = iterator.next();
+				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
+				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+				{
+					finalContactLsit.add(c);
+					counter++;
+				}
+				if (isFromSignUpList && counter == MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY)
+				{
+					break;
+				}
+				else if (isFromPacketList && counter == finalCount)
+				{
+					break;
+				}
 			}
-			if(isFromSignUpList && counter == MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY)
-			{
-				break;
-			}
-			else if(isFromPacketList && counter == finalCount)
-			{
-				break;
-			}
+		}
+		else
+		{
+			Logger.d(UpdatesFragment.class.getName(), "Both list are empty, so no FTUE");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
 		}
 		return finalContactLsit;
 	}
