@@ -35,51 +35,7 @@ public class StickerSearchHostManager
 {
 	private static final String TAG = StickerSearchHostManager.class.getSimpleName();
 
-	private String mCurrentText;
-
-	private int mCurrentTextEditingStartIndex;
-
-	private int mCurrentTextEditingEndIndex;
-
-	private int mCurrentTextSignificantLength;
-
-	private volatile ArrayList<String> sCurrentWordsInText = null;
-
-	private volatile ArrayList<Integer> sWordStartIndicesInCurrentText = null;
-
-	private volatile ArrayList<Integer> sWordEndIndicesInCurrentText = null;
-
-	private static HashMap<String, ArrayList<StickerDataContainer>> sCacheForLocalSearch = new HashMap<String, ArrayList<StickerDataContainer>>();
-
-	private static HashMap<String, Float> sCacheForLocalAnalogousScore = new HashMap<String, Float>();
-
-	private static HashMap<String, LinkedHashSet<Sticker>> sCacheForLocalOrderedStickers = new HashMap<String, LinkedHashSet<Sticker>>();
-
-	private TIME_CODE mMomentCode;
-
-	private int NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL;
-
-	private ArrayList<String> mPreviousWords;
-
-	private IndividualChatProfile mCurrentIndividualChatProfile;
-
-	private GroupChatProfile mCurrentGroupChatProfile;
-
-	private static LinkedList<Word> sWords;
-
-	private static ArrayList<Sticker> sStickers;
-
-	private static HashMap<String, IndividualChatProfile> sIndividualChatRecord;
-
-	private static HashMap<String, GroupChatProfile> sGroupChatRecord;
-
-	private static final Object sHostInitLock = new Object();
-
-	private static final Object sHostOperateLock = new Object();
-
-	private static volatile boolean sIsHostFinishingSearchTask;
-
-	private static volatile StickerSearchHostManager sStickerSearchHostManager;
+	private static int NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL;
 
 	private static float WEITAGE_MATCH_LATERAL;
 
@@ -97,9 +53,52 @@ public class StickerSearchHostManager
 
 	private static float LIMIT_EXACT_MATCH;
 
+	private static HashMap<String, ArrayList<StickerDataContainer>> sCacheForLocalSearch = new HashMap<String, ArrayList<StickerDataContainer>>();
+
+	private static HashMap<String, Float> sCacheForLocalAnalogousScore = new HashMap<String, Float>();
+
+	private static HashMap<String, LinkedHashSet<Sticker>> sCacheForLocalOrderedStickers = new HashMap<String, LinkedHashSet<Sticker>>();
+
+	private String mCurrentText;
+
+	private int mCurrentTextEditingStartIndex;
+
+	private int mCurrentTextEditingEndIndex;
+
+	private int mCurrentTextSignificantLength;
+
+	private volatile ArrayList<String> mCurrentWordsInText = null;
+
+	private volatile ArrayList<Integer> mWordStartIndicesInCurrentText = null;
+
+	private volatile ArrayList<Integer> mWordEndIndicesInCurrentText = null;
+
+	private TIME_CODE mMomentCode;
+
+	private ArrayList<String> mPreviousWords;
+
+	private LinkedList<Word> mWords;
+
+	private ArrayList<Sticker> mStickers;
+
+	private HashMap<String, IndividualChatProfile> mIndividualChatRecord;
+
+	private HashMap<String, GroupChatProfile> mGroupChatRecord;
+
+	private IndividualChatProfile mCurrentIndividualChatProfile;
+
+	private GroupChatProfile mCurrentGroupChatProfile;
+
+	private static final Object sHostInitLock = new Object();
+
+	private static final Object sHostOperateLock = new Object();
+
+	private static volatile boolean sIsHostFinishingSearchTask;
+
+	private static volatile StickerSearchHostManager sStickerSearchHostManager;
+
 	private StickerSearchHostManager(Context context)
 	{
-		sWords = new LinkedList<Word>();
 		mCurrentTextSignificantLength = 0;
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()) + 1;
@@ -162,22 +161,22 @@ public class StickerSearchHostManager
 			}
 		}
 
-		if (sCurrentWordsInText != null)
+		if (mCurrentWordsInText != null)
 		{
-			sCurrentWordsInText.clear();
-			sCurrentWordsInText = null;
+			mCurrentWordsInText.clear();
+			mCurrentWordsInText = null;
 		}
 
-		if (sWordStartIndicesInCurrentText != null)
+		if (mWordStartIndicesInCurrentText != null)
 		{
-			sWordStartIndicesInCurrentText.clear();
-			sWordStartIndicesInCurrentText = null;
+			mWordStartIndicesInCurrentText.clear();
+			mWordStartIndicesInCurrentText = null;
 		}
 
-		if (sWordEndIndicesInCurrentText != null)
+		if (mWordEndIndicesInCurrentText != null)
 		{
-			sWordEndIndicesInCurrentText.clear();
-			sWordEndIndicesInCurrentText = null;
+			mWordEndIndicesInCurrentText.clear();
+			mWordEndIndicesInCurrentText = null;
 		}
 
 		sCacheForLocalSearch.clear();
@@ -272,14 +271,14 @@ public class StickerSearchHostManager
 		{
 			startList = cobj.second.first;
 			endList = cobj.second.second;
-			sCurrentWordsInText = wordList;
-			sWordStartIndicesInCurrentText = startList;
-			sWordEndIndicesInCurrentText = endList;
+			mCurrentWordsInText = wordList;
+			mWordStartIndicesInCurrentText = startList;
+			mWordEndIndicesInCurrentText = endList;
 
 			// remove last word, if needed
 			if (isNeedToRemoveLastWord)
 			{
-				int lastPossibleConsiderableIndex = sWordEndIndicesInCurrentText.get(size - 1);
+				int lastPossibleConsiderableIndex = mWordEndIndicesInCurrentText.get(size - 1);
 				if (lastPossibleConsiderableIndex < wholeString.length())
 				{
 					char c = wholeString.charAt(lastPossibleConsiderableIndex);
@@ -289,13 +288,13 @@ public class StickerSearchHostManager
 					}
 					else
 					{
-						sCurrentWordsInText.remove(size - 1);
-						sWordStartIndicesInCurrentText.remove(size - 1);
-						sWordEndIndicesInCurrentText.remove(size - 1);
-						size = sCurrentWordsInText.size();
+						mCurrentWordsInText.remove(size - 1);
+						mWordStartIndicesInCurrentText.remove(size - 1);
+						mWordEndIndicesInCurrentText.remove(size - 1);
+						size = mCurrentWordsInText.size();
 						if (size > 0)
 						{
-							mCurrentTextSignificantLength = sWordEndIndicesInCurrentText.get(size - 1);
+							mCurrentTextSignificantLength = mWordEndIndicesInCurrentText.get(size - 1);
 						}
 						else
 						{
@@ -327,7 +326,7 @@ public class StickerSearchHostManager
 					maxPermutationSize = 4;
 					nextWord = null;
 
-					// build phrase from a group of 4 words
+					// build phrase from a group of 4 mWords
 					searchText.append(value);
 
 					for (lastWordIndexInPhraseStartedWithPivot = i, lastIndexInPhraseStartedWithPivot = i + 1; maxPermutationSize > 1 && lastIndexInPhraseStartedWithPivot < size; lastIndexInPhraseStartedWithPivot++)
@@ -477,7 +476,7 @@ public class StickerSearchHostManager
 								maxPermutationSize = 3;
 								nextWord = null;
 
-								// handle partial phrase of remaining words
+								// handle partial phrase of remaining mWords
 								for (String previousPhrase = null; maxPermutationSize > 1; maxPermutationSize--)
 								{
 									searchText.setLength(0);
@@ -603,7 +602,7 @@ public class StickerSearchHostManager
 							maxPermutationSize = 3;
 							nextWord = null;
 
-							// handle partial phrase of remaining words
+							// handle partial phrase of remaining mWords
 							for (String previousPhrase = null; maxPermutationSize > 1; maxPermutationSize--)
 							{
 								searchText.setLength(0);
@@ -722,9 +721,9 @@ public class StickerSearchHostManager
 		}
 		else
 		{
-			sCurrentWordsInText = wordList;
-			sWordStartIndicesInCurrentText = null;
-			sWordEndIndicesInCurrentText = null;
+			mCurrentWordsInText = wordList;
+			mWordStartIndicesInCurrentText = null;
+			mWordEndIndicesInCurrentText = null;
 			mCurrentTextSignificantLength = 0;
 		}
 
@@ -752,22 +751,22 @@ public class StickerSearchHostManager
 		{
 			Logger.i(TAG, "onMessageSent(), resetting all search results...");
 
-			if (sCurrentWordsInText != null)
+			if (mCurrentWordsInText != null)
 			{
-				sCurrentWordsInText.clear();
-				sCurrentWordsInText = null;
+				mCurrentWordsInText.clear();
+				mCurrentWordsInText = null;
 			}
 
-			if (sWordStartIndicesInCurrentText != null)
+			if (mWordStartIndicesInCurrentText != null)
 			{
-				sWordStartIndicesInCurrentText.clear();
-				sWordStartIndicesInCurrentText = null;
+				mWordStartIndicesInCurrentText.clear();
+				mWordStartIndicesInCurrentText = null;
 			}
 
-			if (sWordEndIndicesInCurrentText != null)
+			if (mWordEndIndicesInCurrentText != null)
 			{
-				sWordEndIndicesInCurrentText.clear();
-				sWordEndIndicesInCurrentText = null;
+				mWordEndIndicesInCurrentText.clear();
+				mWordEndIndicesInCurrentText = null;
 			}
 
 			sCacheForLocalSearch.clear();
@@ -786,9 +785,9 @@ public class StickerSearchHostManager
 	{
 		Logger.d(TAG, "onClickToSendSticker(" + where + ")");
 
-		ArrayList<String> wordList = sCurrentWordsInText;
-		ArrayList<Integer> startIndexList = sWordStartIndicesInCurrentText;
-		ArrayList<Integer> endIndexList = sWordEndIndicesInCurrentText;
+		ArrayList<String> wordList = mCurrentWordsInText;
+		ArrayList<Integer> startIndexList = mWordStartIndicesInCurrentText;
+		ArrayList<Integer> endIndexList = mWordEndIndicesInCurrentText;
 		String currentString = mCurrentText;
 
 		if ((wordList == null) || (startIndexList == null) || (endIndexList == null) || (wordList.size() == 0) || (wordList.size() != startIndexList.size())
@@ -820,7 +819,7 @@ public class StickerSearchHostManager
 				}
 				else
 				{
-					// check pre-words, if valid
+					// check pre-mWords, if valid
 					int preIndex = i;
 					int preInvalidCount = 0;
 					while (--preIndex >= 0)
@@ -832,7 +831,7 @@ public class StickerSearchHostManager
 						}
 					}
 
-					// check post-words, if valid
+					// check post-mWords, if valid
 					int postIndex = i;
 					int postInvalidCount = 0;
 					while (++postIndex < wordList.size())
@@ -846,7 +845,7 @@ public class StickerSearchHostManager
 
 					if ((preInvalidCount <= 0) && (postInvalidCount <= 0))
 					{
-						Logger.d(TAG, "onClickToSendSticker(), No valid combination of words is present in current text.");
+						Logger.d(TAG, "onClickToSendSticker(), No valid combination of mWords is present in current text.");
 					}
 					else
 					{
@@ -954,7 +953,7 @@ public class StickerSearchHostManager
 				String firstWord = selectedTextInPhrase.get(0);
 				searchText.append(firstWord);
 
-				// build phrase from a group of some words
+				// build phrase from a group of some mWords
 				for (j = 1; j < count; j++)
 				{
 					searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
@@ -1040,7 +1039,7 @@ public class StickerSearchHostManager
 
 		for (String previousPhrase = null; maxPermutationSize > 0;)
 		{
-			// build phrase from a group of some words
+			// build phrase from a group of some mWords
 			searchText.append(word);
 			currentMaxPermutationSize = maxPermutationSize;
 			nextWord = null;
@@ -1426,24 +1425,24 @@ public class StickerSearchHostManager
 
 		synchronized (sHostInitLock)
 		{
-			if (sWords != null)
+			if (mWords != null)
 			{
-				for (Word word : sWords)
+				for (Word word : mWords)
 				{
 					word.clear();
 				}
-				sWords.clear();
-				sWords = null;
+				mWords.clear();
+				mWords = null;
 			}
 
-			if (sStickers != null)
+			if (mStickers != null)
 			{
-				for (Sticker sticker : sStickers)
+				for (Sticker sticker : mStickers)
 				{
 					sticker.clear();
 				}
-				sStickers.clear();
-				sStickers = null;
+				mStickers.clear();
+				mStickers = null;
 			}
 
 			if (mPreviousWords != null)
@@ -1452,49 +1451,50 @@ public class StickerSearchHostManager
 				mPreviousWords = null;
 			}
 
+			mCurrentTextSignificantLength = 0;
 			mCurrentText = null;
 
 			mCurrentIndividualChatProfile = null;
 			mCurrentGroupChatProfile = null;
 
-			if (sIndividualChatRecord != null)
+			if (mIndividualChatRecord != null)
 			{
-				Set<String> ids = sIndividualChatRecord.keySet();
+				Set<String> ids = mIndividualChatRecord.keySet();
 				for (String id : ids)
 				{
-					sIndividualChatRecord.get(id).clear();
+					mIndividualChatRecord.get(id).clear();
 				}
-				sIndividualChatRecord.clear();
-				sIndividualChatRecord = null;
+				mIndividualChatRecord.clear();
+				mIndividualChatRecord = null;
 			}
 
-			if (sGroupChatRecord != null)
+			if (mGroupChatRecord != null)
 			{
-				Set<String> ids = sGroupChatRecord.keySet();
+				Set<String> ids = mGroupChatRecord.keySet();
 				for (String id : ids)
 				{
-					sGroupChatRecord.get(id).clear();
+					mGroupChatRecord.get(id).clear();
 				}
-				sGroupChatRecord.clear();
-				sGroupChatRecord = null;
+				mGroupChatRecord.clear();
+				mGroupChatRecord = null;
 			}
 
-			if (sCurrentWordsInText != null)
+			if (mCurrentWordsInText != null)
 			{
-				sCurrentWordsInText.clear();
-				sCurrentWordsInText = null;
+				mCurrentWordsInText.clear();
+				mCurrentWordsInText = null;
 			}
 
-			if (sWordStartIndicesInCurrentText != null)
+			if (mWordStartIndicesInCurrentText != null)
 			{
-				sWordStartIndicesInCurrentText.clear();
-				sWordStartIndicesInCurrentText = null;
+				mWordStartIndicesInCurrentText.clear();
+				mWordStartIndicesInCurrentText = null;
 			}
 
-			if (sWordEndIndicesInCurrentText != null)
+			if (mWordEndIndicesInCurrentText != null)
 			{
-				sWordEndIndicesInCurrentText.clear();
-				sWordEndIndicesInCurrentText = null;
+				mWordEndIndicesInCurrentText.clear();
+				mWordEndIndicesInCurrentText = null;
 			}
 
 			sCacheForLocalSearch.clear();
@@ -1516,12 +1516,12 @@ public class StickerSearchHostManager
 	{
 		Logger.d(TAG, "loadIndividualChatProfile(" + contactId + ")");
 
-		if (sIndividualChatRecord == null)
+		if (mIndividualChatRecord == null)
 		{
-			sIndividualChatRecord = new HashMap<String, StickerSearchHostManager.IndividualChatProfile>();
+			mIndividualChatRecord = new HashMap<String, StickerSearchHostManager.IndividualChatProfile>();
 		}
 
-		mCurrentIndividualChatProfile = sIndividualChatRecord.get(contactId);
+		mCurrentIndividualChatProfile = mIndividualChatRecord.get(contactId);
 		if (mCurrentIndividualChatProfile == null)
 		{
 			mCurrentIndividualChatProfile = new IndividualChatProfile(contactId);
@@ -1532,12 +1532,12 @@ public class StickerSearchHostManager
 	{
 		Logger.d(TAG, "loadGroupChatProfile(" + groupId + ")");
 
-		if (sGroupChatRecord == null)
+		if (mGroupChatRecord == null)
 		{
-			sGroupChatRecord = new HashMap<String, StickerSearchHostManager.GroupChatProfile>();
+			mGroupChatRecord = new HashMap<String, StickerSearchHostManager.GroupChatProfile>();
 		}
 
-		mCurrentGroupChatProfile = sGroupChatRecord.get(groupId);
+		mCurrentGroupChatProfile = mGroupChatRecord.get(groupId);
 		if (mCurrentGroupChatProfile == null)
 		{
 			mCurrentGroupChatProfile = new GroupChatProfile(groupId);
@@ -1550,7 +1550,7 @@ public class StickerSearchHostManager
 
 		synchronized (sHostOperateLock)
 		{
-			if (sWords != null)
+			if (mWords != null)
 			{
 				if (mPreviousWords != null)
 				{
@@ -1560,7 +1560,7 @@ public class StickerSearchHostManager
 				{
 					mPreviousWords = new ArrayList<String>();
 				}
-				for (Word word : sWords)
+				for (Word word : mWords)
 				{
 					mPreviousWords.add(word.getValue());
 				}
