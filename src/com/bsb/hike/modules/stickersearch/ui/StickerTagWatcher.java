@@ -42,6 +42,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 {
 	public static final String TAG = StickerTagWatcher.class.getSimpleName();
 
+	private static int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT;
+
 	private HikeAppStateBaseFragmentActivity activity;
 
 	private StickerPickerListener stickerPickerListener;
@@ -69,6 +71,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
 		Logger.i(TAG, "Initialising sticker tag watcher...");
+
+		this.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
+				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 
 		this.activity = activity;
 		this.editText = editText;
@@ -133,9 +138,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 
-		if ((end > editable.length()) || (end > StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT))
+		if ((end > editable.length()) || (end > MAXIMUM_SEARCH_TEXT_BROKER_LIMIT))
 		{
-			end = Math.min(editable.length(), StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
+			end = Math.min(editable.length(), MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 			Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 		}
 

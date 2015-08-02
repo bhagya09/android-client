@@ -38,6 +38,14 @@ public class StickerSearchHostManager
 
 	private static int NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL;
 
+	private static int MAXIMUM_SEARCH_TEXT_LIMIT;
+
+	private static int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT;
+
+	private static float LIMIT_AUTO_CORRECTION;
+
+	private static float LIMIT_EXACT_MATCH;
+
 	private static float WEITAGE_MATCH_LATERAL;
 
 	private static float WEITAGE_EXACT_MATCH;
@@ -51,10 +59,6 @@ public class StickerSearchHostManager
 	private static float WEITAGE_CONTEXT_MOMENT;
 
 	private static float MARGINAL_FULL_SCORE_LATERAL;
-
-	private static float LIMIT_AUTO_CORRECTION;
-
-	private static float LIMIT_EXACT_MATCH;
 
 	private static ConcurrentHashMap<String, ArrayList<StickerDataContainer>> sCacheForLocalSearch = new ConcurrentHashMap<String, ArrayList<StickerDataContainer>>();
 
@@ -106,6 +110,10 @@ public class StickerSearchHostManager
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()) + 1;
 
+		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
+
+		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
+
 		WEITAGE_MATCH_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_MATCH_LATERAL, StickerSearchConstants.WEITAGE_MATCH_LATERAL);
 
 		WEITAGE_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_EXACT_MATCH, StickerSearchConstants.WEITAGE_EXACT_MATCH);
@@ -125,9 +133,11 @@ public class StickerSearchHostManager
 		MARGINAL_FULL_SCORE_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL,
 				StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
 
-		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
+		MAXIMUM_SEARCH_TEXT_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT,
+				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
 
-		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
+		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
+				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 	}
 
 	/* Get the instance of this class from outside */
@@ -227,13 +237,13 @@ public class StickerSearchHostManager
 			mCurrentText = s.toString();
 
 			boolean isNeedToRemoveLastWord = false;
-			if (mCurrentTextSignificantLength > StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT)
+			if (mCurrentTextSignificantLength > MAXIMUM_SEARCH_TEXT_LIMIT)
 			{
-				mCurrentTextSignificantLength = StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT;
+				mCurrentTextSignificantLength = MAXIMUM_SEARCH_TEXT_LIMIT;
 				while ((mCurrentTextSignificantLength < s.length()) && (s.charAt(mCurrentTextSignificantLength) != ' '))
 				{
 					mCurrentTextSignificantLength++;
-					if (mCurrentTextSignificantLength >= StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT)
+					if (mCurrentTextSignificantLength >= MAXIMUM_SEARCH_TEXT_BROKER_LIMIT)
 					{
 						isNeedToRemoveLastWord = true;
 						break;

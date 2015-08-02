@@ -563,6 +563,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_FREQUENCY_GLOBAL_RATIO = "stickerGlobalFrequencyRatio"; // float
 
+	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stickerTagMaxSearchLength"; // integer
+
+	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stickerTagMaxSearchGreedyLength"; // integer
+
 	// private static Twitter twitter;
 
 	private static HikePubSub mPubSubInstance;
