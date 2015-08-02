@@ -34,6 +34,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.*;
 
@@ -64,6 +65,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private ColorSpanPool colorSpanPool;
 
 	private boolean shownStickerRecommendFtueTip;
+	
+	private boolean shownStickerRecommendFtue;
 
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
@@ -76,6 +79,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.stickerPickerListener = (StickerPickerListener) chathread;
 		this.colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
+		this.shownStickerRecommendFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, false);
 		this.shownStickerRecommendFtueTip = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
@@ -186,7 +190,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			@Override
 			public void run()
 			{
-				if ((stickerList == null) || !chatthread.isKeyboardOpen())
+				if (Utils.isEmpty(stickerList)|| !chatthread.isKeyboardOpen())
 				{
 					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or isKeyboardOpen(): " + chatthread.isKeyboardOpen());
 					return;
@@ -223,7 +227,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				
 				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
 				
-				if(!result.first) // no available stickers present show ftue
+				if(shouldShowFtue(result)) // no available stickers present show ftue
 				{
 					if(fragmentFtue == null)
 					{
@@ -249,6 +253,19 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				}
 			}
 		});
+	}
+	
+	private boolean shouldShowFtue(Pair<Boolean, List<Sticker>> result)
+	{
+		Logger.d(TAG, "result first : " + result.first);
+		if(fragmentFtue != null) Logger.d(TAG, "is visible  : " + fragmentFtue.isVisible());
+		Logger.d(TAG, "shown ftue : " + shownStickerRecommendFtue);
+		
+		if(!result.first || (fragmentFtue != null && fragmentFtue.isVisible() && !shownStickerRecommendFtue))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public void showFtueAnimation()
@@ -289,11 +306,14 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				@Override
 				public void run()
 				{
+					Logger.i(TAG, "dismissStickerSearchPopup()");
+					
 					if (stickerRecommendView != null)
 					{
-						Logger.i(TAG, "dismissStickerSearchPopup()");
 						stickerRecommendView.setVisibility(View.INVISIBLE);
 					}
+					hideFragment(fragment);
+					hideFragment(fragmentFtue);
 				}
 			});
 		}
@@ -423,6 +443,13 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		chatthread.selectAllComposeText();
 	}
 
+	@Override
+	public void shownStickerRecommendFtue()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, true);
+		shownStickerRecommendFtue = true;
+	}
+	
 	public boolean isStickerRecommnedPoupShowing()
 	{
 		return (stickerRecommendView != null) && (stickerRecommendView.getVisibility() == View.VISIBLE);
