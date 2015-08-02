@@ -337,7 +337,7 @@ public class VoIPUtils {
 
 	public static NotificationCompat.Action[] getMissedCallNotifActions(Context context, String msisdn)
 	{
-		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true);
+		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = null;
@@ -384,13 +384,13 @@ public class VoIPUtils {
 	
 	public static boolean isConferencingEnabled(Context context) 
 	{
-		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, true);
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
 		return conferenceEnabled;
 	}
 	
 	public static boolean isBluetoothEnabled(Context context) 
 	{
-		boolean bluetoothEnabled = true;
+		boolean bluetoothEnabled = false;
 		return bluetoothEnabled;
 	}
 	
@@ -739,11 +739,7 @@ public class VoIPUtils {
 	 */
 	public static InetAddress getRelayIpFromHardcodedAddresses() {
 
-		Set<String> ipSet = null;
-		
-		if (Utils.isHoneycombOrHigher())
-			ipSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.VOIP_RELAY_IPS, null);
-		
+		Set<String> ipSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.VOIP_RELAY_IPS, null);
 		Random random = new Random();
 		int index = 0;
 		InetAddress address = null;

@@ -22,14 +22,14 @@
         android:id="@+id/previewText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="@dimen/photos_selector_top_padding"
         android:textColor="@color/photos_filters_font_color"
         android:textSize="@dimen/photos_filter_preview_font_size"
         android:textStyle="bold" />
     
     <View
         android:id="@+id/selectionBar"
-      	android:layout_marginTop="8dp"
+      	android:layout_marginTop="@dimen/photos_selector_top_padding"
         android:background="@color/photos_pager_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/photos_filter_selector_size"/>
