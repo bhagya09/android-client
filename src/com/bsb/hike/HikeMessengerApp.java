@@ -567,6 +567,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stickerTagMaxSearchGreedyLength"; // integer
 
+	public static final String STICKER_TAG_RETRY_ON_FAILED_LOCALLY = "stickerTagRetryIfFailedLocally"; // integer
 	// private static Twitter twitter;
 
 	private static HikePubSub mPubSubInstance;
