@@ -128,7 +128,6 @@ public class StickerSearchHostManager
 	/* Get the instance of this class from outside */
 	public static StickerSearchHostManager getInstance()
 	{
-
 		if ((sStickerSearchHostManager == null) || sIsHostFinishingSearchTask)
 		{
 			synchronized (sHostInitLock)
@@ -1419,14 +1418,14 @@ public class StickerSearchHostManager
 		return result;
 	}
 
-	public void clear()
+	public void clearTransientResources()
 	{
-		Logger.d(TAG, "clear()");
+		Logger.i(TAG, "clearTransientResources()");
 
 		sIsHostFinishingSearchTask = true;
+
 		synchronized (sHostInitLock)
 		{
-
 			if (sWords != null)
 			{
 				for (Word word : sWords)
@@ -1480,9 +1479,37 @@ public class StickerSearchHostManager
 				sGroupChatRecord = null;
 			}
 
-			sStickerSearchHostManager = null;
+			if (sCurrentWordsInText != null)
+			{
+				sCurrentWordsInText.clear();
+				sCurrentWordsInText = null;
+			}
+
+			if (sWordStartIndicesInCurrentText != null)
+			{
+				sWordStartIndicesInCurrentText.clear();
+				sWordStartIndicesInCurrentText = null;
+			}
+
+			if (sWordEndIndicesInCurrentText != null)
+			{
+				sWordEndIndicesInCurrentText.clear();
+				sWordEndIndicesInCurrentText = null;
+			}
+
+			sCacheForLocalSearch.clear();
+			sCacheForLocalAnalogousScore.clear();
+			sCacheForLocalOrderedStickers.clear();
+
+			mCurrentText = null;
+			mMomentCode = null;
+
 			TextMatchManager.clearResources();
+
+			sStickerSearchHostManager = null;
 		}
+
+		sIsHostFinishingSearchTask = false;
 	}
 
 	private void loadIndividualChatProfile(String contactId)
