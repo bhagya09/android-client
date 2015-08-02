@@ -1195,13 +1195,6 @@ public class StickerSearchHostManager
 
 		if (count > 0)
 		{
-			float matchScoreWeitage = WEITAGE_MATCH_LATERAL;
-			float exactMatchWeitage = WEITAGE_EXACT_MATCH;
-			float trendingFrequencyWeitage = WEITAGE_FREQUENCY_TRENDING;
-			float localFrequencyWeitage = WEITAGE_FREQUENCY_LOCAL;
-			float globalFrequencyWeitage = WEITAGE_FREQUENCY_GLOBAL;
-			float contextMomentWeitage = WEITAGE_CONTEXT_MOMENT;
-
 			int contextMomentCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 11));
 			int currentMomentTerminalCode = ((mMomentCode.getId() == TIME_CODE.UNKNOWN.getId()) ? TIME_CODE.INVALID.getId() : (mMomentCode.getId() + 2));
 			Logger.v(TAG, "computeOrderingAndGetStickers(), context Moment is '" + TIME_CODE.getContinuer(contextMomentCode).name() + "' and terminal Moment is '"
@@ -1280,10 +1273,10 @@ public class StickerSearchHostManager
 						stickerDataContainer
 								.setScore(
 										phraseMatchScore,
-										((matchScoreWeitage * phraseMatchScore) + 0.00f
-												+ (trendingFrequencyWeitage * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
-												+ (localFrequencyWeitage * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
-												+ (globalFrequencyWeitage * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
+										((WEITAGE_MATCH_LATERAL * phraseMatchScore) + 0.00f
+												+ (WEITAGE_FREQUENCY_TRENDING * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
+												+ (WEITAGE_FREQUENCY_LOCAL * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
+												+ (WEITAGE_FREQUENCY_GLOBAL * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEITAGE_CONTEXT_MOMENT
 												: 0.00f)));
 					}
 					else
@@ -1291,12 +1284,12 @@ public class StickerSearchHostManager
 						stickerDataContainer
 								.setScore(
 										phraseMatchScore,
-										((matchScoreWeitage * phraseMatchScore)
-												+ (exactMatchWeitage * ((phraseMatchScore > LIMIT_EXACT_MATCH) ? phraseMatchScore : 0.00f) / (stickerDataContainer
+										((WEITAGE_MATCH_LATERAL * phraseMatchScore)
+												+ (WEITAGE_EXACT_MATCH * ((phraseMatchScore > LIMIT_EXACT_MATCH) ? phraseMatchScore : 0.00f) / (stickerDataContainer
 														.getExactMatchOrder() + 1))
-												+ (trendingFrequencyWeitage * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
-												+ (localFrequencyWeitage * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
-												+ (globalFrequencyWeitage * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? contextMomentWeitage
+												+ (WEITAGE_FREQUENCY_TRENDING * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
+												+ (WEITAGE_FREQUENCY_LOCAL * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
+												+ (WEITAGE_FREQUENCY_GLOBAL * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEITAGE_CONTEXT_MOMENT
 												: 0.00f)));
 					}
 
