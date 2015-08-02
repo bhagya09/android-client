@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
@@ -53,7 +54,7 @@ public class StickerSearchHostManager
 
 	private static float LIMIT_EXACT_MATCH;
 
-	private static HashMap<String, ArrayList<StickerDataContainer>> sCacheForLocalSearch = new HashMap<String, ArrayList<StickerDataContainer>>();
+	private static ConcurrentHashMap<String, ArrayList<StickerDataContainer>> sCacheForLocalSearch = new ConcurrentHashMap<String, ArrayList<StickerDataContainer>>();
 
 	private static HashMap<String, Float> sCacheForLocalAnalogousScore = new HashMap<String, Float>();
 
