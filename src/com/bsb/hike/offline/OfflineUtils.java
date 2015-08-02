@@ -724,11 +724,15 @@ public class OfflineUtils
 	{
 		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
 		chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
-		PendingIntent chatThreadPendingIntent = PendingIntent.getService(context, 0, chatThreadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent chatThreadPendingIntent = PendingIntent.getActivity(context, 0, chatThreadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+		Intent cancel = new Intent("com.bsb.cancel");
+		PendingIntent cancelP = PendingIntent.getBroadcast(context, 0, cancel, PendingIntent.FLAG_CANCEL_CURRENT);
+
 		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
-		
-		actions[0] = new NotificationCompat.Action(R.drawable.offline_inline_logo, context.getString(R.string.connect),chatThreadPendingIntent);
-		actions[1] = new NotificationCompat.Action(R.drawable.cross, context.getString(R.string.cancel),null);
+
+		actions[0] = new NotificationCompat.Action(R.drawable.offline_inline_logo, context.getString(R.string.connect), chatThreadPendingIntent);
+		actions[1] = new NotificationCompat.Action(R.drawable.cross, context.getString(R.string.cancel), cancelP);
 
 		return actions;
 	}

@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1275"
+    android:versionCode="1312"
     android:versionName="3.9.8.81.04.offline" >
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="17"/>
+        android:targetSdkVersion="17" />
 
     <permission
         android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE"
@@ -479,6 +478,14 @@
             <intent-filter android:priority="999" >
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
+            </intent-filter>
+        
+        </receiver>
+        
+        <receiver
+             android:name="com.bsb.hike.offline.NotificationCancelReceiver" >
+            <intent-filter android:priority="999" >
+                <action android:name="com.bsb.cancel" />
             </intent-filter>
         </receiver>
     </application>
