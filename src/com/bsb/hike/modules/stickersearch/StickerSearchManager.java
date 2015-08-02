@@ -310,7 +310,6 @@ public class StickerSearchManager
 					listener.setStickerRecommendFtueSeen();
 				}
 
-				listener.dismissStickerSearchPopup();
 				listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
 			}
 			else
