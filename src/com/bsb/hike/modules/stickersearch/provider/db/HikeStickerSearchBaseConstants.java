@@ -210,7 +210,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_UNIVERSAL_TERMINATOR = 1;
 
-	public static final int MOMENT_CODE_MORNING_TERMINAL = 2;
+	public static final int MOMENT_CODE_FIRST_TERMINAL_OF_DAY = 2;
+
+	public static final int MOMENT_CODE_MORNING_TERMINAL = MOMENT_CODE_FIRST_TERMINAL_OF_DAY;
 
 	public static final int MOMENT_CODE_NOON_TERMINAL = 3;
 
@@ -222,9 +224,9 @@ public class HikeStickerSearchBaseConstants
 
 	// ------------------------------Add more in future; if required-----------------------------
 
-	public static final int MOMENT_CODE_FIRST_NON_TERMINAL = 11;
+	public static final int MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY = 11;
 
-	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = MOMENT_CODE_FIRST_NON_TERMINAL;
+	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY;
 
 	public static final int MOMENT_CODE_NOON_NON_TERMINAL = 12;
 
@@ -373,6 +375,7 @@ public class HikeStickerSearchBaseConstants
 
 		public static TIME_CODE getTerminal(int identifier)
 		{
+			identifier = identifier - MOMENT_CODE_FIRST_TERMINAL_OF_DAY;
 			switch (identifier)
 			{
 			case -1:
@@ -400,7 +403,7 @@ public class HikeStickerSearchBaseConstants
 
 		public static TIME_CODE getContinuer(int identifier)
 		{
-			return getTerminal(identifier - MOMENT_CODE_FIRST_NON_TERMINAL);
+			return getTerminal(identifier - MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY + MOMENT_CODE_FIRST_TERMINAL_OF_DAY);
 		}
 	}
 	// =======================================================States used for day time division]]
