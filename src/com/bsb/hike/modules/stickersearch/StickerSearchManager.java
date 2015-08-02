@@ -33,6 +33,8 @@ import com.bsb.hike.utils.Utils;
 
 public class StickerSearchManager
 {
+	private static int WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION;
+
 	private static volatile StickerSearchManager _instance;
 
 	private IStickerSearchListener listener;
@@ -51,6 +53,9 @@ public class StickerSearchManager
 
 	private StickerSearchManager()
 	{
+		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION,
+				StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
+
 		searchEngine = new StickerSearchEngine();
 		showAutopopupSettingOn = isShowAutopopupSettingOn();
 		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
@@ -221,7 +226,7 @@ public class StickerSearchManager
 				listener.dismissStickerSearchPopup();
 
 				SingleCharacterHighlightTask singleCharacterHighlightTask = new SingleCharacterHighlightTask(s, highlightArray);
-				searchEngine.runOnUiThread(singleCharacterHighlightTask, StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
+				searchEngine.runOnUiThread(singleCharacterHighlightTask, WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
 			}
 			else
 			{

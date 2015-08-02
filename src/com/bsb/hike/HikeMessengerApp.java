@@ -530,7 +530,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 
-	// Constants for sticker search
+	// Constants for sticker search=========================================================================================[[
 	public static final String STICKER_TAG_SUMMERY_TRENDING = "stickerTagSummeryTrendingPeriod"; // long
 
 	public static final String STICKER_TAG_SUMMERY_LOCAL = "stickerTagSummeryLocalPeriod"; // long
@@ -568,7 +568,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stickerTagMaxSearchGreedyLength"; // integer
 
 	public static final String STICKER_TAG_RETRY_ON_FAILED_LOCALLY = "stickerTagRetryIfFailedLocally"; // integer
-	// private static Twitter twitter;
+
+	public static final String STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION = "stickerRecommendationWaitTimeForSingleCharTag"; // integer
+
+	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
 
