@@ -1885,7 +1885,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		overFlowWindow.setBackgroundDrawable(getResources().getDrawable(android.R.color.transparent));
 		overFlowWindow.setOutsideTouchable(true);
 		overFlowWindow.setFocusable(true);
-		overFlowWindow.setWidth(getResources().getDimensionPixelSize(R.dimen.overflow_menu_width));
+		overFlowWindow.setWidth(Utils.getOverflowMenuWidth(getApplicationContext()));
 		overFlowWindow.setHeight(LayoutParams.WRAP_CONTENT);
 		/*
 		 * In some devices Activity crashes and a BadTokenException is thrown by showAsDropDown method. Still need to find out exact repro of the bug.
