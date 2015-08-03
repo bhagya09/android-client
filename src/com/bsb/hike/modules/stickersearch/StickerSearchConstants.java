@@ -64,7 +64,7 @@ public class StickerSearchConstants
 
 	public static final float RATIO_MAXIMUM_SELECTION_COUNT = 0.40f;
 
-	public static final int MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT = 2;
+	public static final int MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER = 2;
 
 	// ==============================================Constants used for selecting search result]]
 

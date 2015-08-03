@@ -40,7 +40,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public static final String TAG_REBALANCING = "HSSDB$Rebalancing";
 
-	private volatile int sMaxSelectionCount;
+	private volatile int MAXIMUM_SELECTION_COUNT_PER_SEARCH;
+
+	private volatile int MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER;
 
 	private volatile Random mRandom;
 
@@ -91,7 +93,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sHikeStickerSearchDatabase.mRandom = new Random();
 			}
 
-			sHikeStickerSearchDatabase.sMaxSelectionCount = (int) (StickerSearchConstants.MAXIMUM_SEARCH_COUNT * StickerSearchConstants.RATIO_MAXIMUM_SELECTION_COUNT);
+			sHikeStickerSearchDatabase.MAXIMUM_SELECTION_COUNT_PER_SEARCH = (int) (StickerSearchConstants.MAXIMUM_SEARCH_COUNT * HikeSharedPreferenceUtil.getInstance().getData(
+					HikeMessengerApp.STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH, StickerSearchConstants.RATIO_MAXIMUM_SELECTION_COUNT));
+
+			sHikeStickerSearchDatabase.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER = HikeSharedPreferenceUtil.getInstance().getData(
+					HikeMessengerApp.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, StickerSearchConstants.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER);
 		}
 	}
 
@@ -513,7 +519,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				if (count > 0)
 				{
-					if (count <= sMaxSelectionCount)
+					if (count <= MAXIMUM_SELECTION_COUNT_PER_SEARCH)
 					{
 						list = selectTagsForStickers(matchKey, isExactMatchNeeded, c);
 					}
@@ -568,7 +574,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				if (currentStickerCode.equals(previousStickerCode))
 				{
-					if (tagCountPerSticker >= StickerSearchConstants.MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT)
+					if (tagCountPerSticker >= MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER)
 					{
 						Logger.i(TAG, "Skipped repeated sticker for tag: " + c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]));
 					}
@@ -598,7 +604,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				if (currentStickerCode.equals(previousStickerCode))
 				{
-					if (tagCountPerSticker >= StickerSearchConstants.MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT)
+					if (tagCountPerSticker >= MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER)
 					{
 						Logger.i(TAG, "Skipped repeated sticker for tag: " + actualTag);
 					}
@@ -1124,8 +1130,19 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Operation is started today at time:: " + date.toString());
 
-		int MAXIMUM_PRIMARY_TABLE_CAPACITY = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY
-				: HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY;
+		int MAXIMUM_PRIMARY_TABLE_CAPACITY = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY : HikeSharedPreferenceUtil.getInstance().getData(
+				HikeMessengerApp.STICKER_MAXIMUM_PRIMARY_TABLE_CAPACITY, HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY);
+
+		float THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION : HikeSharedPreferenceUtil
+				.getInstance()
+				.getData(HikeMessengerApp.STICKER_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION, HikeStickerSearchBaseConstants.THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION);
+
+		float THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT : HikeSharedPreferenceUtil
+				.getInstance().getData(HikeMessengerApp.STICKER_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT, HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_EXPANSION_COEFFICIENT);
+
+		float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT
+				: HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT,
+						HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
 
 		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : HikeSharedPreferenceUtil.getInstance().getData(
 				HikeMessengerApp.STICKER_TAG_SUMMERY_TRENDING, StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
@@ -1385,7 +1402,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 
 			// Do re-balancing with updated summarized data, if required to do so
-			int cuttOffTagDataSize = (int) (MAXIMUM_PRIMARY_TABLE_CAPACITY * HikeStickerSearchBaseConstants.THRESHOLD_PRIMARY_TABLE_CAPACITY);
+			int cuttOffTagDataSize = (int) (MAXIMUM_PRIMARY_TABLE_CAPACITY * THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION);
 
 			if ((existingTotalTagCount > 0) && (existingTotalTagCount < cuttOffTagDataSize))
 			{
@@ -1393,12 +1410,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				File file = mContext.getDatabasePath(HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH);
 				long dbSize = file.length();
 				long availableSizeInBytes = file.getFreeSpace();
-				long possibleDbExpansionSizeInBytes = (long) (dbSize * HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_EXPANSION_RATIO);
+				long possibleDbExpansionSizeInBytes = (long) (dbSize * THRESHOLD_DATABASE_EXPANSION_COEFFICIENT);
 
 				if (availableSizeInBytes < possibleDbExpansionSizeInBytes)
 				{
 					Logger.w(TAG_REBALANCING, "Internal memory seems to be getting full in few days. Let's shrink sticker search database.");
-					cuttOffTagDataSize = (int) (existingTotalTagCount * HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_RATIO);
+					cuttOffTagDataSize = (int) (existingTotalTagCount * THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
 				}
 			}
 

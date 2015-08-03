@@ -34,13 +34,19 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MAXIMUM_PRIMARY_TABLE_CAPACITY = 500000; // Changeable in future based on memory usage
 
-	public static final int TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY = 10000; // Changeable in future based on memory usage
+	public static final int TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY = 10000; // Changeable in future based on test configuration
 
-	public static final float THRESHOLD_PRIMARY_TABLE_CAPACITY = 0.70f; // 70 percent // Changeable in future based on memory usage
+	public static final float THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f; // 70 percent // Changeable in future based on memory usage
 
-	public static final float THRESHOLD_DATABASE_EXPANSION_RATIO = 0.20f; // 20 percent // Changeable in future based on memory usage
+	public static final float TEST_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f;  // 70 percent // Changeable in future based on test configuration
 
-	public static final float THRESHOLD_DATABASE_FORCED_SHRINK_RATIO = 0.90f; // 90 percent // Changeable in future based on memory usage
+	public static final float THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = 0.20f; // 20 percent // Changeable in future based on memory usage
+
+	public static final float TEST_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = 0.20f; // 20 percent // Changeable in future based on test configuration
+
+	public static final float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = 0.90f; // 90 percent // Changeable in future based on memory usage
+
+	public static final float TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = 0.90f; // 90 percent // Changeable in future based on test configuration
 
 	// ==============================Dynamic tables used for Sticker-Tag relation and recommendations]]
 

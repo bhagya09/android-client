@@ -508,6 +508,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static CurrentState currentState = CurrentState.CLOSED;
 
+	// Constants for sticker search=========================================================================================[[
 	public static final String TAG_FIRST_TIME_DOWNLOAD = "tagFirstTimeDownload";
 
 	public static final String DEFAULT_TAGS_DOWNLOADED = "defaultTagsDownloaded";
@@ -530,7 +531,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
 
-	// Constants for sticker search=========================================================================================[[
 	public static final String STICKER_TAG_SUMMERY_TRENDING = "stickerTagSummeryTrendingPeriod"; // long
 
 	public static final String STICKER_TAG_SUMMERY_LOCAL = "stickerTagSummeryLocalPeriod"; // long
@@ -567,9 +567,21 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stickerTagMaxSearchGreedyLength"; // integer
 
+	public static final String STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH = "stickerTagSelectionCountMaxRatioPerSearch"; // float
+
+	public static final String STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER = "stickerTagSelectionCountMaxCountPerSticker"; // integer
+
 	public static final String STICKER_TAG_RETRY_ON_FAILED_LOCALLY = "stickerTagRetryIfFailedLocally"; // integer
 
 	public static final String STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION = "stickerRecommendationWaitTimeForSingleCharTag"; // integer
+
+	public static final String STICKER_MAXIMUM_PRIMARY_TABLE_CAPACITY = "stickerPrimaryTableMaxCapacity"; // integer
+
+	public static final String STICKER_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = "stickerPrimaryTableCapacityThresholdLevel"; // float
+
+	public static final String STICKER_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = "stickerSearchDatabaseSizeExpansionCoefficient"; // float
+
+	public static final String STICKER_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = "stickerSearchDatabaseSizeShrinkCoefficient"; // float
 
 	// =========================================================================================Constants for sticker search]]
 
