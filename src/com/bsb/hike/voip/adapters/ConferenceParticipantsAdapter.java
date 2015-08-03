@@ -59,6 +59,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		public ImageView avatarHolder;
 		public LinearLayout itemViewHolder;
 		public TextView contactNameHolder;
+		public TextView subTextHolder;
 		public ImageView isSpeakingHolder;
 		public ImageView crossBtnHolder;
 		public ImageView isRingingHolder;
@@ -91,6 +92,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 			conferenceParticipantHolder.itemViewHolder = (LinearLayout) convertView.findViewById(R.id.voip_conference_participant_item);
 			conferenceParticipantHolder.avatarHolder  = (ImageView) convertView.findViewById(R.id.avatar);
 			conferenceParticipantHolder.contactNameHolder = (TextView) convertView.findViewById(R.id.contact);
+			conferenceParticipantHolder.subTextHolder = (TextView) convertView.findViewById(R.id.contact_subtext);
 			conferenceParticipantHolder.isSpeakingHolder = (RecyclingImageView) convertView.findViewById(R.id.is_speaking_view);
 			conferenceParticipantHolder.isRingingHolder = (RecyclingImageView) convertView.findViewById(R.id.is_ringing_view);
 			conferenceParticipantHolder.crossBtnHolder = (RecyclingImageView) convertView.findViewById(R.id.remove_participant_btn);
@@ -102,7 +104,11 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		{
 			conferenceParticipantHolder = (ConferenceParticipantHolder)convertView.getTag();
 		}
+		
+		// Name
 		conferenceParticipantHolder.contactNameHolder.setText(clients.get(position).getName());
+		
+		// Icon
 		iconLoader.loadImage(clients.get(position).getPhoneNumber(), conferenceParticipantHolder.avatarHolder, false, false, true);
 
 		convertView.setEnabled(false);
@@ -123,6 +129,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 			// For conference participants
 			conferenceParticipantHolder.crossBtnHolder.setVisibility(View.GONE);
 			conferenceParticipantHolder.connectingHolder.setVisibility(View.GONE);
+			conferenceParticipantHolder.subTextHolder.setVisibility(clients.get(position).isHost() ? View.VISIBLE : View.GONE);
 		} else {
 			// For conference host
 			conferenceParticipantHolder.crossBtnHolder.setVisibility(clients.get(position).connected?View.VISIBLE:View.GONE);

@@ -1313,6 +1313,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_group_too_large">Maximum number of conference participants is %1$s.</string>
     <string name="voip_conference_network_support">Please switch to WiFi or 4G to make conference calls.</string>
     <string name="voip_conference_os_support">Your phone cannot host a conference.</string>
+    <string name="voip_conference_host">Conference host</string>
     <string name="led_color_none_key">None</string>
     <string name="led_color_blue_key">Blue</string>
     <string name="led_color_cyan_key">Cyan</string>
