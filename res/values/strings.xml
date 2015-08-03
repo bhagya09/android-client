@@ -1588,4 +1588,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="cancel_connection">Cancel conection with <![CDATA[<font color=#FF0000>%1$s</font>]]> ??</string>
     <string name="cancel_offline_connection">Cancel Connection</string>
     <string name="connection_cancelled">Connection cancelled</string>
+    <string name="retry_connection">Connection was not \n established. Try again?</string>
 </resources>

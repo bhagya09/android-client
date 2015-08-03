@@ -120,9 +120,8 @@ public class OfflineDisconnectFragment extends SherlockFragment
 			@Override
 			public void onClick(View v)
 			{
-				Fragment fragment = getActivity().getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
-				if(fragment != null)
-				    getActivity().getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+				listener.removeDisconnectFragment();			
+				
 			}
 		});
 		
@@ -138,9 +137,7 @@ public class OfflineDisconnectFragment extends SherlockFragment
 				{
 					listener.onConnectionRequest(true);
 				}
-				Fragment fragment = getActivity().getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
-				if(fragment != null)
-				    getActivity().getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+				listener.removeDisconnectFragment();
 			}
 		});
 
@@ -151,6 +148,8 @@ public class OfflineDisconnectFragment extends SherlockFragment
 		public void onConnectionRequest(Boolean startAnimation);	
 		
 		public void onDisconnectionRequest();
+		
+		public void removeDisconnectFragment();
     }
 	
 	@Override
