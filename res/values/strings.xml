@@ -1560,5 +1560,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="send_logs">Send logs</string>
     <string name="sms_with_settings">SMS Settings</string>
     <string name="sms_credits_with_settings">Free SMS: %1$d</string>
+    <string name="free_hike_2_sms_india">Free only to India</string>
     
 </resources>

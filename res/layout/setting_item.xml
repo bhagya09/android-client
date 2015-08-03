@@ -46,7 +46,7 @@
             style="@style/SettingsItemHeader"
             android:textColor="@color/blue_hike"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="14dp"
+            android:layout_marginRight="11dp"
             android:layout_centerVertical="true"
             android:visibility="gone" />
         

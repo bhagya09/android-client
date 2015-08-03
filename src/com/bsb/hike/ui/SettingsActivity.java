@@ -347,7 +347,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				IntentFactory.openSettingChat(this);
 				break;
 
-			case R.string.sms_with_credits:
+			case R.string.sms_with_settings:
 			case R.string.sms:
 				IntentFactory.openSettingSMS(this);
 				break;
