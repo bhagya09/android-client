@@ -181,6 +181,12 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		checkBoxLove.setTag(statusMessage);
 
 		msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
+		
+		if(msisdns == null)
+		{
+			//Empty list
+			msisdns = new ArrayList<String>();
+		}
 
 		isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
 
