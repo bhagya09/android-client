@@ -448,8 +448,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					public void run()
 					{
 						mFtueFriendList = getFtueFriendList();
-						timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
-						addFTUEItem();
+						if(mFtueFriendList != null)
+						{
+							timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
+							addFTUEItem();
+						}
 						notifyVisibleItems();
 					}
 
@@ -474,7 +477,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		Set<String> msisdnSet = settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null);
-		List<ContactInfo> finalContactLsit = new ArrayList<ContactInfo>();
+		List<ContactInfo> finalContactLsit = null;
 		int finalCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, 4);
 		boolean isFromSignUpList = false;
 		boolean isFromPacketList = false;
@@ -493,6 +496,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			int counter = 0;
 			Iterator<String> iterator = msisdnSet.iterator();
+			finalContactLsit = new ArrayList<ContactInfo>();
 			while (iterator.hasNext())
 			{
 				String id = iterator.next();
@@ -515,6 +519,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		else
 		{
 			Logger.d(UpdatesFragment.class.getName(), "Both list are empty, so no FTUE");
+		}
+		
+		if(finalContactLsit == null)
+		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
 		}
 		return finalContactLsit;
