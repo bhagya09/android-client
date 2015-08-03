@@ -48,6 +48,8 @@ public class MessagingBotConfiguration extends BotConfiguration
 		public static byte CHAT_THEME = 10;
 
 		public static byte VIEW_PROFILE = 11;
+
+		public static byte SEARCH = 23;
 	}
 
 
@@ -131,6 +133,11 @@ public class MessagingBotConfiguration extends BotConfiguration
 	public boolean isBlockInOverflowMenuEnabled()
 	{
 		return isBitSet(OverflowMenu.BLOCK);
+	}
+
+	public boolean isSearchInOverflowMenuEnabled()
+	{
+		return isBitSet(OverflowMenu.SEARCH);
 	}
 
 	public boolean isChatThemeInOverflowMenuEnabled()

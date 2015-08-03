@@ -671,6 +671,24 @@ public class HAManager
 
 	}
 	
+	public void serviceEventAnalytics(String eventType, String serviceName)
+	{		
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.SERVICE);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.SERVICE, serviceName);
+			metadata.put(HikeConstants.TIMESTAMP, System.currentTimeMillis());
+			record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.SERVICE_STATS, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
 	
 	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
 	{
@@ -817,12 +835,14 @@ public class HAManager
 
 	private void botOpenMqttAnalytics(JSONObject metadata)
 	{
+
 		try
 		{
-			metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN_MQTT);
+			JSONObject mqttMetadata = new JSONObject(metadata.toString());
+			mqttMetadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN_MQTT);
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.CHAT_ANALYTICS);
-			data.put(HikeConstants.METADATA, metadata);
+			data.put(HikeConstants.METADATA, mqttMetadata);
 
 			Utils.sendLogEvent(data, AnalyticsConstants.NON_UI_EVENT, null);
 		}

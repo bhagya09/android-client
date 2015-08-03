@@ -26,16 +26,19 @@ public class FileSavedState implements Serializable
 	
 	private String _fileKey;
 
-	public FileSavedState(FTState state, int totalSize, int transferredSize)
+	private int _animatedProgress;
+
+	public FileSavedState(FTState state, int totalSize, int transferredSize, int animatedProgress)
 	{
 		_currentState = state;
 		_totalSize = totalSize;
 		_transferredSize = transferredSize;
 		_sessionId = null;
 		_responseJson = null;
+		_animatedProgress = animatedProgress;
 	}
 
-	public FileSavedState(FTState state, int totalSize, int transferredSize, String sId, JSONObject response)
+	public FileSavedState(FTState state, int totalSize, int transferredSize, String sId, JSONObject response, int animatedProgress)
 	{
 		_currentState = state;
 		_totalSize = totalSize;
@@ -49,6 +52,7 @@ public class FileSavedState implements Serializable
 		{
 			_responseJson = null;
 		}
+		_animatedProgress = animatedProgress;
 	}
 
 	public FileSavedState()
@@ -56,10 +60,11 @@ public class FileSavedState implements Serializable
 		_currentState = FTState.NOT_STARTED;
 	}
 	
-	public FileSavedState(FTState state, String mFileKey)
+	public FileSavedState(FTState state, String mFileKey, int animatedProgress)
 	{
 		_currentState = state;
 		_fileKey = mFileKey;
+		_animatedProgress = animatedProgress;
 	}
 
 	public int getTotalSize()
@@ -70,6 +75,11 @@ public class FileSavedState implements Serializable
 	public int getTransferredSize()
 	{
 		return _transferredSize;
+	}
+
+	public int getAnimatedProgress()
+	{
+		return _animatedProgress;
 	}
 
 	public FTState getFTState()

@@ -1,9 +1,11 @@
 package com.bsb.hike.modules.lastseenmgr;
 
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 
-public class LastSeenRetryPolicy implements IRetryPolicy
+import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
+
+public class LastSeenRetryPolicy extends BasicRetryPolicy
 {
 
 	/** The default number of retry attempts. */
@@ -70,18 +72,16 @@ public class LastSeenRetryPolicy implements IRetryPolicy
 		return retryDelay;
 	}
 
-
 	/**
 	 * Decreases the retry count and changes the delay between retries using back off multiplier parameter
 	 * 
-	 * @see IRetryPolicy#retry(HttpException)
+	 * @see IRetryPolicy#retry(RequestFacade, HttpException)
 	 * @see HttpException
 	 */
 	@Override
-	public void retry(HttpException ex)
+	protected void changeRetryParameters(RequestFacade requestFacade, HttpException ex)
 	{
 		retryCount--;
 		retryDelay += retryDelayAddtionTime;
 	}
-
 }

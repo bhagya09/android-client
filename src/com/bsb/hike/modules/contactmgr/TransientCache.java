@@ -454,6 +454,28 @@ public class TransientCache extends ContactsCache
 			writeLock.unlock();
 		}
 	}
+	
+	void updateGroupParticipantDetail(String grpId, String msisdn)
+	{
+		writeLock.lock();
+		try
+		{
+			Map<String, PairModified<GroupParticipant, String>> groupParticipantMap = groupParticipants.get(grpId);
+			if (null != groupParticipantMap)
+			{
+				PairModified<GroupParticipant, String> grpParticipantPair = groupParticipantMap.get(msisdn);
+				if (null != grpParticipantPair)
+				{
+					GroupParticipant grpParticipant = grpParticipantPair.getFirst();
+					grpParticipant.setType(GroupParticipant.Participant_Type.ADMIN);
+				}
+			}
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+	}
 
 	/**
 	 * This function will load all the contacts from DB into transient storage. Contacts which are in persistence map will not be loaded into it.
