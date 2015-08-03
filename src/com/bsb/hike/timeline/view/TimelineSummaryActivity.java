@@ -148,6 +148,10 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 	private boolean isLikedByMe;
 
+	private boolean isShowCountEnabled;
+
+	private boolean isShowLikesEnabled;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -161,6 +165,10 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 		initReferences();
 
+		isShowCountEnabled = Utils.isTimelineShowCountEnabled();
+
+		isShowLikesEnabled = Utils.isTimelineShowLikesEnabled();
+
 		HikeMessengerApp.getPubSub().addListeners(this, profilePicPubSubListeners);
 
 		Bundle extras = getIntent().getExtras();
@@ -169,7 +177,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 		// TODO think of a better place to do this without breaking animation
 		statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
-		
+
 		checkBoxLove.setTag(statusMessage);
 
 		msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
@@ -214,6 +222,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private void notifyUI()
 	{
 		checkBoxLove.setOnCheckedChangeListener(null);
+
 		if (isLikedByMe)
 		{
 			checkBoxLove.setChecked(true);
@@ -223,15 +232,38 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			checkBoxLove.setChecked(false);
 		}
 
-		// Set count
-		if (isTextStatusMessage)
+		if (!msisdns.isEmpty())
 		{
-			textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+
+			if (isShowCountEnabled)
+			{
+				// Set count
+				if (isTextStatusMessage)
+				{
+					textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+				}
+				else
+				{
+					textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
+				}
+			}
+			else
+			{
+				if (isLikedByMe)
+				{
+					textViewCounts.setText(R.string.liked_it);
+				}
+				else
+				{
+					textViewCounts.setText(R.string.like_this);
+				}
+			}
 		}
 		else
 		{
-			textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
+			textViewCounts.setText(R.string.like_this);
 		}
+
 		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 	}
 
@@ -247,7 +279,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		fullTextView = (TextView) findViewById(R.id.text_view_full);
 		contentContainer = findViewById(R.id.content_container);
 		imageInfoDivider = findViewById(R.id.imageInfoDivider);
-		imageView.setOnClickListener(this);
 		hikeUiHandler = new HikeUiHandler(this);
 	}
 
@@ -282,11 +313,10 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			textViewCaption.setText(statusMessage.getText());
 		}
 
-		if (msisdns != null && !msisdns.isEmpty())
+		if (msisdns != null && !msisdns.isEmpty() && isShowLikesEnabled)
 		{
 			textViewCounts.setOnClickListener(new View.OnClickListener()
 			{
-
 				@Override
 				public void onClick(View v)
 				{

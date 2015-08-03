@@ -6147,7 +6147,30 @@ public class Utils
 		return false;
 	}
 	
-
+	public static boolean isTimelineShowCountEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, false);
+		}
+		
+		return false;
+	}
+	
+	public static boolean isTimelineShowLikesEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, false);
+		}
+		
+		return false;
+	}
+	
 	public static boolean moveFile(File inputFile, File outputFile) {
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
 		Logger.d("Utils", "Output file path - " + outputFile.getPath());
@@ -6442,4 +6465,6 @@ public class Utils
 				.build();
 		return formedUri;
 	}
+	
+	
 }
