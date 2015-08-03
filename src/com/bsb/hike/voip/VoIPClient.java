@@ -882,18 +882,20 @@ public class VoIPClient  {
 		}
 
 		// Call summary in chat thread
-		if (TextUtils.isEmpty(groupChatMsisdn)) {
-			if (connected)
-				VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
-		}
-		else {
-			if (isHostingConference) {
-				// Hack!
-				// Replacing the client msisdn with group chat msisdn, so that the call summary
-				// goes in the right place
-				setPhoneNumber(groupChatMsisdn);
+		if (connected || getCallDuration() > 0) {
+			if (TextUtils.isEmpty(groupChatMsisdn)) {
 				VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
 			}
+			else {
+				if (isHostingConference) {
+					// Hack!
+					// Replacing the client msisdn with group chat msisdn, so that the call summary
+					// goes in the right place
+					setPhoneNumber(groupChatMsisdn);
+					VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+				}
+			}
+
 		}
 
 		if (iceThread != null)
