@@ -49,10 +49,10 @@ public class HttpManager
 				HttpLogger.plant(new LogHttp("Http"));
 			}
 		}
+		setHostUris();
 		HttpEngine engine = new HttpEngine();
 		RequestListenerNotifier notifier = new RequestListenerNotifier(engine);
 		requestProcessor = new RequestProcessor(options, engine, notifier);
-		setHostUris();
 	}
 
 	static HttpManager getInstance()
