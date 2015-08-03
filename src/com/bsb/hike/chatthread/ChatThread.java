@@ -881,7 +881,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					String filePath = apk.sourceDir;
 					String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
 					String apkLabel = (String)activity.getPackageManager().getApplicationLabel(apk);
-					channelSelector.sendApps(filePath, mime, apkLabel, msisdn);
+					channelSelector.sendApps(activity ,filePath, mime, apkLabel, msisdn,mConversation.isOnHike());
 				}
 			}
 			break;

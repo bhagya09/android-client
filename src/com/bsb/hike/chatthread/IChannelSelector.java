@@ -59,7 +59,7 @@ public interface IChannelSelector {
 			String imagePath, HikeFileType imageType, boolean isOnHike,
 			int cameraAttachement);
 
-	void sendApps(String filePath, String mime, String apkLabel, String msisdn);
+	void sendApps(Context applicationContext,String filePath, String mime, String apkLabel, String msisdn, boolean isOnHike);
 
 	void modifyAttachmentPicker(ChatThreadActivity activity, AttachmentPicker attachmentPicker,
 			boolean addContact);
