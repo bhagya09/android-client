@@ -6,6 +6,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -17,7 +19,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient;
 
 
@@ -60,6 +61,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		public TextView contactNameHolder;
 		public ImageView isSpeakingHolder;
 		public ImageView crossBtnHolder;
+		public ImageView isRingingHolder;
 		public ProgressBar connectingHolder;
 	}
 	
@@ -90,6 +92,7 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 			conferenceParticipantHolder.avatarHolder  = (ImageView) convertView.findViewById(R.id.avatar);
 			conferenceParticipantHolder.contactNameHolder = (TextView) convertView.findViewById(R.id.contact);
 			conferenceParticipantHolder.isSpeakingHolder = (RecyclingImageView) convertView.findViewById(R.id.is_speaking_view);
+			conferenceParticipantHolder.isRingingHolder = (RecyclingImageView) convertView.findViewById(R.id.is_ringing_view);
 			conferenceParticipantHolder.crossBtnHolder = (RecyclingImageView) convertView.findViewById(R.id.remove_participant_btn);
 			conferenceParticipantHolder.connectingHolder = (ProgressBar) convertView.findViewById(R.id.connecting_progress);
 			convertView.setTag(conferenceParticipantHolder);
@@ -105,8 +108,17 @@ public class ConferenceParticipantsAdapter extends ArrayAdapter<VoIPClient> {
 		convertView.setEnabled(false);
 		convertView.setOnClickListener(null);
 		
-		conferenceParticipantHolder.isSpeakingHolder.setVisibility(clients.get(position).isSpeaking()?View.VISIBLE:View.INVISIBLE);
+		conferenceParticipantHolder.isSpeakingHolder.setVisibility(clients.get(position).isSpeaking()?View.VISIBLE:View.GONE);
 		
+		if (clients.get(position).isRinging()) {
+			Animation animation = AnimationUtils.loadAnimation(context, R.anim.jiggle);
+			conferenceParticipantHolder.isRingingHolder.startAnimation(animation);
+			conferenceParticipantHolder.isRingingHolder.setVisibility(View.VISIBLE);
+		} else {
+			conferenceParticipantHolder.isRingingHolder.clearAnimation();
+			conferenceParticipantHolder.isRingingHolder.setVisibility(View.GONE);
+		}
+
 		if (clients.get(position).isDummy) {
 			// For conference participants
 			conferenceParticipantHolder.crossBtnHolder.setVisibility(View.GONE);

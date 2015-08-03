@@ -2214,7 +2214,7 @@ public class VoIPService extends Service {
 								dp.setData(json.toString().getBytes("UTF-8"));
 								
 								conferenceBroadcastPackets.add(dp);	
-								Logger.w(tag, "Sending clients list.");
+								Logger.d(tag, "Sending clients list.");
 								
 							} catch (JSONException e) {
 								Logger.w(tag, "JSONException: " + e.toString());

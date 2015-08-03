@@ -2018,6 +2018,7 @@ public class VoIPClient  {
 		// and hence a reconnect will not be attempted. 
 		if (version >= 2 && isInAHostedConference && keepRunning) {
 			reconnecting = false;
+			audioStarted = false;
 			
 			// Socket info timeout thread will be running since we will 
 			// already be trying to reconnect.
@@ -2079,6 +2080,14 @@ public class VoIPClient  {
 	
 	public int getBitrate() {
 		return localBitrate + bitrateAdjustment;
+	}
+	
+	public boolean isRinging() {
+		boolean ringing = false;
+		if (connected && !audioStarted)
+			ringing = true;
+		
+		return ringing;
 	}
 	
 	private void stop() {
