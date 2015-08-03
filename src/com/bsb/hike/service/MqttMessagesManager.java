@@ -2231,6 +2231,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
 		}
 
+		if (data.has(HikeConstants.DP_IMAGE_SIZE))
+		{
+			int dpImageSize = data.getInt(HikeConstants.DP_IMAGE_SIZE);
+			editor.putInt(HikeConstants.DP_IMAGE_SIZE, dpImageSize);
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
