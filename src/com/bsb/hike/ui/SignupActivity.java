@@ -837,7 +837,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					@Override
 					public void onClick(View v)
 					{
-						selectNewProfilePicture(SignupActivity.this, false);
+						selectNewProfilePicture(SignupActivity.this, false, true);
 					}
 				});
 			}
@@ -876,7 +876,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				@Override
 				public void onClick(View v)
 				{
-					selectNewProfilePicture(SignupActivity.this, false);
+					selectNewProfilePicture(SignupActivity.this, false, true);
 				}
 			});
 		}
@@ -2375,7 +2375,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	}
 	
 	@Override
-	protected String getNewProfileImagePath()
+	protected String getNewProfileImagePath(boolean toUseTimestamp)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		/*

@@ -215,7 +215,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					@Override
 					public void onClick(View v)
 					{												
-						beginProfilePicChange(CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this, null);
+						beginProfilePicChange(CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this, null, false);
 					}
 				});
 			}
