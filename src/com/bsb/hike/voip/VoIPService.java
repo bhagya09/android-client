@@ -1568,7 +1568,7 @@ public class VoIPService extends Service {
 							
 							// For streaming mode, we must write data in chunks <= buffer size
 							index = 0;
-							while (index < output.length) {
+							while (index < output.length && audioTrack != null) {
 								size = Math.min(minBufSizePlayback, output.length - index);
 								audioTrack.write(output, index, size);
 								index += size; 
