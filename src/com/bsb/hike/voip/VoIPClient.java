@@ -109,9 +109,9 @@ public class VoIPClient  {
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
-	private boolean isSpeaking = false;
+	private boolean isSpeaking = false, isRinging = false;
 	private int voicePacketCount = 0;
-	public boolean isDummy = false;
+	public boolean isDummy = false;		
 	private String selfMsisdn;
 
 	// List of client MSISDNs (for conference)
@@ -2055,6 +2055,7 @@ public class VoIPClient  {
 					JSONObject clientObject = jsonArray.getJSONObject(i);
 					client.setPhoneNumber(clientObject.getString(VoIPConstants.Extras.MSISDN));
 					client.setSpeaking(clientObject.getBoolean(VoIPConstants.Extras.SPEAKING));
+					client.setRinging(clientObject.getBoolean(VoIPConstants.Extras.RINGING));
 					client.setCallStatus(CallStatus.values()[clientObject.getInt(VoIPConstants.Extras.STATUS)]);
 					client.isDummy = true;
 					
@@ -2084,12 +2085,20 @@ public class VoIPClient  {
 	
 	public boolean isRinging() {
 		boolean ringing = false;
+		
+		if (isDummy)
+			return isRinging;
+		
 		if (connected && !audioStarted)
 			ringing = true;
 		
 		return ringing;
 	}
 	
+	public void setRinging(boolean isRinging) {
+		this.isRinging = isRinging;
+	}
+
 	private void stop() {
 		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_STOP);
 	}

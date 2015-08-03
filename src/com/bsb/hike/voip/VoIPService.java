@@ -2195,6 +2195,7 @@ public class VoIPService extends Service {
 									clientJson.put(VoIPConstants.Extras.MSISDN, client.getPhoneNumber());
 									clientJson.put(VoIPConstants.Extras.STATUS, client.getCallStatus().ordinal());
 									clientJson.put(VoIPConstants.Extras.SPEAKING, client.isSpeaking());
+									clientJson.put(VoIPConstants.Extras.RINGING, client.isRinging());
 									clientsJson.put(clientJson);
 								}
 								
