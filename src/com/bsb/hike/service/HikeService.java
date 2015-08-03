@@ -23,6 +23,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -79,10 +80,10 @@ public class HikeService extends Service
 				Logger.d("ContactsChanged", "calling syncUpdates, manualSync = " + manualSync);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNC_STARTED, null);
 
-				boolean contactsChanged = ContactManager.getInstance().syncUpdates(this.context);
+				byte contactSyncResult = ContactManager.getInstance().syncUpdates(this.context);
 
 				HikeMessengerApp.syncingContacts = false;
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Boolean[] { manualSync, contactsChanged });
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Pair<Boolean, Byte>(manualSync, contactSyncResult));
 			}
 
 		}
@@ -185,6 +186,8 @@ public class HikeService extends Service
 	{
 		super.onCreate();
 
+		HAManager.getInstance().serviceEventAnalytics(HikeConstants.CREATE, HikeConstants.HIKE_SERVICE);
+		
 		// If user is not signed up. Do not initialize MQTT or serve any SDK requests. Instead, re-route to Welcome/Signup page.
 		// TODO : This is a fix to handle edge case when a request comes from SDK and user has not signed up yet. In future we must make a separate bound service for handling SDK
 		// related requests.
