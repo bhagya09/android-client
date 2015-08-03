@@ -82,7 +82,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			// Grab view references
 			switch (viewType)
 			{
-
+			case TEXT:
 			case PROFILE_PIC_CHANGE:
 			case IMAGE:
 			case TEXT_IMAGE:

@@ -2398,6 +2398,8 @@ public class HikeConstants
 		public static final String SESSION = "sess";
 		
 		public static final String ACTIVITY_UPDATE = "ac_up";
+		
+		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 	}
 
 	public static final class SMSNative
@@ -2968,7 +2970,11 @@ public class HikeConstants
 	
 	public static final String TIMELINE_FTUE_CARD_SHOWN_COUNTER = "timeline_ftue_card_shown_counter";
 	
-	public static final String TIMELINE_FTUE_TOTAL_CARD_COUNTER = "tl_cnt";
+	public static final String TIMELINE_FTUE_CARD_TO_SHOW_COUNTER = "timeline_ftue_card_to_show_counter";
+	
+	public static final String ANY_TIMELINE_FTUE_FAV_CLICKED = "any_tl_ftue_clicked";
+	
+	public static final String TIMELINE_FTUE_MSISDN_LIST = "tl_ftue_msdn_list";
 
 	public static final class SMS_SETTINGS
 	{
