@@ -34,13 +34,19 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MAXIMUM_PRIMARY_TABLE_CAPACITY = 500000; // Changeable in future based on memory usage
 
-	public static final int TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY = 10000; // Changeable in future based on memory usage
+	public static final int TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY = 10000; // Changeable in future based on test configuration
 
-	public static final float THRESHOLD_PRIMARY_TABLE_CAPACITY = 0.70f; // 70 percent // Changeable in future based on memory usage
+	public static final float THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f; // 70 percent // Changeable in future based on memory usage
 
-	public static final float THRESHOLD_DATABASE_EXPANSION_RATIO = 0.20f; // 20 percent // Changeable in future based on memory usage
+	public static final float TEST_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f;  // 70 percent // Changeable in future based on test configuration
 
-	public static final float THRESHOLD_DATABASE_FORCED_SHRINK_RATIO = 0.90f; // 90 percent // Changeable in future based on memory usage
+	public static final float THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = 0.20f; // 20 percent // Changeable in future based on memory usage
+
+	public static final float TEST_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = 0.20f; // 20 percent // Changeable in future based on test configuration
+
+	public static final float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = 0.90f; // 90 percent // Changeable in future based on memory usage
+
+	public static final float TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = 0.90f; // 90 percent // Changeable in future based on test configuration
 
 	// ==============================Dynamic tables used for Sticker-Tag relation and recommendations]]
 
@@ -210,7 +216,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_UNIVERSAL_TERMINATOR = 1;
 
-	public static final int MOMENT_CODE_MORNING_TERMINAL = 2;
+	public static final int MOMENT_CODE_FIRST_TERMINAL_OF_DAY = 2;
+
+	public static final int MOMENT_CODE_MORNING_TERMINAL = MOMENT_CODE_FIRST_TERMINAL_OF_DAY;
 
 	public static final int MOMENT_CODE_NOON_TERMINAL = 3;
 
@@ -222,7 +230,9 @@ public class HikeStickerSearchBaseConstants
 
 	// ------------------------------Add more in future; if required-----------------------------
 
-	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = 11;
+	public static final int MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY = 11;
+
+	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY;
 
 	public static final int MOMENT_CODE_NOON_NON_TERMINAL = 12;
 
@@ -302,7 +312,6 @@ public class HikeStickerSearchBaseConstants
 
 		public static int getIdFromCategory(String tagCategory)
 		{
-
 			int id;
 
 			switch (tagCategory)
@@ -368,6 +377,39 @@ public class HikeStickerSearchBaseConstants
 		public int getId()
 		{
 			return mId;
+		}
+
+		public static TIME_CODE getTerminal(int identifier)
+		{
+			identifier = identifier - MOMENT_CODE_FIRST_TERMINAL_OF_DAY;
+			switch (identifier)
+			{
+			case -1:
+				return UNKNOWN;
+
+			case 0:
+				return MORNING;
+
+			case 1:
+				return NOON;
+
+			case 2:
+				return AFTER_NOON;
+
+			case 3:
+				return EVENING;
+
+			case 4:
+				return NIGHT;
+
+			default:
+				return INVALID;
+			}
+		}
+
+		public static TIME_CODE getContinuer(int identifier)
+		{
+			return getTerminal(identifier - MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY + MOMENT_CODE_FIRST_TERMINAL_OF_DAY);
 		}
 	}
 	// =======================================================States used for day time division]]

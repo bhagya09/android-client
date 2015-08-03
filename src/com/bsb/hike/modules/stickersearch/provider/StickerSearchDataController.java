@@ -465,32 +465,36 @@ public enum StickerSearchDataController
 				{
 					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
 				}
-				catch (Exception e)
+				catch (Throwable t)
 				{
-					Logger.e(HikeStickerSearchDatabase.TAG, "Error while inserting tags !!!", e);
+					Logger.e(HikeStickerSearchDatabase.TAG, "Error while inserting tags !!!", t);
 				}
 			}
 		}
 
-		Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-		Set<String> updateRetrySet = new HashSet<String>();
-		Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
-
-		if (pendingRetrySet != null)
+		if ((state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)
+				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, HikeStickerSearchBaseConstants.DECISION_STATE_YES) == HikeStickerSearchBaseConstants.DECISION_STATE_YES))
 		{
-			for (String stickerCode : pendingRetrySet)
+			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+			Set<String> updateRetrySet = new HashSet<String>();
+			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
+
+			if (pendingRetrySet != null)
 			{
-				if (!receivedStickerSet.contains(stickerCode))
+				for (String stickerCode : pendingRetrySet)
 				{
-					updateRetrySet.add(stickerCode);
+					if (!receivedStickerSet.contains(stickerCode))
+					{
+						updateRetrySet.add(stickerCode);
+					}
 				}
 			}
-		}
 
-		Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
-		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
-		pendingRetrySet.clear();
-		updateRetrySet.clear();
+			Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
+			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
+			pendingRetrySet.clear();
+			updateRetrySet.clear();
+		}
 
 		receivedStickerSet.clear();
 	}
@@ -522,9 +526,9 @@ public enum StickerSearchDataController
 			{
 				return HikeStickerSearchDatabase.getInstance().summarizeAndDoRebalancing();
 			}
-			catch (Exception e)
+			catch (Throwable t)
 			{
-				Logger.wtf(HikeStickerSearchDatabase.TAG_REBALANCING, "Error while performing summarization and other updates !!!", e);
+				Logger.wtf(HikeStickerSearchDatabase.TAG_REBALANCING, "Error while performing summarization and other updates !!!", t);
 				return true;
 			}
 		}
