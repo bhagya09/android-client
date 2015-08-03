@@ -531,6 +531,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
 
 	public static final String STICKER_TAG_REFRESH_PERIOD = "stickerTagRefreshPeriod";
+	
+	public static final String SHOWN_STICKER_RECOMMEND_FTUE = "shownStickerRecommendationFtue";
 
 	public static final String STICKER_TAG_SUMMERY_TRENDING = "stickerTagSummeryTrendingPeriod"; // long
 
