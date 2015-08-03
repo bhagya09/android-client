@@ -2195,6 +2195,7 @@ public class VoIPService extends Service {
 									clientJson.put(VoIPConstants.Extras.MSISDN, client.getPhoneNumber());
 									clientJson.put(VoIPConstants.Extras.STATUS, client.getCallStatus().ordinal());
 									clientJson.put(VoIPConstants.Extras.SPEAKING, client.isSpeaking());
+									clientJson.put(VoIPConstants.Extras.RINGING, client.isRinging());
 									clientsJson.put(clientJson);
 								}
 								
@@ -2214,7 +2215,7 @@ public class VoIPService extends Service {
 								dp.setData(json.toString().getBytes("UTF-8"));
 								
 								conferenceBroadcastPackets.add(dp);	
-								Logger.w(tag, "Sending clients list.");
+								Logger.d(tag, "Sending clients list.");
 								
 							} catch (JSONException e) {
 								Logger.w(tag, "JSONException: " + e.toString());
