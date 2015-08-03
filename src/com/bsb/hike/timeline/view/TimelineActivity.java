@@ -194,7 +194,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			@Override
 			public void onClick(View v)
 			{
-//				showTimelineMenuPopup(overflowMenuItem);
 				showTimelineOverFlow();
 			}
 		});

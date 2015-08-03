@@ -696,15 +696,15 @@ public class HikeDialogFactory
 		case DELETE_STATUS_TIMELINE_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.delete_status);
 			deleteConfirmDialog.setMessage(R.string.delete_status_timeline_confirmation);
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.dialog_btn_yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.dialog_btn_no, listener);
 			break;
 			
 		case WIPE_TIMELINE_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.clear_timeline);
-			deleteConfirmDialog.setTitle(R.string.clear_timeline_dialog);
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
+			deleteConfirmDialog.setMessage(R.string.clear_timeline_dialog);
+			deleteConfirmDialog.setPositiveButton(R.string.dialog_btn_yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.dialog_btn_no, listener);
 			break;
 			
 		case DELETE_FROM_GROUP:
