@@ -34,7 +34,9 @@ public class StickerSearchConstants
 
 	public static final int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = 75;
 
-	public static final float LIMIT_AUTO_CORRECTION = 0.70f; // 70 percent
+	public static final float LIMIT_AUTO_CORRECTION = 0.70f; // 70 percent spelling must be correct
+
+	public static final int MAXIMUM_PHRASE_PERMUTATION_SIZE = 4;
 
 	// ====================================================Generic constants for searching text]]
 

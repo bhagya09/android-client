@@ -44,6 +44,8 @@ public class StickerSearchHostManager
 
 	private static float LIMIT_AUTO_CORRECTION;
 
+	private static int MAXIMUM_PHRASE_PERMUTATION_SIZE;
+
 	private static float LIMIT_EXACT_MATCH;
 
 	private static float WEITAGE_MATCH_LATERAL;
@@ -110,7 +112,16 @@ public class StickerSearchHostManager
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()) + 1;
 
+		MAXIMUM_SEARCH_TEXT_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT,
+				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
+
+		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
+				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
+
 		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
+
+		MAXIMUM_PHRASE_PERMUTATION_SIZE = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STIKCER_TAG_MAXIMUM_PHRASE_PERMUTATION_SIZE,
+				StickerSearchConstants.MAXIMUM_PHRASE_PERMUTATION_SIZE);
 
 		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
 
@@ -132,12 +143,6 @@ public class StickerSearchHostManager
 
 		MARGINAL_FULL_SCORE_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL,
 				StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
-
-		MAXIMUM_SEARCH_TEXT_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT,
-				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
-
-		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
-				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 	}
 
 	/* Get the instance of this class from outside */
@@ -339,10 +344,10 @@ public class StickerSearchHostManager
 					suggestionFoundOnLastValidPhrase = false;
 					suggestionFoundOnLastValidWord = false;
 					searchText.setLength(0);
-					maxPermutationSize = 4;
+					maxPermutationSize = MAXIMUM_PHRASE_PERMUTATION_SIZE;
 					nextWord = null;
 
-					// build phrase from a group of 4 words
+					// build phrase from a group of MAXIMUM_PHRASE_PERMUTATION_SIZE (= 4 or value received from server) words
 					searchText.append(value);
 
 					for (lastWordIndexInPhraseStartedWithPivot = i, lastIndexInPhraseStartedWithPivot = i + 1; maxPermutationSize > 1 && lastIndexInPhraseStartedWithPivot < size; lastIndexInPhraseStartedWithPivot++)
@@ -495,7 +500,7 @@ public class StickerSearchHostManager
 								sCacheForLocalSearch.put(searchKey, new ArrayList<StickerDataContainer>());
 
 								int currentMaxPermutationSize;
-								maxPermutationSize = 3;
+								maxPermutationSize = MAXIMUM_PHRASE_PERMUTATION_SIZE - 1;
 								nextWord = null;
 
 								// handle partial phrase of remaining words
@@ -620,7 +625,7 @@ public class StickerSearchHostManager
 						{
 							String currentPhrase;
 							int currentMaxPermutationSize;
-							maxPermutationSize = 3;
+							maxPermutationSize = MAXIMUM_PHRASE_PERMUTATION_SIZE - 1;
 							nextWord = null;
 
 							// handle partial phrase of remaining words
@@ -918,7 +923,7 @@ public class StickerSearchHostManager
 		int relatedPhraseStartWordIndex = -1;
 		int relatedPhraseEndWordIndex = -1;
 
-		int maxPermutationSize = 4;
+		int maxPermutationSize = MAXIMUM_PHRASE_PERMUTATION_SIZE;
 		int currentMaxPermutationSize;
 		StringBuilder searchText = new StringBuilder();
 
@@ -1050,7 +1055,7 @@ public class StickerSearchHostManager
 		retainList.clear();
 
 		// post-phrase and word part
-		maxPermutationSize = 4;
+		maxPermutationSize = MAXIMUM_PHRASE_PERMUTATION_SIZE;
 		String nextWord;
 		int lastIndexInPhraseStartedWithPivot;
 		int lastWordIndexInPhraseStartedWithPivot;

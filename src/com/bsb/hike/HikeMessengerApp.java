@@ -568,6 +568,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stickerTagMaxSearchGreedyLength"; // integer
 
+	public static final String STIKCER_TAG_MAXIMUM_PHRASE_PERMUTATION_SIZE = "stickerTagMaxPhrasePermutationSize"; // integer
+
 	public static final String STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH = "stickerTagSelectionCountMaxRatioPerSearch"; // float
 
 	public static final String STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER = "stickerTagSelectionCountMaxCountPerSticker"; // integer
