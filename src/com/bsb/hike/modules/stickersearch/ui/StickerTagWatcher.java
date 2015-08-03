@@ -105,13 +105,19 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void afterTextChanged(Editable editable)
 	{
 		this.editable = editable;
-		Logger.i(TAG, "afterTextChanged(), " + "string: " + editable);
+		Logger.i(TAG, "afterTextChanged(), current text: " + editable);
 	}
 
 	@Override
 	public void highlightText(int start, int end)
 	{
 		Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
+
+		if (editable == null)
+		{
+			Logger.wtf(TAG, "highlightText [" + start + " - " + end + "]");
+			return;
+		}
 
 		if (end > editable.length())
 		{
@@ -137,6 +143,12 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void unHighlightText(int start, int end)
 	{
 		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
+
+		if (editable == null)
+		{
+			Logger.wtf(TAG, "unHighlightText [" + start + " - " + end + "]");
+			return;
+		}
 
 		if ((end > editable.length()) || (end > MAXIMUM_SEARCH_TEXT_BROKER_LIMIT))
 		{
