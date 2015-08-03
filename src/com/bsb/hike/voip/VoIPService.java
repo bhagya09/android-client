@@ -919,22 +919,15 @@ public class VoIPService extends Service {
 				switch (focusChange) {
 				case AudioManager.AUDIOFOCUS_GAIN:
 					Logger.w(tag, "AUDIOFOCUS_GAIN");
-					if (client.getCallDuration() > 0 && hold == true)
-						setHold(false);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS:
 					Logger.w(tag, "AUDIOFOCUS_LOSS");
-					if (client.getCallDuration() > 0)
-						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
 					Logger.d(tag, "AUDIOFOCUS_LOSS_TRANSIENT");
-					if (client.getCallDuration() > 0)
-						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
 					Logger.w(tag, "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
-//					setHold(true);
 					break;
 				}
 			}
