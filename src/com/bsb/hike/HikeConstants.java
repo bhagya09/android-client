@@ -47,6 +47,8 @@ public class HikeConstants
 	public static final String SUB_TYPE = "st";
 	
 	public static final String GROUP_CHAT_TIMESTAMP = "gts";
+	
+	public static final String GROUP_CREATOR = "c";
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -75,6 +77,16 @@ public class HikeConstants
 	public static final String NAME = "name";
 
 	public static final String MSISDN = "msisdn";
+	
+	public static final String ADMIN = "admin";
+	
+	public static final String ADMIN_MSISDN = "admin_msisdn";
+	
+	public static final String GROUP_SETTING = "gs";
+	
+	public static final String GROUP_TYPE = "gt";
+	
+	public static final String SETTING = "setting";
 
 	public static final String BOT_THUMBNAIL = "dp";
 
@@ -127,6 +139,8 @@ public class HikeConstants
 	public static final String CREDITS = "credits";
 
 	public static final String ON_HIKE = "onhike";
+	
+	public static final String ROLE = "role";
 	
 	public static final String IS_BROADCAST = "isBroadcast";
 
@@ -211,6 +225,8 @@ public class HikeConstants
 	public static final String ONE_TO_ONE_CONVERSATION = "oc";
 
 	public static final String MUTED = "muted";
+	
+	public static final String GROUPS = "groups";
 
 	public static final String POST_AB = "postab";
 	
@@ -494,6 +510,16 @@ public class HikeConstants
 	
 	public static final String CAN_EDIT_DP = "canEditDP";
 	
+	public static final String SERVICE = "srv";
+	
+	public static final String CREATE = "crt";
+	
+	public static final String STICKEY_SERVICE = "stky";
+	
+	public static final String HIKE_SERVICE = "hike";
+	
+	
+	
 	public static final String HTTP_STATUS_ID = "?status_id=";
 	
 	// @GM
@@ -628,6 +654,19 @@ public class HikeConstants
 	public static final String BROADCAST_ID_PREFIX = "b:";
 	
 	public static final String AVATAR = "avatar";
+	
+	public class InviteSection
+	{
+		public static final String INVITE_SECTION = "invite_section";
+
+		public static final String SHOW_EXTRA_INVITE_SECTION = "show_invite_section";
+
+		public static final String INVITE_SECTION_MAIN_TEXT = "invite_main_text";
+
+		public static final String INVITE_SECTION_BOTTOM_TEXT = "invite_bottom_text";
+
+		public static final String INVITE_SECTION_IMAGE = "invite_image";
+	}
 
 	/* Constant used to name the preference file which saves the drafts */
 	public static final String DRAFT_SETTING = "draftSetting";
@@ -1062,11 +1101,15 @@ public class HikeConstants
 	public static final String HIKE_OFFLINE_NOTIFICATION_PREF = "hikeOfflineNotificationPref";
 
 	public static final String PIN = "pin";
+	
+	public static final String RIGHTS = "rights";
 
 	public static final String UNREAD_COUNT = "unreadCount";
 
 	public static final String TO_SHOW = "toShow";
-
+	
+	public static final String ADD_MEMBERS = "addMembers";
+	
 	public static final String PIN_DISPLAYED = "displayed";
 
 	public static final int MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY = 51;
@@ -1420,6 +1463,8 @@ public class HikeConstants
 
 		public static final String CREATE_GROUP = "createGroup";
 		
+		public static final String CREATE_GROUP_SETTINGS = "createGroupSettings";
+		
 		public static final String CREATE_BROADCAST = "createBroadcast";
 		
 		public static final String COMPOSE_MODE = "composeMode";
@@ -1635,6 +1680,18 @@ public class HikeConstants
 		public static final String LAST_MESSAGE_TIMESTAMP = "lastMessageTimeStamp";
 
 		public static final String ENABLE_SEND_LOGS = "ulogs_on";
+
+		public static final String NEW_GROUP = "newGroups";
+		
+		public static final String HAS_CUSTOM_ICON = "h_cus_icon";
+		
+		public static final String IS_PROFILE_PIC_DOWNLOAD = "is_profile_pic_download";
+		
+		public static final String BYTES = "bytes";
+	
+		public static final String DEL_SCR_FILE_ON_CALL_FAIL = "del_tmp_file_call_fail";
+		
+		public static final String DEL_PREV_MSISDN_PIC = "del_prev_msisdn_pic";
 	}
 
 	public static final class LogEvent
@@ -2179,6 +2236,8 @@ public class HikeConstants
 		
 		public static final String PHOTOS_SEND_TO = "phSend";
 		
+		public static final String PHOTOS_UNABLE_TO_LOAD = "phImgNotLoad";
+		
 		
 		
 		//Broadcast
@@ -2235,6 +2294,10 @@ public class HikeConstants
 		public static final String INVITE_INFO = "ii";
 
 		public static final String GROUP_CHAT_JOIN = "gcj";
+		
+		public static final String GROUP_ADMIN_UPDATE = "gaa";
+		
+		public static final String GROUP_SETTINGS_CHANGE = "gsc";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
 
@@ -2875,7 +2938,12 @@ public class HikeConstants
 		public static final int OTHER = 11;
 
 	}
-	
+	public static  class GROUPS_TYPE
+	{
+		public static final int OLD_GROUPS = 0;
+
+		public static final int MULTI_ADMIN = 1;
+	}
 	public static final  String NOTIFICATION_RETRY_JSON="notifretry";
 
 	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
@@ -2964,6 +3032,12 @@ public class HikeConstants
 
 	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
 
+	public static final String TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT = "headlessimage_down_fragment";
+	
+	public static final String TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT = "headlessimage_up_fragment";
+
+	public static final String IMAGE_PATHS = "image-paths";
+
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 	
 	public static final String  MODULE_STICKER_SEARCH = "stickersearch";
@@ -2974,8 +3048,14 @@ public class HikeConstants
 
 	public static final String NOTIFICATIONS_PRIORITY = "npc";
 
+	public static final String SEND_TIMESTAMP = "c";
+
 	public static final String FT_HOST_IPS = "ftHostIps";
 	
+	public static final String HTTP_HOST_IPS = "httpHostIps";
+
+	public static final String HTTP_HOST_PLATFORM_IPS = "httpHostPlfIps";
+
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
 	
 	public static class IntentAction
@@ -2999,4 +3079,10 @@ public class HikeConstants
 	public static final String STICKER_RECOMMENDATION_ENABLED = "sre";
 	
 	public static final String STICKER_TAG_REFRESH_TIME = "strt";
+
+	public static final String CHAT_SEARCH_ENABLED = "cts_e";
+
+	public static final String CALLBACK_ID ="callbackid";
+
+	public static final String DEVICE_DETAILS = "dd";
 }

@@ -510,7 +510,7 @@ public class ToastListener implements Listener
 					}
 					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
 						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 
-						|| message.isVoipMissedCallMsg())
+						|| message.isVoipMissedCallMsg()||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)
 					{
 						if (participantInfoState == ParticipantInfoState.CHAT_BACKGROUND)
 						{

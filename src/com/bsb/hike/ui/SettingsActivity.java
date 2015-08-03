@@ -604,7 +604,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	public String profileImageCropped()
 	{
 		String path = super.profileImageCropped();
-		uploadProfilePicture(AccountUtils.USER_DP_UPDATE_URL);
+		uploadProfilePicture(msisdn);
 		return path;
 	}
 

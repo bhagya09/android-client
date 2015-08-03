@@ -1,6 +1,7 @@
 package com.bsb.hike.bots;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,7 +76,7 @@ public class MessagingBotMetadata
 		catch (NumberFormatException e)
 		{
 			this.unReadCountShowType = this.unReadCountShowType.substring(0, (this.unReadCountShowType.length() < 4) ? this.unReadCountShowType.length() : 4);
-			e.printStackTrace();
+			Logger.d("Messaging Bot Metadata", "handled number format exception");
 		}
 	}
 

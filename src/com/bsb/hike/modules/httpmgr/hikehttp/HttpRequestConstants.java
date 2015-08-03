@@ -15,15 +15,15 @@ public class HttpRequestConstants
 
 	private static final String HTTPS = "https://";
 
-	private static final String PRODUCTION_API = "api.im.hike.in";
+	public static final String PRODUCTION_API = "api.im.hike.in";
 
-	private static final String STAGING_API = "staging.im.hike.in";
+	public static final String STAGING_API = "staging.im.hike.in";
 
-	private static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
+	public static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
-	private static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
+	public static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
 	
-	private static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
+	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 		
 	public static final int PRODUCTION_PORT = 80;
 
