@@ -1766,7 +1766,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		// messages theme changed, call adapter
 		mAdapter.setChatTheme(theme);
 		// action bar
-		activity.updateActionBarColor(theme.headerBgResId());
+		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		{
+			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+		}
+		else
+		{
+			activity.updateActionBarColor(theme.headerBgResId());
+		}
 		// background image
 		setBackground(theme);
 	}
