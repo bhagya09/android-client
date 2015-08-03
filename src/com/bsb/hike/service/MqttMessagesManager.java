@@ -3416,34 +3416,7 @@ public class MqttMessagesManager
 		}
 		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT.equals(type))
 		{
-			handleGeneralEvent(jsonObj);
-		}
-	}
-
-	private void handleGeneralEvent(JSONObject packet)
-	{
-		
-		if (packet.has(HikeConstants.DATA))
-		{
-			JSONObject data;
-			try
-			{
-				data = packet.getJSONObject(HikeConstants.DATA);
-				if (data.has(HikeConstants.TYPE))
-				{
-					String type = data.getString(HikeConstants.TYPE);
-					if(type.equals(HikeConstants.OFFLINE))
-					{
-						Logger.d("MqttMessagesManager", "Offline message request");
-						OfflineUtils.handleOfflineRequestPacket(context,packet);
-					}
-						
-				}
-			}
-			catch (JSONException e)
-			{
-				Logger.d("MqttMessagesManager", "Error in json");
-			}
+			GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(jsonObj);
 		}
 	}
 
@@ -4048,7 +4021,7 @@ public class MqttMessagesManager
 				}
 				else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT.equals(type))
 				{
-					handleGeneralEvent(json);
+					GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(json);
 				}
 				else
 				{

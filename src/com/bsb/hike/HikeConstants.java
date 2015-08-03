@@ -2372,9 +2372,15 @@ public class HikeConstants
 		
 		public static final String SESSION = "sess";
 		
-		public static final String GENERAL_EVENT = "ge";
+		public static final String GENERAL_EVENT_PACKET = "ge";
 	}
 
+	public static final class GeneralEventMessagesTypes
+	{
+		public static final String OFFLINE = "off";
+	}
+
+	
 	public static final class SMSNative
 	{
 		/*
