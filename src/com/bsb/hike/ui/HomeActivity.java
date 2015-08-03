@@ -736,7 +736,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 
-					Intent intent = new Intent(HomeActivity.this, NewChatActivity.class);
+					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
 					intent.putExtra(HikeConstants.Extras.EDIT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
