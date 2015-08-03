@@ -1619,6 +1619,10 @@ public class HikeConstants
 		public static final String OKHTTP_WRITE_TIMEOUT = "okwto";
 
 		public static final String ENABLE_PHOTOS = "ph_en";
+		
+		public static final String STATUS_UPDATE_SHOW_COUNTS = "su_sc";
+		
+		public static final String STATUS_UPDATE_SHOW_LIKES = "su_sl";
 
 		public static final String FT_UPLOAD_SO_TIMEOUT = "ftsto";
 		
