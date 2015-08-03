@@ -17,7 +17,8 @@
         android:id="@+id/profile_head"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:onClick="openTimeline">
+        android:onClick="openTimeline"
+        android:background="@drawable/group_header_bg">
         
         <com.bsb.hike.view.RoundedImageView
             android:id="@+id/profile_image"
