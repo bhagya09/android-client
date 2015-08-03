@@ -1584,4 +1584,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="send_logs">Send logs</string>
     <string name="like_this">Like this!</string>
     <string name="num_likes">%1$s like(s)</string>
+    <string name="dialog_btn_yes">YES</string>
+    <string name="dialog_btn_no">NO</string>
 </resources>
