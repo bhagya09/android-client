@@ -18,11 +18,15 @@ public class CleanFileRunnable implements Runnable
 	{
 		Transporter.getInstance().deleteTempFiles(HikeMessengerApp.getInstance().getApplicationContext());
 
-		long msgId = HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.CURRENT_RECIEVING_MSG_ID, 0l);
-		ArrayList<Long> msgArrayList = new ArrayList<Long>(1);
-		msgArrayList.add(msgId);
+		long msgId = HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.CURRENT_RECIEVING_MSG_ID, -1l);
 
-		OfflineController.getInstance().deleteRemainingFiles(msgArrayList, HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, ""));
+		if (msgId != -1)
+		{
+			ArrayList<Long> msgArrayList = new ArrayList<Long>(1);
+			msgArrayList.add(msgId);
+
+			OfflineController.getInstance().deleteRemainingFiles(msgArrayList, HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, ""));
+		}
 		OfflineController.getInstance().sendDisconnectInlineMsg(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, ""));
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.OFFLINE_MSISDN);

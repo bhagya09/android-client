@@ -2,11 +2,15 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
+import android.support.v4.app.DialogFragment;
+import android.text.TextUtils;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.DialogInterface.OnKeyListener;
+
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -185,7 +189,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		fragmentView = inflater.inflate(R.layout.offline_animation, null);
 		setupView();
-	    return fragmentView;   
+		getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	    return fragmentView;
 	}
 	
 	private void startAnimation()
@@ -355,7 +360,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, true);
 		}
 		avatarImageView.setScaleType(ScaleType.FIT_CENTER);
 		avatarImageView.setImageDrawable(drawable);
@@ -624,7 +629,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	private void closeFragment()
 	{
 		Utils.unblockOrientationChange((ChatThreadActivity)getActivity());
-		dismissAllowingStateLoss();	
+		dismissAllowingStateLoss();
 	}
 	
 	public void setConnectionListner(OfflineConnectionRequestListener  listener)

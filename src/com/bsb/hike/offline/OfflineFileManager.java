@@ -57,6 +57,8 @@ public class OfflineFileManager
 
 	public void deleteFiles(ArrayList<Long> rMsgIds,String msisdn)
 	{
+		if(rMsgIds==null|| rMsgIds.isEmpty())
+			return;
 		ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), msisdn);
 
 		final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage(msisdn, context.getString(R.string.files_not_received),
