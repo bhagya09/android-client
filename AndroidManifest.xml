@@ -147,7 +147,6 @@
             android:name=".ui.ComposeChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_label"
-            android:theme="@style/AppTheme.Overlay"
             android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
