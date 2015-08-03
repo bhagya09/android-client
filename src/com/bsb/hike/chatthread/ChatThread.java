@@ -130,6 +130,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -169,7 +170,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener
 {
 	private static final String TAG = ChatThread.class.getSimpleName();
 
@@ -1881,6 +1882,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
 		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
+		sendSticker(sticker, sourceOfSticker);
+	}
+	
+	@Override
+	public void stickerSelectedRecommedationPopup(Sticker sticker, String sourceOfSticker, boolean clearText)
+	{
+		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
+		if(clearText)
+		{
+			StickerSearchManager.getInstance().sentMessage(mComposeView.getText().toString(), sticker, null, null);
+		}
+		else
+		{
+			StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
+		}
 		sendSticker(sticker, sourceOfSticker);
 	}
 

@@ -21,11 +21,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
-import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
@@ -47,7 +47,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	private HikeAppStateBaseFragmentActivity activity;
 
-	private StickerPickerListener stickerPickerListener;
+	private IStickerPickerRecommendationListener stickerPickerListener;
 
 	private ChatThread chatthread;
 
@@ -82,7 +82,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.editText = editText;
 		this.color = color;
 		this.chatthread = chathread;
-		this.stickerPickerListener = (StickerPickerListener) chathread;
+		this.stickerPickerListener = (IStickerPickerRecommendationListener) chathread;
 		this.colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		this.shownStickerRecommendFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, false);
@@ -361,14 +361,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + ")");
 
-		if (stickerPickerListener == null)
-		{
-			throw new IllegalStateException("sticker picker is null but sticker is selected.");
-		}
-
-		StickerManager.getInstance().addRecentStickerToPallete(sticker);
-		stickerPickerListener.stickerSelected(sticker, source);
-
+		sendSticker(sticker, source, dismissAndClear);
+		
 		if (dismissAndClear)
 		{
 			/*
@@ -466,6 +460,18 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, true);
 		shownStickerRecommendFtue = true;
+	}
+	
+	private void sendSticker(Sticker sticker, String source, boolean dismissAndClear)
+	{
+		if (stickerPickerListener == null)
+		{
+			Logger.wtf(TAG, "sticker picker is null but sticker is selected");
+			return;
+		}
+
+		StickerManager.getInstance().addRecentStickerToPallete(sticker);
+		stickerPickerListener.stickerSelectedRecommedationPopup(sticker, source, dismissAndClear && StickerSearchManager.getInstance().getFirstContinuousMatchFound());
 	}
 
 	public boolean isStickerRecommnedPoupShowing()
