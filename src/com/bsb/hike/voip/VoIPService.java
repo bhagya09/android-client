@@ -1810,12 +1810,19 @@ public class VoIPService extends Service {
 
 	synchronized public void setHold(boolean newHold) {
 		
-		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
 		final VoIPClient client = getClient();
 
 		if (this.hold == newHold || client == null)
 			return;
 		
+		/**
+		 * If we get a missed cellular call WHILE we're already receiving a voip call, 
+		 * the voip call will erroneously unhold itself. 
+		 */
+		if (!recordingAndPlaybackRunning && newHold)
+			return;
+		
+		Logger.d(tag, "Changing hold to: " + newHold);
 		this.hold = newHold;
 		
 		if (newHold == true) {
