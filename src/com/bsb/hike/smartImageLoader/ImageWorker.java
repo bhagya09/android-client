@@ -459,6 +459,7 @@ public abstract class ImageWorker
 				if (value != null)
 				{
 					setImageDrawable(imageView, value);
+					sendImageCallback(imageView);
 				}
 				else if (setDefaultAvatarIfNoCustomIcon)
 				{
@@ -468,6 +469,7 @@ public abstract class ImageWorker
 						key = new String(data.substring(0, idx));
 					
 					setDefaultAvatar(imageView, key);
+					sendImageCallback(imageView);
 				}
 				else if (defaultDrawable != null)
 				{
@@ -476,10 +478,9 @@ public abstract class ImageWorker
 					 * media viewer files for which we could not create thumbnails(ex. tif images)
 					 */
 					setImageDrawable(imageView, defaultDrawable);
+					sendImageCallback(imageView);
 					imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				}
-				
-				sendImageCallback(imageView);
 
 			}
 		}

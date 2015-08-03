@@ -495,6 +495,8 @@ public class HAManager
 			
 			json.put(AnalyticsConstants.TYPE, AnalyticsConstants.ANALYTICS_EVENT);
 			json.put(AnalyticsConstants.DATA, data);
+			
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "analytics json : " + json.toString());
 		}
 		catch (JSONException e) 
 		{

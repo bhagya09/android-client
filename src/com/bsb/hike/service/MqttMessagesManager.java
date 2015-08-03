@@ -80,6 +80,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -710,6 +711,7 @@ public class MqttMessagesManager
 
 		messageProcessVibrate(convMessage);
 		messageProcessFT(convMessage);
+		messageProcessStickerRecommendation(convMessage);
 
 		if (convMessage.isOneToNChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
@@ -845,6 +847,21 @@ public class MqttMessagesManager
 		return convMessage;
 	}
 
+	/**
+	 * This function gives data to sticker recommendation
+	 */
+	private void messageProcessStickerRecommendation(ConvMessage convMessage)
+	{
+		if(convMessage.isStickerMessage())
+		{
+			StickerSearchManager.getInstance().receivedMessage(null, convMessage.getMetadata().getSticker(), null);
+		}
+		else if(convMessage.isTextMsg())
+		{
+			StickerSearchManager.getInstance().receivedMessage(convMessage.getMessage(), null, null);
+		}
+	}
+	
 	/**
 	 * This function decides whether to vibrate or not for a given message
 	 */
@@ -2308,6 +2325,19 @@ public class MqttMessagesManager
 			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
 		}
+		
+		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
+		{
+			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+		}
+		
+		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME))
+		{
+			long tagRefreshTime = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_TAG_REFRESH_PERIOD, tagRefreshTime);
+		}
+		
 		if (data.has(HikeConstants.CHAT_SEARCH_ENABLED))
 		{
 			boolean chatSearchEnable = data.getBoolean(HikeConstants.CHAT_SEARCH_ENABLED);

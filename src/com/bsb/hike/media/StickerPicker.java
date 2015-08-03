@@ -26,6 +26,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadConstants;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -350,7 +351,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private void shopIconClicked()
 	{
 		setStickerIntroPrefs();
-		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
+		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
 		Intent i = IntentFactory.getStickerShopIntent(mContext);
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		mContext.getApplicationContext().startActivity(i);
