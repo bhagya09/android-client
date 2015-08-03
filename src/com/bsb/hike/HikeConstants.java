@@ -2471,8 +2471,16 @@ public class HikeConstants
 		public static final String PRODUCT_POPUP="productpopup";
 		
 		public static final String SESSION = "sess";
+		
+		public static final String GENERAL_EVENT = "ge";
 	}
 
+	public static final class GeneralEventMessagesTypes
+	{
+		public static final String OFFLINE = "off";
+	}
+
+	
 	public static final class SMSNative
 	{
 		/*

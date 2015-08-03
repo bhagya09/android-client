@@ -3609,6 +3609,10 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
+		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT.equals(type))
+		{
+			GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(jsonObj);
+		}
 	}
 
 	private void uploadGroupProfileImage(final String groupId)
@@ -4210,6 +4214,10 @@ public class MqttMessagesManager
 						HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1.equals(type)) 
 				{
 					VoIPUtils.handleVOIPPacket(context, json);
+				}
+				else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT.equals(type))
+				{
+					GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(json);
 				}
 				else
 				{
