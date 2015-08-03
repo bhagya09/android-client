@@ -215,9 +215,21 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected void init()
 	{
 		super.init();
-		offlineParameters=new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+		handleOfflineIntent(activity.getIntent());
 	}
 	
+	private void handleOfflineIntent(Intent intent)
+	{
+		if (intent.getBooleanExtra(OfflineConstants.START_CONNECT_FUNCTION,false))
+		{
+			Message msg=Message.obtain();
+			msg.obj=true;
+			msg.what=START_OFFLINE_CONNECTION;
+			uiHandler.sendMessage(msg);
+		}
+	}
+
 	private void checkOfflineConnectionStatus()
 	{
 		switch (OfflineController.getInstance().getOfflineState())
@@ -1480,7 +1492,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 				startFreeHikeAnimation();
 			}
-			//OfflineUtils.sendOfflineRequestPacket(msisdn);
+			OfflineUtils.sendOfflineRequestPacket(msisdn);
 			showToast(R.string.scan_process_started);
 			if(offlineController==null)
 			{

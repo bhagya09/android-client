@@ -706,8 +706,15 @@ public class OfflineUtils
 		try
 		{
 			msisdn = packet.getString(HikeConstants.FROM);
+	
+			if(TextUtils.isEmpty(msisdn)||isConnectedToSameMsisdn(msisdn)|| isConnectingToSameMsisdn(msisdn))
+			{
+				return;
+			}
+			
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
 			Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
+			chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
 			HikeNotification.getInstance().showBigTextStyleNotification(chatThreadIntent, hikeNotifMsgStack.getNotificationIcon(),
@@ -724,10 +731,10 @@ public class OfflineUtils
 	{
 		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
 		chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
-		PendingIntent chatThreadPendingIntent = PendingIntent.getActivity(context, 0, chatThreadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent chatThreadPendingIntent = PendingIntent.getActivity(context, 0, chatThreadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		Intent cancel = new Intent("com.bsb.cancel");
-		PendingIntent cancelP = PendingIntent.getBroadcast(context, 0, cancel, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent cancelP = PendingIntent.getBroadcast(context, 0, cancel, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
 
