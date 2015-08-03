@@ -3378,6 +3378,11 @@ public class Utils
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 	}
+
+	public static boolean isBelowLollipop()
+	{
+		return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+	}
 	
 	public static boolean isIceCreamOrHigher()
 	{
