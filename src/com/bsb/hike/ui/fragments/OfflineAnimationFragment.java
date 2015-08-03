@@ -2,13 +2,13 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
-
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -32,6 +32,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -222,6 +223,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		fragmentView = inflater.inflate(R.layout.offline_animation, null);
 		setupView();
+		getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 	    return fragmentView;
 	}
 	

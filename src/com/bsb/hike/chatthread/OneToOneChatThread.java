@@ -1489,7 +1489,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case DISCONNECTED:
 			if(showAnimation)
 			{
-				activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 				startFreeHikeAnimation();
 			}
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
