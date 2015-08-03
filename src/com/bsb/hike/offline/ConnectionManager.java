@@ -12,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
@@ -40,6 +41,7 @@ public class ConnectionManager implements ChannelListener
 	private int connectedNetworkId = -1;
 	private Looper looper;
 	private boolean isHTC = false;
+	private String currentnetId=null;
 	
 	public ConnectionManager(Context context, Looper looper)
 	{
@@ -92,30 +94,17 @@ public class ConnectionManager implements ChannelListener
 		}
 	}
 	
-	public Boolean connectToHotspot(String targetMsisdn) 
+	public void connectToHotspot(String targetMsisdn) 
 	{
 		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(),targetMsisdn);
+	//	wifiManager.saveConfiguration();
+		currentnetId = wifiManager.getConnectionInfo().getSSID();
 		Log.d("OfflineManager","SSID is "+ssid);
 		WifiConfiguration wifiConfig = new WifiConfiguration();
 		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
 		wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
 		wifiManager.addNetwork(wifiConfig);
-		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
-		for( WifiConfiguration wifiConfiguration : list ) 
-		{
-			if(wifiConfiguration!=null && wifiConfiguration.SSID != null && wifiConfiguration.SSID.equals(wifiConfig.SSID)) 
-			{
-				Log.d("OfflineManager", "Disconnecting existing ssid");
-				wifiManager.disconnect();
-				boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
-				Log.d("OfflineManager", "Enabled network");
-				connectedNetworkId=wifiConfiguration.networkId;
-				wifiManager.reconnect();               
-				Log.d("OfflineManager", "trying to connect!");
-				return status;
-			}
-		}
-		return false;
+		connectToWifi(wifiConfig.SSID);
 	}
 	
 	public void startDiscovery()
@@ -258,6 +247,7 @@ public class ConnectionManager implements ChannelListener
 		{
 			closeExistingHotspot(prevConfig);
 		}
+		currentnetId=wifiManager.getConnectionInfo().getSSID();
 		Boolean result = setWifiApEnabled(wifiP2pDeviceName, true);
 		Log.d("OfflineManager", "HotSpot creation result is "+ result);
 		return result;
@@ -487,26 +477,47 @@ public class ConnectionManager implements ChannelListener
 		return isWifiHotspotRunning;
 	}
 
-	public void disconnect(String msisdn) {
-		Boolean isWifiHotspotRunning = isHotspotCreated();
-		if(isWifiHotspotRunning)
-		{
-			closeHikeHotspot(msisdn);
-		}
-		else
-		{
-			forgetWifiNetwork();
-			wifiManager.disconnect();
-		}
-	}
-	
 	private void forgetWifiNetwork()
 	{
-		wifiManager.removeNetwork(connectedNetworkId);
-		connectedNetworkId=-1;
+		boolean success = wifiManager.removeNetwork(connectedNetworkId);
+		wifiManager.disconnect();
+		Logger.d(TAG, "Forget Netwrork was " + success);
+		connectedNetworkId = -1;
 	}
 	
-	public boolean tryConnectingToHotSpot(final String msisdn) 
+	private void connectToWifi(String ssid)
+	{
+		if(TextUtils.isEmpty(ssid))
+		{
+			return ;
+		}
+		
+		if(!wifiManager.isWifiEnabled())
+		{
+			wifiManager.setWifiEnabled(true);
+		}
+		
+		List<WifiConfiguration> list= wifiManager.getConfiguredNetworks();
+		if(list!=null)
+		{
+			for (WifiConfiguration wifiConfiguration : wifiManager.getConfiguredNetworks())
+			{
+				if (wifiConfiguration != null && wifiConfiguration.SSID != null && wifiConfiguration.SSID.equals(ssid))
+				{
+					Log.d("OfflineManager", "Disconnecting existing ssid");
+					wifiManager.disconnect();
+					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
+					Log.d("OfflineManager", "Enabled network" + status);
+					connectedNetworkId = wifiConfiguration.networkId;
+					wifiManager.reconnect();
+					Log.d("OfflineManager", "trying to connect!");
+
+				}
+			}
+		}
+	}
+	
+	public void tryConnectingToHotSpot(final String msisdn) 
 	{
 		Log.d(TAG, "tryConnectingToHotSpot");
 		
@@ -514,7 +525,7 @@ public class ConnectionManager implements ChannelListener
 		{
 			wifiManager.setWifiEnabled(true);
 		}
-		return connectToHotspot(msisdn);
+		connectToHotspot(msisdn);
 	}
 	
 	public boolean isConnectedToSSID(String msisdn)
@@ -561,15 +572,16 @@ public class ConnectionManager implements ChannelListener
 			{
 				forgetWifiNetwork();
 
-				wifiManager.disconnect();
 			}
 		}
+		connectToWifi(currentnetId);
 		clearAllVariables();
 	}
 
 	private void clearAllVariables() {
 		prevConfig = null;
 		connectedNetworkId = -1;
+		currentnetId = null;
 	}
 	
 	public String getHostAddress()
