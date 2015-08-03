@@ -9,6 +9,7 @@
         android:title="@string/actionbar_activity_feed_title"/>
     <item
         android:id="@+id/overflow_menu"
+        android:menuCategory="secondary"
         app:actionLayout="@layout/overflow_icon_view"
         app:showAsAction="always"
         android:title="@string/other">
