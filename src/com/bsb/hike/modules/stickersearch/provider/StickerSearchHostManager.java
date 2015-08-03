@@ -342,7 +342,7 @@ public class StickerSearchHostManager
 					maxPermutationSize = 4;
 					nextWord = null;
 
-					// build phrase from a group of 4 mWords
+					// build phrase from a group of 4 words
 					searchText.append(value);
 
 					for (lastWordIndexInPhraseStartedWithPivot = i, lastIndexInPhraseStartedWithPivot = i + 1; maxPermutationSize > 1 && lastIndexInPhraseStartedWithPivot < size; lastIndexInPhraseStartedWithPivot++)
@@ -498,7 +498,7 @@ public class StickerSearchHostManager
 								maxPermutationSize = 3;
 								nextWord = null;
 
-								// handle partial phrase of remaining mWords
+								// handle partial phrase of remaining words
 								for (String previousPhrase = null; maxPermutationSize > 1; maxPermutationSize--)
 								{
 									searchText.setLength(0);
@@ -623,7 +623,7 @@ public class StickerSearchHostManager
 							maxPermutationSize = 3;
 							nextWord = null;
 
-							// handle partial phrase of remaining mWords
+							// handle partial phrase of remaining words
 							for (String previousPhrase = null; maxPermutationSize > 1; maxPermutationSize--)
 							{
 								searchText.setLength(0);
@@ -837,7 +837,7 @@ public class StickerSearchHostManager
 				}
 				else
 				{
-					// check pre-mWords, if valid
+					// check pre-words, if valid
 					int preIndex = i;
 					int preInvalidCount = 0;
 					while (--preIndex >= 0)
@@ -849,7 +849,7 @@ public class StickerSearchHostManager
 						}
 					}
 
-					// check post-mWords, if valid
+					// check post-words, if valid
 					int postIndex = i;
 					int postInvalidCount = 0;
 					while (++postIndex < wordList.size())
@@ -863,7 +863,7 @@ public class StickerSearchHostManager
 
 					if ((preInvalidCount <= 0) && (postInvalidCount <= 0))
 					{
-						Logger.d(TAG, "onClickToSendSticker(), No valid combination of mWords is present in current text.");
+						Logger.d(TAG, "onClickToSendSticker(), No valid combination of words is present in current text.");
 					}
 					else
 					{
@@ -971,7 +971,7 @@ public class StickerSearchHostManager
 				String firstWord = selectedTextInPhrase.get(0);
 				searchText.append(firstWord);
 
-				// build phrase from a group of some mWords
+				// build phrase from a group of some words
 				for (j = 1; j < count; j++)
 				{
 					searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
@@ -1057,7 +1057,7 @@ public class StickerSearchHostManager
 
 		for (String previousPhrase = null; maxPermutationSize > 0;)
 		{
-			// build phrase from a group of some mWords
+			// build phrase from a group of some words
 			searchText.append(word);
 			currentMaxPermutationSize = maxPermutationSize;
 			nextWord = null;
