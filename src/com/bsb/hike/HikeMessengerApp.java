@@ -366,9 +366,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_GROUP_CHAT_TIP = "shownGroupChatTip";
 
 	public static final String SHOWN_ADD_FAVORITE_TIP = "shownAddFavoriteTip";
-	
+
 	public static final String SHOWN_MULTI_ADMIN_TIP = "shownMultiAdminTip";
-	
+
 	public static final String MQTT_IPS = "mqttIps";
 
 	public static final String STEALTH_ENCRYPTED_PATTERN = "stealthEncryptedPattern";
@@ -569,6 +569,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stickerTagMaxSearchGreedyLength"; // integer
 
 	public static final String STIKCER_TAG_MAXIMUM_PHRASE_PERMUTATION_SIZE = "stickerTagMaxPhrasePermutationSize"; // integer
+
+	public static final String STICKER_TAG_MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = "stickerTagMinWordLengthToApplyAutoCorrection"; // integer
 
 	public static final String STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH = "stickerTagSelectionCountMaxRatioPerSearch"; // float
 

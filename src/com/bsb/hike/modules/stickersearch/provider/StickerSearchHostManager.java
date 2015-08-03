@@ -42,9 +42,11 @@ public class StickerSearchHostManager
 
 	private static int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT;
 
-	private static float LIMIT_AUTO_CORRECTION;
-
 	private static int MAXIMUM_PHRASE_PERMUTATION_SIZE;
+
+	private static int MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION;
+
+	private static float LIMIT_AUTO_CORRECTION;
 
 	private static float LIMIT_EXACT_MATCH;
 
@@ -118,10 +120,13 @@ public class StickerSearchHostManager
 		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
 				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 
-		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
-
 		MAXIMUM_PHRASE_PERMUTATION_SIZE = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STIKCER_TAG_MAXIMUM_PHRASE_PERMUTATION_SIZE,
 				StickerSearchConstants.MAXIMUM_PHRASE_PERMUTATION_SIZE);
+
+		MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION,
+				StickerSearchConstants.MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION);
+
+		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
 
 		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
 
@@ -359,7 +364,7 @@ public class StickerSearchHostManager
 							continue;
 						}
 						searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-						searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+						searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 						maxPermutationSize--;
 						lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 					}
@@ -520,7 +525,7 @@ public class StickerSearchHostManager
 											continue;
 										}
 										searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-										searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+										searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 										currentMaxPermutationSize--;
 										lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 									}
@@ -645,7 +650,7 @@ public class StickerSearchHostManager
 										continue;
 									}
 									searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-									searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+									searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 									currentMaxPermutationSize--;
 									lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 								}
@@ -981,7 +986,7 @@ public class StickerSearchHostManager
 				{
 					searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
 					nextWord = selectedTextInPhrase.get(j);
-					searchText.append((nextWord.length() > 3) ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord).toString();
+					searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION) ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord).toString();
 				}
 
 				currentPhrase = searchText.toString().toUpperCase(Locale.ENGLISH);
@@ -1077,7 +1082,7 @@ public class StickerSearchHostManager
 				}
 
 				searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-				searchText.append((nextWord.length() > 3 ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+				searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 				currentMaxPermutationSize--;
 				lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 			}
