@@ -48,6 +48,8 @@ import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
@@ -68,13 +70,9 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
@@ -930,7 +928,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		}
 
-		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+		int width = Utils.getOverflowMenuWidth(activity.getApplicationContext());
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
