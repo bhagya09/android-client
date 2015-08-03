@@ -568,7 +568,7 @@ public class VoIPClient  {
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_TIMEOUT && !reconnecting) {
 //						Logger.w(logTag, "Heartbeat failure. Reconnecting.. ");
 						startReconnectBeeps();
-						if (!isInitiator() && connected && isAudioRunning())
+						if (!isInitiator() && connected)
 							reconnect();
 					}
 					
@@ -761,6 +761,11 @@ public class VoIPClient  {
 
 	}
 
+	/**
+	 * Once a connection has been made to the call recipient (and
+	 * presumably their phone is ringing), wait for a definite amount of
+	 * time for the call to be answered / rejected. 
+	 */
 	private void startResponseTimeout() {
 		responseTimeoutThread = new Thread(new Runnable() {
 			
@@ -776,12 +781,9 @@ public class VoIPClient  {
 							{
 								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
-								if (!isInAHostedConference)
-									return;
 							}
 						}
 						stop();
-						
 					}
 				} catch (InterruptedException e) {
 					// Do nothing, all is good
