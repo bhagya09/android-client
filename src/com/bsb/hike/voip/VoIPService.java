@@ -296,6 +296,15 @@ public class VoIPService extends Service {
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
 				break;
 				
+			case VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT:
+				// Edge case error fixing. If the call went into reconnection
+				// before it was answered, then normally no outgoing missed call
+				// would appear in our chat thread since we aren't connected.
+				// Hence, make it appear as if we ARE connected, so the missed call appears. 
+				client.connected = true;
+				sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT, bundle);
+				break;
+				
 			default:
 				// Pass message to activity through its handler
 				sendHandlerMessage(msg.what);
@@ -392,6 +401,19 @@ public class VoIPService extends Service {
 				getClient(msisdn).hangUp();
 			} 
 			return returnInt;
+		}
+		
+		// Participant does not support conference error
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE)) {
+			Logger.w(tag, msisdn + " does not support conferencing.");
+			VoIPClient cl = getClient(msisdn);
+			if (cl != null) {
+				// Send message to voip activity
+				Bundle bundle = new Bundle();
+				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
+				sendHandlerMessage(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
+				cl.hangUp();
+			}
 		}
 		
 		// Incoming call message
@@ -2250,7 +2272,10 @@ public class VoIPService extends Service {
 					// We have an incoming call
 					Logger.w(tag, "Incoming call detected.");
 					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-					setHold(true);
+					if (isAudioRunning())
+						setHold(true);
+					else
+						hangUp();
 				}
 				
 				if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
