@@ -62,10 +62,6 @@ public class ActivityFeedFragment extends Fragment implements Listener
 	{
 		super.onViewCreated(view, savedInstanceState);
 
-		QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).isSnappable(false).build();
-
-		mActivityFeedRecyclerView.setOnScrollListener(scrollListener);
-
 		executeActivityFeedFetchTask();
 	}
 
