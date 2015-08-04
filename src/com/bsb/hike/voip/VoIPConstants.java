@@ -222,6 +222,8 @@ public class VoIPConstants {
 		
 		public static final String SPEAKING = "sp";
 		
+		public static final String RINGING = "r";
+		
 		public static final String VOIP_CLIENTS = "cl";
 		
 	}
