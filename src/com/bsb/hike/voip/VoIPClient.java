@@ -109,9 +109,9 @@ public class VoIPClient  {
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
-	private boolean isSpeaking = false;
+	private boolean isSpeaking = false, isRinging = false;
 	private int voicePacketCount = 0;
-	public boolean isDummy = false;
+	public boolean isDummy = false, isHost = false;		
 	private String selfMsisdn;
 
 	// List of client MSISDNs (for conference)
@@ -568,16 +568,14 @@ public class VoIPClient  {
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_TIMEOUT && !reconnecting) {
 //						Logger.w(logTag, "Heartbeat failure. Reconnecting.. ");
 						startReconnectBeeps();
-						if (!isInitiator() && connected && isAudioRunning())
+						if (!isInitiator() && connected)
 							reconnect();
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
-						if (isInAHostedConference) {
-							if (reconnectForConference()) {
-								Thread.currentThread().interrupt();
-								return;
-							}
+						if (reconnectForConference()) {
+							Thread.currentThread().interrupt();
+							return;
 						}
 						Logger.w(tag, "Giving up on connection.");
 						hangUp();
@@ -763,6 +761,11 @@ public class VoIPClient  {
 
 	}
 
+	/**
+	 * Once a connection has been made to the call recipient (and
+	 * presumably their phone is ringing), wait for a definite amount of
+	 * time for the call to be answered / rejected. 
+	 */
 	private void startResponseTimeout() {
 		responseTimeoutThread = new Thread(new Runnable() {
 			
@@ -778,12 +781,9 @@ public class VoIPClient  {
 							{
 								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
-								if (!isInAHostedConference)
-									return;
 							}
 						}
 						stop();
-						
 					}
 				} catch (InterruptedException e) {
 					// Do nothing, all is good
@@ -881,17 +881,21 @@ public class VoIPClient  {
 			setCallStatus(VoIPConstants.CallStatus.ENDED);
 		}
 
-		if (TextUtils.isEmpty(groupChatMsisdn)) {
-			VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
-		}
-		else {
-			if (isHostingConference) {
-				// Hack!
-				// Replacing the client msisdn with group chat msisdn, so that the call summary
-				// goes in the right place
-				setPhoneNumber(groupChatMsisdn);
+		// Call summary in chat thread
+		if (connected || getCallDuration() > 0) {
+			if (TextUtils.isEmpty(groupChatMsisdn)) {
 				VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
 			}
+			else {
+				if (isHostingConference) {
+					// Hack!
+					// Replacing the client msisdn with group chat msisdn, so that the call summary
+					// goes in the right place
+					setPhoneNumber(groupChatMsisdn);
+					VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+				}
+			}
+
 		}
 
 		if (iceThread != null)
@@ -982,14 +986,12 @@ public class VoIPClient  {
 					}
 				}
 
-				if (isInAHostedConference) {
-					if (reconnectForConference()) 
-						return;
-				}
+				if (reconnectForConference()) 
+					return;
 				
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
-				if (!isInitiator() && !reconnecting && !isInAHostedConference) {
-					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber(), null);
+				if (!isInitiator() && !reconnecting) {
+					VoIPUtils.sendMissedCallNotificationToPartner(getPhoneNumber(), groupChatMsisdn);
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
 				stop();					
@@ -1060,6 +1062,7 @@ public class VoIPClient  {
 				packet = new DatagramPacket(packetData, packetData.length, getCachedInetAddress(), getPreferredPort());
 				
 			socket.send(packet);
+			
 			totalBytesSent += packet.getLength();
 			totalPacketsSent++;
 		} catch (IOException e) {
@@ -1492,7 +1495,7 @@ public class VoIPClient  {
 
 	public void sendAnalyticsEvent(String ek, int value)
 	{
-		Logger.d(tag + " Analytics", "Logging event: " + ek);
+//		Logger.d(tag + " Analytics", "Logging event: " + ek);
 		try
 		{
 			JSONObject metadata = new JSONObject();
@@ -2009,8 +2012,13 @@ public class VoIPClient  {
 	}
 	
 	private boolean reconnectForConference() {
-		if (version >= 2) {
+		
+		// The version check is a little bit of a hack. 
+		// If we have never managed to connect to a client, we won't even know the version
+		// and hence a reconnect will not be attempted. 
+		if (version >= 2 && isInAHostedConference && keepRunning) {
 			reconnecting = false;
+			audioStarted = false;
 			
 			// Socket info timeout thread will be running since we will 
 			// already be trying to reconnect.
@@ -2048,13 +2056,20 @@ public class VoIPClient  {
 					client.setPhoneNumber(clientObject.getString(VoIPConstants.Extras.MSISDN));
 					client.setSpeaking(clientObject.getBoolean(VoIPConstants.Extras.SPEAKING));
 					client.setCallStatus(CallStatus.values()[clientObject.getInt(VoIPConstants.Extras.STATUS)]);
+					if (clientObject.has(VoIPConstants.Extras.RINGING))
+						client.setRinging(clientObject.getBoolean(VoIPConstants.Extras.RINGING));
 					client.isDummy = true;
 					
 					// Ignoring your own msisdn
 					if (client.getPhoneNumber().equals(selfMsisdn))
 						continue;
 					
-					clientMsisdns.add(client);
+					// Mark the host client
+					if (client.getPhoneNumber().equals(getPhoneNumber())) {
+						client.isHost = true;
+						clientMsisdns.add(0, client);
+					} else
+						clientMsisdns.add(client);
 				}
 			} else
 				Logger.w(tag, "Clients array is empty.");
@@ -2074,6 +2089,26 @@ public class VoIPClient  {
 		return localBitrate + bitrateAdjustment;
 	}
 	
+	public boolean isRinging() {
+		boolean ringing = false;
+		
+		if (isDummy)
+			return isRinging;
+		
+		if (connected && !audioStarted)
+			ringing = true;
+		
+		return ringing;
+	}
+	
+	public void setRinging(boolean isRinging) {
+		this.isRinging = isRinging;
+	}
+	
+	public boolean isHost() {
+		return isHost;
+	}
+
 	private void stop() {
 		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_STOP);
 	}

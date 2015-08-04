@@ -53,6 +53,7 @@ import android.widget.Chronometer;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -215,17 +216,16 @@ public class VoIPService extends Service {
 			String msisdn = bundle.getString(VoIPConstants.MSISDN);
 			VoIPClient client = clients.get(msisdn);
 			
-			// Logger.d(logTag, "Received message: " + msg.what + " from: " + msisdn);
-			
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
 				Logger.d(tag, msisdn + " has stopped.");
-				if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
-					stop();
-				else {
-					Logger.d(tag, msisdn + " has quit the conference.");
-					removeFromClients(msisdn);
-					playFromSoundPool(SOUND_DECLINE, false);
+				synchronized (clients) {
+					if ((clients.size() == 0) || (clients.size() == 1 && getClient().getPhoneNumber().equals(msisdn)))
+						stop();
+					else {
+						removeFromClients(msisdn);
+						playFromSoundPool(SOUND_DECLINE, false);
+					}
 				}
 				break;
 
@@ -451,7 +451,7 @@ public class VoIPService extends Service {
 			// playIncomingCallRingtone();
 		}
 
-		// Socket information
+		// INCOMING CALL
 		if (action.equals(VoIPConstants.Extras.SET_PARTNER_INFO)) 
 		{
 			
@@ -525,12 +525,12 @@ public class VoIPService extends Service {
 			client.socketInfoReceived = true;
 		}
 		
-		// We are initiating a VoIP call
+		// OUTGOING CALL
 		if (action.equals(VoIPConstants.Extras.OUTGOING_CALL)) 
 		{
-			// Edge case. 
 			String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
-
+			
+			// Error case: making a call to yourself
 			if (myMsisdn != null && myMsisdn.equals(msisdn)) 
 			{
 				Logger.wtf(tag, "Don't be ridiculous!");
@@ -549,7 +549,7 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
-			// Edge case: call button was hit for someone we are already speaking with. 
+			// Error case: call button was hit for someone we are already speaking with. 
 			if (getCallId() > 0 && getClient() != null && getClient().getPhoneNumber() != null && getClient().getPhoneNumber().equals(msisdn)) 
 			{
 				if (!getClient().connected) {
@@ -562,25 +562,26 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
+			// Error case: We are already in a voip call
 			if (getCallId() > 0 && !conferencingEnabled) 
 			{
 				Logger.e(tag, "Error. Already in a call.");
 				return returnInt;
 			}
 			
-			// Check if we are already in a conference call
+			// Error case: We are already in a conference call
 			if (getClient() != null && getClient().isHostingConference) {
 				Logger.e(tag, "Cannot place call while in a conference.");
 				restoreActivity();
 				return returnInt;
 			}
-			
-			// we are making an outgoing call
+
+			// All good. Initiate the call
 			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
-			
 			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
 				// Group call
-				groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
+				if (intent.hasExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
+					groupChatMsisdn = intent.getStringExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN);
 				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
 				
 				if (!VoIPUtils.checkIfConferenceIsAllowed(getApplicationContext(), clients.size() + msisdns.size()))
@@ -597,7 +598,9 @@ public class VoIPService extends Service {
 					client = new VoIPClient(getApplicationContext(), handler);
 					client.setPhoneNumber(phoneNumber);
 					client.isInAHostedConference = true;
-					client.groupChatMsisdn = groupChatMsisdn;
+					if (intent.hasExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
+						client.groupChatMsisdn = groupChatMsisdn;
+					
 					initiateOutgoingCall(client, callSource);
 					
 				}
@@ -634,6 +637,13 @@ public class VoIPService extends Service {
 		if (clients.containsKey(client.getPhoneNumber())) {
 			Logger.w(tag, "Client has already been added.");
 			restoreActivity();
+			return;
+		}
+		
+		// Check if we have blocked this user. 
+		// We won't get socket info back from the user, so a voip call will never work
+		if (ContactManager.getInstance().isBlocked(client.getPhoneNumber())) {
+			Logger.w(tag, "Not attempting call to " + client.getName() + " since they are blocked.");
 			return;
 		}
 		
@@ -909,22 +919,15 @@ public class VoIPService extends Service {
 				switch (focusChange) {
 				case AudioManager.AUDIOFOCUS_GAIN:
 					Logger.w(tag, "AUDIOFOCUS_GAIN");
-					if (client.getCallDuration() > 0 && hold == true)
-						setHold(false);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS:
 					Logger.w(tag, "AUDIOFOCUS_LOSS");
-					if (client.getCallDuration() > 0)
-						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
 					Logger.d(tag, "AUDIOFOCUS_LOSS_TRANSIENT");
-					if (client.getCallDuration() > 0)
-						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
 					Logger.w(tag, "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
-//					setHold(true);
 					break;
 				}
 			}
@@ -1565,7 +1568,7 @@ public class VoIPService extends Service {
 							
 							// For streaming mode, we must write data in chunks <= buffer size
 							index = 0;
-							while (index < output.length) {
+							while (index < output.length && audioTrack != null) {
 								size = Math.min(minBufSizePlayback, output.length - index);
 								audioTrack.write(output, index, size);
 								index += size; 
@@ -1807,12 +1810,19 @@ public class VoIPService extends Service {
 
 	synchronized public void setHold(boolean newHold) {
 		
-		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
 		final VoIPClient client = getClient();
 
 		if (this.hold == newHold || client == null)
 			return;
 		
+		/**
+		 * If we get a missed cellular call WHILE we're already receiving a voip call, 
+		 * the voip call will erroneously unhold itself. 
+		 */
+		if (!recordingAndPlaybackRunning && newHold)
+			return;
+		
+		Logger.d(tag, "Changing hold to: " + newHold);
 		this.hold = newHold;
 		
 		if (newHold == true) {
@@ -2185,6 +2195,7 @@ public class VoIPService extends Service {
 									clientJson.put(VoIPConstants.Extras.MSISDN, client.getPhoneNumber());
 									clientJson.put(VoIPConstants.Extras.STATUS, client.getCallStatus().ordinal());
 									clientJson.put(VoIPConstants.Extras.SPEAKING, client.isSpeaking());
+									clientJson.put(VoIPConstants.Extras.RINGING, client.isRinging());
 									clientsJson.put(clientJson);
 								}
 								
@@ -2204,7 +2215,7 @@ public class VoIPService extends Service {
 								dp.setData(json.toString().getBytes("UTF-8"));
 								
 								conferenceBroadcastPackets.add(dp);	
-								Logger.w(tag, "Sending clients list.");
+								Logger.d(tag, "Sending clients list.");
 								
 							} catch (JSONException e) {
 								Logger.w(tag, "JSONException: " + e.toString());

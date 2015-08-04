@@ -94,7 +94,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
 				}
 				
-				conv.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, -1, conv, -1));
+				conv.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, -1, conv, -1, -1));
 			}
 			
 			chatLabel = conv.getLabel();

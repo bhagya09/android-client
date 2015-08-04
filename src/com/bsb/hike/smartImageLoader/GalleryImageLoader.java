@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.utils.Utils;
 
 public class GalleryImageLoader extends ImageWorker
 {
@@ -34,6 +35,7 @@ public class GalleryImageLoader extends ImageWorker
 		String id = data.substring(GALLERY_KEY_PREFIX.length());
 
 		Bitmap b = HikeBitmapFactory.scaleDownBitmap(id, size_image, size_image, Bitmap.Config.RGB_565, true, false);
+		b = Utils.getRotatedBitmap(id, b);
 		return b;
 	}
 

@@ -712,6 +712,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				break;
 
 			case INCOMING_CALL:
+				hideConferenceList();
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_incoming));
 				releaseProximityWakelock();
@@ -860,6 +861,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		profileView.setVisibility(View.INVISIBLE);
 	}
 	
+	private void hideConferenceList() {
+		
+		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
+		conferenceList.setVisibility(View.GONE);
+		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+		profileView.setVisibility(View.VISIBLE);
+	}
+	
 	public void showCallActionsView()
 	{
 		callActionsView = (CallActionsView) getView().findViewById(R.id.call_actions_view);
@@ -972,7 +981,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		ImageView imageView = (ImageView) getView().findViewById(R.id.profile_image);
 		int size = getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
-		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), msisdn, imageView, size, false);
+		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), msisdn, imageView, size, false, false);
 		profileImageLoader.setDefaultDrawable(getResources().getDrawable(R.drawable.ic_avatar_voip_hires));
 		boolean hasCustomImage = profileImageLoader.loadProfileImage(getLoaderManager());
 		if(!hasCustomImage)

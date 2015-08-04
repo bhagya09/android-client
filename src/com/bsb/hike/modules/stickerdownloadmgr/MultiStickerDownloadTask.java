@@ -28,13 +28,15 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
-	private String TAG = "MultiStickerDownloadTask";
+	private String TAG = MultiStickerDownloadTask.class.getSimpleName();
 
 	private StickerCategory category;
 
@@ -49,7 +51,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	private String requestId;
 
 	private RequestToken requestToken;
-	
+
 	public MultiStickerDownloadTask(StickerCategory category, StickerConstants.DownloadType downloadType, DownloadSource source)
 	{
 		this.category = category;
@@ -78,7 +80,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		}
 		requestToken.execute();
 	}
-	
+
 	private IRequestInterceptor getRequestInterceptor()
 	{
 		return new IRequestInterceptor()
@@ -87,11 +89,11 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			@Override
 			public void intercept(Chain chain)
 			{
-				Logger.d(TAG, "CategoryId: " + category.getCategoryId());
+				Logger.d(TAG, "intercept(), CategoryId: " + category.getCategoryId());
 				String directoryPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(category.getCategoryId());
 				if (directoryPath == null)
 				{
-					Logger.e(TAG, "Sticker download failed directory does not exist");
+					Logger.e(TAG, "intercept(), Sticker download failed directory does not exist");
 					doOnFailure(null);
 					return;
 				}
@@ -108,13 +110,13 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					{
 						existingStickerIds.put(stickerId);
 						existingStickerNumber++;
-						Logger.d(TAG, "Existing id: " + stickerId);
+						Logger.d(TAG, "intercept(), Existing id: " + stickerId);
 					}
 				}
 				else
 				{
 					smallStickerDir.mkdirs();
-					Logger.d(TAG, "No existing sticker");
+					Logger.d(TAG, "intercept(), No existing sticker.");
 				}
 				if (!largeStickerDir.exists())
 					largeStickerDir.mkdirs();
@@ -130,7 +132,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
-					Logger.d(TAG, "Sticker Download Task Request : " + request.toString());
+					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + request.toString());
 
 					IRequestBody body = new JsonBody(request);
 					chain.getRequestFacade().setBody(body);
@@ -138,14 +140,14 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 				}
 				catch (JSONException e)
 				{
-					Logger.e(TAG, "Json exception during creation of request body", e);
+					Logger.e(TAG, "intercept(), Json exception during creation of request body", e);
 					doOnFailure(new HttpException("json exception", e));
 					return;
 				}
 			}
 		};
 	}
-	
+
 	private IRequestListener getRequestListener()
 	{
 		return new IRequestListener()
@@ -176,31 +178,60 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						return;
 					}
 
-					totalNumber = response.optInt(HikeConstants.TOTAL_STICKERS, -1);
-					reachedEnd = response.optBoolean(HikeConstants.REACHED_STICKER_END);
+					if (!data.has(HikeConstants.PACKS))
+					{
+						Logger.e(TAG, "Sticker download failed null pack data");
+						doOnFailure(null);
+						return;
+					}
+
+					JSONObject packs = data.getJSONObject(HikeConstants.PACKS);
+					String categoryId = packs.keys().next();
+
+					if (!packs.has(categoryId))
+					{
+						Logger.e(TAG, "Sticker download failed null category data");
+						doOnFailure(null);
+						return;
+					}
+
+					JSONObject categoryData = packs.getJSONObject(categoryId);
+
+					totalNumber = categoryData.optInt(HikeConstants.TOTAL_STICKERS, -1);
+					reachedEnd = categoryData.optBoolean(HikeConstants.REACHED_STICKER_END);
 					Logger.d(TAG, "Reached end? " + reachedEnd);
 					Logger.d(TAG, "Sticker count: " + totalNumber);
 
-					for (Iterator<String> keys = data.keys(); keys.hasNext();)
+					if (categoryData.has(HikeConstants.STICKERS))
 					{
-						String stickerId = keys.next();
-						String stickerData = data.getString(stickerId);
-						existingStickerNumber++;
+						JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
-						try
+						for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 						{
-							byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerData);
-							StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
-						}
-						catch (FileNotFoundException e)
-						{
-							Logger.w(TAG, e);
-						}
-						catch (IOException e)
-						{
-							Logger.w(TAG, e);
+							String stickerId = keys.next();
+							JSONObject stickerData = stickers.getJSONObject(stickerId);
+							String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+							existingStickerNumber++;
+
+							try
+							{
+								byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
+								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
+								StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
+								
+							}
+							catch (FileNotFoundException e)
+							{
+								Logger.w(TAG, e);
+							}
+							catch (IOException e)
+							{
+								Logger.w(TAG, e);
+							}
 						}
 					}
+
+					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP);
 
 					if (totalNumber != 0)
 					{
@@ -327,7 +358,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		b.putSerializable(StickerManager.STICKER_DOWNLOAD_TYPE, downloadType);
 		StickerManager.getInstance().sucessFullyDownloadedStickers(b);
 	}
-	
+
 	@Override
 	public void doOnFailure(HttpException e)
 	{

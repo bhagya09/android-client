@@ -494,7 +494,7 @@ public final class HikeEffectsFactory
 		return sepiaMatrix;
 	}
 
-	// UI thread Handler object to make changes to the UI from a seperate threat
+	// UI thread Handler object to make changes to the UI from a seperate thread
 	private static Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	/**
@@ -592,6 +592,12 @@ public final class HikeEffectsFactory
 			int[] ro, ri, go, gi, bo, bi, ci, co;
 			Splines red, green, blue, composite;
 			Bitmap temp = null;
+			
+			if(mInAllocation == null || mOutAllocations == null)
+			{
+				return;
+			}
+			
 			if (!blurImage)
 			{
 				mScript.set_input1(mBlendAllocation);
@@ -605,7 +611,7 @@ public final class HikeEffectsFactory
 				mScript.set_imageHeight(inBitmapOut.getHeight());
 				mScript.set_imageWidth(inBitmapOut.getWidth());
 			}
-
+			
 			switch (effect)
 			{
 			case CLASSIC:
