@@ -6,28 +6,7 @@
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
      
     </style>
-<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
-        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
-        <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
-        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
-        <item name="actionBarSize">@dimen/st__action_bar_default_height</item>
-        <item name="android:actionBarSize">@dimen/st__action_bar_default_height</item>
-        <item name="actionModeBackground">@color/transparent</item>
-        <item name="android:actionModeBackground">@color/transparent</item>
-        <item name="actionModeCloseButtonStyle">@style/NoCloseButton</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
-        <item name="android:actionModeCloseButtonStyle">@style/NoCloseButton</item>
-        <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:statusBarColor">@color/blue_hike_status_bar_m</item>
-        <item name="colorPrimary">@color/white_100</item>
-        <item name="colorPrimaryDark">@color/white_100</item>
-        <item name="colorAccent">@color/blue_hike</item>
-        <item name="colorControlActivated">@color/blue_hike</item>
 
-        
-    </style>
     <style name="AppTheme.Overlay" parent="AppTheme">
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
@@ -44,9 +23,9 @@
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowContentOverlay">@color/white</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+
 	</style>
     <style name="AppTheme.Home.Photos">
         <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
