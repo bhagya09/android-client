@@ -12,7 +12,7 @@
         android:layout_marginBottom="3dp"
         android:layout_weight="7"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_attach_pic" />
+        android:src="@drawable/ic_attach_file" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/text"

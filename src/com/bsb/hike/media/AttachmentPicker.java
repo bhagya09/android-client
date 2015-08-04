@@ -93,8 +93,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	{
 		List<OverFlowMenuItem> items = new ArrayList<OverFlowMenuItem>(7);
 		items.add(new OverFlowMenuItem(getString(R.string.camera_upper_case), 0, R.drawable.ic_attach_camera, CAMERA));
-		items.add(new OverFlowMenuItem(getString(R.string.photo), 0, R.drawable.ic_attach_pic, GALLERY));
-		items.add(new OverFlowMenuItem(getString(R.string.audio), 0, R.drawable.ic_attach_music, AUDIO));
+		items.add(new OverFlowMenuItem(getString(R.string.photo), 0, R.drawable.ic_attach_gallery, GALLERY));
+		items.add(new OverFlowMenuItem(getString(R.string.audio), 0, R.drawable.ic_attach_audio, AUDIO));
 		items.add(new OverFlowMenuItem(getString(R.string.video), 0, R.drawable.ic_attach_video, VIDEO));
 		items.add(new OverFlowMenuItem(getString(R.string.file), 0, R.drawable.ic_attach_file, FILE));
 		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION))
