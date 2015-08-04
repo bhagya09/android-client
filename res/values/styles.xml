@@ -670,11 +670,10 @@
 	    <item name="android:layout_marginTop">8dp</item>
 	</style>
 	
-	<style name="LockPatternTheme" parent="@style/Theme.AppCompat">
+	<style name="LockPatternTheme" parent="@style/Theme.AppCompat.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowIsFloating">true</item>
-        <item name="windowActionBar">true</item>
 	</style>
 	
 	<style name="BlockAddUnknownContact">
@@ -971,7 +970,7 @@
 	</style>
 	
 	<style name="OverflowMenuContainerStyle">
-        <item name="android:layout_width">168dp</item>
+        <item name="android:layout_width">@dimen/overflow_menu_width</item>
         <item name="android:layout_height">match_parent</item>
     </style>
 </resources>

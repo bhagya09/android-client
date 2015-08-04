@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="@string/free_sms_txt" >
 
     <com.bsb.hike.view.IconPreference
@@ -23,6 +24,19 @@
         android:summary="@string/free_sms_msg"
         android:title="@string/free_hike_to_sms"
         android:widgetLayout="@layout/switch_widget" />
+    
+    <com.bsb.hike.view.PreferenceWithSubText
+        android:key="hike_hike"
+        android:layout="@layout/preference_with_sub_text"
+        android:summary="@string/free_worldwide"
+        android:title="@string/hike_hike"
+        app:s_text = "@string/unlimited" />
+    
+    <com.bsb.hike.view.PreferenceWithSubText
+        android:key="freeHike2SMSIndia"
+        android:layout="@layout/preference_with_sub_text"
+        android:summary="@string/free_hike_2_sms_india"
+        android:title="@string/free_hike_to_sms" />
 
     <com.bsb.hike.view.IconPreference
         android:key="earnFreeSms"
