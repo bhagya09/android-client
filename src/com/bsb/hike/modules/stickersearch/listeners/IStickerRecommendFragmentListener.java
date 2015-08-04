@@ -9,4 +9,6 @@ public interface IStickerRecommendFragmentListener
 	public void onSettingsClicked();
 	
 	public void stickerSelected(String word, String phrase, Sticker sticker, int selectIndex, int size, String source, boolean dismissAndClear);
+
+	public void shownStickerRecommendFtue();
 }
