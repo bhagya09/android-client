@@ -161,7 +161,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			roundAvatar1.setScaleType(ScaleType.FIT_XY);
 			roundAvatar1.setBackgroundResource(0);
 			viewHolder.name.setText(mUserMsisdn.equals(feedDataModel.getActor()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : ContactManager
-					.getInstance().getContact(feedDataModel.getActor()).getFirstNameAndSurname());
+					.getInstance().getContact(feedDataModel.getActor(), true, true).getFirstNameAndSurname());
 
 			if (feedDataModel.getReadStatus() == 1)
 			{
@@ -247,13 +247,6 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			if ((statusMessage.getStatusMessageType() == StatusMessageType.NO_STATUS) || (statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST)
 					|| (statusMessage.getStatusMessageType() == StatusMessageType.PROTIP))
 			{
-				return;
-			}
-			else if (mUserMsisdn.equals(statusMessage.getMsisdn()))
-			{
-				Intent intent = new Intent(mContext, ProfileActivity.class);
-				intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-				startActivity(intent);
 				return;
 			}
 
