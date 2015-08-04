@@ -25,6 +25,7 @@ import com.bsb.hike.modules.stickersearch.provider.TagToStcikerDataContainer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -238,9 +239,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	}
 
 	/* Create virtual table used for searching tags */
-	public void createVirtualTable(String[] tablesName)
+	public void createVirtualTable(String[] tablesNames)
 	{
-		Logger.i(TAG, "createVirtualTable(" + Arrays.toString(tablesName) + ")");
+		Logger.i(TAG, "createVirtualTable(" + Arrays.toString(tablesNames) + ")");
 
 		// Create fixed virtual table: TABLE_STICKER_TAG_TEXT_SEARCH_PrefixStart_PrefixEnd
 		// Real Tag Word/Phrase : String [Compulsory], Given tag either a single word or a phrase, element of [PrefixStart*, PrefixEnd*)
@@ -249,18 +250,22 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		try
 		{
-			if (tablesName != null)
+			if (tablesNames != null)
 			{
-				for (int i = 0; i < tablesName.length; i++)
+				for (int i = 0; i < tablesNames.length; i++)
 				{
-					sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tablesName[i] + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4
-							+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
-							+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY
-							+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
-							+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_REF + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING
-							+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
-							+ HikeStickerSearchBaseConstants.SYNTAX_END;
-					mDb.execSQL(sql);
+					String tableName = tablesNames[i] + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4;
+					if(!Utils.isTableExists(mDb, tableName))
+					{
+						sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tableName
+								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
+								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY
+								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
+								+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_REF + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING
+								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
+								+ HikeStickerSearchBaseConstants.SYNTAX_END;
+						mDb.execSQL(sql);
+					}
 				}
 			}
 			else

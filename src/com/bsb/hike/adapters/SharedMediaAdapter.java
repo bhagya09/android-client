@@ -108,6 +108,13 @@ public class SharedMediaAdapter extends PagerAdapter
     	if (firstFragment != null && firstFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
     	{
     		fragment = firstFragment;
+    		Logger.d(TAG,"First Fragment found)");
+    		if(fragment.isAdded())
+    		{
+    			Logger.d(TAG,"First fragment already added");
+    			return fragment;
+    		}
+    		
         }
         
 
