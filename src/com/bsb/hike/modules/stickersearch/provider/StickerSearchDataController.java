@@ -491,7 +491,14 @@ public enum StickerSearchDataController
 				}
 
 				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
-				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
+				if (updateRetrySet.size() > 0)
+				{
+					HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
+				}
+				else
+				{
+					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET);
+				}
 				pendingRetrySet.clear();
 				updateRetrySet.clear();
 			}

@@ -6655,33 +6655,34 @@ public class Utils
 	
 	public static boolean isTableExists(SQLiteDatabase db, String tableName)
 	{
-		Cursor c = null;
-		try
+		if ((tableName != null) && (db != null) && db.isOpen())
 		{
-			if (tableName == null || db == null || !db.isOpen())
+			Cursor c = null;
+			try
 			{
-				return false;
+				c = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type=? AND name=?", new String[] { "table", tableName });
+				if ((c != null) && c.moveToFirst())
+				{
+					return c.getInt(0) > 0;
+				}
 			}
+			catch (Exception e)
+			{
+				Logger.e("TableExistsCheck", "Erron while checking " + tableName + " exists...", e);
+			}
+			finally
+			{
+				if (c != null)
+				{
+					c.close();
+				}
+			}
+		}
+		else
+		{
+			Logger.w("TableExistsCheck", "Can not check if " + tableName + " exists.");
+		}
 
-			c = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
-			if (!c.moveToFirst())
-			{
-				return false;
-			}
-			int count = c.getInt(0);
-			return count > 0;
-		}
-		catch(Exception e)
-		{
-			Logger.e("Table Exists", "exception :", e);
-			return false;
-		}
-		finally
-		{
-			if(c != null)
-			{
-				c.close();
-			}
-		}
+		return false;
 	}
 }
