@@ -7,6 +7,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -46,6 +48,8 @@ public class OverFlowMenuLayout implements OnItemClickListener
 
 	private OverflowViewListener viewListener;
 	
+	private ListView overFlowListView;
+	
 	private boolean shouldAvoidDismissOnClick = false;
 
 	/**
@@ -78,7 +82,7 @@ public class OverFlowMenuLayout implements OnItemClickListener
 			return;
 		}
 		viewToShow = LayoutInflater.from(context).inflate(R.layout.overflow_menu, null);
-		ListView overFlowListView = (ListView) viewToShow.findViewById(R.id.overflow_menu_list);
+		overFlowListView = (ListView) viewToShow.findViewById(R.id.overflow_menu_list);
 		overFlowListView.setAdapter(new ArrayAdapter<OverFlowMenuItem>(context, 0, 0, overflowItems)
 		{
 			@Override
@@ -461,6 +465,15 @@ public class OverFlowMenuLayout implements OnItemClickListener
 					populateViewsForPosition(item, position, convertView);
 				}
 			}
+		}
+	}
+	
+	public void setAnimation()
+	{
+		if (overFlowListView != null)
+		{
+			LayoutAnimationController lac = new LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.translate_from_top), 0.15f);
+			overFlowListView.setLayoutAnimation(lac);
 		}
 	}
 }
