@@ -488,11 +488,11 @@ public enum StickerSearchDataController
 						updateRetrySet.add(stickerCode);
 					}
 				}
+				pendingRetrySet.clear();
 			}
 
 			Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
 			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
-			pendingRetrySet.clear();
 			updateRetrySet.clear();
 		}
 

@@ -254,10 +254,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				for (int i = 0; i < tablesNames.length; i++)
 				{
-					String tableName = tablesNames[i] + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4;
+					String tableName = tablesNames[i];
 					if(!Utils.isTableExists(mDb, tableName))
 					{
-						sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tableName
+						sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tableName + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4
 								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
 								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY
 								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
