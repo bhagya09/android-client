@@ -6652,4 +6652,36 @@ public class Utils
 		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
 		return false;
 	}
+	
+	public static boolean isTableExists(SQLiteDatabase db, String tableName)
+	{
+		Cursor c = null;
+		try
+		{
+			if (tableName == null || db == null || !db.isOpen())
+			{
+				return false;
+			}
+
+			c = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
+			if (!c.moveToFirst())
+			{
+				return false;
+			}
+			int count = c.getInt(0);
+			return count > 0;
+		}
+		catch(Exception e)
+		{
+			Logger.e("Table Exists", "exception :", e);
+			return false;
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+	}
 }

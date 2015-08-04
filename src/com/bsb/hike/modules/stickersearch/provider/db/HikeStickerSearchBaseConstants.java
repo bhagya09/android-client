@@ -120,7 +120,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ";
 
-	public static final String SYNTAX_CREATE_VTABLE = "CREATE VIRTUAL TABLE IF NOT EXISTS ";
+	public static final String SYNTAX_CREATE_VTABLE = "CREATE VIRTUAL TABLE ";
 
 	public static final String SYNTAX_FTS_VERSION_4 = " USING fts4";
 
