@@ -419,6 +419,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			handler.sendMessageDelayed(endTries,offlineParameters.getConnectionTimeout());
 			Logger.d(TAG,"time connect handler posted is "+handler.hasMessages(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE));
 		}
+		connectionManager.updateNetworkId();
 	}
 
 	public boolean isHotspotCreated()

@@ -98,7 +98,6 @@ public class ConnectionManager implements ChannelListener
 	{
 		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(),targetMsisdn);
 	//	wifiManager.saveConfiguration();
-		currentnetId = wifiManager.getConnectionInfo().getSSID();
 		Log.d("OfflineManager","SSID is "+ssid);
 		WifiConfiguration wifiConfig = new WifiConfiguration();
 		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
@@ -247,7 +246,6 @@ public class ConnectionManager implements ChannelListener
 		{
 			closeExistingHotspot(prevConfig);
 		}
-		currentnetId=wifiManager.getConnectionInfo().getSSID();
 		Boolean result = setWifiApEnabled(wifiP2pDeviceName, true);
 		Log.d("OfflineManager", "HotSpot creation result is "+ result);
 		return result;
@@ -603,6 +601,11 @@ public class ConnectionManager implements ChannelListener
 		}
 		Logger.d(TAG, "No. of tries is: " + tries);
 		return host;
+	}
+
+	public void updateNetworkId()
+	{
+		currentnetId = wifiManager.getConnectionInfo().getSSID();
 	}
 
 }
