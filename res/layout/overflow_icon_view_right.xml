@@ -1,17 +1,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/overflowmenu"
-    android:layout_width="48dp"
+    android:layout_width="52dp"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_overflow_menu_selector" >
+    android:background="@drawable/ic_overflow_ripple" >
 
     <ImageView
         android:id="@+id/overflow_icon_image"
         android:layout_width="24dp"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
+        android:layout_height="24dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
         android:contentDescription="Overflow menu"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_overflow_home" />
+        android:src="@drawable/ic_overflow_home_ripple" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/top_bar_indicator_text"
