@@ -2263,7 +2263,10 @@ public class VoIPService extends Service {
 					// We have an incoming call
 					Logger.w(tag, "Incoming call detected.");
 					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-					setHold(true);
+					if (isAudioRunning())
+						setHold(true);
+					else
+						hangUp();
 				}
 				
 				if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
