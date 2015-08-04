@@ -606,6 +606,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		actionBar = getSupportActionBar();
 		actionBar.setIcon(R.drawable.hike_logo_top_bar);
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		if (!isTextStatusMessage)
 		{
