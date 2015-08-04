@@ -59,6 +59,8 @@ import com.viewpagerindicator.PhotosTabPageIndicator;
 public class PictureEditer extends HikeAppStateBaseFragmentActivity
 {
 
+	private String TEMP_PROFILE_IMAGE = "temp_ppi";
+	
 	PhotosEditerFrameLayoutView editView;
 
 	private int menuIcons[] = { R.drawable.photos_tabs_filter_selector, R.drawable.photos_tabs_doodle_selector };
@@ -88,6 +90,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private boolean startedForProfileUpdate;
 
 	private boolean isWorking;
+	
+	private String tempProfileImageName;
 
 	private final String TAG = PictureEditer.class.getSimpleName();
 
@@ -238,6 +242,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		overlayFrame = findViewById(R.id.overlayFrame);
 
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
+		
+		if(savedInstanceState !=null && savedInstanceState.containsKey(TEMP_PROFILE_IMAGE))
+		{
+			tempProfileImageName = savedInstanceState.getString(TEMP_PROFILE_IMAGE);
+		}
 
 	}
 	
@@ -413,10 +422,14 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private void deleteTempProfilePicIfExists()
 	{
 		//The user returned from crop...deleting temporary profile image if created
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
-		final String destFilePath = directory + File.separator + fileName;
-		File temp = new File(destFilePath);
+		String fileName = getTempProfileImageName();
+		
+		if(fileName == null)
+		{
+			return;
+		}
+		
+		File temp = new File(fileName);
 		if(temp.exists())
 		{
 			temp.delete();
@@ -657,6 +670,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				public void onComplete(File f)
 				{
 					finishProgress();
+					setTempProfileImageName(f.getAbsolutePath());
 					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true,80, false), HikeConstants.CROP_RESULT);
 				}
 			});
@@ -801,6 +815,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		}
 	}
 
+	
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+
+		if(tempProfileImageName != null)
+		{
+			outState.putString(TEMP_PROFILE_IMAGE, tempProfileImageName);
+		}
+		super.onSaveInstanceState(outState);
+	}
+
 	private void sendAnalyticsSetAsDp()
 	{
 		try
@@ -871,4 +897,15 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		return HikeConstants.IMAGE_ROOT;
 	}
 
+	public String getTempProfileImageName()
+	{
+		return tempProfileImageName;
+	}
+	
+	public void setTempProfileImageName(String name)
+	{
+		
+		tempProfileImageName = name;
+	}
+	
 }
