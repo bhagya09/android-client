@@ -74,6 +74,8 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		TextView header;
 
 		TextView summary;
+		
+		TextView descText;
 
 		ImageView imageView;
 
@@ -85,6 +87,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		String text;
 		int drawableResId;
 		int id;
+		String descText = "";
 		
 		public SettingsDisplayPojo(String text, int id, int drawableResId)
 		{
@@ -109,7 +112,9 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
 			int credits = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
-			items.add(new SettingsDisplayPojo(getString(R.string.sms_with_credits, credits), R.string.sms_with_credits, R.drawable.ic_sms_settings));
+			SettingsDisplayPojo settingsPojo = new SettingsDisplayPojo(getString(R.string.sms_with_settings), R.string.sms_with_settings, R.drawable.ic_sms_settings);
+			settingsPojo.descText = getString(R.string.sms_credits_with_settings, credits);
+			items.add(settingsPojo);
 		}
 		else
 		{
@@ -173,6 +178,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 						viewHolder.header = (TextView) convertView.findViewById(R.id.item);
 						viewHolder.summary = (TextView) convertView.findViewById(R.id.summary);
 						viewHolder.imageView = (ImageView) convertView.findViewById(R.id.icon);
+						viewHolder.descText = (TextView) convertView.findViewById(R.id.item_desc);
 						convertView.setTag(viewHolder);
 						break;
 
@@ -196,6 +202,16 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 					viewHolder.header.setText(settingsObj.text);
 					viewHolder.imageView.setImageResource(settingsObj.drawableResId);
 					viewHolder.id = (settingsObj.id);
+					
+					if (TextUtils.isEmpty(settingsObj.descText))
+					{
+						viewHolder.descText.setVisibility(View.GONE);
+					}
+					else
+					{
+						viewHolder.descText.setVisibility(View.VISIBLE);
+						viewHolder.descText.setText(settingsObj.descText);
+					}
 					break;
 
 				case VERSION:
@@ -331,7 +347,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				IntentFactory.openSettingChat(this);
 				break;
 
-			case R.string.sms_with_credits:
+			case R.string.sms_with_settings:
 			case R.string.sms:
 				IntentFactory.openSettingSMS(this);
 				break;

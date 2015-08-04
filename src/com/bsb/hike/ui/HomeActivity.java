@@ -31,7 +31,6 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +42,7 @@ import android.view.ViewStub;
 import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -64,6 +64,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -121,7 +122,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private Dialog progDialog;
 
-	private Dialog updateAlert;
+	private CustomAlertDialog updateAlert;
 
 	private Button updateAlertOkBtn;
 
@@ -154,6 +155,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private SnowFallView snowFallView;
 	
 	private int searchOptionID;
+	
+	private LayoutAnimationController lac;
 	
 	private final long STEALTH_INDICATOR_DURATION = 3000;
 
@@ -737,7 +740,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 
-					Intent intent = new Intent(HomeActivity.this, NewChatActivity.class);
+					Intent intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
 					intent.putExtra(HikeConstants.Extras.EDIT, true);
 
 					newConversationIndicator.setVisibility(View.GONE);
@@ -1169,54 +1172,36 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		dialogShowing = DialogShowing.UPGRADE_POPUP;
-		updateAlert = new Dialog(HomeActivity.this, R.style.Theme_CustomDialog);
-		updateAlert.setContentView(R.layout.operator_alert_popup);
-
-		updateAlert.findViewById(R.id.body_checkbox).setVisibility(View.GONE);
-		TextView updateText = ((TextView) updateAlert.findViewById(R.id.body_text));
-		TextView updateTitle = (TextView) updateAlert.findViewById(R.id.header);
-
-		updateText.setText(accountPrefs.getString(HikeConstants.Extras.UPDATE_MESSAGE, ""));
-
-		updateTitle.setText(updateType == HikeConstants.CRITICAL_UPDATE ? R.string.critical_update_head : R.string.normal_update_head);
-
-		Button cancelBtn = null;
-		updateAlertOkBtn = (Button) updateAlert.findViewById(R.id.btn_ok);
-		if (updateType == HikeConstants.CRITICAL_UPDATE)
-		{
-			((Button) updateAlert.findViewById(R.id.btn_cancel)).setVisibility(View.GONE);
-
-			updateAlertOkBtn.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			cancelBtn = (Button) updateAlert.findViewById(R.id.btn_cancel);
-			cancelBtn.setText(R.string.cancel);
-		}
-		updateAlertOkBtn.setText(R.string.update_app);
-
-		updateAlert.setCancelable(true);
-
-		updateAlertOkBtn.setOnClickListener(new OnClickListener()
+		
+		updateAlert = new CustomAlertDialog(this, -1);
+		HikeDialogListener dialogListener = new HikeDialogListener()
 		{
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				updateApp(updateType);
 			}
-		});
-
-		if (cancelBtn != null)
-		{
-			cancelBtn.setOnClickListener(new OnClickListener()
+			
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
 			{
-				@Override
-				public void onClick(View v)
-				{
-					updateAlert.cancel();
-					dialogShowing = null;
-				}
-			});
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.cancel();
+				dialogShowing = null;
+			}
+		};
+
+		updateAlert.setTitle(updateType == HikeConstants.CRITICAL_UPDATE ? R.string.critical_update_head : R.string.normal_update_head);
+		updateAlert.setMessage(accountPrefs.getString(HikeConstants.Extras.UPDATE_MESSAGE, ""));
+
+		updateAlert.setPositiveButton(R.string.update_app, dialogListener);
+		if (updateType != HikeConstants.CRITICAL_UPDATE)
+		{
+			updateAlert.setNegativeButton(R.string.cancel, dialogListener);
 		}
 
 		updateAlert.setOnCancelListener(new OnCancelListener()
@@ -1237,6 +1222,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		});
 
+		updateAlertOkBtn = (Button) updateAlert.findViewById(R.id.btn_positive);
 		updateAlert.show();
 	}
 
@@ -1886,14 +1872,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		overFlowWindow.setBackgroundDrawable(getResources().getDrawable(android.R.color.transparent));
 		overFlowWindow.setOutsideTouchable(true);
 		overFlowWindow.setFocusable(true);
-		overFlowWindow.setWidth(getResources().getDimensionPixelSize(R.dimen.overflow_menu_width));
+		overFlowWindow.setWidth(Utils.getOverflowMenuWidth(getApplicationContext()));
 		overFlowWindow.setHeight(LayoutParams.WRAP_CONTENT);
 		/*
 		 * In some devices Activity crashes and a BadTokenException is thrown by showAsDropDown method. Still need to find out exact repro of the bug.
 		 */
 		try
 		{
-			int rightMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
+			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
+			
+			if (lac == null)
+			{
+				lac = new LayoutAnimationController(AnimationUtils.loadAnimation(this, R.anim.translate_from_top), 0.15f);
+			}
+			overFlowListView.setLayoutAnimation(lac);
+			
 			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
 		}
 		catch (BadTokenException e)
@@ -1971,6 +1965,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			showAppropriateDialog();
 		}
+		
 		if (overFlowWindow != null && overFlowWindow.isShowing())
 		{
 			overFlowWindow.dismiss();

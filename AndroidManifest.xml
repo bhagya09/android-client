@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1297"
-    android:versionName="3.9.8.82.5.material" >
+    android:versionCode="1301"
+    android:versionName="3.9.8.82.9.material" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -145,13 +145,6 @@
         </activity>
         <activity
             android:name=".ui.ComposeChatActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_label"
-            android:theme="@style/AppTheme.Overlay"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
-            android:name=".ui.NewChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_label"
             android:windowSoftInputMode="stateHidden" >

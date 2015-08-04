@@ -216,7 +216,7 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 	}
 
 	@Override
-	public void setMessage(String messageText)
+	public void setMessage(CharSequence messageText)
 	{
 		throw new IllegalArgumentException("Cannot show body and radio buttons together in this popup");
 	}

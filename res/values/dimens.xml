@@ -64,7 +64,7 @@
     <dimen name="chat_theme_palette_margin">10dp</dimen>
     <dimen name="chat_theme_grid_margin">20dp</dimen>
     <dimen name="chat_bg_item_width">60dp</dimen>
-    <dimen name="overflow_menu_width">189dp</dimen>
+    <dimen name="overflow_menu_width">168dp</dimen>
 
     <!-- Default height of an action bar. -->
     <dimen name="st__action_bar_default_height">56dip</dimen>
@@ -211,5 +211,6 @@
 	<dimen name="home_list_header_drawable_padding">4dp</dimen>
 	<dimen name="menu_list_padding_top">8dp</dimen>
 	<dimen name="menu_list_padding_bottom">8dp</dimen>
+	<dimen name="overflow_menu_shadow_padding">6.5dp</dimen>
 	
 </resources>
