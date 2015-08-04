@@ -67,6 +67,8 @@
             android:layout_weight="1"
             android:padding="10dp"
             android:text="Your caption here!"
+            android:maxLines="2"
+            android:scrollbars="vertical"
             android:textColor="@android:color/white"
             android:textSize="20dp"
             android:textStyle="italic" />
