@@ -119,6 +119,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_CONTACT_DETAILS = 26;
 	public static final int MSG_UPDATE_SPEAKING = 27;
 	public static final int MSG_BLUETOOTH_SHOW = 28;
+	public static final int MSG_DOES_NOT_SUPPORT_CONFERENCE = 29;
 
 	public static final class Analytics
 	{
