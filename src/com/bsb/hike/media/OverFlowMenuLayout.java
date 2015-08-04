@@ -51,6 +51,8 @@ public class OverFlowMenuLayout implements OnItemClickListener
 	private ListView overFlowListView;
 	
 	private boolean shouldAvoidDismissOnClick = false;
+	
+	private LayoutAnimationController lac;
 
 	/**
 	 * This class is made to show overflow menu items, by default it populates listview of items you want o display, if some other view is required, extend this class and override
@@ -472,7 +474,11 @@ public class OverFlowMenuLayout implements OnItemClickListener
 	{
 		if (overFlowListView != null)
 		{
-			LayoutAnimationController lac = new LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.translate_from_top), 0.15f);
+			if (lac == null)
+			{
+				lac = new LayoutAnimationController(AnimationUtils.loadAnimation(context, R.anim.translate_from_top), 0.15f);
+			}
+			
 			overFlowListView.setLayoutAnimation(lac);
 		}
 	}

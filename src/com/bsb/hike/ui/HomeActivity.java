@@ -156,6 +156,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private int searchOptionID;
 	
+	private LayoutAnimationController lac;
+	
 	private final long STEALTH_INDICATOR_DURATION = 3000;
 
 	private String[] homePubSubListeners = { HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
@@ -1879,7 +1881,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-			LayoutAnimationController lac = new LayoutAnimationController(AnimationUtils.loadAnimation(this, R.anim.translate_from_top), 0.15f);
+			
+			if (lac == null)
+			{
+				lac = new LayoutAnimationController(AnimationUtils.loadAnimation(this, R.anim.translate_from_top), 0.15f);
+			}
 			overFlowListView.setLayoutAnimation(lac);
 			
 			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
