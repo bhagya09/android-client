@@ -296,6 +296,15 @@ public class VoIPService extends Service {
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
 				break;
 				
+			case VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT:
+				// Edge case error fixing. If the call went into reconnection
+				// before it was answered, then normally no outgoing missed call
+				// would appear in our chat thread since we aren't connected.
+				// Hence, make it appear as if we ARE connected, so the missed call appears. 
+				client.connected = true;
+				sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT, bundle);
+				break;
+				
 			default:
 				// Pass message to activity through its handler
 				sendHandlerMessage(msg.what);
