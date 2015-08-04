@@ -571,7 +571,7 @@ public class ConversationsAdapter extends BaseAdapter
 			else
 			{
 				List<List<ConvInfo>> resultList = new ArrayList<List<ConvInfo>>();
-				resultList.add(getOriginalList());
+				resultList.add(conversationList);
 				results.values = resultList;
 			}
 			results.count = 1;
@@ -692,11 +692,6 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-	}
-
-	protected List<ConvInfo> getOriginalList()
-	{
-		return conversationList;
 	}
 
 	public void updateViewsRelatedToName(View parentView, ConvInfo convInfo)
