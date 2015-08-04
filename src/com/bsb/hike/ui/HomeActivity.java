@@ -42,6 +42,7 @@ import android.view.ViewStub;
 import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -1878,6 +1879,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
+			LayoutAnimationController lac = new LayoutAnimationController(AnimationUtils.loadAnimation(this, R.anim.translate_from_top), 0.15f);
+			overFlowListView.setLayoutAnimation(lac);
+			
 			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
 		}
 		catch (BadTokenException e)
