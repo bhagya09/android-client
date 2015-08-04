@@ -2265,6 +2265,8 @@ public class HikeConstants
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
+		public static final String DPI = "dpi";
+
 	}
 
 	public static final class MqttMessageTypes
