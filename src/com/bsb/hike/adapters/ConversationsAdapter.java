@@ -651,25 +651,28 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			List<List<ConvInfo>> resultList = (List<List<ConvInfo>>) results.values;
 
-			List<ConvInfo> filteredSearchList = new ArrayList<ConvInfo>();
-			filteredSearchList.addAll(resultList.get(0));
-
-			if(phoneBookContacts!=null && !phoneBookContacts.isEmpty() && resultList.size() > 1)
+			if (resultList != null)
 			{
-				filteredSearchList.addAll(resultList.get(1));
-			}
-
-			completeList.clear();
-			completeList.addAll(filteredSearchList);
-			notifyDataSetChanged();
-			if (completeList.isEmpty() && !noResultRecorded)
-			{
-				recordNoResultsSearch();
-				noResultRecorded = true;
-			}
-			else if (!completeList.isEmpty())
-			{
-				noResultRecorded = false;
+				List<ConvInfo> filteredSearchList = new ArrayList<ConvInfo>();
+				filteredSearchList.addAll(resultList.get(0));
+	
+				if(phoneBookContacts!=null && !phoneBookContacts.isEmpty() && resultList.size() > 1)
+				{
+					filteredSearchList.addAll(resultList.get(1));
+				}
+	
+				completeList.clear();
+				completeList.addAll(filteredSearchList);
+				notifyDataSetChanged();
+				if (completeList.isEmpty() && !noResultRecorded)
+				{
+					recordNoResultsSearch();
+					noResultRecorded = true;
+				}
+				else if (!completeList.isEmpty())
+				{
+					noResultRecorded = false;
+				}
 			}
 		}
 	}
