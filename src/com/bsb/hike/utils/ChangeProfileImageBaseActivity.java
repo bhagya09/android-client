@@ -136,7 +136,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		return mActivityState;
 	}
 
-	public void selectNewProfilePicture(Context context, boolean isPersonal)
+	public void selectNewProfilePicture(Context context, boolean isPersonal, boolean useTimestamp)
 	{
 		if (Utils.getExternalStorageState() == ExternalStorageState.NONE || Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
 		{
@@ -160,7 +160,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE;
 			if (!isPersonal)
 			{
-				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath());
+				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath(useTimestamp));
 				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 			}
 			else
@@ -172,14 +172,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
-			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath());
+			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath(useTimestamp));
 			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		}
 
 	}
 	
-	protected String getNewProfileImagePath()
+	protected String getNewProfileImagePath(boolean useTimestamp)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		/*
@@ -192,7 +192,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			dir.mkdirs();
 		}
 
-		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN, true);
+		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN, useTimestamp);
 		String destFilePath = directory + File.separator + fileName;
 		return destFilePath;
 
@@ -242,12 +242,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			{
 				if(Utils.isPhotosEditEnabled())
 				{
-					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
+					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(true), true));
 					finish();
 				}
 				else
 				{
-					Utils.startCropActivity(this, path, getNewProfileImagePath());
+					Utils.startCropActivity(this, path, getNewProfileImagePath(true));
 				}
 			}
 			else
@@ -274,12 +274,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						{
 							if(Utils.isPhotosEditEnabled())
 							{
-								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
+								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(true), true));
 								finish();
 							}
 							else
 							{
-								Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath());
+								Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true));
 							}
 						}
 					}
@@ -327,7 +327,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		switch (item)
 		{
 		case HikeConstants.NEW_PROFILE_PICTURE:
-			selectNewProfilePicture(ChangeProfileImageBaseActivity.this, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN));
+			selectNewProfilePicture(ChangeProfileImageBaseActivity.this, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN), true);
 			break;
 
 		case HikeConstants.REMOVE_PROFILE_PICTURE:
@@ -501,7 +501,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		mDialog = ProgressDialog.show(this, null, getString(R.string.removing_dp));
 	}
 
-	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath)
+	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath, boolean useTimestamp)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 
@@ -514,7 +514,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		else
 		{
 			// directly open gallery to allow user to select new image
-			selectNewProfilePicture(context, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN));
+			selectNewProfilePicture(context, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN), useTimestamp);
 		}
 	}
 
@@ -716,7 +716,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
+		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath, true);
 	}
 
 	/**

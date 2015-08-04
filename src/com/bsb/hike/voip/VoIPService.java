@@ -919,22 +919,15 @@ public class VoIPService extends Service {
 				switch (focusChange) {
 				case AudioManager.AUDIOFOCUS_GAIN:
 					Logger.w(tag, "AUDIOFOCUS_GAIN");
-					if (client.getCallDuration() > 0 && hold == true)
-						setHold(false);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS:
 					Logger.w(tag, "AUDIOFOCUS_LOSS");
-					if (client.getCallDuration() > 0)
-						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
 					Logger.d(tag, "AUDIOFOCUS_LOSS_TRANSIENT");
-					if (client.getCallDuration() > 0)
-						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
 					Logger.w(tag, "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
-//					setHold(true);
 					break;
 				}
 			}
@@ -1575,7 +1568,7 @@ public class VoIPService extends Service {
 							
 							// For streaming mode, we must write data in chunks <= buffer size
 							index = 0;
-							while (index < output.length) {
+							while (index < output.length && audioTrack != null) {
 								size = Math.min(minBufSizePlayback, output.length - index);
 								audioTrack.write(output, index, size);
 								index += size; 
@@ -1817,12 +1810,19 @@ public class VoIPService extends Service {
 
 	synchronized public void setHold(boolean newHold) {
 		
-		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
 		final VoIPClient client = getClient();
 
 		if (this.hold == newHold || client == null)
 			return;
 		
+		/**
+		 * If we get a missed cellular call WHILE we're already receiving a voip call, 
+		 * the voip call will erroneously unhold itself. 
+		 */
+		if (!recordingAndPlaybackRunning && newHold)
+			return;
+		
+		Logger.d(tag, "Changing hold to: " + newHold);
 		this.hold = newHold;
 		
 		if (newHold == true) {
@@ -2195,6 +2195,7 @@ public class VoIPService extends Service {
 									clientJson.put(VoIPConstants.Extras.MSISDN, client.getPhoneNumber());
 									clientJson.put(VoIPConstants.Extras.STATUS, client.getCallStatus().ordinal());
 									clientJson.put(VoIPConstants.Extras.SPEAKING, client.isSpeaking());
+									clientJson.put(VoIPConstants.Extras.RINGING, client.isRinging());
 									clientsJson.put(clientJson);
 								}
 								
@@ -2214,7 +2215,7 @@ public class VoIPService extends Service {
 								dp.setData(json.toString().getBytes("UTF-8"));
 								
 								conferenceBroadcastPackets.add(dp);	
-								Logger.w(tag, "Sending clients list.");
+								Logger.d(tag, "Sending clients list.");
 								
 							} catch (JSONException e) {
 								Logger.w(tag, "JSONException: " + e.toString());
