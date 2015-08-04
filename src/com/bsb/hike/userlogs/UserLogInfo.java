@@ -41,6 +41,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.cropimage.Util;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -297,6 +298,7 @@ public class UserLogInfo {
 		deviceDetails.put(GCMIntentService.DEV_TOKEN, GCMRegistrar.getRegistrationId(context));
         deviceDetails.put(HikeConstants.LogEvent.DEVICE_ID, Utils.getDeviceId(context));
         deviceDetails.put(HikeConstants.LogEvent.DPI, Utils.densityDpi);
+        deviceDetails.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
         Logger.d("Device Details", deviceDetails.toString());
         return new JSONArray().put(deviceDetails);
 	}
