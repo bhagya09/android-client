@@ -54,8 +54,6 @@ public class OfflineConstants
 	
 	public static final String  OFFLINE_FILES_NOT_RECEIVED_TYPE = "offfilenotreceived"; 
 	
-	public static final int  WAITING_TIMEOUT = 60000;
-
 	public static final long TIME_TO_CONNECT = 60000;
 
 	public static final long TRY_CONNECT_TO_HOTSPOT = 5000;
@@ -101,7 +99,7 @@ public class OfflineConstants
 	
 	public static enum ERRORCODE
 	{
-		TIMEOUT,USERDISCONNECTED,OUT_OF_RANGE,COULD_NOT_CONNECT
+		TIMEOUT,USERDISCONNECTED,OUT_OF_RANGE,COULD_NOT_CONNECT,REQUEST_CANCEL
 	}
 	
 	public static enum OFFLINE_STATE

@@ -2377,7 +2377,7 @@ public class HikeConstants
 
 	public static final class GeneralEventMessagesTypes
 	{
-		public static final String OFFLINE = "off";
+		public static final String OFFLINE = "offline";
 	}
 
 	
@@ -2948,4 +2948,6 @@ public class HikeConstants
 	public static final String FT_HOST_IPS = "ftHostIps";
 	
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+
+	public static final Object OFFLINE_MESSAGE_REQUEST_CANCEL = "offreqcan";
 }

@@ -29,9 +29,16 @@ public class GeneralEventMessagesManager
 			
 			if(HikeConstants.GeneralEventMessagesTypes.OFFLINE.equals(type))
 			{
-				OfflineUtils.handleOfflineRequestPacket(context,packet);
+				if (data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.OFFLINE_MESSAGE_REQUEST))
+				{
+					OfflineUtils.handleOfflineRequestPacket(context, packet);
+				}
+				if(data.optString(HikeConstants.SUB_TYPE).equals(HikeConstants.OFFLINE_MESSAGE_REQUEST_CANCEL))
+				{
+					OfflineUtils.handleOfflineCancelRequestPacket(context,packet);
+				}
 			}
-						
+			
 		}
 	}
 
