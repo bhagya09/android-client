@@ -123,12 +123,6 @@ public class OfflineChannel implements IChannelSelector{
 		offlineController.sendImage(imagePath, msisdn,cameraAttachement);
 	}
 
-	@Override
-	public void sendApps(String filePath, String mime, String apkLabel,
-			String msisdn) {
-		
-		offlineController.sendApps(filePath, mime, apkLabel, msisdn);
-	}
 
 	@Override
 	public void modifyAttachmentPicker(ChatThreadActivity activity,
@@ -145,6 +139,12 @@ public class OfflineChannel implements IChannelSelector{
 	public void postMR(JSONObject object) {
 		
 		OfflineController.getInstance().sendMR(object);
+	}
+
+	@Override
+	public void sendApps(Context applicationContext, String filePath, String mime, String apkLabel, String msisdn, boolean isOnHike)
+	{
+		offlineController.sendApps(filePath, mime, apkLabel, msisdn);
 	}
 
 

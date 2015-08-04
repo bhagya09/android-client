@@ -1453,7 +1453,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		Utils.blockOrientationChange(activity);
 		offlineAnimationFragment = OfflineAnimationFragment.newInstance(msisdn);
-		offlineAnimationFragment.setCancelable(false);
 		offlineAnimationFragment.setConnectionListner(this);
 		offlineAnimationFragment.show(activity.getSupportFragmentManager(), OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
 	}
@@ -3134,6 +3133,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnectionRequest()
 	{
 		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
+	}
+
+	@Override
+	public void removeDisconnectFragment()
+	{
+		Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+		if(fragment != null)
+		    activity.getSupportFragmentManager().beginTransaction().remove(fragment).commit();	
 	}
 	
 }

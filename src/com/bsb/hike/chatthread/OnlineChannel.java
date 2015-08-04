@@ -70,6 +70,7 @@ public class OnlineChannel implements IChannelSelector{
 		
 		ChatThreadUtils.initialiseFileTransfer(applicationContext, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
 				recordingDuration, true,isOnHike, attachmentType);
+		
 	}
 
 	@Override
@@ -111,11 +112,6 @@ public class OnlineChannel implements IChannelSelector{
 		ChatThreadUtils.uploadFile(applicationContext, msisdn, imagePath, HikeFileType.IMAGE,isOnHike, FTAnalyticEvents.CAMERA_ATTACHEMENT);
 	}
 
-	@Override
-	public void sendApps(String filePath, String mime, String apkLabel,
-			String msisdn) {
-		//TODO - Send apk's online
-	}
 
 	@Override
 	public void modifyAttachmentPicker(ChatThreadActivity activity,
@@ -129,6 +125,13 @@ public class OnlineChannel implements IChannelSelector{
 	@Override
 	public void postMR(JSONObject object) {
 		HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);	
+	}
+
+	@Override
+	public void sendApps(Context applicationContext, String filePath, String mime, String apkLabel, String msisdn, boolean isOnHike)
+	{
+		ChatThreadUtils.initialiseFileTransfer(applicationContext, msisdn, filePath, null, 
+				HikeFileType.OTHER,mime,false, -1, false,isOnHike,FTAnalyticEvents.OTHER_ATTACHEMENT);
 	}
 
 }
