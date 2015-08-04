@@ -7,9 +7,9 @@ public class VoIPConstants {
 	/**
 	 * <p>Current VoIP protocol version.</p>
 	 * <p>Added in <b>v2</b>: <br/>
-	 * - Conference support
+	 * - Voice packet numbers, so that FEC can be triggered
 	 * <p>Added in <b>v3</b>: <br/>
-	 * - Congestion control
+	 * - Congestion control and conference
 	 * </p>
 	 */
 	public static final int VOIP_VERSION = 3;

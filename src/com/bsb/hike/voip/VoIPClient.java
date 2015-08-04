@@ -1036,7 +1036,7 @@ public class VoIPClient  {
 
 		if (dp.getType() == PacketType.AUDIO_PACKET) {
 			// Voice packet numbers are disabled for conferences
-			if (!isInAHostedConference)
+			if (!isInAHostedConference && version >= 2)
 				dp.setVoicePacketNumber(voicePacketCount++);
 		}
 		
