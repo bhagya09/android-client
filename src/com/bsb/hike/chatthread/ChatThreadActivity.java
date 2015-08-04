@@ -25,6 +25,8 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 
 	private ChatThread chatThread;
 	
+	private long lastMessageTimeStamp;
+	
 	private static final String TAG = "ChatThreadActivity";
 
 	@Override
@@ -109,6 +111,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	private void init(Intent intent)
 	{
 		String whichChatThread = intent.getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		lastMessageTimeStamp = intent.getLongExtra(HikeConstants.Extras.LAST_MESSAGE_TIMESTAMP, 0);
 		
 		if (HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD.equals(whichChatThread))
 		{
@@ -116,7 +119,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		else if (HikeConstants.Extras.GROUP_CHAT_THREAD.equals(whichChatThread))
 		{
-			chatThread = new GroupChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
+			chatThread = new GroupChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN),  intent.getBooleanExtra(HikeConstants.Extras.NEW_GROUP, false));
 		}
 		else if (HikeConstants.Extras.BROADCAST_CHAT_THREAD.equals(whichChatThread))
 		{
@@ -162,6 +165,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if(processNewIntent(intent))
 		{
 			chatThread.onPreNewIntent();
+			chatThread.onDestroy();
 			init(intent);
 			setIntent(intent);
 			chatThread.onNewIntent();
@@ -296,7 +300,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	public void onAttachFragment(android.support.v4.app.Fragment fragment)
 	{
 		Logger.i(TAG, "onAttachFragment");
-		chatThread.onAttachFragment();
+		chatThread.onAttachFragment(fragment);
 		super.onAttachFragment(fragment);
 	}
 	
@@ -332,6 +336,11 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 			}
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+	
+	public long getLastMessageTimeStamp()
+	{
+		return this.lastMessageTimeStamp;
 	}
 	
 	@Override

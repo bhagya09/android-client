@@ -27,6 +27,8 @@ import javax.net.SocketFactory;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -72,7 +74,11 @@ public class TCPNetworkModule implements NetworkModule
 			// socket = factory.createSocket(host, port, localAddr, 0);
 			// @TRACE 252=connect to host {0} port {1} timeout {2}
 
+			long dnsStartTime = System.currentTimeMillis();
 			SocketAddress sockaddr = new InetSocketAddress(host, port);
+			long dnsEndTime = System.currentTimeMillis();
+			Logger.d(TAG, "DNS resolved : timeTaken in dns call : "+(dnsEndTime - dnsStartTime));
+			
 			socket = factory.createSocket();
 			socket.setTcpNoDelay(true);
 			socket.setSoTimeout(6 * 60 * 1000); // setting socket timeout to 6 mins
@@ -80,7 +86,10 @@ public class TCPNetworkModule implements NetworkModule
 			long sTime = System.currentTimeMillis();
 			socket.connect(sockaddr, conTimeout * 1000);
 			long eTime = System.currentTimeMillis();
-			Logger.d(TAG, "Connected : Time taken in socket.connect call : "+(eTime - sTime) + " on host : "+host + " and on port :"+port);
+			
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.TIME_TAKEN_IN_LAST_SOCKET_CONNECT, (eTime - sTime));
+			
+			Logger.d(TAG, "Connected : saving TIME_TAKEN_IN_LAST_SOCKET_CONNECT : "+(eTime - sTime));
 
 			// SetTcpNoDelay was originally set ot true disabling Nagle's algorithm.
 			// This should not be required.

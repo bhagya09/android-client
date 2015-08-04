@@ -587,7 +587,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				deleteJunkTempFiles();
 				
-				Intent intent = new Intent();
+				Intent intent = getIntent();
 				
 				Bundle bundle = new Bundle();
 				
@@ -682,7 +682,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			switch(requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
-				setResult(RESULT_OK, data);
+				setResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
 				finish();
 				break;
 			case HikeConstants.CAMERA_RESULT:
@@ -921,6 +921,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		
 		ArrayList<String> initialEditList = getIntent().getStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST);
+		
+		if(initialEditList == null)
+		{
+			return;
+		}
 		
 		initialEditList.removeAll(editedImages);
 		
