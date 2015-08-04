@@ -1,6 +1,7 @@
 package com.bsb.hike.offline;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -582,29 +583,18 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 
-	public void updateListeners(String connectedDevice,String connectingDevice) {
+	public void updateListeners(ERRORCODE errorCode)
+	{
 
 		// to avoid ConcurrentModificationException we use a cloned list of listeners
 		// for traversing.
 		ArrayList<IOfflineCallbacks> clonedListeners = new ArrayList<>();
-		for(IOfflineCallbacks offlineListener : listeners)
+
+		clonedListeners.addAll(listeners);
+
+		for (IOfflineCallbacks offlineListener : clonedListeners)
 		{
-			clonedListeners.add(offlineListener);
-		}
-		
-		if (!TextUtils.isEmpty(connectedDevice))
-		{
-			for (IOfflineCallbacks offlineListener : clonedListeners)
-			{
-				offlineListener.onDisconnect(ERRORCODE.USERDISCONNECTED);
-			}
-		}
-		else if (!TextUtils.isEmpty(connectingDevice))
-		{
-			for (IOfflineCallbacks offlineListener : clonedListeners)
-			{
-				offlineListener.onDisconnect(ERRORCODE.TIMEOUT);
-			}
+			offlineListener.onDisconnect(errorCode);
 		}
 	}
 
