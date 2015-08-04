@@ -176,6 +176,7 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -1968,55 +1969,36 @@ public class Utils
 
 		if (!settings.getBoolean(checkPref, false) && (!HikeMessengerApp.isIndianUser() || settings.getBoolean(HikeMessengerApp.SEND_NATIVE_INVITE, false)))
 		{
-			final Dialog dialog = new Dialog(context, R.style.Theme_CustomDialog);
-			dialog.setContentView(R.layout.operator_alert_popup);
-			dialog.setCancelable(true);
-
-			TextView headerView = (TextView) dialog.findViewById(R.id.header);
-			TextView bodyView = (TextView) dialog.findViewById(R.id.body_text);
-			Button btnOk = (Button) dialog.findViewById(R.id.btn_ok);
-			Button btnCancel = (Button) dialog.findViewById(R.id.btn_cancel);
-
-			btnCancel.setText(R.string.cancel);
-			btnOk.setText(R.string.ok);
-
-			headerView.setText(header);
-			bodyView.setText(String.format(body, contactInfo.getFirstName()));
-
-			CheckBox checkBox = (CheckBox) dialog.findViewById(R.id.body_checkbox);
-			checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+			CustomAlertDialog dialog = new CustomAlertDialog(context, -1);
+			HikeDialogListener dialogListener = new HikeDialogListener()
 			{
-
 				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					Editor editor = settings.edit();
-					editor.putBoolean(checkPref, isChecked);
+					editor.putBoolean(checkPref, ((CustomAlertDialog)hikeDialog).isChecked());
 					editor.commit();
-				}
-			});
-			checkBox.setText(context.getResources().getString(R.string.not_show_call_alert_msg));
-
-			btnOk.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					dialog.dismiss();
 					invite(context, contactInfo, whichScreen);
+					hikeDialog.dismiss();
 				}
-			});
-
-			btnCancel.setOnClickListener(new OnClickListener()
-			{
-
+				
 				@Override
-				public void onClick(View v)
+				public void neutralClicked(HikeDialog hikeDialog)
 				{
-					dialog.dismiss();
+					hikeDialog.dismiss();
 				}
-			});
+				
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+				}
+			};
+
+			dialog.setTitle(header);
+			dialog.setMessage(String.format(body, contactInfo.getFirstName()));
+			dialog.setCheckBox(R.string.not_show_call_alert_msg, null, false);
+			dialog.setPositiveButton(R.string.ok, dialogListener);
+			dialog.setNegativeButton(R.string.cancel, dialogListener);
 
 			dialog.show();
 		}

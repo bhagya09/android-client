@@ -63,6 +63,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -120,7 +121,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private Dialog progDialog;
 
-	private Dialog updateAlert;
+	private CustomAlertDialog updateAlert;
 
 	private Button updateAlertOkBtn;
 
@@ -1168,54 +1169,36 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		dialogShowing = DialogShowing.UPGRADE_POPUP;
-		updateAlert = new Dialog(HomeActivity.this, R.style.Theme_CustomDialog);
-		updateAlert.setContentView(R.layout.operator_alert_popup);
-
-		updateAlert.findViewById(R.id.body_checkbox).setVisibility(View.GONE);
-		TextView updateText = ((TextView) updateAlert.findViewById(R.id.body_text));
-		TextView updateTitle = (TextView) updateAlert.findViewById(R.id.header);
-
-		updateText.setText(accountPrefs.getString(HikeConstants.Extras.UPDATE_MESSAGE, ""));
-
-		updateTitle.setText(updateType == HikeConstants.CRITICAL_UPDATE ? R.string.critical_update_head : R.string.normal_update_head);
-
-		Button cancelBtn = null;
-		updateAlertOkBtn = (Button) updateAlert.findViewById(R.id.btn_ok);
-		if (updateType == HikeConstants.CRITICAL_UPDATE)
-		{
-			((Button) updateAlert.findViewById(R.id.btn_cancel)).setVisibility(View.GONE);
-
-			updateAlertOkBtn.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			cancelBtn = (Button) updateAlert.findViewById(R.id.btn_cancel);
-			cancelBtn.setText(R.string.cancel);
-		}
-		updateAlertOkBtn.setText(R.string.update_app);
-
-		updateAlert.setCancelable(true);
-
-		updateAlertOkBtn.setOnClickListener(new OnClickListener()
+		
+		updateAlert = new CustomAlertDialog(this, -1);
+		HikeDialogListener dialogListener = new HikeDialogListener()
 		{
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				updateApp(updateType);
 			}
-		});
-
-		if (cancelBtn != null)
-		{
-			cancelBtn.setOnClickListener(new OnClickListener()
+			
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
 			{
-				@Override
-				public void onClick(View v)
-				{
-					updateAlert.cancel();
-					dialogShowing = null;
-				}
-			});
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.cancel();
+				dialogShowing = null;
+			}
+		};
+
+		updateAlert.setTitle(updateType == HikeConstants.CRITICAL_UPDATE ? R.string.critical_update_head : R.string.normal_update_head);
+		updateAlert.setMessage(accountPrefs.getString(HikeConstants.Extras.UPDATE_MESSAGE, ""));
+
+		updateAlert.setPositiveButton(R.string.update_app, dialogListener);
+		if (updateType != HikeConstants.CRITICAL_UPDATE)
+		{
+			updateAlert.setNegativeButton(R.string.cancel, dialogListener);
 		}
 
 		updateAlert.setOnCancelListener(new OnCancelListener()
@@ -1236,6 +1219,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		});
 
+		updateAlertOkBtn = (Button) updateAlert.findViewById(R.id.btn_positive);
 		updateAlert.show();
 	}
 
