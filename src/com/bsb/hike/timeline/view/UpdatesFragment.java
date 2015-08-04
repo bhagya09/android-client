@@ -9,8 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -28,6 +30,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -47,6 +51,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -58,6 +63,8 @@ import com.google.gson.GsonBuilder;
 
 public class UpdatesFragment extends Fragment implements Listener, OnClickListener
 {
+
+	private static final int TIMELINE_POST_IMAGE_REQ = 0;
 
 	private TimelineCardsAdapter timelineCardsAdapter;
 
@@ -565,7 +572,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, null);
-			startActivity(galleryPickerIntent);
+			startActivityForResult(galleryPickerIntent, TIMELINE_POST_IMAGE_REQ);
 			break;
 
 		case R.id.new_status_tab:
@@ -590,6 +597,44 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if (resultCode == Activity.RESULT_CANCELED)
+		{
+			return;
+		}
+
+		switch (requestCode)
+		{
+		case TIMELINE_POST_IMAGE_REQ:
+			ImageParser.parseResult(getActivity(), resultCode, data, new ImageParserListener()
+			{
+				@Override
+				public void imageParsed(String imagePath)
+				{
+					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), imagePath));
+				}
+
+				@Override
+				public void imageParsed(Uri uri)
+				{
+					//Do nothing
+				}
+
+				@Override
+				public void imageParseFailed()
+				{
+					//Do nothing
+				}
+			}, false);
+			break;
+
+		default:
+			break;
 		}
 	}
 
