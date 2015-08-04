@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp" >
+    android:layout_height="56dp" >
 
     <LinearLayout
         android:id="@+id/close_container"
@@ -13,8 +13,8 @@
 
         <ImageView
             android:id="@+id/close_action_mode"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_close_chat_bg_palette" />
 

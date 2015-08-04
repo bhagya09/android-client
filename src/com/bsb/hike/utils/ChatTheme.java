@@ -96,6 +96,13 @@ public enum ChatTheme
 		{
 			return R.color.list_item_subtext;
 		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
 		
 	},
 
@@ -190,6 +197,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.red_color_span;
 		}
 
 	},
@@ -287,6 +301,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.red_color_span;
+		}
+
 	},
 
 	LOVE_2
@@ -382,6 +403,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	NATURE
@@ -475,6 +503,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.almost_white;
 		}
 		
 	},
@@ -572,6 +607,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.pin_color;
+		}
+
 	},
 	
 	IPL
@@ -665,6 +707,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -762,6 +811,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 	
 	BLURRED_LIGHT
@@ -857,6 +913,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 	
 	VALENTINES_2
@@ -949,6 +1012,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -1046,6 +1116,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 	
 	BEACH_2
@@ -1139,6 +1216,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -1236,6 +1320,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	SPRING
@@ -1329,6 +1420,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -1426,6 +1524,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	MUSIC
@@ -1519,6 +1624,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -1616,6 +1728,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	OWL
@@ -1709,6 +1828,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -1806,6 +1932,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 	
 	FOREST
@@ -1899,6 +2032,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -1996,6 +2136,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	MOUNTAINS
@@ -2089,6 +2236,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -2186,6 +2340,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	GIRLY
@@ -2279,6 +2440,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -2376,6 +2544,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	SMILEY
@@ -2469,6 +2644,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -2566,6 +2748,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	CREEPY
@@ -2659,6 +2848,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -2755,6 +2951,13 @@ public enum ChatTheme
 		{
 			return R.color.white;
 		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
 	},
 
 	KISSES
@@ -2848,6 +3051,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -2945,6 +3155,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	TECHY
@@ -3038,6 +3255,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -3135,6 +3359,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	FLORAL
@@ -3230,6 +3461,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	};
 
 	
@@ -3260,6 +3498,7 @@ public enum ChatTheme
 	public abstract int smsToggleBgRes();
 	
 	public abstract int multiSelectBubbleColor();
+	public abstract int statusBarColor();
 	
 	public abstract int offlineMsgTextColor();
 
