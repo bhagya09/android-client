@@ -12,6 +12,11 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStickerTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
@@ -183,6 +188,32 @@ public class HttpRequests
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
+	
+	public static RequestToken postAdminRequest(String grpId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getGroupBaseUrl()+grpId+"/admin")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken postChangeAddMemSettingRequest(String grpId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getGroupBaseUrl()+grpId+"/setting")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.put(body)
+				.build();
+		return requestToken;
+	}
 
 	public static RequestToken platformZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
 	{
@@ -339,6 +370,37 @@ public class HttpRequests
 				.post(body)
 				.setAsynchronous(false)
 				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+	
+	public static RequestToken tagsForCategoriesRequest(String requestId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+					.setId(requestId)
+					.setUrl(getStickerTagsUrl())
+					.setRequestListener(requestListener)
+					.setRequestType(REQUEST_TYPE_LONG)
+					.post(body)
+					.setPriority(PRIORITY_HIGH)
+					.build();
+		
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+	
+	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+					.setId(requestId)
+					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp)
+					.setRequestListener(requestListener)
+					.setRequestType(REQUEST_TYPE_SHORT)
+					.setPriority(PRIORITY_HIGH)
+					.build();
+		
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}

@@ -712,6 +712,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				break;
 
 			case INCOMING_CALL:
+				hideConferenceList();
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_incoming));
 				releaseProximityWakelock();
@@ -858,6 +859,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		// Remove profile image
 		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
 		profileView.setVisibility(View.INVISIBLE);
+	}
+	
+	private void hideConferenceList() {
+		
+		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
+		conferenceList.setVisibility(View.GONE);
+		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+		profileView.setVisibility(View.VISIBLE);
 	}
 	
 	public void showCallActionsView()

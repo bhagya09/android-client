@@ -1063,7 +1063,7 @@ ViewTreeObserver.OnTouchModeChangeListener {
 	/**
 	 * The list is empty. Clear everything out.
 	 */
-	void resetList() {
+	public void resetList() {
 		removeAllViewsInLayout();
 		mFirstPosition = 0;
 		mDataChanged = false;
@@ -1076,6 +1076,7 @@ ViewTreeObserver.OnTouchModeChangeListener {
 		mSelectorRect.setEmpty();
 		invalidate();
 	}
+	
 
 	@Override
 	protected int computeVerticalScrollExtent() {

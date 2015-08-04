@@ -706,5 +706,4 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			finish();
 		}
 	}
-
 }
