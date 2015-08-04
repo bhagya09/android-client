@@ -419,4 +419,12 @@ public class StickerSearchManager
 	{
 		this.showAutopopupSettingOn = showAutopopupSettingOn;
 	}
+	
+	public void shutdown()
+	{
+		searchEngine.shutDown();
+		
+		searchEngine = null;
+		_instance = null;
+	}
 }
