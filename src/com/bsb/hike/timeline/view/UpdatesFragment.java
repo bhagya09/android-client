@@ -67,9 +67,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private List<StatusMessage> statusMessages;
 
-	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED,
-			HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, 
-			HikePubSub.TIMELINE_FTUE_LIST_UPDATE};
+	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
+			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE };
 
 	private String[] friendMsisdns;
 
@@ -82,12 +81,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private TimelineActions actionsData = new TimelineActions();
 
 	private Gson gson;
-	
+
 	private List<ContactInfo> mFtueFriendList;
-	
+
 	/**
-	 * When packet is not received, in this case , this tell
-	 * how many referred contacts have to be shown which we received from postAddressBook
+	 * When packet is not received, in this case , this tell how many referred contacts have to be shown which we received from postAddressBook
 	 */
 	private final int MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY = 4;
 
@@ -119,7 +117,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		userMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, "");
 
 		statusMessages = new ArrayList<StatusMessage>();
-		
+
 		mFtueFriendList = new ArrayList<ContactInfo>();
 
 		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager());
@@ -236,9 +234,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			});
 		}
-		else if(HikePubSub.TIMELINE_FTUE_LIST_UPDATE.equals(type))
+		else if (HikePubSub.TIMELINE_FTUE_LIST_UPDATE.equals(type))
 		{
-			if(shouldAddFTUEItem())
+			if (shouldAddFTUEItem())
 			{
 				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 				{
@@ -249,11 +247,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 						{
 							return;
 						}
-						
+
 						int shownCounter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
-						if(shownCounter != 0)
+						if (shownCounter != 0)
 						{
-							ContactInfo currentCardContact = mFtueFriendList.get(shownCounter-1);
+							ContactInfo currentCardContact = mFtueFriendList.get(shownCounter - 1);
 							mFtueFriendList = new ArrayList<ContactInfo>();
 							mFtueFriendList.addAll(getFtueFriendList());
 							mFtueFriendList.add(0, currentCardContact);
@@ -275,7 +273,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private int getStartIndex()
 	{
 		int startIndex = 0;
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
 		{
 			startIndex++;
 		}
@@ -291,15 +289,15 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
 		int cardCount = mFtueFriendList.size();
-		
-		//If no msisdn to show, then no need to show FTUE
-		if(mFtueFriendList.isEmpty())
+
+		// If no msisdn to show, then no need to show FTUE
+		if (mFtueFriendList.isEmpty())
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
-			
-			//counter = 0, means not shown init card so no need to change
+
+			// counter = 0, means not shown init card so no need to change
 			// counter != 0, means init card is shown so do it 1
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0) != 0)
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0) != 0)
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
 			}
@@ -309,7 +307,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		StatusMessage ftueStatusMessage = null;
 		ContactInfo contact = null;
 		if (counter == 0)
-		{ 
+		{
 			// To SHOW BASIC CARD
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_INIT, null, null, null, null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
@@ -317,7 +315,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		else if (counter <= cardCount)
 		{
-			//To SHOW Fav Card
+			// To SHOW Fav Card
 			contact = mFtueFriendList.get(counter - 1);
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
@@ -408,17 +406,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}, 0);
 			}
 
-			/*
-			 * If we already have a few status messages in the timeline, no need to prompt the user to post his/her own message.
-			 */
-			/*
-			 * if (result.size() < HikeConstants.MIN_STATUS_COUNT) { if (TextUtils.isEmpty(lastStatus)) { noStatusMessage = new
-			 * StatusMessage(TimelineCardsAdapter.EMPTY_STATUS_NO_STATUS_ID, null, "12345", getString(R.string.mood_update), getString( R.string.hey_name, name),
-			 * StatusMessageType.NO_STATUS, System.currentTimeMillis() / 1000); statusMessages.add(0, noStatusMessage); } else if (result.isEmpty()) { noStatusMessage = new
-			 * StatusMessage(TimelineCardsAdapter.EMPTY_STATUS_NO_STATUS_RECENTLY_ID, null, "12345", getString(R.string.mood_update), getString( R.string.hey_name, name),
-			 * StatusMessageType.NO_STATUS, System.currentTimeMillis() / 1000); statusMessages.add(0, noStatusMessage); } }
-			 */
-
 			long currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
 
 			Protip protip = null;
@@ -448,7 +435,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					public void run()
 					{
 						mFtueFriendList = getFtueFriendList();
-						if(mFtueFriendList != null)
+						if (mFtueFriendList != null)
 						{
 							timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
 							addFTUEItem();
@@ -467,10 +454,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	/**
 	 * returns FTUE list to be shown in Timeline FTUE
 	 * 
-	 * case A) Got List from msisdn's received from FTUE packet, 
-	 * 			get 'N' non frnd Contacts  'N' received in packet
-	 * case B) List from msisdn's received from FTUE packet is not there
-	 * 		   now go for fetching max 4 msisdn from List reveived on sign up
+	 * case A) Got List from msisdn's received from FTUE packet, get 'N' non frnd Contacts 'N' received in packet case B) List from msisdn's received from FTUE packet is not there
+	 * now go for fetching max 4 msisdn from List reveived on sign up
+	 * 
 	 * @return
 	 */
 	private List<ContactInfo> getFtueFriendList()
@@ -481,7 +467,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		int finalCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, 4);
 		boolean isFromSignUpList = false;
 		boolean isFromPacketList = false;
-		if(msisdnSet == null)
+		if (msisdnSet == null)
 		{
 			String mymsisdn = settings.getData(HikeMessengerApp.MSISDN_SETTING, "");
 			String list = settings.getData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null);
@@ -520,14 +506,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			Logger.d(UpdatesFragment.class.getName(), "Both list are empty, so no FTUE");
 		}
-		
-		if(finalContactLsit == null)
+
+		if (finalContactLsit == null)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
 		}
 		return finalContactLsit;
 	}
-	
+
 	private IRequestListener actionUpdatesReqListener = new IRequestListener()
 	{
 		@Override
