@@ -54,6 +54,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -586,7 +588,11 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 					BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 					mBotInfo.setBlocked(blocked);
 				}
-				
+				if(OfflineUtils.isConnectedToSameMsisdn(msisdn) && blocked)
+				{
+					Logger.d("HikeListActivity", "Disconnecting OfflineConnection " + msisdn);
+					OfflineController.getInstance().shutDown();
+				}
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
 			finish();
@@ -690,6 +696,11 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			String msisdn = ((ContactInfo) tag).getMsisdn();
 			if (type == Type.BLOCK)
 			{
+				if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+				{
+					Logger.d("HikeListActivity","Disconnecting Offline Msg");
+					OfflineController.getInstance().shutDown();
+				}
 				HikeMessengerApp.getPubSub().publish(
 						HikePubSub.BLOCK_USER,
 						Utils.normalizeNumber(msisdn,
