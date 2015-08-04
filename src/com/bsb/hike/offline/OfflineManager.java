@@ -397,12 +397,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		Message endTries = Message.obtain();
 		endTries.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE;
 		endTries.obj = msisdn;
+		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+		
 		if (myMsisdn.compareTo(msisdn) > 0)
 		{
 			Logger.d(TAG, "Will create Hotspot");
 			connectinMsisdn=msisdn;
 			createHotspot(msisdn);
-			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
+			handler.sendMessageDelayed(endTries,offlineParameters.getConnectionTimeout());
 		}
 		else
 		{
@@ -413,7 +415,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			msg.obj = msisdn;
 			performWorkOnBackEndThread(msg);
 			// removing the CONNECT_TO_HOTSPOT message from handler after timeout
-			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
+			handler.sendMessageDelayed(endTries,offlineParameters.getConnectionTimeout());
 			Logger.d(TAG,"time connect handler posted is "+handler.hasMessages(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE));
 		}
 	}
