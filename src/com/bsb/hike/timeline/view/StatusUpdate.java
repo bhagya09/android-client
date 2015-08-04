@@ -202,7 +202,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			showMoodSelector();
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		}
-		else
+		else if(TextUtils.isEmpty(mImagePath))
 		{
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 			toggleEnablePostButton();
