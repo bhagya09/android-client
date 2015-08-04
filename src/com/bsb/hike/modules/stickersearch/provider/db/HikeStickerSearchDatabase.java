@@ -326,7 +326,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		if (Utils.isTableExists(mDb, tables[0]))
 		{
 			Logger.v(TAG, "Deleting virtual table with name: " + tables[0]);
-
 			mDb.delete(tables[0], null, null);
 
 			SQLiteDatabase.releaseMemory();
@@ -336,10 +335,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		for (int i = 0; i < remainingCount; i++)
 		{
 			tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
-			Logger.v(TAG, "Deleting virtual table with name: " + tables[i + 1]);
 
 			if (Utils.isTableExists(mDb, tables[i + 1]))
 			{
+				Logger.v(TAG, "Deleting virtual table with name: " + tables[i + 1]);
 				mDb.delete(tables[i + 1], null, null);
 
 				SQLiteDatabase.releaseMemory();
