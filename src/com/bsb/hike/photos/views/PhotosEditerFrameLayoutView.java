@@ -196,11 +196,10 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		effectLayer.handleImage(imageScaled, true);
 
-		int dimen = HikePhotosUtils.getServerConfigDimenForDP();
+		int dimen = compressOutput?HikePhotosUtils.getServerConfigDimenForDP():HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NORMAL_IMG_SIZE, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX);;
 		int maxAllowedArea = dimen * dimen;
 		if (HikePhotosUtils.getBitmapArea(imageOriginal) > maxAllowedArea)
 		{
-			Logger.d(TAG, "handleImage() imageScaled == null");
 			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, dimen, dimen, true,Config.ARGB_8888);
 		}
 		else if(imageOriginal.getConfig() == null)

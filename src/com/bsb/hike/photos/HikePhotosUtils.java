@@ -401,7 +401,7 @@ public class HikePhotosUtils
 	
 	public static int getServerConfigDimenForDP()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
 	}
 
 }
