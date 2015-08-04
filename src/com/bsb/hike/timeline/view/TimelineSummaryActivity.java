@@ -16,6 +16,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -280,6 +281,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		foregroundScreen = findViewById(R.id.fg_screen);
 		infoContainer = findViewById(R.id.image_info_container);
 		textViewCaption = (TextView) findViewById(R.id.text_view_caption);
+		textViewCaption.setMovementMethod(new ScrollingMovementMethod());
 		textViewCounts = (TextView) findViewById(R.id.text_view_count);
 		checkBoxLove = (CheckBox) findViewById(R.id.btn_love);
 		fullTextView = (TextView) findViewById(R.id.text_view_full);
