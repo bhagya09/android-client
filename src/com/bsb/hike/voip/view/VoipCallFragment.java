@@ -188,6 +188,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_BLUETOOTH_SHOW:
 				toggleBluetoothButton(true);
 				break;
+			case VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE:
+				Bundle bundle = msg.getData();
+				String name = bundle.getString(VoIPConstants.PARTNER_NAME);
+				showMessage(getString(R.string.voip_conference_not_supported, name));
+				break;
 			default:
 				super.handleMessage(msg);
 			}

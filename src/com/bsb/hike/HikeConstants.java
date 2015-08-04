@@ -2450,6 +2450,12 @@ public class HikeConstants
 		public static final String VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU = "e2";
 
 		/**
+		 * Trying to add a person on a VoIP conference who is on an older, 
+		 * unsupported build.  
+		 */
+		public static final String VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE = "e3";
+
+		/**
 		 * If you receive a packet of this subtype, it implies that the person you are calling is already on a call.
 		 */
 		public static final String VOIP_ERROR_ALREADY_IN_CALL = "mc";
