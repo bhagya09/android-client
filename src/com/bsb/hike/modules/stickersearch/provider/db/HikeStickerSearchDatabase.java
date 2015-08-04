@@ -254,13 +254,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				for (int i = 0; i < tablesNames.length; i++)
 				{
-					String tableName = tablesNames[i];
-					if(!Utils.isTableExists(mDb, tableName))
+					if (!Utils.isTableExists(mDb, tablesNames[i]))
 					{
-						sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tableName + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4
+						Logger.v(TAG, "Creating virtual table with name: " + tablesNames[i]);
+
+						sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tablesNames[i] + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4
 								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
-								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY
-								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
+								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_NEXT
+								+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY + HikeStickerSearchBaseConstants.SYNTAX_START
+								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
 								+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_REF + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING
 								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
 								+ HikeStickerSearchBaseConstants.SYNTAX_END;
@@ -312,7 +314,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	/* Delete fts data */
+	/* Delete fts data in virtual tables */
 	private void deleteSearchData()
 	{
 		Logger.i(TAG, "deleteSearchData()");
@@ -321,16 +323,26 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		String[] tables = new String[HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT];
 
 		tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
-		mDb.delete(tables[0], null, null);
-		SQLiteDatabase.releaseMemory();
+		if (Utils.isTableExists(mDb, tables[0]))
+		{
+			Logger.v(TAG, "Deleting virtual table with name: " + tables[0]);
+			mDb.delete(tables[0], null, null);
+
+			SQLiteDatabase.releaseMemory();
+		}
 
 		int remainingCount = HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT - 1;
 		for (int i = 0; i < remainingCount; i++)
 		{
 			tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
-			mDb.delete(tables[i + 1], null, null);
 
-			SQLiteDatabase.releaseMemory();
+			if (Utils.isTableExists(mDb, tables[i + 1]))
+			{
+				Logger.v(TAG, "Deleting virtual table with name: " + tables[i + 1]);
+				mDb.delete(tables[i + 1], null, null);
+
+				SQLiteDatabase.releaseMemory();
+			}
 		}
 	}
 

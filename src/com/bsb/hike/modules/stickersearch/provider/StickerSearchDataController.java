@@ -476,11 +476,12 @@ public enum StickerSearchDataController
 				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, HikeStickerSearchBaseConstants.DECISION_STATE_YES) == HikeStickerSearchBaseConstants.DECISION_STATE_YES))
 		{
 			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-			Set<String> updateRetrySet = new HashSet<String>();
 			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
 
 			if (pendingRetrySet != null)
 			{
+				Set<String> updateRetrySet = new HashSet<String>();
+
 				for (String stickerCode : pendingRetrySet)
 				{
 					if (!receivedStickerSet.contains(stickerCode))
@@ -488,12 +489,19 @@ public enum StickerSearchDataController
 						updateRetrySet.add(stickerCode);
 					}
 				}
-				pendingRetrySet.clear();
-			}
 
-			Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
-			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
-			updateRetrySet.clear();
+				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
+				if (updateRetrySet.size() > 0)
+				{
+					HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, updateRetrySet);
+				}
+				else
+				{
+					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET);
+				}
+				pendingRetrySet.clear();
+				updateRetrySet.clear();
+			}
 		}
 
 		receivedStickerSet.clear();
