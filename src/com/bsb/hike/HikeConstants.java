@@ -2871,8 +2871,6 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
-		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 1240 * 1240;
-		
 		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
 		
 		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
@@ -3067,6 +3065,8 @@ public class HikeConstants
 	public static final String HTTP_HOST_PLATFORM_IPS = "httpHostPlfIps";
 
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+
+	public static final String DP_IMAGE_SIZE = "dp_img_s";
 	
 	public static class IntentAction
 	{
@@ -3095,4 +3095,5 @@ public class HikeConstants
 	public static final String CALLBACK_ID ="callbackid";
 
 	public static final String DEVICE_DETAILS = "dd";
+
 }

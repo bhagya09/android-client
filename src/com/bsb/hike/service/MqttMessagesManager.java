@@ -15,9 +15,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.content.ContentValues;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -2349,6 +2347,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_SEARCH_ENABLED, chatSearchEnable);
 		}
 
+		if (data.has(HikeConstants.DP_IMAGE_SIZE))
+		{
+			int dpImageSize = data.getInt(HikeConstants.DP_IMAGE_SIZE);
+			editor.putInt(HikeConstants.DP_IMAGE_SIZE, dpImageSize);
+		}
+		
 		if (data.has(HikeConstants.INVITE_TOKEN))
 		{
 			editor.putString(HikeConstants.INVITE_TOKEN, data.getString(HikeConstants.INVITE_TOKEN));
