@@ -296,6 +296,7 @@ public class UserLogInfo {
 		JSONObject deviceDetails = Utils.getPostDeviceDetails(context);
 		deviceDetails.put(GCMIntentService.DEV_TOKEN, GCMRegistrar.getRegistrationId(context));
         deviceDetails.put(HikeConstants.LogEvent.DEVICE_ID, Utils.getDeviceId(context));
+        deviceDetails.put(HikeConstants.LogEvent.DPI, Utils.densityDpi);
         Logger.d("Device Details", deviceDetails.toString());
         return new JSONArray().put(deviceDetails);
 	}

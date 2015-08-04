@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,11 +18,9 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.Logger;
@@ -96,25 +93,19 @@ public class SharedMediaAdapter extends PagerAdapter
     	
     	if (mFragments.size() > position) {
     		SharedMediaCustomFragment f = mFragments.get(position);
-            if (f != null && f.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath()))
+            if (f != null && f.getIdTag() == sharedMediaItemList.get(position).getMsgId())
             {
-            	Logger.i(TAG,"Match : "+f.getPathTag());
+            	Logger.i(TAG,"Match : "+f.getIdTag());
                 return f;
             }
         }
     	
     	SharedMediaCustomFragment fragment = null;
     	
-    	if (firstFragment != null && firstFragment.getPathTag().equals(sharedMediaItemList.get(position).getExactFilePath())) 
+    	if (firstFragment != null && firstFragment.getIdTag() == sharedMediaItemList.get(position).getMsgId()) 
     	{
     		fragment = firstFragment;
     		Logger.d(TAG,"First Fragment found)");
-    		if(fragment.isAdded())
-    		{
-    			Logger.d(TAG,"First fragment already added");
-    			return fragment;
-    		}
-    		
         }
         
 
@@ -146,7 +137,12 @@ public class SharedMediaAdapter extends PagerAdapter
         }
         
         mFragments.set(position,fragment);
-        mCurTransaction.add(container.getId(), fragment);
+        
+        if(!fragment.isAdded())
+		{
+        	mCurTransaction.add(container.getId(), fragment);
+		}
+        
         Logger.i(TAG,"Finishing : " +position);
         return fragment;
     }
@@ -259,7 +255,7 @@ public class SharedMediaAdapter extends PagerAdapter
 	public static class SharedMediaCustomFragment extends Fragment
 	{
 
-		private String pathTag;
+		private long idTag;
 		
 		private int pos;
 		
@@ -285,7 +281,7 @@ public class SharedMediaAdapter extends PagerAdapter
 			data.putInt(SHARED_VIEW_INDEX, position);
 			
 			fragment.setArguments(data);
-			fragment.setPathTag(file.getExactFilePath());
+			fragment.setIdTag(file.getMsgId());
 			return fragment;
 		}
 
@@ -298,20 +294,11 @@ public class SharedMediaAdapter extends PagerAdapter
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			
-			Bundle data = null;
-			
-			if(savedInstanceState != null)
-			{
-				data = savedInstanceState;
-			}
-			else
-			{
-				data = getArguments();
-			}
+			Bundle data = getArguments();
 			
 			this.mFile = data.getParcelable(SHARED_FILE_NAME);
 			this.pos = data.getInt(SHARED_VIEW_INDEX);
-			this.setPathTag(mFile.getExactFilePath());
+			this.setIdTag(mFile.getMsgId());
 			this.mListener = (PhotoViewerFragment)getParentFragment();
 			
 		}
@@ -362,23 +349,13 @@ public class SharedMediaAdapter extends PagerAdapter
 
 		}
 		
-		
-
-		@Override
-		public void onSaveInstanceState(Bundle outState) {
-
-			outState.putParcelable(SHARED_FILE_NAME, mFile);
-			outState.putInt(SHARED_VIEW_INDEX, pos);
-			super.onSaveInstanceState(outState);
+		public long getIdTag() {
+			return idTag;
 		}
 
-		public String getPathTag() {
-			return pathTag;
-		}
-
-		public void setPathTag(String pathTag) {
-			Logger.i(TAG,"Setting Tag : " +pathTag);
-			this.pathTag = pathTag;
+		public void setIdTag(long tag) {
+			Logger.i(TAG,"Setting Tag : " +tag);
+			this.idTag = tag;
 		}
 
 		public int getPosition() {

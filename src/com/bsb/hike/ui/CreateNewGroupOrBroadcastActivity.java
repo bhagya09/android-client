@@ -188,7 +188,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			convName = (EditText) findViewById(R.id.group_name);
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
 			gsSettings = (CheckBox) findViewById(R.id.checkBox);
-			if((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING, false))){
+			if((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING,0))==1){
 				gsSettings.setChecked(true);
 			}
 			convName.addTextChangedListener(new TextWatcher()

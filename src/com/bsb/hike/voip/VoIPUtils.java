@@ -638,6 +638,14 @@ public class VoIPUtils {
 				context.startActivity(i);
 			}
 			
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE)) 
+			{
+				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
+				i.putExtra(VoIPConstants.Extras.ACTION, subType);
+				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
+				context.startService(i);
+			}
+			
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) 
 			{
 				Intent i = new Intent(context, VoIPActivity.class);
