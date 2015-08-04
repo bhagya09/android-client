@@ -2265,6 +2265,8 @@ public class HikeConstants
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
+		public static final String DPI = "dpi";
+
 	}
 
 	public static final class MqttMessageTypes
@@ -2448,6 +2450,12 @@ public class HikeConstants
 		 * The person you are calling has blocked you.
 		 */
 		public static final String VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU = "e2";
+
+		/**
+		 * Trying to add a person on a VoIP conference who is on an older, 
+		 * unsupported build.  
+		 */
+		public static final String VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE = "e3";
 
 		/**
 		 * If you receive a packet of this subtype, it implies that the person you are calling is already on a call.
@@ -3025,6 +3033,8 @@ public class HikeConstants
 	public static final String HTTP_EXCEPTION_LOGGING = "httpExc";
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
+	
+	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
 

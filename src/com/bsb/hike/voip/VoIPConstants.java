@@ -7,9 +7,9 @@ public class VoIPConstants {
 	/**
 	 * <p>Current VoIP protocol version.</p>
 	 * <p>Added in <b>v2</b>: <br/>
-	 * - Conference support
+	 * - Voice packet numbers, so that FEC can be triggered
 	 * <p>Added in <b>v3</b>: <br/>
-	 * - Congestion control
+	 * - Congestion control and conference
 	 * </p>
 	 */
 	public static final int VOIP_VERSION = 3;
@@ -119,6 +119,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_CONTACT_DETAILS = 26;
 	public static final int MSG_UPDATE_SPEAKING = 27;
 	public static final int MSG_BLUETOOTH_SHOW = 28;
+	public static final int MSG_DOES_NOT_SUPPORT_CONFERENCE = 29;
 
 	public static final class Analytics
 	{
@@ -221,6 +222,8 @@ public class VoIPConstants {
 		public static final String STATUS = "st";
 		
 		public static final String SPEAKING = "sp";
+		
+		public static final String RINGING = "r";
 		
 		public static final String VOIP_CLIENTS = "cl";
 		

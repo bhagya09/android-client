@@ -296,6 +296,15 @@ public class VoIPService extends Service {
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
 				break;
 				
+			case VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT:
+				// Edge case error fixing. If the call went into reconnection
+				// before it was answered, then normally no outgoing missed call
+				// would appear in our chat thread since we aren't connected.
+				// Hence, make it appear as if we ARE connected, so the missed call appears. 
+				client.connected = true;
+				sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT, bundle);
+				break;
+				
 			default:
 				// Pass message to activity through its handler
 				sendHandlerMessage(msg.what);
@@ -392,6 +401,19 @@ public class VoIPService extends Service {
 				getClient(msisdn).hangUp();
 			} 
 			return returnInt;
+		}
+		
+		// Participant does not support conference error
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE)) {
+			Logger.w(tag, msisdn + " does not support conferencing.");
+			VoIPClient cl = getClient(msisdn);
+			if (cl != null) {
+				// Send message to voip activity
+				Bundle bundle = new Bundle();
+				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
+				sendHandlerMessage(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
+				cl.hangUp();
+			}
 		}
 		
 		// Incoming call message
@@ -919,22 +941,15 @@ public class VoIPService extends Service {
 				switch (focusChange) {
 				case AudioManager.AUDIOFOCUS_GAIN:
 					Logger.w(tag, "AUDIOFOCUS_GAIN");
-					if (client.getCallDuration() > 0 && hold == true)
-						setHold(false);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS:
 					Logger.w(tag, "AUDIOFOCUS_LOSS");
-					if (client.getCallDuration() > 0)
-						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
 					Logger.d(tag, "AUDIOFOCUS_LOSS_TRANSIENT");
-					if (client.getCallDuration() > 0)
-						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
 					Logger.w(tag, "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
-//					setHold(true);
 					break;
 				}
 			}
@@ -1575,7 +1590,7 @@ public class VoIPService extends Service {
 							
 							// For streaming mode, we must write data in chunks <= buffer size
 							index = 0;
-							while (index < output.length) {
+							while (index < output.length && audioTrack != null) {
 								size = Math.min(minBufSizePlayback, output.length - index);
 								audioTrack.write(output, index, size);
 								index += size; 
@@ -1817,12 +1832,19 @@ public class VoIPService extends Service {
 
 	synchronized public void setHold(boolean newHold) {
 		
-		Logger.d(tag, "Changing hold to: " + newHold + " from: " + this.hold);
 		final VoIPClient client = getClient();
 
 		if (this.hold == newHold || client == null)
 			return;
 		
+		/**
+		 * If we get a missed cellular call WHILE we're already receiving a voip call, 
+		 * the voip call will erroneously unhold itself. 
+		 */
+		if (!recordingAndPlaybackRunning && newHold)
+			return;
+		
+		Logger.d(tag, "Changing hold to: " + newHold);
 		this.hold = newHold;
 		
 		if (newHold == true) {
@@ -2195,6 +2217,7 @@ public class VoIPService extends Service {
 									clientJson.put(VoIPConstants.Extras.MSISDN, client.getPhoneNumber());
 									clientJson.put(VoIPConstants.Extras.STATUS, client.getCallStatus().ordinal());
 									clientJson.put(VoIPConstants.Extras.SPEAKING, client.isSpeaking());
+									clientJson.put(VoIPConstants.Extras.RINGING, client.isRinging());
 									clientsJson.put(clientJson);
 								}
 								
@@ -2214,7 +2237,7 @@ public class VoIPService extends Service {
 								dp.setData(json.toString().getBytes("UTF-8"));
 								
 								conferenceBroadcastPackets.add(dp);	
-								Logger.w(tag, "Sending clients list.");
+								Logger.d(tag, "Sending clients list.");
 								
 							} catch (JSONException e) {
 								Logger.w(tag, "JSONException: " + e.toString());
@@ -2249,7 +2272,10 @@ public class VoIPService extends Service {
 					// We have an incoming call
 					Logger.w(tag, "Incoming call detected.");
 					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-					setHold(true);
+					if (isAudioRunning())
+						setHold(true);
+					else
+						hangUp();
 				}
 				
 				if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {

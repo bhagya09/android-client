@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-
-    android:versionCode="1313"
-    android:versionName="3.9.8.82.20.1.chat_head_sticker_sharing_v1" >
+    android:versionCode="1315"
+    android:versionName="3.9.8.82.23" >
     
     <uses-sdk
         android:minSdkVersion="14"

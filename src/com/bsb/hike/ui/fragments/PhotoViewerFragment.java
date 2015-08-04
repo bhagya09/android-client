@@ -804,7 +804,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			toggleViewsVisibility();
 			break;
 		case VIDEO:
-			HikeSharedFile.openFile(sharedMediaItem, HikeMessengerApp.getInstance().getApplicationContext());
+			HikeSharedFile.openFile(sharedMediaItem, getActivity());
 			break;
 		default:
 			break;

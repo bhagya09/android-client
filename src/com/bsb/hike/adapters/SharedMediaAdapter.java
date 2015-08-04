@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,11 +18,9 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.Logger;
@@ -298,16 +295,7 @@ public class SharedMediaAdapter extends PagerAdapter
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			
-			Bundle data = null;
-			
-			if(savedInstanceState != null)
-			{
-				data = savedInstanceState;
-			}
-			else
-			{
-				data = getArguments();
-			}
+			Bundle data = getArguments();
 			
 			this.mFile = data.getParcelable(SHARED_FILE_NAME);
 			this.pos = data.getInt(SHARED_VIEW_INDEX);
@@ -362,16 +350,6 @@ public class SharedMediaAdapter extends PagerAdapter
 
 		}
 		
-		
-
-		@Override
-		public void onSaveInstanceState(Bundle outState) {
-
-			outState.putParcelable(SHARED_FILE_NAME, mFile);
-			outState.putInt(SHARED_VIEW_INDEX, pos);
-			super.onSaveInstanceState(outState);
-		}
-
 		public String getPathTag() {
 			return pathTag;
 		}

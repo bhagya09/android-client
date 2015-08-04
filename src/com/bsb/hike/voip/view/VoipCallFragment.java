@@ -188,6 +188,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_BLUETOOTH_SHOW:
 				toggleBluetoothButton(true);
 				break;
+			case VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE:
+				Bundle bundle = msg.getData();
+				String name = bundle.getString(VoIPConstants.PARTNER_NAME);
+				showMessage(getString(R.string.voip_conference_not_supported, name));
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -712,6 +717,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				break;
 
 			case INCOMING_CALL:
+				hideConferenceList();
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_incoming));
 				releaseProximityWakelock();
@@ -858,6 +864,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		// Remove profile image
 		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
 		profileView.setVisibility(View.INVISIBLE);
+	}
+	
+	private void hideConferenceList() {
+		
+		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
+		conferenceList.setVisibility(View.GONE);
+		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+		profileView.setVisibility(View.VISIBLE);
 	}
 	
 	public void showCallActionsView()
