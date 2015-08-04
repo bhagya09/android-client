@@ -2283,7 +2283,7 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING))
 		{
-			boolean groupSetting = data.getBoolean(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING);
+			int groupSetting = data.getInt(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING, groupSetting);
 		}
 		if (data.has(HikeConstants.MESSAGING_PROD_AREA_LOGGING))
