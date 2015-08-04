@@ -254,13 +254,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				for (int i = 0; i < tablesNames.length; i++)
 				{
-					String tableName = tablesNames[i] + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4;
-
-					if (!Utils.isTableExists(mDb, tableName))
+					if (!Utils.isTableExists(mDb, tablesNames[i]))
 					{
-						sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tableName + HikeStickerSearchBaseConstants.SYNTAX_START
-								+ HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID
-								+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY + HikeStickerSearchBaseConstants.SYNTAX_START
+						Logger.v(TAG, "Creating virtual table with name: " + tablesNames[i]);
+
+						sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tablesNames[i] + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4
+								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
+								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_NEXT
+								+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY + HikeStickerSearchBaseConstants.SYNTAX_START
 								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
 								+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_REF + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING
 								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
@@ -324,6 +325,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
 		if (Utils.isTableExists(mDb, tables[0]))
 		{
+			Logger.v(TAG, "Deleting virtual table with name: " + tables[0]);
+
 			mDb.delete(tables[0], null, null);
 
 			SQLiteDatabase.releaseMemory();
@@ -333,6 +336,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		for (int i = 0; i < remainingCount; i++)
 		{
 			tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
+			Logger.v(TAG, "Deleting virtual table with name: " + tables[i + 1]);
 
 			if (Utils.isTableExists(mDb, tables[i + 1]))
 			{
