@@ -48,7 +48,9 @@ public class OfflineFileManager
 
 			for (Entry<Long, FileTransferModel> itr : currentReceivingFiles.entrySet())
 			{
-				rMsgIds.add(itr.getKey());
+				FileTransferModel model = itr.getValue();
+				if (!(model.getTransferProgress().getCurrentChunks() == model.getTransferProgress().getTotalChunks()))
+					rMsgIds.add(itr.getKey());
 			}
 			deleteFiles(rMsgIds, OfflineController.getInstance().getConnectedDevice());
 
@@ -96,27 +98,29 @@ public class OfflineFileManager
 		return null;
 	}
 	
-	public FileSavedState getUploadFileState(ConvMessage convMessage, File file) 
+	public FileSavedState getUploadFileState(ConvMessage convMessage, File file)
 	{
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		synchronized (currentSendingFiles) {
-			if (currentSendingFiles.containsKey(msgId)) {
-				fss = new FileSavedState(FTState.IN_PROGRESS,
-						(int) file.length(),
-						currentSendingFiles.get(msgId).getTransferProgress()
-								.getCurrentChunks() * 1024);
-			} else if (TextUtils.isEmpty(hikeFile.getFileKey())) {
+		synchronized (currentSendingFiles)
+		{
+			if (currentSendingFiles.containsKey(msgId))
+			{
+				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks()
+						* OfflineConstants.CHUNK_SIZE * 1024);
+			}
+			else if (TextUtils.isEmpty(hikeFile.getFileKey()))
+			{
 				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0);
-			} else {
-				fss = new FileSavedState(FTState.COMPLETED,
-						hikeFile.getFileKey());
+			}
+			else
+			{
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 			}
 			return fss;
 		}
 	}
-
 	
 	/**
 	 * 
@@ -125,27 +129,27 @@ public class OfflineFileManager
 	 * @return TODO:Removing the try catch for the app to crash. So that we can
 	 *         debug, what the issue was.
 	 */
-	public FileSavedState getDownloadFileState(ConvMessage convMessage, File file) 
+	public FileSavedState getDownloadFileState(ConvMessage convMessage, File file)
 	{
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 
-		synchronized (currentReceivingFiles) 
+		synchronized (currentReceivingFiles)
 		{
 
-			if (currentReceivingFiles.containsKey(msgId)) 
+			if (currentReceivingFiles.containsKey(msgId))
 			{
-				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(),
-						currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
-			} 
-			else 
+				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks()
+						* OfflineConstants.CHUNK_SIZE * 1024);
+			}
+			else
 			{
 				if (file.exists() || (hikeFile.getHikeFileType() == HikeFileType.CONTACT))
 				{
 					fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 				}
-				else 
+				else
 				{
 					fss = new FileSavedState(FTState.ERROR, hikeFile.getFileKey());
 				}
