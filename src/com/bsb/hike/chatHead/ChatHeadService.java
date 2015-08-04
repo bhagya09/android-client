@@ -277,7 +277,8 @@ public class ChatHeadService extends Service
 					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.OPEN_HIKE_ANIMATION:
-					startActivity(IntentFactory.getHomeActivityIntentAsLauncher(getApplicationContext()));
+					startActivity(IntentFactory.getHomeActivityIntentAsLauncher(getApplicationContext()).addFlags(
+							Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME));
 					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.STICKER_SHOP_ANIMATION:
