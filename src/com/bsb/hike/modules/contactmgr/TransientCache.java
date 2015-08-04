@@ -1152,4 +1152,26 @@ public class TransientCache extends ContactsCache
 		transientContacts = null;
 		groupParticipants = null;
 	}
+	
+	void updateContactDetailInAllGroups(String contact)
+	{
+		writeLock.lock();
+		try
+		{
+			for(Map<String, PairModified<GroupParticipant, String>> groupParticipantMap : groupParticipants.values())
+			{
+				if(groupParticipantMap.containsKey(contact))
+				{
+					PairModified<GroupParticipant, String> grpParticipant = groupParticipantMap.get(contact);
+					grpParticipant.getFirst().setType(GroupParticipant.Participant_Type.MEMBER);
+					
+				}
+			}
+			
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+	}
 }

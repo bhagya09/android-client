@@ -968,6 +968,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 	}
+	
+	
+	public void updateAdminStatus(String msisdn)
+	{
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.TYPE, 0);
+		mDb.updateWithOnConflict(DBConstants.GROUP_MEMBERS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);		
+	}
 
 	/**
 	 * Adds single message to database
@@ -7318,7 +7326,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSG_STATUS, newState);
 		//Reset the unread count
-		values.put(DBConstants.UNREAD_COUNT, 0);
+		values.put(DBConstants.UNREAD_COUNT, 0);	
 		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
