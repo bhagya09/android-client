@@ -420,7 +420,9 @@ public class MqttMessagesManager
 		 */
 		if (!joined)
 		{
+			convDb.updateAdminStatus(msisdn);
 			convDb.deleteStatusMessagesForMsisdn(msisdn);
+			ContactManager.getInstance().updateAdminState(msisdn);
 			removeOrPostponeFriendType(msisdn);
 		}
 
