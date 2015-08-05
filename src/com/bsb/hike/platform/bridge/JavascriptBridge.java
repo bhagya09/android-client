@@ -862,7 +862,7 @@ public abstract class JavascriptBridge
 	 * callbackFromNative(functionId, responseJson)
 	 *    responseJson will be like this:
 	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
-	 *          Failure: "{ "status": "failure", "error_message" : error message}"
+	 *          Failure: "{ "status": "failure", "error_message" : error message, "status_code": status code}"
 	 *
 	 */
 	@JavascriptInterface
@@ -895,7 +895,7 @@ public abstract class JavascriptBridge
 	 * callbackFromNative(functionId, responseJson)
 	 *    responseJson will be like this:
 	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
-	 *          Failure: "{ "status": "failure", "error_message" : error message}"
+	 *          Failure: "{ "status": "failure", "error_message" : error message, "status_code": status code}"
 	 *
 	 */
 	@JavascriptInterface
@@ -981,6 +981,7 @@ public abstract class JavascriptBridge
 			{
 				failure.put(HikePlatformConstants.STATUS, HikePlatformConstants.FAILURE);
 				failure.put(HikePlatformConstants.ERROR_MESSAGE, httpException.getMessage());
+				failure.put(HikePlatformConstants.STATUS_CODE, httpException.getErrorCode());
 			}
 			catch (JSONException e)
 			{

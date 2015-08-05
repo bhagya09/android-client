@@ -1719,10 +1719,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	 * @param object - Message
 	 * @param qos level (MQTT_PUBLISH or MQTT_PUBLISH_LOW)
 	 */
-	public void sendMessage(JSONObject o, int qos)
+	public void sendMessage(JSONObject jsonObj, int qos)
 	{
 		// added check
-		if(o == null)
+		if(jsonObj == null)
 		{
 			return ;
 		}
@@ -1737,6 +1737,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			}
 			
 			// successfully initialized
+		}
+		
+		JSONObject o = Utils.cloneJsonObject(jsonObj);
+		
+		if(o == null)
+		{
+			return ;
 		}
 		
 		/*

@@ -7,6 +7,10 @@ import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.State;
 import android.util.DisplayMetrics;
+import android.view.View;
+
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 
 public class CustomLinearLayoutManager extends LinearLayoutManager
 {
@@ -31,7 +35,6 @@ public class CustomLinearLayoutManager extends LinearLayoutManager
 	@Override
 	public void smoothScrollToPosition(RecyclerView recyclerView, State state, int targetPosition)
 	{
-		// TODO Auto-generated method stub
 		super.smoothScrollToPosition(recyclerView, state, targetPosition);
 		
 		LinearSmoothScroller smoothScroller = new LinearSmoothScroller(context)
@@ -47,6 +50,16 @@ public class CustomLinearLayoutManager extends LinearLayoutManager
 			protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics)
 			{
 				return scrollSpeed / displayMetrics.densityDpi;
+			}
+			
+			@Override
+			protected void updateActionForInterimTarget(Action action)
+			{
+				super.updateActionForInterimTarget(action);
+				if(action.getDuration() <= 0)
+				{
+					action.update(StickerSearchUtils.getStickerSize(), action.getDy(), StickerSearchConstants.SCROLL_TIME, action.getInterpolator());
+				}
 			}
 		};
 		
