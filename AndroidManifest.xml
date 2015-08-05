@@ -437,6 +437,7 @@
         <!-- CocosGaming Activity -->
         <activity
             android:name="com.bsb.hike.platform.CocosGamingActivity"
+            android:process="org.cocos2dx.gameprocess"
             android:configChanges="orientation" >
         </activity>
 
