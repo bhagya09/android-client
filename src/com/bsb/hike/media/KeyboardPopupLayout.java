@@ -53,6 +53,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		this.firstTimeHeight = firstTimeHeight;
 		originalBottomPadding = mainView.getPaddingBottom();
 		this.mListener = listener;
+		
+		// Note : If the config changes at runtime, make sure to invoke this method inorder to update either one of these flags
 		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
 		{
 			HikeMessengerApp.bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(context);
