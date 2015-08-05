@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.util.Base64;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -159,6 +160,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 		}
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		mHandler.postDelayed(new Runnable() {
 
@@ -180,6 +183,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 
 	@Override
 	protected void onResume() {
+		Logger.d(TAG, "onResume()");
 		if (isInit) {
 			super.onResume();
 		} else {
@@ -189,6 +193,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 
 	@Override
 	protected void onPause() {
+		Logger.d(TAG, "onPause()");
 		if (isInit) {
 			super.onPause();
 		} else {
@@ -349,7 +354,8 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 
 				CocosGamingActivity.this.mHandler = new Cocos2dxHandler(CocosGamingActivity.this);
 				Logger.d(TAG, "onPostExecute() 2");
-				Cocos2dxHelper.init(CocosGamingActivity.this);
+				Cocos2dxHelper.initDuplicate(CocosGamingActivity.this,appId);
+//				Cocos2dxHelper.init(CocosGamingActivity.this);
 				Logger.d(TAG, "onPostExecute() 3");
 				appInit();
 				Logger.d(TAG, "onPostExecute() 4");
@@ -383,6 +389,7 @@ public class CocosGamingActivity extends Cocos2dxActivity {
 			}
 
 			isInit = true;
+			onResume(); // to ensure that we call Cocos2dxActivity::onResume()
 		}
 
 		public boolean downloadFromUrl(String downloadUrl, String fileName) {
