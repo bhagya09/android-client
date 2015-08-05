@@ -289,6 +289,7 @@
         </activity>
         <activity
             android:name="com.bsb.hike.timeline.view.TimelineActivity"
+            android:launchMode="singleTop"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
@@ -310,6 +311,7 @@
          <activity
             android:name="com.bsb.hike.timeline.view.TimelineSummaryActivity"
             android:launchMode="singleTop"
+            android:parentActivityName="com.bsb.hike.timeline.view.TimelineActivity"
             android:theme="@style/Transparent"
             android:screenOrientation="portrait" >
         </activity>
