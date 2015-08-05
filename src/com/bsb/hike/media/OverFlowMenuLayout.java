@@ -3,9 +3,12 @@ package com.bsb.hike.media;
 import java.util.Iterator;
 import java.util.List;
 
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -20,6 +23,7 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class OverFlowMenuLayout implements OnItemClickListener
@@ -197,7 +201,51 @@ public class OverFlowMenuLayout implements OnItemClickListener
 			{
 				notifyDateSetChanged();
 			}
+			
 		}
+		getView().addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+		{
+			
+			@Override
+			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
+			{
+				// TODO Auto-generated method stub
+				Animator anim=ViewAnimationUtils.createCircularReveal(v, 0, 0, 0, 1000);
+				anim.addListener(new AnimatorListener()
+				{
+					
+					public void onAnimationStart(Animator animation)
+					{
+						// TODO Auto-generated method stub
+						Logger.i("animation", "onAnimation start");
+					}
+					
+					public void onAnimationRepeat(Animator animation)
+					{
+						// TODO Auto-generated method stub
+						Logger.i("animation", "onAnimation Repeat");
+					}
+					
+					public void onAnimationEnd(Animator animation)
+					{
+						// TODO Auto-generated method stub
+						Logger.i("animation", "onAnimation end");
+						
+					}
+					
+					public void onAnimationCancel(Animator animation)
+					{
+						// TODO Auto-generated method stub
+						Logger.i("animation", "onAnimation cancel");
+						
+					}
+				});
+				anim.start();
+				
+				v.removeOnLayoutChangeListener(this);
+			}
+		});
+		
 		popUpLayout.showPopUpWindow(width, height, xOffset, yOffset, anchor, getView(), inputMethodMode);
 		popUpLayout.setOnDismissListener(mOnDismisslistener);
 	}
