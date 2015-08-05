@@ -3099,7 +3099,7 @@ public class HikeConstants
 
 	public static final String STICKER_RECOMMENDATION_CONFIGURATION_DATA = "srcd"; // container key for all of following keys
 
-	public static final String STICKER_TAG_REBALANCING_TIME = "strt"; // long
+	public static final String STICKER_TAG_REBALANCING_TIME = "strt"; // integer
 
 	public static final String STICKER_DATA_TRENDING = "t";
 
@@ -3123,15 +3123,15 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_MAX_FREQUENCY_GLOBAL = "stmf_g"; // float
 
-	public static final String STICKER_SCORE_WEITAGE = "ssw"; // initial to following 4 parameters keys
+	public static final String STICKER_SCORE_WEIGHTAGE = "ssw"; // initial to following 4 parameters keys
 
-	public static final String STICKER_SCORE_WEITAGE_MATCH_LATERAL = "ssw_ml"; // float
+	public static final String STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL = "ssw_ml"; // float
 
-	public static final String STICKER_SCORE_WEITAGE_EXACT_MATCH = "ssw_em"; // float
+	public static final String STICKER_SCORE_WEIGHTAGE_EXACT_MATCH = "ssw_em"; // float
 
-	public static final String STICKER_SCORE_WEITAGE_FREQUENCY = "ssw_f"; // float
+	public static final String STICKER_SCORE_WEIGHTAGE_FREQUENCY = "ssw_f"; // float
 
-	public static final String STICKER_SCORE_WEITAGE_CONTEXT_MOMENT = "ssw_cm"; // float
+	public static final String STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT = "ssw_cm"; // float
 
 	public static final String STICKER_TAG_LIMIT_EXACT_MATCH = "stlem"; // float
 
@@ -3157,11 +3157,11 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION = "stms_wlac"; // integer
 
-	public static final String STICKER_TAG_MAXIMUM = "stm"; // initial to following 2 keys
+	public static final String STICKER_TAG_MAXIMUM_SELECTION = "stmsl"; // initial to following 2 keys
 
-	public static final String STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH = "stm_srps"; // float
+	public static final String STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH = "stmsl_srps"; // float
 
-	public static final String STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER = "stm_sps"; // integer
+	public static final String STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER = "stmsl_sps"; // integer
 
 	public static final String STICKER_TAG_RETRY_ON_FAILED_LOCALLY = "strfl"; // integer
 

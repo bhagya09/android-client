@@ -51,17 +51,17 @@ public class StickerSearchHostManager
 
 	private static float LIMIT_EXACT_MATCH;
 
-	private static float WEITAGE_MATCH_LATERAL;
+	private static float WEIGHTAGE_MATCH_LATERAL;
 
-	private static float WEITAGE_EXACT_MATCH;
+	private static float WEIGHTAGE_EXACT_MATCH;
 
-	private static float WEITAGE_FREQUENCY_TRENDING;
+	private static float WEIGHTAGE_FREQUENCY_TRENDING;
 
-	private static float WEITAGE_FREQUENCY_LOCAL;
+	private static float WEIGHTAGE_FREQUENCY_LOCAL;
 
-	private static float WEITAGE_FREQUENCY_GLOBAL;
+	private static float WEIGHTAGE_FREQUENCY_GLOBAL;
 
-	private static float WEITAGE_CONTEXT_MOMENT;
+	private static float WEIGHTAGE_CONTEXT_MOMENT;
 
 	private static float MARGINAL_FULL_SCORE_LATERAL;
 
@@ -131,20 +131,22 @@ public class StickerSearchHostManager
 
 		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
 
-		WEITAGE_MATCH_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_MATCH_LATERAL, StickerSearchConstants.WEITAGE_MATCH_LATERAL);
+		WEIGHTAGE_MATCH_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL,
+				StickerSearchConstants.WEIGHTAGE_MATCH_LATERAL);
 
-		WEITAGE_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_EXACT_MATCH, StickerSearchConstants.WEITAGE_EXACT_MATCH);
+		WEIGHTAGE_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH, StickerSearchConstants.WEIGHTAGE_EXACT_MATCH);
 
-		WEITAGE_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+		WEIGHTAGE_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
 				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, StickerSearchConstants.RATIO_TRENDING_FREQUENCY);
 
-		WEITAGE_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+		WEIGHTAGE_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
 				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, StickerSearchConstants.RATIO_LOCAL_FREQUENCY);
 
-		WEITAGE_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+		WEIGHTAGE_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, StickerSearchConstants.WEIGHTAGE_FREQUENCY)
 				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, StickerSearchConstants.RATIO_GLOBAL_FREQUENCY);
 
-		WEITAGE_CONTEXT_MOMENT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_CONTEXT_MOMENT, StickerSearchConstants.WEITAGE_CONTEXT_MOMENT);
+		WEIGHTAGE_CONTEXT_MOMENT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT,
+				StickerSearchConstants.WEIGHTAGE_CONTEXT_MOMENT);
 
 		MARGINAL_FULL_SCORE_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL,
 				StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
@@ -1289,10 +1291,10 @@ public class StickerSearchHostManager
 						stickerDataContainer
 								.setScore(
 										phraseMatchScore,
-										((WEITAGE_MATCH_LATERAL * phraseMatchScore) + 0.00f
-												+ (WEITAGE_FREQUENCY_TRENDING * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
-												+ (WEITAGE_FREQUENCY_LOCAL * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
-												+ (WEITAGE_FREQUENCY_GLOBAL * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEITAGE_CONTEXT_MOMENT
+										((WEIGHTAGE_MATCH_LATERAL * phraseMatchScore) + 0.00f
+												+ (WEIGHTAGE_FREQUENCY_TRENDING * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
+												+ (WEIGHTAGE_FREQUENCY_LOCAL * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
+												+ (WEIGHTAGE_FREQUENCY_GLOBAL * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEIGHTAGE_CONTEXT_MOMENT
 												: 0.00f)));
 					}
 					else
@@ -1300,12 +1302,12 @@ public class StickerSearchHostManager
 						stickerDataContainer
 								.setScore(
 										phraseMatchScore,
-										((WEITAGE_MATCH_LATERAL * phraseMatchScore)
-												+ (WEITAGE_EXACT_MATCH * ((phraseMatchScore > LIMIT_EXACT_MATCH) ? phraseMatchScore : 0.00f) / (stickerDataContainer
+										((WEIGHTAGE_MATCH_LATERAL * phraseMatchScore)
+												+ (WEIGHTAGE_EXACT_MATCH * ((phraseMatchScore > LIMIT_EXACT_MATCH) ? phraseMatchScore : 0.00f) / (stickerDataContainer
 														.getExactMatchOrder() + 1))
-												+ (WEITAGE_FREQUENCY_TRENDING * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
-												+ (WEITAGE_FREQUENCY_LOCAL * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
-												+ (WEITAGE_FREQUENCY_GLOBAL * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEITAGE_CONTEXT_MOMENT
+												+ (WEIGHTAGE_FREQUENCY_TRENDING * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
+												+ (WEIGHTAGE_FREQUENCY_LOCAL * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
+												+ (WEIGHTAGE_FREQUENCY_GLOBAL * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEIGHTAGE_CONTEXT_MOMENT
 												: 0.00f)));
 					}
 

@@ -81,13 +81,13 @@ public class StickerSearchConstants
 	// Constants used for calculating score====================================================[[
 	public static final float LIMIT_EXACT_MATCH = 0.70f; // 70 percent
 
-	public static final float WEITAGE_MATCH_LATERAL = 0.30f;
+	public static final float WEIGHTAGE_MATCH_LATERAL = 0.30f;
 
-	public static final float WEITAGE_EXACT_MATCH = 0.32f;
+	public static final float WEIGHTAGE_EXACT_MATCH = 0.32f;
 
-	public static final float WEITAGE_FREQUENCY = 0.28f;
+	public static final float WEIGHTAGE_FREQUENCY = 0.28f;
 
-	public static final float WEITAGE_CONTEXT_MOMENT = 0.10f;
+	public static final float WEIGHTAGE_CONTEXT_MOMENT = 0.10f;
 
 	public static final float RATIO_TRENDING_FREQUENCY = 0.59f;
 

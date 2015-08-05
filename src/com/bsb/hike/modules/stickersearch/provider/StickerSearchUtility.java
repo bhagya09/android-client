@@ -9,15 +9,18 @@ package com.bsb.hike.modules.stickersearch.provider;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import android.content.SharedPreferences.Editor;
@@ -34,10 +37,373 @@ public class StickerSearchUtility
 	/* Save the configuration settings received from server for sticker recommendation */
 	public static void saveStickerRecommendationConfiguration(JSONObject json, Editor editor)
 	{
+		final String tag = "StickerRecommendationConfiguration";
+
 		if ((json != null) && (json.length() > 0) && (editor != null))
 		{
-			
+			Iterator<String> configSettings = json.keys();
+
+			while (configSettings.hasNext())
+			{
+				String settingName = configSettings.next();
+
+				if (HikeConstants.STICKER_TAG_REBALANCING_TIME.equals(settingName))
+				{
+					try
+					{
+						int rebalancingTime = json.getInt(settingName);
+						editor.putInt(settingName, rebalancingTime);
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_TAG_SUMMERY_INTERVAL.equals(settingName))
+				{
+					try
+					{
+						JSONObject summeryData = json.getJSONObject(settingName);
+
+						if (summeryData != null)
+						{
+							long trending = summeryData.getLong(HikeConstants.STICKER_DATA_TRENDING);
+							long local = summeryData.getLong(HikeConstants.STICKER_DATA_LOCAL);
+							long global = summeryData.getLong(HikeConstants.STICKER_DATA_GLOBAL);
+
+							if ((trending > 0) && (local > trending) && (global > local))
+							{
+								editor.putLong(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_TRENDING, trending);
+								editor.putLong(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_LOCAL, local);
+								editor.putLong(HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_GLOBAL, global);
+							}
+							else
+							{
+								Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							}
+						}
+						else
+						{
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_TAG_MAX_FREQUENCY.equals(settingName))
+				{
+					try
+					{
+						JSONObject frequencyData = json.getJSONObject(settingName);
+
+						if (frequencyData != null)
+						{
+							float trending = (float) frequencyData.getDouble(HikeConstants.STICKER_DATA_TRENDING);
+							float local = (float) frequencyData.getLong(HikeConstants.STICKER_DATA_LOCAL);
+							float global = (float) frequencyData.getLong(HikeConstants.STICKER_DATA_GLOBAL);
+
+							if ((trending > 0) && (local > trending) && (global > local))
+							{
+								editor.putFloat(HikeConstants.STICKER_TAG_MAX_FREQUENCY_TRENDING, trending);
+								editor.putFloat(HikeConstants.STICKER_TAG_MAX_FREQUENCY_LOCAL, local);
+								editor.putFloat(HikeConstants.STICKER_TAG_MAX_FREQUENCY_GLOBAL, global);
+							}
+							else
+							{
+								Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							}
+						}
+						else
+						{
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_SCORE_WEIGHTAGE.equals(settingName))
+				{
+					try
+					{
+						JSONObject scoreWeightageData = json.getJSONObject(settingName);
+
+						if (scoreWeightageData != null)
+						{
+							float wLateral = (float) scoreWeightageData.getDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL);
+							float wExactMatch = (float) scoreWeightageData.getLong(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH);
+							float wFrequency = (float) scoreWeightageData.getLong(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY);
+							float wContextMoment = (float) scoreWeightageData.getLong(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT);
+
+							if (isValidFraction(wLateral) && isValidFraction(wExactMatch) && isValidFraction(wFrequency) && isValidFraction(wContextMoment)
+									&& ((wLateral + wExactMatch + wFrequency + wContextMoment) == 1.00f))
+							{
+								editor.putFloat(HikeConstants.STICKER_SCORE_WEIGHTAGE_MATCH_LATERAL, wLateral);
+								editor.putFloat(HikeConstants.STICKER_SCORE_WEIGHTAGE_EXACT_MATCH, wExactMatch);
+								editor.putFloat(HikeConstants.STICKER_SCORE_WEIGHTAGE_FREQUENCY, wFrequency);
+								editor.putFloat(HikeConstants.STICKER_SCORE_WEIGHTAGE_CONTEXT_MOMENT, wContextMoment);
+							}
+							else
+							{
+								Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							}
+						}
+						else
+						{
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_TAG_LIMIT_EXACT_MATCH.equals(settingName))
+				{
+					try
+					{
+						float exactMatchMinReq = (float) json.getDouble(settingName);
+
+						if (isValidReq(exactMatchMinReq))
+						{
+							editor.putFloat(settingName, exactMatchMinReq);
+						}
+						else
+						{
+							Logger.e(tag, "Incorrect data for '" + settingName + "' key...");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL.equals(settingName))
+				{
+					try
+					{
+						float marginalFullMatchReq = (float) json.getDouble(settingName);
+
+						if (isValidReq(marginalFullMatchReq))
+						{
+							editor.putFloat(settingName, marginalFullMatchReq);
+						}
+						else
+						{
+							Logger.e(tag, "Incorrect data for '" + settingName + "' key...");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_TAG_LIMIT_AUTO_CORRECTION.equals(settingName))
+				{
+					try
+					{
+						float autoCorrectionReq = (float) json.getDouble(settingName);
+
+						if (isValidReq(autoCorrectionReq))
+						{
+							editor.putFloat(settingName, autoCorrectionReq);
+						}
+						else
+						{
+							Logger.e(tag, "Incorrect data for '" + settingName + "' key...");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_FREQUENCY_RATIO.equals(settingName))
+				{
+					try
+					{
+						JSONObject frequencyRatioData = json.getJSONObject(settingName);
+
+						if (frequencyRatioData != null)
+						{
+							float trending = (float) frequencyRatioData.getDouble(HikeConstants.STICKER_DATA_TRENDING);
+							float local = (float) frequencyRatioData.getLong(HikeConstants.STICKER_DATA_LOCAL);
+							float global = (float) frequencyRatioData.getLong(HikeConstants.STICKER_DATA_GLOBAL);
+
+							if (isValidFraction(trending) && isValidFraction(local) && isValidFraction(global) && (local > trending) && (global > local)
+									&& ((trending + local + global) == 1.00f))
+							{
+								editor.putFloat(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, trending);
+								editor.putFloat(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, local);
+								editor.putFloat(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, global);
+							}
+							else
+							{
+								Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							}
+						}
+						else
+						{
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_TAG_MAXIMUM_SEARCH.equals(settingName))
+				{
+					try
+					{
+						JSONObject searchLimitData = json.getJSONObject(settingName);
+
+						if (searchLimitData != null)
+						{
+							int textLimit = searchLimitData.getInt(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT);
+							int textBrokerLimit = searchLimitData.getInt(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER);
+							int permutationSize = searchLimitData.getInt(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE);
+							int minAutoCorrectionLength = searchLimitData.getInt(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION);
+
+							if ((textLimit > 0) && (textBrokerLimit >= textLimit) && (permutationSize >= 1) && (minAutoCorrectionLength >= 1))
+							{
+								editor.putInt(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT, textLimit);
+								editor.putInt(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER, textBrokerLimit);
+								editor.putInt(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE, permutationSize);
+								editor.putInt(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION, minAutoCorrectionLength);
+							}
+							else
+							{
+								Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							}
+						}
+						else
+						{
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_TAG_MAXIMUM_SELECTION.equals(settingName))
+				{
+					try
+					{
+						JSONObject selectionLimitData = json.getJSONObject(settingName);
+
+						if (selectionLimitData != null)
+						{
+							float selectionRatio = (float) selectionLimitData.getDouble(HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH);
+							int selectionLimit = selectionLimitData.getInt(HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER);
+
+							if (isValidReq(selectionRatio) && (selectionLimit >= 1))
+							{
+								editor.putFloat(HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH, selectionRatio);
+								editor.putInt(HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, selectionLimit);
+							}
+							else
+							{
+								Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							}
+						}
+						else
+						{
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_TAG_RETRY_ON_FAILED_LOCALLY.equals(settingName))
+				{
+					try
+					{
+						int retryOption = json.getInt(settingName);
+						editor.putInt(settingName, retryOption);
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION.equals(settingName))
+				{
+					try
+					{
+						int recommendationDelay = json.getInt(settingName);
+
+						if (recommendationDelay >= 0)
+						{
+							editor.putInt(settingName, recommendationDelay);
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_SEARCH_BASE.equals(settingName))
+				{
+					try
+					{
+						JSONObject searchBaseData = json.getJSONObject(settingName);
+
+						if (searchBaseData != null)
+						{
+							int ptCapacity = searchBaseData.getInt(HikeConstants.STICKER_SEARCH_BASE_MAXIMUM_PRIMARY_TABLE_CAPACITY);
+							float ptThresholdCapacity = (float) searchBaseData.getDouble(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION);
+							float dbExpansionCoefficient = (float) searchBaseData.getDouble(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_EXPANSION_COEFFICIENT);
+							float dbForcedShrinkCoefficient = (float) searchBaseData.getDouble(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT);
+
+							if ((ptCapacity > 0) && isValidReq(ptThresholdCapacity) && isValidReq(dbExpansionCoefficient) && isValidReq(dbForcedShrinkCoefficient))
+							{
+								editor.putInt(HikeConstants.STICKER_SEARCH_BASE_MAXIMUM_PRIMARY_TABLE_CAPACITY, ptCapacity);
+								editor.putFloat(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION, ptThresholdCapacity);
+								editor.putFloat(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_EXPANSION_COEFFICIENT, dbExpansionCoefficient);
+								editor.putFloat(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT, dbForcedShrinkCoefficient);
+							}
+							else
+							{
+								Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							}
+						}
+						else
+						{
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else
+				{
+					Logger.w(tag, "Unknown setting data to save sticker recommendation configuration. Key '" + settingName + "' can't be handled.");
+				}
+			}
 		}
+		else
+		{
+			Logger.e(tag, "Invalid json data to save sticker recommendation configuration through editor: " + editor);
+		}
+	}
+
+	private static boolean isValidFraction(float weight)
+	{
+		return (weight >= 0.00f) && (weight <= 1.00f);
+	}
+
+	private static boolean isValidReq(float req)
+	{
+		return (req >= 0.01f) && (req <= 1.00f);
 	}
 
 	/* Determine if given character is special character */
