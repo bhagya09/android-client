@@ -355,7 +355,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 				break;
 			case ACTION_KEYBOARD_CLOSED:
-				dismissStickerRecommendationPopup();
+				// In keyboard21 when we click on sticker icon , if keyboard is open at that time it is first closed and then pallte comes.
+				// So adding check so that recommendation popup is not closed when shareablepop is showing
+				
+				if(!mShareablePopupLayout.isShowing())
+				{
+					dismissStickerRecommendationPopup();
+				}
 				break;
 			}
 			
