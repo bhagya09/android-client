@@ -628,6 +628,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this,this);
+			if (Utils.isLollipopOrHigher())
+			{
+				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
+			}
 		}
 
 		else

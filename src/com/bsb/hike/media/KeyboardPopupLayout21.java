@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -197,7 +196,9 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			updatePadding(popup.getHeight());
 			setState(STATE_STICKER);
 		}
-		popup.showAtLocation(mainView, Gravity.BOTTOM, 0, 0);
+		
+		showPopup(height);
+		
 		if (isKeyboardOpen)
 		{
 			setOnPreDrawTaskFlagOn();
@@ -339,21 +340,11 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			mainView.getWindowVisibleDisplayFrame(r);
 			// this is height of view which is visible on screen
 			int rootViewHeight = mainView.getRootView().getHeight();
-
+			
 			int temp = rootViewHeight - r.bottom;
-			Logger.i("chatthread", "keyboard  height " + temp);
-			if (temp > 0)
-			{
-				isKeyboardOpen = true;
-				if (isShowing())
-				{
-					updatePadding(popup.getHeight());
-				}
-			}
-			else
-			{
-				isKeyboardOpen = false;
-			}
+			Logger.i("chatthread", "possible keyboard height " + temp);
+			
+			interpretHeightOfKeyboard(temp);
 		}
 	};
 
@@ -455,6 +446,20 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		int temp = rootViewHeight - r.bottom;
 		Logger.i("chatthread", "calculateKeyboardHeight :keyboard  height " + temp);
 
+		int bottomNavBarThreshold = 0;
+		
+		/**
+		 * For devices which are Lollipop or Higher, we have to take into consideration the window flag : WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS Due to this flag
+		 * we were drawing the popup on the system's nav bar tray as well instead of above it. this method excludes the navbar height from the keyboard height
+		 */
+		
+		if (shouldApplyNavBarOffset(isLandScape))
+		{
+			bottomNavBarThreshold = HikeMessengerApp.bottomNavBarHeight;
+		}
+		
+		temp -= bottomNavBarThreshold;
+		
 		if (temp > 0)
 		{
 			if (rootViewHeight * 0.9 < temp || rootViewHeight * 0.1 > temp)
@@ -516,6 +521,55 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			}
 		}
 		return height;
+	}
+	
+	protected void interpretHeightOfKeyboard(int temp)
+	{
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+		{
+			interpretHeightInPortraitMode(temp);
+		}
+
+		else
+		{
+			interpretHeightInLandscape(temp);
+		}
+	}
+
+	@Override
+	protected void interpretHeightInLandscape(int temp)
+	{
+		if (temp > 0)
+		{
+			isKeyboardOpen = true;
+			if (isShowing())
+			{
+				updatePadding(popup.getHeight());
+			}
+		}
+		else
+		{
+			isKeyboardOpen = false;
+		}
+	}
+
+	@Override
+	protected void interpretHeightInPortraitMode(int temp)
+	{
+		int bottomNavBArThreshold = shouldApplyNavBarOffset(false) ? HikeMessengerApp.bottomNavBarHeight : 0;
+		
+		if (temp > bottomNavBArThreshold)
+		{
+			isKeyboardOpen = true;
+			if (isShowing())
+			{
+				updatePadding(popup.getHeight());
+			}
+		}
+		else
+		{
+			isKeyboardOpen = false;
+		}
 	}
 
 }

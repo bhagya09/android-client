@@ -137,6 +137,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
@@ -6344,6 +6345,12 @@ public class Utils
 		return (res.getDimensionPixelSize(R.dimen.overflow_menu_width) + (2 * res.getDimensionPixelSize(R.dimen.overflow_menu_shadow_padding)));
 	}
 	
+	/**
+	 * Utility method to verify the presence of bottom nav bar in Android phones
+	 * 
+	 * @param context
+	 * @return
+	 */
 	public static boolean hasBottomNavBar(Context context)
 	{
 		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -6352,7 +6359,38 @@ public class Utils
 		display.getRealSize(realPoint);
 		DisplayMetrics metrics = new DisplayMetrics();
 		wm.getDefaultDisplay().getMetrics(metrics);
-		
+
 		return metrics.heightPixels != realPoint.y;
+	}
+	
+	/**
+	 * Utility method to calculate the bottom navBar height
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getBottomNavBarHeight(Context context)
+	{
+		if (hasBottomNavBar(context))
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			DisplayMetrics metrics = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(metrics);
+
+			return Math.abs(metrics.heightPixels - realPoint.y);
+		}
+
+		return 0;
+	}
+	
+	public static boolean isWindowFlagEnabled(int whichFlag, Window window)
+	{
+		if (window == null)
+			return false;
+		
+		return (window.getAttributes().flags & whichFlag) != 0;
 	}
 }
