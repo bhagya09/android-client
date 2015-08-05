@@ -686,11 +686,11 @@ public class OfflineUtils
 		JSONObject data = new JSONObject();
 		try
 		{
-			data.put(HikeConstants.TYPE,HikeConstants.OFFLINE);
+			data.put(HikeConstants.TYPE,HikeConstants.GeneralEventMessagesTypes.OFFLINE);
 		    data.put(HikeConstants.SUB_TYPE, HikeConstants.OFFLINE_MESSAGE_REQUEST);
 			data.put(HikeConstants.TIMESTAMP,System.currentTimeMillis() / 1000);
 			message.put(HikeConstants.TO, targetMsisdn);
-			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET);
 			message.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
 		}
