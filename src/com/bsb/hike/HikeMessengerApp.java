@@ -547,7 +547,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
 	
-	public static int bottomNavBarHeight = 0;
+	public static int bottomNavBarHeightPortrait = 0;
+	
+	public static int bottomNavBarWidthLandscape = 0;
 
 	static
 	{
@@ -852,7 +854,8 @@ public void onTrimMemory(int level)
 			fetchPlatformIDIfNotPresent();
 		}
 		
-		bottomNavBarHeight = Utils.getBottomNavBarHeight(getApplicationContext());
+		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
+		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 	}
 	
 	private void initImportantAppComponents(SharedPreferences prefs)

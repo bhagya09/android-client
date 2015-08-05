@@ -53,6 +53,16 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		this.firstTimeHeight = firstTimeHeight;
 		originalBottomPadding = mainView.getPaddingBottom();
 		this.mListener = listener;
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			HikeMessengerApp.bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(context);
+		}
+		
+		else
+		{
+			HikeMessengerApp.bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(context);
+		}
+		
 		registerOnGlobalLayoutListener();
 	}
 	
@@ -153,7 +163,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		
 		else
 		{
-			if (shouldApplyNavBarOffset(false))
+			if (shouldApplyNavBarOffset())
 			{
 				showPopupForLollipop(popupHeight);
 			}
@@ -183,12 +193,26 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		Display display = wm.getDefaultDisplay();
 		display.getRealSize(realPoint);
 		
-		popup.showAtLocation(mainView, Gravity.NO_GRAVITY, 0, realPoint.y - popupHeight - HikeMessengerApp.bottomNavBarHeight);
+		popup.showAtLocation(mainView, Gravity.NO_GRAVITY, 0, realPoint.y - popupHeight - HikeMessengerApp.bottomNavBarHeightPortrait);
 	}
 
 	private void showPopupLandscape()
 	{
-		popup.showAtLocation(mainView, Gravity.BOTTOM, 0, 0);
+		if(shouldApplyNavBarOffset())
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			
+			popup.setWidth(realPoint.x - HikeMessengerApp.bottomNavBarWidthLandscape); //Need to apply offset for the nav bar which is diplayed to the right of the screen
+			popup.showAtLocation(mainView, Gravity.BOTTOM | Gravity.LEFT, 0, 0);
+		}
+		
+		else
+		{
+			popup.showAtLocation(mainView, Gravity.BOTTOM, 0, 0);
+		}
 	}
 
 	@Override
@@ -380,7 +404,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	 */
 	protected void interpretHeightInPortraitMode(int temp)
 	{
-		int bottomNavBArThreshold = shouldApplyNavBarOffset(false) ? HikeMessengerApp.bottomNavBarHeight : 0;
+		int bottomNavBArThreshold = shouldApplyNavBarOffset() ? HikeMessengerApp.bottomNavBarHeightPortrait : 0;
 
 		temp -= bottomNavBArThreshold;
 		
@@ -438,9 +462,22 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		this.isDrawSystemBarBgFlagEnabled = isDrawSystemBarBgFlagEnabled;
 	}
 	
-	protected boolean shouldApplyNavBarOffset(boolean isLandScape)
+	protected boolean shouldApplyNavBarOffset()
 	{
-		return ((!isLandScape) && Utils.isLollipopOrHigher() && isDrawSystemBarBgFlagEnabled());
+		return Utils.isLollipopOrHigher() && isDrawSystemBarBgFlagEnabled();
+	}
+
+	public void onConfigChanged()
+	{
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			HikeMessengerApp.bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(context);
+		}
+
+		else
+		{
+			HikeMessengerApp.bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(context);
+		}
 	}
 
 }
