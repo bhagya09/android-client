@@ -1,6 +1,8 @@
 package com.bsb.hike.db;
 
+import java.nio.channels.SelectableChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -974,13 +976,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			String equality = OfflineUtils.isConnectedToSameMsisdn(msisdn) ? " =? " : " <>? ";
-			String selecParams = DBConstants.MSISDN + "=? AND "+ DBConstants.MESSAGE_ID + "<=? AND " + DBConstants.MSG_STATUS + "<? AND "
-					  + DBConstants.MESSAGE_ORIGIN_TYPE + equality;
-			
-			String[] selecArgs = new String[] { msisdn, String.valueOf(maxMsgId), Integer.toString(State.SENT_DELIVERED_READ.ordinal()), Integer.toString(ConvMessage.OriginType.OFFLINE.ordinal())};
-			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID,  DBConstants.MSG_STATUS, DBConstants.MESSAGE_ORIGIN_TYPE }, selecParams, selecArgs, null, null, null);
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID,  DBConstants.MSG_STATUS, DBConstants.MESSAGE_ORIGIN_TYPE }, DBConstants.MSISDN + "=? AND "+ DBConstants.MESSAGE_ID + "<=? AND " + DBConstants.MSG_STATUS + "<"
+					+ State.SENT_DELIVERED_READ.ordinal(), new String[] { msisdn, String.valueOf(maxMsgId) }, null, null, null);
 
+			//c=getCursor( msisdn,maxMsgId);
 			while (c.moveToNext())
 			{
 				long id = c.getLong(c.getColumnIndex(DBConstants.MESSAGE_ID));
@@ -995,7 +994,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (ConvMessage.originTypeValue(msgOriginType) != OriginType.BROADCAST
 						|| ConvMessage.stateValue(msgStatus) == State.SENT_DELIVERED)
 				{
-					ids.add(id);
+					if(!(OfflineUtils.isConnectedToSameMsisdn(msisdn)&&(ConvMessage.stateValue(msgStatus).ordinal() < State.SENT_DELIVERED.ordinal())))
+							ids.add(id);
 				}
 			}
 		}
@@ -1007,6 +1007,28 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 		return ids;
+	}
+
+	private Cursor getCursor(String msisdn, long maxMsgId)
+	{
+		Cursor c = null;
+
+		boolean isOfflineMode = OfflineUtils.isConnectedToSameMsisdn(msisdn);
+		String equality = null;
+		String[] selecArgs = new String[] { msisdn, String.valueOf(maxMsgId), Integer.toString(State.SENT_DELIVERED_READ.ordinal()) };
+		String selecParams = DBConstants.MSISDN + "=? AND " + DBConstants.MESSAGE_ID + "<=? AND " + DBConstants.MSG_STATUS + "<? ";
+//		if (isOfflineMode)
+//		{
+//			equality = " =? ";
+//			selecParams = selecParams + " AND " + DBConstants.MESSAGE_ORIGIN_TYPE + equality;
+//			selecArgs=Arrays.copyOf(selecArgs, selecArgs.length+1);
+//			selecArgs[3] = Integer.toString(ConvMessage.OriginType.OFFLINE.ordinal());
+//		}
+		c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.MSG_STATUS, DBConstants.MESSAGE_ORIGIN_TYPE }, selecParams, selecArgs, null,
+				null, null);
+
+		return c;
+
 	}
 
 	public ArrayList<Long>  setAllDeliveredMessagesReadForMsisdn(String msisdn, ArrayList<Long> msgIds)
