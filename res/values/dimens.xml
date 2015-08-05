@@ -62,10 +62,10 @@
     <dimen name="version_item_marginBottom">10dp</dimen>
     <dimen name="chat_file_button_width">32dp</dimen>
     <dimen name="chatthread_avatar">36dp</dimen>
-    <dimen name="chat_theme_palette_margin">10dp</dimen>
-    <dimen name="chat_theme_grid_margin">20dp</dimen>
-    <dimen name="chat_bg_item_width">60dp</dimen>
-    <dimen name="overflow_menu_width">189dp</dimen>
+    <dimen name="chat_theme_palette_margin">4dp</dimen>
+    <dimen name="chat_theme_palette_padding">16dp</dimen>
+    <dimen name="chat_bg_item_width">64dp</dimen>
+    <dimen name="overflow_menu_width">168dp</dimen>
 
     <!-- Default height of an action bar. -->
     <dimen name="st__action_bar_default_height">56dip</dimen>
@@ -134,7 +134,7 @@
     <dimen name="alp_42447968_separator_size">1dp</dimen>
 	<dimen name="app_logo_margin_right">20dp</dimen>
 	<dimen name="app_logo_home_screen_right">13.3dp</dimen>
-	<dimen name="app_logo_home_screen_margin_left">20dp</dimen>
+	<dimen name="app_logo_home_screen_margin_left">16.5dp</dimen>
 	<dimen name="stealth_pop_img_margin_left">40dp</dimen>
 	<dimen name="stealth_pop_img_margin_right">40dp</dimen>
 	<dimen name="chat_thread_margin_top">46.5dp</dimen>	
@@ -214,5 +214,6 @@
 	<dimen name="home_list_header_drawable_padding">4dp</dimen>
 	<dimen name="menu_list_padding_top">8dp</dimen>
 	<dimen name="menu_list_padding_bottom">8dp</dimen>
+	<dimen name="overflow_menu_shadow_padding">6.5dp</dimen>
 	
 </resources>

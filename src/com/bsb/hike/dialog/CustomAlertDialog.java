@@ -10,15 +10,15 @@ import android.widget.TextView;
 
 import com.bsb.hike.R;
 
+/**
+ * CustomAlertDialog is a class that extends {@link HikeDialog}. The purpose of this class is
+ * keep the alert dialog implementation to as close as possible to the native AlertDialog
+ * and preserve our custom settings(UI) like fonts, etc... 
+ * @author gauravmittal
+ */
 public class CustomAlertDialog extends HikeDialog
 {
 
-	/**
-	 * @author gauravmittal
-	 * CustomAlertDialog is a class that extends {@link HikeDialog}. The purpose of this class is
-	 * keep the alert dialog implementation to as close as possible to the native AlertDialog
-	 * and preserve our custom settings(UI) like fonts, etc... 
-	 */
 	Context mContext;
 
 	View titleTemplate;
@@ -58,7 +58,6 @@ public class CustomAlertDialog extends HikeDialog
 
 	private void initViews()
 	{
-		// this.setContentView(R.layout.operator_alert_popup);
 		this.setContentView(layoutResId);
 		this.setCancelable(true);
 
@@ -78,7 +77,8 @@ public class CustomAlertDialog extends HikeDialog
 		setTitle(mContext.getString(resId));
 	}
 
-	public void setTitle(String titleText)
+	@Override
+	public void setTitle(CharSequence titleText)
 	{
 		title.setText(titleText);
 		titleTemplate.setVisibility(View.VISIBLE);
@@ -89,7 +89,7 @@ public class CustomAlertDialog extends HikeDialog
 		setMessage(mContext.getString(resId));
 	}
 
-	public void setMessage(String messageText)
+	public void setMessage(CharSequence messageText)
 	{
 		message.setText(messageText);
 	}
@@ -99,7 +99,7 @@ public class CustomAlertDialog extends HikeDialog
 		setCheckBox(mContext.getString(textResId), listener, isChecked);
 	}
 
-	public void setCheckBox(String checkBoxText, OnCheckedChangeListener listener, boolean isChecked)
+	public void setCheckBox(CharSequence checkBoxText, OnCheckedChangeListener listener, boolean isChecked)
 	{
 		checkBox.setText(checkBoxText);
 		checkBox.setOnCheckedChangeListener(listener);
@@ -140,7 +140,7 @@ public class CustomAlertDialog extends HikeDialog
 		setPositiveButton(mContext.getString(textResId), l);
 	}
 
-	public void setPositiveButton(String text, HikeDialogListener l)
+	public void setPositiveButton(CharSequence text, HikeDialogListener l)
 	{
 		buttonPositive.setText(text);
 		buttonPositive.setVisibility(View.VISIBLE);
@@ -154,7 +154,7 @@ public class CustomAlertDialog extends HikeDialog
 		setNegativeButton(mContext.getString(textResId), l);
 	}
 
-	public void setNegativeButton(String text, HikeDialogListener l)
+	public void setNegativeButton(CharSequence text, HikeDialogListener l)
 	{
 		buttonNegative.setText(text);
 		buttonNegative.setVisibility(View.VISIBLE);
@@ -168,7 +168,7 @@ public class CustomAlertDialog extends HikeDialog
 		setNeutralButton(mContext.getString(textResId), l);
 	}
 
-	public void setNeutralButton(String text, HikeDialogListener l)
+	public void setNeutralButton(CharSequence text, HikeDialogListener l)
 	{
 		buttonNeutral.setText(text);
 		buttonNeutral.setVisibility(View.VISIBLE);

@@ -151,6 +151,7 @@ public class HikeActionBar
 		 */
 		if (overFlowMenuLayout != null)
 		{	
+			overFlowMenuLayout.setAnimation();
 			overFlowMenuLayout.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
 	}

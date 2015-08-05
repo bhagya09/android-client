@@ -50,6 +50,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -293,42 +294,35 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 		if (sendNativeInvite && !settings.getBoolean(HikeConstants.OPERATOR_SMS_ALERT_CHECKED, false))
 		{
-			final Dialog dialog = new Dialog(this, R.style.Theme_CustomDialog);
-			dialog.setContentView(R.layout.operator_alert_popup);
-			dialog.setCancelable(true);
-
-			TextView header = (TextView) dialog.findViewById(R.id.header);
-			TextView body = (TextView) dialog.findViewById(R.id.body_text);
-			Button btnOk = (Button) dialog.findViewById(R.id.btn_ok);
-			Button btnCancel = (Button) dialog.findViewById(R.id.btn_cancel);
-
-			btnCancel.setVisibility(View.GONE);
-			header.setText(R.string.native_header);
-			body.setText(R.string.native_info);
-
-			CheckBox checkBox = (CheckBox) dialog.findViewById(R.id.body_checkbox);
-			checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+			CustomAlertDialog dialog = new CustomAlertDialog(this, -1);
+			
+			HikeDialogListener dialogListener = new HikeDialogListener()
 			{
-
+				
 				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					Editor editor = settings.edit();
-					editor.putBoolean(HikeConstants.OPERATOR_SMS_ALERT_CHECKED, isChecked);
+					editor.putBoolean(HikeConstants.OPERATOR_SMS_ALERT_CHECKED, ((CustomAlertDialog)hikeDialog).isChecked());
 					editor.commit();
-				}
-			});
-			checkBox.setText(getResources().getString(R.string.not_show_call_alert_msg));
-
-			btnOk.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
 					onTitleIconClick(null);
 				}
-			});
+				
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+				}
+				
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+				}
+			};
+
+			dialog.setTitle(R.string.native_header);
+			dialog.setMessage(R.string.native_info);
+			dialog.setCheckBox(R.string.not_show_call_alert_msg, null, false);
+			dialog.setPositiveButton(R.string.continue_txt, dialogListener);
 
 			dialog.show();
 		}

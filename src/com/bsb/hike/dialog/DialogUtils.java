@@ -164,8 +164,8 @@ public class DialogUtils
 		}
 
 		small = new RadioButtonPojo(R.string.image_quality_small, false, smallSize, ctx.getString(R.string.image_quality_small), ctx.getString(R.string.small_fastest));
-		medium = new RadioButtonPojo(R.string.image_quality_medium, false, mediumSize, ctx.getString(R.string.image_quality_medium), ctx.getString(R.string.small_fastest));
-		original = new RadioButtonPojo(R.string.image_quality_original, false, originalSize, ctx.getString(R.string.image_quality_original), ctx.getString(R.string.small_fastest));
+		medium = new RadioButtonPojo(R.string.image_quality_medium, false, mediumSize, ctx.getString(R.string.image_quality_medium), ctx.getString(R.string.medium_faster));
+		original = new RadioButtonPojo(R.string.image_quality_original, false, originalSize, ctx.getString(R.string.image_quality_original), ctx.getString(R.string.original_slow));
 
 		switch (quality)
 		{
