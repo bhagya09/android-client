@@ -61,10 +61,9 @@
     <dimen name="version_item_marginBottom">10dp</dimen>
     <dimen name="chat_file_button_width">32dp</dimen>
     <dimen name="chatthread_avatar">36dp</dimen>
-    <dimen name="chat_theme_palette_margin">10dp</dimen>
-    <dimen name="chat_theme_palette_padding">8dp</dimen>
-    <dimen name="chat_theme_grid_margin">20dp</dimen>
-    <dimen name="chat_bg_item_width">60dp</dimen>
+    <dimen name="chat_theme_palette_margin">4dp</dimen>
+    <dimen name="chat_theme_palette_padding">16dp</dimen>
+    <dimen name="chat_bg_item_width">64dp</dimen>
     <dimen name="overflow_menu_width">168dp</dimen>
 
     <!-- Default height of an action bar. -->
