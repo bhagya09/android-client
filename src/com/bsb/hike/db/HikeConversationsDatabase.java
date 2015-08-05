@@ -4764,6 +4764,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public boolean updateHistoricalStatusMessages(String msisdn)
 	{
+		if(TextUtils.isEmpty(msisdn))
+		{
+			return false;
+		}
+		
 		boolean isComplete = false;
 		ContentValues conVal = new ContentValues();
 		conVal.put(DBConstants.SHOW_IN_TIMELINE, true);
