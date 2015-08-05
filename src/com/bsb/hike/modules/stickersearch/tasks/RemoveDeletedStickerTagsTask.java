@@ -31,7 +31,7 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 			return;
 		}
 		
-		List<StickerCategory> stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+		List<StickerCategory> stickerCategories = StickerManager.getInstance().getAllStickerCategories();
 		Set<String> stickerSet = new HashSet<String>();
 		
 		for(StickerCategory stickerCategory : stickerCategories)
