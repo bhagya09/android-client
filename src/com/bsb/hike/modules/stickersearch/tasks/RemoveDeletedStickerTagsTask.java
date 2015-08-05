@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
@@ -24,7 +25,7 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 	@Override
 	public void run()
 	{
-		if ((Utils.getExternalStorageState() == ExternalStorageState.NONE)) // if there is no external storage do not delete any tags. In this case we dont show any recommendation
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || (Utils.getExternalStorageState() == ExternalStorageState.NONE)) // if there is no external storage do not delete any tags. In this case we dont show any recommendation
 		{
 			Logger.d(TAG, "external storage state is none");
 			return;

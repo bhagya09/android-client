@@ -355,7 +355,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 				break;
 			case ACTION_KEYBOARD_CLOSED:
-				dismissStickerRecommendationPopup();
+				// In keyboard21 when we click on sticker icon , if keyboard is open at that time it is first closed and then pallte comes.
+				// So adding check so that recommendation popup is not closed when shareablepop is showing
+				
+				if(!mShareablePopupLayout.isShowing())
+				{
+					dismissStickerRecommendationPopup();
+				}
 				break;
 			}
 			
@@ -561,7 +567,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		this.savedState = savedState;
 		init();
-		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
@@ -1543,6 +1548,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}	
 		
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
+		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
 	

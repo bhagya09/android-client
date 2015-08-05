@@ -6685,4 +6685,36 @@ public class Utils
 
 		return false;
 	}
+	
+	public static JSONObject cloneJsonObject(JSONObject jsonObject)
+	{
+		if(jsonObject == null)
+		{
+			return null;
+		}
+		
+		String names[] = new String[jsonObject.length()];
+
+		// get mapping keys
+		Iterator<String> iterator = jsonObject.keys();
+		int i = 0;
+		while (iterator.hasNext())
+		{
+			names[i++] = (String) iterator.next();
+		}
+
+		//create a new copy
+		JSONObject cloneJson = null;
+		try
+		{
+			cloneJson = new JSONObject(jsonObject, names);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return cloneJson;
+	}
 }
+
