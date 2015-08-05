@@ -1109,10 +1109,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private OnCheckedChangeListener onLoveToggleListener = new OnCheckedChangeListener()
 	{
-
 		@Override
-		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)
 		{
+			buttonView.setEnabled(false);
+			buttonView.setClickable(false);
+
 			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
 
 			JSONObject json = new JSONObject();
@@ -1133,24 +1135,32 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						JSONObject response = (JSONObject) result.getBody().getContent();
-						if (response.optString("stat").equals("ok"))
+						try
 						{
-							// Increment like count in actions table
-							String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+							JSONObject response = (JSONObject) result.getBody().getContent();
+							if (response.optString("stat").equals("ok"))
+							{
+								// Increment like count in actions table
+								String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 
-							ArrayList<String> actorList = new ArrayList<String>();
-							actorList.add(selfMsisdn);
+								ArrayList<String> actorList = new ArrayList<String>();
+								actorList.add(selfMsisdn);
 
-							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
-									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
+								HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
+										ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
 
-							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
-									.getMappedId());
+								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
+										statusMessage.getMappedId());
 
-							mActionsData.updateByActivityFeed(newFeed);
+								mActionsData.updateByActivityFeed(newFeed);
 
-							notifyDataSetChanged();
+								notifyDataSetChanged();
+							}
+						}
+						finally
+						{
+							buttonView.setEnabled(true);
+							buttonView.setClickable(true);
 						}
 					}
 
@@ -1164,6 +1174,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
+						buttonView.setEnabled(true);
+						buttonView.setClickable(true);
 					}
 				}, null);
 				token.execute();
@@ -1175,24 +1187,32 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						JSONObject response = (JSONObject) result.getBody().getContent();
-						if (response.optString("stat").equals("ok"))
+						try
 						{
-							// Decrement like count in actions table
-							String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+							JSONObject response = (JSONObject) result.getBody().getContent();
+							if (response.optString("stat").equals("ok"))
+							{
+								// Decrement like count in actions table
+								String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 
-							ArrayList<String> actorList = new ArrayList<String>();
-							actorList.add(selfMsisdn);
+								ArrayList<String> actorList = new ArrayList<String>();
+								actorList.add(selfMsisdn);
 
-							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
-									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
+								HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
+										ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
 
-							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
-									.getMappedId());
+								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
+										statusMessage.getMappedId());
 
-							mActionsData.updateByActivityFeed(newFeed);
+								mActionsData.updateByActivityFeed(newFeed);
 
-							notifyDataSetChanged();
+								notifyDataSetChanged();
+							}
+						}
+						finally
+						{
+							buttonView.setEnabled(true);
+							buttonView.setClickable(true);
 						}
 					}
 
@@ -1206,6 +1226,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
+						buttonView.setEnabled(true);
+						buttonView.setClickable(true);
 					}
 				}, null);
 				token.execute();
