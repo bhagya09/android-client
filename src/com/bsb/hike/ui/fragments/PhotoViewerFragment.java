@@ -797,17 +797,21 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	
 	@Override
 	public void onClick(View v) {
-		HikeSharedFile sharedMediaItem = (HikeSharedFile) v.getTag();
-		switch (sharedMediaItem.getHikeFileType())
+		
+		if(getActivity() != null)
 		{
-		case IMAGE:
-			toggleViewsVisibility();
-			break;
-		case VIDEO:
-			HikeSharedFile.openFile(sharedMediaItem, getActivity());
-			break;
-		default:
-			break;
-		}		
+			HikeSharedFile sharedMediaItem = (HikeSharedFile) v.getTag();
+			switch (sharedMediaItem.getHikeFileType())
+			{
+			case IMAGE:
+				toggleViewsVisibility();
+				break;
+			case VIDEO:
+					HikeSharedFile.openFile(sharedMediaItem, getActivity());
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }

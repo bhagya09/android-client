@@ -266,11 +266,7 @@ public class ChatHeadService extends Service
 					createAndOpenChatHeadPickerLayout(getApplicationContext());
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
-					Intent sharingIntent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp, true);
-					if (sharingIntent != null && ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(foregroundApp))
-					{
-						startActivity(sharingIntent);
-					}
+					ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp, true);
 					break;
 				case ChatHeadConstants.STOPPING_SERVICE_ANIMATION:
 					ChatHeadUtils.stopService();
@@ -281,7 +277,8 @@ public class ChatHeadService extends Service
 					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.OPEN_HIKE_ANIMATION:
-					startActivity(IntentFactory.getHomeActivityIntentAsLauncher(getApplicationContext()));
+					startActivity(IntentFactory.getHomeActivityIntentAsLauncher(getApplicationContext()).addFlags(
+							Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME));
 					setChatHeadInvisible();
 					break;
 				case ChatHeadConstants.STICKER_SHOP_ANIMATION:

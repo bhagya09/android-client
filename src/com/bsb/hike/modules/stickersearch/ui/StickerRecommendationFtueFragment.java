@@ -158,6 +158,7 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 		{
 			if(listener != null)
 			{
+				listener.shownStickerRecommendFtue();
 				listener.stickerSelected(word, phrase, sticker, 0, stickerList.size(), StickerManager.FROM_STICKER_RECOMMENDATION_FTUE, false);
 
 				stickerRecommendFtueStep1.setVisibility(View.GONE);
@@ -201,6 +202,7 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 		{
 			if (listener != null)
 			{
+				listener.shownStickerRecommendFtue();
 				listener.onCloseClicked(word, phrase, true);
 			}
 		}
