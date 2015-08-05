@@ -20,6 +20,7 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConst
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.Utils;
 
+import android.content.SharedPreferences.Editor;
 import android.util.Pair;
 
 public class StickerSearchUtility
@@ -31,9 +32,12 @@ public class StickerSearchUtility
 	}
 
 	/* Save the configuration settings received from server for sticker recommendation */
-	public static void saveStickerRecommendationConfiguration(JSONObject json)
+	public static void saveStickerRecommendationConfiguration(JSONObject json, Editor editor)
 	{
-		
+		if ((json != null) && (json.length() > 0) && (editor != null))
+		{
+			
+		}
 	}
 
 	/* Determine if given character is special character */

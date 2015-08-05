@@ -2143,7 +2143,6 @@ public class MqttMessagesManager
 				int dismissCount = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.DISMISS_COUNT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
 			}
-			
 		}
 		
 		if(data.has(HikeConstants.PROB_NUM_TEXT_MSG))
@@ -2346,7 +2345,7 @@ public class MqttMessagesManager
 
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA))
 		{
-			StickerSearchUtility.saveStickerRecommendationConfiguration(data.getJSONObject(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA));;
+			StickerSearchUtility.saveStickerRecommendationConfiguration(data.getJSONObject(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA), editor);
 		}
 
 		if (data.has(HikeConstants.CHAT_SEARCH_ENABLED))
