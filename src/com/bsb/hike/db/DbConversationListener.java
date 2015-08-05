@@ -270,6 +270,7 @@ public class DbConversationListener implements Listener
 						StatusMessage statusMessage = new StatusMessage(0, null, contactInfo.getMsisdn(), contactInfo.getName(),
 								context.getString(R.string.accepted_friend_request), StatusMessageType.USER_ACCEPTED_FRIEND_REQUEST, System.currentTimeMillis() / 1000);
 						mConversationDb.addStatusMessage(statusMessage, true);
+						mConversationDb.updateHistoricalStatusMessages(statusMessage.getMsisdn());
 						mPubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
 						mPubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 					}
