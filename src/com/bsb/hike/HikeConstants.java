@@ -2265,6 +2265,8 @@ public class HikeConstants
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
+		public static final String DPI = "dpi";
+
 	}
 
 	public static final class MqttMessageTypes
@@ -2448,6 +2450,12 @@ public class HikeConstants
 		 * The person you are calling has blocked you.
 		 */
 		public static final String VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU = "e2";
+
+		/**
+		 * Trying to add a person on a VoIP conference who is on an older, 
+		 * unsupported build.  
+		 */
+		public static final String VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE = "e3";
 
 		/**
 		 * If you receive a packet of this subtype, it implies that the person you are calling is already on a call.
@@ -2863,8 +2871,6 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
-		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 1240 * 1240;
-		
 		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
 		
 		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
@@ -3059,6 +3065,8 @@ public class HikeConstants
 	public static final String HTTP_HOST_PLATFORM_IPS = "httpHostPlfIps";
 
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+
+	public static final String DP_IMAGE_SIZE = "dp_img_s";
 	
 	public static class IntentAction
 	{

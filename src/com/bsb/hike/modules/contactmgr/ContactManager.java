@@ -2331,4 +2331,8 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void setParticipantAdmin(String groupId, String msisdn) {
 		transientCache.updateGroupParticipantDetail(groupId,msisdn);
 	}
+	
+	public void updateAdminState(String msisdn) {
+		transientCache.updateContactDetailInAllGroups( msisdn);
+	}
 }
