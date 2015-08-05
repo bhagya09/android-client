@@ -1147,7 +1147,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		long currentTime = System.currentTimeMillis();
 		boolean isTestModeOn = StickerSearchUtility.isTestModeForSRModule();
 
-		Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Operation is started today at time:: " + date.toString());
+		Logger.i(TAG_REBALANCING,
+				"summarizeAndDoRebalancing(), " + (isTestModeOn ? "Test " : StickerSearchConstants.STRING_EMPTY) + "Operation is started today at time:: " + date.toString());
 
 		int MAXIMUM_PRIMARY_TABLE_CAPACITY = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY : HikeSharedPreferenceUtil.getInstance().getData(
 				HikeConstants.STICKER_SEARCH_BASE_MAXIMUM_PRIMARY_TABLE_CAPACITY, HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY);
@@ -1219,7 +1220,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Time distance from previous global summery operation = " + intervalFromPreviousSummeryTime + " milliseconds.");
 			boolean isGlobalSummeryTurn = intervalFromPreviousSummeryTime >= TIME_WINDOW_GLOBAL_SUMMERY;
 
-			boolean isFrequencySummerized = isTrendingSummeryTurn || isLocalSummeryTurn || isGlobalSummeryTurn;
+			boolean isFrequencySummerizationRequired = isTrendingSummeryTurn || isLocalSummeryTurn || isGlobalSummeryTurn;
 
 			ArrayList<String> rowsIds = new ArrayList<String>();
 			ArrayList<Character> virtualTableInfo = new ArrayList<Character>();
@@ -1433,7 +1434,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 
 			// Clear data, if summary update needn't to be performed w.r.t. frequency
-			if (!isFrequencySummerized)
+			if (!isFrequencySummerizationRequired)
 			{
 				Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Rebalancing and summerization is not required today at time:: " + date.toString());
 
@@ -1468,7 +1469,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				}
 			}
 
-			Logger.v(TAG_REBALANCING, "summarizeAndDoRebalancing(), Existing data size = " + existingTotalTagCount + ", cuttOffTagDataSize = " + cuttOffTagDataSize);
+			Logger.v(TAG_REBALANCING, "summarizeAndDoRebalancing(), Existing modifiable data size = " + existingTotalTagCount + ", cuttOffTagDataSize = " + cuttOffTagDataSize);
 			ArrayList<Integer> eliminatedIndices = new ArrayList<Integer>();
 
 			// Check if re-balancing is still required after several trails
@@ -1616,8 +1617,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 			else
 			{
-				virtualTableInfo.clear();
-				virtualTableInfo = null;
+				if (isFrequencySummerizationRequired)
+				{
+					virtualTableInfo.clear();
+					virtualTableInfo = null;
+				}
+
 				eliminatedIndices = null;
 			}
 
@@ -1631,7 +1636,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				StringBuilder outputBuilder = null;
 				ArrayList<Float> frequencyListPerStciker = null;
-				if (isFrequencySummerized)
+				if (isFrequencySummerizationRequired)
 				{
 					outputBuilder = new StringBuilder();
 					frequencyListPerStciker = new ArrayList<Float>(StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT);
@@ -1641,7 +1646,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				{
 					ContentValues cv = new ContentValues();
 
-					if (isFrequencySummerized)
+					if (isFrequencySummerizationRequired)
 					{
 						frequencyListPerStciker.add(trendingFrequencies.get(i));
 						frequencyListPerStciker.add(localFrequencies.get(i));
@@ -1673,7 +1678,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			rowsIds.clear();
 			rowsIds = null;
 
-			if (isFrequencySummerized)
+			if (isFrequencySummerizationRequired)
 			{
 				trendingFrequencies.clear();
 				trendingFrequencies = null;
