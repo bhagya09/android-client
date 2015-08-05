@@ -197,6 +197,11 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_USER + "/status";
 	}
 
+	public static String getDeleteStatusBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_USER + "/status-delete";
+	}
+
 	public static String selfPlatformUidFetchUrl()
 	{
 		return BASE_PLATFORM_URL + BASE_USER + BASE_V1 + BASE_CREATE;

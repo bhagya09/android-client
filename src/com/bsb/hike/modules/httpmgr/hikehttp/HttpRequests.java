@@ -5,6 +5,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLas
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
@@ -647,16 +648,22 @@ public class HttpRequests
 				.setAsynchronous(false)
 				.build();
 		return requestToken;
-	}
-	
-	public static RequestToken deleteStatusRequest(String statusId, IRequestListener requestListener)
+	}	
+
+	public static RequestToken deleteStatusRequest(JSONObject json, IRequestListener requestListener)
 	{
+		JsonBody body = new JsonBody(json);
+
 		RequestToken requestToken = new ByteArrayRequest.Builder()
-				.setUrl(getStatusBaseUrl() + "/" + statusId)
+				.setUrl(getDeleteStatusBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
-				.delete()
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
 				.build();
 		return requestToken;
 	}
