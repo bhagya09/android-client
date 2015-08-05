@@ -28,7 +28,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		
 		if (firstTime)
 		{
-			List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getStickerCategoryList();
+			List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories();
 
 			stickerSet = new HashSet<String>();
 			for (StickerCategory category : stickerCategoryList)
