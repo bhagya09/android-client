@@ -320,4 +320,9 @@ public class HttpRequestConstants
 	{
 		return BASE_URL+STICKER_SHARE_PATH ;
 	}
+
+	public static String getDeleteAvatarBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar-delete";
+	}
 }

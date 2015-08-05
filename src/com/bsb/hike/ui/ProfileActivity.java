@@ -1630,8 +1630,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	public void onFinish(boolean success)
 	{
-		super.onFinish(success);
-		
 		if (mDialog != null)
 		{
 			mDialog.dismiss();
