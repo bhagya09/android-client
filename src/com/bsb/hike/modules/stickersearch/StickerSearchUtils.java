@@ -72,12 +72,24 @@ public class StickerSearchUtils
 	/**
 	 * 
 	 * @param stickerList
-	 * @return a pair of boolean and sticker list where boolean represents whether original sticker list contains any available stickers or not. if boolean is true it return list
-	 *         containing available stickers only and original sticker list if boolean is false
+	 * @return a pair of boolean and sticker list where boolean represents whether first sticker in original list is available or not. if boolean is true it return list containing
+	 *         available stickers only and original sticker list if boolean is false
 	 */
 	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList)
 	{
+		Sticker sticker = stickerList.get(0);
+		if (!sticker.isStickerAvailable() && !sticker.getStickerCurrentAvailability())
+		{
+			return new Pair<Boolean, List<Sticker>>(false, stickerList);
+		}
+
+		return new Pair<Boolean, List<Sticker>>(true, getAvailableStickerList(stickerList));
+	}
+
+	private static List<Sticker> getAvailableStickerList(List<Sticker> stickerList)
+	{
 		int length = stickerList.size();
+
 		List<Sticker> resultList = new ArrayList<Sticker>(length);
 
 		for (int i = 0; i < length; i++)
@@ -89,29 +101,6 @@ public class StickerSearchUtils
 			}
 		}
 
-		if (resultList.size() == 0)
-		{
-			for (int i = 0; i < length; i++)
-			{
-				Sticker sticker = stickerList.get(i);
-				if (sticker.getStickerCurrentAvailability())
-				{
-					resultList.add(sticker);
-				}
-			}
-
-			if (resultList.size() == 0)
-			{
-				return new Pair<Boolean, List<Sticker>>(false, stickerList);
-			}
-			else
-			{
-				return new Pair<Boolean, List<Sticker>>(true, resultList);
-			}
-		}
-		else
-		{
-			return new Pair<Boolean, List<Sticker>>(true, resultList);
-		}
+		return resultList;
 	}
 }
