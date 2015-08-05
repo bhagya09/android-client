@@ -26,6 +26,8 @@ public class OfflineException extends TException
 
 	public static byte CONNECTION_CANCELLED = 25;
 	
+	public static byte CANCEL_NOTIFICATION_REQUEST = 26;
+	
 	public OfflineException(byte reasonCode) {
 		super(reasonCode);
 	}

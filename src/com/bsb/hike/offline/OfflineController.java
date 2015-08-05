@@ -28,12 +28,14 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.google.ads.AdRequest.ErrorCode;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.models.SenderConsignment;
@@ -487,7 +489,8 @@ public class OfflineController
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
 			Transporter.getInstance().shutDown();
 			fileManager.shutDown();
-			sendDisconnectToListeners();
+			
+			sendDisconnectToListeners(exception);
 
 			
 			Logger.d(TAG, "going to disconnect");
@@ -501,13 +504,30 @@ public class OfflineController
 		}
 	}
 	
-	private void sendDisconnectToListeners()
+	private void sendDisconnectToListeners(TException exception)
 	{
 		sendDisconnectInlineMsg(getConnectedDevice());
 
-		offlineManager.updateListeners(getConnectedDevice(), getConnectingDevice());
+		offlineManager.updateListeners(computeErrorCode(exception));
 	}
-	
+
+	private ERRORCODE computeErrorCode(TException exception)
+	{
+		ERRORCODE errorCode = ERRORCODE.COULD_NOT_CONNECT;
+		if (exception.getReasonCode() == OfflineException.CANCEL_NOTIFICATION_REQUEST)
+		{
+			errorCode = ERRORCODE.REQUEST_CANCEL;
+		}
+		else if (!TextUtils.isEmpty(getConnectedDevice()))
+		{
+			errorCode = ERRORCODE.USERDISCONNECTED;
+		}
+		else if (!TextUtils.isEmpty(getConnectingDevice()))
+		{
+			errorCode = ERRORCODE.TIMEOUT;
+		}
+		return errorCode;
+	}
 	public void deleteRemainingFiles(ArrayList<Long> msgId,String msisdn)
 	{
 		fileManager.deleteFiles(msgId, msisdn);

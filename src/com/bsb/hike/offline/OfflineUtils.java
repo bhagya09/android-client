@@ -41,6 +41,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.hike.transporter.TException;
 import com.hike.transporter.utils.TConstants.ERRORCODES;
 
 /**
@@ -734,6 +735,7 @@ public class OfflineUtils
 		PendingIntent chatThreadPendingIntent = PendingIntent.getActivity(context, 0, chatThreadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		Intent cancel = new Intent("com.bsb.cancel");
+		cancel.putExtra(HikeConstants.MSISDN, msisdn);
 		PendingIntent cancelP = PendingIntent.getBroadcast(context, 0, cancel, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
@@ -742,6 +744,41 @@ public class OfflineUtils
 		actions[1] = new NotificationCompat.Action(R.drawable.cross, context.getString(R.string.cancel), cancelP);
 
 		return actions;
+	}
+	
+	public static void sendOfflineRequestCancelPacket(String targetMsisdn)
+	{
+		JSONObject message = new JSONObject();
+		JSONObject data = new JSONObject();
+		try
+		{
+			data.put(HikeConstants.TYPE, HikeConstants.OFFLINE);
+			data.put(HikeConstants.SUB_TYPE, HikeConstants.OFFLINE_MESSAGE_REQUEST_CANCEL);
+			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000);
+			message.put(HikeConstants.TO, targetMsisdn);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET);
+			message.put(HikeConstants.DATA, data);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "Error in Json");
+		}
+	}
+
+	public static void handleOfflineCancelRequestPacket(Context context, JSONObject packet)
+	{
+		try
+		{
+			String msisdn = packet.getString(HikeConstants.FROM);
+
+			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CANCEL_NOTIFICATION_REQUEST));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		
 	}
 
 }

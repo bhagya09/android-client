@@ -40,6 +40,7 @@ import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.util.Linkify;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -837,15 +838,22 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			String stickerId = sticker.getStickerId();
 			String categoryDirPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.LARGE_STICKER_ROOT;
 			File stickerImage = null;
+			boolean isStickerOffline=false;
 			if (categoryDirPath != null)
 			{
 				stickerImage = new File(categoryDirPath, stickerId);
 			}
+			
+			/**
+			 * First we check if the sticker is present in our online directory or not ,then we check in our offline directory.
+			 * 
+			 */
 			if (convMessage.isOfflineMessage())
 			{
 				if (stickerImage == null || !(stickerImage.exists()))
 				{
 					stickerImage = new File(OfflineUtils.getOfflineStkPath(categoryId, stickerId));
+					isStickerOffline=true;
 				}
 			}
 			if (stickerImage != null && stickerImage.exists())
@@ -853,10 +861,28 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(stickerImage.getPath());
 				if (stickerDrawable != null)
 				{
+					/**
+					 * In case of Offline Sticker usually the size the of the sticker is big as it might come from a XHDPI phone and we are rendering it on a hdpi phone so we are
+					 * restricting the size of the sticker to a certain value
+					 **/
+					if (isStickerOffline)
+					{
+						ViewGroup.LayoutParams layoutParams = stickerHolder.image.getLayoutParams();
+						int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, OfflineConstants.STICKER_SIZE, context.getResources().getDisplayMetrics());
+						layoutParams.height = size;
+						layoutParams.width = size;
+						stickerHolder.image.setLayoutParams(layoutParams);
+						stickerHolder.image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+						Logger.d("MessagesAdapter", "OfflineSticker sticker  height and width is " + stickerDrawable.getMinimumHeight() + "..." + stickerDrawable.getMinimumWidth());
+						Logger.d("MessagesAdapter",
+								"OfflineSticker view height and width is " + stickerHolder.image.getMeasuredHeight() + "..." + stickerHolder.image.getMeasuredWidth());
+					}
 					stickerHolder.placeHolder.setBackgroundResource(0);
 					stickerHolder.image.setVisibility(View.VISIBLE);
 					// largeStickerLoader.loadImage(stickerImage.getPath(), holder.stickerImage, isListFlinging);
+
 					stickerHolder.image.setImageDrawable(stickerDrawable);
+
 					// holder.stickerImage.setImageDrawable(IconCacheManager
 					// .getInstance().getSticker(context,
 					// stickerImage.getPath()));

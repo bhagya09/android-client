@@ -3114,6 +3114,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case COULD_NOT_CONNECT:
 			break;
+		case REQUEST_CANCEL:
+			Logger.d("OfflineManager", "Request Canceled received");
 		default:
 			break;
 		}

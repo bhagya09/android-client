@@ -2377,7 +2377,7 @@ public class HikeConstants
 
 	public static final class GeneralEventMessagesTypes
 	{
-		public static final String OFFLINE = "off";
+		public static final String OFFLINE = "offline";
 	}
 
 	
@@ -2415,7 +2415,7 @@ public class HikeConstants
 
 	public static enum FTResult
 	{
-		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD, UNKNOWN_SERVER_ERROR
+		SUCCESS, UPLOAD_FAILED, FILE_TOO_LARGE, READ_FAIL, DOWNLOAD_FAILED, CANCELLED, FILE_EXPIRED, PAUSED, SERVER_ERROR, FAILED_UNRECOVERABLE, CARD_UNMOUNT, NO_SD_CARD, UNKNOWN_SERVER_ERROR,FILE_SIZE_EXCEEDING
 	}
 
 	public static enum SMSSyncState
@@ -2948,4 +2948,6 @@ public class HikeConstants
 	public static final String FT_HOST_IPS = "ftHostIps";
 	
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+
+	public static final Object OFFLINE_MESSAGE_REQUEST_CANCEL = "offreqcan";
 }
