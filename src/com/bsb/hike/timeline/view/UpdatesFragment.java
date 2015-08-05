@@ -51,7 +51,6 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -65,6 +64,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 {
 
 	private static final int TIMELINE_POST_IMAGE_REQ = 0;
+
+	public static final String SHOW_PROFILE_HEADER = "showProfileHeader";
 
 	private TimelineCardsAdapter timelineCardsAdapter;
 
@@ -96,6 +97,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	 */
 	private final int MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY = 4;
 
+	private boolean mShowProfileHeader;
+
+	private String[] mMsisdnArray;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -114,7 +119,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
 		super.onViewCreated(view, savedInstanceState);
-
+		
 		prefs = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
 		GsonBuilder gsonBuilder = new GsonBuilder();
@@ -122,34 +127,49 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		gson = gsonBuilder.create();
 
 		userMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, "");
-
+		
 		statusMessages = new ArrayList<StatusMessage>();
 
 		mFtueFriendList = new ArrayList<ContactInfo>();
 
-		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager());
+		if (getArguments() != null)
+		{
+			mShowProfileHeader = getArguments().getBoolean(SHOW_PROFILE_HEADER, false);
+
+			mMsisdnArray = getArguments().getStringArray(HikeConstants.MSISDNS);
+		}
+
+		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager(), mShowProfileHeader,mMsisdnArray);
+		
 		timelineCardsAdapter.setActionsData(actionsData);
 
 		mUpdatesList.setAdapter(timelineCardsAdapter);
 
-		QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
-				.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
+		if (!mShowProfileHeader)
+		{
+			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
+					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
 
-		mUpdatesList.setOnScrollListener(scrollListener);
+			mUpdatesList.setOnScrollListener(scrollListener);
 
-		actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
+			actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
 
-		actionsView.findViewById(R.id.new_status_tab).setOnClickListener(this);
+			actionsView.findViewById(R.id.new_status_tab).setOnClickListener(this);
+		}
+		else
+		{
+			actionsView.setVisibility(View.GONE);
+		}
 
 		FetchUpdates fetchUpdates = new FetchUpdates();
 
 		if (Utils.isHoneycombOrHigher())
 		{
-			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,mMsisdnArray);
 		}
 		else
 		{
-			fetchUpdates.execute();
+			fetchUpdates.execute(mMsisdnArray);
 		}
 	}
 
@@ -337,29 +357,38 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 	}
 
-	private class FetchUpdates extends AsyncTask<Void, Void, List<StatusMessage>>
+	private class FetchUpdates extends AsyncTask<String, Void, List<StatusMessage>>
 	{
 
 		@Override
-		protected List<StatusMessage> doInBackground(Void... params)
+		protected List<StatusMessage> doInBackground(String... params)
 		{
 
-			List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
-
-			ArrayList<String> msisdnList = new ArrayList<String>();
-
-			for (ContactInfo contactInfo : friendsList)
+			if (params != null && params.length > 0)
 			{
-				if (TextUtils.isEmpty(contactInfo.getMsisdn()))
-				{
-					continue;
-				}
-				msisdnList.add(contactInfo.getMsisdn());
+				friendMsisdns = params;
 			}
-			msisdnList.add(userMsisdn);
+			else
+			{
+				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
 
-			friendMsisdns = new String[msisdnList.size()];
-			msisdnList.toArray(friendMsisdns);
+				ArrayList<String> msisdnList = new ArrayList<String>();
+
+				for (ContactInfo contactInfo : friendsList)
+				{
+					if (TextUtils.isEmpty(contactInfo.getMsisdn()))
+					{
+						continue;
+					}
+					msisdnList.add(contactInfo.getMsisdn());
+				}
+				
+				msisdnList.add(userMsisdn);
+
+				friendMsisdns = new String[msisdnList.size()];
+				msisdnList.toArray(friendMsisdns);
+			}
+
 			List<StatusMessage> statusMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, friendMsisdns);
 
 			return statusMessages;

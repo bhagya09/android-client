@@ -20,6 +20,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -101,6 +103,7 @@ import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.AccountUtils;
@@ -355,8 +358,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			setContentView(R.layout.profile);
 			View parent = findViewById(R.id.parent_layout);
 			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background));
-			ListView list = (ListView) parent.findViewById(R.id.profile_content);
-			list.setDivider(null); //Removing the default dividers since they are not needed in the timeline
+//			ListView list = (ListView) parent.findViewById(R.id.profile_content);
+//			list.setDivider(null); //Removing the default dividers since they are not needed in the timeline
 			this.profileType = ProfileType.CONTACT_INFO_TIMELINE;
 			setupContactTimelineScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
@@ -398,7 +401,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			onEditGroupNameClick(null);
 		}
+		
 		setupActionBar();
+		
 		if (getIntent().getBooleanExtra(ProductPopupsConstants.SHOW_CAMERA, false))
 		{
 			onHeaderButtonClicked(null);
@@ -468,8 +473,16 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				onBackPressed();
 			}
 		});
-		
-		actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
+
+		if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
+		{
+			actionBar.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+		}
+		else
+		{
+			actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
+		}
+
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
@@ -710,8 +723,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			contactInfo.setOnhike(getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, false));
 		}
 		
-		initializeListviewAndAdapter();
+		UpdatesFragment updatesFragment = new UpdatesFragment();
+		Bundle updatesBundle = new Bundle();
+		updatesBundle.putBoolean(UpdatesFragment.SHOW_PROFILE_HEADER, true);
+		updatesBundle.putStringArray(HikeConstants.MSISDNS, new String[]{mLocalMSISDN});
+		updatesFragment.setArguments(updatesBundle);
 		
+		getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, updatesFragment).commit();
+
 		if(contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
 			getHikeJoinTime();

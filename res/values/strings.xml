@@ -1594,4 +1594,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="notif_posted_photo">posted a photo</string>
     <string name="photo_actions_header">Looks great! Use this photo to,</string>
     <string name="post_to_timeline">To your Timeline</string>
+    <string name="profile_header_subtext">Profile photo is visible to everyone</string>
 </resources>
