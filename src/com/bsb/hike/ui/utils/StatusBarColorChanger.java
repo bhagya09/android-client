@@ -1,7 +1,9 @@
 package com.bsb.hike.ui.utils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Build;
@@ -50,10 +52,8 @@ public class StatusBarColorChanger
 	{
 		if (Utils.isLollipopOrHigher() && window != null)
 		{
-
 		    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 			window.setStatusBarColor(color);
-			
 		}
 
 	}
