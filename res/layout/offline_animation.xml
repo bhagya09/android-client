@@ -4,7 +4,7 @@
     android:id="@+id/transact"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E6000000" >
+    android:background="#F2000000" >
 
     <ImageView
         android:id="@id/abs__up"
@@ -39,11 +39,14 @@
         <com.bsb.hike.view.RoundedImageView
             android:id="@+id/offline_icon"
             style="@style/RoundedStyle"
-            android:layout_width="13dp"
-            android:layout_height="14dp"
+            android:layout_width="9dp"
+            android:layout_height="9dp"
             android:layout_gravity="bottom|right"
+            android:scaleType="centerInside"
+            android:layout_marginRight="2dp"
             android:src="@drawable/iconconnection"
-            android:visibility="invisible" />
+            android:visibility="visible"
+             />
     </FrameLayout>
 
     <ImageView
@@ -51,8 +54,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/abs__up"
-        android:layout_marginRight="19dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="24dp"
         android:src="@drawable/connectionscreencross" 
         android:minWidth="40dp"
   		android:minHeight="40dp"
@@ -68,8 +72,8 @@
         <com.bsb.hike.view.HoloCircularProgress
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/animation_circular_progress"
-            android:layout_width="143dp"
-            android:layout_height="143dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:gravity="center"
             app:marker_visible="false"
             app:progress="0.5"
@@ -88,41 +92,66 @@
             android:visibility="gone" />
         
     </FrameLayout>
-    <TextView
-        android:id="@+id/timer"
+    
+	<com.bsb.hike.view.CustomFontTextView
+	    android:id="@+id/connectionInfo"
+	    android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/animation_circular_progress_holder"
-        android:layout_centerInParent="true"
+       
         android:text="Connecting to Sahil"
+        android:textSize="18dp"
         android:gravity="center"
-        android:visibility="gone"
-        >
-    </TextView>
-	<TextView
-        android:id="@+id/connectionInfo"
+        android:visibility="invisible"
+        android:layout_marginTop="21dp" 
+       >
+    </com.bsb.hike.view.CustomFontTextView>
+
+	<com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/second_message"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/timer"
-        android:layout_centerInParent="true"
-        android:text="Connecting to Sahil"
-        android:textSize="18sp"
-        android:gravity="center" >
-    </TextView>
-
+        android:layout_below="@+id/connectionInfo"
+        android:text=""
+        android:gravity="center"
+        android:textSize="18dp"
+        
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="18dp"
+        android:visibility="invisible"
+        >
+    </com.bsb.hike.view.CustomFontTextView>
+    
+	 <View
+	     android:id= "@+id/divider"
+         android:layout_width="fill_parent"
+         android:layout_height="1dp"
+         android:layout_marginLeft="47dp"
+         android:layout_marginRight="47dp"
+         android:background="@color/white_20"
+         android:layout_below="@+id/connectionInfo"
+         android:layout_marginTop="35dp"
+  		 android:visibility="gone"
+        
+        />
+	 
 	<Button
 	    android:id="@+id/retry_button"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_below="@+id/connectionInfo"
-	    android:layout_alignLeft="@+id/animation_circular_progress_holder"
-	    android:layout_alignRight="@+id/animation_circular_progress_holder"
+	    android:layout_below="@+id/divider"
+	    android:layout_alignLeft="@+id/divider"
+	    android:layout_alignRight="@+id/divider"
 	    android:layout_centerHorizontal="true"
 	    style="@android:style/Widget.Holo.Light.Button.Borderless.Small"
 	    android:text="RETRY" 
-	    android:layout_marginTop="10dp"
+	    android:layout_marginTop="5dp"
+	    android:background="@drawable/offline_retry_button_selector"
 	    android:textColor="@color/white"
 	    android:visibility="gone"
+	    
 	    />
 	
 	 <FrameLayout

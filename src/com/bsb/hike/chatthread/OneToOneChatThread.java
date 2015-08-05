@@ -1515,13 +1515,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		if(isConnected)
 		{
-		
 			String connectedMsisdn = OfflineUtils.getConnectedMsisdn();
 			if(TextUtils.isEmpty(connectedMsisdn))
 			{
 				return;
 			}
-			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn, connectedMsisdn);
+			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn, connectedMsisdn,0);
 		}
 		else
 		{
@@ -1530,7 +1529,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				return;
 			}
-			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn, "");
+			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn,null,1);
 		}
 		offlineDisconnectFragment.setConnectionListner(this);
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -3136,7 +3135,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 
 	@Override
-	public void removeDisconnectFragment()
+	public void removeDisconnectFragment(boolean removeParent)
 	{
 		Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		if(fragment != null)

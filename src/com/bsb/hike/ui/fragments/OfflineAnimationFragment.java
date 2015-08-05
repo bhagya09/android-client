@@ -9,7 +9,6 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.DialogInterface.OnKeyListener;
-
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -30,8 +29,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -39,6 +45,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -46,14 +53,17 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
 
 public class OfflineAnimationFragment extends DialogFragment implements IOfflineCallbacks ,OfflineConnectionRequestListener
 {
@@ -79,23 +89,31 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	String contactFirstName;
 	
+	private static final String MSISDN = "msisdn";
+
 	protected static final int UPDATE_ANIMATION_MESSAGE = 1;
 
 	protected static final int START_TIMER = 2;
+	
+	protected static final int UPDATE_ANIMATION_SECOND_MESSAGE = 3;
 
-	private static final String MSISDN = "msisdn";
-
-	TextView timerText;
+	TextView secondMessage;
 	
 	Button retryButton;
 	
 	OfflineConnectionRequestListener listener;
 	
-	CountDownTimer  timer =null;
+	CountDownTimer  timer = null;
 	
-	AnimatorSet bringToCenter;
+	AnimatorSet bringToCenter = null;
+	
+	AnimatorSet bringBackToTop = null;
 	
 	OfflineDisconnectFragment offlineDisconnectFragment;
+	
+	View divider;
+	
+	private OfflineParameters offlineParameters=null;
 	
 	private  Handler uiHandler = new Handler()
 	{
@@ -128,12 +146,17 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		switch(msg.what)
 		{
 			case UPDATE_ANIMATION_MESSAGE:
-				updateAnimationText((String)(msg.obj));
+				updateAnimationText(connectionInfo,(String)(msg.obj));
+				break;
+			case UPDATE_ANIMATION_SECOND_MESSAGE:
+				
+				updateAnimationText(secondMessage,(String)msg.obj);
 				break;
 			case START_TIMER:
-				timerText.setVisibility(View.VISIBLE);
+				updateAnimationText(connectionInfo, "30");
 				startTimer();
 				break;
+			
 		}
 		
 	}
@@ -141,14 +164,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	private void startTimer()
 	{
 		
-		timerText.setText("30");
 		timer = new CountDownTimer(30000,1000)
 		{
 			
 			@Override
 			public void onTick(long millisUntilFinished)
 			{
-				timerText.setText("" +millisUntilFinished/1000);
+				connectionInfo.setText("" +millisUntilFinished/1000);
 			}
 			
 			@Override
@@ -158,13 +180,78 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				
 			}
 		};
-		timer.start();
+				
+		//timer.start();
 	}
 
 
-	private void updateAnimationText(String message)
+	private void updateAnimationText(final TextView source,final String message)
 	{
-		connectionInfo.setText(message);
+		
+		AlphaAnimation  disappearAnimation = new AlphaAnimation(1.0f, 0.0f);
+		disappearAnimation.setDuration(400);
+		final AlphaAnimation  appearAnimation = new AlphaAnimation(0.0f, 1.0f);
+		appearAnimation.setDuration(400);
+		
+		disappearAnimation.setAnimationListener(new AnimationListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				source.setText("");
+				source.setVisibility(View.VISIBLE);
+				source.startAnimation(appearAnimation);
+				
+			}
+		});
+		
+		appearAnimation.setAnimationListener(new AnimationListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				
+				source.setText(message);
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				if(message.equals("30"))
+				{
+					timer.start();
+				}
+				else if(message.equals(getResources().getString(R.string.connection_deestablished)))
+				{
+					showRetryButton();
+				}
+			}
+		});
+		
+		source.startAnimation(disappearAnimation);
+		
 	}
 
 	protected void sendUIMessage(int what, Object data)
@@ -208,34 +295,40 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	    //Translate to the middle and scale
 	    ObjectAnimator translateX = ObjectAnimator.ofFloat(imageViewLayout, "translationX",xd);
 	    ObjectAnimator translateY = ObjectAnimator.ofFloat(imageViewLayout, "translationY",yd);
-	    ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageViewLayout,"scaleX",2.6f);
-	    ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageViewLayout,"scaleY",2.6f);
-	    translateX.setDuration(600);
-	    translateY.setDuration(600);
-	    scaleX.setDuration(600);
-	    scaleY.setDuration(600);
+	    ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageViewLayout,"scaleX",2.2f);
+	    ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageViewLayout,"scaleY",2.2f);
+	    translateX.setDuration(800);
+	    translateY.setDuration(800);
+	    scaleX.setDuration(800);
+	    scaleY.setDuration(800);
+	    translateX.setInterpolator(new OvershootInterpolator(0.2f));
+	    translateY.setInterpolator(new OvershootInterpolator(0.2f));
 	    
-	    //Scale down at the middle of screen
-	    ObjectAnimator scaleXDown = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 2);
-	    ObjectAnimator scaleYDown = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 2);
-	    scaleXDown.setDuration(200);
-	    scaleYDown.setDuration(200);
+	   
 	    
 	    //Scale up at the middle of screen
-		ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 2.6f);
-		ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 2.6f);
-		scaleXUp.setDuration(200);
-		scaleYUp.setDuration(200);
+		ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 2.9f);
+		ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 2.9f);
+		scaleXUp.setDuration(400);
+		scaleYUp.setDuration(400);
+		
+	    //Scale down at the middle of screen
+		ObjectAnimator scaleXDown = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 2.7f);
+		ObjectAnimator scaleYDown = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 2.7f);
+		scaleXDown.setDuration(250);
+		scaleYDown.setDuration(250);
 	    
 		//Alpha animation on the holo circular ring
-	    ObjectAnimator alphaAnimation  =  ObjectAnimator.ofFloat(frame, View.ALPHA,0.0f,1.0f);
-		alphaAnimation.setDuration(200);
-		
+	   /* ObjectAnimator alphaAnimation  =  ObjectAnimator.ofFloat(frame, View.ALPHA,0.0f,1.0f);
+		alphaAnimation.setDuration(100);
+		*/
 		//Scale up holo circular ring 
 		ObjectAnimator scaleXUpHolo = ObjectAnimator.ofFloat(frame, "scaleX", 1.1f);
 		ObjectAnimator scaleYUpHolo = ObjectAnimator.ofFloat(frame, "scaleY", 1.1f);
-		scaleXUpHolo.setDuration(400);
-		scaleYUpHolo.setDuration(400);
+		scaleXUpHolo.setDuration(250);
+		scaleYUpHolo.setDuration(250);
+		scaleXUpHolo.setInterpolator(new OvershootInterpolator(0.9f));
+		scaleYUpHolo.setInterpolator(new OvershootInterpolator(0.9f));
 		scaleXUpHolo.addListener(new AnimatorListener()
 		{
 			
@@ -270,16 +363,18 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		//Scale down holo circular ring
 		ObjectAnimator scaleXDownHolo = ObjectAnimator.ofFloat(frame, "scaleX", 1f);
 		ObjectAnimator scaleYDownHolo = ObjectAnimator.ofFloat(frame, "scaleY", 1f);
-		scaleXDownHolo.setDuration(400);
-		scaleYDownHolo.setDuration(400);
-		
+		scaleXDownHolo.setDuration(350);
+		scaleYDownHolo.setDuration(350);
+		scaleXDownHolo.setInterpolator(new OvershootInterpolator(0.9f));
+		scaleYDownHolo.setInterpolator(new OvershootInterpolator(0.9f));
 		
 		
 		bringToCenter =  new AnimatorSet();
+	
 	    bringToCenter.playTogether(translateX,translateY,scaleX,scaleY);
-	    bringToCenter.play(scaleXDown).with(scaleYDown).after(translateX);
-	    bringToCenter.play(scaleXUp).with(scaleYUp).after(scaleXDown);
-		bringToCenter.play(scaleXUpHolo).with(scaleYUpHolo).with(alphaAnimation).after(1000);
+	    bringToCenter.play(scaleXUp).with(scaleYUp).after(translateX);
+	    bringToCenter.play(scaleXDown).with(scaleYDown).after(scaleXUp);
+		bringToCenter.play(scaleXUpHolo).with(scaleYUpHolo).after(1100);
 		bringToCenter.play(scaleYDownHolo).with(scaleXDownHolo).after(scaleXUpHolo);
 	    bringToCenter.addListener(new AnimatorListener()
 		{
@@ -317,7 +412,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		ImageView progressBead = (ImageView)fragmentView.findViewById(R.id.bead);
 		progressBead.setVisibility(View.VISIBLE);
-		rotateAnimation = new RotateAnimation(0, 360,Animation.RELATIVE_TO_SELF,0.35f,Animation.RELATIVE_TO_SELF,2.8f);
+		rotateAnimation = new RotateAnimation(0, 359.9f,Animation.RELATIVE_TO_SELF,0.38f,Animation.RELATIVE_TO_SELF,2.9f);
 		rotateAnimation.setDuration(1000);
 		rotateAnimation.setRepeatCount(Animation.INFINITE);
 		rotateAnimation.setInterpolator(new LinearInterpolator());
@@ -329,11 +424,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		imageViewLayout = (FrameLayout)fragmentView.findViewById(R.id.animation_avator_frame);
 		avatarImageView = (ImageView)fragmentView.findViewById(R.id.animation_avatar);
 		connectionInfo = (TextView)fragmentView.findViewById(R.id.connectionInfo);
-		timerText =(TextView)fragmentView.findViewById(R.id.timer);
+		divider = (View)fragmentView.findViewById(R.id.divider);
+		secondMessage =(TextView)fragmentView.findViewById(R.id.second_message);
 		logo =(ImageView)fragmentView.findViewById(R.id.offline_icon);
 		retryButton = (Button)fragmentView.findViewById(R.id.retry_button);
 		frame = (FrameLayout)fragmentView.findViewById(R.id.animation_circular_progress_holder);
-		connectionInfo.setVisibility(View.VISIBLE);
 		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
 		contactFirstName = msisdn;
 		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
@@ -377,7 +472,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		}
 		FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
 		
-		offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(OfflineUtils.getConnectingMsisdn(), "");
+		offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(OfflineUtils.getConnectingMsisdn(),null,1);
 		offlineDisconnectFragment.setConnectionListner(this);
 		fragmentTransaction.replace(R.id.disconnect_layout, offlineDisconnectFragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		fragmentTransaction.commit();
@@ -389,7 +484,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		super.onCreate(savedInstanceState);
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Translucent);
-		
+		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 	    // handle fragment arguments
 	    Bundle arguments = getArguments();
 	    if(arguments != null)
@@ -444,11 +539,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	protected void sendUiMessages()
 	{
-		sendUIMessage(UPDATE_ANIMATION_MESSAGE,getResources().getString(R.string.connecting_to,contactFirstName));
+		
+		connectionInfo.setText(getResources().getString(R.string.connecting_to,contactFirstName));
+		connectionInfo.setVisibility(View.VISIBLE);
 		sendUIMessage(UPDATE_ANIMATION_MESSAGE,15000,getResources().getString(R.string.offline_animation_second_message));
-		sendUIMessage(UPDATE_ANIMATION_MESSAGE,30000, 
-				getResources().getString(R.string.offline_animation_third_message,contactFirstName));
-		sendUIMessage(START_TIMER, 30000, null);
+		sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE,30000,getResources().getString(R.string.offline_animation_third_message,contactFirstName));
+		sendUIMessage(START_TIMER, 30000,null);
 	}
 
 	@Override
@@ -477,14 +573,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private void updateUIOnDisconnect()
 	{
-		showRetryIcon();
+		showRetryIcon(R.drawable.cross_retry);
 		cancelRotationAnimation();
 		hideAndStopTimer();
 		frame.setVisibility(View.INVISIBLE);
 		removePostedMessages();
-		scaleUpAvatar(3.5f, 3.5f);
+		//scaleUpAvatar(3.5f, 3.5f);
 		showRetryButton();
-		updateAnimationText(getResources().getString(R.string.retry_connection));
+		connectionInfo.setText(getResources().getString(R.string.retry_connection));
 		retryButton.setOnClickListener(new OnClickListener()
 		{
 			
@@ -492,39 +588,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			public void onClick(View v)
 			{
 				hideRetryButton();
-				AnimatorSet  anim = getScaleDownAvatarAnimator(2.6f,2.6f);
-				anim.addListener(new AnimatorListener()
-				{
-					
-					@Override
-					public void onAnimationStart(Animator animation)
-					{
-						
-					}
-					
-					@Override
-					public void onAnimationRepeat(Animator animation)
-					{
-						
-					}
-					
-					@Override
-					public void onAnimationEnd(Animator animation)
-					{
-						logo.setImageDrawable(getResources().getDrawable(R.drawable.iconconnection));
-						frame.setVisibility(View.VISIBLE);
-						startRotateAnimation();
-						sendUiMessages();
-						listener.onConnectionRequest(false);
-					}
-					
-					@Override
-					public void onAnimationCancel(Animator animation)
-					{
-						
-					}
-				});
-				anim.start();
+				showRetryIcon(R.drawable.iconconnection);
+				frame.setVisibility(View.VISIBLE);
+				startRotateAnimation();
+				sendUiMessages();
+				listener.onConnectionRequest(false);
+	
 			}
 
 		});
@@ -543,7 +612,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			public void run()
 			{
 				
-				 connectionInfo.setText(getResources().getString(R.string.connection_established));
+				 updateAnimationText(connectionInfo,getResources().getString(R.string.connection_established));
 				 
 				 if(rotateAnimation!=null)
 				 {
@@ -558,7 +627,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				 if(timer!=null)
 				 {
 					 timer.cancel();
-					 timerText.setVisibility(View.GONE);
+					 secondMessage.setVisibility(View.GONE);
 				 }
 				 
 				 frame.setVisibility(View.INVISIBLE);
@@ -566,26 +635,26 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				 //Scale up 
 				 ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 3.5f);
 				 ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 3.5f);
-				 
+				 scaleXUp.setDuration(1500);
+				 scaleYUp.setDuration(1500);
 				 //Translate back up
 				 ObjectAnimator translateX = ObjectAnimator.ofFloat(imageViewLayout, "translationX",originalPos[0] - (imageViewLayout.getWidth()*3)/4);
 				 ObjectAnimator translateY = ObjectAnimator.ofFloat(imageViewLayout, "translationY",originalPos[1] - (imageViewLayout.getHeight()*3)/4);
-				 translateX.setDuration(700);
-				 translateY.setDuration(700);
+				 translateX.setDuration(500);
+				 translateY.setDuration(500);
 				 
 				 
 				 //Scale down
 				 ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageViewLayout,"scaleX",1f);
 				 ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageViewLayout,"scaleY",1f);
-				 scaleX.setDuration(700);
-				 scaleY.setDuration(700);
+				 scaleX.setDuration(500);
+				 scaleY.setDuration(500);
 				 
 				 //Alpha animation on imageLogo
 				 ObjectAnimator alphaAnimation  =  ObjectAnimator.ofFloat(logo, View.ALPHA,1,0);
-				 alphaAnimation.setDuration(700);
+				 alphaAnimation.setDuration(500);
 				 
-				 AnimatorSet bringBackToTop =  new AnimatorSet();
-				 bringBackToTop.setDuration(500);
+				 bringBackToTop =  new AnimatorSet();
 				 bringBackToTop.playTogether(scaleXUp,scaleYUp);
 				 bringBackToTop.play(translateX).with(translateY).with(scaleX).with(scaleY).with(alphaAnimation).after(scaleXUp);
 				 bringBackToTop.addListener(new AnimatorListener()
@@ -594,7 +663,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 						@Override
 						public void onAnimationStart(Animator animation)
 						{
-							
+							flipRetryIcon();
 		                }
 						
 						@Override
@@ -606,9 +675,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 						@Override
 						public void onAnimationEnd(Animator animation)
 						{
-							((ChatThreadActivity)getActivity()).updateActionBarColor(new ColorDrawable(Color.BLACK));
-						    closeFragment();
-							
+							if (isAdded())
+							{
+								((ChatThreadActivity) getActivity()).updateActionBarColor(new ColorDrawable(Color.BLACK));
+								closeFragment();
+							}
 						}
 						
 						@Override
@@ -640,11 +711,84 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void showRetryButton()
 	{
 		retryButton.setVisibility(View.VISIBLE);
+		divider.setVisibility(View.VISIBLE);
 	}
 	
-	public void showRetryIcon()
+	public void showRetryIcon(final int drawrable)
 	{
-		logo.setImageDrawable(getResources().getDrawable(R.drawable.cross_retry));
+		
+		Animation flipAnimationHalf = AnimationUtils.loadAnimation(getActivity(), R.anim.to_middle);
+		final Animation flipAnimationFull = AnimationUtils.loadAnimation(getActivity(), R.anim.from_middle);
+		
+		AnimationListener listener=new AnimationListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				logo.setImageDrawable(getActivity().getResources().getDrawable(drawrable));
+				logo.clearAnimation();
+				logo.setAnimation(flipAnimationFull);
+				logo.startAnimation(flipAnimationFull);
+			}
+		};
+		logo.clearAnimation();
+		flipAnimationHalf.setAnimationListener(listener);
+		logo.setAnimation(flipAnimationHalf);
+		logo.startAnimation(flipAnimationHalf);
+		
+	}
+	
+	public void flipRetryIcon()
+	{
+		Animation animation1 = AnimationUtils.loadAnimation(getActivity(), R.anim.to_middle);
+		AlphaAnimation hideAnimationHalf = new AlphaAnimation(1.0f,0.0f);
+		hideAnimationHalf.setDuration(250);
+		AnimationSet flipAniamtionSetHalf = new AnimationSet(false);
+		
+		AnimationListener listener=new AnimationListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				logo.setVisibility(View.GONE);
+			}
+		};
+		logo.clearAnimation();
+		animation1.setAnimationListener(listener);
+		flipAniamtionSetHalf.addAnimation(animation1);
+		flipAniamtionSetHalf.addAnimation(hideAnimationHalf);
+		logo.setAnimation(flipAniamtionSetHalf);
+		logo.startAnimation(flipAniamtionSetHalf);
 	}
 	
 	public void cancelRotationAnimation()
@@ -671,14 +815,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
  
 	private void hideAndStopTimer()
 	{
-		timerText.setVisibility(View.GONE);
+		secondMessage.setVisibility(View.GONE);
 		if(timer!=null)
 			timer.cancel();
 	}
 	
 	protected void hideTimer()
 	{
-		timerText.setVisibility(View.GONE);
+		secondMessage.setVisibility(View.GONE);
 	}
 	
 	public AnimatorSet getScaleDownAvatarAnimator(float xDest,float yDest)
@@ -694,6 +838,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void hideRetryButton()
 	{
 		retryButton.setVisibility(View.GONE);
+		divider.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -707,16 +852,22 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void onDisconnectionRequest()
 	{
 		listener.onDisconnectionRequest();
-		closeFragment();
+		//closeFragment();
 	}
 
 	@Override
-	public void removeDisconnectFragment()
+	public void removeDisconnectFragment(boolean removeParent)
 	{
 		Fragment fragment = getChildFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		if(fragment != null)
 		    getChildFragmentManager().beginTransaction().remove(fragment).commit();	
+		if(removeParent)
+		{
+			closeFragment();
+		}
 	}
+
+	
 	
 	
 	

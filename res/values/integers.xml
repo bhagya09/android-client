@@ -18,4 +18,6 @@
 	<integer name="photos_editor_pager_weight">1890</integer>
 	<integer name="photos_pager_preview_weight">5147</integer>
 	<integer name="photos_pager_size_weight">4853</integer>
+	<integer name ="card_flip_time_full">500</integer>
+	<integer name="card_flip_time_half" >250</integer>
 </resources>

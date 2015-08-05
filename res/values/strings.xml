@@ -1578,14 +1578,14 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="connecting_previously">You are already connecting to <![CDATA[%1$s]]>. Disconnect that connection first</string>
     <string name="connecting_previously_to_same_msisdn">You are already connecting to <![CDATA[%1$s]]> .  Please wait</string>
     <string name="disconnect_warning">Connect with <![CDATA[%1$s]]> ?</string>
-    <string name="connected_warning">Your connection with <![CDATA[<font color=#FF0000>%1$s</font>]]> will end.</string>
+    <string name="connected_warning">Your connection with <![CDATA[<font color=#E53C3C>%1$s</font>]]> will end.</string>
     <string name="connecting_to">Connecting to <![CDATA[%1$s]]> ...</string>
     <string name="offline_animation_second_message">Tip: Hike Direct works within a \n 100 metres radius</string>
     <string name="offline_animation_third_message">It is taking longer than usual. \n Please ask <![CDATA[%1$s]]> to \n tap on hike direct as well</string>
     <string name="connect">Connect</string>
 	<string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
-    <string name="cancel_connection">Cancel conection with <![CDATA[<font color=#FF0000>%1$s</font>]]> ??</string>
+    <string name="cancel_connection">Cancel connection attempt with <![CDATA[<font color=#FF0000>%1$s</font>]]> ?</string>
     <string name="cancel_offline_connection">Cancel Connection</string>
     <string name="connection_cancelled">Connection cancelled</string>
     <string name="retry_connection">Connection was not \n established. Try again?</string>
