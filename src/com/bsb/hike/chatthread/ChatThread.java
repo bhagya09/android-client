@@ -134,6 +134,7 @@ import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -1237,6 +1238,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			activity.updateActionBarColor(theme.headerBgResId());
 			setChatBackground(R.color.chat_thread_default_bg);
+			setStatusBarColor(theme.statusBarColor());
 
 		}
 
@@ -1249,6 +1251,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				setChatBackground(R.color.chat_thread_default_bg);
 
 			setConversationTheme(theme);
+			setStatusBarColor(theme.statusBarColor());
 		}
 	}
 	protected void setChatBackground(int colorResID){
@@ -1711,6 +1714,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mAdapter.setChatTheme(theme);
 		// action bar
 		activity.updateActionBarColor(theme.headerBgResId());
+		setStatusBarColor(theme.statusBarColor());
 		
 		// background image
 		setBackground(theme);
@@ -4657,6 +4661,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (getCurrentlTheme() != null && getCurrentlTheme() != ChatTheme.DEFAULT)
 		{
 			setBackground(getCurrentlTheme());
+			setStatusBarColor(getCurrentlTheme().statusBarColor());
 		}
 		
 		/**
@@ -5114,5 +5119,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onRestoreInstanceState(Bundle savedInstanceState) 
 	{
 		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
+	}
+	public void setStatusBarColor(int resIdcolor){
+		StatusBarColorChanger.setStatusBarColor(activity, resIdcolor);
+		activity.statusBarColorID=resIdcolor;
 	}
 }

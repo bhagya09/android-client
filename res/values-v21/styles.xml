@@ -6,6 +6,7 @@
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
      
     </style>
+
 <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
@@ -27,11 +28,14 @@
         <item name="colorControlActivated">@color/blue_hike</item>
 		<item name="android:textColorPrimary">@color/blue_hike</item>
 		<item name="android:alertDialogTheme">@style/Theme.CustomDialog</item>
+		 <item name="android:actionButtonStyle">@style/HikeActionButtonStyle</item>
+       <item name="actionButtonStyle">@style/HikeActionButtonStyle</item>
     </style>
     
 	<style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog">
 	    <item name="colorAccent">@color/unread_message</item>
 	</style>
+
 
     <style name="AppTheme.Overlay" parent="AppTheme">
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
@@ -49,9 +53,9 @@
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowContentOverlay">@color/white</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+
 	</style>
     <style name="AppTheme.Home.Photos">
         <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
