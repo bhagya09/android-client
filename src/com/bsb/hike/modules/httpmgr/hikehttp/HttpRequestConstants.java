@@ -249,7 +249,7 @@ public class HttpRequestConstants
 
 	public static String deleteAccountBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
+		return BASE_URL + BASE_V1 + "/account-delete";
 	}
 
 	public static String unlinkAccountBaseUrl()

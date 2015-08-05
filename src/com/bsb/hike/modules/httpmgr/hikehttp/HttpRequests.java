@@ -493,7 +493,7 @@ public class HttpRequests
 				.setUrl(deleteAccountBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
-				.delete()
+				.post(null)
 				.build();
 		return requestToken;
 	}
