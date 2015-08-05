@@ -5124,7 +5124,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
 	}
-	public void setStatusBarColor(int resIdcolor){
+	public void setStatusBarColor(int resIdcolor)
+	{
 		StatusBarColorChanger.setStatusBarColor(activity, resIdcolor);
 		activity.statusBarColorID=resIdcolor;
 	}
