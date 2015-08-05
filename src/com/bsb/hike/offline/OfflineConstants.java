@@ -66,6 +66,8 @@ public class OfflineConstants
 	
 	public static final String INFO_PKT = "info";
 	
+	public static final int STICKER_SIZE = 168;
+	
 	public final class HandlerConstants
 	{
 		public static final int SAVE_MSG_DB = -101;
