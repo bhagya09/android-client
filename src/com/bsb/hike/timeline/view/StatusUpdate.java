@@ -15,7 +15,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -211,6 +210,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp.getPubSub().addListeners(this, pubsubListeners);
 
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STATUS.ordinal());
+
+		if (!shouldShowMoodsButton())
+		{
+			addMoodLayout.setVisibility(View.GONE);
+		}
 	}
 
 	private void readArguments(Intent intent)
@@ -400,8 +404,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			emojiParent.setVisibility(View.GONE);
 		}
 		toggleEnablePostButton();
-		
-		addMoodLayout.setVisibility(View.VISIBLE);
+
+		if (shouldShowMoodsButton())
+		{
+			addMoodLayout.setVisibility(View.VISIBLE);
+		}
 	}
 
 	private void postStatus()
@@ -643,4 +650,15 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.emoticonClicked(getApplicationContext(), emoticonIndex, statusTxt);
 	}
 
+	private boolean shouldShowMoodsButton()
+	{
+		if (TextUtils.isEmpty(mImagePath))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

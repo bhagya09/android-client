@@ -92,7 +92,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 				JSONObject data = response.optJSONObject("data");
 				String mappedId = data.optString(HikeConstants.STATUS_ID);
 				String text = data.optString(HikeConstants.STATUS_MESSAGE);
-				int moodId = data.optInt(HikeConstants.MOOD);
+				int moodId = data.optInt(HikeConstants.MOOD) - 1;
 				
 				int timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
 				String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
