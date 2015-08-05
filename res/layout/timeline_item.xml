@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
         card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="2dp"
+        card_view:cardElevation="1dp"
         android:background="@drawable/timeline_tab_selector"
         card_view:cardUseCompatPadding="true"
         card_view:contentPaddingLeft="2dp"

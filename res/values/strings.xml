@@ -1592,4 +1592,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="timeline_ftueexit_desc">You\'ve added more people to your list of Favorites. They will also be able to see moments posted by you.</string>
     <string name="timeline_ftueexit_btn">GOT IT</string>
     <string name="notif_posted_photo">posted a photo</string>
+    <string name="photo_actions_header">Looks great! Use this photo to,</string>
+    <string name="post_to_timeline">To your Timeline</string>
 </resources>

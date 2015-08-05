@@ -8,11 +8,11 @@
     <android.support.v7.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="match_parent"
-        android:background="@drawable/timeline_tab_selector"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
+        android:background="@drawable/timeline_tab_selector"
         card_view:cardCornerRadius="2dp"
-        card_view:cardElevation="2dp"
+        card_view:cardElevation="1dp"
         card_view:cardUseCompatPadding="true"
         card_view:contentPaddingLeft="2dp"
         card_view:contentPaddingRight="2dp" >
@@ -79,11 +79,20 @@
                     android:textSize="12sp" />
             </RelativeLayout>
 
+            <com.bsb.hike.ui.utils.SquareRecyclingImageView
+                android:id="@+id/profile_pic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/info_container"
+                android:onClick="onViewImageClicked"
+                android:scaleType="centerCrop"
+                android:src="@drawable/misc_timeline_ftue" />
+
             <LinearLayout
                 android:id="@+id/details_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/info_container"
+                android:layout_below="@+id/profile_pic"
                 android:layout_marginBottom="12dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="4dp"
@@ -102,20 +111,11 @@
                     android:textStyle="italic" />
             </LinearLayout>
 
-            <com.bsb.hike.ui.utils.SquareRecyclingImageView
-                android:id="@+id/profile_pic"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/details_content"
-                android:onClick="onViewImageClicked"
-                android:scaleType="centerCrop"
-                android:src="@drawable/misc_timeline_ftue" />
-
             <LinearLayout
                 android:id="@+id/actions_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/profile_pic"
+                android:layout_below="@id/details_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" >
 
@@ -123,10 +123,10 @@
                     android:id="@+id/btn_love"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
                     android:button="@drawable/btn_love_selector"
                     android:text=""
                     android:textColor="#CCCCCC" />
