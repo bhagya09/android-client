@@ -9,6 +9,7 @@ import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
+import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -70,6 +71,7 @@ public class OkClient implements IClient
 		client.setWriteTimeout(clientOptions.getWriteTimeout(), TimeUnit.MILLISECONDS);
 		client.setSocketFactory(client.getSocketFactory());
 		client.setSslSocketFactory(clientOptions.getSslSocketFactory());
+		client.setHostnameVerifier(clientOptions.getHostnameVerifier());
 
 		if (clientOptions.getProxy() != null)
 		{
@@ -216,7 +218,7 @@ public class OkClient implements IClient
 		}
 		finally
 		{
-			HttpUtils.closeQuietly(stream);
+			Utils.closeStreams(stream);
 		}
 	}
 

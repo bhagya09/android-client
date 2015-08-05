@@ -1156,7 +1156,6 @@
     <string name="no_file">फ़ाइलें और पिन यहां दिखाए जाते हैं</string>
     <string name="no_file_broadcast">फ़ाइलें यहां दिखाई जाती हैं</string>
     <string name="no_file_profile">फ़ाइलें यहां दिखाई जाती हैं</string>
-    <string name="num_new_conversations">%1$s वार्तालाप</string>
     <string name="notifications_contact_join_title">hike सेे जुड़ने वाले संपर्क</string>
     <string name="share_with_names_numbers">%1$s और %2$d अन्य के साथ साझा करें?</string>
     <string name="forward_to_names_numbers">%1$s और %2$d अन्य को संदेश भेजें?</string>

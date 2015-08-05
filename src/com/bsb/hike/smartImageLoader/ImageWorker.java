@@ -33,13 +33,10 @@ import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
 /**
@@ -69,6 +66,10 @@ public abstract class ImageWorker
 	private boolean setHiResDefaultAvatar = false;
 	
 	private boolean setDefaultDrawableNull = true;
+	
+	protected boolean cachingEnabled = true;
+	
+	protected SuccessfulImageLoadingListener successfulImageLoadingListener;
 	
 	/*
 	 * This case is currently being used in very specific scenerio of
@@ -131,6 +132,7 @@ public abstract class ImageWorker
 				imageView.setBackgroundDrawable(null);
 			}
 		}
+		
 		if (mImageCache != null)
 		{
 			value = mImageCache.get(data);
@@ -146,6 +148,8 @@ public abstract class ImageWorker
 			Logger.d(TAG, data + " Bitmap found in cache and is not recycled.");
 			// Bitmap found in memory cache
 			imageView.setImageDrawable(value);
+			
+			sendImageCallback(imageView);
 		}
 		else if (runOnUiThread)
 		{
@@ -158,11 +162,14 @@ public abstract class ImageWorker
 					mImageCache.putInCache(data, bd);
 				}
 				imageView.setImageDrawable(bd);
+				sendImageCallback(imageView);
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
 			{
 				setDefaultAvatar(imageView, data);
+				sendImageCallback(imageView);
 			}
+			
 		}
 		else if (cancelPotentialWork(data, imageView) && !isFlinging)
 		{
@@ -265,6 +272,11 @@ public abstract class ImageWorker
 	public void setExitTasksEarly(boolean exitTasksEarly)
 	{
 		mExitTasksEarly.set(exitTasksEarly);
+	}
+	
+	public boolean getIsExitTasksEarly()
+	{
+		return mExitTasksEarly.get();
 	}
 
 	public void setDefaultAvatarIfNoCustomIcon(boolean b)
@@ -419,7 +431,7 @@ public abstract class ImageWorker
 
 				drawable = HikeBitmapFactory.getBitmapDrawable(mResources, bitmap);
 
-				if (mImageCache != null)
+				if (mImageCache != null && cachingEnabled)
 				{
 					Logger.d(TAG, "Putting data in cache : " + dataString);
 					mImageCache.putInCache(dataString, drawable);
@@ -447,6 +459,7 @@ public abstract class ImageWorker
 				if (value != null)
 				{
 					setImageDrawable(imageView, value);
+					sendImageCallback(imageView);
 				}
 				else if (setDefaultAvatarIfNoCustomIcon)
 				{
@@ -456,6 +469,7 @@ public abstract class ImageWorker
 						key = new String(data.substring(0, idx));
 					
 					setDefaultAvatar(imageView, key);
+					sendImageCallback(imageView);
 				}
 				else if (defaultDrawable != null)
 				{
@@ -464,6 +478,7 @@ public abstract class ImageWorker
 					 * media viewer files for which we could not create thumbnails(ex. tif images)
 					 */
 					setImageDrawable(imageView, defaultDrawable);
+					sendImageCallback(imageView);
 					imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				}
 
@@ -545,6 +560,7 @@ public abstract class ImageWorker
 			{
 				imageView.setImageDrawable(drawable);
 			}
+			
 		}
 		catch (Exception e)
 		{
@@ -568,5 +584,37 @@ public abstract class ImageWorker
 	    drawable.draw(canvas);
 
 	    return bitmap;
+	}
+	
+	public void setCachingEnabled(boolean enableCache)
+	{
+		this.cachingEnabled = enableCache;
+	}
+	
+	public boolean isCachingEnabled()
+	{
+		return cachingEnabled;
+	}
+	
+	public interface SuccessfulImageLoadingListener{
+		
+		public void onSuccessfulImageLoaded(ImageView imageView);
+	}
+	
+	public void setSuccessfulImageLoadingListener(SuccessfulImageLoadingListener successfulImageLoadingListener)
+	{
+		this.successfulImageLoadingListener = successfulImageLoadingListener;
+	}
+	
+	/**
+	 * This is the call back to listener after image is loaded into ImageView
+	 * @param imageView
+	 */
+	private void sendImageCallback(ImageView imageView)
+	{
+		if(successfulImageLoadingListener != null)
+		{
+			successfulImageLoadingListener.onSuccessfulImageLoaded(imageView);
+		}
 	}
 }

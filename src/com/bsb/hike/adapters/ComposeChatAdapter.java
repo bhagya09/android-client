@@ -621,10 +621,38 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		return existingParticipants.size();
 	}
+	
+	public ArrayList<List<ContactInfo>> getOnHikeContactLists()
+	{
+		ArrayList<List<ContactInfo>> onHikeLists = new ArrayList<List<ContactInfo>>();
+		onHikeLists.add(getOnHikeSublist(friendsList));
+		onHikeLists.add(hikeContactsList);
+		onHikeLists.add(getOnHikeSublist(recentContactsList));
+		onHikeLists.add(getOnHikeSublist(recentlyJoinedHikeContactsList));
+		
+		return onHikeLists;
+	}
 
+	public List<ContactInfo> getOnHikeSublist(List<ContactInfo> completeList)
+	{
+		List<ContactInfo> subList = new ArrayList<ContactInfo>();
+		for (ContactInfo contactInfo : completeList) {
+			if(contactInfo.isOnhike())
+			{
+				subList.add(contactInfo);
+			}
+		}
+		return subList;
+	}
+	
 	public int getOnHikeContactsCount()
 	{
-		return hikeContactsList.size();
+		int contactCount = 0;
+		ArrayList<List<ContactInfo>> onHikeLists = getOnHikeContactLists();
+		for (List<ContactInfo> list : onHikeLists) {
+			contactCount += list.size();
+		}
+		return contactCount;
 	}
 	
 	public void setShowExtraAtFirst(boolean showExtraAtFirst)
@@ -726,7 +754,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				{
 					continue;
 				}
-
+				
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}
@@ -741,8 +769,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		if(select)
 		{
-			selectAllFromList(friendsList,recentContactsList,recentlyJoinedHikeContactsList,hikeContactsList,groupsList);
-			
+			ArrayList<List<ContactInfo>> listsToSelect = getOnHikeContactLists();
+			listsToSelect.add(groupsList);
+			selectAllFromList(listsToSelect);
 		}
 		else
 		{
@@ -765,13 +794,14 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		}
 	}
 	
-	private void selectAllFromList(List<ContactInfo> ...lists){
-		int total = lists.length;
-		for(int i=0;i<total;i++){
-			List<ContactInfo> list = lists[i];
-			if(list!=null){
-				for(ContactInfo contactInfo: list){
-					if(contactInfo.isOnhike()){
+	private void selectAllFromList(List<List<ContactInfo>> lists){
+		for (List<ContactInfo> list : lists) {
+			if(list!=null)
+			{
+				for(ContactInfo contactInfo: list)
+				{
+					if(contactInfo.isOnhike())
+					{
 						selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
 					}
 				}

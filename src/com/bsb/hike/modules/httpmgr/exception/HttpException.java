@@ -19,16 +19,16 @@ public class HttpException extends Exception
 	
 	public static final short REASON_CODE_MALFORMED_URL = 0x4;
 	
-	public static final short REASON_CODE_SERVER_ERROR = 0x5;
-	
-	public static final short REASON_CODE_AUTH_FAILURE = 0x6;
-	
 	public static final short REASON_CODE_CANCELLATION = 0x7;
 	
 	public static final short REASON_CODE_OUT_OF_SPACE = 0x08;
 	
 	public static final short REASON_CODE_RESPONSE_PARSING_ERROR = 0x09;
-	
+
+	public static final short REASON_CODE_UNKNOWN_HOST_EXCEPTION = 0x10;
+
+	public static final short REASON_CODE_INTERRUPTED_EXCEPTION = 0x11;
+
 	private int errorCode;
 
 	public HttpException(short errorCode)

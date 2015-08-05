@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import static com.bsb.hike.MqttConstants.*;
+
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -53,11 +54,13 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HostInfo;
 import com.bsb.hike.HostInfo.ConnectExceptions;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.db.MqttPersistenceException;
 import com.bsb.hike.models.HikePacket;
@@ -140,6 +143,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private Messenger mMessenger; // this is used to interact with the mqtt thread
 
 	List<String> serverURIs = null;
+	
+	ArrayList<Integer> serverPorts = null;
 
 	private volatile short fastReconnect = 0;
 
@@ -150,6 +155,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private long maxMessageProcessTime = 0;
 	
 	private volatile HostInfo previousHostInfo = null;
+	
+	private ScreenOnOffReceiver screenOnOffReceiver;
 	
 	private class ActivityCheckRunnable implements Runnable
 	{
@@ -351,6 +358,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		registerBroadcastReceivers();
 
 		setServerUris();
+		setServerPorts();
 		// mqttThreadHandler.postDelayed(new TestOutmsgs(), 10 * 1000); // this is just for testing
 		
 		initialised.getAndSet(true);
@@ -377,13 +385,19 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private void registerBroadcastReceivers()
 	{
 		// register for Screen ON, Network Connection Change
-		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-		filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 		filter.addAction(MQTT_CONNECTION_CHECK_ACTION);
 		filter.addAction(HikePubSub.SSL_PREFERENCE_CHANGED);
 		filter.addAction(HikePubSub.IPS_CHANGED);
+		filter.addAction(HikePubSub.PORTS_CHANGED);
 		context.registerReceiver(this, filter);
 		LocalBroadcastManager.getInstance(context).registerReceiver(this, filter);
+		
+		screenOnOffReceiver = new ScreenOnOffReceiver();
+		IntentFilter intentFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+		intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+		context.registerReceiver(screenOnOffReceiver, intentFilter);
+
 	}
 
 	private int getConnRetryTime()
@@ -613,7 +627,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 			// get host information for this connect try, which in turn is based on
 			// previous host informartion
-			HostInfo hostInfo = new HostInfo(previousHostInfo, serverURIs);
+			HostInfo hostInfo = new HostInfo(previousHostInfo, serverURIs, serverPorts);
 			if (mqtt == null)
 			{
 				// Here I am using my modified MQTT PAHO library
@@ -725,6 +739,46 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			serverURIs.add("54.251.180.5");
 			serverURIs.add("54.251.180.6");
 			serverURIs.add("54.251.180.7");
+		}
+
+	}
+	
+	private void setServerPorts()
+	{
+		String portString = settings.getString(MqttConstants.MQTT_PORTS, "");
+		JSONArray portArray = null;
+
+		try
+		{
+			portArray = new JSONArray(portString);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		if (null != portArray && portArray.length() > 0)
+		{
+			serverPorts = new ArrayList<Integer>(portArray.length() + 1);
+			int len = portArray.length();
+
+			for (int i = 0; i < len; i++)
+			{
+				// serverURIs[i + 1] =
+				if (portArray.optInt(i) != 0)
+				{
+					serverPorts.add(portArray.optInt(i));
+				}
+			}
+		}
+		
+		if(serverPorts == null || serverPorts.isEmpty())
+		{
+			serverPorts = new ArrayList<Integer>(PRODUCTION_MQTT_CONNECT_PORTS.length);
+			for (Integer defaultPort : PRODUCTION_MQTT_CONNECT_PORTS)
+			{
+				serverPorts.add(defaultPort);
+			}
 		}
 
 	}
@@ -845,6 +899,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 						cancelNetworkErrorTimer();
 						HikeMessengerApp.getPubSub().publish(HikePubSub.CONNECTED_TO_MQTT, null);
 						mqttThreadHandler.postAtFrontOfQueue(new RetryFailedMessages());
+						saveSuccessfullMqttConnectPrefs();
 						resetConnectionVariables();
 					}
 
@@ -886,6 +941,15 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		}
 		return listernerConnect;
 	}
+	
+	private void saveSuccessfullMqttConnectPrefs()
+	{
+		if(previousHostInfo != null)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.LAST_MQTT_CONNECT_PORT, previousHostInfo.getPort());
+		}
+	}
+
 
 	/* This call back will be called when message is arrived */
 	private MqttCallback getMqttCallback()
@@ -1118,7 +1182,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private void handleMqttException(MqttException e, boolean reConnect)
 	{
-		Logger.i(TAG, "entered handleMqttException method " );
+		Logger.i(TAG, "entered handleMqttException method "+ e.getReasonCode());
 		switch (e.getReasonCode())
 		{
 		case MqttException.REASON_CODE_BROKER_UNAVAILABLE:
@@ -1154,9 +1218,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if (e.getCause() != null)
 			{
 				Logger.e(TAG, "Exception : " + e.getCause().getMessage());
+				
+				String analyticsDevArea = MqttConstants.EXCEPTION_DEV_AREA + "_" + e.getReasonCode();;
 				if (e.getCause() instanceof UnknownHostException)
 				{
 					handleDNSException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
 				}
 				// we are getting this exception in one phone in which message is "Host is unresolved"
 				else if (e.getCause() instanceof SocketException)
@@ -1164,20 +1231,34 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					if (e.getCause().getMessage() != null && e.getCause().getMessage().indexOf(UNRESOLVED_EXCEPTION) != -1)
 					{
 						handleDNSException();
+						sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
+					}
+					else
+					{
+						sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
 					}
 				}
 				else if (e.getCause() instanceof SocketTimeoutException)
 				{
 					handleSocketTimeOutException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "1" );
 				}
 				// added this exception for safety , we might also get this exception in some phones
 				else if (e.getCause() instanceof UnresolvedAddressException)
 				{
 					handleDNSException();
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "0" );
 				}
 				// Till this point disconnect has already happened due to exception (This is as per lib)
 				else if (reConnect)
+				{
 					connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+				}
+				else
+				{
+					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
+				}
 			}
 			else
 			{
@@ -1189,6 +1270,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			if (reConnect)
 				connectOnMqttThread();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_CLIENT_TIMEOUT:
 			// Till this point disconnect has already happened. This could happen in PING or other TIMEOUT happen such as CONNECT, DISCONNECT
@@ -1206,9 +1288,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		case MqttException.REASON_CODE_FAILED_AUTHENTICATION:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_INVALID_CLIENT_ID:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_INVALID_MESSAGE:
 			// simply ignore as message is invalid
@@ -1216,39 +1300,83 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		case MqttException.REASON_CODE_INVALID_PROTOCOL_VERSION:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_MAX_INFLIGHT:
 			Logger.e(TAG, "There are already to many messages in publish. Exception : " + e.getMessage());
 			break;
 		case MqttException.REASON_CODE_NO_MESSAGE_IDS_AVAILABLE:
 			// simply ignore as message is invalid due to no msgIds
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_NOT_AUTHORIZED:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_SERVER_CONNECT_ERROR:
+			handleOtherException();
 			scheduleNextConnectionCheck(getConnRetryTime());
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_SOCKET_FACTORY_MISMATCH:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_SSL_CONFIG_ERROR:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_TOKEN_INUSE:
 			clearSettings();
+			sendAnalyticsEvent(e);
 			break;
 		case MqttException.REASON_CODE_UNEXPECTED_ERROR:
 			// This could happen while reading or writing error on a socket, hence disconnection happens
+			handleOtherException();
 			scheduleNextConnectionCheck(getConnRetryTime());
+			sendAnalyticsEvent(e);
 			break;
 		default:
 			Logger.e(TAG, "In Default : " + e.getMessage());
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			connectOnMqttThread(getConnRetryTime());
+			sendAnalyticsEvent(e, MqttConstants.EXCEPTION_DEFAULT);
 			break;
 		}
 		e.printStackTrace();
+	}
+	
+	private void sendAnalyticsEvent(MqttException e)
+	{
+		sendAnalyticsEvent(e, null);
+	}
+	
+	private void sendAnalyticsEvent(MqttException e, String devArea)
+	{
+		//if server switch is off
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CONN_PROD_AREA_LOGGING, false))
+		{
+			return;
+		}
+		
+		JSONObject infoJson = new JSONObject();
+		try 
+		{
+			infoJson.put(AnalyticsConstants.ERROR_TRACE, Utils.getStackTrace(e));
+			infoJson.put(AnalyticsConstants.REASON_CODE, e.getReasonCode());
+		
+			//eg. dev area for REASON_CODE_CLIENT_EXCEPTION is exception_0.
+			if(TextUtils.isEmpty(devArea))
+			{
+				devArea = MqttConstants.EXCEPTION_DEV_AREA + "_" + e.getReasonCode();
+			}
+			
+			HAManager.getInstance().logDevEvent(MqttConstants.CONNECTION_PROD_AREA, devArea, infoJson);
+		} 
+		catch (JSONException jsonEx) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",jsonEx);
+		}
 	}
 
 	private void handleSocketTimeOutException()
@@ -1260,6 +1388,16 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		Logger.e(TAG, "Client exception : entered handleSocketTimeOutException");
 		connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
 	}
+	
+	private void handleOtherException()
+	{
+		if(previousHostInfo != null)
+		{
+			Logger.e(TAG, "Client exception : entered handleOtherException");
+			previousHostInfo.setExceptionOnConnect(ConnectExceptions.OTHER);
+		}
+	}
+
 
 	/**
 	 * Dns exception occured, Connect using ips
@@ -1281,6 +1419,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			Logger.w(TAG, "Destroying mqtt connection.");
 			context.unregisterReceiver(this);
 			LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+			context.unregisterReceiver(screenOnOffReceiver);
 			disconnectOnMqttThread(false);
 			// here we are blocking service main thread for 1 second or less so that disconnection takes place cleanly
 			while (mqttConnStatus != MQTTConnectionStatus.NOT_CONNECTED || mqttConnStatus != MQTTConnectionStatus.NOT_CONNECTED_UNKNOWN_REASON && retryAttempts <= 100)
@@ -1317,12 +1456,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
-		{
-			if (Utils.isUserOnline(context))
-				connectOnMqttThread();
-		}
-		else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
+		if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
 		{
 			boolean isNetwork = Utils.isUserOnline(context);
 			Logger.d(TAG, "Network change event happened. Network connected : " + isNetwork);
@@ -1368,6 +1502,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		{
 			String ipString = intent.getStringExtra("ips");
 			saveAndSet(ipString);
+		}
+		else if (intent.getAction().equals(HikePubSub.PORTS_CHANGED))
+		{
+			String portsArrayString = intent.getStringExtra(MqttConstants.MQTT_PORTS);
+			saveAndSetPorts(portsArrayString);
 		}
 	}
 
@@ -1438,6 +1577,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		editor.putString(HikeMessengerApp.MQTT_IPS, ipString);
 		editor.commit();
 		setServerUris();
+	}
+	
+	private void saveAndSetPorts(String portsArrayString)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(MqttConstants.MQTT_PORTS, portsArrayString);
+		setServerPorts();
 	}
 
 	// This class is just for testing .....
@@ -1574,10 +1719,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	 * @param object - Message
 	 * @param qos level (MQTT_PUBLISH or MQTT_PUBLISH_LOW)
 	 */
-	public void sendMessage(JSONObject o, int qos)
+	public void sendMessage(JSONObject jsonObj, int qos)
 	{
 		// added check
-		if(o == null)
+		if(jsonObj == null)
 		{
 			return ;
 		}
@@ -1593,6 +1738,35 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			
 			// successfully initialized
 		}
+		
+		JSONObject o = Utils.cloneJsonObject(jsonObj);
+		
+		if(o == null)
+		{
+			return ;
+		}
+		
+		/*
+		 * Now on, we would be putting Client sending time ("c") in all qos1 packets,
+		 * For all type m packets it should be set from db insert, for all other packets
+		 * we would be putting this from here.
+		 */
+		long currentTime = System.currentTimeMillis();
+		if (qos == MQTT_QOS_ONE)
+		{
+			if(!o.has(HikeConstants.SEND_TIMESTAMP))
+			{
+				try
+				{
+					o.put(HikeConstants.SEND_TIMESTAMP, currentTime);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(TAG, "Error while trying to put SEND_TIMESTAMP", e);
+				}
+			}
+		}
+
 		
 		String data = o.toString();
 
@@ -1636,8 +1810,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			type = HikeConstants.NORMAL_MESSAGE_TYPE;
 		}
 
-
-		HikePacket packet = new HikePacket(data.getBytes(), msgId, System.currentTimeMillis(), type);
+		HikePacket packet = new HikePacket(data.getBytes(), msgId, currentTime, type);
 		setTrackIDInPacketForMsgRel(o, packet);
 		addToPersistence(packet, qos);
 

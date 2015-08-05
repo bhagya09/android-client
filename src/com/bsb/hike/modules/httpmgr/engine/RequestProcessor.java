@@ -87,7 +87,7 @@ public class RequestProcessor
 	public boolean isRequestRunning(Request<?> request)
 	{
 		String requestId = request.getId();
-		if (requestMap.containsKey(requestId))
+		if (requestId !=null && requestMap.containsKey(requestId))
 		{
 			LogFull.d(request.toString() + " is already running ");
 			return true;
@@ -120,6 +120,7 @@ public class RequestProcessor
 			LogFull.i(request.toString() + " already exists");
 			Request<?> req = requestMap.get(newRequestId);
 			req.addRequestListeners(request.getRequestListeners());
+			requestMap.remove(reqId);
 			return true;
 		}
 		else

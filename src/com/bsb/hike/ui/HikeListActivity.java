@@ -47,6 +47,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.HikeInviteAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -72,9 +74,9 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private EditText input;
 
-	// Set of msisdns of the already blocked/invited users 
+	// Set of msisdns of the already blocked/invited users
 	private Set<String> selectedContacts;
-	
+
 	// Set of blocked contacts before the user opens the blocked list from privacy settings 
 	private Set<String> alreadyBlockedContacts;
 
@@ -416,15 +418,11 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 			
 			HashMap<Integer, List<Pair<AtomicBoolean, ContactInfo>>> completeSectionsData = new HashMap<Integer, List<Pair<AtomicBoolean, ContactInfo>>>();
-			
-			// Filter out contacts which are not checked(not invited/blocked)
 			contactList.removeAll(firstSectionList);
 			if (!firstSectionList.isEmpty())
 			{
-				// first show the pre checked contacts
 				completeSectionsData.put(0, firstSectionList);
 			}
-			// append the not-checked contacts below the pre-checked contacts 
 			completeSectionsData.put(completeSectionsData.size(), contactList);
 			adapter = new HikeInviteAdapter(HikeListActivity.this, -1, completeSectionsData, type == Type.BLOCK);
 			input.addTextChangedListener(adapter);
@@ -588,6 +586,12 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				String msisdn = toggleBlockEntry.getKey();
 				boolean blocked = toggleBlockEntry.getValue();
 
+				if (BotUtils.isBot(msisdn))
+				{
+					BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+					mBotInfo.setBlocked(blocked);
+				}
+				
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
 			finish();
@@ -720,5 +724,4 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			finish();
 		}
 	}
-
 }

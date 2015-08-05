@@ -7,7 +7,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.SharedPreferences;
+
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -88,6 +91,8 @@ public class MessageMetadata
 
 	private boolean newBroadcast;
 
+	private String groupAdder;
+
 	public int getPinMessage()
 	{
 		return pinMessage;
@@ -152,9 +157,21 @@ public class MessageMetadata
 		case DND_USER:
 			this.dndNumbers = metadata.has(HikeConstants.DND_USERS) ? metadata.getJSONArray(HikeConstants.DND_USERS) : metadata.getJSONArray(HikeConstants.DND_NUMBERS);
 			break;
+			
+		case CHANGE_ADMIN:
+			this.msisdn = metadata.getJSONObject(HikeConstants.DATA).getString(HikeConstants.ADMIN_MSISDN);
+			break;
 
 		case PARTICIPANT_JOINED:
 			this.gcjParticipantInfo = metadata.getJSONArray(HikeConstants.DATA);
+			if(metadata.has(HikeConstants.METADATA))
+			{
+			JSONObject mdata = metadata.getJSONObject(HikeConstants.METADATA);
+			if (mdata.has(HikeConstants.FROM))
+			{
+				this.groupAdder = mdata.getString(HikeConstants.FROM);
+			}
+			}
 			this.newGroup = metadata.optBoolean(HikeConstants.NEW_GROUP);
 			this.newBroadcast = metadata.optBoolean(HikeConstants.NEW_BROADCAST);
 			break;
@@ -321,6 +338,15 @@ public class MessageMetadata
 	{
 		this.nudgeAnimationType = type;
 	}
+
+	public String getGroupAdder() {
+		return groupAdder;
+	}
+
+	public void setGroupAdder(String groupAdder) {
+		this.groupAdder = groupAdder;
+	}
+
 	
 	/**
 	 * Used to update the sticker object as well as the JSON Object in the message metadata

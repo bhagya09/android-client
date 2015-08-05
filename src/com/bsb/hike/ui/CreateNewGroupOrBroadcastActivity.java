@@ -18,9 +18,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
@@ -74,6 +76,10 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private ConvType convType;
 	
 	private String myMsisdn;
+	
+	private ImageView editImageIcon;
+
+	private CheckBox gsSettings;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -180,7 +186,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (EditText) findViewById(R.id.group_name);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+			editImageIcon = (ImageView) findViewById(R.id.change_image);
+			gsSettings = (CheckBox) findViewById(R.id.checkBox);
+			if((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING,0))==1){
+				gsSettings.setChecked(true);
+			}
 			convName.addTextChangedListener(new TextWatcher()
 			{
 
@@ -211,7 +221,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					@Override
 					public void onClick(View v)
 					{												
-						beginProfilePicChange(CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this, null);
+						beginProfilePicChange(CreateNewGroupOrBroadcastActivity.this,CreateNewGroupOrBroadcastActivity.this, null, false);
 					}
 				});
 			}
@@ -318,12 +328,22 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				break;
 				
 			case GROUP:
-				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim());
+				int settings = 0;
+				if(gsSettings.isChecked()){
+					settings = 1;
+				}
+				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(),settings);
 				startActivity(intentGroup);
 				break;
 		}
 	}
 	
+	public void onGSCheckboxClicked(final View view) {
+		final boolean checked =( (CheckBox) view.findViewById(R.id.checkBox)).isChecked();
+		final CheckBox checkBox = ( (CheckBox) view.findViewById(R.id.checkBox));
+		checkBox.setChecked(!checked);
+
+	}
 	@Override
 	public String profileImageCropped()
 	{
@@ -339,22 +359,33 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	 * @param path of the bitmap
 	 */
 	private void setGroupPreivewBitmap(String path)
-	{
-		Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(path, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
-				Bitmap.Config.RGB_565, true, false);
+    {
+        Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(path, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
+                Bitmap.Config.RGB_565, true, false);
+        
+        if(tempBitmap == null)
+        {
+            Toast.makeText(getApplicationContext(), R.string.photos_oom_upload, Toast.LENGTH_LONG).show();
+            return;
+        }
 
-		groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
-		convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
+        groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
+        convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
+        if (editImageIcon != null) {
+            editImageIcon.setImageResource(R.drawable.ic_edit_group);
+        }
 
-		/*
-		 * Saving the icon in the DB.
-		 */
-		byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
+        /*
+         * Saving the icon in the DB.
+         */
+        byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
 
-		tempBitmap.recycle();
-		ContactManager.getInstance().setIcon(convId, bytes, false);
-	}
-
+        if(!tempBitmap.isRecycled())
+        {
+            tempBitmap.recycle();
+        }
+        ContactManager.getInstance().setIcon(convId, bytes, false);
+    }
 	private void sendBroadCastAnalytics()
 	{
 		try

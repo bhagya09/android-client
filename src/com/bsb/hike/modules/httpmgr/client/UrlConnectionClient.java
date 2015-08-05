@@ -14,6 +14,7 @@ import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Represents UrlConnection client wrapper
@@ -39,7 +40,7 @@ public class UrlConnectionClient implements IClient
 
 	protected HttpURLConnection openConnection(Request<?> request) throws IOException
 	{
-		HttpURLConnection connection = (HttpURLConnection) new URL(request.getUrl()).openConnection();
+		HttpURLConnection connection = (HttpURLConnection) request.getUrl().openConnection();
 		connection.setConnectTimeout(Defaults.CONNECT_TIMEOUT_MILLIS);
 		connection.setReadTimeout(Defaults.READ_TIMEOUT_MILLIS);
 		return connection;
@@ -134,7 +135,7 @@ public class UrlConnectionClient implements IClient
 		}
 		finally
 		{
-			HttpUtils.closeQuietly(stream);
+			Utils.closeStreams(stream);
 		}
 	}
 

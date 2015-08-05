@@ -331,9 +331,9 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	}
 
 	@Override
-	protected void setupActionBar(boolean firstInflation)
+	protected void setupDefaultActionBar(boolean firstInflation)
 	{
-		super.setupActionBar(firstInflation);
+		super.setupDefaultActionBar(firstInflation);
 		
 		//Added for QA Automation
 		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);
@@ -363,7 +363,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			/**
 			 * Incrementing numActivePeople by + 1 to add self
 			 */
-			memberCountTextView.setText(activity.getResources().getString(R.string.num_people, (numActivePeople + 1)));
+			memberCountTextView.setText(activity.getResources().getString(R.string.num_members, (numActivePeople + 1)));
 		}
 	}
 

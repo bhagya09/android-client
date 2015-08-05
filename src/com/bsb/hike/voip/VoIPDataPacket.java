@@ -1,25 +1,48 @@
 package com.bsb.hike.voip;
 
+import java.util.ArrayList;
 
-public class VoIPDataPacket {
 
+public class VoIPDataPacket implements Cloneable {
+
+	public class BroadcastListItem {
+		private String ip;
+		private int port;
+
+		public String getIp() {
+			return ip;
+		}
+		public void setIp(String ip) {
+			this.ip = ip;
+		}
+		public int getPort() {
+			return port;
+		}
+		public void setPort(int port) {
+			this.port = port;
+		}
+	}
+	
 	private boolean encrypted = false; 
 	private PacketType packetType;
 	private byte[] data;
-	String destinationIP;
-	int destinationPort;
-	int packetNumber;
-	boolean requiresAck = false;
-	int voicePacketNumber;
-	long timestamp;
-	
+	private String destinationIP;
+	private int destinationPort;
+	private int packetNumber;
+	private boolean requiresAck = false;
+	private int voicePacketNumber;
+	private long timestamp;
+	private boolean isVoice;
+	private ArrayList<BroadcastListItem> broadcastList = null;
+	private ArrayList<byte[]> dataList = null;
+
 	int length = 0;		// Used to indicate length of actual data in "data"
 
 	public enum PacketType {
 		UPDATE (0),
 		CALL (1),
 		CALL_DECLINED (2),
-		VOICE_PACKET (3),
+		AUDIO_PACKET (3),
 		END_CALL (4),
 		HEARTBEAT (5), 
 		START_VOICE (6),
@@ -48,7 +71,13 @@ public class VoIPDataPacket {
 		COMM_UDP_ACK_RELAY (29),
 		NETWORK_QUALITY (30),
 		HOLD_ON (31), 
-		HOLD_OFF (32)
+		HOLD_OFF (32),
+		CLIENTS_LIST (33),
+		RESET_PACKET_LOSS (34),
+		MULTIPLE_AUDIO_PACKETS (35),
+		MUTE_ON (36),
+		MUTE_OFF (37),
+		CLIENTS_LIST_JSON (38)
 		;
 		
 		private final int value;
@@ -70,7 +99,7 @@ public class VoIPDataPacket {
 			case 2:
 				return CALL_DECLINED;
 			case 3:
-				return VOICE_PACKET;
+				return AUDIO_PACKET;
 			case 4:
 				return END_CALL;
 			case 5:
@@ -129,6 +158,18 @@ public class VoIPDataPacket {
 				return HOLD_ON;
 			case 32:
 				return HOLD_OFF;
+			case 33:
+				return CLIENTS_LIST;
+			case 34:
+				return RESET_PACKET_LOSS;
+			case 35:
+				return MULTIPLE_AUDIO_PACKETS;
+			case 36:
+				return MUTE_ON;
+			case 37:
+				return MUTE_OFF;
+			case 38:
+				return CLIENTS_LIST_JSON;
 			default:
 				return UPDATE;
 			}
@@ -252,4 +293,43 @@ public class VoIPDataPacket {
 		this.requiresAck = requiresAck;
 	}
 
+	public boolean isVoice() {
+		return isVoice;
+	}
+
+	public void setVoice(boolean isVoice) {
+		this.isVoice = isVoice;
+	}
+
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+
+	public ArrayList<BroadcastListItem> getBroadcastList() {
+		return broadcastList;
+	}
+
+	public void setBroadcastList(ArrayList<BroadcastListItem> broadcastList) {
+		this.broadcastList = broadcastList;
+	}
+
+	public void addToBroadcastList(BroadcastListItem item) {
+		if (broadcastList == null)
+			broadcastList = new ArrayList<BroadcastListItem>();
+		broadcastList.add(item);
+	}
+
+	public ArrayList<byte[]> getDataList() {
+		return dataList;
+	}
+
+	public void addToDataList(byte[] data) {
+		if (dataList == null) {
+			dataList = new ArrayList<>();
+		}
+		dataList.add(data);
+	}
+	
 }

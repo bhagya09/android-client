@@ -4,16 +4,20 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 //public static int[] BasicMenuIcons={R.drawable.effects_effect,R.drawable.effects_color,R.drawable.effects_frame,R.drawable.effects_text,R.drawable.effects_options};
 
@@ -52,19 +56,30 @@ public class HikePhotosUtils
 	 * 
 	 * Util method which converts the dp value into float(pixel value) based on the given context resources
 	 * 
-	 * @param context
-	 *            : Context of the application dps : Value in DP
-	 * 
 	 * @return value in pixel
 	 */
-	public static int dpToPx(Context context, int dps)
+	public static int dpToPx(int dps)
 	{
-		final float scale = context.getResources().getDisplayMetrics().density;
+		final float scale = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
 		int pixels = (int) (dps * scale + 0.5f);
 
 		return pixels;
 	}
 
+	/**
+	 * This method converts device specific pixels to density independent pixels.
+	 * http://stackoverflow.com/questions/4605527/converting-pixels-to-dp
+	 * 
+	 * @param px A value in px (pixels) unit. Which we need to convert into db
+	 * @return A float value to represent dp equivalent to px value
+	 */
+	public static float pxToDp(float px){
+	    Resources resources = HikeMessengerApp.getInstance().getApplicationContext().getResources();
+	    DisplayMetrics metrics = resources.getDisplayMetrics();
+	    float dp = px / (metrics.densityDpi / 160f);
+	    return dp;
+	}
+	
 	public static void manageBitmaps(Bitmap bitmap)
 	{
 
@@ -93,7 +108,7 @@ public class HikePhotosUtils
 		return bitmap.getWidth() * bitmap.getHeight();
 	}
 
-	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight, boolean centerIN)
+	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight, boolean centerIN,Config configType)
 	{
 		Bitmap temp = bitmap;
 		int width = 0, height = 0;
@@ -129,11 +144,11 @@ public class HikePhotosUtils
 			}
 		}
 
-		bitmap = createBitmap(bitmap, 0, 0, width, height, true, true, false, true);
+		bitmap = createBitmap(bitmap, 0, 0, width, height, true, true, false, true,configType);
 		HikePhotosUtils.manageBitmaps(temp);
 		if (!centerIN)
 		{
-			bitmap = createBitmap(bitmap, (width - maxWidth) / 2, (height - maxHeight) / 2, maxWidth, maxHeight, true, false, true, true);
+			bitmap = createBitmap(bitmap, (width - maxWidth) / 2, (height - maxHeight) / 2, maxWidth, maxHeight, true, false, true, true,configType);
 		}
 		return bitmap;
 	}
@@ -144,14 +159,16 @@ public class HikePhotosUtils
 	 * @author akhiltripathi
 	 */
 
-	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry)
+	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry,Config config)
 	{
 		Bitmap ret = null;
-
+		
 		try
 		{
 			if (source != null)
 			{
+				Config outConfig = (source.getConfig() == null) ? config : source.getConfig();
+				
 				if (scaledCopy && createMutableCopy)
 				{
 					ret = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
@@ -162,17 +179,17 @@ public class HikePhotosUtils
 				}
 				else if (createMutableCopy)
 				{
-					ret = source.copy(source.getConfig(), true);
+					ret = source.copy(outConfig, true);
 				}
 				else
 				{
-					ret = Bitmap.createBitmap(source.getWidth(), source.getHeight(), source.getConfig());
+					ret = Bitmap.createBitmap(source.getWidth(), source.getHeight(), outConfig);
 				}
 
 			}
 			else
 			{
-				ret = Bitmap.createBitmap(targetWidth, targetHeight, Config.ARGB_8888);
+				ret = Bitmap.createBitmap(targetWidth, targetHeight, config);
 			}
 
 		}
@@ -181,7 +198,7 @@ public class HikePhotosUtils
 			if (retry)
 			{
 				System.gc();
-				createBitmap(source, x, y, targetWidth, targetHeight, createMutableCopy, scaledCopy, crop, false);
+				createBitmap(source, x, y, targetWidth, targetHeight, createMutableCopy, scaledCopy, crop, false,config);
 			}
 			else
 			{
@@ -249,7 +266,7 @@ public class HikePhotosUtils
 
 		public enum FilterType
 		{
-			BRIGHTNESS, CONTRAST, SATURATION, HUE, SEPIA, GRAYSCALE, POLAROID, FADED, BGR, INVERSION, X_PRO_2, RANGEELA, WILLOW, WALDEN, VALENCIA, TOASTER, SUTRO, SIERRA, RISE, NASHVILLE, MAYFAIR, LO_FI, KELVIN, INKWELL, HUDSON, HEFE, EARLYBIRD, BRANNAN, AMARO, E1977, SOLOMON, CLASSIC, RETRO, APOLLO, ORIGINAL, JALEBI, GHOSTLY, GULAAL, AUTO, JUNGLEE, CHILLUM, HDR, SOFTINK, SUNLITT
+			BRIGHTNESS, CONTRAST, SATURATION, HUE, SEPIA, GRAYSCALE, POLAROID, FADED, BGR, INVERSION, X_PRO_2, RANGEELA, WILLOW, WALDEN, VALENCIA, TOASTER, SUTRO, SIERRA, RISE, NASHVILLE, MAYFAIR, LO_FI, KELVIN, INKWELL, HUDSON, HEFE, EARLYBIRD, BRANNAN, AMARO, E1977, SOLOMON, CLASSIC, RETRO, APOLLO, ORIGINAL, JALEBI, GHOSTLY, GULAAL, AUTO, JUNGLEE, CHILLUM, HDR, SOFTINK, SUNLITT, TIRANGAA
 		}
 
 		public static class FilterList
@@ -275,6 +292,11 @@ public class HikePhotosUtils
 				{
 					effectfilters = new FilterList();
 					effectfilters.addFilter("ORIGINAL", FilterType.ORIGINAL);
+					
+					if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
+					{
+						effectfilters.addFilter("TIRANGA", FilterType.TIRANGAA);
+					}
 					effectfilters.addFilter("MELLOW", FilterType.SOLOMON);
 					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
 					effectfilters.addFilter("AZURE", FilterType.NASHVILLE);
@@ -296,6 +318,7 @@ public class HikePhotosUtils
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
 				}
+				
 				return effectfilters;
 
 			}
@@ -374,6 +397,11 @@ public class HikePhotosUtils
 			}
 		}
 
+	}
+	
+	public static int getServerConfigDimenForDP()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
 	}
 
 }

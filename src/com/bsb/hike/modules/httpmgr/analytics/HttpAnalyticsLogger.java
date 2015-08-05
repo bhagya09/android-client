@@ -4,6 +4,7 @@ import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.DEFA
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_EXCEPTION_ANALYTICS;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_METHOD_TYPE;
+import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_PRODUCT_AREA;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_REQUEST_ANALYTICS_PARAM;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_REQUEST_URL_FILTER;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.MAX_RANGE_HTTP_ANALYTICS;
@@ -11,6 +12,7 @@ import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.REQU
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.RESPONSE_CODE;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.RESPONSE_LOG_EVENT;
 
+import java.net.URL;
 import java.util.Random;
 
 import org.json.JSONException;
@@ -57,7 +59,7 @@ public class HttpAnalyticsLogger
 	 * @param trackId
 	 * @param requestUrl
 	 */
-	public static void logHttpRequest(String trackId, String requestUrl, String methodType, String analyticsParam)
+	public static void logHttpRequest(String trackId, URL requestUrl, String methodType, String analyticsParam)
 	{
 		if (TextUtils.isEmpty(trackId))
 		{
@@ -75,6 +77,35 @@ public class HttpAnalyticsLogger
 			LogFull.e("Exception occurred while sending request log : " + e);
 		}
 	}
+	
+	/**
+	 * Logs the successful http response analytics. Should be called just after we receive the response from the server
+	 * 
+	 * @param trackId
+	 * @param requestUrl
+	 * @param responseCode
+	 * @param methodType
+	 * @param analyticsParam
+	 */
+	public static void logSuccessfullResponseReceived(String trackId, URL requestUrl, int responseCode, String methodType, String analyticsParam)
+	{
+		if (TextUtils.isEmpty(trackId))
+		{
+			return;
+		}
+
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata = getHttpLogBasicJson(trackId, requestUrl, RESPONSE_LOG_EVENT, methodType, analyticsParam);
+			metadata.put(RESPONSE_CODE, responseCode);
+			HAManager.getInstance().record(HTTP_ANALYTICS_TYPE, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, HTTP_ANALYTICS_TYPE);
+		}
+		catch (JSONException e)
+		{
+			LogFull.e("Exception occurred while sending response received log : " + e);
+		}
+	}
 
 	/**
 	 * Logs the http response analytics. Should be called just after we receive the response from the server
@@ -83,7 +114,7 @@ public class HttpAnalyticsLogger
 	 * @param requestUrl
 	 * @param responseCode
 	 */
-	public static void logResponseReceived(String trackId, String requestUrl, int responseCode, String methodType, String analyticsParam)
+	public static void logResponseReceived(String trackId, URL requestUrl, int responseCode, String methodType, String analyticsParam)
 	{
 		logResponseReceived(trackId, requestUrl, responseCode, methodType, analyticsParam, null);
 	}
@@ -98,8 +129,13 @@ public class HttpAnalyticsLogger
 	 * @param analyticsParam
 	 * @param exception
 	 */
-	public static void logResponseReceived(String trackId, String requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
+	public static void logResponseReceived(String trackId, URL requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
 	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_EXCEPTION_LOGGING, false))
+		{
+			logDevException(requestUrl, responseCode, methodType, analyticsParam, exception);
+		}
+
 		if (TextUtils.isEmpty(trackId))
 		{
 			return;
@@ -123,6 +159,44 @@ public class HttpAnalyticsLogger
 	}
 
 	/**
+	 * Logs the dev exception for every error response of http request or some exception ocuurs
+	 * 
+	 * @param requestUrl
+	 * @param responseCode
+	 * @param methodType
+	 * @param analyticsParam
+	 * @param exception
+	 */
+	private static void logDevException(URL requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
+	{
+		JSONObject info = null;
+		try
+		{
+			if (!TextUtils.isEmpty(analyticsParam))
+			{
+				info = new JSONObject();
+				info.put(HTTP_REQUEST_ANALYTICS_PARAM, analyticsParam);
+			}
+
+			if (!TextUtils.isEmpty(exception))
+			{
+				if (null == info)
+				{
+					info = new JSONObject();
+				}
+				info.put(HTTP_EXCEPTION_ANALYTICS, exception);
+			}
+
+			String devArea = processRequestUrl(requestUrl.toString()) + "_" + methodType + "_" + responseCode;
+			HAManager.getInstance().logDevEvent(HTTP_PRODUCT_AREA, devArea, info);
+		}
+		catch (JSONException e)
+		{
+			LogFull.e("Exception occurred while logging dev exception log : " + e);
+		}
+	}
+
+	/**
 	 * This method returns a basic json object which contains track id, request analytics key , event stage and connection type for analytics log
 	 * 
 	 * @param trackId
@@ -131,7 +205,7 @@ public class HttpAnalyticsLogger
 	 * @return
 	 * @throws JSONException
 	 */
-	private static JSONObject getHttpLogBasicJson(String trackId, String requestUrl, int logEventStage, String methodType, String analyticsParam) throws JSONException
+	private static JSONObject getHttpLogBasicJson(String trackId, URL requestUrl, int logEventStage, String methodType, String analyticsParam) throws JSONException
 	{
 		JSONObject json = new JSONObject();
 		json.put(AnalyticsConstants.TRACK_ID, trackId);
@@ -140,7 +214,7 @@ public class HttpAnalyticsLogger
 		{
 			json.put(HTTP_REQUEST_ANALYTICS_PARAM, analyticsParam);
 		}
-		json.put(AnalyticsConstants.EVENT_KEY, processRequestUrl(requestUrl));
+		json.put(AnalyticsConstants.EVENT_KEY, processRequestUrl(requestUrl.toString()));
 		json.put(AnalyticsConstants.REL_EVENT_STAGE, logEventStage);
 		json.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
 		return json;

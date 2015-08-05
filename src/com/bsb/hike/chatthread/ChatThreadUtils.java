@@ -44,6 +44,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -228,6 +229,7 @@ public class ChatThreadUtils
 		if (filePath == null)
 		{
 			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - File Path is null");
 			return;
 		}
 		File file = new File(filePath);
@@ -236,6 +238,7 @@ public class ChatThreadUtils
 		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
 			return;
 		}
 		FileTransferManager.getInstance(context).uploadFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, isForwardingFile, convOnHike, recordingDuration, attachmentType);
@@ -266,6 +269,7 @@ public class ChatThreadUtils
 		if (filePath == null)
 		{
 			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_5, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "OnShareFile - Unsupprted file");
 		}
 		else
 		{
@@ -402,7 +406,7 @@ public class ChatThreadUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 	}
 	
-	protected static boolean isLastMessageReceivedAndUnread(List<ConvMessage> messages)
+	protected static boolean isLastMessageReceivedAndUnread(MovingList<ConvMessage> messages)
 	{
 		ConvMessage lastMsg = null;
 
@@ -416,7 +420,7 @@ public class ChatThreadUtils
 			/**
 			 * Do nothing if it's a typing notification
 			 */
-			if (msg.getTypingNotification() != null)
+			if (msg.getTypingNotification() != null || msg.isSent())
 			{
 				continue;
 			}
@@ -433,27 +437,6 @@ public class ChatThreadUtils
 		return lastMsg.getState() == ConvMessage.State.RECEIVED_UNREAD || lastMsg.getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE;
 	}
 	
-	protected static void publishMessagesRead(JSONArray ids, String msisdn)
-	{
-		if (ids != null)
-		{
-			JSONObject object = new JSONObject();
-
-			try
-			{
-				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
-				object.put(HikeConstants.TO, msisdn);
-				object.put(HikeConstants.DATA, ids);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
-			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-		}
-	}
-
 	protected static void decrementUnreadPInCount(Conversation mConversation, boolean isActivityVisible)
 	{
 		if (mConversation != null)
@@ -641,12 +624,6 @@ public class ChatThreadUtils
 				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 			Logger.d(TAG, "Unread Count event triggered");
-
-			/**
-			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
-			 * 
-			 */
-			ChatThreadUtils.publishMessagesRead(ids, msisdn);
 
 		}
 		catch (JSONException e)

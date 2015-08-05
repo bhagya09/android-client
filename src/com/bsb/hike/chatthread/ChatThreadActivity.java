@@ -12,20 +12,20 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
 
 	private ChatThread chatThread;
+	
+	private long lastMessageTimeStamp;
 	
 	private static final String TAG = "ChatThreadActivity";
 
@@ -111,6 +111,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	private void init(Intent intent)
 	{
 		String whichChatThread = intent.getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		lastMessageTimeStamp = intent.getLongExtra(HikeConstants.Extras.LAST_MESSAGE_TIMESTAMP, 0);
 		
 		if (HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD.equals(whichChatThread))
 		{
@@ -118,7 +119,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		else if (HikeConstants.Extras.GROUP_CHAT_THREAD.equals(whichChatThread))
 		{
-			chatThread = new GroupChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
+			chatThread = new GroupChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN),  intent.getBooleanExtra(HikeConstants.Extras.NEW_GROUP, false));
 		}
 		else if (HikeConstants.Extras.BROADCAST_CHAT_THREAD.equals(whichChatThread))
 		{
@@ -164,6 +165,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if(processNewIntent(intent))
 		{
 			chatThread.onPreNewIntent();
+			chatThread.onDestroy();
 			init(intent);
 			setIntent(intent);
 			chatThread.onNewIntent();
@@ -213,8 +215,16 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	
 	public void backPressed()
 	{
-		Intent intent = IntentFactory.getHomeActivityIntent(this);
-		startActivity(intent);
+		try
+		{
+			// In some phones keyboard is not closing on press of Action bar back button
+			// try catch just for safe side
+			Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView());
+		}
+		catch (Exception e)
+		{
+		}
+		IntentFactory.openHomeActivity(ChatThreadActivity.this, true);
 		super.onBackPressed();
 	}
 	
@@ -290,7 +300,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	public void onAttachFragment(android.support.v4.app.Fragment fragment)
 	{
 		Logger.i(TAG, "onAttachFragment");
-		chatThread.onAttachFragment();
+		chatThread.onAttachFragment(fragment);
 		super.onAttachFragment(fragment);
 	}
 	
@@ -326,6 +336,11 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 			}
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+	
+	public long getLastMessageTimeStamp()
+	{
+		return this.lastMessageTimeStamp;
 	}
 	
 	@Override
