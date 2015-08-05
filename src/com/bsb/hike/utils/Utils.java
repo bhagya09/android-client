@@ -6360,7 +6360,7 @@ public class Utils
 		DisplayMetrics metrics = new DisplayMetrics();
 		wm.getDefaultDisplay().getMetrics(metrics);
 
-		return metrics.heightPixels != realPoint.y;
+		return (metrics.heightPixels != realPoint.y) || (metrics.widthPixels != realPoint.x);
 	}
 	
 	/**
@@ -6392,5 +6392,28 @@ public class Utils
 			return false;
 		
 		return (window.getAttributes().flags & whichFlag) != 0;
+	}
+	
+	/**
+	 * Utility method to calculate the bottom navBar width in landscape mode
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getBottomNavBarWidth(Context context)
+	{
+		if (hasBottomNavBar(context))
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			DisplayMetrics metrics = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(metrics);
+
+			return Math.abs(metrics.widthPixels - realPoint.x);
+		}
+
+		return 0;
 	}
 }

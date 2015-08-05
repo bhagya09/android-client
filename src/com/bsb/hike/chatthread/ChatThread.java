@@ -4657,6 +4657,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
+			mShareablePopupLayout.onConfigurationChanged();
 		}
 		
 		/**

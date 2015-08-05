@@ -260,5 +260,13 @@ public class ShareablePopupLayout
 		}
 	}
 
+	public void onConfigurationChanged()
+	{
+		if (mKeyboardPopupLayout != null)
+		{
+			mKeyboardPopupLayout.onConfigChanged();
+		}
+	}
+
 
 }

@@ -453,9 +453,9 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		 * we were drawing the popup on the system's nav bar tray as well instead of above it. this method excludes the navbar height from the keyboard height
 		 */
 		
-		if (shouldApplyNavBarOffset(isLandScape))
+		if (shouldApplyNavBarOffset())
 		{
-			bottomNavBarThreshold = HikeMessengerApp.bottomNavBarHeight;
+			bottomNavBarThreshold = HikeMessengerApp.bottomNavBarHeightPortrait;
 		}
 		
 		temp -= bottomNavBarThreshold;
@@ -556,7 +556,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 	@Override
 	protected void interpretHeightInPortraitMode(int temp)
 	{
-		int bottomNavBArThreshold = shouldApplyNavBarOffset(false) ? HikeMessengerApp.bottomNavBarHeight : 0;
+		int bottomNavBArThreshold = shouldApplyNavBarOffset() ? HikeMessengerApp.bottomNavBarHeightPortrait : 0;
 		
 		if (temp > bottomNavBArThreshold)
 		{
