@@ -169,7 +169,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		selectedPager.setAdapter(pagerAdapter);
 		selectedPager.setOnPageChangeListener(this);
 
-		setSelection(galleryItems.size() - 1);
+		setSelection(galleryItems.size());
 		setupActionBar();
 
 		showTipIfRequired();
@@ -444,10 +444,17 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private void setSelection(int position)
 	{
+		int scrollPos = position;
+		
+		if(position >= galleryItems.size() )
+		{
+			position = galleryItems.size() - 1;
+		}
+		
 		gridAdapter.setSelectedItemPosition(position);
-
 		selectedPager.setCurrentItem(position);
-		selectedGrid.smoothScrollToPosition(position);
+		
+		selectedGrid.smoothScrollToPosition(scrollPos);
 	}
 
 	private class GalleryPagerAdapter extends PagerAdapter
