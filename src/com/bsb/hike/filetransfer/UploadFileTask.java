@@ -685,6 +685,12 @@ public class UploadFileTask extends FileTransferBase
 			{
 				initFileUpload();
 			}
+			
+			if(((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileSize()>HikeConstants.MAX_FILE_SIZE)
+			{
+				return FTResult.FILE_SIZE_EXCEEDING;
+			}
+			
 		}
 		catch (FileTransferCancelledException e)
 		{
@@ -1414,8 +1420,8 @@ public class UploadFileTask extends FileTransferBase
 		if (result != FTResult.PAUSED && result != FTResult.SUCCESS)
 		{
 			final int errorStringId = result == FTResult.READ_FAIL ? R.string.unable_to_read : result == FTResult.CANCELLED ? R.string.upload_cancelled
-					: result == FTResult.FAILED_UNRECOVERABLE ? R.string.upload_failed : result == FTResult.CARD_UNMOUNT ? R.string.card_unmount
-							: result == FTResult.DOWNLOAD_FAILED ? R.string.download_failed : R.string.upload_failed;
+					: result == FTResult.FAILED_UNRECOVERABLE ? R.string.upload_failed : result == FTResult.FILE_SIZE_EXCEEDING ? R.string.max_file_size
+							: result == FTResult.CARD_UNMOUNT ? R.string.card_unmount : result == FTResult.DOWNLOAD_FAILED ? R.string.download_failed : R.string.upload_failed;
 
 			handler.post(new Runnable()
 			{
