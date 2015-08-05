@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -114,39 +115,38 @@ public class StickerSearchHostManager
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()) + 1;
 
-		MAXIMUM_SEARCH_TEXT_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT,
+		MAXIMUM_SEARCH_TEXT_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT,
 				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
 
-		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
+		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
 				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 
-		MAXIMUM_PHRASE_PERMUTATION_SIZE = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STIKCER_TAG_MAXIMUM_PHRASE_PERMUTATION_SIZE,
+		MAXIMUM_PHRASE_PERMUTATION_SIZE = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE,
 				StickerSearchConstants.MAXIMUM_PHRASE_PERMUTATION_SIZE);
 
-		MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION,
+		MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION,
 				StickerSearchConstants.MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION);
 
-		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
+		LIMIT_AUTO_CORRECTION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_LIMIT_AUTO_CORRECTION, StickerSearchConstants.LIMIT_AUTO_CORRECTION);
 
-		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
+		LIMIT_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_LIMIT_EXACT_MATCH, StickerSearchConstants.LIMIT_EXACT_MATCH);
 
-		WEITAGE_MATCH_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_MATCH_LATERAL, StickerSearchConstants.WEITAGE_MATCH_LATERAL);
+		WEITAGE_MATCH_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_MATCH_LATERAL, StickerSearchConstants.WEITAGE_MATCH_LATERAL);
 
-		WEITAGE_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_EXACT_MATCH, StickerSearchConstants.WEITAGE_EXACT_MATCH);
+		WEITAGE_EXACT_MATCH = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_EXACT_MATCH, StickerSearchConstants.WEITAGE_EXACT_MATCH);
 
-		WEITAGE_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_FREQUENCY_TRENDING_RATIO, StickerSearchConstants.RATIO_TRENDING_FREQUENCY);
+		WEITAGE_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_TRENDING, StickerSearchConstants.RATIO_TRENDING_FREQUENCY);
 
-		WEITAGE_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_FREQUENCY_LOCAL_RATIO, StickerSearchConstants.RATIO_LOCAL_FREQUENCY);
+		WEITAGE_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_LOCAL, StickerSearchConstants.RATIO_LOCAL_FREQUENCY);
 
-		WEITAGE_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
-				* HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_FREQUENCY_GLOBAL_RATIO, StickerSearchConstants.RATIO_GLOBAL_FREQUENCY);
+		WEITAGE_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_FREQUENCY, StickerSearchConstants.WEITAGE_FREQUENCY)
+				* HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_FREQUENCY_RATIO_GLOBAL, StickerSearchConstants.RATIO_GLOBAL_FREQUENCY);
 
-		WEITAGE_CONTEXT_MOMENT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_WEITAGE_CONTEXT_MOMENT,
-				StickerSearchConstants.WEITAGE_CONTEXT_MOMENT);
+		WEITAGE_CONTEXT_MOMENT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_WEITAGE_CONTEXT_MOMENT, StickerSearchConstants.WEITAGE_CONTEXT_MOMENT);
 
-		MARGINAL_FULL_SCORE_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL,
+		MARGINAL_FULL_SCORE_LATERAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL,
 				StickerSearchConstants.MARGINAL_FULL_SCORE_LATERAL);
 	}
 
@@ -364,7 +364,8 @@ public class StickerSearchHostManager
 							continue;
 						}
 						searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-						searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+						searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0,
+								(int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 						maxPermutationSize--;
 						lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 					}
@@ -525,7 +526,8 @@ public class StickerSearchHostManager
 											continue;
 										}
 										searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-										searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+										searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length()
+												* LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 										currentMaxPermutationSize--;
 										lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 									}
@@ -650,7 +652,8 @@ public class StickerSearchHostManager
 										continue;
 									}
 									searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-									searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+									searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length()
+											* LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
 									currentMaxPermutationSize--;
 									lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 								}
@@ -986,7 +989,9 @@ public class StickerSearchHostManager
 				{
 					searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
 					nextWord = selectedTextInPhrase.get(j);
-					searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION) ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord).toString();
+					searchText.append(
+							(nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION) ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5))
+									: nextWord).toString();
 				}
 
 				currentPhrase = searchText.toString().toUpperCase(Locale.ENGLISH);
@@ -1082,7 +1087,8 @@ public class StickerSearchHostManager
 				}
 
 				searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-				searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+				searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5))
+						: nextWord));
 				currentMaxPermutationSize--;
 				lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 			}

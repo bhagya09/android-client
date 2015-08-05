@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -95,10 +96,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 
 			sHikeStickerSearchDatabase.MAXIMUM_SELECTION_COUNT_PER_SEARCH = (int) (StickerSearchConstants.MAXIMUM_SEARCH_COUNT * HikeSharedPreferenceUtil.getInstance().getData(
-					HikeMessengerApp.STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH, StickerSearchConstants.RATIO_MAXIMUM_SELECTION_COUNT));
+					HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH, StickerSearchConstants.RATIO_MAXIMUM_SELECTION_COUNT));
 
 			sHikeStickerSearchDatabase.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER = HikeSharedPreferenceUtil.getInstance().getData(
-					HikeMessengerApp.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, StickerSearchConstants.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER);
+					HikeConstants.STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER, StickerSearchConstants.MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER);
 		}
 	}
 
@@ -1149,27 +1150,27 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Logger.i(TAG_REBALANCING, "summarizeAndDoRebalancing(), Operation is started today at time:: " + date.toString());
 
 		int MAXIMUM_PRIMARY_TABLE_CAPACITY = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY : HikeSharedPreferenceUtil.getInstance().getData(
-				HikeMessengerApp.STICKER_MAXIMUM_PRIMARY_TABLE_CAPACITY, HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY);
+				HikeConstants.STICKER_SEARCH_BASE_MAXIMUM_PRIMARY_TABLE_CAPACITY, HikeStickerSearchBaseConstants.MAXIMUM_PRIMARY_TABLE_CAPACITY);
 
 		float THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION : HikeSharedPreferenceUtil
-				.getInstance()
-				.getData(HikeMessengerApp.STICKER_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION, HikeStickerSearchBaseConstants.THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION);
+				.getInstance().getData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION,
+						HikeStickerSearchBaseConstants.THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION);
 
 		float THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT : HikeSharedPreferenceUtil
-				.getInstance().getData(HikeMessengerApp.STICKER_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT, HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_EXPANSION_COEFFICIENT);
+				.getInstance().getData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_EXPANSION_COEFFICIENT, HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_EXPANSION_COEFFICIENT);
 
 		float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT
-				: HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT,
+				: HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT,
 						HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
 
 		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : HikeSharedPreferenceUtil.getInstance().getData(
-				HikeMessengerApp.STICKER_TAG_SUMMERY_TRENDING, StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
+				HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_TRENDING, StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
 
 		long TIME_WINDOW_LOCAL_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_LOCAL_SUMMERY : HikeSharedPreferenceUtil.getInstance().getData(
-				HikeMessengerApp.STICKER_TAG_SUMMERY_LOCAL, StickerSearchConstants.TIME_WINDOW_LOCAL_SUMMERY);
+				HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_LOCAL, StickerSearchConstants.TIME_WINDOW_LOCAL_SUMMERY);
 
 		long TIME_WINDOW_GLOBAL_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_GLOBAL_SUMMERY : HikeSharedPreferenceUtil.getInstance().getData(
-				HikeMessengerApp.STICKER_TAG_SUMMERY_GLOBAL, StickerSearchConstants.TIME_WINDOW_GLOBAL_SUMMERY);
+				HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_GLOBAL, StickerSearchConstants.TIME_WINDOW_GLOBAL_SUMMERY);
 
 		Cursor c = null;
 		long totalTagCount = 0;
@@ -1325,7 +1326,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				// Compute proportional trending frequencies first for all sticker-tags
 				float maxTrendingFrequency = Collections.max(trendingFrequencies);
 
-				float MAXIMUM_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAX_FREQUENCY_TRENDING,
+				float MAXIMUM_FREQUENCY_TRENDING = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_TRENDING,
 						StickerSearchConstants.MAXIMUM_FREQUENCY_TRENDING);
 
 				// Perform proportional update on trending frequency on day to day basis
@@ -1363,7 +1364,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				// Compute proportional local frequencies first for all sticker-tags
 				float maxLocalFrequency = Collections.max(localFrequencies);
 
-				float MAXIMUM_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAX_FREQUENCY_LOCAL,
+				float MAXIMUM_FREQUENCY_LOCAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_LOCAL,
 						StickerSearchConstants.MAXIMUM_FREQUENCY_LOCAL);
 
 				// Perform proportional update on local frequency on day to day basis
@@ -1401,7 +1402,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				// Compute proportional global frequencies first for all sticker-tags
 				float maxGlobalFrequency = Collections.max(globalFrequencies);
 
-				float MAXIMUM_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAX_FREQUENCY_GLOBAL,
+				float MAXIMUM_FREQUENCY_GLOBAL = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_GLOBAL,
 						StickerSearchConstants.MAXIMUM_FREQUENCY_GLOBAL);
 
 				// Perform proportional update on global frequency on day to day basis

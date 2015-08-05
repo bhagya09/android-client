@@ -22,12 +22,16 @@ public class StickerSearchConstants
 
 	public static final int TRIAL_STICKER_DATA_UPDATE_REFRESH = 1;
 
+	public static final int DECISION_STATE_NO = 0;
+
+	public static final int DECISION_STATE_YES = 1;
+
 	// ========================================================Generic constants for data setup]]
 
 	// Generic constants for periodic tasks====================================================[[
 	public static final int REBALACING_DEFAULT_TIME = 4; // 4 a.m.
 
-	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L; // 7 days period in milliseconds
+	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L; // 14 days period in milliseconds
 
 	// ====================================================Generic constants for periodic tasks]]
 

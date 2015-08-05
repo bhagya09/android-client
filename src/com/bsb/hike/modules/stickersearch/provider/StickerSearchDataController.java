@@ -473,7 +473,7 @@ public enum StickerSearchDataController
 		}
 
 		if ((state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)
-				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, HikeStickerSearchBaseConstants.DECISION_STATE_YES) == HikeStickerSearchBaseConstants.DECISION_STATE_YES))
+				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, StickerSearchConstants.DECISION_STATE_YES) == StickerSearchConstants.DECISION_STATE_YES))
 		{
 			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
 			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);

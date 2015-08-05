@@ -53,7 +53,7 @@ public class StickerSearchManager
 
 	private StickerSearchManager()
 	{
-		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION,
+		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION,
 				StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
 
 		searchEngine = new StickerSearchEngine();
@@ -378,7 +378,7 @@ public class StickerSearchManager
 	public void setAlarm()
 	{
 		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.REBALANCING_TIME, StickerSearchConstants.REBALACING_DEFAULT_TIME), 0, 0, 0);
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REBALANCING_TIME, StickerSearchConstants.REBALACING_DEFAULT_TIME), 0, 0, 0);
 		if (scheduleTime < System.currentTimeMillis())
 		{
 			scheduleTime += 24 * 60 * 60 * 1000;

@@ -15,9 +15,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.content.ContentValues;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -81,6 +79,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -2337,12 +2336,17 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
 		}
 		
-		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME))
+		if (data.has(HikeConstants.STICKER_TAG_REFRESH_INTERVAL))
 		{
-			long tagRefreshTime = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_TAG_REFRESH_PERIOD, tagRefreshTime);
+			long tagRefreshInterval = data.getLong(HikeConstants.STICKER_TAG_REFRESH_INTERVAL);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_TAG_REFRESH_INTERVAL, tagRefreshInterval);
 		}
-		
+
+		if (data.has(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA))
+		{
+			StickerSearchUtility.saveStickerRecommendationConfiguration(data.getJSONObject(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA));;
+		}
+
 		if (data.has(HikeConstants.CHAT_SEARCH_ENABLED))
 		{
 			boolean chatSearchEnable = data.getBoolean(HikeConstants.CHAT_SEARCH_ENABLED);
@@ -2374,9 +2378,9 @@ public class MqttMessagesManager
 				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE));
 			}
 		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
-		
 	}
 
 	private void setShareEnableForAllApps(boolean enable)
@@ -3344,8 +3348,8 @@ public class MqttMessagesManager
 
 	public void saveMqttMessage(JSONObject jsonObj) throws JSONException
 	{
-
 		Logger.d("Gcm test", jsonObj.toString());
+
 		String type = jsonObj.optString(HikeConstants.TYPE);
 		Logger.d(VoIPConstants.TAG, "Received message of type: " + type);  // TODO: Remove me!
 		if (HikeConstants.MqttMessageTypes.ICON.equals(type)) // Icon changed

@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONObject;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
@@ -26,6 +28,12 @@ public class StickerSearchUtility
 	public static boolean isTestModeForSRModule()
 	{
 		return Utils.isTestMode(HikeConstants.MODULE_STICKER_SEARCH);
+	}
+
+	/* Save the configuration settings received from server for sticker recommendation */
+	public static void saveStickerRecommendationConfiguration(JSONObject json)
+	{
+		
 	}
 
 	/* Determine if given character is special character */

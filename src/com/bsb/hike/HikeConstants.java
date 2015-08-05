@@ -3077,14 +3077,97 @@ public class HikeConstants
 	public static final String STICKER_ID = "stkId";
 	
 	public static final String CATEGORY_ID = "catId";
-	
-	public static final String STICKER_RECOMMENDATION_ENABLED = "sre";
-	
-	public static final String STICKER_TAG_REFRESH_TIME = "strt";
 
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 
 	public static final String CALLBACK_ID ="callbackid";
 
 	public static final String DEVICE_DETAILS = "dd";
+
+	// Constants for sticker search=========================================================================================[[
+	public static final String STICKER_RECOMMENDATION_ENABLED = "sre"; // boolean
+
+	public static final String STICKER_TAG_REFRESH_INTERVAL = "stri"; // long
+
+	public static final String STICKER_RECOMMENDATION_CONFIGURATION_DATA = "srcd"; // container key for all of following keys
+
+	public static final String STICKER_TAG_REBALANCING_TIME = "strt"; // long
+
+	public static final String STICKER_DATA_TRENDING = "t";
+
+	public static final String STICKER_DATA_LOCAL = "l";
+
+	public static final String STICKER_DATA_GLOBAL = "g";
+
+	public static final String STICKER_TAG_SUMMERY_INTERVAL = "stsi"; // initial to following 3 TLG keys
+
+	public static final String STICKER_TAG_SUMMERY_INTERVAL_TRENDING = "stsi_t"; // long
+
+	public static final String STICKER_TAG_SUMMERY_INTERVAL_LOCAL = "stsi_l"; // long
+
+	public static final String STICKER_TAG_SUMMERY_INTERVAL_GLOBAL = "stsi_g"; // long
+
+	public static final String STICKER_TAG_MAX_FREQUENCY = "stmf"; // initial to following 3 TLG keys
+
+	public static final String STICKER_TAG_MAX_FREQUENCY_TRENDING = "stmf_t"; // float
+
+	public static final String STICKER_TAG_MAX_FREQUENCY_LOCAL = "stmf_l"; // float
+
+	public static final String STICKER_TAG_MAX_FREQUENCY_GLOBAL = "stmf_g"; // float
+
+	public static final String STICKER_SCORE_WEITAGE = "ssw"; // initial to following 4 parameters keys
+
+	public static final String STICKER_SCORE_WEITAGE_MATCH_LATERAL = "ssw_ml"; // float
+
+	public static final String STICKER_SCORE_WEITAGE_EXACT_MATCH = "ssw_em"; // float
+
+	public static final String STICKER_SCORE_WEITAGE_FREQUENCY = "ssw_f"; // float
+
+	public static final String STICKER_SCORE_WEITAGE_CONTEXT_MOMENT = "ssw_cm"; // float
+
+	public static final String STICKER_TAG_LIMIT_EXACT_MATCH = "stlem"; // float
+
+	public static final String STICKER_SCORE_MARGINAL_FULL_MATCH_LATERAL = "ssmfml"; // float;
+
+	public static final String STICKER_TAG_LIMIT_AUTO_CORRECTION = "stlac"; // float
+
+	public static final String STICKER_FREQUENCY_RATIO = "sfr"; // initial to following 3 TLG keys
+
+	public static final String STICKER_FREQUENCY_RATIO_TRENDING = "sfr_t"; // float
+
+	public static final String STICKER_FREQUENCY_RATIO_LOCAL = "sfr_l"; // float
+
+	public static final String STICKER_FREQUENCY_RATIO_GLOBAL = "sfr_g"; // float
+
+	public static final String STICKER_TAG_MAXIMUM_SEARCH = "stms"; // initial to following 4 keys
+
+	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stms_tl"; // integer
+
+	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stms_tlb"; // integer
+
+	public static final String STIKCER_TAG_MAXIMUM_SEARCH_PHRASE_PERMUTATION_SIZE = "stms_pps"; // integer
+
+	public static final String STICKER_TAG_MINIMUM_SEARCH_WORD_LENGTH_FOR_AUTO_CORRECTION = "stms_wlac"; // integer
+
+	public static final String STICKER_TAG_MAXIMUM = "stm"; // initial to following 2 keys
+
+	public static final String STICKER_TAG_MAXIMUM_SELECTION_RATIO_PER_SEARCH = "stm_srps"; // float
+
+	public static final String STICKER_TAG_MAXIMUM_SELECTION_PER_STICKER = "stm_sps"; // integer
+
+	public static final String STICKER_TAG_RETRY_ON_FAILED_LOCALLY = "strfl"; // integer
+
+	public static final String STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION = "swtscr"; // integer
+
+	public static final String STICKER_SEARCH_BASE = "ssb"; // initial to following 4 keys
+
+	public static final String STICKER_SEARCH_BASE_MAXIMUM_PRIMARY_TABLE_CAPACITY = "ssb_mptc"; // integer
+
+	public static final String STICKER_SEARCH_BASE_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = "ssb_tptcf"; // float
+
+	public static final String STICKER_SEARCH_BASE_THRESHOLD_EXPANSION_COEFFICIENT = "ssb_tec"; // float
+
+	public static final String STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT = "ssb_tfsc"; // float
+
+	// =========================================================================================Constants for sticker search]]
 }
