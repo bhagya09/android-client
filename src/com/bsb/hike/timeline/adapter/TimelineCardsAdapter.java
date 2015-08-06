@@ -49,10 +49,12 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.imageHttp.HikeImageDownloader;
+import com.bsb.hike.imageHttp.HikeImageWorker.TaskCallbacks;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -61,7 +63,6 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -85,7 +86,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.RoundedImageView;
 
-public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdapter.ViewHolder> implements IHandlerCallback
+public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdapter.ViewHolder> implements IHandlerCallback, TaskCallbacks
 {
 	private final int PROFILE_PIC_CHANGE = -11;
 
@@ -243,6 +244,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private boolean mShowUserProfile;
 
 	private String[] mFilteredMsisdns;
+	
+	private HikeImageDownloader mImageDownloader;
 
 	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<ContactInfo> ftueFriendList, LoaderManager loadManager,
 			FragmentManager fragManager, boolean showUserProfile, String[] filterMsisdns)
@@ -681,7 +684,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				public void startDownloading()
 				{
 					// showProgressDialog();
-					//TODO @RSinghal
+					beginImageDownload();
 				}
 			});
 			profileLoader.loadProfileImage(loaderManager);
@@ -1434,5 +1437,40 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		
 	}
 
+	private void beginImageDownload()
+	{
+		String fileName = Utils.getProfileImageFileName(mUserMsisdn);
+    	mImageDownloader = HikeImageDownloader.newInstance(mUserMsisdn, fileName, true, false, null, null, null, true, false);
+    	mImageDownloader.setTaskCallbacks(this);
+    	mImageDownloader.startLoadingTask();
+	}
 
+	@Override
+	public void onProgressUpdate(float percent)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCancelled()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onFailed()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onTaskAlreadyRunning()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

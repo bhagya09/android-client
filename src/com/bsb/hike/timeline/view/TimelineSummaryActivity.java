@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,9 +25,9 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,6 +40,8 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.imageHttp.HikeImageDownloader;
+import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -49,16 +51,15 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.timeline.adapter.DisplayContactsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
-import com.bsb.hike.timeline.model.FeedDataModel;
-import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.FeedDataModel;
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 import com.nineoldandroids.animation.Animator;
@@ -72,7 +73,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
  * @author Atul M
  * 
  */
-public class TimelineSummaryActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback
+public class TimelineSummaryActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
 	ImageView imageView;
 
@@ -95,6 +96,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		@Override
 		public void run()
 		{
+			dismissProgressDialog();
 		}
 	};
 
@@ -103,6 +105,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		@Override
 		public void run()
 		{
+			dismissProgressDialog();
 		}
 	};
 
@@ -111,6 +114,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		@Override
 		public void run()
 		{
+			dismissProgressDialog();
 			profileImageLoader.loadFromFile();
 		}
 	};
@@ -150,6 +154,10 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private boolean isShowLikesEnabled;
 	
 	private ActivityState mActivityState;
+	
+	private HikeImageDownloader mImageDownloader;
+	
+	private ProgressDialog mDialog;
 	
 	public class ActivityState
 	{
@@ -463,29 +471,40 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			public void startDownloading()
 			{
 				showProgressDialog();
-				//TODO @RSinghal
+				beginImageDownload();
 			}
 		});
 		profileImageLoader.loadProfileImage(getSupportLoaderManager());
 	}
 
-	protected void showProgressDialog()
+	private void beginImageDownload()
 	{
-		// TODO Auto-generated method stub
-
+		String fileName = Utils.getProfileImageFileName(mappedId);
+    	mImageDownloader = HikeImageDownloader.newInstance(mappedId, fileName, hasCustomImage, true, null, null, null, true, false);
+    	mImageDownloader.setTaskCallbacks(this);
+    	mImageDownloader.startLoadingTask();
+	}
+	
+	private void dismissProgressDialog()
+	{
+		if (mDialog != null)
+		{
+			mDialog.dismiss();
+			mDialog = null;
+		}
 	}
 
-	protected void dismissProgressDialog()
+	private void showProgressDialog()
 	{
-		// TODO Auto-generated method stub
-
+		mDialog = ProgressDialog.show(TimelineSummaryActivity.this, null, getResources().getString(R.string.downloading_image));
+		mDialog.setCancelable(true);
 	}
 
 	@Override
 	public void onDestroy()
 	{
 		super.onDestroy();
-		// dismissProgressDialog();
+		dismissProgressDialog();
 		HikeMessengerApp.getPubSub().removeListeners(this, profilePicPubSubListeners);
 	}
 
@@ -780,5 +799,19 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	public Object onRetainCustomNonConfigurationInstance()
 	{
 		return mActivityState;
+	}
+
+	@Override
+	public void onProgressUpdate(float percent)
+	{
+		// DO NOTHING
+		
+	}
+
+	@Override
+	public void onTaskAlreadyRunning()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
