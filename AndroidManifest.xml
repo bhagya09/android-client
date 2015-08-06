@@ -5,8 +5,8 @@
     package="com.bsb.hike"
     android:installLocation="auto"
 
-    android:versionCode="1318"
-    android:versionName="3.9.8.82.26" >
+    android:versionCode="1319"
+    android:versionName="3.9.8.82.26.photos5_0" >
     
     <uses-sdk
         android:minSdkVersion="14"
