@@ -447,4 +447,14 @@ public class AnalyticsConstants
 		public static final String DISABLE_TEXT = "dsblTxt";
 
 	}
+	
+	public static String EVENT_SOURCE = "sr";
+	
+	public static final String WITH_RED_DOT = "wr";
+	
+	public static final String DISPLAY_PIC = "dp";
+	
+	public static final String POST_UPDATE = "pu";
+	
+	public static final String STATUS_UPDATE = "su";
 }

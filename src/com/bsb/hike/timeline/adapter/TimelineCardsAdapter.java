@@ -1063,7 +1063,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		@Override
 		public void onClick(View v)
 		{
-
+			JSONObject metadata = new JSONObject();
 			switch ((int) v.getTag())
 			{
 			case FTUE_CARD_INIT:
@@ -1073,6 +1073,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				// Show card with contact
 				addFTUEItemIfExists(false);
 
+				try
+				{
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_SHOW_ME_CLICKED);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+				
 				break;
 
 			case FTUE_CARD_FAV:
@@ -1094,6 +1104,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 				// remove FTUE Exit Card
 				removeFTUEItemIfExists(FTUE_CARD_EXIT);
+				
+				try
+				{
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_GOT_IT_CLICKED);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
 				break;
 
 			default:

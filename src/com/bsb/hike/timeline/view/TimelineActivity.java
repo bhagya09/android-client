@@ -548,7 +548,25 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		ActivityFeedFragment activityFeedFragment = new ActivityFeedFragment();
 		getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).addToBackStack(null).commit();
-
+		TextView activityFeedTopBarIndicator = (TextView) activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			if (activityFeedTopBarIndicator.isShown())
+			{
+				metadata.put(AnalyticsConstants.EVENT_SOURCE, AnalyticsConstants.WITH_RED_DOT);
+			}
+			else
+			{
+				metadata.put(AnalyticsConstants.EVENT_SOURCE, "");
+			}
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ACTIONBAR_CLICK);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 
 	class FetchUnreadFeedsTask extends AsyncTask<Void, Void, Integer>
