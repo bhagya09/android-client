@@ -11,13 +11,10 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHike
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStickerTagsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
@@ -28,6 +25,10 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendUse
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.setProfileUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.signUpPinCallBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
@@ -61,12 +62,11 @@ import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.StringRequest;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.MultipartRequestBody;
-import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
-import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -158,7 +158,7 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(lastSeenUrl() + "/" + msisdn)
@@ -170,7 +170,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken BulkLastSeenRequest(IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken BulkLastSeenRequest(IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(bulkLastSeenUrl())
@@ -220,14 +220,40 @@ public class HttpRequests
 
 		return requestToken;
 	}
+
+	public static RequestToken postAdminRequest(String grpId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getGroupBaseUrl()+grpId+"/admin")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
 	
+	public static RequestToken postChangeAddMemSettingRequest(String grpId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getGroupBaseUrl()+grpId+"/setting")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.put(body)
+				.build();
+		return requestToken;
+	}
+
 	public static RequestToken platformZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new FileRequest.Builder()
 				.setUrl(url)
 				.setFile(filePath)
 				.setRequestListener(requestListener)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -236,7 +262,7 @@ public class HttpRequests
 	{
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setHeaders(headers)
 				.setRequestType(REQUEST_TYPE_LONG)
@@ -251,7 +277,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
 				.post(body)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
 				.setHeaders(headers)
@@ -265,7 +291,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.post(null)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.build();
@@ -380,12 +406,43 @@ public class HttpRequests
 		return requestToken;
 	}
 	
+	public static RequestToken tagsForCategoriesRequest(String requestId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+					.setId(requestId)
+					.setUrl(getStickerTagsUrl())
+					.setRequestListener(requestListener)
+					.setRequestType(REQUEST_TYPE_LONG)
+					.post(body)
+					.setPriority(PRIORITY_HIGH)
+					.build();
+		
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+	
+	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+					.setId(requestId)
+					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp)
+					.setRequestListener(requestListener)
+					.setRequestType(REQUEST_TYPE_SHORT)
+					.setPriority(PRIORITY_HIGH)
+					.build();
+		
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+	
 	public static RequestToken productPopupRequest(String url, IRequestListener requestListener, String requestType)
 	{
 		ByteArrayRequest.Builder builder = new ByteArrayRequest.Builder().
 				setUrl(url).
 				setRequestType(Request.REQUEST_TYPE_SHORT).
-				setRetryPolicy(new DefaultRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier)).
+				setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier)).
 				setRequestListener(requestListener);
 
 		if (requestType.equals(HikeConstants.POST))
@@ -486,6 +543,11 @@ public class HttpRequests
 	
 	public static RequestToken downloadImageTaskRequest(String id, String fileName, String filePath, boolean hasCustomIcon, boolean statusImage, String url, IRequestListener requestListener)
 	{
+		return downloadImageTaskRequest(id,fileName,filePath,hasCustomIcon,statusImage,url,false,requestListener);
+	}
+	
+	public static RequestToken downloadImageTaskRequest(String id, String fileName, String filePath, boolean hasCustomIcon, boolean statusImage, String url,boolean forceCreateNewToken, IRequestListener requestListener)
+	{
 		String urlString;
 		
 		if (TextUtils.isEmpty(url))
@@ -512,12 +574,21 @@ public class HttpRequests
 		{
 			urlString = url;
 		}
-		RequestToken requestToken = new FileRequest.Builder()
+		
+		FileRequest.Builder builder = new FileRequest.Builder()
 				.setUrl(urlString)
 				.setFile(filePath)
 				.setRequestListener(requestListener)
-				.get()
-				.build();
+				.get();
+		
+		if(forceCreateNewToken)
+		{
+			//this should be done when new image needs to be downloaded irrespectve of a previous download is running on the same URL
+			builder.setId(id+"_"+System.currentTimeMillis());
+		}
+			
+		RequestToken requestToken = builder.build();
+		
 		return requestToken;		
 	}
 	
@@ -583,7 +654,7 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken createLoveLink(JSONObject json, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken createLoveLink(JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -595,7 +666,7 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken removeLoveLink(JSONObject json, IRequestListener requestListener, IRetryPolicy retryPolicy)
+	public static RequestToken removeLoveLink(JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()

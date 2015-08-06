@@ -30,6 +30,10 @@ import com.bsb.hike.utils.Utils;
 
 public class ChatHeadUtils
 {
+	public static int noOfDays, shareLimit;
+	
+	public static final String SERVICE_START_DATE= "strtDate";
+	
     private static final String SERVICE_LAST_USED = "lastUsed";
     
     private static final String TAG = "ChatHeadUtils";
@@ -68,6 +72,27 @@ public class ChatHeadUtils
 
 		//called if all the packages whose task is running is needed
 		return getRunningTaskPackage(context, activityManager, processInfos, packageName, type);
+	}
+	
+	public static void initVariables()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_START_DATE, -1L) == -1L)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(SERVICE_START_DATE, Utils.gettingMidnightTimeinMilliseconds());
+		}
+		noOfDays = (int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_START_DATE,
+				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * ChatHeadConstants.HOUR_TO_MILLISEC_CONST)) + 1;
+		if (noOfDays < 1)
+		{
+			noOfDays = 1;
+		}
+		shareLimit = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.STICKERS_PER_DAY, HikeConstants.ChatHead.DEFAULT_NO_STICKERS_PER_DAY) + HikeSharedPreferenceUtil
+				.getInstance().getData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0));
+		if (HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0) > shareLimit)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, shareLimit);
+			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, shareLimit);
+		}
 	}
 
 	public static Set<String> getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)

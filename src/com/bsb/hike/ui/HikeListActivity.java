@@ -76,7 +76,11 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private EditText input;
 
+	// Set of msisdns of the already blocked/invited users
 	private Set<String> selectedContacts;
+
+	// Set of blocked contacts before the user opens the blocked list from privacy settings 
+	private Set<String> alreadyBlockedContacts;
 
 	private Type type;
 
@@ -375,6 +379,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			{
 			case BLOCK:
 				getBlockedContactsList(contactList, firstSectionList);
+				alreadyBlockedContacts = new HashSet<String>(selectedContacts);
 				selectAllContainer.setVisibility(View.GONE);
 				break;
 			case INVITE:
@@ -594,13 +599,10 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void setupActionBarElements()
 	{
-		if (!selectedContacts.isEmpty())
+		if (!selectedContacts.isEmpty() && type != Type.BLOCK)
 		{
 			Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
-			if (type != Type.BLOCK)
-			{
-				postText.setText(getString(R.string.send_invite, selectedContacts.size()));
-			}
+			postText.setText(getString(R.string.send_invite, selectedContacts.size()));
 		}
 		else
 		{
@@ -663,6 +665,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			view.setTag(pair);
 			adapter.notifyDataSetChanged();
 			String msisdn = pair.second.getMsisdn();
+			
 			if (type != Type.BLOCK)
 			{
 				if (selectedContacts.contains(msisdn))
@@ -675,11 +678,26 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				}
 
 				setupActionBarElements();
-
 			}
 			else
 			{
-				Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
+				if(pair.first.get())
+				{
+					alreadyBlockedContacts.add(msisdn);
+				}
+				else
+				{
+					alreadyBlockedContacts.remove(msisdn);
+				}
+
+				if(alreadyBlockedContacts.equals(selectedContacts))
+				{
+					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);					
+				}
+				else
+				{
+					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
+				}
 				boolean blocked = pair.first.get();
 				toggleBlockMap.put(msisdn, blocked);
 			}
@@ -705,5 +723,4 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			finish();
 		}
 	}
-
 }

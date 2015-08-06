@@ -15,15 +15,15 @@ public class HttpRequestConstants
 
 	private static final String HTTPS = "https://";
 
-	private static final String PRODUCTION_API = "api.im.hike.in";
+	public static final String PRODUCTION_API = "api.im.hike.in";
 
-	private static final String STAGING_API = "staging.im.hike.in";
+	public static final String STAGING_API = "staging.im.hike.in";
 
-	private static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
+	public static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
-	private static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
+	public static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
 	
-	private static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
+	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 		
 	public static final int PRODUCTION_PORT = 80;
 
@@ -44,6 +44,8 @@ public class HttpRequestConstants
 	private static final String BASE_V1 = "/v1";
 
 	private static final String BASE_V2 = "/v2";
+	
+	private static final String BASE_V3 = "/v3";
 
 	private static final String BASE_ACCOUNT = "/account";
 
@@ -147,12 +149,12 @@ public class HttpRequestConstants
 
 	public static String singleStickerDownloadBase()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + "/stickers";
+		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;
 	}
 
 	public static String multiStickerDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER;
+		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;
 	}
 	
 	public static String stickerPalleteImageDownloadUrl()
@@ -173,6 +175,11 @@ public class HttpRequestConstants
 	public static String stickerSignupUpgradeUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+	
+	public static String getStickerTagsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER + "/tagdata";
 	}
 
 	public static String lastSeenUrl()

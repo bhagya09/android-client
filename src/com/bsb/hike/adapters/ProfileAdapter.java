@@ -2,6 +2,8 @@ package com.bsb.hike.adapters;
 
 import java.util.List;
 
+import org.json.JSONException;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -31,6 +34,7 @@ import com.bsb.hike.models.ProfileItem.ProfileSharedMedia;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
@@ -52,7 +56,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private static enum ViewType
 	{
-		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, IMAGE_POST, TEXT_IMAGE_POST
+		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, GROUP_SETTINGS, GROUP_RIGHTS_INFO, IMAGE_POST, TEXT_IMAGE_POST
 	}
 
 	private Context context;
@@ -106,6 +110,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		this.sizeOfThumbnail = sizeOfThumbNail;
 		thumbnailLoader = new SharedFileImageLoader(context, sizeOfThumbnail);
 		thumbnailLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
+		this.groupConversation = groupConversation;
 	}
 	
 	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile,
@@ -151,6 +156,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		else if (ProfileItem.MEMBERS == itemId)
 		{
 			viewType = ViewType.MEMBERS;
+		}
+		else if (ProfileItem.GROUP_SETTINGS == itemId)
+		{
+			viewType = ViewType.GROUP_SETTINGS;
+		}
+		else if (ProfileItem.GROUP_RIGHTS_INFO == itemId)
+		{
+			viewType = ViewType.GROUP_RIGHTS_INFO;
 		}
 		else if (ProfileItem.GROUP_MEMBER == itemId)
 		{
@@ -306,6 +319,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.text = (TextView) v.findViewById(R.id.name);
 				viewHolder.subText = (TextView) v.findViewById(R.id.count);
 				break;
+				
+			case GROUP_SETTINGS:
+				v = inflater.inflate(R.layout.group_settings_item, null);
+				viewHolder.checkbox = (CheckBox) v.findViewById(R.id.checkBox);
+			
+				break;
 
 			case GROUP_PARTICIPANT:
 				v = new LinearLayout(context);
@@ -322,7 +341,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			case ADD_MEMBERS:
 				v = new LinearLayout(context);
 				break;
-			
+			case GROUP_RIGHTS_INFO:
+				v = new LinearLayout(context);
+				break;
 			case STATUS:
 				v = inflater.inflate(R.layout.profile_timeline_item, null);
 
@@ -590,7 +611,18 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				}
 			}
 			break;
-
+		case GROUP_SETTINGS:
+			try {
+				if (groupConversation != null && groupConversation.getMetadata()
+						.getAddMembersRight() == OneToNConversationMetadata.ADD_MEMBERS_RIGHTS.ADMIN_CAN_ADD) {
+					viewHolder.checkbox.setChecked(true);
+				}else{
+					viewHolder.checkbox.setChecked(false);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			break;
 		case PHONE_NUMBER:
 			String head = context.getResources().getString(R.string.phone_pa);
 			viewHolder.text.setText(head);
@@ -626,7 +658,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			GroupParticipant groupParticipant = groupParticipants.getFirst();
 			
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
-			if (contactInfo.getMsisdn().equals(groupConversation.getConversationOwner()))
+			if (groupParticipant.isAdmin())
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 			}
@@ -686,7 +718,24 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			addMemberLayout.addView(groupParticipantParentView_mem);
 
 			break;
-
+		case GROUP_RIGHTS_INFO:
+			LinearLayout rightInfoLayout = (LinearLayout) v;
+			rightInfoLayout.removeAllViews();
+			View rightInfoParentView = inflater.inflate(R.layout.group_profile_item, rightInfoLayout, false);
+			View infoContainer = rightInfoParentView.findViewById(R.id.avatar_container);
+			infoContainer.setVisibility(View.GONE);
+			TextView nameTextView = (TextView) rightInfoParentView.findViewById(R.id.name);
+			ImageView infoSign = (ImageView) rightInfoParentView.findViewById(R.id.add_participant);
+			infoSign.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_chat_theme_info));
+			infoSign.setVisibility(View.VISIBLE);
+			nameTextView.setTextSize(12);
+			nameTextView.setText(context.getResources().getString(R.string.group_rights_info));
+			rightInfoLayout.setClickable(false);
+			rightInfoLayout.addView( rightInfoParentView);
+			
+			
+			
+			break;
 		case STATUS:
 			StatusMessage statusMessage = ((ProfileStatusItem) profileItem).getStatusMessage();
 			viewHolder.text.setText(myProfile ? context.getString(R.string.me) : statusMessage.getNotNullName());
@@ -865,8 +914,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		View pins;
 		
 		View mediaLayout;
+		
+		CheckBox checkbox;
 	}
-
+	
 	public void setProfilePreview(Bitmap preview)
 	{
 		this.profilePreview = preview;

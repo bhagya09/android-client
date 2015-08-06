@@ -729,7 +729,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 				public void run()
 				{
 					String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn , false);
+					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn , false, false);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 

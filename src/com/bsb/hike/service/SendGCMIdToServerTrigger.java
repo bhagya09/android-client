@@ -1,5 +1,7 @@
 package com.bsb.hike.service;
 
+import java.net.HttpURLConnection;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -224,7 +226,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 			{
 				Logger.d(SendGCMIdToServerTrigger.this.getClass().getSimpleName(), "Send unsuccessful");
 				// TODO Below code is for investigating an issue where invalid json is received at server end , should be removed once issue is solved
-				if (httpException.getErrorCode() == HttpException.REASON_CODE_SERVER_ERROR)
+				if (httpException.getErrorCode() == HttpURLConnection.HTTP_BAD_REQUEST)
 				{
 					IRequestBody requestBody = requestToken.getRequestBody();
 					if (requestBody instanceof JsonBody)

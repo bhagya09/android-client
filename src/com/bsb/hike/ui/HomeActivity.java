@@ -1380,15 +1380,29 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (HikePubSub.CONTACT_SYNCED.equals(type))
 		{
-			Boolean[] ret = (Boolean[]) object;
-			final boolean manualSync = ret[0];
+			Pair<Boolean, Byte> ret = (Pair<Boolean, Byte>) object;
+			final boolean manualSync = ret.first;
+			final byte contactSyncResult = ret.second;
 			runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					if(manualSync)
-						Toast.makeText(getApplicationContext(), R.string.contacts_synced, Toast.LENGTH_SHORT).show();
+					if (manualSync)
+					{
+						if (contactSyncResult == ContactManager.SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK)
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_sync_no_contacts_found, Toast.LENGTH_SHORT).show();
+						}
+						else if (contactSyncResult == ContactManager.SYNC_CONTACTS_ERROR)
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_sync_error, Toast.LENGTH_SHORT).show();
+						}
+						else
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_synced, Toast.LENGTH_SHORT).show();
+						}
+					}
 				}
 			});
 		}
@@ -1604,7 +1618,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			boolean isGamesClicked = accountPrefs.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, false);
 			boolean isRewardsClicked = accountPrefs.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, false);
 			boolean showTimelineRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, true);
-			boolean showBroadcastRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, true);
 			boolean showNUJRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
 
 			int count = 0;
@@ -1617,8 +1630,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newGamesIndicator.setText(String.valueOf(count));
 			}
 			
-			if ((item.id == R.string.hike_extras && !isGamesClicked) || (item.id == R.string.rewards && !isRewardsClicked) || (item.id == R.string.timeline && (count > 0 || showTimelineRedDot))
-					|| (item.id == R.string.new_broadcast && showBroadcastRedDot))
+			if ((item.id == R.string.hike_extras && !isGamesClicked) || (item.id == R.string.rewards && !isRewardsClicked) || (item.id == R.string.timeline && (count > 0 || showTimelineRedDot)))
 			{
 				newGamesIndicator.setVisibility(View.VISIBLE);
 			}
@@ -1768,15 +1780,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					
 				case R.string.new_broadcast:
 					sendBroadCastAnalytics();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, false);
-					if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_BROADCAST_FTUE_SCREEN, true))
-					{
-						IntentFactory.createBroadcastFtue(HomeActivity.this);
-					}
-					else
-					{
-						IntentFactory.createBroadcastDefault(HomeActivity.this);
-					}
+					IntentFactory.createBroadcastIntent(HomeActivity.this);
 					break;
 					
 				}

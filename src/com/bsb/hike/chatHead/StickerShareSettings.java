@@ -26,6 +26,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
@@ -49,6 +50,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	private static CheckBox selectAllCheckbox;
 	
 	private static ChatHeadSettingsArrayAdapter listAdapter;
+	
+	private static final String TAG = "StickerShareSettings";  
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -114,9 +117,9 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 					}
 					catch (NameNotFoundException e)
 					{
-						e.printStackTrace();
+						Logger.d(TAG, "appicon not found ");
 					}
-					if (listItem.appName != null)
+					if (listItem.appName!= null && listItem.pkgName!= null && listItem.appIcon!= null)
 					{
 						mListViewItems.add(listItem);
 				    }
@@ -125,7 +128,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		}
 		catch (JSONException e)
 		{
-			e.printStackTrace();
+			Logger.d(TAG, "json exception");
 		}
 	}
 
@@ -262,7 +265,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		}
 		catch (JSONException e1)
 		{
-			e1.printStackTrace();
+			Logger.d(TAG, "json Exception");
 		}
 
 	}

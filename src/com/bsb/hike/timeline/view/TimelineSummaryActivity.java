@@ -54,8 +54,6 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
-import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -74,7 +72,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
  * @author Atul M
  * 
  */
-public class TimelineSummaryActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
+public class TimelineSummaryActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback
 {
 	ImageView imageView;
 
@@ -87,8 +85,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private View fadeScreen;
 
 	private final String TAG = TimelineSummaryActivity.class.getSimpleName();
-
-	private HeadlessImageDownloaderFragment mImageWorkerFragment;
 
 	private boolean hasCustomImage;
 
@@ -437,7 +433,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			public void startDownloading()
 			{
 				showProgressDialog();
-				loadHeadLessImageDownloadingFragment();
+				//TODO @RSinghal
 			}
 		});
 		profileImageLoader.loadProfileImage(getSupportLoaderManager());
@@ -496,37 +492,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		}
 	}
 
-	private void loadHeadLessImageDownloadingFragment()
-	{
-		Logger.d(TAG, "isnide API loadHeadLessImageDownloadingFragment");
-		FragmentManager fm = getSupportFragmentManager();
-		mImageWorkerFragment = (HeadlessImageDownloaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
-
-		// If the Fragment is non-null, then it is currently being
-		// retained across a configuration change.
-		if (mImageWorkerFragment == null)
-		{
-			Logger.d(TAG, "starting new mImageLoaderFragment");
-			String fileName = Utils.getProfileImageFileName(mappedId);
-			mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(mappedId, fileName, hasCustomImage, true, null, null, null, true);
-			mImageWorkerFragment.setTaskCallbacks(this);
-			fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
-		}
-		else
-		{
-			Toast.makeText(this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-			Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-		}
-
-	}
-
-	@Override
-	public void onProgressUpdate(float percent)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
 	public void onCancelled()
 	{
 		hikeUiHandler.post(cancelledRunnable);
@@ -579,7 +544,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
 			{
 				Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this,
-						ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), true);
+						ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false,false);
 				// Add anything else to the intent
 				intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -729,7 +694,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
 					}
-				}, null);
+				});
 				token.execute();
 			}
 			else
@@ -775,7 +740,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
 					}
-				}, null);
+				});
 				token.execute();
 			}
 		}
