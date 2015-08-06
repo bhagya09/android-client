@@ -100,6 +100,7 @@ import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gms.internal.co;
 import com.google.gson.Gson;
 
 /**
@@ -178,6 +179,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private OfflineAnimationFragment offlineAnimationFragment = null;
 	
 	private OfflineDisconnectFragment offlineDisconnectFragment =null;
+	
+	//Flag to indicate that a connectionRequest is in queue
+	private boolean pendingOfflineConnectionRequest =false;
 	
 	/**
 	 * this is set of all the currently visible messages which are stuck in tick and are not sms
@@ -1465,6 +1469,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void startFreeHikeConversation(Boolean showAnimation)
 	{
+		if(offlineController==null)
+		{
+			offlineController = OfflineController.getInstance();
+			offlineController.addListener(this);
+		}
 		switch (OfflineController.getInstance().getOfflineState())
 		{
 		case CONNECTED:
@@ -1490,14 +1499,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				startFreeHikeAnimation();
 			}
+			Logger.d("OfflineAnimationFragment",msisdn);
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
 			showToast(R.string.scan_process_started);
-			if(offlineController==null)
-			{
-				offlineController = OfflineController.getInstance();
-				offlineController.addListener(this);
-			}
-			offlineController.connectAsPerMsisdn(mConversation.getMsisdn());
+			offlineController.connectAsPerMsisdn(msisdn);
 			setupOfflineUI();
 			break;
 		}
@@ -2448,7 +2453,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	public void startAnotherFreeHikeConnection(Boolean startAnimation)
 	{
-		sendUIMessage(START_OFFLINE_CONNECTION, 1000,startAnimation);
+		sendUIMessage(START_OFFLINE_CONNECTION, 0,startAnimation);
 	}
 
 	private void setOfflineFtueCardCancelled() 
@@ -3129,37 +3134,55 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		if(offlineAnimationFragment!=null)
-		{
-			offlineAnimationFragment.onDisconnect(errorCode);
-		}
-		
+		Logger.d("OfflineManager", "disconnect Called " + errorCode);
 		switch (errorCode)
 		{
 		case OUT_OF_RANGE:
 			break;
 		case TIMEOUT:
-			sendUIMessage(OFFLINE_DISCONNECTED,getString(R.string.connection_failed));
+			sendUIMessage(OFFLINE_DISCONNECTED, getString(R.string.connection_failed));
 			break;
-		case USERDISCONNECTED:
-			sendUIMessage(OFFLINE_DISCONNECTED,getString(R.string.connection_deestablished));
+		case DISCONNECTING:
 			break;
 		case COULD_NOT_CONNECT:
 			break;
 		case REQUEST_CANCEL:
 			Logger.d("OfflineManager", "Request Canceled received");
+			break;
+		case SHUTDOWN:
+			sendUIMessage(OFFLINE_DISCONNECTED, getString(R.string.connection_deestablished));
+			if (offlineAnimationFragment != null)
+			{
+				offlineAnimationFragment.onDisconnect(errorCode);
+			}
+			changeChannel(false, true);
+			clearAttachmentPicker();
+			if (pendingOfflineConnectionRequest)
+			{
+				pendingOfflineConnectionRequest = false;
+				sendUIMessage(START_OFFLINE_CONNECTION,1000,true);
+			}
+
+			break;
 		default:
 			break;
 		}
-		//TODO Setup online UI 
-		changeChannel(false);
-		clearAttachmentPicker();
+
 	}
 
+	
 	@Override
-	public void onConnectionRequest(Boolean startAnimation)
+	public void onConnectionRequest(Boolean showAnimation)
 	{
-		startAnotherFreeHikeConnection(startAnimation);
+		if(showAnimation)
+		{
+			pendingOfflineConnectionRequest =true;
+		}
+		else
+		{
+			startFreeHikeConversation(showAnimation);
+		}
+		
 	}
 
 	@Override

@@ -25,6 +25,7 @@ import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.google.ads.AdRequest.ErrorCode;
 import com.google.gson.Gson;
 import com.hike.transporter.DefaultRetryPolicy;
 import com.hike.transporter.TException;
@@ -35,6 +36,7 @@ import com.hike.transporter.interfaces.IMessageSent;
 import com.hike.transporter.models.Config;
 import com.hike.transporter.models.SenderConsignment;
 import com.hike.transporter.models.Topic;
+import com.hike.transporter.utils.TConstants.ERRORCODES;
 
 /**
  * 
@@ -531,6 +533,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		removeAllMessages();
 		startedForChatThread = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, "");
+		Logger.d(TAG,"All variables cleared");
+		updateListeners(ERRORCODE.SHUTDOWN);
 	}
 
 	public void setConnectedDevice(String connectedDevice)

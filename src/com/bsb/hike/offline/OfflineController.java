@@ -520,7 +520,7 @@ public class OfflineController
 		}
 		else if (!TextUtils.isEmpty(getConnectedDevice()))
 		{
-			errorCode = ERRORCODE.USERDISCONNECTED;
+			errorCode = ERRORCODE.DISCONNECTING;
 		}
 		else if (!TextUtils.isEmpty(getConnectingDevice()))
 		{
