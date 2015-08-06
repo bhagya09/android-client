@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -484,13 +485,16 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
+		
 	}
 
 	private void setupMultiSelectActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(false);
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.chat_theme_action_bar, null);
@@ -823,5 +827,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void setStatusBarColor(Window window, String color) {
 		// TODO Auto-generated method stub
 		return;
+	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// TODO Auto-generated method stub
+		return true ;
 	}
 }

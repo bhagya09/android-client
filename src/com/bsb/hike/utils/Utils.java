@@ -21,7 +21,6 @@ import java.net.URL;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -60,7 +59,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -76,8 +74,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -87,6 +85,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -132,13 +131,14 @@ import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -146,10 +146,6 @@ import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -176,6 +172,7 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -203,7 +200,6 @@ import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -2006,55 +2002,36 @@ public class Utils
 
 		if (!settings.getBoolean(checkPref, false) && (!HikeMessengerApp.isIndianUser() || settings.getBoolean(HikeMessengerApp.SEND_NATIVE_INVITE, false)))
 		{
-			final Dialog dialog = new Dialog(context, R.style.Theme_CustomDialog);
-			dialog.setContentView(R.layout.operator_alert_popup);
-			dialog.setCancelable(true);
-
-			TextView headerView = (TextView) dialog.findViewById(R.id.header);
-			TextView bodyView = (TextView) dialog.findViewById(R.id.body_text);
-			Button btnOk = (Button) dialog.findViewById(R.id.btn_ok);
-			Button btnCancel = (Button) dialog.findViewById(R.id.btn_cancel);
-
-			btnCancel.setText(R.string.cancel);
-			btnOk.setText(R.string.ok);
-
-			headerView.setText(header);
-			bodyView.setText(String.format(body, contactInfo.getFirstName()));
-
-			CheckBox checkBox = (CheckBox) dialog.findViewById(R.id.body_checkbox);
-			checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+			CustomAlertDialog dialog = new CustomAlertDialog(context, -1);
+			HikeDialogListener dialogListener = new HikeDialogListener()
 			{
-
 				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					Editor editor = settings.edit();
-					editor.putBoolean(checkPref, isChecked);
+					editor.putBoolean(checkPref, ((CustomAlertDialog)hikeDialog).isChecked());
 					editor.commit();
-				}
-			});
-			checkBox.setText(context.getResources().getString(R.string.not_show_call_alert_msg));
-
-			btnOk.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					dialog.dismiss();
 					invite(context, contactInfo, whichScreen);
+					hikeDialog.dismiss();
 				}
-			});
-
-			btnCancel.setOnClickListener(new OnClickListener()
-			{
-
+				
 				@Override
-				public void onClick(View v)
+				public void neutralClicked(HikeDialog hikeDialog)
 				{
-					dialog.dismiss();
+					hikeDialog.dismiss();
 				}
-			});
+				
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+				}
+			};
+
+			dialog.setTitle(header);
+			dialog.setMessage(String.format(body, contactInfo.getFirstName()));
+			dialog.setCheckBox(R.string.not_show_call_alert_msg, null, false);
+			dialog.setPositiveButton(R.string.ok, dialogListener);
+			dialog.setNegativeButton(R.string.cancel, dialogListener);
 
 			dialog.show();
 		}
@@ -6466,5 +6443,82 @@ public class Utils
 		return formedUri;
 	}
 	
+	public static int getOverflowMenuWidth(Context context)
+	{
+		Resources res = context.getResources();
+
+		return (res.getDimensionPixelSize(R.dimen.overflow_menu_width) + (2 * res.getDimensionPixelSize(R.dimen.overflow_menu_shadow_padding)));
+	}
 	
+	/**
+	 * Utility method to verify the presence of bottom nav bar in Android phones
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static boolean hasBottomNavBar(Context context)
+	{
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Point realPoint = new Point();
+		Display display = wm.getDefaultDisplay();
+		display.getRealSize(realPoint);
+		DisplayMetrics metrics = new DisplayMetrics();
+		wm.getDefaultDisplay().getMetrics(metrics);
+
+		return (metrics.heightPixels != realPoint.y) || (metrics.widthPixels != realPoint.x);
+	}
+	
+	/**
+	 * Utility method to calculate the bottom navBar height
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getBottomNavBarHeight(Context context)
+	{
+		if (hasBottomNavBar(context))
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			DisplayMetrics metrics = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(metrics);
+
+			return Math.abs(metrics.heightPixels - realPoint.y);
+		}
+
+		return 0;
+	}
+	
+	public static boolean isWindowFlagEnabled(int whichFlag, Window window)
+	{
+		if (window == null)
+			return false;
+		
+		return (window.getAttributes().flags & whichFlag) != 0;
+	}
+	
+	/**
+	 * Utility method to calculate the bottom navBar width in landscape mode
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getBottomNavBarWidth(Context context)
+	{
+		if (hasBottomNavBar(context))
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			DisplayMetrics metrics = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(metrics);
+
+			return Math.abs(metrics.widthPixels - realPoint.x);
+		}
+
+		return 0;
+	}
 }

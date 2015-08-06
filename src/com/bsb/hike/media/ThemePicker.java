@@ -272,7 +272,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				@Override
 				public void run()
 				{
-					sherlockFragmentActivity.startActionMode((Callback) actionmodeCallback);
+					sherlockFragmentActivity.startSupportActionMode((ActionMode.Callback) actionmodeCallback);
 				}
 			});
 		}
@@ -286,9 +286,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		int chatThemePaletteMargin = 2 * resources.getDimensionPixelSize(R.dimen.chat_theme_palette_margin);
 
-		int chatThemeGridMargin = 2 * resources.getDimensionPixelSize(R.dimen.chat_theme_grid_margin);
+		int chatThemePalettePadding = 2 * resources.getDimensionPixelSize(R.dimen.chat_theme_palette_padding);
 
-		int chatThemeGridWidth = width - chatThemeGridMargin - chatThemePaletteMargin;
+		int chatThemeGridWidth = width - chatThemePalettePadding - chatThemePaletteMargin;
 
 		int chatThemeItemWidth = resources.getDimensionPixelSize(R.dimen.chat_bg_item_width);
 

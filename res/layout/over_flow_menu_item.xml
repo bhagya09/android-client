@@ -19,7 +19,7 @@
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/item_title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:textColor="@color/menu_text_color"
@@ -41,8 +41,8 @@
             android:text="0"
             style="@style/BaseStyleTextView"
             android:textColor="@color/white"
-            android:textSize="13sp"
-            android:textStyle="bold"
+            android:textSize="12sp"
+            android:textStyle="normal"
             android:visibility="gone" />
         
         <com.bsb.hike.view.CustomFontTextView
@@ -56,7 +56,7 @@
             style="@style/BaseStyleTextView"
             android:textColor="#a59b94"
             android:textSize="12sp"
-            android:textStyle="bold"
+            android:textStyle="normal"
             android:visibility="gone" />
        
         <com.bsb.hike.view.CustomFontTextView
@@ -70,8 +70,8 @@
             android:gravity="center"
             android:text="0"
             android:textColor="@color/white"
-            android:textSize="13sp"
-            android:textStyle="bold"
+            android:textSize="12sp"
+            android:textStyle="normal"
             android:visibility="gone" />
     </RelativeLayout>
 

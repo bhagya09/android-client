@@ -68,6 +68,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconListPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
+import com.bsb.hike.view.PreferenceWithSubText;
 import com.bsb.hike.view.SwitchPreferenceCompat;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
@@ -453,6 +454,24 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			freeHike2SMS.setSummary(R.string.free_sms_msg);
 			freeHike2SMS.shouldDisableDependents();
 			freeHike2SMS.setOnPreferenceChangeListener(this);
+		}
+		
+		PreferenceWithSubText hike2hike = (PreferenceWithSubText) getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.HIKE_HIKE);
+		{
+			if (hike2hike != null)
+			{
+				hike2hike.setDependency(HikeConstants.SMS_SETTINGS.FREE_SMS_PREF);
+			}
+		}
+
+		PreferenceWithSubText freeHike2SMSIndia = (PreferenceWithSubText) getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.FREE_HIKE_TO_SMS_INDIA);
+		{
+			if (freeHike2SMSIndia != null)
+			{
+				freeHike2SMSIndia.setDependency(HikeConstants.SMS_SETTINGS.FREE_SMS_PREF);
+				int credits = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
+				freeHike2SMSIndia.setSubText(Integer.toString(credits));
+			}
 		}
 		
 		Preference earnFreeSMS = getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.KEY_EARN_FREE_SMS);

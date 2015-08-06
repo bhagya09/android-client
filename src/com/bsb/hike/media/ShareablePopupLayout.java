@@ -252,5 +252,21 @@ public class ShareablePopupLayout
 		mKeyboardPopupLayout.onBackPressed();
 	}
 
+	public void setWindowSystemBarBgFlag(boolean windowFlagEnabled)
+	{
+		if (mKeyboardPopupLayout != null)
+		{
+			mKeyboardPopupLayout.setDrawSystemBarBgFlagEnabled(windowFlagEnabled);
+		}
+	}
+
+	public void onConfigurationChanged()
+	{
+		if (mKeyboardPopupLayout != null)
+		{
+			mKeyboardPopupLayout.onConfigChanged();
+		}
+	}
+
 
 }

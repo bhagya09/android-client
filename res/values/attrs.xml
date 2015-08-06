@@ -304,4 +304,9 @@
        <attr name="rd_style" format="integer" />
        <attr name="rd_enable" format="boolean" />
    </declare-styleable>
+   
+   <declare-styleable name="MyPref">
+       <attr name="s_text" format="string" />
+   </declare-styleable>
+   
 </resources>

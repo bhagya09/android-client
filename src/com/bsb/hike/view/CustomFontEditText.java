@@ -19,6 +19,8 @@ public class CustomFontEditText extends EditText
 	private void setFont(AttributeSet attrs)
 	{
 		fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
+		if (Utils.isLollipopOrHigher())
+    		setTypeface(getTypeface(), getTypeface().getStyle());
 	}
 
 	public CustomFontEditText(Context context, AttributeSet attrs, int defStyle)
