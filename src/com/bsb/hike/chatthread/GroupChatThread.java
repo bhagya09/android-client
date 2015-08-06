@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.json.JSONException;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -104,6 +105,7 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			try {
 				if(oneToNConversation.getMetadata().amIAdmin()){
+		            Utils.blockOrientationChange(activity);
 					showMultiAdminTip(activity);
 				}
 			} catch (JSONException e) {
@@ -113,7 +115,7 @@ public class GroupChatThread extends OneToNChatThread
     	}
 		
 	}
-	public static void showMultiAdminTip(final Context context)
+	public void showMultiAdminTip(final Context context)
 	{
 	
 		HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
@@ -122,6 +124,7 @@ public class GroupChatThread extends OneToNChatThread
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
+				Utils.unblockOrientationChange(activity);
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, true);
 			}
@@ -134,8 +137,10 @@ public class GroupChatThread extends OneToNChatThread
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
+				Utils.unblockOrientationChange(activity);
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+				
 			}
 
 		}, 0);
