@@ -932,7 +932,6 @@
     <string name="video">VIDEOS</string>
     <string name="location_option">LOCATION</string>
     <string name="confirm_delete_chat_msg">Delete chat with \"%1$s\"? </string>
-    <string name="confirm_delete_group_msg">Delete and exit \"%1$s\" group?</string>
     <string name="email_chat">Email Chat</string>
     <string name="clear_chat">Clear Chat</string>
     <string name="add_shortcut">Add Shortcut</string>
