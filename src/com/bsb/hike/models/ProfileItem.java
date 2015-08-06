@@ -25,6 +25,10 @@ public abstract class ProfileItem
 	
 	public static final int GROUP_MEMBER = -9;
 	public static final int PHONE_NUMBER = -11;
+	
+	public static final int GROUP_SETTINGS = -12;
+	
+	public static final int GROUP_RIGHTS_INFO = -13;
 
 	private int itemId;
 	

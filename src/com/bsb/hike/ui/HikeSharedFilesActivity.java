@@ -62,6 +62,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 {
 	static String MULTISELECT_MODE = "multi_mode";
 	static String MULTISELECT_KEYS = "multi_keys";
+	private String SHARED_FILE_LIST = "s_f_l";
+	
 	private List<HikeSharedFile> sharedFilesList;
 
 	private HikeSharedFileAdapter adapter;
@@ -69,7 +71,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	private String msisdn;
 
 	private boolean multiSelectMode;
-
+	
 	private HashSet<Long> selectedSharedFileItems;
 
 	private TextView multiSelectTitle;
@@ -114,18 +116,20 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		setContentView(R.layout.gallery);
 
 		selectedSharedFileItems = new HashSet<Long>();
-		sharedFilesList = new ArrayList<HikeSharedFile>();
+		sharedFilesList = null;
 
 		Bundle data;
 		if (savedInstanceState != null)
 		{
 			data = savedInstanceState;
+			
+			sharedFilesList = data.getParcelableArrayList(SHARED_FILE_LIST);
 		}
 		else
 		{
 			data = getIntent().getExtras();
 		}
-
+		
 		msisdn = data.getString(HikeConstants.Extras.MSISDN);
 		isGroup = data.getBoolean(HikeConstants.Extras.IS_GROUP_CONVERSATION, false);
 		conversationName = data.getString(HikeConstants.Extras.CONVERSATION_NAME);
@@ -144,7 +148,11 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 		
-		sharedFilesList = (List<HikeSharedFile>) HikeConversationsDatabase.getInstance().getSharedMedia(msisdn, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, -1, true);
+		if(sharedFilesList == null)
+		{
+			sharedFilesList = (List<HikeSharedFile>) HikeConversationsDatabase.getInstance().getSharedMedia(msisdn, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, -1, true);
+		}
+		
 		adapter = new HikeSharedFileAdapter(this, sharedFilesList, actualSize, selectedSharedFileItems, false);
 
 		gridView.setNumColumns(numColumns);
@@ -166,6 +174,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			}
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, null);
+		
+		
 	}
 
 	@Override
@@ -627,10 +637,10 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		// TODO Auto-generated method stub
 		super.onResume();
+		
 		if(adapter != null)
 		{
 			adapter.getSharedFileImageLoader().setExitTasksEarly(false);
-			adapter.notifyDataSetChanged();
 		}
 	}
 	
@@ -674,6 +684,9 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putAll(getIntent().getExtras());
+		
+		outState.putParcelableArrayList(SHARED_FILE_LIST, (ArrayList<HikeSharedFile>) sharedFilesList);
+		
 		if(multiSelectMode){
 			long[] selectedValues = new long[selectedSharedFileItems.size()];
 			int i=0;

@@ -87,6 +87,7 @@ import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -499,6 +500,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				ed.putBoolean(HikeMessengerApp.SIGNUP_COMPLETE, true);
 				ed.commit();
 				
+				StickerManager.getInstance().doSignupTasks();
 				JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionStart();
 				Utils.sendSessionMQTTPacket(SignupActivity.this, HikeConstants.FOREGROUND, sessionDataObject);
 				Utils.appStateChanged(getApplicationContext(), false, false, false, true, false);
@@ -842,7 +844,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					@Override
 					public void onClick(View v)
 					{
-						selectNewProfilePicture(SignupActivity.this, false);
+						selectNewProfilePicture(SignupActivity.this, false, true);
 					}
 				});
 			}
@@ -881,7 +883,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				@Override
 				public void onClick(View v)
 				{
-					selectNewProfilePicture(SignupActivity.this, false);
+					selectNewProfilePicture(SignupActivity.this, false, true);
 				}
 			});
 		}
@@ -2380,7 +2382,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	}
 	
 	@Override
-	protected String getNewProfileImagePath()
+	protected String getNewProfileImagePath(boolean toUseTimestamp)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		/*

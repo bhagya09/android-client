@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/invite_Section_main_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:textColor="@color/referral_text_colour"
+        android:textSize="18sp"
+        android:textStyle="normal" />
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/invite_Section_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="17dp"
+        android:src="@drawable/ftue_card_invite_img_small" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="17dp"
+        android:text="@string/your_referral_code"
+        android:textColor="@color/referral_text_colour"
+        android:textSize="14sp"
+        android:textStyle="normal" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/referral_code"
+        android:layout_width="150dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="12dp"
+        android:alpha="0.5"
+        android:background="@color/referral_code"
+        android:gravity="center"
+        android:textColor="@color/referral_text_colour"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/invite_Section_bottom_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="18dp"
+        android:layout_marginTop="12dp"
+        android:alpha="0.8"
+        android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:textColor="@color/referral_text_colour"
+        android:textSize="14sp"
+        android:textStyle="normal" />
+
+</LinearLayout>

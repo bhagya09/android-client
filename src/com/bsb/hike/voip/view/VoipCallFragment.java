@@ -1,6 +1,7 @@
 package com.bsb.hike.voip.view;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -19,7 +20,6 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -37,6 +37,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +56,7 @@ import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
 import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.voip.adapters.ConferenceParticipantsAdapter;
 
 public class VoipCallFragment extends Fragment implements CallActions
 {
@@ -71,7 +73,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private Chronometer callDuration;
 
 	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
-
+	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 
 	private CallFragmentListener activity;
@@ -176,10 +178,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
 				showMessage(getString(R.string.voip_mic_error));
 				break;
-			case VoIPConstants.MSG_LEFT_CONFERENCE:
-				Bundle bundle = msg.getData();
-				String msisdn = bundle.getString(VoIPConstants.MSISDN);
-				showMessage(msisdn + " has left the conference.");
 			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
 				setContactDetails();
 				break;
@@ -189,6 +187,11 @@ public class VoipCallFragment extends Fragment implements CallActions
 				break;
 			case VoIPConstants.MSG_BLUETOOTH_SHOW:
 				toggleBluetoothButton(true);
+				break;
+			case VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE:
+				Bundle bundle = msg.getData();
+				String name = bundle.getString(VoIPConstants.PARTNER_NAME);
+				showMessage(getString(R.string.voip_conference_not_supported, name));
 				break;
 			default:
 				super.handleMessage(msg);
@@ -252,6 +255,11 @@ public class VoipCallFragment extends Fragment implements CallActions
 			voipService.dismissNotification();
 		}
 		
+		if(callDuration!=null)
+		{
+			callDuration.stop();
+		}
+
 		try 
 		{
 			if (isBound) 
@@ -293,7 +301,11 @@ public class VoipCallFragment extends Fragment implements CallActions
 				clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(tag, "There is no active call.");
-//			getSherlockActivity().finish();	// Bugfix AND-354
+			if (!activity.isShowingCallFailedFragment()) {
+				// Bugfix AND-1315
+				Logger.d(tag, "Finishing activity.");
+				getActivity().finish();	// Bugfix AND-354
+			}
 			return;
 		}
 
@@ -371,7 +383,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) 
 		{
 			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
-			VoIPUtils.sendMissedCallNotificationToPartner(msisdn);
+			VoIPUtils.sendMissedCallNotificationToPartner(msisdn, null);
 			if (voipService != null)
 			{
 				voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
@@ -400,11 +412,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		}
 		catch (IllegalArgumentException e) {
 			Logger.d(tag, "shutdown() exception: " + e.toString());
-		}
-
-		if(callDuration!=null)
-		{
-			callDuration.stop();
 		}
 
 		if(activity.isShowingCallFailedFragment())
@@ -712,6 +719,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 				break;
 
 			case INCOMING_CALL:
+				hideConferenceList();
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_incoming));
 				releaseProximityWakelock();
@@ -746,7 +754,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 				break;
 				
 			case HOSTING_CONFERENCE:
-				startCallDuration();
+				callDuration.setText("");
+				if (voipService.recordingAndPlaybackRunning) 
+					startCallDuration();
 				break;
 				
 		default:
@@ -762,9 +772,12 @@ public class VoipCallFragment extends Fragment implements CallActions
 		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
 		anim.setDuration(500);
 
-		callDuration.startAnimation(anim);
-		callDuration.setBase((SystemClock.elapsedRealtime() - 1000*voipService.getCallDuration()));
-		callDuration.start();
+		int duration = voipService.getCallDuration();
+		if (duration >= 0) {
+			callDuration.startAnimation(anim);
+			callDuration.setBase((SystemClock.elapsedRealtime() - 1000 * duration));
+			callDuration.start();
+		}
 	}
 
 	private void setContactDetails()
@@ -801,13 +814,37 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		}
 
+		if (voipService.hostingConference() && signalContainer != null) {
+			// remove quality indicator
+			signalContainer.setVisibility(View.GONE);
+		}
+		
 		if (voipService.hostingConference() || clientPartner.isHostingConference) {
+			
+			// Display the contact name and participant count
 			nameOrMsisdn = getString(R.string.voip_conference_label);
+			int clientCount = voipService.getClientCount();
+			String numberOfParticipants;
+			if (clientCount == 1)
+				numberOfParticipants = getString(R.string.voip_conference_waiting_for_participants_info);
+			else
+				numberOfParticipants = clientCount + " " + getString(R.string.participants);
 			contactMsisdnView.setVisibility(View.VISIBLE);
-			contactMsisdnView.setText(voipService.getClientCount() + " " + getString(R.string.participants));
-			updateConferenceList();
+			contactMsisdnView.setText(numberOfParticipants);
+			
+			// When a call is initiated or received, 
+			// show the participants list only to the host
+			// and to the participants after they accept the call
+			if (voipService.recordingAndPlaybackRunning || voipService.hostingConference())
+				updateConferenceList();
 		}
 
+		if (clientPartner.isHostingConference) {
+			addButton.setVisibility(View.GONE);
+		} else
+			addButton.setVisibility(View.VISIBLE);
+			
+		
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
 		{
 			contactNameView.setTextSize(24);
@@ -818,10 +855,25 @@ public class VoipCallFragment extends Fragment implements CallActions
 	
 	private void updateConferenceList() {
 	
-		TextView contactNameView = (TextView) getView().findViewById(R.id.conference_list);
-		contactNameView.setVisibility(View.VISIBLE);
-		contactNameView.setText(Html.fromHtml(voipService.getClientNames()));
-
+		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
+		List<VoIPClient> clients = new ArrayList<>(voipService.getConferenceClients());
+		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, clients);
+		conferenceList.setAdapter(adapter);
+		conferenceList.setVisibility(View.VISIBLE);
+		conferenceList.setFocusable(false);
+		conferenceList.setClickable(false);
+		
+		// Remove profile image
+		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+		profileView.setVisibility(View.INVISIBLE);
+	}
+	
+	private void hideConferenceList() {
+		
+		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
+		conferenceList.setVisibility(View.GONE);
+		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
+		profileView.setVisibility(View.VISIBLE);
 	}
 	
 	public void showCallActionsView()
@@ -841,7 +893,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 	private void showSignalStrength(CallQuality quality)
 	{
-		LinearLayout signalContainer = (LinearLayout) getView().findViewById(R.id.signal_container);
+		signalContainer = (LinearLayout) getView().findViewById(R.id.signal_container);
 		TextView signalStrengthView = (TextView) getView().findViewById(R.id.signal_strength);
 		GradientDrawable gd = (GradientDrawable)signalContainer.getBackground();
 

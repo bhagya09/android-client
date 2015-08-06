@@ -11,9 +11,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
@@ -21,21 +22,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
-
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.animation.FloatEvaluator;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -49,8 +42,15 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
+import com.bsb.hike.imageHttp.HikeImageWorker;
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorListenerAdapter;
+import com.nineoldandroids.animation.FloatEvaluator;
+import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.animation.ValueAnimator;
+import com.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
 
-public class ProfilePicFragment extends Fragment implements FinishableEvent, IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
+public class ProfilePicFragment extends Fragment implements FinishableEvent, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
 	private View mFragmentView;
 
@@ -73,7 +73,9 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	private final byte UPLOAD_FAILED = 2;
 
 	private final byte UPLOAD_INPROGRESS = 3;
-
+	
+	private final byte UPLOAD_STALE = 4;
+	
 	private RoundedImageView mCircularImageView;
 
 	private ImageView mProfilePicBg;
@@ -83,11 +85,13 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	private String origImagePath;
 
 	private HikeUiHandler hikeUiHandler;
-
-	private HeadlessImageUploaderFragment mImageWorkerFragment;
-
+	
+	private HikeImageUploader mImageWorkerFragment;
+	
 	private static final String TAG = "dp_download";
 
+	private static final String UPLOAD_STATUS_KEY = "u_p_k";
+	
 	private Runnable failedRunnable = new Runnable()
 	{
 
@@ -97,8 +101,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 			if (isAdded() && isVisible())
 			{
 				Logger.d(TAG, "inside ImageViewerFragment, onFailed Recv");
-				showErrorState();
-				removeHeadLessFragment();
+				showErrorState(getString(R.string.photo_dp_save_error));
 			}
 		}
 	};
@@ -113,7 +116,6 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 			{
 				Logger.d(TAG, "inside ImageViewerFragment, onSucecess Recv");
 				updateProgress(90f - mCurrentProgress);
-				removeHeadLessFragment();
 			}
 		}
 	};
@@ -142,6 +144,26 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		imagePath = bundle.getString(HikeConstants.HikePhotos.FILENAME);
 
 		origImagePath = bundle.getString(HikeConstants.HikePhotos.ORIG_FILE);
+		
+		if(savedInstanceState != null)
+		{
+			mUploadStatus = savedInstanceState.getByte(UPLOAD_STATUS_KEY) ;
+			
+			//if upload was statrted before and the token to be uploaded no longer exists, we can assume the file was uploaded
+			if(mUploadStatus == UPLOAD_INPROGRESS  || mUploadStatus == UPLOAD_STALE)
+			{
+				if(HikeImageUploader.getProfileRequestToken() == null)
+				{
+					mUploadStatus = UPLOAD_COMPLETE;
+				}
+				else 
+				{
+					mUploadStatus = UPLOAD_STALE;
+				}
+			}
+			
+		}
+
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -187,7 +209,17 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 
 	private void startUpload()
 	{
-
+		if(mUploadStatus == UPLOAD_COMPLETE )
+		{
+			timelineLauncherRunnable.run();
+			return;
+		}
+		if( mUploadStatus == UPLOAD_STALE)
+		{
+			showStaleState(getString(R.string.task_already_running));
+			return;
+		}
+		
 		mUploadStatus = UPLOAD_INPROGRESS;
 
 		changeTextWithAnimation(text1, getString(R.string.photo_dp_saving));
@@ -213,7 +245,8 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 
 			if (smallerBitmap == null)
 			{
-				showErrorState();
+				showErrorState(getString(R.string.photo_dp_save_error));
+				return;
 			}
 
 			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
@@ -224,34 +257,19 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
 
 			String mLocalMSISDN = userInfo.getMsisdn();
-
-			loadHeadLessImageUploadingFragment(bytes, origImagePath, mLocalMSISDN);
-
+			
+			beginDpUpload(bytes, origImagePath, mLocalMSISDN);
+			
 			updateProgressUniformly(80f, 10f);
 		}
 	}
 
-	public void loadHeadLessImageUploadingFragment(byte[] bytes, String origImagePath, String mLocalMSISDN)
+	public void beginDpUpload(byte[] bytes, String origImagePath, String mLocalMSISDN)
 	{
 		Logger.d(TAG, "inside API loadHeadLessImageUploadingFragment");
-		FragmentManager fm = getFragmentManager();
-		mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
-
-		// If the Fragment is non-null, then it is currently being
-		// retained across a configuration change.
-		if (mImageWorkerFragment == null)
-		{
-			Logger.d("dp_upload", "starting new mImageLoaderFragment");
-			mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, origImagePath, mLocalMSISDN, true, true);
-			mImageWorkerFragment.setTaskCallbacks(this);
-			fm.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
-		}
-		else
-		{
-			Toast.makeText(getActivity(), getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-			Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-		}
-
+    	mImageWorkerFragment = HikeImageUploader.newInstance(bytes, origImagePath, mLocalMSISDN, false, true);
+    	mImageWorkerFragment.setTaskCallbacks(this);
+        mImageWorkerFragment.startUpLoadingTask();
 	}
 
 	private void updateProgressUniformly(final float total, final float interval)
@@ -356,19 +374,19 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		}
 	};
 
-	private void showErrorState()
+	private void showErrorState(String errorMessage)
 	{
 		mUploadStatus = UPLOAD_FAILED;
 
 		if (!isAdded())
 		{
-			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.profile_pic_failed, Toast.LENGTH_SHORT).show();
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
 			return;
 		}
 
 		mCircularProgress.setProgress(1f);
 
-		changeTextWithAnimation(text1, getString(R.string.photo_dp_save_error));
+		changeTextWithAnimation(text1, errorMessage);
 
 		changeTextWithAnimation(text2, getString(R.string.photo_dp_save_error_sub));
 
@@ -384,12 +402,48 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 			public void onClick(View v)
 			{
 				mCurrentProgress = 0.0f;
-				mUploadStatus = UPLOAD_INPROGRESS;
 				startUpload();
 			}
 		});
 	}
 
+	private void showStaleState(String message)
+	{
+		mUploadStatus = UPLOAD_STALE;
+
+		if (!isAdded())
+		{
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		mCircularProgress.setProgress(100f);
+
+		changeTextWithAnimation(text1, message);
+
+		changeTextWithAnimation(text2, getString(R.string.goto_timeline));
+
+		mCircularProgress.setProgressColor(getResources().getColor(R.color.photos_circular_progress_yellow));
+
+		mFragmentView.findViewById(R.id.retryButton).setVisibility(View.GONE);
+		
+		mFragmentView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				if(mUploadStatus == UPLOAD_STALE)
+				{
+					mUploadStatus = UPLOAD_COMPLETE;
+				
+					timelineLauncherRunnable.run();
+				}
+				
+			}
+		});
+
+	}
+	
 	private void changeTextWithAnimation(final TextView tv, final String newText)
 	{
 		ObjectAnimator visToInvis = ObjectAnimator.ofFloat(tv, "alpha", 1f, 0.2f);
@@ -427,6 +481,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	public void onResume()
 	{
 		super.onResume();
+		
 		if (mUploadStatus == UPLOAD_COMPLETE)
 		{
 			timelineLauncherRunnable.run();
@@ -440,21 +495,10 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	}
 
 	@Override
-	public void onProgressUpdate(float percent)
+	public void onSaveInstanceState(Bundle outState)
 	{
-
-	}
-
-	@Override
-	public void onCancelled()
-	{
-
-	}
-
-	@Override
-	public void onFailed()
-	{
-		hikeUiHandler.post(failedRunnable);
+		outState.putByte(UPLOAD_STATUS_KEY, mUploadStatus);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -499,13 +543,37 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 
 	}
 
-	private void removeHeadLessFragment()
+	@Override
+	public void onTaskAlreadyRunning()
 	{
-		Logger.d(TAG, "inside ImageViewerFragment, removing UILessFragment");
-		if (getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT) != null)
+		hikeUiHandler.post(new Runnable()
 		{
-			mImageWorkerFragment = (HeadlessImageUploaderFragment) getFragmentManager().findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
-			getFragmentManager().beginTransaction().remove(mImageWorkerFragment).commit();
-		}
+
+			@Override
+			public void run()
+			{
+				showStaleState(getString(R.string.task_already_running));
+			}
+		});
+	}
+
+	@Override
+	public void onProgressUpdate(float percent)
+	{
+		// Do nothing
+		
+	}
+
+	@Override
+	public void onCancelled()
+	{
+		// Do nothing
+		
+	}
+
+	@Override
+	public void onFailed()
+	{
+		hikeUiHandler.post(failedRunnable);		
 	}
 }

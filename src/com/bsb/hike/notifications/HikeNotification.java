@@ -1544,6 +1544,11 @@ public class HikeNotification
 			{
 				StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(activityFeed.getObjID());
 
+				if(statusMessage == null)
+				{
+					return;
+				}
+					
 				if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 				{
 					message = context.getString(R.string.dp_like_text);

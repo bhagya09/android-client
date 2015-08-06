@@ -116,6 +116,12 @@ public class HikeDialogFactory
 	public static final int WIPE_TIMELINE_DIALOG = 38;
 	
 	public static final int SMS_PREF_DIALOG = 39;
+	
+	public static final int GROUP_ADD_MEMBER_SETTINGS = 40;
+	
+	public static final int MULTI_ADMIN_DIALOG = 41;
+
+	public static final int UNDO_MULTI_EDIT_CHANGES_DIALOG = 42;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -129,6 +135,8 @@ public class HikeDialogFactory
 		{
 		case FAVORITE_ADDED_DIALOG:
 			return showAddedAsFavoriteDialog(dialogId, context, listener, data);
+		case MULTI_ADMIN_DIALOG:
+			return showMultiAdminDialog(dialogId, context, listener, data);
 			
 		case RESET_STEALTH_DIALOG:
 			return showStealthResetDialog(dialogId, context, listener, data);
@@ -177,6 +185,7 @@ public class HikeDialogFactory
 		case DELETE_BROADCAST_DIALOG:
 		case DELETE_BLOCK:
 		case DELETE_NON_MESSAGING_BOT:
+		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
 			return showDeleteMessagesDialog(dialogId, context, listener, data);
 			
 		case GPS_DIALOG:
@@ -192,7 +201,9 @@ public class HikeDialogFactory
 			return showHikeUpgradeDialog(dialogId, context, data);
 			
 		case VOIP_INTRO_DIALOG:
-			return showVoipFtuePopUp(dialogId, context, listener, data);			
+			return showVoipFtuePopUp(dialogId, context, listener, data);
+		case GROUP_ADD_MEMBER_SETTINGS:
+			return showGroupSettingsDialog(dialogId, context, listener, data);
 		}
 		return null;
 	}
@@ -255,6 +266,33 @@ public class HikeDialogFactory
 		return hikeDialog;
 	}
 
+	private static HikeDialog showMultiAdminDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
+	{
+		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
+		hikeDialog.setContentView(R.layout.multiadmin_popup);
+		hikeDialog.setCancelable(true);
+		View yes = hikeDialog.findViewById(R.id.gotItButton);
+		OnClickListener clickListener = new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View arg0)
+			{
+				switch (arg0.getId())
+				{
+				case R.id.gotItButton:
+					hikeDialog.dismiss();
+					listener.positiveClicked(hikeDialog);
+					break;
+				
+				}
+
+			}
+		};
+		yes.setOnClickListener(clickListener);
+		hikeDialog.show();
+		return hikeDialog;
+	}
 	private static HikeDialog showStealthResetDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
 	{
 		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
@@ -344,7 +382,24 @@ public class HikeDialogFactory
 		return hikeDialog;
 	}
 
-	
+	private static HikeDialog showGroupSettingsDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
+	{
+
+		final CustomAlertDialog confirmDialog = new CustomAlertDialog(context, dialogId);
+
+		String text = (String) data[0];
+
+		confirmDialog.setTitle("");
+		confirmDialog.setMessage(text);
+
+		confirmDialog.setPositiveButton(R.string.yes, listener);
+
+		confirmDialog.setNegativeButton(R.string.no, listener);
+
+		confirmDialog.show();
+		return confirmDialog;
+	}
+
 	private static void saveImageQualitySettings(Editor editor, RadioButtonPojo pojo)
 	{
 		if (pojo != null)
@@ -767,6 +822,15 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_block_msg,(String) data[0]));
 			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
+			break;
+			
+		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
+			deleteConfirmDialog.setTitle(R.string.multi_edit_undo_warning_header);
+			deleteConfirmDialog.setMessage(context.getString(R.string.multi_edit_undo_warning));
+			deleteConfirmDialog.setPositiveButton(R.string.ok, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			break;
+			
 		}
 		deleteConfirmDialog.show();
 		

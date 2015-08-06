@@ -23,6 +23,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -32,6 +33,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.imageHttp.HikeImageUploader;
+import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -46,9 +49,6 @@ import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
-import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -80,10 +80,10 @@ public class HikeService extends Service
 				Logger.d("ContactsChanged", "calling syncUpdates, manualSync = " + manualSync);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNC_STARTED, null);
 
-				boolean contactsChanged = ContactManager.getInstance().syncUpdates(this.context);
+				byte contactSyncResult = ContactManager.getInstance().syncUpdates(this.context);
 
 				HikeMessengerApp.syncingContacts = false;
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Boolean[] { manualSync, contactsChanged });
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Pair<Boolean, Byte>(manualSync, contactSyncResult));
 			}
 
 		}
@@ -186,6 +186,8 @@ public class HikeService extends Service
 	{
 		super.onCreate();
 
+		HAManager.getInstance().serviceEventAnalytics(HikeConstants.CREATE, HikeConstants.HIKE_SERVICE);
+		
 		// If user is not signed up. Do not initialize MQTT or serve any SDK requests. Instead, re-route to Welcome/Signup page.
 		// TODO : This is a fix to handle edge case when a request comes from SDK and user has not signed up yet. In future we must make a separate bound service for handling SDK
 		// related requests.
@@ -788,13 +790,13 @@ public class HikeService extends Service
 			Logger.d(TAG_IMG_UPLOAD, "profile pic upload started");
 
 			String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-			HeadlessImageUploaderFragment mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(null, profilePicPath, msisdn, false, true);
+			HikeImageUploader mImageWorkerFragment = HikeImageUploader.newInstance(null, profilePicPath, msisdn, false, true);
 			mImageWorkerFragment.setTaskCallbacks(new UploadProfileTaskCallbacksHandler(profilePicPath));
 			mImageWorkerFragment.startUpLoadingTask();
 		}
 	}
 
-	class UploadProfileTaskCallbacksHandler implements HeadlessImageWorkerFragment.TaskCallbacks
+	class UploadProfileTaskCallbacksHandler implements HikeImageWorker.TaskCallbacks
 	{
 
 		private String filePath;
@@ -827,7 +829,13 @@ public class HikeService extends Service
 			}
 			else
 			{
-				Toast.makeText(HikeService.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					
+					@Override
+					public void run() {
+						Toast.makeText(HikeService.this, getString(R.string.update_profile_failed), Toast.LENGTH_LONG).show();
+					}
+				});
 				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 			}
 		}
@@ -850,6 +858,12 @@ public class HikeService extends Service
 				Logger.d(TAG_IMG_UPLOAD, "Timeline post creation was unsuccessfull on signup");
 				return;
 			}	
+		}
+
+		@Override
+		public void onTaskAlreadyRunning() {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	}
