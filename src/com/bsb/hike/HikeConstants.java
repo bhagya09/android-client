@@ -2990,6 +2990,10 @@ public class HikeConstants
 
 	public static final String KEYBOARD_CONFIGURATION = "kc";
 
+	public static final int KEYBOARD_CONFIGURATION_OLD = 1;
+
+	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
+	
 	public static final String GET="get";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";

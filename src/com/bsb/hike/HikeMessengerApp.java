@@ -31,7 +31,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.Pair;
 
 import com.bsb.hike.bots.BotInfo;
@@ -1140,4 +1139,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		}
 	};
 
+	public static boolean keyboardApproach(Context context)
+	{// server side switch
+		int kc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KEYBOARD_CONFIGURATION, HikeConstants.KEYBOARD_CONFIGURATION_NEW);
+		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
+	}
 }
