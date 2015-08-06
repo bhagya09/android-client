@@ -1556,5 +1556,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
     <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
-    
+    <string name="confirm_delete_group_msg">Are you sure you want to exit \"%1$s\"?</string>
+    <string name="delete_conversation">Delete Conversation</string>
+    <string name="delete_group_confirm">Are you sure you want to delete \"%1$s\"?</string>
 </resources>
