@@ -68,7 +68,7 @@
             android:id="@+id/actionBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/btn_doodle_enable" />
+            android:src="@drawable/btn_wand" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"

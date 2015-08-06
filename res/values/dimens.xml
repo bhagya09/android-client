@@ -186,7 +186,7 @@
 	<dimen name="photos_doodle_preview_padding">16dp</dimen>
 	<dimen name="photos_action_bar_left_right_padding">16dp</dimen>
 	<dimen name="photos_action_internal_padding">8dp</dimen>
-	<dimen name="photos_thumbnail_dimen_ldpi">35dp</dimen>
+	<dimen name="photos_thumbnail_dimen_ldpi">40dp</dimen>
 	<dimen name="photos_thumbnail_dimen_hdpi">45dp</dimen>
 	<dimen name="photos_thumbnail_dimen_xhdpi">60dp</dimen>
 	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
@@ -194,6 +194,8 @@
 	<dimen name="sticker_empty_pallete_preview_image_width">125dp</dimen>
 	<dimen name="sticker_empty_pallete_preview_image_height">178dp</dimen>
 	<dimen name="one_dp">1dp</dimen>
+	<dimen name="sticker_recommend_padding">8dp</dimen>
+	<dimen name="sticker_recommend_sticker_image_padding">4dp</dimen>
 	<dimen name="sticker_btn_width">60dp</dimen>
 	<dimen name="home_sreen_divider_left_padding">80dp</dimen>
 	<dimen name="home_sreen_divider_right_padding">16dp</dimen>
@@ -212,5 +214,6 @@
 	<dimen name="menu_list_padding_top">8dp</dimen>
 	<dimen name="menu_list_padding_bottom">8dp</dimen>
 	<dimen name="overflow_menu_shadow_padding">6.5dp</dimen>
-	
+	<dimen name="photos_selector_top_padding">8dp</dimen>
+	<dimen name="preview_brush_width">38dp</dimen>
 </resources>

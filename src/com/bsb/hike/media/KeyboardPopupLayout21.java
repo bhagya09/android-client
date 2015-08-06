@@ -3,7 +3,6 @@ package com.bsb.hike.media;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -335,7 +334,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 				Logger.wtf("chatthread", "Getting null view inside global layout listener");
 				return;
 			}
-			Log.i("chatthread", "global layout listener rootHeight " + mainView.getRootView().getHeight() + " new height " + mainView.getHeight());
+			Logger.i("chatthread", "global layout listener rootHeight " + mainView.getRootView().getHeight() + " new height " + mainView.getHeight());
 			Rect r = new Rect();
 			mainView.getWindowVisibleDisplayFrame(r);
 			// this is height of view which is visible on screen

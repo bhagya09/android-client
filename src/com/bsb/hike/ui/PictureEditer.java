@@ -60,6 +60,8 @@ import com.viewpagerindicator.PhotosTabPageIndicator;
 public class PictureEditer extends HikeAppStateBaseFragmentActivity
 {
 
+	private String TEMP_PROFILE_IMAGE = "temp_ppi";
+	
 	PhotosEditerFrameLayoutView editView;
 
 	private int menuIcons[] = { R.drawable.photos_tabs_filter_selector, R.drawable.photos_tabs_doodle_selector };
@@ -89,6 +91,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private boolean startedForProfileUpdate;
 
 	private boolean isWorking;
+	
+	private String tempProfileImageName;
 
 	private final String TAG = PictureEditer.class.getSimpleName();
 
@@ -154,13 +158,28 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			public void onFailure()
 			{
 				Logger.d(TAG, "Image rotation correction failed");
-				
+				sendAnalyticsFileCouldNotLoad();
 				PictureEditer.this.runOnUiThread(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						Toast.makeText(PictureEditer.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
+						if(isStartedForResult())
+						{
+							Bundle bundle = new Bundle();
+							bundle.putString(HikeConstants.Extras.IMAGE_PATH, filename);
+							if(hasDelegateActivities())
+							{
+								launchNextDelegateActivity(bundle);
+							}
+							else
+							{
+								Intent intent = new Intent();
+								intent.putExtras(bundle);
+								intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
+								setResult(RESULT_OK, intent);
+							}
+						}
 						PictureEditer.this.finish();
 					}
 				});
@@ -201,13 +220,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		if (TextUtils.isEmpty(destinationFileHandle))
 		{
-			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT ;
+			String directory = getEditImageSaveDirectory(true);
 			File dir = new File(directory);
 			if (!dir.exists())
 			{
 				dir.mkdirs();
 			}
-			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+			destinationFileHandle = getEditImageSaveDirectory(true)+ File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		}
 
 		editView.setDestinationPath(destinationFileHandle);
@@ -221,6 +240,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		overlayFrame = findViewById(R.id.overlayFrame);
 
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
+		
+		if(savedInstanceState !=null && savedInstanceState.containsKey(TEMP_PROFILE_IMAGE))
+		{
+			tempProfileImageName = savedInstanceState.getString(TEMP_PROFILE_IMAGE);
+		}
 
 	}
 	
@@ -377,20 +401,38 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (resultCode)
 			{
 			case RESULT_OK:
-				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
+				try
+				{
+					isWorking = true;
+					uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
+				}
+				finally
+				{
+					isWorking = false;
+				}
 				break;
 			case RESULT_CANCELED:
 				//The user returned from crop...deleting temporary profile image if created
-				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-				String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
-				final String destFilePath = directory + File.separator + fileName;
-				File temp = new File(destFilePath);
-				if(temp.exists())
-				{
-					temp.delete();
-				}
+				deleteTempProfilePicIfExists();
 				break;
 			}
+		}
+	}
+	
+	private void deleteTempProfilePicIfExists()
+	{
+		//The user returned from crop...deleting temporary profile image if created
+		String fileName = getTempProfileImageName();
+		
+		if(fileName == null)
+		{
+			return;
+		}
+		
+		File temp = new File(fileName);
+		if(temp.exists())
+		{
+			temp.delete();
 		}
 	}
 
@@ -628,6 +670,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				public void onComplete(File f)
 				{
 					finishProgress();
+					setTempProfileImageName(f.getAbsolutePath());
 					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true,80, false), HikeConstants.CROP_RESULT);
 				}
 			});
@@ -772,6 +815,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		}
 	}
 
+	
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+
+		if(tempProfileImageName != null)
+		{
+			outState.putString(TEMP_PROFILE_IMAGE, tempProfileImageName);
+		}
+		super.onSaveInstanceState(outState);
+	}
+
 	private void sendAnalyticsSetAsDp()
 	{
 		try
@@ -813,10 +868,44 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			e.printStackTrace();
 		}
 	}
+	
+	private void sendAnalyticsFileCouldNotLoad()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.PHOTOS_UNABLE_TO_LOAD);
+			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	public EditorClickListener getClickHandler()
 	{
 		return clickHandler;
 	}
+	
+	public static String getEditImageSaveDirectory(boolean includeRoot)
+	{
+		if(includeRoot)
+		{
+			return HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT;
+		}
+		return HikeConstants.IMAGE_ROOT;
+	}
 
+	public String getTempProfileImageName()
+	{
+		return tempProfileImageName;
+	}
+	
+	public void setTempProfileImageName(String name)
+	{
+		
+		tempProfileImageName = name;
+	}
+	
 }

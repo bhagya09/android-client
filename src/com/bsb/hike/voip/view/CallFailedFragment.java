@@ -2,6 +2,7 @@ package com.bsb.hike.voip.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,6 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.TextView;
 
-import android.support.v4.app.Fragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -67,7 +67,8 @@ public class CallFailedFragment extends Fragment
 			public void onClick(View v) {
 				if(enableRedial)
 				{
-					Intent intent = IntentFactory.getVoipCallIntent(getActivity(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
+					((CallFailedFragListener)getActivity()).removeCallFailedFragment();
+					Intent intent = IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
 					getActivity().startService(intent);
 				}
 				else
@@ -83,7 +84,8 @@ public class CallFailedFragment extends Fragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, true);
+				
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, true, false);
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
 				getActivity().finish();
@@ -94,7 +96,7 @@ public class CallFailedFragment extends Fragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, false);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, false, false);
 				intent.putExtra(HikeConstants.Extras.SHOW_RECORDING_DIALOG, true);
 				startActivity(intent);
 				getActivity().finish();

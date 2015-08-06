@@ -331,9 +331,9 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	}
 
 	@Override
-	protected void setupActionBar(boolean firstInflation)
+	protected void setupDefaultActionBar(boolean firstInflation)
 	{
-		super.setupActionBar(firstInflation);
+		super.setupDefaultActionBar(firstInflation);
 		
 		//Added for QA Automation
 		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);

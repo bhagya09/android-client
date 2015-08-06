@@ -4,13 +4,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0+'
+    	// updating class path due to http://stackoverflow.com/questions/29962735/android-studio-gradle-error
+        classpath 'com.android.tools.build:gradle:1.1.2+'
     }
 }
 apply plugin: 'com.android.application'
 android {
     compileSdkVersion "Google Inc.:Google APIs:21"
-    buildToolsVersion "21.0.2"
+    buildToolsVersion "22.0.1"
     aaptOptions {
         useNewCruncher true
     }
