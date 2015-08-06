@@ -330,7 +330,17 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			String mapedId = mFilteredMsisdns[0] + ProfileActivity.PROFILE_PIC_SUFFIX;
 			profileImageLoader.loadImage(mapedId, viewHolder.largeProfilePic);
+			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(mFilteredMsisdns[0]));
+			viewHolder.largeProfilePic.setTag(imageViewerInf);
 			viewHolder.name.setText(mUserMsisdn.equals(mFilteredMsisdns[0]) ? HikeMessengerApp.getInstance().getString(R.string.me) : ContactManager.getInstance().getName(mFilteredMsisdns[0]));
+			viewHolder.largeProfilePic.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					onViewImageClicked(v);					
+				}
+			});
 			return;
 		}
 		
@@ -916,6 +926,21 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 
 		notifyDataSetChanged();
+	}
+	
+	public void onViewImageClicked(View v)
+	{
+		ImageViewerInfo imageViewerInfo = (ImageViewerInfo) v.getTag();
+
+		String mappedId = imageViewerInfo.mappedId;
+		String url = imageViewerInfo.url;
+
+		Bundle arguments = new Bundle();
+		arguments.putString(HikeConstants.Extras.MAPPED_ID, mappedId);
+		arguments.putString(HikeConstants.Extras.URL, url);
+		arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, imageViewerInfo.isStatusMessage);
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
 	}
 
 	private void showDeleteStatusConfirmationDialog(final StatusMessage statusMessage)

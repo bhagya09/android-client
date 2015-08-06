@@ -619,7 +619,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			getActivity().runOnUiThread(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{

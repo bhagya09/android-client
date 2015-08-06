@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:contentDescription="@string/content_des_user_profile_detail_edit_profile_pic"
-        android:onClick="onHeaderButtonClicked"
         android:scaleType="fitXY"
         android:src="@drawable/misc_timeline_ftue" />
 
