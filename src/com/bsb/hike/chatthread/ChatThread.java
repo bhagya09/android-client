@@ -628,6 +628,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this,this);
+			if (Utils.isLollipopOrHigher())
+			{
+				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
+			}
 		}
 
 		else
@@ -4653,6 +4657,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
+			mShareablePopupLayout.onConfigurationChanged();
 		}
 		
 		/**
@@ -5120,7 +5125,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
 	}
-	public void setStatusBarColor(int resIdcolor){
+	public void setStatusBarColor(int resIdcolor)
+	{
 		StatusBarColorChanger.setStatusBarColor(activity, resIdcolor);
 		activity.statusBarColorID=resIdcolor;
 	}

@@ -6,11 +6,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.ViewConfiguration;
-
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewConfiguration;
 import android.view.Window;
+import android.view.WindowManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.bots.BotUtils;
@@ -33,6 +33,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	{
 		Logger.i(TAG, "OnCreate");
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		if (Utils.isLollipopOrHigher() && getWindow() != null)
+		{
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+		}
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */

@@ -2,20 +2,25 @@ package com.bsb.hike.media;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
 {
@@ -30,6 +35,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	protected int[] mEatTouchEventViewIds;
 	
 	protected PopupListener mListener;
+	
+	protected boolean isDrawSystemBarBgFlagEnabled = false;
 
 	/**
 	 * 
@@ -46,6 +53,18 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		this.firstTimeHeight = firstTimeHeight;
 		originalBottomPadding = mainView.getPaddingBottom();
 		this.mListener = listener;
+		
+		// Note : If the config changes at runtime, make sure to invoke this method inorder to update either one of these flags
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			HikeMessengerApp.bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(context);
+		}
+		
+		else
+		{
+			HikeMessengerApp.bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(context);
+		}
+		
 		registerOnGlobalLayoutListener();
 	}
 	
@@ -131,8 +150,71 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		{
 			updatePadding(popup.getHeight());
 		}
-		popup.showAtLocation(mainView, Gravity.BOTTOM, 0, 0);
+		
+		showPopup(height);
+		
 		return true;
+	}
+
+	protected void showPopup(int popupHeight)
+	{
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			showPopupLandscape();
+		}
+		
+		else
+		{
+			if (shouldApplyNavBarOffset())
+			{
+				showPopupForLollipop(popupHeight);
+			}
+			
+			else
+			{
+				showPopupForPortrait();
+			}
+		}
+	}
+
+	private void showPopupForPortrait()
+	{
+		popup.showAtLocation(mainView, Gravity.BOTTOM, 0, 0);
+	}
+
+	/**
+	 * For devices which are Lollipop or Higher, we have to take into consideration the window flag : WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS Due to this flag
+	 * we were drawing the popup on the system's nav bar tray as well instead of above it. This method places the popup carefully by excluding the nav bar height
+	 * 
+	 * @param popupHeight
+	 */
+	private void showPopupForLollipop(int popupHeight)
+	{
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Point realPoint = new Point();
+		Display display = wm.getDefaultDisplay();
+		display.getRealSize(realPoint);
+		
+		popup.showAtLocation(mainView, Gravity.NO_GRAVITY, 0, realPoint.y - popupHeight - HikeMessengerApp.bottomNavBarHeightPortrait);
+	}
+
+	private void showPopupLandscape()
+	{
+		if(shouldApplyNavBarOffset())
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			
+			popup.setWidth(realPoint.x - HikeMessengerApp.bottomNavBarWidthLandscape); //Need to apply offset for the nav bar which is diplayed to the right of the screen
+			popup.showAtLocation(mainView, Gravity.BOTTOM | Gravity.LEFT, 0, 0);
+		}
+		
+		else
+		{
+			popup.showAtLocation(mainView, Gravity.BOTTOM, 0, 0);
+		}
 	}
 
 	@Override
@@ -269,33 +351,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			// this is height of view which is visible on screen
 			int rootViewHeight = mainView.getRootView().getHeight();
 			int temp = rootViewHeight - r.bottom;
-			Logger.i("chatthread", "keyboard  height " + temp);
+			Logger.i("chatthread", "possible keyboard  height " + temp);
 			boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-			if (temp > 0)
-			{
-				if (islandScape)
-				{
-					possibleKeyboardHeightLand = temp;
-				}
-				else
-				{
-					possibleKeyboardHeight = temp;
-				}
-				isKeyboardOpen = true;
-				if (isShowing())
-				{
-					updatePadding(0);
-				}
-				updateDimension(LayoutParams.MATCH_PARENT, temp);
-			}
-			else
-			{
-				// when we change orientation , from portrait to landscape and keyboard is open , it is possible that screen does adjust its size more than once until it
-				// stabilize
-				if (islandScape)
-					possibleKeyboardHeightLand = 0;
-				isKeyboardOpen = false;
-			}
+			
+			
+			interpretHeightOfKeyboard(temp, islandScape);
 		}
 	};
 
@@ -323,6 +383,103 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	public void onBackPressed()
 	{
 
+	}
+	
+	private void interpretHeightOfKeyboard(int temp, boolean islandScape)
+	{
+		if (islandScape)
+		{
+			interpretHeightInLandscape(temp);
+		}
+		
+		else
+		{
+			interpretHeightInPortraitMode(temp);
+		}
+	}
+
+	/**
+	 * For devices which are Lollipop or Higher, we have to take into consideration the window flag : WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS Due to this flag
+	 * we were drawing the popup on the system's nav bar tray as well instead of above it. this method excludes the navbar height from the keyboard height
+	 * 
+	 * @param temp
+	 */
+	protected void interpretHeightInPortraitMode(int temp)
+	{
+		int bottomNavBArThreshold = shouldApplyNavBarOffset() ? HikeMessengerApp.bottomNavBarHeightPortrait : 0;
+
+		temp -= bottomNavBArThreshold;
+		
+		if (temp > 0)
+		{
+			possibleKeyboardHeight = temp;
+			isKeyboardOpen = true;
+			if (isShowing())
+			{
+				updatePadding(0);
+			}
+
+			updateDimension(LayoutParams.MATCH_PARENT, temp);
+		}
+		else
+		{
+			isKeyboardOpen = false;
+		}
+	}
+
+	protected void interpretHeightInLandscape(int temp)
+	{
+		if (temp > 0)
+		{
+			possibleKeyboardHeightLand = temp;
+
+			isKeyboardOpen = true;
+			if (isShowing())
+			{
+				updatePadding(0);
+			}
+
+			updateDimension(LayoutParams.MATCH_PARENT, temp);
+		}
+		else
+		{
+			possibleKeyboardHeightLand = 0;
+			isKeyboardOpen = false;
+		}
+	}
+
+	/**
+	 * @return the isDrawSystemBarBgFlagEnabled
+	 */
+	public boolean isDrawSystemBarBgFlagEnabled()
+	{
+		return isDrawSystemBarBgFlagEnabled;
+	}
+
+	/**
+	 * @param isDrawSystemBarBgFlagEnabled the isDrawSystemBarBgFlagEnabled to set
+	 */
+	public void setDrawSystemBarBgFlagEnabled(boolean isDrawSystemBarBgFlagEnabled)
+	{
+		this.isDrawSystemBarBgFlagEnabled = isDrawSystemBarBgFlagEnabled;
+	}
+	
+	protected boolean shouldApplyNavBarOffset()
+	{
+		return Utils.isLollipopOrHigher() && isDrawSystemBarBgFlagEnabled();
+	}
+
+	public void onConfigChanged()
+	{
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			HikeMessengerApp.bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(context);
+		}
+
+		else
+		{
+			HikeMessengerApp.bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(context);
+		}
 	}
 
 }
