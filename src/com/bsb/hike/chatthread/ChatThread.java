@@ -1379,9 +1379,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (theme == ChatTheme.DEFAULT)
 		{
 			backgroundImage.setImageResource(theme.bgResId());
+			setChatBackground(R.color.chat_thread_default_bg);
 		}
 		else
 		{
+			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
 			Drawable drawable = Utils.getChatTheme(theme, activity);
 			if(!theme.isTiled())
