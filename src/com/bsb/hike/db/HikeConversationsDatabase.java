@@ -969,6 +969,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return executeUpdateMessageStatusStatement(query, val, msisdn);
 	}
 
+	/**
+	 * 
+	 * @param msisdn
+	 * @param maxMsgId
+	 * @return
+	 * 
+	 * 	Get a list of MsgId that are going to be marked as R.
+	 */
 	public ArrayList<Long> getCurrentUnreadMessageIdsForMsisdn(String msisdn, long maxMsgId)
 	{
 		ArrayList<Long> ids = new ArrayList<Long>();
@@ -990,6 +998,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				 * force R.
 				 * 2. if message is broadcast then only if its status is Delivered we chhose this as a candidate for
 				 * force R.
+				 * 3.If we are connected in OfflineMode then we allow only those message for R that are delivered.As our single tick msg
+				 * we getting R due to this check.This check is only application for offline mode and it should not hamper online mode.
+				 * 
 				 */
 				if (ConvMessage.originTypeValue(msgOriginType) != OriginType.BROADCAST
 						|| ConvMessage.stateValue(msgStatus) == State.SENT_DELIVERED)
