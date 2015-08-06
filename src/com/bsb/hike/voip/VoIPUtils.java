@@ -384,13 +384,13 @@ public class VoIPUtils {
 	
 	public static boolean isConferencingEnabled(Context context) 
 	{
-		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, true);
 		return conferenceEnabled;
 	}
 	
 	public static boolean isBluetoothEnabled(Context context) 
 	{
-		boolean bluetoothEnabled = false;
+		boolean bluetoothEnabled = true;
 		return bluetoothEnabled;
 	}
 	
