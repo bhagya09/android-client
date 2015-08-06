@@ -1293,7 +1293,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					if (addFav && (contact.getFavoriteType() != FavoriteType.FRIEND))
 					{
 						Utils.toggleFavorite(mContext, contact, true);
-						HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ANY_TIMELINE_FTUE_FAV_CLICKED, true);
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ANY_TIMELINE_FTUE_FAV_CLICKED, true);
 					}
 				}
 				statusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
