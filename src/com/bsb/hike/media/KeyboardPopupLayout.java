@@ -199,6 +199,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		Display display = wm.getDefaultDisplay();
 		display.getRealSize(realPoint);
 		
+		popup.setWidth(realPoint.x); //In PortraitMode, so no offset needed
 		popup.showAtLocation(mainView, Gravity.NO_GRAVITY, 0, realPoint.y - popupHeight - HikeMessengerApp.bottomNavBarHeightPortrait);
 	}
 
