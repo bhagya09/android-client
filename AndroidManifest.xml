@@ -285,10 +285,6 @@
         <activity android:name=".ui.CreateNewGroupOrBroadcastActivity" >
         </activity>
         <activity
-            android:name=".ui.FtueBroadcast"
-            android:configChanges="keyboardHidden|screenSize" >
-        </activity>
-        <activity
             android:name=".ui.PeopleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>

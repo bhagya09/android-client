@@ -493,8 +493,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String UPGRADE_FOR_DEFAULT_BOT_ENTRY = "upgradeForBotEntry";
 
-	public static final String SHOW_BROADCAST_FTUE_SCREEN = "showBroadcastFtueScreen";
-
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
