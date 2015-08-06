@@ -23,7 +23,7 @@
         android:title="@string/start_new_chat"/>
     <item
         android:id="@+id/overflow_menu"
-        app:actionLayout="@layout/overflow_icon_view_right"
+        app:actionLayout="@layout/overflow_icon_view"
         app:showAsAction="always"
         android:menuCategory="secondary" >
     </item>
