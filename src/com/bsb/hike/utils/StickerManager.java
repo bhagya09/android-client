@@ -2095,7 +2095,7 @@ public class StickerManager
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_MANUAL_SETTING_STATE);
 			metadata.put(HikeConstants.SOURCE, source);
-			metadata.put("st", (state ? 1 : 0));
+			metadata.put("sts", (state ? 1 : 0));
 			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
@@ -2115,7 +2115,7 @@ public class StickerManager
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_AUTOPOPUP_SETTING_STATE);
 			metadata.put(HikeConstants.SOURCE, source);
-			metadata.put("st", (state ? 1 : 0));
+			metadata.put("sts", (state ? 1 : 0));
 			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
