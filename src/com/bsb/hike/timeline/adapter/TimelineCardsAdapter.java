@@ -73,8 +73,6 @@ import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.fragments.HeadlessImageDownloaderFragment;
-import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
@@ -87,7 +85,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.RoundedImageView;
 
-public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdapter.ViewHolder> implements IHandlerCallback, HeadlessImageWorkerFragment.TaskCallbacks
+public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdapter.ViewHolder> implements IHandlerCallback
 {
 	private final int PROFILE_PIC_CHANGE = -11;
 
@@ -683,7 +681,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				public void startDownloading()
 				{
 					// showProgressDialog();
-					loadHeadLessImageDownloadingFragment();
+					//TODO @RSinghal
 				}
 			});
 			profileLoader.loadProfileImage(loaderManager);
@@ -902,7 +900,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				if (mActivity.get() != null)
 				{
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
-							ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(mStatusMessage.getMsisdn()), true);
+							ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(mStatusMessage.getMsisdn()), false,false);
 					startActivity(intent);
 				}
 			}
@@ -1117,7 +1115,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(),
-					statusMessage.getMsisdn()), true);
+					statusMessage.getMsisdn()), false,false);
 			// Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1263,7 +1261,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 						buttonView.setEnabled(true);
 						buttonView.setClickable(true);
 					}
-				}, null);
+				});
 				token.execute();
 			}
 			else
@@ -1315,7 +1313,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 						buttonView.setEnabled(true);
 						buttonView.setClickable(true);
 					}
-				}, null);
+				});
 				token.execute();
 			}
 		}
@@ -1416,28 +1414,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		this.mFtueFriendList = fndList;
 	}
 
-	private void loadHeadLessImageDownloadingFragment()
-	{
-		HeadlessImageDownloaderFragment mImageWorkerFragment = (HeadlessImageDownloaderFragment) fragmentManager
-				.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT);
-
-		// If the Fragment is non-null, then it is currently being
-		// retained across a configuration change.
-		if (mImageWorkerFragment == null)
-		{
-			String fileName = Utils.getProfileImageFileName(mUserMsisdn);
-			mImageWorkerFragment = HeadlessImageDownloaderFragment.newInstance(mUserMsisdn, fileName, true, false, null, null, null, true);
-			mImageWorkerFragment.setTaskCallbacks(this);
-			fragmentManager.beginTransaction().add(mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT).commit();
-		}
-		else
-		{
-			// Toast.makeText(this, mContext.getResources().getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-			// Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-		}
-
-	}
-
 	public void onSuccess(Response result)
 	{
 		mHikeUiHandler.post(new Runnable()
@@ -1452,31 +1428,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	}
 
 	@Override
-	public void onProgressUpdate(float percent)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onFailed()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void handleUIMessage(Message msg)
 	{
 		// TODO Auto-generated method stub
-
+		
 	}
 
-	@Override
-	public void onCancelled()
-	{
-		// TODO Auto-generated method stub
-
-	}
 
 }

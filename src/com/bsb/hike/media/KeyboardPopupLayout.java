@@ -1,10 +1,13 @@
 package com.bsb.hike.media;
 
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_OPEN;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.util.Log;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -17,6 +20,7 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
@@ -67,7 +71,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		
 		registerOnGlobalLayoutListener();
 	}
-	
+
 	public KeyboardPopupLayout(View mainView, int firstTimeHeight, Context context, int[] eatTouchEventViewIds, PopupListener listener)
 	{
 		this(mainView, firstTimeHeight, context, listener);
@@ -97,39 +101,39 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			{
 				errorMsg += " is WindowToken Null : " + (mainView.getWindowToken() == null);
 			}
-			
+
 			HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 			Logger.wtf("chatthread", "window token is null or view itself is null! Cannot show sticker/emoticons. Eating this exception");
 			return false;
 		}
-		
+
 		boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
 		if (height == 0)
 		{
 			if (islandScape)
 			{
-                int maxHeight = mainView.getRootView().getHeight();
-                // giving half height of screen in landscape mode
-                Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
-                height = (maxHeight) / 2;
+				int maxHeight = mainView.getRootView().getHeight();
+				// giving half height of screen in landscape mode
+				Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
+				height = (maxHeight) / 2;
 			}
-			
+
 			else
 			{
 				height = firstTimeHeight;
 			}
 		}
-		
+
 		if (popup == null)
 		{
 			initPopUpWindow(LayoutParams.MATCH_PARENT, height, view, context, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 			// TODO
 			// fixLollipopHeadsUpNotifPopup(popup);
-			
+
 			// this is a strange bug in Android, if we set focusable true, GRAVITY BOTTOM IS NOT working
 			popup.setFocusable(false);
-			
+
 			/**
 			 * Conditionally setting the touch interceptor
 			 */
@@ -138,7 +142,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				popup.setTouchInterceptor(this);
 			}
 		}
-		
+
 		view.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
 		popup.setHeight(height);
 		setOnDismissListener(this);
@@ -229,7 +233,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			mListener.onPopupDismiss();
 		}
 	}
-	
+
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
 	{
@@ -278,8 +282,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	/**
 	 * Checks whether a touch event point lies within the ambit of a given view. The view is identified by its viewId.
 	 * 
-	 * We're checking the touch event along the Y-axis first. If it lies in the middle region containing the view,
-	 * we further check for their X-position, whether they lie over the view or elsewhere.
+	 * We're checking the touch event along the Y-axis first. If it lies in the middle region containing the view, we further check for their X-position, whether they lie over the
+	 * view or elsewhere.
 	 * 
 	 * @param eventX
 	 * @param viewId
@@ -330,10 +334,10 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			this.mainView = null;
 		}
 	}
-	
+
 	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener()
 	{
-		
+
 		@Override
 		public void onGlobalLayout()
 		{
@@ -343,9 +347,9 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				return;
 			}
 
-			Log.i("chatthread", "global layout listener");
+			Logger.i("chatthread", "global layout listener");
 
-			Log.i("chatthread", "global layout listener rootHeight " + mainView.getRootView().getHeight() + " new height " + mainView.getHeight());
+			Logger.i("chatthread", "global layout listener rootHeight " + mainView.getRootView().getHeight() + " new height " + mainView.getHeight());
 			Rect r = new Rect();
 			mainView.getWindowVisibleDisplayFrame(r);
 			// this is height of view which is visible on screen
@@ -353,7 +357,6 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			int temp = rootViewHeight - r.bottom;
 			Logger.i("chatthread", "possible keyboard  height " + temp);
 			boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-			
 			
 			interpretHeightOfKeyboard(temp, islandScape);
 		}
@@ -366,7 +369,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			dismiss();
 		}
 	}
-	
+
 	public boolean onEditTextTouch(View v, MotionEvent event)
 	{
 		return false;
@@ -376,7 +379,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	 * 
 	 * @return true if previous task is running
 	 */
-	public boolean isBusyInOperations(){
+	public boolean isBusyInOperations()
+	{
 		return false;
 	}
 
@@ -480,6 +484,21 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		{
 			HikeMessengerApp.bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(context);
 		}
+	}
+	
+	protected void onKeyboardOpen(int keyBoardHeight)
+	{
+		isKeyboardOpen = true;
+		Intent intent = new Intent(ACTION_KEYBOARD_OPEN);
+		intent.putExtra(HikeConstants.KEYBOARD_HEIGHT, keyBoardHeight);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
+	}
+	
+	protected void onKeyboardClose()
+	{
+		isKeyboardOpen = false;
+		Intent intent = new Intent(ACTION_KEYBOARD_CLOSED);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
 	}
 
 }

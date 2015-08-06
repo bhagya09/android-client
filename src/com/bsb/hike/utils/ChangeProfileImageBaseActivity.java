@@ -17,7 +17,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -38,6 +37,8 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.imageHttp.HikeImageUploader;
+import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -50,19 +51,16 @@ import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.fragments.HeadlessImageUploaderFragment;
-import com.bsb.hike.ui.fragments.HeadlessImageWorkerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, 
-						FinishableEvent, DisplayPictureEditListener, HeadlessImageWorkerFragment.TaskCallbacks
+						FinishableEvent, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks
 {
 	private HikeSharedPreferenceUtil prefs;
 
 	private String mLocalMSISDN;
-
 	private Dialog mDialog;
 	
 	private static final String TAG = "dp_upload";
@@ -93,7 +91,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		
 		public StatusMessageType statusMsgType;
 		
-		public HeadlessImageWorkerFragment mImageWorkerFragment;
+		public HikeImageUploader mImageWorkerFragment;
 	}
 
 	private ActivityState mActivityState;
@@ -120,9 +118,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			}
 			
-			FragmentManager fm = getSupportFragmentManager();
-			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
-			if(mActivityState.mImageWorkerFragment != null)
+			if(mActivityState.mImageWorkerFragment != null &&  (mActivityState.mImageWorkerFragment.isTaskRunning()))
 			{
 				mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
@@ -141,7 +137,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		return mActivityState;
 	}
 
-	public void selectNewProfilePicture(Context context, boolean isPersonal)
+	public void selectNewProfilePicture(Context context, boolean isPersonal, boolean useTimestamp)
 	{
 		if (Utils.getExternalStorageState() == ExternalStorageState.NONE || Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
 		{
@@ -165,7 +161,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE;
 			if (!isPersonal)
 			{
-				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath());
+				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath(useTimestamp));
 				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 			}
 			else
@@ -177,14 +173,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
-			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath());
+			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath(useTimestamp));
 			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		}
 
 	}
 	
-	protected String getNewProfileImagePath()
+	protected String getNewProfileImagePath(boolean useTimestamp)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		/*
@@ -197,7 +193,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			dir.mkdirs();
 		}
 
-		String fileName = Utils.getUniqueFilename(HikeFileType.IMAGE);
+		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN, useTimestamp);
 		String destFilePath = directory + File.separator + fileName;
 		return destFilePath;
 
@@ -247,12 +243,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			{
 				if(Utils.isPhotosEditEnabled())
 				{
-					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
+					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(true), true));
 					finish();
 				}
 				else
 				{
-					Utils.startCropActivity(this, path, getNewProfileImagePath());
+					Utils.startCropActivity(this, path, getNewProfileImagePath(true));
 				}
 			}
 			else
@@ -279,12 +275,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						{
 							if(Utils.isPhotosEditEnabled())
 							{
-								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
+								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(true), true));
 								finish();
 							}
 							else
 							{
-								Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath());
+								Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true));
 							}
 						}
 					}
@@ -332,7 +328,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		switch (item)
 		{
 		case HikeConstants.NEW_PROFILE_PICTURE:
-			selectNewProfilePicture(ChangeProfileImageBaseActivity.this, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN));
+			selectNewProfilePicture(ChangeProfileImageBaseActivity.this, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN), true);
 			break;
 
 		case HikeConstants.REMOVE_PROFILE_PICTURE:
@@ -516,7 +512,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		mDialog = ProgressDialog.show(this, null, getString(R.string.removing_dp));
 	}
 
-	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath)
+	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath, boolean useTimestamp)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 
@@ -529,7 +525,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		else
 		{
 			// directly open gallery to allow user to select new image
-			selectNewProfilePicture(context, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN));
+			selectNewProfilePicture(context, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN), useTimestamp);
 		}
 	}
 
@@ -596,11 +592,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to upload profile picture to the server, compose related timeline post
-	 * 
-	 * @param httpApi
-	 *            TODO
+	 * @param msisdn 
 	 */
-	public void uploadProfilePicture(String httpApi)
+	public void uploadProfilePicture(String msisdn)
 	{
 		if (mActivityState.destFilePath != null)
 		{
@@ -609,24 +603,13 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			if (bytes == null)
 				return;
 
-			FragmentManager fm = getSupportFragmentManager();
-			mActivityState.mImageWorkerFragment = (HeadlessImageUploaderFragment) fm.findFragmentByTag(HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT);
-
 		    // If the Fragment is non-null, then it is currently being
 		    // retained across a configuration change.
-		    if (mActivityState.mImageWorkerFragment == null) 
-		    {
-		    	Logger.d(TAG, "starting new mImageLoaderFragment");
-		    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
-		    	mActivityState.mImageWorkerFragment = HeadlessImageUploaderFragment.newInstance(bytes, mActivityState.destFilePath, mLocalMSISDN, true, true);
-		    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
-		        fm.beginTransaction().add(mActivityState.mImageWorkerFragment, HikeConstants.TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT).commit();
-		    }
-		    else
-		    {
-		    	Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
-		    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
-		    }
+	    	Logger.d(TAG, "starting new mImageLoaderFragment");
+	    	mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+	    	mActivityState.mImageWorkerFragment = HikeImageUploader.newInstance(bytes, mActivityState.destFilePath, msisdn, true, true);
+	    	mActivityState.mImageWorkerFragment.setTaskCallbacks(this);
+	    	mActivityState.mImageWorkerFragment.startUpLoadingTask();
 		}
 	}
 	
@@ -683,6 +666,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void failureWhileSettingProfilePic()
 	{
+		
 		dismissDialog();
 		
 		mActivityState.destFilePath = null;
@@ -743,7 +727,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
+		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath, true);
 	}
 
 	/**
@@ -776,7 +760,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		super.onDestroy();
 	}
 	
-	@Override
 	public void onProgressUpdate(float percent)
 	{
 		
@@ -793,7 +776,27 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		Logger.d(TAG, "req failed");
 		failureWhileSettingProfilePic();
-		Toast.makeText(ChangeProfileImageBaseActivity.this, getString(R.string.update_profile_failed), Toast.LENGTH_SHORT).show();
+		runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), getString(R.string.update_profile_failed), Toast.LENGTH_LONG).show();
+				dismissDialog();
+			}
+		});
+		
+	}
+
+	@Override
+	public void onTaskAlreadyRunning() {
+	runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					Toast.makeText(getApplicationContext(), getString(R.string.task_already_running), Toast.LENGTH_LONG).show();
+					dismissDialog();
+				}
+			});
 	}
 	
 }

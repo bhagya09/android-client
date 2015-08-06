@@ -12,10 +12,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.ListPreference;
@@ -51,6 +49,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.ActivityCallableTask;
 import com.bsb.hike.tasks.BackupAccountTask;
@@ -65,8 +64,10 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconListPreference;
+import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
 import com.bsb.hike.view.SwitchPreferenceCompat;
@@ -92,6 +93,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	public static final float PREF_DISABLED_ALPHA = 0.24f;
 	
 	private boolean mIsResumed = false;
+	
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -187,7 +189,44 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (doubleTapPreference != null) {
 			doubleTapPreference.setOnPreferenceChangeListener(this);
 		}
-
+		
+		final IconPreference stickerReOrderPreference = (IconPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_REORDER_PREF);
+		if (stickerReOrderPreference != null)
+		{
+			stickerReOrderPreference.setOnPreferenceClickListener(this);
+		}
+		
+		final SwitchPreferenceCompat stickerRecommendPreference = (SwitchPreferenceCompat) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
+		if (stickerRecommendPreference != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true))
+			{
+				stickerRecommendPreference.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(stickerRecommendPreference);
+			}
+		}
+		
+		final SwitchPreferenceCompat stickerRecommendAutopopupPreference = (SwitchPreferenceCompat) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF);
+		if (stickerRecommendAutopopupPreference != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true))
+			{
+				stickerRecommendAutopopupPreference.setDependency(HikeConstants.STICKER_RECOMMEND_PREF);
+				stickerRecommendAutopopupPreference.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(stickerRecommendAutopopupPreference);
+			}
+			
+		}
+		
 		final SwitchPreferenceCompat sslPreference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.SSL_PREF);
 		if (sslPreference != null)
 		{
@@ -779,31 +818,7 @@ private void setupToolBar(int titleRes){
 		else if (HikeConstants.HELP_FEEDBACK_PREF.equals(preference.getKey()))
 		{
 			Logger.d(getClass().getSimpleName(), "contact preference selected");
-			Intent intent = new Intent(Intent.ACTION_SENDTO);
-			intent.setData(Uri.parse("mailto:" + HikeConstants.MAIL));
-
-			StringBuilder message = new StringBuilder("\n\n");
-
-			try
-			{
-				message.append(getString(R.string.hike_version) + " " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "\n");
-			}
-			catch (NameNotFoundException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			message.append(getString(R.string.device_name) + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
-
-			message.append(getString(R.string.android_version) + " " + Build.VERSION.RELEASE + "\n");
-
-			String msisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, "");
-			message.append(getString(R.string.msisdn) + " " + msisdn);
-
-			intent.putExtra(Intent.EXTRA_TEXT, message.toString());
-			intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback_on_hike));
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			Intent intent = IntentFactory.getEmailOpenIntent(HikePreferences.this);
 			try
 			{
 				startActivity(intent);
@@ -1024,6 +1039,12 @@ private void setupToolBar(int titleRes){
 			showSMSDialog();
 		}
 		
+		else if(HikeConstants.STICKER_REORDER_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			startActivity(i);
+		}
+		
 		return true;
 	}
 
@@ -1172,6 +1193,7 @@ private void setupToolBar(int titleRes){
 			}
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
 					AnalyticsConstants.CLICK_EVENT, metadata);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, isChecked);
 		} else if (HikeConstants.DOUBLE_TAP_PREF.equals(preference.getKey())) {
 
 			Editor editor = PreferenceManager.getDefaultSharedPreferences(
@@ -1193,9 +1215,23 @@ private void setupToolBar(int titleRes){
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			HikeMessengerApp.getPubSub().publish(HikePubSub.NUDGE_SETTINGS_CHANGED, isChecked);
+		}
+		else if(HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
+			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
+		}
+		else if(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey()))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, isChecked);
+			StickerSearchManager.getInstance().setShowAutopopupSettingOn(isChecked);
+			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{
+			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.SSL_PREF, isChecked).commit();
 			Utils.setupUri();
 			HttpRequestConstants.toggleSSL();
 			LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.SSL_PREFERENCE_CHANGED));

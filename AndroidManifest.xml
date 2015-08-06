@@ -5,10 +5,9 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1351"
-    android:versionName="4.0.1.13.photos_timeline" >
-
+    android:versionName="4.0.1.14.photos_timeline" >
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
 
     <permission
@@ -16,7 +15,9 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE" />
+
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -138,7 +139,17 @@
             android:name=".ui.ComposeChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_label"
+            android:theme="@style/AppTheme.Home"
             android:windowSoftInputMode="stateHidden" >
+            <intent-filter android:label="@string/app_label">
+                <action android:name="android.intent.action.SEND" />
+                
+				<action android:name="android.intent.action.SEND_MULTIPLE" />
+                
+                <category android:name="android.intent.category.DEFAULT" />
+                
+                <data android:mimeType="*/*" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.AddFriendsActivity"
@@ -250,7 +261,8 @@
         <activity android:name=".ui.HikeSharedFilesActivity"
             android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
-        <activity android:name=".ui.GallerySelectionViewer">
+        <activity android:name=".ui.GallerySelectionViewer"
+            android:screenOrientation="portrait">
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
         </activity>
@@ -271,10 +283,6 @@
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity android:name=".ui.CreateNewGroupOrBroadcastActivity" >
-        </activity>
-        <activity
-            android:name=".ui.FtueBroadcast"
-            android:configChanges="keyboardHidden|screenSize" >
         </activity>
         <activity
             android:name=".ui.PeopleActivity"
@@ -316,15 +324,6 @@
             android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
         <activity
-            android:name=".chatHead.ChatHeadActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:noHistory="true"
-            android:excludeFromRecents="true"
-            android:taskAffinity="com.bsb.hike.chatHead"
-            android:launchMode="singleInstance">
-		</activity>
-		<activity
             android:name=".chatHead.StickerShareSettings"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>

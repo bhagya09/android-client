@@ -19,7 +19,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -32,7 +31,6 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.MqttConstants.MQTTConnectionStatus;
-import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -60,7 +58,6 @@ import com.bsb.hike.utils.Utils;
 
 public class ToastListener implements Listener
 {
-
 	private WeakReference<Activity> currentActivity;
 
 	private HikeNotification toaster;
@@ -524,7 +521,7 @@ public class ToastListener implements Listener
 					}
 					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
 						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 
-						|| message.isVoipMissedCallMsg())
+						|| message.isVoipMissedCallMsg()||participantInfoState == ParticipantInfoState.CHANGE_ADMIN)
 					{
 						if (participantInfoState == ParticipantInfoState.CHAT_BACKGROUND)
 						{
@@ -614,17 +611,18 @@ public class ToastListener implements Listener
 			}
 
 		}
-		// check if this is a sticker message and find if its non-downloaded or
-		// non present.
+
+		// check, if this is a sticker message and find, if it is not downloaded or not present.
 		if (convMessage.isStickerMessage())
 		{
 			final Sticker sticker = convMessage.getMetadata().getSticker();
-			final String filePath = sticker.getStickerPath(context);
+			final String filePath = sticker.getStickerPath();
 			if (!TextUtils.isEmpty(filePath))
 			{
 				bigPictureImage = HikeBitmapFactory.decodeFile(filePath);
 			}
 		}
+
 		return bigPictureImage;
 	}
 

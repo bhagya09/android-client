@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,8 +20,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -29,6 +33,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.http.HikeHttpRequest;
@@ -71,7 +76,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 	private ProgressDialog progressDialog;
 
 	boolean pickFriendsWhenSessionOpened;
-
+	
 	private enum ViewType
 	{
 		ITEM, EXTRA
@@ -84,7 +89,10 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		setContentView(R.layout.settings);
 
 		settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
-		boolean watsAppPresent = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WATSAPP_INVITE_ENABLED, true)
+		
+		final HikeSharedPreferenceUtil hikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();		
+		
+		boolean watsAppPresent = hikeSharedPreferenceUtil.getData(HikeConstants.WATSAPP_INVITE_ENABLED, true)
 				&& Utils.isPackageInstalled(getApplicationContext(), HikeConstants.PACKAGE_WATSAPP);
 		ArrayList<String> items = new ArrayList<String>();
 		items.add(getString(!HikeMessengerApp.isIndianUser() || settings.getBoolean(HikeMessengerApp.SEND_NATIVE_INVITE, false) ? R.string.sms : R.string.free_sms_txt));
@@ -96,7 +104,11 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		//items.add(getString(R.string.twitter));
 		items.add(getString(R.string.email));
 		items.add(getString(R.string.share_via_other));
-		items.add(getString(R.string.invite_friends));
+		if ( !hikeSharedPreferenceUtil.getData(HikeConstants.InviteSection.SHOW_EXTRA_INVITE_SECTION, false)
+				|| hikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, null) == null)
+		{
+			items.add(getString(R.string.invite_friends));
+		}
 		final ArrayList<Integer> itemIcons = new ArrayList<Integer>();
 		itemIcons.add(R.drawable.ic_invite_sms);
 		if (watsAppPresent)
@@ -185,9 +197,35 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		};
 
 		ListView settingsList = (ListView) findViewById(R.id.settings_content);
-		settingsList.setAdapter(listAdapter);
 		settingsList.setOnItemClickListener(this);
-
+		if (hikeSharedPreferenceUtil.getData(HikeConstants.InviteSection.SHOW_EXTRA_INVITE_SECTION, false)
+				&& hikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, null) != null)
+		{
+			View extraReferralSection = getLayoutInflater().inflate(R.layout.extra_referral_section, null);
+			TextView referralCode = (TextView) extraReferralSection.findViewById(R.id.referral_code);
+			referralCode.setText(hikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, null));
+			((TextView) extraReferralSection.findViewById(R.id.invite_Section_main_text)).setText(hikeSharedPreferenceUtil.getData(HikeConstants.InviteSection.INVITE_SECTION_MAIN_TEXT, getString(R.string.invite_friends_earn_rewards)));
+			((TextView) extraReferralSection.findViewById(R.id.invite_Section_bottom_text)).setText(hikeSharedPreferenceUtil.getData(HikeConstants.InviteSection.INVITE_SECTION_BOTTOM_TEXT, getString(R.string.share_referral_code)));
+			if (hikeSharedPreferenceUtil.getData(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, null) != null)
+			{
+			     Bitmap invite_section_image = HikeBitmapFactory.stringToBitmap(hikeSharedPreferenceUtil.getData(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, null));	
+			 	((ImageView) extraReferralSection.findViewById(R.id.invite_Section_image)).setImageBitmap(invite_section_image);
+			}
+			extraReferralSection.setOnClickListener(null);
+			referralCode.setOnClickListener(new View.OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					Utils.setClipboardText(hikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, null), getApplicationContext());
+				    Toast.makeText(getApplicationContext(), getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
+				}
+			});
+			settingsList.addHeaderView(extraReferralSection);
+			settingsList.setHeaderDividersEnabled(true);
+		}
+		settingsList.setAdapter(listAdapter);
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 
 		if (savedInstanceState != null)
@@ -480,14 +518,13 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 	
 				mailIntent.setData(Uri.parse("mailto:"));
 				mailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
-				mailIntent.putExtra(Intent.EXTRA_TEXT, Utils.getInviteMessage(this, R.string.email_body));
-	
+				mailIntent.putExtra(Intent.EXTRA_TEXT, String.format(getString(R.string.email_body), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TOKEN, "")));
 				startActivity(mailIntent);
 				break;
 	
 			case OTHER:
 				Utils.logEvent(this, HikeConstants.LogEvent.DRAWER_INVITE);
-				Utils.startShareIntent(this, Utils.getInviteMessage(this, R.string.invite_share_message));
+				Utils.startShareIntent(this, String.format(getString(R.string.invite_share_message), HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INVITE_TOKEN, "")));
 				break;
 			}
 		}

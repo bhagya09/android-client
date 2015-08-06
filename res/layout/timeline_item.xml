@@ -10,30 +10,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
+        android:background="@drawable/timeline_tab_selector"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="1dp"
-        android:background="@drawable/timeline_tab_selector"
         card_view:cardUseCompatPadding="true"
         card_view:contentPaddingLeft="2dp"
         card_view:contentPaddingRight="2dp" >
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:padding="10dp" >
 
             <RelativeLayout
                 android:id="@+id/info_container"
                 android:layout_width="match_parent"
-                android:layout_height="58dp"
+                android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:background="@color/transparent" >
 
                 <RelativeLayout
                     android:id="@+id/avatar_container"
-                    android:layout_width="@dimen/medium_avatar"
-                    android:layout_height="@dimen/medium_avatar"
+                    android:layout_width="@dimen/small_avatar"
+                    android:layout_height="@dimen/small_avatar"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="12dp"
+                    android:layout_marginLeft="4dp"
                     android:layout_marginRight="12dp" >
 
                     <com.bsb.hike.view.RoundedImageView
@@ -45,48 +46,43 @@
                         style="@style/AvatarStyle" />
                 </RelativeLayout>
 
-                <RelativeLayout
+                <LinearLayout
                     android:id="@+id/content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/avatar_container"
-                    android:layout_marginRight="5dp"
-                    android:layout_toRightOf="@id/avatar_container" >
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/avatar_container"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical" >
 
                     <com.bsb.hike.view.CustomFontTextView
                         android:id="@+id/name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginTop="2dp"
                         android:ellipsize="end"
                         android:singleLine="true"
                         android:text="Atul M"
-                        android:textColor="#333333"
-                        android:textSize="16dp"
+                        android:textColor="#3d475b"
+                        android:textSize="12sp"
                         android:textStyle="bold|italic" />
-                </RelativeLayout>
 
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/timestamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/content"
-                    android:layout_marginTop="2dp"
-                    android:layout_toRightOf="@+id/avatar_container"
-                    android:text="2 mins ago"
-                    android:textColor="#BBBBBB"
-                    android:textSize="12sp" />
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/timestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2 mins ago"
+                        android:textColor="@color/black_25"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/details_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:layout_below="@+id/info_container"
-                android:layout_marginRight="5dp"
-                android:layout_marginTop="4dp"
-                android:gravity="center_vertical"
                 android:orientation="vertical" >
 
                 <com.bsb.hike.view.LinkedTextView
@@ -94,12 +90,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginLeft="18dp"
                     android:text="Added you as a friend"
-                    android:textColor="#b8000000"
-                    android:textSize="16dp"
-                    android:textStyle="italic" />
+                    android:textStyle="italic"
+                    android:textColor="@color/black_60"
+                    android:textSize="14sp" />
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/details"
@@ -191,10 +185,7 @@
                     android:id="@+id/btn_love"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
                     android:layout_marginRight="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
                     android:button="@drawable/btn_love_selector"
                     android:text=""
                     android:textColor="#CCCCCC" />
@@ -205,8 +196,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="Like"
-                    android:textColor="#cccccc"
-                    android:textSize="16dp"
+                    android:textColor="@color/black_16"
+                    android:textSize="14sp"
                     android:textStyle="italic" />
             </LinearLayout>
         </RelativeLayout>

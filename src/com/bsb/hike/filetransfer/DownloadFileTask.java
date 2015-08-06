@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 
@@ -18,8 +17,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -30,13 +27,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -46,6 +39,8 @@ public class DownloadFileTask extends FileTransferBase
 	private File tempDownloadedFile;
 
 	private boolean showToast;
+
+	private final int DOWNLOAD_CHUNK_SIZE = 4 * 1024;
 
 	protected DownloadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, String fileKey, long msgId,
 			HikeFileType hikeFileType, Object userContext, boolean showToast, String token, String uId)
@@ -157,8 +152,7 @@ public class DownloadFileTask extends FileTransferBase
 		FTResult res = FTResult.SUCCESS;
 		BufferedInputStream in = null;
 		URLConnection conn = null;
-		NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
-		chunkSize = networkType.getMinChunkSize();
+		chunkSize = DOWNLOAD_CHUNK_SIZE;
 		retry = true;
 		reconnectTime = 0;
 		retryAttempts = 0;
@@ -182,6 +176,11 @@ public class DownloadFileTask extends FileTransferBase
 				{
 					conn.setRequestProperty("Cookie", "user=" + token + ";UID=" + uId);
 					conn.setRequestProperty("Range", "bytes=" + byteRange);
+					/*
+					 * "java.io.IOException: unexpected end of stream" on HttpURLConnection
+					 * https://code.google.com/p/android/issues/detail?id=24672
+					 */
+					conn.setRequestProperty("Accept-Encoding", "musixmatch");
 					conn.setConnectTimeout(HikeConstants.CONNECT_TIMEOUT);
 				}
 				catch (Exception e)
@@ -211,7 +210,7 @@ public class DownloadFileTask extends FileTransferBase
 					// Check for valid content length.
 					int contentLength = conn.getContentLength();
 					String md5Hash = conn.getHeaderField(ETAG);
-					if ((contentLength - raf.length()) > Utils.getFreeSpace())
+					if (contentLength > Utils.getFreeSpace())
 					{
 						closeStreams(raf, in);
 						FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_MEM_CHECK, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "FILE_TOO_LARGE");
@@ -239,7 +238,7 @@ public class DownloadFileTask extends FileTransferBase
 					if(chunkSize <= 0)
 					{
 						FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.DOWNLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");
-						chunkSize = DEFAULT_CHUNK_SIZE;
+						chunkSize = DOWNLOAD_CHUNK_SIZE;
 					}
 
 					byte data[] = new byte[chunkSize];
@@ -274,28 +273,6 @@ public class DownloadFileTask extends FileTransferBase
 							return FTResult.CARD_UNMOUNT;
 						}
 						Logger.d(getClass().getSimpleName(), "ChunkSize : " + chunkSize + "Bytes");
-						setChunkSize();
-						// ChunkSize is increased within the limits
-//						chunkSize *= 2;
-//						if (chunkSize > networkType.getMaxChunkSize())
-//							chunkSize = networkType.getMaxChunkSize();
-//						else if (chunkSize < networkType.getMinChunkSize())
-//							chunkSize = networkType.getMinChunkSize();
-
-						/*
-						 * This chunk size should ideally be no more than 1/8 of the total memory available.
-						 */
-//						try
-//						{
-//							int maxMemory = (int) Runtime.getRuntime().maxMemory();
-//							if (chunkSize > (maxMemory / 8))
-//								chunkSize = maxMemory / 8;
-//						}
-//						catch (Exception e)
-//						{
-//							e.printStackTrace();
-//						}
-						// change buffer size
 						data = new byte[chunkSize];
 						// increase the startByte for resume later
 						mStart += byteRead;
@@ -320,6 +297,7 @@ public class DownloadFileTask extends FileTransferBase
 						return FTResult.CANCELLED;
 					case IN_PROGRESS:
 						Logger.d(getClass().getSimpleName(), "Server md5 : " + md5Hash);
+						closeStreams(raf, in);
 						String file_md5Hash = Utils.fileToMD5(tempDownloadedFile.getPath());
 						if (md5Hash != null)
 						{
@@ -328,18 +306,12 @@ public class DownloadFileTask extends FileTransferBase
 							{
 								Logger.d(getClass().getSimpleName(), "The md5's are not equal...Deleting the files...");
 								sendCrcLog(file_md5Hash);
-//								deleteTempFile();
-//								deleteStateFile();
-//								return FTResult.FAILED_UNRECOVERABLE;
 							}
 
 						}
 						else
 						{
 							sendCrcLog(file_md5Hash);
-//							deleteTempFile();
-//							deleteStateFile();
-//							return FTResult.FAILED_UNRECOVERABLE;
 						}
 						boolean isFileMoved = tempDownloadedFile.renameTo(mFile);
 						/*
@@ -355,7 +327,6 @@ public class DownloadFileTask extends FileTransferBase
 						{
 							Logger.d(getClass().getSimpleName(), "FT failed");
 							error();
-							closeStreams(raf, in);
 							FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
 							return FTResult.READ_FAIL;
 						}
@@ -404,32 +375,6 @@ public class DownloadFileTask extends FileTransferBase
 					retry = false;
 				}
 			}
-//			catch (IOException e)
-//			{
-//				Logger.e(getClass().getSimpleName(), "FT error : " + e.getMessage());
-//				if (e.getMessage() != null && (e.getMessage().contains(NETWORK_ERROR_1) || e.getMessage().contains(NETWORK_ERROR_2)))
-//				{
-//					// here we should retry
-//					mStart = _bytesTransferred;
-//					// Is case id the task quits after making MAX attempts
-//					// the file state is saved
-//					if (retryAttempts >= MAX_RETRY_ATTEMPTS)
-//					{
-//						error();
-//						res = FTResult.DOWNLOAD_FAILED;
-//					}
-//				}
-//				else
-//				{
-//					error();
-//					res = FTResult.DOWNLOAD_FAILED;
-//					retry = false;
-//				}
-//			}
-//			catch (Exception e)
-//			{
-//				Logger.e(getClass().getSimpleName(), "FT error : " + e.getMessage());
-//			}
 		} while (shouldRetry());
 		if (res == FTResult.SUCCESS)
 		{
