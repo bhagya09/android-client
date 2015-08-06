@@ -157,6 +157,10 @@ public class MessageMetadata
 		case DND_USER:
 			this.dndNumbers = metadata.has(HikeConstants.DND_USERS) ? metadata.getJSONArray(HikeConstants.DND_USERS) : metadata.getJSONArray(HikeConstants.DND_NUMBERS);
 			break;
+			
+		case CHANGE_ADMIN:
+			this.msisdn = metadata.getJSONObject(HikeConstants.DATA).getString(HikeConstants.ADMIN_MSISDN);
+			break;
 
 		case PARTICIPANT_JOINED:
 			this.gcjParticipantInfo = metadata.getJSONArray(HikeConstants.DATA);

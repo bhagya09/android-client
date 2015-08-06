@@ -156,7 +156,7 @@ public class UpdatesFragment extends ListFragment implements OnScrollListener, L
 				return;
 			}
 		}
-		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(getActivity(), new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true);
+		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(getActivity(), new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true, false);
 		//Add anything else which is needed to your intent
 		intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -441,7 +441,7 @@ public class UpdatesFragment extends ListFragment implements OnScrollListener, L
 				return;
 			}
 
-			String name = Utils.getFirstName(prefs.getString(HikeMessengerApp.NAME_SETTING, null));
+			String name = Utils.getFirstName(prefs.getString(HikeMessengerApp.NAME_SETTING, ""));
 			String lastStatus = prefs.getString(HikeMessengerApp.LAST_STATUS, "");
 
 			/*

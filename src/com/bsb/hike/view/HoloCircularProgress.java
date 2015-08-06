@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 import com.bsb.hike.R;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -676,6 +677,10 @@ public class HoloCircularProgress extends View {
 						float progress = ((Integer)animation.getAnimatedValue()) * 0.01f;
 						progress = (float) (Math.round(progress*100.0)/100.0);
 						HoloCircularProgress.this.setProgress(progress);
+						if(FileTransferManager.getInstance(getContext()).getAnimatedProgress(msgId) < (int) animation.getAnimatedValue())
+						{
+							FileTransferManager.getInstance(getContext()).setAnimatedProgress((int) animation.getAnimatedValue(), msgId);
+						}
 					}
 				});
 				animation.start();
