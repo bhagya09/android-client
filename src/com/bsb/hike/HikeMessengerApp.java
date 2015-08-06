@@ -33,9 +33,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
-import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -546,6 +546,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	RegisterToGCMTrigger mmRegisterToGCMTrigger = null;
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
+	
+	public static int bottomNavBarHeightPortrait = 0;
+	
+	public static int bottomNavBarWidthLandscape = 0;
 
 	static
 	{
@@ -849,6 +853,9 @@ public void onTrimMemory(int level)
 		{
 			fetchPlatformIDIfNotPresent();
 		}
+		
+		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
+		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 	}
 	
 	private void initImportantAppComponents(SharedPreferences prefs)

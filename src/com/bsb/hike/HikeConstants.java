@@ -2998,6 +2998,10 @@ public class HikeConstants
 		public static final String KEY_EARN_FREE_SMS = "earnFreeSms";
 		
 		public static final String KEY_INVITE_VIA_SMS = "inviteViaSms";
+		
+		public static final String HIKE_HIKE = "hike_hike";
+		
+		public static final String FREE_HIKE_TO_SMS_INDIA = "freeHike2SMSIndia";
 	}
 	
 	public static final String NOTIFICATIONS_PRIORITY = "npc";

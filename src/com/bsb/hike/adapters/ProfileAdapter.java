@@ -239,10 +239,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 			case HEADER:
 				v = inflater.inflate(R.layout.profile_header, null);
-
 				viewHolder.text = (TextView) v.findViewById(R.id.name);
 				viewHolder.subText = (TextView) v.findViewById(R.id.info);
-
 				viewHolder.image = (ImageView) v.findViewById(R.id.profile);
 				viewHolder.icon = (ImageView) v.findViewById(R.id.change_profile);
 				break;

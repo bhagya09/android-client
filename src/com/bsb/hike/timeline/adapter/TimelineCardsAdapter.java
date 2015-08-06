@@ -61,6 +61,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -97,6 +98,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public final static int FTUE_CARD_EXIT = -17;
 
 	public final static int FTUE_CARD_FAV = -18;
+	
+	public final static int USER_PROFILE_HEADER = -19;
 
 	private final int IMAGE = -15;
 
@@ -111,7 +114,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private ProfileImageLoader profileLoader;
 
 	protected AlertDialog alertDialog;
-
+	
 	class ViewHolder extends RecyclerView.ViewHolder
 	{
 		ImageView avatar;
@@ -203,6 +206,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				ftueShow = convertView.findViewById(R.id.ftue_show);
 				cancelFTUE = (ImageView) convertView.findViewById(R.id.remove_ftue);
 				break;
+			case USER_PROFILE_HEADER:
+				largeProfilePic = (ImageView) convertView.findViewById(R.id.profile_pic);
+				extraInfo = (TextView) convertView.findViewById(R.id.details);
 			}
 
 		}
@@ -236,12 +242,17 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private boolean isShowCountEnabled;
 
+	private boolean mShowUserProfile;
+
+	private String[] mFilteredMsisdns;
+
 	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<ContactInfo> ftueFriendList, LoaderManager loadManager,
-			FragmentManager fragManager)
+			FragmentManager fragManager, boolean showUserProfile, String[] filterMsisdns)
 	{
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 		mStatusMessages = statusMessages;
 		mUserMsisdn = userMsisdn;
+		mShowUserProfile = showUserProfile;
 		profileImageLoader = new TimelineUpdatesImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
 		mIconImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(true);
@@ -253,17 +264,35 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		fragmentManager = fragManager;
 		mHikeUiHandler = new HikeUiHandler(this);
 		isShowCountEnabled = Utils.isTimelineShowCountEnabled();
+		mFilteredMsisdns = filterMsisdns;
 	}
 
 	@Override
 	public int getItemCount()
 	{
-		return mStatusMessages.size();
+		if (mShowUserProfile)
+		{
+			return (1 + mStatusMessages.size());
+		}
+		else
+		{
+			return mStatusMessages.size();
+		}
 	}
 
 	@Override
 	public int getItemViewType(int position)
 	{
+		if(mShowUserProfile && position == 0)
+		{
+			return USER_PROFILE_HEADER;
+		}
+		
+		if(mShowUserProfile)
+		{
+			position -= 1;
+		}
+		
 		StatusMessage message = mStatusMessages.get(position);
 		if (message.getId() == FTUE_CARD_INIT)
 		{
@@ -295,13 +324,36 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	@Override
 	public void onBindViewHolder(ViewHolder viewHolder, int position)
 	{
+		int viewType = getItemViewType(position);
+		
+		if (viewType == USER_PROFILE_HEADER)
+		{
+			String mapedId = mFilteredMsisdns[0] + ProfileActivity.PROFILE_PIC_SUFFIX;
+			profileImageLoader.loadImage(mapedId, viewHolder.largeProfilePic);
+			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(mFilteredMsisdns[0]));
+			viewHolder.largeProfilePic.setTag(imageViewerInf);
+			viewHolder.name.setText(mUserMsisdn.equals(mFilteredMsisdns[0]) ? HikeMessengerApp.getInstance().getString(R.string.me) : ContactManager.getInstance().getName(mFilteredMsisdns[0]));
+			viewHolder.largeProfilePic.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					onViewImageClicked(v);					
+				}
+			});
+			return;
+		}
+		
+		if(mShowUserProfile)
+		{
+			position -= 1;
+		}
+		
 		StatusMessage statusMessage = mStatusMessages.get(position);
 
 		ActionsDataModel likesData = mActionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
 		statusMessage.setActionsData(likesData);
-
-		int viewType = getItemViewType(position);
 
 		switch (viewType)
 		{
@@ -671,7 +723,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 
 		// Done to support Quick Return
-		if (position == 0)
+		if (position == 0 && !mShowUserProfile)
 		{
 			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(50), 0, 0);
 		}
@@ -695,6 +747,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		switch (viewType)
 		{
+		case USER_PROFILE_HEADER:
+			convertView = mInflater.inflate(R.layout.timeline_profile_header, parent, false);
+			return new ViewHolder(convertView, viewType);
 		case OTHER_UPDATE:
 			convertView = mInflater.inflate(R.layout.timeline_item, parent, false);
 			return new ViewHolder(convertView, viewType);
@@ -871,6 +926,21 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 
 		notifyDataSetChanged();
+	}
+	
+	public void onViewImageClicked(View v)
+	{
+		ImageViewerInfo imageViewerInfo = (ImageViewerInfo) v.getTag();
+
+		String mappedId = imageViewerInfo.mappedId;
+		String url = imageViewerInfo.url;
+
+		Bundle arguments = new Bundle();
+		arguments.putString(HikeConstants.Extras.MAPPED_ID, mappedId);
+		arguments.putString(HikeConstants.Extras.URL, url);
+		arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, imageViewerInfo.isStatusMessage);
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
 	}
 
 	private void showDeleteStatusConfirmationDialog(final StatusMessage statusMessage)

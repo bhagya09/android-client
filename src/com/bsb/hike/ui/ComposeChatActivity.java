@@ -25,10 +25,17 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Data;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -50,10 +57,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
@@ -207,6 +210,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	int type = HikeConstants.Extras.NOT_SHAREABLE;
 	
 	private Menu mainMenu;
+	
+	private MenuItem searchMenuItem;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -424,17 +429,25 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		mainMenu = menu;
 		type = getIntent().getIntExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.NOT_SHAREABLE);
 
-		if (!showingMultiSelectActionBar){
+		if (!showingMultiSelectActionBar)
+		{
 			getMenuInflater().inflate(R.menu.compose_chat_menu, menu);
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		}else
+		}
+		else
+		{	
 			getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+		}
+		
+		if (composeMode == START_CHAT_MODE)
+		{
+			initSearchMenu(menu);
+		}
 		
 		if (type != HikeConstants.Extras.NOT_SHAREABLE && Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
 		{
 			if (menu.hasVisibleItems())
 			{
-
 				menu.findItem(R.id.whatsapp_share).setVisible(true);
 			}
 
@@ -601,7 +614,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		originalAdapterLength = adapter.getCount();
 
-		initTagEditText();
+		if (this.composeMode != START_CHAT_MODE)
+		{
+			initTagEditText();
+			tagEditText.setVisibility(View.VISIBLE);
+		}
+		
+		else
+		{
+			tagEditText = (TagEditText) findViewById(R.id.composeChatNewGroupTagET);
+			tagEditText.setVisibility(View.GONE);
+		}
 
 		if (existingGroupOrBroadcastId != null)
 		{
@@ -2448,5 +2471,34 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+	
+	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
+	{
+		@Override
+		public boolean onQueryTextSubmit(String query)
+		{
+			Utils.hideSoftKeyboard(getApplicationContext(), searchMenuItem.getActionView());
+			return false;
+		}
+		
+		@Override
+		public boolean onQueryTextChange(String newText)
+		{
+			adapter.onQueryChanged(newText);
+			
+			return true;
+		}
+	};
+	
+	private void initSearchMenu(Menu menu)
+	{
+		searchMenuItem = menu.findItem(R.id.search);
+		if (searchMenuItem != null)
+		{
+			searchMenuItem.setVisible(true);
+			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			searchView.setOnQueryTextListener(onQueryTextListener);
+		}
 	}
 }

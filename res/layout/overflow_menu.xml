@@ -9,7 +9,7 @@
         android:id="@+id/overflow_menu_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:cacheColorHint="#000000"
+        android:cacheColorHint="@android:color/transparent"
         android:paddingTop="@dimen/menu_list_padding_top"
 		android:paddingBottom="@dimen/menu_list_padding_bottom"
         android:background="@drawable/over_flow_rounded"

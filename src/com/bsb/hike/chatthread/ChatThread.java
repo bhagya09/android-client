@@ -48,6 +48,8 @@ import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
@@ -68,13 +70,9 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
@@ -136,6 +134,7 @@ import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -629,6 +628,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this,this);
+			if (Utils.isLollipopOrHigher())
+			{
+				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
+			}
 		}
 
 		else
@@ -930,7 +933,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		}
 
-		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+		int width = Utils.getOverflowMenuWidth(activity.getApplicationContext());
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
@@ -1205,7 +1208,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			attachmentPicker = new AttachmentPicker(msisdn, this, this, activity, true);
 			if (addContact)
 			{
-				attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
+				attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.contact_msg_sent), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
 			}
 		}
 	}
@@ -1239,6 +1242,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			activity.updateActionBarColor(theme.headerBgResId());
 			setChatBackground(R.color.chat_thread_default_bg);
+			setStatusBarColor(theme.statusBarColor());
 
 		}
 
@@ -1251,6 +1255,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				setChatBackground(R.color.chat_thread_default_bg);
 
 			setConversationTheme(theme);
+			setStatusBarColor(theme.statusBarColor());
 		}
 	}
 	protected void setChatBackground(int colorResID){
@@ -1713,6 +1718,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mAdapter.setChatTheme(theme);
 		// action bar
 		activity.updateActionBarColor(theme.headerBgResId());
+		setStatusBarColor(theme.statusBarColor());
 		
 		// background image
 		setBackground(theme);
@@ -4651,6 +4657,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
+			mShareablePopupLayout.onConfigurationChanged();
 		}
 		
 		/**
@@ -4659,6 +4666,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (getCurrentlTheme() != null && getCurrentlTheme() != ChatTheme.DEFAULT)
 		{
 			setBackground(getCurrentlTheme());
+			setStatusBarColor(getCurrentlTheme().statusBarColor());
 		}
 		
 		/**
@@ -5116,5 +5124,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void onRestoreInstanceState(Bundle savedInstanceState) 
 	{
 		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
+	}
+	public void setStatusBarColor(int resIdcolor)
+	{
+		StatusBarColorChanger.setStatusBarColor(activity, resIdcolor);
+		activity.statusBarColorID=resIdcolor;
 	}
 }
