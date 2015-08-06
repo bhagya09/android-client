@@ -25,6 +25,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -115,6 +116,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private OfflineParameters offlineParameters=null;
 	
+	private int timerDuration;
+	
 	private  Handler uiHandler = new Handler()
 	{
 		public void handleMessage(android.os.Message msg)
@@ -164,7 +167,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	private void startTimer()
 	{
 		
-		timer = new CountDownTimer(30000,1000)
+		timer = new CountDownTimer(timerDuration,1000)
 		{
 			
 			@Override
@@ -486,6 +489,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Translucent);
 		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 	    // handle fragment arguments
+		timerDuration = offlineParameters.getConnectionTimeout() -30000;
 	    Bundle arguments = getArguments();
 	    if(arguments != null)
 	    {
