@@ -59,7 +59,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -86,6 +85,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -132,11 +132,13 @@ import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -144,10 +146,6 @@ import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -6345,5 +6343,77 @@ public class Utils
 		Resources res = context.getResources();
 
 		return (res.getDimensionPixelSize(R.dimen.overflow_menu_width) + (2 * res.getDimensionPixelSize(R.dimen.overflow_menu_shadow_padding)));
+	}
+	
+	/**
+	 * Utility method to verify the presence of bottom nav bar in Android phones
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static boolean hasBottomNavBar(Context context)
+	{
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Point realPoint = new Point();
+		Display display = wm.getDefaultDisplay();
+		display.getRealSize(realPoint);
+		DisplayMetrics metrics = new DisplayMetrics();
+		wm.getDefaultDisplay().getMetrics(metrics);
+
+		return (metrics.heightPixels != realPoint.y) || (metrics.widthPixels != realPoint.x);
+	}
+	
+	/**
+	 * Utility method to calculate the bottom navBar height
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getBottomNavBarHeight(Context context)
+	{
+		if (hasBottomNavBar(context))
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			DisplayMetrics metrics = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(metrics);
+
+			return Math.abs(metrics.heightPixels - realPoint.y);
+		}
+
+		return 0;
+	}
+	
+	public static boolean isWindowFlagEnabled(int whichFlag, Window window)
+	{
+		if (window == null)
+			return false;
+		
+		return (window.getAttributes().flags & whichFlag) != 0;
+	}
+	
+	/**
+	 * Utility method to calculate the bottom navBar width in landscape mode
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getBottomNavBarWidth(Context context)
+	{
+		if (hasBottomNavBar(context))
+		{
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			Point realPoint = new Point();
+			Display display = wm.getDefaultDisplay();
+			display.getRealSize(realPoint);
+			DisplayMetrics metrics = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(metrics);
+
+			return Math.abs(metrics.widthPixels - realPoint.x);
+		}
+
+		return 0;
 	}
 }
