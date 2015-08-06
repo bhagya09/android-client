@@ -565,8 +565,19 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	}
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
-	{	
-		 fragmentView.post(new Runnable()
+	{
+
+		switch (errorCode)
+		{
+		case DISCONNECTING:
+			break;
+
+		case OUT_OF_RANGE:
+		case TIMEOUT:
+		case COULD_NOT_CONNECT:
+		case REQUEST_CANCEL:
+		case SHUTDOWN:
+			fragmentView.post(new Runnable()
 			{
 				@Override
 				public void run()
@@ -574,6 +585,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 					updateUIOnDisconnect();
 				}
 			});
+			break;
+		}
+
 	}
 	
 	private void updateUIOnDisconnect()
@@ -598,7 +612,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				startRotateAnimation();
 				sendUiMessages();
 				listener.onConnectionRequest(false);
-	
 			}
 
 		});
