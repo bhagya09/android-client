@@ -108,6 +108,7 @@ public class TagEditText extends EditText
 			{
      			listener.tagAdded(tag);
      			listener.charResetAfterSeperator();
+     			lastAfterSepCallback = null;
 			}
 		}
 	}
