@@ -1084,8 +1084,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">Share something important...</string>
     <string name="chat_theme_small">Chat Theme</string>
-    <string name="ftue_pin_header">Use pins</string>
-    <string name="ftue_pin_body">to share key messages</string>
     <string name="xyz_posted_pin">%1$s posted a pin</string>
     <string name="pinHistoryTutorialText">No pins yet</string>
     <string name="incorrect_msisdn_warning">Incorrect Number</string>
@@ -1527,7 +1525,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
 	<string name="sticker_recommendation_setting_info">Tap on blue words for suggestions</string>
-	<string name="sticker_recommendation_setting_header">Sticker Suggestion:Tap Mode</string>
+	<string name="sticker_recommendation_setting_header">Sticker Suggestion:Tap</string>
 	<string name="stickers_sent_today">%1$d/%2$d stickers sent today</string>
 	<string name="disable_from_hike_settings">Disable permanently from hike Settings</string>
 	<string name="total_sticker_sent">You sent %1$d stickers in the last %2$d days</string>
@@ -1578,7 +1576,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
     <string name="sticker_reorder_setting_header">Change sticker pack order</string>
     <string name="sticker_recommendation_autopopup_setting_info">Show suggestions automatically as I type</string>
-	<string name="sticker_recommendation_autopopup_setting_header">Sticker Suggestion: Auto Mode</string>
+	<string name="sticker_recommendation_autopopup_setting_header">Sticker Suggestion: Auto</string>
 	<string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
 	<string name="tap_on_sticker_to_send">Tap on sticker to send</string>
 	<string name="download_from_shop">Download stickers from shop for better suggestions</string>

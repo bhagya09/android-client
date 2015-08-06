@@ -424,6 +424,41 @@ public class StickerManager
 		{
 		}
 	}
+	
+	public List<StickerCategory> getAllStickerCategories()
+	{
+		List<StickerCategory> allCategoryList = null;
+		File dir = context.getExternalFilesDir(null);
+		if (dir == null)
+		{
+			return null;
+		}
+		String rootPath = dir.getPath() + HikeConstants.STICKERS_ROOT;
+		File root = new File(rootPath);
+		if (!root.exists() || !root.isDirectory())
+		{
+			return null;
+		}
+		
+		File[] files = root.listFiles();
+		
+		if(files == null || files.length == 0)
+		{
+			return null;
+		}
+		
+		allCategoryList = new ArrayList<>(files.length);
+		
+		for (File file : files)
+		{
+			if(file.isDirectory())
+			{
+				allCategoryList.add(new StickerCategory(file.getName()));
+			}
+		}
+		
+		return allCategoryList;
+	}
 
 	public void addRecentSticker(Sticker st)
 	{

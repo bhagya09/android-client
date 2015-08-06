@@ -103,7 +103,6 @@ import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
-import com.bsb.hike.media.KeyboardPopupLayout21;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
@@ -356,7 +355,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 				break;
 			case ACTION_KEYBOARD_CLOSED:
-				dismissStickerRecommendationPopup();
+				// In keyboard21 when we click on sticker icon , if keyboard is open at that time it is first closed and then pallte comes.
+				// So adding check so that recommendation popup is not closed when shareablepop is showing
+				
+				if(!mShareablePopupLayout.isShowing())
+				{
+					dismissStickerRecommendationPopup();
+				}
 				break;
 			}
 			
@@ -562,7 +567,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		this.savedState = savedState;
 		init();
-		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
@@ -597,7 +601,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mConversationDb = HikeConversationsDatabase.getInstance();
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
-		shouldKeyboardPopupShow=KeyboardPopupLayout21.shouldShow(activity);
+		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 	}
 
 	/**
@@ -1560,6 +1564,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}	
 		
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
+		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
 	
@@ -5705,7 +5710,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void onSaveInstanceState(Bundle outState)
 	{	
-		shouldKeyboardPopupShow=KeyboardPopupLayout21.shouldShow(activity);
+		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
 	}
 	

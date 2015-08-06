@@ -151,16 +151,6 @@
                 android:visibility="gone" />
 
             <LinearLayout
-                android:id="@+id/pin_tip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:visibility="gone" >
-
-                <include layout="@layout/pin_tool_tip" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/new_message_indicator"
                 android:layout_width="wrap_content"
                 android:minWidth="148dp"

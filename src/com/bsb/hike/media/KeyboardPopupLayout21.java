@@ -14,7 +14,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -57,10 +56,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
  */
 public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 {
-	private static final int KEYBOARD_CONFIGURATION_OLD = 1;
-
-	private static final int KEYBOARD_CONFIGURATION_NEW = 2;
-
 	private static final int STATE_NONE = 0;// not keyboard and sticker present
 
 	private static final int STATE_STICKER = 2;// only sticker or emoji pad
@@ -350,12 +345,6 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 	private void setOnSoftKeyboardListener(OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		this.onSoftKeyboardListener = onSoftKeyboardListener;
-	}
-
-	public static boolean shouldShow(Context context)
-	{// server side switch
-		int kc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KEYBOARD_CONFIGURATION, KEYBOARD_CONFIGURATION_OLD);
-		return kc == KEYBOARD_CONFIGURATION_NEW;
 	}
 
 	public boolean onEditTextTouch(View v, MotionEvent event)

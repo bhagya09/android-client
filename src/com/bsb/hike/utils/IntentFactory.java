@@ -47,7 +47,6 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.FileSelectActivity;
-import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
@@ -424,16 +423,7 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void createBroadcastFtue(Context appContext)
-	{
-		Intent intent = new Intent(appContext.getApplicationContext(), FtueBroadcast.class);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
-		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		appContext.startActivity(intent);
-	}
-
-	public static void createBroadcastDefault(Context appContext)
+	public static void createBroadcastIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
