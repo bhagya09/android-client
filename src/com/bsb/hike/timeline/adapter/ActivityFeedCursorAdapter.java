@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +20,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.RecyclerViewCursorAdapter;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -30,7 +28,6 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
-import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
@@ -161,7 +158,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			roundAvatar1.setScaleType(ScaleType.FIT_XY);
 			roundAvatar1.setBackgroundResource(0);
 			viewHolder.name.setText(mUserMsisdn.equals(feedDataModel.getActor()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : ContactManager
-					.getInstance().getContact(feedDataModel.getActor()).getFirstNameAndSurname());
+					.getInstance().getContact(feedDataModel.getActor(), true, true).getFirstNameAndSurname());
 
 			if (feedDataModel.getReadStatus() == 1)
 			{
@@ -183,17 +180,17 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			if (viewType == TEXT)
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true) + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
+				viewHolder.mainInfo.setText(mContext.getString(R.string.status_update_like_text) +" " + smileyParser.addSmileySpans(statusMessage.getText(), true) + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 			}
-			else if (TextUtils.isEmpty(statusMessage.getText()))
+			else if (viewType == IMAGE || viewType == TEXT_IMAGE)
 			{
-				viewHolder.mainInfo.setText(R.string.status_profile_pic_notification + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
+				viewHolder.mainInfo.setText(mContext.getString(R.string.photo_like_text) +" " + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 			}
 			else
 			{
-				viewHolder.mainInfo.setText(statusMessage.getText() + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
+				viewHolder.mainInfo.setText(mContext.getString(R.string.dp_like_text) +" " + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 			}
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
@@ -247,13 +244,6 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			if ((statusMessage.getStatusMessageType() == StatusMessageType.NO_STATUS) || (statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST)
 					|| (statusMessage.getStatusMessageType() == StatusMessageType.PROTIP))
 			{
-				return;
-			}
-			else if (mUserMsisdn.equals(statusMessage.getMsisdn()))
-			{
-				Intent intent = new Intent(mContext, ProfileActivity.class);
-				intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-				startActivity(intent);
 				return;
 			}
 

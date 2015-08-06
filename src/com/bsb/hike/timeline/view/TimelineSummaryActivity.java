@@ -148,6 +148,19 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private boolean isShowCountEnabled;
 
 	private boolean isShowLikesEnabled;
+	
+	private ActivityState mActivityState;
+	
+	public class ActivityState
+	{
+		public String mappedId;
+		
+		public StatusMessage statusMessage;
+		
+		public ArrayList<String> msisdnsList;
+		
+		public boolean isLikedByMe;
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -168,25 +181,42 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 		HikeMessengerApp.getPubSub().addListeners(this, profilePicPubSubListeners);
 
-		Bundle extras = getIntent().getExtras();
+		Object obj = getLastCustomNonConfigurationInstance();
 
-		mappedId = extras.getString(HikeConstants.Extras.MAPPED_ID);
+		if (obj instanceof ActivityState)
+		{
+			mActivityState = (ActivityState) obj;
+			
+			mappedId = mActivityState.mappedId;
+			statusMessage = mActivityState.statusMessage;
+			msisdns = mActivityState.msisdnsList;
+			isLikedByMe = mActivityState.isLikedByMe;
+		}
+		else
+		{
+			mActivityState = new ActivityState();
+			
+			Bundle extras = getIntent().getExtras();
 
-		// TODO think of a better place to do this without breaking animation
-		statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
+			mappedId = extras.getString(HikeConstants.Extras.MAPPED_ID);
 
-		checkBoxLove.setTag(statusMessage);
+			// TODO think of a better place to do this without breaking animation
+			statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
 
-		msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
-		
+			msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
+			
+			isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
+
+		}
+
 		if(msisdns == null)
 		{
 			//Empty list
 			msisdns = new ArrayList<String>();
 		}
 
-		isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
-
+		checkBoxLove.setTag(statusMessage);
+		
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
 		ViewTreeObserver observer = contentContainer.getViewTreeObserver();
@@ -745,4 +775,10 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			}
 		}
 	};
+	
+	@Override
+	public Object onRetainCustomNonConfigurationInstance()
+	{
+		return mActivityState;
+	}
 }

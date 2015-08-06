@@ -4916,6 +4916,38 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return statusMessage;
 	}
 
+	/**
+	 * Update column showInTimeline to 1
+	 * To show previous SU in Timeline
+	 * @return
+	 */
+	public boolean updateHistoricalStatusMessages(String msisdn)
+	{
+		if(TextUtils.isEmpty(msisdn))
+		{
+			return false;
+		}
+		
+		boolean isComplete = false;
+		ContentValues conVal = new ContentValues();
+		conVal.put(DBConstants.SHOW_IN_TIMELINE, true);
+		
+		String whereClause = DBConstants.MSISDN + "=? AND " + DBConstants.SHOW_IN_TIMELINE + "=?";
+		String[] whereArgs = new String[] { msisdn, "0" };
+		long rowID = mDb.update(DBConstants.STATUS_TABLE, conVal, whereClause, whereArgs);
+
+		if (rowID == -1L)
+		{
+			isComplete = false;
+		}
+		else
+		{
+			isComplete = true;
+		}
+
+		return isComplete;
+	}
+	
 	public void setMessageIdForStatus(String statusId, long messageId)
 	{
 		String whereClause = DBConstants.STATUS_MAPPED_ID + "=?";
