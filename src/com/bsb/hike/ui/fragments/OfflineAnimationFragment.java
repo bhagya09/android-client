@@ -475,7 +475,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		}
 		FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
 		
-		offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(OfflineUtils.getConnectingMsisdn(),null,1);
+		Logger.d(TAG,msisdn);
+		offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn,null,1);
 		offlineDisconnectFragment.setConnectionListner(this);
 		fragmentTransaction.replace(R.id.disconnect_layout, offlineDisconnectFragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		fragmentTransaction.commit();
