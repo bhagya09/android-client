@@ -5226,7 +5226,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 	}
 	
-	public void changeChannel(Boolean setOfflineChannel)
+	public void changeChannel(Boolean setOfflineChannel,Boolean removeListener)
 	{
 		if(setOfflineChannel)
 		{
@@ -5235,7 +5235,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		else
 		{
 			channelSelector = new OnlineChannel();
-			releaseOfflineListeners();
+			if(removeListener)
+			{
+				releaseOfflineListeners();
+			}
 		}
 		
 	}

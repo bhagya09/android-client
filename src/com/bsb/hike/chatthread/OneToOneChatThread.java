@@ -3105,7 +3105,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			offlineAnimationFragment.connectedToMsisdn(msisdn);
 		}
 		sendUIMessage(OFFLINE_CONNECTED,getString(R.string.connection_established));
-		changeChannel(true);
+		changeChannel(true,false);
 		clearAttachmentPicker();
 	}
 
