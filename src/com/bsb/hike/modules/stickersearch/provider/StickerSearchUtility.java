@@ -396,11 +396,13 @@ public class StickerSearchUtility
 		}
 	}
 
+	/* Check if given value is real and proper fraction */
 	private static boolean isValidFraction(float weight)
 	{
 		return (weight >= 0.00f) && (weight <= 1.00f);
 	}
 
+	/* Check if given value is real and proper fraction along with checking minimum possible positive value */
 	private static boolean isValidReq(float req)
 	{
 		return (req >= 0.01f) && (req <= 1.00f);
@@ -510,7 +512,7 @@ public class StickerSearchUtility
 		return outputBuilder.toString();
 	}
 
-	/* Get individual values from string composed of 2 values */
+	/* Get individual values from string composed of 'count' values */
 	@SuppressWarnings("unchecked")
 	public static <T> ArrayList<T> getIndividualNumericValues(String s, int count, Class<T> kind)
 	{
@@ -706,7 +708,12 @@ public class StickerSearchUtility
 		int secondOfMinute = calendar.get(Calendar.SECOND);
 		int milliSecondOfMinute = calendar.get(Calendar.MILLISECOND);
 
-		float time = hourOfDay + (((float) minuteOfHour) / 100) + (((float) secondOfMinute) / 10000) + (((float) milliSecondOfMinute) / 10000000);
+		// Format: HH.mmssmmm
+		// HH = Hour of the day
+		// mm = Minute of the hour
+		// ss = Second of the minute
+		// mmm = milliSecond of the minute
+		float time = hourOfDay + (((float) minuteOfHour) / 1E+2f) + (((float) secondOfMinute) / 1E+4f) + (((float) milliSecondOfMinute) / 1E+7f);
 
 		if (time >= 4.3000000f && time < 12.0000000f)
 		{
