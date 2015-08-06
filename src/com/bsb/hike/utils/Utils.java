@@ -6652,4 +6652,69 @@ public class Utils
 		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
 		return false;
 	}
+	
+	public static boolean isTableExists(SQLiteDatabase db, String tableName)
+	{
+		if ((tableName != null) && (db != null) && db.isOpen())
+		{
+			Cursor c = null;
+			try
+			{
+				c = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type=? AND name=?", new String[] { "table", tableName });
+				if ((c != null) && c.moveToFirst())
+				{
+					return c.getInt(0) > 0;
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.e("TableExistsCheck", "Erron while checking " + tableName + " exists...", e);
+			}
+			finally
+			{
+				if (c != null)
+				{
+					c.close();
+				}
+			}
+		}
+		else
+		{
+			Logger.w("TableExistsCheck", "Can not check if " + tableName + " exists.");
+		}
+
+		return false;
+	}
+	
+	public static JSONObject cloneJsonObject(JSONObject jsonObject)
+	{
+		if(jsonObject == null)
+		{
+			return null;
+		}
+		
+		String names[] = new String[jsonObject.length()];
+
+		// get mapping keys
+		Iterator<String> iterator = jsonObject.keys();
+		int i = 0;
+		while (iterator.hasNext())
+		{
+			names[i++] = (String) iterator.next();
+		}
+
+		//create a new copy
+		JSONObject cloneJson = null;
+		try
+		{
+			cloneJson = new JSONObject(jsonObject, names);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return cloneJson;
+	}
 }
+

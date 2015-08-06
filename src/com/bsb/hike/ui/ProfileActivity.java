@@ -2259,11 +2259,19 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				PairModified<GroupParticipant, String> groupParticipantPair = oneToNConversation.getConversationParticipant(msisdn);
 				GroupParticipant groupParticipant = null;
-				if (groupParticipant == null)
+				if (groupParticipantPair == null)
 				{
 					return;
 				}
-				groupParticipant.getContactInfo().setOnhike(HikePubSub.USER_JOINED.equals(type));
+				groupParticipant= groupParticipantPair.getFirst();
+				if (groupParticipant != null) {
+					if (groupParticipant.getContactInfo() != null) {
+						groupParticipant.getContactInfo().setOnhike(
+								HikePubSub.USER_JOINED.equals(type));
+					}
+					groupParticipant
+							.setType(GroupParticipant.Participant_Type.MEMBER);
+				}
 			}
 
 			runOnUiThread(new Runnable()
