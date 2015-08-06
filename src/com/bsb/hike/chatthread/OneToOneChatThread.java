@@ -2404,7 +2404,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			updateChatMetadata();
 			break;
 		case R.id.network_error_card:
-			startFreeHikeConversation(true);
+			handleNetworkCardClick();
 			break;
 		case R.id.free_hike_cancel:
 			setOfflineFtueCardCancelled();
@@ -2414,6 +2414,38 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 	}
 	
+	private void handleNetworkCardClick()
+	{
+		Animation slideOut  = AnimationUtils.loadAnimation(activity,R.anim.slide_out_right);
+		slideOut.setDuration(400);
+		slideOut.setAnimationListener(new AnimationListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
+				startFreeHikeConversation(true);
+				
+			}
+		});
+		activity.findViewById(R.id.network_error_card).startAnimation(slideOut);
+	}
+
 	public void startAnotherFreeHikeConnection(Boolean startAnimation)
 	{
 		sendUIMessage(START_OFFLINE_CONNECTION, 1000,startAnimation);
