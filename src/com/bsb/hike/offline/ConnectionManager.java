@@ -144,15 +144,27 @@ public class ConnectionManager implements ChannelListener
 		{
 			wifiManager.setWifiEnabled(true);
 		}
+		//We are trying to switch on user's wifi
+		int attempts =0;
 		
-		while(!wifiManager.isWifiEnabled())
+		while(!wifiManager.isWifiEnabled() && attempts<OfflineConstants.WIFI_RETRY_COUNT);
 		{
-			try {
+			try 
+			{
 				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block 
+			} 
+			catch (InterruptedException e)
+			{
 				e.printStackTrace();
 			}
+			attempts++;
+			Logger.d(TAG, "Trying to start wifi. Wifi State " + wifiManager.getWifiState());
+		}
+		if(!wifiManager.isWifiEnabled())
+		{
+			Logger.d(TAG, "WIFI COULD NOT START .CALLING SHUT DOWN");
+			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.WIFI_COULD_NOT_START));
+			return;
 		}
 		boolean wifiScan = wifiManager.startScan();
 		Log.d(TAG, "Wifi Scan returns " + wifiScan);
@@ -292,7 +304,7 @@ public class ConnectionManager implements ChannelListener
 			return result;
 		}
 		String ssid  =   OfflineUtils.getSsidForMsisdn(targetMsisdn,OfflineUtils.getMyMsisdn());
-		Log.d("OfflineManager","SSID is "+ssid);
+		Log.d("OfflineManager","SSID is "+ssid + " -> " + status);
 		String encryptedSSID = OfflineUtils.encodeSsid(ssid);
 		Log.d(TAG, encryptedSSID);
 		String pass = OfflineUtils.generatePassword(ssid);
@@ -508,7 +520,7 @@ public class ConnectionManager implements ChannelListener
 					Log.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
 					wifiManager.reconnect();
-					Log.d("OfflineManager", "trying to connect!");
+					Log.d("OfflineManager", "trying to connect! to ");
 
 				}
 			}
@@ -572,6 +584,7 @@ public class ConnectionManager implements ChannelListener
 
 			}
 		}
+		//startWifi();
 		connectToWifi(currentnetId);
 		clearAllVariables();
 	}

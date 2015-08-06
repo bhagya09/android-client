@@ -101,7 +101,7 @@ public class OfflineConstants
 	
 	public static enum ERRORCODE
 	{
-		TIMEOUT,USERDISCONNECTED,OUT_OF_RANGE,COULD_NOT_CONNECT,REQUEST_CANCEL
+		TIMEOUT,DISCONNECTING,OUT_OF_RANGE,COULD_NOT_CONNECT,REQUEST_CANCEL,SHUTDOWN
 	}
 	
 	public static enum OFFLINE_STATE
@@ -156,6 +156,8 @@ public class OfflineConstants
 	public static final String OFFLINE_DISCONNECT_FRAGMENT = "offline_disconnect_fragment";
 
 	public static final String OFFLINE_ANIMATION_FRAGMENT = "offline_animation_dialog";
+
+	public static final int WIFI_RETRY_COUNT = 40;
 	
 	
 }
