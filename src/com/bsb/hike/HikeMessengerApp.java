@@ -283,8 +283,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String SHOWN_EMOTICON_TIP = "shownEmoticonTip1";
 
-	public static final String SHOWN_PIN_TIP = "shownPinTip";
-
 	public static final String SHOWN_MOODS_TIP = "shownMoodsTip1";
 
 	public static final String SHOWN_WALKIE_TALKIE_TIP = "shownWalkieTalkieTip";
