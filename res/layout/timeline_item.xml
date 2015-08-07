@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
         android:background="@drawable/timeline_tab_selector"
-        card_view:cardCornerRadius="4dp"
+        card_view:cardCornerRadius="3dp"
         card_view:cardElevation="1dp"
         card_view:cardUseCompatPadding="true"
         card_view:contentPaddingLeft="2dp"
@@ -80,9 +80,8 @@
                 android:id="@+id/details_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
                 android:layout_below="@+id/info_container"
+                android:layout_marginLeft="8dp"
                 android:orientation="vertical" >
 
                 <com.bsb.hike.view.LinkedTextView
@@ -90,10 +89,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:paddingBottom="14dp"
+                    android:paddingTop="14dp"
                     android:text="Added you as a friend"
-                    android:textStyle="italic"
                     android:textColor="@color/black_60"
-                    android:textSize="14sp" />
+                    android:textSize="15sp"
+                    android:textStyle="italic" />
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/details"
