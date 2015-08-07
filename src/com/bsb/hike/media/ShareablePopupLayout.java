@@ -65,12 +65,13 @@ public class ShareablePopupLayout
 		{
 			if (HikeMessengerApp.keyboardApproach(context))
 			{
-				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener,onSoftKeyboardListener) : new KeyboardPopupLayout21(mainView, firstTimeHeight,
-						context, eatOuterTouchIds, listener,onSoftKeyboardListener);
-			}else{
-				
-				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
-					context, eatOuterTouchIds, listener);
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener, onSoftKeyboardListener)
+						: new KeyboardPopupLayout21(mainView, firstTimeHeight, context, eatOuterTouchIds, listener, onSoftKeyboardListener);
+			}
+			else
+			{
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView,
+						firstTimeHeight, context, eatOuterTouchIds, listener);
 			}
 		}
 	}
