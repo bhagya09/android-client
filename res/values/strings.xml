@@ -366,7 +366,6 @@
     <string name="on_dnd">on DND</string>
     <string name="blocked_list">Blocked List</string>
     <string name="accepted_friend_request">Confirmed as a friend</string>
-    <string name="invite_free_sms">Free SMS Invite</string>
     <string name="leave">Leave</string>
     <string name="mute_group">Mute Group</string>
     <string name="unmute_group">Unmute Group</string>
@@ -1600,4 +1599,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="goto_timeline">Go to Timeline.</string>
     <string name="contacts_sync_error">Contact sync failed. Please try again</string>
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
+    <string name="invite_free_sms">Free SMS Invite</string>
 </resources>
