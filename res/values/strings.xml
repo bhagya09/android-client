@@ -366,7 +366,7 @@
     <string name="on_dnd">on DND</string>
     <string name="blocked_list">Blocked List</string>
     <string name="accepted_friend_request">Confirmed as a friend</string>
-    <string name="invite_free_sms">Invite via free SMS</string>
+    <string name="invite_free_sms">Free SMS Invite</string>
     <string name="leave">Leave</string>
     <string name="mute_group">Mute Group</string>
     <string name="unmute_group">Unmute Group</string>
