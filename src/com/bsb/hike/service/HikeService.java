@@ -186,6 +186,8 @@ public class HikeService extends Service
 	{
 		super.onCreate();
 
+		HAManager.getInstance().serviceEventAnalytics(HikeConstants.CREATE, HikeConstants.HIKE_SERVICE);
+		
 		// If user is not signed up. Do not initialize MQTT or serve any SDK requests. Instead, re-route to Welcome/Signup page.
 		// TODO : This is a fix to handle edge case when a request comes from SDK and user has not signed up yet. In future we must make a separate bound service for handling SDK
 		// related requests.

@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.ui.HikePreferences;
 
 public class IconCheckBoxPreference extends CheckBoxPreference
 {
@@ -47,7 +48,11 @@ public class IconCheckBoxPreference extends CheckBoxPreference
 	protected void onBindView(final View view)
 	{
 		super.onBindView(view);
+		
+		view.setAlpha(isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
+		
 		imageView = (ImageView) view.findViewById(R.id.icon);
+		
 		if ((imageView != null) && (this.mIcon != null))
 		{
 			imageView.setImageDrawable(this.mIcon);

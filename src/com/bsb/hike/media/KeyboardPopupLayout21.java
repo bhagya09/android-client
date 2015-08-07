@@ -344,7 +344,10 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			Logger.i("chatthread", "keyboard  height " + temp);
 			if (temp > 0)
 			{
-				isKeyboardOpen = true;
+				if(isKeyboardOpen == false)
+				{
+					onKeyboardOpen(temp);
+				}
 				if (isShowing())
 				{
 					updatePadding(popup.getHeight());
@@ -352,7 +355,10 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			}
 			else
 			{
-				isKeyboardOpen = false;
+				if(isKeyboardOpen == true)
+				{
+					onKeyboardClose();
+				}
 			}
 		}
 	};
