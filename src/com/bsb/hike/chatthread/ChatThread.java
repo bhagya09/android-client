@@ -3931,6 +3931,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		if (shouldShowKeyboard())
 		{
+			tryToDismissAnyOpenPanels();
 			Utils.showSoftKeyboard(activity, mComposeView);
 		}
 		
@@ -5738,5 +5739,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void selectAllComposeText()
 	{
 			
+	}
+	
+	private void tryToDismissAnyOpenPanels()
+	{
+		hideOverflowMenu();
+		hideThemePicker();
 	}
 }

@@ -781,6 +781,12 @@ public class VoIPClient  {
 						// Sleep for a little bit before destroying this object
 						// since the call failure screen will need its info. 
 						Thread.sleep(500);
+
+						// Edge case error fixing. If the call went into reconnection
+						// before it was answered, then normally no outgoing missed call
+						// would appear in our chat thread since we aren't connected.
+						// Hence, make it appear as if we ARE connected, so the missed call appears. 
+						connected = true;
 						stop();
 					}
 				} catch (InterruptedException e) {
