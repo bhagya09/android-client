@@ -1632,7 +1632,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		long msgId = -1;
 		try
 		{
-			mDb.beginTransaction();
 			msgId = insertStatement.executeInsert();
 
 			conv.setMsgID(msgId);
@@ -1646,7 +1645,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 			mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.MESSAGE_ID + "=?", new String[] { Long.toString(conv.getMsgID()) });
 
-			mDb.setTransactionSuccessful();
 		}
 		catch (Exception e)
 		{
@@ -1654,10 +1652,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			Logger.e(getClass().getSimpleName(), "Duplicate value ", e);
 			logDuplicateMessageEntry(conv, e);
 			throw e;
-		}
-		finally
-		{
-			mDb.endTransaction();
 		}
 
 		return msgId;

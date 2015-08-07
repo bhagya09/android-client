@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppTheme.Home" >
+    <style name="AppTheme.Home">
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
-     
     </style>
 
-<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
@@ -25,19 +24,30 @@
         <item name="colorPrimary">@color/white_100</item>
         <item name="colorPrimaryDark">@color/white_100</item>
         <item name="colorAccent">@color/blue_hike</item>
-        <item name="colorControlActivated">@color/blue_hike</item>
-		<item name="android:textColorPrimary">@color/blue_hike</item>
-		<item name="android:alertDialogTheme">@style/Theme.CustomDialog</item>
-		 <item name="android:actionButtonStyle">@style/HikeActionButtonStyle</item>
-       <item name="actionButtonStyle">@style/HikeActionButtonStyle</item>
+        <item name="android:alertDialogTheme">@style/Theme.CustomDialog</item>
+        <item name="android:actionButtonStyle">@style/HikeActionButtonStyle</item>
+        <item name="actionButtonStyle">@style/HikeActionButtonStyle</item>
     </style>
-    
-	<style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog">
-	    <item name="colorAccent">@color/unread_message</item>
+
+	<style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
+    	<item name="android:colorControlActivated">@color/white</item>
 	</style>
 
+    <style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/blue_hike</item>
+        <item name="android:background">@color/blue_hike</item>
+        <item name="backgroundSplit">@color/credits_blue</item>
+        <item name="android:backgroundSplit">@color/credits_blue</item>
+        <item name="titleTextStyle">@style/NoTitleText</item>
+        <item name="android:titleTextStyle">@style/NoTitleText</item>
+        <item name="android:elevation">2dp</item>
+        <item name="elevation">2dp</item>
+    </style>
 
-    <style name="AppTheme.Overlay" parent="AppTheme">
+    <style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog">
+        <item name="colorAccent">@color/unread_message</item>
+    </style>
+<style name="AppTheme.Overlay" parent="AppTheme">
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
