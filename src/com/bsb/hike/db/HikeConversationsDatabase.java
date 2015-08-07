@@ -822,19 +822,34 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+" LONG DEFAULT -1";
 			db.execSQL(alter);
 		}
-		
-		if (oldVersion < 41)
+
+		/*
+		 * Version 41 has been removed intentionally.
+		 * There were different changes made in upgrade to version 41. Some of them went out to beta users in market.
+		 * As a result the other additional changes in 41 were not reflected to those users.
+		 * So version 41 was discarded and 42 was added instead. Version 42 upgrade adds columns only if they are not already there.
+		 * 
+		 * To avoid the same in future, it is decided that from now now:
+		 * 1. Full db support will be provided for UPGRADING an internal_release to any other internal_release
+		 * 2. The beta releases made to the costumers will only be made from internal_release
+		 */
+		if (oldVersion < 42)
 		{
 			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
 			{
 				String alter = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SEND_TIMESTAMP + " LONG DEFAULT -1";
 				db.execSQL(alter);
 			}
-			String alter1 = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " +  DBConstants.GROUP_CREATOR + " TEXT DEFAULT NULL";
-			db.execSQL(alter1);
-			
-			String alter3 = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.TYPE + " INTEGER  DEFAULT 0";
-			db.execSQL(alter3);
+			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
+			{
+				String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " + DBConstants.GROUP_CREATOR + " TEXT DEFAULT NULL";
+				db.execSQL(alter);
+			}
+			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
+			{
+				String alter = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.TYPE + " INTEGER  DEFAULT 0";
+				db.execSQL(alter);
+			}
 		}
 	}
 
