@@ -548,7 +548,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		connectionInfo.setText(getResources().getString(R.string.connecting_to,contactFirstName));
 		connectionInfo.setVisibility(View.VISIBLE);
 		sendUIMessage(UPDATE_ANIMATION_MESSAGE,15000,getResources().getString(R.string.offline_animation_second_message));
-		sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE,30000,getResources().getString(R.string.offline_animation_third_message,contactFirstName));
+		sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE,30200,getResources().getString(R.string.offline_animation_third_message,contactFirstName));
 		sendUIMessage(START_TIMER, 30000,null);
 	}
 
@@ -596,10 +596,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		cancelRotationAnimation();
 		hideAndStopTimer();
 		frame.setVisibility(View.INVISIBLE);
+		secondMessage.setVisibility(View.INVISIBLE);
 		removePostedMessages();
 		//scaleUpAvatar(3.5f, 3.5f);
 		showRetryButton();
 		connectionInfo.setText(getResources().getString(R.string.retry_connection));
+		
 		retryButton.setOnClickListener(new OnClickListener()
 		{
 			
@@ -623,6 +625,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void connectedToMsisdn(String connectedDevice)
 	{
 		removePostedMessages();
+		
 	    fragmentView.post(new Runnable()
 		{
 			
@@ -649,7 +652,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				 }
 				 
 				 frame.setVisibility(View.INVISIBLE);
-				 
+				 secondMessage.setVisibility(View.INVISIBLE);
 				 //Scale up 
 				 ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 3.5f);
 				 ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 3.5f);
@@ -818,6 +821,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void removePostedMessages()
 	{
 		uiHandler.removeMessages(UPDATE_ANIMATION_MESSAGE);
+		uiHandler.removeMessages(UPDATE_ANIMATION_SECOND_MESSAGE);
 		uiHandler.removeMessages(START_TIMER);
 	}
 	
