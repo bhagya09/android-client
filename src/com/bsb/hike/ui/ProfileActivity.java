@@ -2953,8 +2953,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	protected void updateUIForAdminChange(String msisdn) {
 		String mymsisdn  = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
 		if(!msisdn.equalsIgnoreCase(mymsisdn)){
-		GroupParticipant grpParticipant = participantMap.get(msisdn).getFirst();
-		grpParticipant.setType(GroupParticipant.Participant_Type.ADMIN);
+			PairModified<GroupParticipant, String> grpParticipantpair = participantMap
+					.get(msisdn);
+			if (grpParticipantpair != null) {
+				grpParticipantpair.getFirst().setType(GroupParticipant.Participant_Type.ADMIN);
+			}
 		}
 		runOnUiThread(new Runnable() {
 			@Override
