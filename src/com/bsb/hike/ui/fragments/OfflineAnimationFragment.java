@@ -64,6 +64,7 @@ import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequ
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.google.android.gms.internal.ar;
 import com.google.gson.Gson;
 
 public class OfflineAnimationFragment extends DialogFragment implements IOfflineCallbacks ,OfflineConnectionRequestListener
@@ -118,6 +119,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private int timerDuration;
 	
+	private boolean shouldResumeFragment = false;
+	
 	private  Handler uiHandler = new Handler()
 	{
 		public void handleMessage(android.os.Message msg)
@@ -140,6 +143,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		offlineAnimationFragment.setArguments(data);
 		return offlineAnimationFragment; 
 	}
+	
 	
 	/**
 	 * Performs tasks on the UI thread.
@@ -498,7 +502,24 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	    }
 	}
 
+
+	@Override
+	public void onStart()
+	{
+		super.onStart();
+	}
 	
+	@Override
+	public void onStop()
+	{
+		super.onStop();
+	}
+	
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+	}
 	private void handleArguments(Bundle arguments)
 	{
 		msisdn = arguments.getString(MSISDN);
@@ -508,6 +529,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void onActivityCreated(Bundle arg0)
 	{
 		super.onActivityCreated(arg0);
+
+		shouldResumeFragment=(arg0!=null);
+		
+		
 		fragmentView.post(new Runnable()
 		{
 			
@@ -544,12 +569,19 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	protected void sendUiMessages()
 	{
-		
-		connectionInfo.setText(getResources().getString(R.string.connecting_to,contactFirstName));
+
+		connectionInfo.setText(getResources().getString(R.string.connecting_to, contactFirstName));
 		connectionInfo.setVisibility(View.VISIBLE);
-		sendUIMessage(UPDATE_ANIMATION_MESSAGE,15000,getResources().getString(R.string.offline_animation_second_message));
-		sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE,30200,getResources().getString(R.string.offline_animation_third_message,contactFirstName));
-		sendUIMessage(START_TIMER, 30000,null);
+		if (!shouldResumeFragment)
+		{
+			sendUIMessage(UPDATE_ANIMATION_MESSAGE, 15000, getResources().getString(R.string.offline_animation_second_message));
+			sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE, 30200, getResources().getString(R.string.offline_animation_third_message, contactFirstName));
+			sendUIMessage(START_TIMER, 30000, null);
+		}
+		else
+		{
+			removeDisconnectFragment(false);
+		}
 	}
 
 	@Override
@@ -888,9 +920,4 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			closeFragment();
 		}
 	}
-
-	
-	
-	
-	
 }

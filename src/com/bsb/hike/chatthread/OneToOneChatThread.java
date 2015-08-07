@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -1459,6 +1460,36 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		offlineAnimationFragment = OfflineAnimationFragment.newInstance(msisdn);
 		offlineAnimationFragment.setConnectionListner(this);
 		offlineAnimationFragment.show(activity.getSupportFragmentManager(), OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		// TODO Auto-generated method stub
+		super.onRestoreInstanceState(savedInstanceState);
+		
+		handleOfflineFragments(savedInstanceState);
+	}
+	
+	
+	private void handleOfflineFragments(Bundle savedInstanceState)
+	{
+		Fragment frag = activity.getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
+		if (frag != null)
+		{
+			offlineAnimationFragment = ((OfflineAnimationFragment) frag);
+			offlineAnimationFragment.setConnectionListner(this);
+		}
+		
+		frag = activity.getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+		if (frag != null)
+		{
+			FragmentManager fm = activity.getSupportFragmentManager();
+			fm.beginTransaction().remove(frag).commitAllowingStateLoss();
+			fm.executePendingTransactions();
+
+		}
+
 	}
 
 	private void setupOfflineUI()
