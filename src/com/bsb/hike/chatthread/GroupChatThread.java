@@ -8,7 +8,9 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
@@ -118,13 +120,12 @@ public class GroupChatThread extends OneToNChatThread
 	public void showMultiAdminTip(final Context context)
 	{
 	
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
+		HikeDialog hikeDialog = HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
 		{
 
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				Utils.unblockOrientationChange(activity);
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, true);
 			}
@@ -137,13 +138,20 @@ public class GroupChatThread extends OneToNChatThread
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
-				Utils.unblockOrientationChange(activity);
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 				
 			}
 
 		}, 0);
+         hikeDialog.setOnDismissListener(new OnDismissListener() {
+			
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				Utils.unblockOrientationChange(activity);
+				
+			}
+		});
 	}
 
 	@Override
