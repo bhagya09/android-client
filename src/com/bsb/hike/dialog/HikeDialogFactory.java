@@ -379,18 +379,14 @@ public class HikeDialogFactory
 	private static HikeDialog showGroupSettingsDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
 
-		final CustomAlertDialog confirmDialog = new CustomAlertDialog(context, dialogId);
-
 		String text = (String) data[0];
 
-		confirmDialog.setTitle("");
+		final CustomAlertDialog confirmDialog = new CustomAlertDialog(context, dialogId);
 		confirmDialog.setMessage(text);
-
 		confirmDialog.setPositiveButton(R.string.yes, listener);
-
 		confirmDialog.setNegativeButton(R.string.no, listener);
-
 		confirmDialog.show();
+		
 		return confirmDialog;
 	}
 
