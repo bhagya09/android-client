@@ -414,6 +414,11 @@
         <item name="android:colorAccent">@color/blue_hike</item>
     </style>
 
+<style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
+
+    <item name="android:colorControlActivated">@color/white</item>
+</style>
+
     <style name="Widget.Styled.PhotosActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/photos_action_bar_transcluscent_background</item>
         <item name="android:background">@color/photos_action_bar_transcluscent_background</item>
