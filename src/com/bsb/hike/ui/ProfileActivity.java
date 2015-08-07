@@ -1630,8 +1630,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	public void onFinish(boolean success)
 	{
-		super.onFinish(success);
-		
 		if (mDialog != null)
 		{
 			mDialog.dismiss();
@@ -2864,8 +2862,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 	
 	private void deleteStatus()
-	{ 
-		mActivityState.deleteStatusToken = HttpRequests.deleteStatusRequest(mActivityState.statusId, getDeleteStatusRequestListener());
+	{
+		JSONObject json = null;
+		try
+		{
+			json = new JSONObject();
+			json.put(HikeConstants.STATUS_ID, mActivityState.statusId);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "exception while deleting status : " + e);
+		}
+		mActivityState.deleteStatusToken = HttpRequests.deleteStatusRequest(json, getDeleteStatusRequestListener());
 		mActivityState.deleteStatusToken.execute();
 		mDialog = ProgressDialog.show(this, null, getString(R.string.deleting_status));
 	}
