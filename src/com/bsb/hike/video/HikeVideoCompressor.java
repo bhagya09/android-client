@@ -12,6 +12,7 @@ import android.os.Build;
 
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.video.VideoUtilities.VideoEditedInfo;
 
 public class HikeVideoCompressor {
@@ -61,7 +62,7 @@ public class HikeVideoCompressor {
 
 
                 if (resultWidth != originalWidth || resultHeight != originalHeight) {
-                    int videoIndex = -5;
+                    int videoIndex;
                     videoIndex = selectTrack(extractor, false);
                     if (videoIndex >= 0) {
                         MediaCodec decoder = null;
@@ -76,7 +77,7 @@ public class HikeVideoCompressor {
                             boolean decoderDone = false;
                             int videoTrackIndex = -5;
 
-                            int colorFormat = 0;
+                            int colorFormat;
                             colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
                             Logger.d(TAG, "colorFormat = " + colorFormat);
 
@@ -96,14 +97,14 @@ public class HikeVideoCompressor {
 
                             encoder = MediaCodec.createEncoderByType(MIME_TYPE);
                             encoder.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-                            if (Build.VERSION.SDK_INT >= 18) {
+                            if (Utils.isJELLY_BEAN_MR2OrHigher()) {
                                 inputSurface = new InputSurface(encoder.createInputSurface());
                                 inputSurface.makeCurrent();
                             }
                             encoder.start();
 
                             decoder = MediaCodec.createDecoderByType(inputFormat.getString(MediaFormat.KEY_MIME));
-                            if (Build.VERSION.SDK_INT >= 18) {
+                            if (Utils.isJELLY_BEAN_MR2OrHigher()) {
                                 outputSurface = new OutputSurface();
                             } else {
                                 outputSurface = new OutputSurface(resultWidth, resultHeight, rotateRender);
@@ -112,8 +113,12 @@ public class HikeVideoCompressor {
                             decoder.start();
 
                             final int TIMEOUT_USEC = 2500;
-                            ByteBuffer[] decoderInputBuffers = decoder.getInputBuffers();
-                            ByteBuffer[] encoderOutputBuffers = encoder.getOutputBuffers();
+                            ByteBuffer[] decoderInputBuffers = null;
+                            ByteBuffer[] encoderOutputBuffers = null;
+                            if (Utils.isBelowLollipop()) {
+                            	decoderInputBuffers = decoder.getInputBuffers();
+                                encoderOutputBuffers = encoder.getOutputBuffers();
+                            }
 
                             while (!outputDone) {
                                 if (!inputDone) {
@@ -122,7 +127,12 @@ public class HikeVideoCompressor {
                                     if (index == videoIndex) {
                                         int inputBufIndex = decoder.dequeueInputBuffer(TIMEOUT_USEC);
                                         if (inputBufIndex >= 0) {
-                                            ByteBuffer inputBuf = decoderInputBuffers[inputBufIndex];
+                                        	ByteBuffer inputBuf;
+                                            if (Utils.isBelowLollipop()) {
+                                                inputBuf = decoderInputBuffers[inputBufIndex];
+                                            } else {
+                                                inputBuf = decoder.getInputBuffer(inputBufIndex);
+                                            }
                                             int chunkSize = extractor.readSampleData(inputBuf, 0);
                                             if (chunkSize < 0) {
                                                 decoder.queueInputBuffer(inputBufIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
@@ -151,7 +161,8 @@ public class HikeVideoCompressor {
                                     if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                                         encoderOutputAvailable = false;
                                     } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-                                        encoderOutputBuffers = encoder.getOutputBuffers();
+                                    	if(Utils.isBelowLollipop())
+                                    		encoderOutputBuffers = encoder.getOutputBuffers();
                                     } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                                         MediaFormat newFormat = encoder.getOutputFormat();
                                         if (videoTrackIndex == -5) {
@@ -160,7 +171,12 @@ public class HikeVideoCompressor {
                                     } else if (encoderStatus < 0) {
                                         throw new RuntimeException("unexpected result from encoder.dequeueOutputBuffer: " + encoderStatus);
                                     } else {
-                                        ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
+                                    	ByteBuffer encodedData;
+                                        if (Utils.isBelowLollipop()) {
+                                            encodedData = encoderOutputBuffers[encoderStatus];
+                                        } else {
+                                            encodedData = encoder.getOutputBuffer(encoderStatus);
+                                        }
                                         if (encodedData == null) {
                                             throw new RuntimeException("encoderOutputBuffer " + encoderStatus + " was null");
                                         }
@@ -217,7 +233,7 @@ public class HikeVideoCompressor {
                                             throw new RuntimeException("unexpected result from decoder.dequeueOutputBuffer: " + decoderStatus);
                                         } else {
                                             boolean doRender = false;
-                                            if (Build.VERSION.SDK_INT >= 18) {
+                                            if (Utils.isJELLY_BEAN_MR2OrHigher()) {
                                                 doRender = info.size != 0;
                                             } else {
                                                 doRender = info.size != 0 || info.presentationTimeUs != 0;
@@ -247,7 +263,7 @@ public class HikeVideoCompressor {
                                                     e.printStackTrace();
                                                 }
                                                 if (!errorWait) {
-                                                    if (Build.VERSION.SDK_INT >= 18) {
+                                                    if (Utils.isJELLY_BEAN_MR2OrHigher()) {
                                                         outputSurface.drawImage(false);
                                                         inputSurface.setPresentationTime(info.presentationTimeUs * 1000);
                                                         inputSurface.swapBuffers();
@@ -257,7 +273,7 @@ public class HikeVideoCompressor {
                                             if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
                                                 decoderOutputAvailable = false;
                                                 Logger.d(TAG, "decoder stream end");
-                                                if (Build.VERSION.SDK_INT >= 18) {
+                                                if (Utils.isJELLY_BEAN_MR2OrHigher()) {
                                                     encoder.signalEndOfInputStream();
                                                 } else {
                                                     int inputBufIndex = encoder.dequeueInputBuffer(TIMEOUT_USEC);
@@ -286,21 +302,17 @@ public class HikeVideoCompressor {
 
                         if (outputSurface != null) {
                             outputSurface.release();
-                            outputSurface = null;
                         }
                         if (inputSurface != null) {
                             inputSurface.release();
-                            inputSurface = null;
                         }
                         if (decoder != null) {
                             decoder.stop();
                             decoder.release();
-                            decoder = null;
                         }
                         if (encoder != null) {
                             encoder.stop();
                             encoder.release();
-                            encoder = null;
                         }
 
                     }
@@ -318,7 +330,6 @@ public class HikeVideoCompressor {
             } finally {
                 if (extractor != null) {
                     extractor.release();
-                    extractor = null;
                 }
                 if (mediaMuxer != null) {
                     try {
