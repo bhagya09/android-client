@@ -1887,6 +1887,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void takeActionBasedOnIntent()
 	{
+		handleOfflineIntent(activity.getIntent());
 		super.takeActionBasedOnIntent();
 	}
 
