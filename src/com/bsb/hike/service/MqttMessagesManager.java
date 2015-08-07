@@ -1763,11 +1763,6 @@ public class MqttMessagesManager
 				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 			}
 		}
-		if (data.has(HikeConstants.SHOW_BROADCAST))
-		{
-			boolean showBroadCast = data.getBoolean(HikeConstants.SHOW_BROADCAST);
-			editor.putBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, !showBroadCast);
-		}
 		if (data.has(HikeConstants.ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS))
 		{
 			JSONArray array = data.getJSONArray(HikeConstants.ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS);

@@ -68,7 +68,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
@@ -88,7 +87,6 @@ import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
@@ -1674,7 +1672,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			boolean isGamesClicked = accountPrefs.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, false);
 			boolean isRewardsClicked = accountPrefs.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, false);
 			boolean showTimelineRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, true);
-			boolean showBroadcastRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, true);
 			boolean showNUJRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
 
 			int count = 0;
@@ -1687,7 +1684,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newGamesIndicator.setText(String.valueOf(count));
 			}
 			if ((item.getKey() == 3 && !isGamesClicked) || (item.getKey() == 4 && !isRewardsClicked) || (item.getKey() == 7 && (count > 0 || showTimelineRedDot))
-					|| (item.getKey() == 10 && showBroadcastRedDot)|| (item.getKey() == 11 && showNUJRedDot))
+					|| (item.getKey() == 11 && showNUJRedDot))
 			{
 				newGamesIndicator.setVisibility(View.VISIBLE);
 			}
@@ -1832,15 +1829,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case HikeConstants.HOME_ACTIVITY_OVERFLOW.NEW_BROADCAST:
 					
 					sendBroadCastAnalytics();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, false);
-					if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_BROADCAST_FTUE_SCREEN, true))
-					{
-						IntentFactory.createBroadcastFtue(HomeActivity.this);
-					}
-					else
-					{
-						IntentFactory.createBroadcastDefault(HomeActivity.this);
-					}
+					IntentFactory.createBroadcastIntent(HomeActivity.this);
 					break;
 				}
 
