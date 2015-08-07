@@ -112,7 +112,7 @@ public class StatusMessage
 			this.statusMessageType = StatusMessageType.PROFILE_PIC;
 			this.text = "";
 		}
-		else if (data.has(HikeConstants.STATUS_MESSAGE))
+		else if (data.has(HikeConstants.STATUS_MESSAGE) && !data.getString(HikeConstants.STATUS_MESSAGE).equals("null"))
 		{
 			if (data.has(HikeConstants.SU_IMAGE_KEY))
 			{

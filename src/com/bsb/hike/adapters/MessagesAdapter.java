@@ -4007,7 +4007,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private void fillStatusMessageData(StatusViewHolder statusHolder, ConvMessage convMessage, View v)
 	{
 		StatusMessage statusMessage = convMessage.getMetadata().getStatusMessage();
-
+		
 		statusHolder.dayTextView.setText(context.getString(R.string.xyz_posted_update, Utils.getFirstName(conversation.getLabel())));
 
 		statusHolder.messageInfo.setText(statusMessage.getTimestampFormatted(true, context));
