@@ -40,6 +40,8 @@
         <item name="android:backgroundSplit">@color/credits_blue</item>
         <item name="titleTextStyle">@style/NoTitleText</item>
         <item name="android:titleTextStyle">@style/NoTitleText</item>
+        <item name="android:elevation">2dp</item>
+        <item name="elevation">2dp</item>
     </style>
 
     <style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog">
