@@ -12,6 +12,8 @@ public class StickerSearchConstants
 	public static final int SCROLL_SPEED_PER_DIP = 500;
 
 	public static final int SHOW_SCROLL_FTUE_COUNT = 2;
+	
+	public static final int SCROLL_TIME = 500;
 
 	// ================================================================Generic constants for UI]]
 
@@ -25,7 +27,7 @@ public class StickerSearchConstants
 	// Generic constants for periodic tasks====================================================[[
 	public static final int REBALACING_DEFAULT_TIME = 4; // 4 a.m.
 
-	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L; // 7 days period in milliseconds
+	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 14 * 24 * 60 * 60 * 1000L; // 7 days period in milliseconds
 
 	// ====================================================Generic constants for periodic tasks]]
 
@@ -33,6 +35,12 @@ public class StickerSearchConstants
 	public static final int MAXIMUM_SEARCH_TEXT_LIMIT = 70;
 
 	public static final int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = 75;
+
+	public static final int MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION = 3;
+
+	public static final float LIMIT_AUTO_CORRECTION = 0.70f; // 70 percent spelling must be correct
+
+	public static final int MAXIMUM_PHRASE_PERMUTATION_SIZE = 4;
 
 	// ====================================================Generic constants for searching text]]
 
@@ -62,13 +70,11 @@ public class StickerSearchConstants
 
 	public static final float RATIO_MAXIMUM_SELECTION_COUNT = 0.40f;
 
-	public static final int MAXIMUM_TAG_SELECTION_PER_STICKER_COUNT = 2;
+	public static final int MAXIMUM_TAG_SELECTION_COUNT_PER_STICKER = 2;
 
 	// ==============================================Constants used for selecting search result]]
 
 	// Constants used for calculating score====================================================[[
-	public static final float LIMIT_AUTO_CORRECTION = 0.70f; // 70 percent
-
 	public static final float LIMIT_EXACT_MATCH = 0.70f; // 70 percent
 
 	public static final float WEITAGE_MATCH_LATERAL = 0.30f;
@@ -94,6 +100,8 @@ public class StickerSearchConstants
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_PREDICTIVE = 0.20f;
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
+
+	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.99f; // marginal full score = 99.99% but not 100% (nothing is perfect till its perfect)
 
 	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
 

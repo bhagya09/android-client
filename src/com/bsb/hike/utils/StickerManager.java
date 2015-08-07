@@ -424,6 +424,41 @@ public class StickerManager
 		{
 		}
 	}
+	
+	public List<StickerCategory> getAllStickerCategories()
+	{
+		List<StickerCategory> allCategoryList = null;
+		File dir = context.getExternalFilesDir(null);
+		if (dir == null)
+		{
+			return null;
+		}
+		String rootPath = dir.getPath() + HikeConstants.STICKERS_ROOT;
+		File root = new File(rootPath);
+		if (!root.exists() || !root.isDirectory())
+		{
+			return null;
+		}
+		
+		File[] files = root.listFiles();
+		
+		if(files == null || files.length == 0)
+		{
+			return null;
+		}
+		
+		allCategoryList = new ArrayList<>(files.length);
+		
+		for (File file : files)
+		{
+			if(file.isDirectory())
+			{
+				allCategoryList.add(new StickerCategory(file.getName()));
+			}
+		}
+		
+		return allCategoryList;
+	}
 
 	public void addRecentSticker(Sticker st)
 	{
@@ -2060,7 +2095,7 @@ public class StickerManager
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_MANUAL_SETTING_STATE);
 			metadata.put(HikeConstants.SOURCE, source);
-			metadata.put("st", (state ? 1 : 0));
+			metadata.put("sts", (state ? 1 : 0));
 			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
@@ -2080,7 +2115,7 @@ public class StickerManager
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_AUTOPOPUP_SETTING_STATE);
 			metadata.put(HikeConstants.SOURCE, source);
-			metadata.put("st", (state ? 1 : 0));
+			metadata.put("sts", (state ? 1 : 0));
 			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}

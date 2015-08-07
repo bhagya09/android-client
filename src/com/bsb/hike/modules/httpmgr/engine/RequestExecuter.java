@@ -1,6 +1,5 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_AUTH_FAILURE;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_INTERRUPTED_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
@@ -276,11 +275,7 @@ public class RequestExecuter
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 			statusCode = response.getStatusCode();
 
-			if (statusCode == HTTP_UNAUTHORIZED || statusCode == HTTP_FORBIDDEN)
-			{
-				handleException(ex, REASON_CODE_AUTH_FAILURE);
-			}
-			else if (statusCode == HTTP_LENGTH_REQUIRED)
+			if (statusCode == HTTP_LENGTH_REQUIRED)
 			{
 				/*
 				 * in case of response code == 411 we make a retry without gzip
