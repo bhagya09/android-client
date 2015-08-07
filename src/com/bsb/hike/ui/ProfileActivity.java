@@ -2197,7 +2197,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else if (HikePubSub.GROUP_END.equals(type))
 		{
-			mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO));
+			JSONObject obj = (JSONObject) object;
+			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
 			{
 				runOnUiThread(new Runnable()
 				{
