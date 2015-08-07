@@ -1050,7 +1050,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, isChecked);
 			StickerSearchManager.getInstance().setShowAutopopupSettingOn(isChecked);
-			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
+			StickerManager.getInstance().sendRecommendationAutopopupSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{
