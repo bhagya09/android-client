@@ -394,6 +394,19 @@ public class VoIPService extends Service {
 			return returnInt;
 		}
 		
+		// Participant does not support conference error
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE)) {
+			Logger.w(tag, msisdn + " does not support conferencing.");
+			VoIPClient cl = getClient(msisdn);
+			if (cl != null) {
+				// Send message to voip activity
+				Bundle bundle = new Bundle();
+				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
+				sendHandlerMessage(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
+				cl.hangUp();
+			}
+		}
+		
 		// Incoming call message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST)) {
 
@@ -2250,7 +2263,10 @@ public class VoIPService extends Service {
 					// We have an incoming call
 					Logger.w(tag, "Incoming call detected.");
 					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-					setHold(true);
+					if (isAudioRunning())
+						setHold(true);
+					else
+						hangUp();
 				}
 				
 				if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {

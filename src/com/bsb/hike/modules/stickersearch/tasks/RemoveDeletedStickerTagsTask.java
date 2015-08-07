@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
@@ -24,28 +25,36 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 	@Override
 	public void run()
 	{
-		if ((Utils.getExternalStorageState() == ExternalStorageState.NONE)) // if there is no external storage do not delete any tags. In this case we dont show any recommendation
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || (Utils.getExternalStorageState() == ExternalStorageState.NONE)) // if there is no external storage do not delete any tags. In this case we dont show any recommendation
 		{
-			Logger.d(TAG, "external storage state is none");
+			Logger.d(TAG, "External storage state is none.");
 			return;
 		}
 		
-		List<StickerCategory> stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+		List<StickerCategory> stickerCategories = StickerManager.getInstance().getAllStickerCategories();
 		Set<String> stickerSet = new HashSet<String>();
-		
-		for(StickerCategory stickerCategory : stickerCategories)
+
+		if (Utils.isEmpty(stickerCategories))
 		{
-			if(stickerCategory.isCustom())
+			Logger.w(TAG, "Empty list of sticker categories");
+		}
+		else
+		{
+			for(StickerCategory stickerCategory : stickerCategories)
 			{
-				continue;
-			}
-			List<Sticker> stickerList  = stickerCategory.getStickerList();
-			
-			if(!Utils.isEmpty(stickerList))
-			{
-				for(Sticker sticker : stickerList)
+				if(stickerCategory.isCustom())
 				{
-					stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+					continue;
+				}
+
+				List<Sticker> stickerList  = stickerCategory.getStickerList();
+				
+				if(!Utils.isEmpty(stickerList))
+				{
+					for(Sticker sticker : stickerList)
+					{
+						stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+					}
 				}
 			}
 		}

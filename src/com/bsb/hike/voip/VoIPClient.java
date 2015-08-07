@@ -744,8 +744,9 @@ public class VoIPClient  {
 						startSendingAndReceiving();
 						reconnecting = false;
 					} else {
+						if (!isInitiator())
+							startResponseTimeout();
 						startStreaming();
-						startResponseTimeout();
 						sendHandlerMessage(VoIPConstants.MSG_CONNECTED);
 					}
 				} else {
@@ -775,14 +776,17 @@ public class VoIPClient  {
 					Thread.sleep(VoIPConstants.TIMEOUT_PARTNER_ANSWER);
 					if (!isAudioRunning()) {
 						// Call not answered yet?
-						if (connected) 
-						{
-							if (!isInitiator())
-							{
-								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
-								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
-							}
-						}
+						sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
+						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
+						// Sleep for a little bit before destroying this object
+						// since the call failure screen will need its info. 
+						Thread.sleep(500);
+
+						// Edge case error fixing. If the call went into reconnection
+						// before it was answered, then normally no outgoing missed call
+						// would appear in our chat thread since we aren't connected.
+						// Hence, make it appear as if we ARE connected, so the missed call appears. 
+						connected = true;
 						stop();
 					}
 				} catch (InterruptedException e) {
@@ -1036,7 +1040,7 @@ public class VoIPClient  {
 
 		if (dp.getType() == PacketType.AUDIO_PACKET) {
 			// Voice packet numbers are disabled for conferences
-			if (!isInAHostedConference)
+			if (!isInAHostedConference && version >= 2)
 				dp.setVoicePacketNumber(voicePacketCount++);
 		}
 		

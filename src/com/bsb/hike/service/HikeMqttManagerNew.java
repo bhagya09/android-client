@@ -1235,6 +1235,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					}
 					else
 					{
+						handleOtherException();
 						sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
 					}
 				}
@@ -1252,16 +1253,19 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				// Till this point disconnect has already happened due to exception (This is as per lib)
 				else if (reConnect)
 				{
+					handleOtherException();
 					connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
 					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
 				}
 				else
 				{
+					handleOtherException();
 					sendAnalyticsEvent(e, analyticsDevArea + "_" + "2" );
 				}
 			}
 			else
 			{
+				handleOtherException();
 				scheduleNextConnectionCheck(getConnRetryTime());
 			}
 			break;
@@ -1719,10 +1723,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	 * @param object - Message
 	 * @param qos level (MQTT_PUBLISH or MQTT_PUBLISH_LOW)
 	 */
-	public void sendMessage(JSONObject o, int qos)
+	public void sendMessage(JSONObject jsonObj, int qos)
 	{
 		// added check
-		if(o == null)
+		if(jsonObj == null)
 		{
 			return ;
 		}
@@ -1737,6 +1741,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			}
 			
 			// successfully initialized
+		}
+		
+		JSONObject o = Utils.cloneJsonObject(jsonObj);
+		
+		if(o == null)
+		{
+			return ;
 		}
 		
 		/*

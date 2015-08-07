@@ -17,7 +17,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.HikeTip.TipType;
 
 /**
  * This class is a helper class which contains exhaustive set of tips which can be shown in the chat thread. The tips include Atomic tips which are server triggered as well FTUE
@@ -42,8 +41,6 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	/**
 	 * FTUE Tips - Tips which introduce a new feature/functionality
 	 */
-	public static final int PIN_TIP = 4;
-
 	public static final int STICKER_TIP = 5;
 	
 	public static final int STICKER_RECOMMEND_TIP = 6;
@@ -141,7 +138,6 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	private void showFtueTips()
 	{
 		showStickerFtueTip();
-		showPinFtueTip();
 	}
 
 	/**
@@ -174,25 +170,6 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 		}
 	}
 
-	/**
-	 * Utility method to show the Pin FTUE tip. If any other tip is showing, pin tip takes priority over it.
-	 */
-	private void showPinFtueTip()
-	{
-		/**
-		 * Proceed only if the calling class had passed in the Pin Tip in the list
-		 */
-		if (filterTips(PIN_TIP))
-		{
-			tipId = PIN_TIP;
-			tipView = mainView.findViewById(R.id.pin_tip);
-			tipView.setVisibility(View.VISIBLE);
-			tipView.setTag(TipType.PIN);
-			tipView.findViewById(R.id.close_tip).setOnClickListener(this);
-			tipView.setOnTouchListener(this);
-		}
-	}
-	
 	/**
 	 * Used to set up pulsating dot views
 	 */
@@ -298,8 +275,6 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	{
 		switch (whichTip)
 		{
-		case PIN_TIP:
-			return mPrefs.getData(HikeMessengerApp.SHOWN_PIN_TIP, false);
 		case STICKER_TIP:
 			return mPrefs.getData(HikeMessengerApp.SHOWN_EMOTICON_TIP, false);
 		case STICKER_RECOMMEND_TIP:
@@ -406,10 +381,6 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			setTipSeen(tipId);
 			break;
 
-		case PIN_TIP:
-			setTipSeen(tipId);
-			break;
-
 		default:
 			break;
 		}
@@ -432,11 +403,6 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	{
 		switch (whichTip)
 		{
-		case PIN_TIP:
-			mPrefs.saveData(HikeMessengerApp.SHOWN_PIN_TIP, true);
-			closeTip();
-			break;
-
 		case STICKER_TIP:
 			mPrefs.saveData(HikeMessengerApp.SHOWN_EMOTICON_TIP, true);
 			closeTip();

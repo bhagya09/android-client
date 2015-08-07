@@ -2257,11 +2257,19 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				PairModified<GroupParticipant, String> groupParticipantPair = oneToNConversation.getConversationParticipant(msisdn);
 				GroupParticipant groupParticipant = null;
-				if (groupParticipant == null)
+				if (groupParticipantPair == null)
 				{
 					return;
 				}
-				groupParticipant.getContactInfo().setOnhike(HikePubSub.USER_JOINED.equals(type));
+				groupParticipant= groupParticipantPair.getFirst();
+				if (groupParticipant != null) {
+					if (groupParticipant.getContactInfo() != null) {
+						groupParticipant.getContactInfo().setOnhike(
+								HikePubSub.USER_JOINED.equals(type));
+					}
+					groupParticipant
+							.setType(GroupParticipant.Participant_Type.MEMBER);
+				}
 			}
 
 			runOnUiThread(new Runnable()
@@ -2940,8 +2948,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	protected void updateUIForAdminChange(String msisdn) {
 		String mymsisdn  = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
 		if(!msisdn.equalsIgnoreCase(mymsisdn)){
-		GroupParticipant grpParticipant = participantMap.get(msisdn).getFirst();
-		grpParticipant.setType(GroupParticipant.Participant_Type.ADMIN);
+			PairModified<GroupParticipant, String> grpParticipantpair = participantMap
+					.get(msisdn);
+			if (grpParticipantpair != null) {
+				grpParticipantpair.getFirst().setType(GroupParticipant.Participant_Type.ADMIN);
+			}
 		}
 		runOnUiThread(new Runnable() {
 			@Override

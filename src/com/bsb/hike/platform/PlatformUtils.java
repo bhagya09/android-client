@@ -14,7 +14,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EntityUtils;
@@ -288,7 +287,7 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.BROADCAST.toString()))
 			{
-				IntentFactory.createBroadcastDefault(context);
+				IntentFactory.createBroadcastIntent(context);
 			}
 			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
 			{   
