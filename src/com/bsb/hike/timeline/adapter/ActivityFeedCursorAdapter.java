@@ -168,7 +168,11 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 			if (feedDataModel.getReadStatus() == 1)
 			{
-				viewHolder.loveStatus.setImageResource(R.drawable.ic_loved);
+				viewHolder.loveStatus.setVisibility(View.GONE);
+			}
+			else
+			{
+				viewHolder.loveStatus.setVisibility(View.VISIBLE);
 			}
 
 			if (statusMessage.hasMood())
@@ -192,11 +196,11 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			}
 			else if (viewType == IMAGE || viewType == TEXT_IMAGE)
 			{
-				viewHolder.mainInfo.setText(mContext.getString(R.string.photo_like_text) +" " + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
+				viewHolder.mainInfo.setText(mContext.getString(R.string.photo_like_text) +". " + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 			}
 			else
 			{
-				viewHolder.mainInfo.setText(mContext.getString(R.string.dp_like_text) +" " + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
+				viewHolder.mainInfo.setText(mContext.getString(R.string.dp_like_text) +". " + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 			}
 
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
