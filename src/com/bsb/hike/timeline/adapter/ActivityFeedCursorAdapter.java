@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
@@ -283,6 +285,11 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 					String postType = getPostType(statusMessage);
 					metadata.put(AnalyticsConstants.EVENT_SOURCE, postType);
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ITEM_CLICKED);
+					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
+								
+					String osVersion = Build.VERSION.RELEASE;
+					metadata.put(HikeConstants.LogEvent.OS_VERSION, osVersion);
+					
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
 				}
 				catch (JSONException e)
