@@ -112,7 +112,7 @@ public class StatusMessage
 			this.statusMessageType = StatusMessageType.PROFILE_PIC;
 			this.text = "";
 		}
-		else if (data.has(HikeConstants.STATUS_MESSAGE))
+		else if (data.has(HikeConstants.STATUS_MESSAGE) && !data.getString(HikeConstants.STATUS_MESSAGE).equals("null"))
 		{
 			if (data.has(HikeConstants.SU_IMAGE_KEY))
 			{
@@ -130,7 +130,7 @@ public class StatusMessage
 			this.fileKey = data.optString(HikeConstants.SU_IMAGE_KEY);
 			this.statusMessageType = StatusMessageType.IMAGE;
 		}
-		this.moodId = data.optInt(HikeConstants.MOOD);
+		this.moodId = data.optInt(HikeConstants.MOOD) - 1;
 		this.timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
 		
 		if(data.has(HikeConstants.HISTORICAL_UPDATE))

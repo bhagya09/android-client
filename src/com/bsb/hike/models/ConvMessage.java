@@ -611,6 +611,10 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 			{
 				msg = context.getString(R.string.changed_profile);
 			}
+			else if (metadata.getStatusMessage().getStatusMessageType() == StatusMessageType.IMAGE || metadata.getStatusMessage().getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+			{
+				msg = context.getString(R.string.posted_photo);
+			}
 			else
 			{
 				msg = metadata.getStatusMessage().getText();
