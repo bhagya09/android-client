@@ -3104,4 +3104,5 @@ public class HikeConstants
 
 	public static final String DEVICE_DETAILS = "dd";
 
+	public static final String PLATFORM_PACKET = "pt";
 }
