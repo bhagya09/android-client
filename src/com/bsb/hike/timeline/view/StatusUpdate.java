@@ -204,8 +204,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		else if(TextUtils.isEmpty(mImagePath))
 		{
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-			toggleEnablePostButton();
 		}
+		
+		toggleEnablePostButton();
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubsubListeners);
 
