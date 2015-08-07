@@ -112,8 +112,8 @@ public class VoIPService extends Service {
 	private boolean isRingingIncoming = false, isRingingOutgoing = false;
 
 	// Sounds
-	private SoundPool soundpool = null;
-	private SparseIntArray soundpoolMap;
+	private volatile SoundPool soundpool = null;
+	private volatile SparseIntArray soundpoolMap;
 	private static final int SOUND_ACCEPT = R.raw.call_answer;
 	private static final int SOUND_DECLINE = R.raw.call_end;
 	private static final int SOUND_INCOMING_RINGTONE = R.raw.ring_tone;
