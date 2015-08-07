@@ -721,7 +721,6 @@ public class OfflineUtils
 			chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
-			HikeNotificationMsgStack.getInstance().addMessage(msisdn, msisdn + " Sent you offline request", NotificationType.OTHER);
 			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
 			String contactFirstName = msisdn;
 			if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
