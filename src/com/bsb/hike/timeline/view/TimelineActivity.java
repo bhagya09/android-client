@@ -399,39 +399,37 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public void onBackPressed()
 	{
-		Fragment fragment = getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG);
-		if (!(fragment != null && fragment.isVisible())
-				&& (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false) || getIntent().getBooleanExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, false)))
+		int count = getSupportFragmentManager().getBackStackEntryCount();
+		if (count == 0)
 		{
-			IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			//IS THIS FRAGMENT CHECK Req????
+			Fragment fragment = getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG);
+			if (!(fragment != null && fragment.isVisible())
+					&& (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false) || getIntent().getBooleanExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, false)))
+			{
+				IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			}
+			super.onBackPressed();
 		}
 		else
 		{
-			int count = getSupportFragmentManager().getBackStackEntryCount();
-			if (count == 0)
-			{
-				super.onBackPressed();
-			}
-			else
-			{
-				getSupportFragmentManager().popBackStack();
-				ActionBar actionBar = getSupportActionBar();
-				View actionBarView = actionBar.getCustomView();
-				View backContainer = actionBarView.findViewById(R.id.back);
+			getSupportFragmentManager().popBackStack();
+			ActionBar actionBar = getSupportActionBar();
+			View actionBarView = actionBar.getCustomView();
+			View backContainer = actionBarView.findViewById(R.id.back);
 
-				TextView title = (TextView) actionBarView.findViewById(R.id.title);
-				title.setText(R.string.timeline);
+			TextView title = (TextView) actionBarView.findViewById(R.id.title);
+			title.setText(R.string.timeline);
 
-				backContainer.setOnClickListener(new View.OnClickListener()
+			backContainer.setOnClickListener(new View.OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
 				{
-
-					@Override
-					public void onClick(View v)
-					{
-						onBackPressed();
-					}
-				});
-			}
+					onBackPressed();
+				}
+			});
 		}
 
 	}
