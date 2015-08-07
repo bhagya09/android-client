@@ -4,44 +4,56 @@
     android:id="@+id/main_content"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingBottom="8dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="8dp" >
 
-    <com.bsb.hike.view.RoundedImageView
-        android:id="@+id/avatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+    <RelativeLayout
+        android:id="@+id/avatar_container"
+        android:layout_width="52dp"
+        android:layout_height="45dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="16dp" />
+        android:layout_marginRight="4dp" >
+
+        <com.bsb.hike.view.RoundedImageView
+            android:id="@+id/avatar"
+            style="@style/AvatarStyle.Padding"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/misc_timeline_ftue" />
+
+        <ImageView
+            android:id="@+id/avatar_frame"
+            style="@style/AvatarStyle"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/love_status"
+            android:layout_width="12dp"
+            android:layout_height="11dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_liked_it" />
+    </RelativeLayout>
 
     <com.bsb.hike.ui.utils.RecyclingImageView
         android:id="@+id/profile_pic"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/info_container"
         android:scaleType="centerCrop" />
-
-    <com.bsb.hike.ui.utils.RecyclingImageView
-        android:id="@+id/love_status"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
-        android:layout_marginLeft="4dp"
-        android:layout_alignRight="@+id/avatar"
-        android:layout_alignTop="@+id/avatar"
-        android:scaleType="fitXY"
-        android:src="@drawable/ic_love" />
 
     <LinearLayout
         android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/avatar"
+        android:layout_toRightOf="@+id/avatar_container"
         android:orientation="vertical" >
 
         <com.bsb.hike.view.CustomFontTextView
@@ -65,5 +77,13 @@
             android:textSize="12sp"
             android:textStyle="italic" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignLeft="@+id/content"
+        android:layout_below="@+id/content"
+        android:layout_marginTop="20dp"
+        android:background="#11000000" />
 
 </RelativeLayout>

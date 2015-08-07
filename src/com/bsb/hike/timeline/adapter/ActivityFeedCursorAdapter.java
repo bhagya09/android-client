@@ -163,7 +163,6 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			RoundedImageView roundAvatar1 = (RoundedImageView) viewHolder.avatar;
 			roundAvatar1.setScaleType(ScaleType.FIT_XY);
 			roundAvatar1.setBackgroundResource(0);
-			roundAvatar1.setOval(true);
 			viewHolder.name.setText(mUserMsisdn.equals(feedDataModel.getActor()) ? HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.me) : ContactManager
 					.getInstance().getContact(feedDataModel.getActor(), true, true).getFirstNameAndSurname());
 
