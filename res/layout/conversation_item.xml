@@ -63,12 +63,11 @@
 
                 <ImageView
                     android:id="@+id/msg_status_indicator"
-                    android:layout_width="20.5dp"
-                    android:layout_height="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="8.5dp"
+                    android:layout_marginTop="5dp"
                     android:layout_alignParentLeft="true"
-                    android:layout_marginRight="8dp"
-                    android:layout_centerVertical="true"
-                    android:scaleType="fitCenter"
+                    android:scaleType="centerInside"
                     android:visibility="gone" />
 
               
