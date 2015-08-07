@@ -195,7 +195,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				.findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
 		if (stickerRecommendPreference != null)
 		{
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true))
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
 			{
 				stickerRecommendPreference.setOnPreferenceChangeListener(this);
 			}
@@ -209,7 +209,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				.findPreference(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF);
 		if (stickerRecommendAutopopupPreference != null)
 		{
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true))
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
 			{
 				stickerRecommendAutopopupPreference.setDependency(HikeConstants.STICKER_RECOMMEND_PREF);
 				stickerRecommendAutopopupPreference.setOnPreferenceChangeListener(this);
