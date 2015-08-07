@@ -25,13 +25,16 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
@@ -718,8 +721,15 @@ public class OfflineUtils
 			chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
+			HikeNotificationMsgStack.getInstance().addMessage(msisdn, msisdn + " Sent you offline request", NotificationType.OTHER);
+			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+			String contactFirstName = msisdn;
+			if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+			{
+				contactFirstName = contactInfo.getFirstName();
+			}
 			HikeNotification.getInstance().showBigTextStyleNotification(chatThreadIntent, hikeNotifMsgStack.getNotificationIcon(),
-					System.currentTimeMillis()/1000,HikeNotification.OFFLINE_REQUEST_ID,msisdn + " Sent you offline request", msisdn,"wants to Connect Offline", msisdn,null,avatarDrawable, true,0, actions);
+					System.currentTimeMillis()/1000,HikeNotification.OFFLINE_REQUEST_ID, contactFirstName + " Sent you offline request",contactFirstName,"wants to Connect Offline", msisdn,null,avatarDrawable, true,0, actions);
 		}
 		catch (JSONException e)
 		{
