@@ -112,8 +112,8 @@ public class VoIPService extends Service {
 	private boolean isRingingIncoming = false, isRingingOutgoing = false;
 
 	// Sounds
-	private SoundPool soundpool = null;
-	private SparseIntArray soundpoolMap;
+	private volatile SoundPool soundpool = null;
+	private volatile SparseIntArray soundpoolMap;
 	private static final int SOUND_ACCEPT = R.raw.call_answer;
 	private static final int SOUND_DECLINE = R.raw.call_end;
 	private static final int SOUND_INCOMING_RINGTONE = R.raw.ring_tone;
@@ -405,6 +405,24 @@ public class VoIPService extends Service {
 				sendHandlerMessage(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
 				cl.hangUp();
 			}
+		}
+
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) {
+			Logger.w(tag, msisdn + " is currently busy.");
+			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BUSY);
+			VoIPClient cl = getClient(msisdn);
+			if (cl != null) {
+				// Send a missed call alert
+				VoIPUtils.sendMissedCallNotificationToPartner(msisdn, 
+						TextUtils.isEmpty(cl.groupChatMsisdn) ? null : cl.groupChatMsisdn);
+
+				// Send message to voip activity
+				Bundle bundle = new Bundle();
+				bundle.putString(VoIPConstants.MSISDN, msisdn);
+				sendHandlerMessage(VoIPConstants.MSG_PARTNER_BUSY, bundle);
+				cl.hangUp();
+			} else
+				Logger.w(tag, "Unable to find the client object who we were calling.");
 		}
 		
 		// Incoming call message
@@ -2309,14 +2327,6 @@ public class VoIPService extends Service {
 
 	public void processErrorIntent(String action, String msisdn) {
 		Logger.w(tag, msisdn + " returned an error message: " + action);
-		VoIPClient client = getClient(msisdn);
-		
-		if (action.equals(VoIPConstants.PARTNER_IN_CALL) && client != null) {
-			VoIPUtils.sendMissedCallNotificationToPartner(msisdn, 
-					TextUtils.isEmpty(client.groupChatMsisdn) ? null : client.groupChatMsisdn);
-		}
-
-		removeFromClients(msisdn);
 	}
 }
 
