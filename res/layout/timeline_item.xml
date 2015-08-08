@@ -9,13 +9,10 @@
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="3dp"
-        android:background="@drawable/timeline_tab_selector"
-        card_view:cardCornerRadius="3dp"
+        android:background="@color/white"
+        card_view:cardCornerRadius="2dp"
         card_view:cardElevation="1dp"
-        card_view:cardUseCompatPadding="true"
-        card_view:contentPaddingLeft="2dp"
-        card_view:contentPaddingRight="2dp" >
+        card_view:cardUseCompatPadding="true" >
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -52,6 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/avatar_container"
+                    android:layout_marginBottom="1dp"
                     android:gravity="center_vertical"
                     android:orientation="vertical" >
 
@@ -71,6 +69,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="2 mins ago"
+                        android:layout_marginBottom="1dp"
                         android:textColor="@color/black_25"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -89,12 +88,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:paddingBottom="14dp"
-                    android:paddingTop="14dp"
+                    android:paddingBottom="12dp"
+                    android:ellipsize="end"
+                    android:paddingTop="11dp"
+                    android:includeFontPadding="false"
+                    android:maxLines="20"
                     android:text="Added you as a friend"
                     android:textColor="@color/black_60"
-                    android:textSize="15sp"
-                    android:textStyle="italic" />
+                    android:textSize="15sp" />
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/details"

@@ -184,7 +184,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			if (viewType == TEXT)
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(mContext.getString(R.string.status_update_like_text) +" " + smileyParser.addSmileySpans(statusMessage.getText(), true) + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
+				viewHolder.mainInfo.setText(mContext.getString(R.string.status_update_like_text) +" " + smileyParser.addSmileySpans(statusMessage.getText(), true) +". "+ Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 			}

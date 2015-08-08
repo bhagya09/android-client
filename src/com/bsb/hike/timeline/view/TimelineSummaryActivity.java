@@ -316,20 +316,21 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		hikeUiHandler = new HikeUiHandler(this);
 	}
 
-	private static final int ANIM_DURATION = 300;
+	private static final int ANIM_DURATION = 280;
 
 	public void runEnterAnimation()
 	{
 		final long duration = (long) (ANIM_DURATION * 1);
-		contentContainer.setTranslationY(20);
+		contentContainer.setScaleX(0.8f);
+		contentContainer.setScaleY(0.8f);
 		contentContainer.setAlpha(0f);
 
-		contentContainer.animate().setDuration(duration).translationY(0).alpha(1f);
+		contentContainer.animate().setDuration(duration).scaleX(1).scaleY(1).alpha(1f);
 
 		float alphaFinal = isTextStatusMessage ? 1f : 0.95f;
 
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, alphaFinal);
-		bgAnim.setDuration(400);
+		bgAnim.setDuration(ANIM_DURATION);
 		bgAnim.start();
 
 		infoContainer.setVisibility(View.VISIBLE);
@@ -376,15 +377,15 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	public void runExitAnimation(final Runnable endAction)
 	{
 		infoContainer.setVisibility(View.GONE);
-		contentContainer.animate().setDuration(100).translationY(20).alpha(0f);
+		contentContainer.animate().setDuration(100).scaleX(0.9f).scaleY(0.9f).alpha(1f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
-		bgAnim.setDuration(200);
+		bgAnim.setDuration(100);
 
 		ObjectAnimator fgAnim = ObjectAnimator.ofFloat(foregroundScreen, "alpha", 0);
-		fgAnim.setDuration(200);
+		fgAnim.setDuration(100);
 
 		ObjectAnimator actionBarAnim = ObjectAnimator.ofFloat(actionBarView, "alpha", 0);
-		actionBarAnim.setDuration(200);
+		actionBarAnim.setDuration(100);
 
 		bgAnim.addListener(new AnimatorListener()
 		{
@@ -420,14 +421,14 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	@Override
 	public void onBackPressed()
 	{
-		// runExitAnimation(new Runnable()
-		// {
-		// public void run()
-		// {
+		 runExitAnimation(new Runnable()
+		 {
+		 public void run()
+		 {
 		finish();
-		// }
-		// });
-		//
+		 }
+		 });
+		
 		// actionBar.hide();
 	}
 
@@ -437,7 +438,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		super.finish();
 
 		// override transitions to skip the standard window animations
-		// overridePendingTransition(0, 0);
+		 overridePendingTransition(0, 0);
 	}
 
 	private void showImage()
@@ -612,7 +613,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 		if (!isTextStatusMessage)
 		{
-			actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+			actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
 		}
 
 		actionBarView = LayoutInflater.from(this).inflate(R.layout.chat_thread_action_bar, null);

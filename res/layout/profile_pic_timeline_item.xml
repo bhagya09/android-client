@@ -9,13 +9,10 @@
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:background="@drawable/timeline_tab_selector"
-        card_view:cardCornerRadius="3dp"
+        android:background="@color/white"
+        card_view:cardCornerRadius="2dp"
         card_view:cardElevation="1dp"
-        card_view:cardUseCompatPadding="true"
-        card_view:contentPaddingLeft="2dp"
-        card_view:contentPaddingRight="2dp" >
+        card_view:cardUseCompatPadding="true" >
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -51,6 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_marginBottom="1dp"
                     android:layout_toRightOf="@id/avatar_container"
                     android:gravity="center_vertical"
                     android:orientation="vertical" >
@@ -71,6 +69,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="2 mins ago"
+                        android:layout_marginBottom="1dp"
                         android:textColor="@color/black_25"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -98,26 +97,28 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:paddingBottom="12dp"
+                    android:paddingBottom="10dp"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
-                    android:paddingTop="12dp"
+                    android:paddingTop="11dp"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:includeFontPadding="false"
                     android:text="Added you as a friend"
                     android:textColor="@color/black_60"
-                    android:textSize="15sp"
-                    android:textStyle="italic" />
+                    android:textSize="15sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/actions_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingBottom="10dp"
                 android:layout_below="@id/details_content"
                 android:layout_marginBottom="4dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp" >
 
                 <CheckBox
                     android:id="@+id/btn_love"

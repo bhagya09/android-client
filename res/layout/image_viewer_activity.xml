@@ -70,16 +70,16 @@
             android:maxLines="2"
             android:scrollbars="vertical"
             android:textColor="@android:color/white"
-            android:textSize="20dp"
+            android:textSize="14sp"
             android:textStyle="italic" />
 
         <View
             android:id="@+id/imageInfoDivider"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="0.5dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:background="#22FFFFFF"
+            android:background="#29FFFFFF"
             android:padding="5dp" />
 
         <LinearLayout
@@ -97,7 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:button="@drawable/btn_love_selector"
+                android:button="@drawable/btn_love_selector_dark"
                 android:text=""
                 android:textColor="#CCCCCC" />
 
@@ -107,7 +107,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:text="0 people(s) like this photo"
-                android:textColor="@android:color/white"
+                android:textColor="#7AFFFFFF"
                 android:textSize="14dp"
                 android:textStyle="italic" />
         </LinearLayout>
