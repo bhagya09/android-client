@@ -313,8 +313,7 @@
             android:name="com.bsb.hike.timeline.view.TimelineSummaryActivity"
             android:launchMode="singleTop"
             android:parentActivityName="com.bsb.hike.timeline.view.TimelineActivity"
-            android:theme="@style/Transparent"
-            android:screenOrientation="portrait" >
+            android:theme="@style/Transparent">
         </activity>
         <activity
             android:name="com.bsb.hike.ui.PictureEditer"
