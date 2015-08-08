@@ -108,7 +108,8 @@ public class HostInfo
 		}
 		else if(previousHostInfo != null)
 		{
-			if(previousHostInfo.getExceptionOnConnect() == ConnectExceptions.DNS_EXCEPTION)
+			//if last connect try resulted into some exception try a fallback ip
+			if(previousHostInfo.getExceptionOnConnect() != ConnectExceptions.NO_EXCEPTION)
 			{
 				setHost(getIp());  //connect using ip fallback
 			}
@@ -182,11 +183,8 @@ public class HostInfo
 				setPort(getStanderedProductionPort(isSslOn));
 			}
 			// ssl off and we got an socket timeout than we go to fallback ports
-			else if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION )
-			{
-				setNextFallBackPort(previousHostInfo);
-			}
-			else if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.OTHER )
+			//if last connect try resulted into some exception try next fallback port 
+			else if (previousHostInfo.getExceptionOnConnect() != ConnectExceptions.NO_EXCEPTION )
 			{
 				setNextFallBackPort(previousHostInfo);
 			}
@@ -264,9 +262,9 @@ public class HostInfo
 		{
 			/*
 			 * We would need to increment connect timeout if
-			 * 1. Last connect call resulted into socket timeout
+			 * 1. last connect try resulted into some exception
 			 */
-			if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION)
+			if (previousHostInfo.getExceptionOnConnect() != ConnectExceptions.NO_EXCEPTION)
 			{
 				incrementConnectRetryCount();
 			}
