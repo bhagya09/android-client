@@ -106,7 +106,7 @@ public class GroupChatThread extends OneToNChatThread
 		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat)
 		{
 			try {
-				if(oneToNConversation.getMetadata().amIAdmin()){
+				if(oneToNConversation!=null&&oneToNConversation.getMetadata()!=null && oneToNConversation.getMetadata().amIAdmin()){
 		            Utils.blockOrientationChange(activity);
 					showMultiAdminTip(activity);
 				}
