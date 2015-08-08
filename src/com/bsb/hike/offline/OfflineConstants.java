@@ -159,5 +159,7 @@ public class OfflineConstants
 
 	public static final int WIFI_RETRY_COUNT = 40;
 	
+	public static final int NOTIFICATION_IDENTIFIER = 15;
+	
 	
 }

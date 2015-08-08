@@ -395,6 +395,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			return;
 		}
 		
+		connectinMsisdn = msisdn;
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTING);
 		String myMsisdn = OfflineUtils.getMyMsisdn();
 		Message endTries = Message.obtain();
@@ -405,14 +406,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		if (myMsisdn.compareTo(msisdn) > 0)
 		{
 			Logger.d(TAG, "Will create Hotspot");
-			connectinMsisdn=msisdn;
 			createHotspot(msisdn);
 			handler.sendMessageDelayed(endTries,offlineParameters.getConnectionTimeout());
 		}
 		else
 		{
 			Logger.d(TAG, "Will connect to  Hotspot");
-			connectinMsisdn = msisdn;
+			;
 			Message msg = Message.obtain();
 			msg.what = OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT;
 			msg.obj = msisdn;
