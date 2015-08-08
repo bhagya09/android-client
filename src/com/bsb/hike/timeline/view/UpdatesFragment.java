@@ -257,6 +257,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				public void run()
 				{
 					statusMessages.clear();
+					resetSharedPrefOnRemovingFTUE();
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
@@ -300,7 +301,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private int getStartIndex()
 	{
 		int startIndex = 0;
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
+		if (!statusMessages.isEmpty() && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
 		{
 			startIndex++;
 		}
@@ -320,14 +321,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		// If no msisdn to show, then no need to show FTUE
 		if (mFtueFriendList.isEmpty())
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
-
-			// counter = 0, means not shown init card so no need to change
-			// counter != 0, means init card is shown so do it 1
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0) != 0)
-			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
-			}
+			resetSharedPrefOnRemovingFTUE();
 			timelineCardsAdapter.removeAllFTUEItems();
 			return;
 		}
@@ -354,6 +348,18 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_EXIT, null, null, null, null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
 			return;
+		}
+	}
+
+	private void resetSharedPrefOnRemovingFTUE()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
+
+		// counter = 0, means not shown init card so no need to change
+		// counter != 0, means init card is shown so do it 1
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0) != 0)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
 		}
 	}
 
