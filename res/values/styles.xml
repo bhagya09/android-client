@@ -987,4 +987,11 @@
         <item name="android:layout_width">@dimen/overflow_menu_width</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+    
+	 <style name="ComposeListParent" parent="HomeList">
+        <item name="android:divider">@drawable/compose_list_divider</item>
+    </style>
+    
+	 <style name="ComposeList" parent="ComposeListParent" />
+    
 </resources>
