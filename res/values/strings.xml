@@ -1524,7 +1524,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
 	<string name="sticker_recommendation_setting_info">Tap on blue words for suggestions</string>
-	<string name="sticker_recommendation_setting_header">Sticker Suggestion:Tap</string>
+	<string name="sticker_recommendation_setting_header">Sticker Suggestion: Tap</string>
 	<string name="stickers_sent_today">%1$d/%2$d stickers sent today</string>
 	<string name="disable_from_hike_settings">Disable permanently from hike Settings</string>
 	<string name="total_sticker_sent">You sent %1$d stickers in the last %2$d days</string>
