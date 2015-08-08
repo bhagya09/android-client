@@ -63,28 +63,27 @@
 
                 <ImageView
                     android:id="@+id/msg_status_indicator"
-                    android:layout_width="20.5dp"
-                    android:layout_height="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="8.5dp"
+                    android:layout_marginTop="5dp"
                     android:layout_alignParentLeft="true"
-                    android:layout_marginRight="8dp"
-                    android:layout_centerVertical="true"
-                    android:scaleType="fitCenter"
+                    android:scaleType="centerInside"
                     android:visibility="gone" />
 
               
                     <com.bsb.hike.view.CustomFontTextView
                         android:id="@+id/unread_indicator"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_unread_counter"
+                        android:layout_width="24dp"
+                        android:layout_height="15dp"
+                        android:background="@drawable/ic_messagecounter"
                         android:gravity="center"
-                        android:paddingLeft="2dp"
-                        android:paddingRight="2dp"
                         android:layout_marginLeft="4dp"
                         android:text="99"
+                        android:paddingLeft="4.5dp"
                         android:textColor="@color/white"
                         android:textSize="11sp"
-                        android:textStyle="bold"
+                        android:textStyle="normal"
+                        style="@style/BaseStyleTextView"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true" />
 
