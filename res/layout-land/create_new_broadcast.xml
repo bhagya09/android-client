@@ -44,7 +44,7 @@
         android:maxLength="@integer/max_length_group_name"
         android:singleLine="true" />
       
-     <TextView
+     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/broadcast_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
