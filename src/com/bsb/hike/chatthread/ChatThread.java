@@ -351,6 +351,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private boolean shouldKeyboardPopupShow;
 	
+	
+	protected boolean systemKeyboard;
+	
+	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -585,8 +589,24 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
-		Boolean systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(DEFAULT_SYSTEM_KEYBORAD, false);
+//		mLanguagePicker = new LanguageListener();
+//		
+//		mLanguagePicker.
+		
+//		HikeUiHandler hikeUiHandler = new HikeUiHandler(activity);
+//		hikeUiHandler.post(new Runnable()
+//		{
+//			
+//			@Override
+//			public void run()
+//			{
+//				Logger.d("bansal", "message : " + mLanguagePicker.getLanguage());
+//			}
+//		});
+//		updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
+		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(DEFAULT_SYSTEM_KEYBORAD, false);
 		mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
+		Logger.d("anu", "height : " + mCustomKeyboard.getKeyBoardAndCVHeight());
 		if (systemKeyboard)
 		{
 			changeKeyboard(systemKeyboard);
@@ -689,9 +709,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			initStickerPicker();
 			initEmoticonPicker();
+			
+			int firstTimeHeight = (systemKeyboard?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : mCustomKeyboard.getKeyBoardAndCVHeight());
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
-					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this, this);
+					
+					firstTimeHeight, mEatOuterTouchIds, this, this);
 			if (Utils.isLollipopOrHigher())
 			{
 				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));

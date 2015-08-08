@@ -22,7 +22,7 @@
 	<key_feedback>kpt_keyboard_key_feedback_background</key_feedback>
 	<key_feedback_more>kpt_keyboard_key_feedback_more_background</key_feedback_more>
 
-	<space_key>kpt_sym_keyboard_space_dk_fk</space_key>
+	<space_key>kpt_btn_keyboard_space_dk_fk</space_key>
 	<space_key_icon>kpt_space_icon_dk</space_key_icon>
 	<space_highlight>kpt_normal_space_key_dk_fk</space_highlight>
 	
@@ -39,86 +39,5 @@
 	<candidate_private_color>kpt_candidate_private_dk_fk</candidate_private_color>
 	<custom_keyshape_default_color>kpt_custom_keyshape_color_dk</custom_keyshape_default_color>
 </theme_resourses>
-
- <theme_resourses id="1" name="bright_theme">
-	<key_background>kpt_btn_keyboard_key_fk_val</key_background>
-	<preview_background>kpt_btn_keyboard_key_popup_val</preview_background>
-	
-	<keyboard_bg_port>kpt_kb_background_fk_val</keyboard_bg_port>
-	<keyboard_bg_land>kpt_kb_background_fk_val</keyboard_bg_land>
-	
-	<xi_enable>xi_enable_fk_val</xi_enable>
-	<xi_disable>xi_disable_fk_val</xi_disable>
-	
-	<candidate_sugg_bg>kpt_keyboard_suggest_strip_val</candidate_sugg_bg>
-	<candidate_background_feedback>kpt_candidate_feedback_background</candidate_background_feedback>
-	<suggestion_divider>kpt_keyboard_suggest_strip_divider_main_val</suggestion_divider>
-	<suggest_cheveron_open>kpt_all_sug_open</suggest_cheveron_open>
-	<suggest_cheveron_close>kpt_all_sug_close</suggest_cheveron_close>
-	
-	<acc_dismiss>kpt_acc_dismiss_vf_bright</acc_dismiss>
-	<candidate_delete_word_feedback>kpt_candidate_feedback_delete_word_bt</candidate_delete_word_feedback>
-	
-	<key_feedback>kpt_keyboard_key_feedback_background_val</key_feedback>
-	<key_feedback_more>kpt_keyboard_key_feedback_background_more_val</key_feedback_more>
-	
-	<space_key>kpt_sym_keyboard_space_fk_val</space_key>
-	<space_key_icon>kpt_space_icon</space_key_icon>
-	<space_highlight>kpt_normal_space_key_fk_val</space_highlight>
-	
-	<kpt_keyboard_adaptxt_settings>kpt_adaptxt_settings_fk</kpt_keyboard_adaptxt_settings>
-	<kpt_keyboard_adaptxt_settings_feedback>kpt_adaptxt_feedback_val</kpt_keyboard_adaptxt_settings_feedback>
-	
-         <glide_trace_color>kpt_glide_trace_color_val</glide_trace_color>
-     
-	<primary_text_color>kpt_primary_key_color_val</primary_text_color>	
-	<secondary_text_color>kpt_secondary_key_color_val</secondary_text_color>
-	<preview_text_color>kpt_preview_color_val</preview_text_color>
-	<candidate_color>kpt_candidate_normal</candidate_color>
-	<candidaterecommended_color>kpt_candidate_recommended</candidaterecommended_color>
-	<candidate_private_color>kpt_candidate_private_val</candidate_private_color>
-	<custom_keyshape_default_color>kpt_custom_keyshape_color_fk_val</custom_keyshape_default_color>
-</theme_resourses> 
-
-
-<theme_resourses id="2" name="olm_theme">
-        <glide_trace_color>kpt_glide_trace_color_olm</glide_trace_color>
-    
-	<key_background>kpt_btn_keyboard_key_olm</key_background>
-	<preview_background>kpt_btn_keyboard_key_popup_olm</preview_background>
-	
-	<keyboard_bg_port>kpt_kb_background_olm</keyboard_bg_port>
-	<keyboard_bg_land>kpt_kb_background_olm</keyboard_bg_land>
-	
-	<xi_enable>xi_enable_olm</xi_enable>
-	<xi_disable>xi_disable_olm</xi_disable>
-	
-	<candidate_sugg_bg>kpt_keyboard_suggest_strip_olm</candidate_sugg_bg>
-	<suggestion_divider>kpt_keyboard_suggest_strip_divider_olm</suggestion_divider>
-	<candidate_background_feedback>kpt_candidate_feedback_background</candidate_background_feedback>
-	<suggest_cheveron_open>kpt_all_sug_open</suggest_cheveron_open>
-	<suggest_cheveron_close>kpt_all_sug_close</suggest_cheveron_close>
-	
-	<acc_dismiss>kpt_acc_dismiss_vf_olm</acc_dismiss>
-	<candidate_delete_word_feedback>kpt_candidate_feedback_delete_word_olm</candidate_delete_word_feedback>
-	
-	<space_key>kpt_sym_keyboard_space_fk_val</space_key>
-	<space_key_icon>kpt_space_icon_dk</space_key_icon>
-	<space_highlight>kpt_normal_space_key_olm</space_highlight>
-	
-	<key_feedback>kpt_keyboard_key_feedback_background_olm</key_feedback>
-	<key_feedback_more>kpt_keyboard_key_feedback_more_background_olm</key_feedback_more>
-	
-	<kpt_keyboard_adaptxt_settings>kpt_adaptxt_settings_fk</kpt_keyboard_adaptxt_settings>
-	<kpt_keyboard_adaptxt_settings_feedback>kpt_adaptxt_feedback_olm</kpt_keyboard_adaptxt_settings_feedback>
-	
-	<primary_text_color>kpt_primary_key_color_olm</primary_text_color>	
-	<secondary_text_color>kpt_secondary_key_color_olm</secondary_text_color>
-	<preview_text_color>kpt_preview_color_olm</preview_text_color>
-	<candidate_color>kpt_candidate_normal_dk_fk</candidate_color>
-	<candidaterecommended_color>kpt_candidate_recommended_olm</candidaterecommended_color>
-	<candidate_private_color>kpt_candidate_private_olm</candidate_private_color>
-	<custom_keyshape_default_color>kpt_custom_keyshape_color_olm</custom_keyshape_default_color>
-</theme_resourses> 
 
 </themes>
