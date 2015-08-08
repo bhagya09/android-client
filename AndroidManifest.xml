@@ -4,14 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-<<<<<<< HEAD
     android:versionCode="1324"
     android:versionName="3.9.8.82.12.material" >
-=======
-
-    android:versionCode="1324"
-    android:versionName="3.9.8.82.31" >
->>>>>>> 4f0cf0881e8043343a1138434abf0ef30b9aa85b
     
     <uses-sdk
         android:minSdkVersion="14"
