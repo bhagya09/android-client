@@ -88,10 +88,11 @@
         android:drawableLeft="@drawable/ic_chat_theme_info"
         android:drawablePadding="4dp"
         android:paddingLeft="10dp"
-        android:layout_marginLeft="19dp"
+        android:layout_marginLeft="9dp"
         android:paddingRight="10dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
+        android:textSize="12sp"
         android:singleLine="true"
         android:background="#f2f2f2"
         android:text="@string/group_participant_info"/>
