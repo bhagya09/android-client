@@ -100,6 +100,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private boolean mShowProfileHeader;
 
 	private String[] mMsisdnArray;
+	
+	public static final int START_FTUE_WITH_INIT_CARD = 0;
+	
+	public static final int START_FTUE_WITH_FAV_CARD = 1;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -257,6 +261,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				public void run()
 				{
 					statusMessages.clear();
+					resetSharedPrefOnRemovingFTUE();
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
@@ -275,7 +280,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							return;
 						}
 
-						int shownCounter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+						int shownCounter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, START_FTUE_WITH_INIT_CARD);
 						if (shownCounter != 0)
 						{
 							ContactInfo currentCardContact = mFtueFriendList.get(shownCounter - 1);
@@ -300,7 +305,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private int getStartIndex()
 	{
 		int startIndex = 0;
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
+		if (!statusMessages.isEmpty() && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
 		{
 			startIndex++;
 		}
@@ -314,20 +319,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private void addFTUEItem()
 	{
-		int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0);
+		int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, START_FTUE_WITH_INIT_CARD);
 		int cardCount = mFtueFriendList.size();
 
 		// If no msisdn to show, then no need to show FTUE
 		if (mFtueFriendList.isEmpty())
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
-
-			// counter = 0, means not shown init card so no need to change
-			// counter != 0, means init card is shown so do it 1
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 0) != 0)
-			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, 1);
-			}
+			resetSharedPrefOnRemovingFTUE();
 			timelineCardsAdapter.removeAllFTUEItems();
 			return;
 		}
@@ -354,6 +352,25 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_EXIT, null, null, null, null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
 			return;
+		}
+	}
+
+	/**
+	 * This sets two values in SP
+	 * 1) Set FLAG :-  ENABLE_TIMELINE_FTUE to false...as not to show Timeline till next packet comes
+	 * 2) set shown counter to 1:- if counter was 0 then 0, 
+	 * 							   else if was 1/2/3.. set to 1... 
+	 * 								i.e next time when FTUE enabled, start with fav card(no init card)
+	 */
+	private void resetSharedPrefOnRemovingFTUE()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
+
+		// counter = 0, means not shown init card so no need to change
+		// counter != 0, means init card is shown so do it 1
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, START_FTUE_WITH_INIT_CARD) != START_FTUE_WITH_INIT_CARD)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, START_FTUE_WITH_FAV_CARD);
 		}
 	}
 
