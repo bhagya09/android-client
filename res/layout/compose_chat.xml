@@ -40,7 +40,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:id="@+id/list"
-        style="@style/HomeList" >
+        style="@style/ComposeList" >
     </com.bsb.hike.view.PinnedSectionListView>
     <include
         android:id="@android:id/empty"
