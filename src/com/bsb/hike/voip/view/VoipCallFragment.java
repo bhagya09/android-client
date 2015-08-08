@@ -133,7 +133,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				shutdown(msg.getData());
 				break;
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
-				updateCallStatus();
+				VoIPClient clientPartner = voipService.getPartnerClient();
+				if (clientPartner.isInitiator())
+					setupCalleeLayout();
+				else
+					setupCallerLayout();
 				break;
 			case VoIPConstants.MSG_AUDIO_START:
 				isCallActive = true;
@@ -192,6 +196,16 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				Bundle bundle = msg.getData();
 				String name = bundle.getString(VoIPConstants.PARTNER_NAME);
 				showMessage(getString(R.string.voip_conference_not_supported, name));
+				break;
+			case VoIPConstants.MSG_PARTNER_BUSY:
+				if (voipService != null && !voipService.hostingConference())
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+					voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
+					updateCallStatus();
+				}
 				break;
 			default:
 				super.handleMessage(msg);
@@ -379,18 +393,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 		
-		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) 
-		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
-			VoIPUtils.sendMissedCallNotificationToPartner(msisdn, null);
-			if (voipService != null)
-			{
-				voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
-				updateCallStatus();
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BUSY);
-				voipService.stop();
-			}
-		}
 	}
 
 	private void shutdown(final Bundle bundle) 
@@ -415,7 +417,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 		if(activity.isShowingCallFailedFragment())
 		{
-			Logger.w(tag, "Showing call failed fragment. Returning.");
+			Logger.d(tag, "Not shutting down because call failed fragment is being displayed.");
 			return;
 		}
 
@@ -972,7 +974,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		bundle.putInt(VoIPConstants.CALL_FAILED_REASON, callFailCode);
 		bundle.putString(VoIPConstants.PARTNER_NAME, partnerName);
 
-		Logger.w(tag, "Showing call failed fragment.");
+		Logger.d(tag, "Showing call failed fragment.");
 		activity.showCallFailedFragment(bundle);
 	}
 
