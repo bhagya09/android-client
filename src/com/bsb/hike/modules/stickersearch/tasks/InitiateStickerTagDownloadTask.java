@@ -9,10 +9,13 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerTagDownloadTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 public class InitiateStickerTagDownloadTask implements Runnable
 {
+	private static final String TAG = InitiateStickerTagDownloadTask.class.getSimpleName();
 
 	private boolean firstTime;
 
@@ -28,25 +31,33 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		
 		if (firstTime)
 		{
-			List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getStickerCategoryList();
-
+			List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories();
 			stickerSet = new HashSet<String>();
-			for (StickerCategory category : stickerCategoryList)
+
+			if (Utils.isEmpty(stickerCategoryList))
 			{
-				List<Sticker> stickers = category.getStickerList();
-				
-				for(Sticker sticker : stickers)
-				{
-					stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
-				}
+				Logger.d(TAG, "Empty sticker category list while downloading tags first time.");
 			}
-			
-			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, stickerSet);
+			else
+			{
+				for (StickerCategory category : stickerCategoryList)
+				{
+					List<Sticker> stickers = category.getStickerList();
+					
+					for(Sticker sticker : stickers)
+					{
+						stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+					}
+				}
+
+				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, stickerSet);
+			}
 		}
 		else
 		{
 			stickerSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
 		}
+
 		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet);
 		stickerTagDownloadTask.execute();
 	}
