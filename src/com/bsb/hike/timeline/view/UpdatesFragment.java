@@ -300,7 +300,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private int getStartIndex()
 	{
 		int startIndex = 0;
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
+		if (!statusMessages.isEmpty() && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true))
 		{
 			startIndex++;
 		}
