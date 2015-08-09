@@ -328,7 +328,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	@Override
 	public void onBindViewHolder(ViewHolder viewHolder, int position)
 	{
-		int viewType = getItemViewType(position);
+		int viewType = viewHolder.getItemViewType();
 		
 		if (viewType == USER_PROFILE_HEADER)
 		{
@@ -1364,10 +1364,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				if (mStatusMessages.get(i).getId() == id)
 				{
 					mStatusMessages.remove(i);
+					notifyDataSetChanged();
 					break;
 				}
 			}
-			notifyDataSetChanged();
 		}
 	}
 

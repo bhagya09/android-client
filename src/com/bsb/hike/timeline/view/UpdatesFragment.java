@@ -488,12 +488,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					public void run()
 					{
 						mFtueFriendList = getFtueFriendList();
-						if (mFtueFriendList != null)
+						if (mFtueFriendList != null && !mFtueFriendList.isEmpty())
 						{
 							timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
 							addFTUEItem();
+							timelineCardsAdapter.notifyItemInserted(0);
 						}
-						notifyVisibleItems();
 					}
 
 				}, 0);
@@ -560,9 +560,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			Logger.d(UpdatesFragment.class.getName(), "Both list are empty, so no FTUE");
 		}
 
-		if (finalContactLsit == null)
+		if (finalContactLsit == null || finalContactLsit.isEmpty())
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
+			resetSharedPrefOnRemovingFTUE();
 		}
 		return finalContactLsit;
 	}
