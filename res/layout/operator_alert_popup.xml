@@ -49,6 +49,7 @@
             android:layout_height="wrap_content"
             android:button="@drawable/hike_list_item_checkbox"
             android:layout_marginTop="15dp"
+            android:padding="5dp"
             android:text="@string/not_show_call_alert_msg" 
             android:textColor="@color/list_item_header"
             android:textSize="16sp" />
