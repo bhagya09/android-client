@@ -943,7 +943,7 @@ public class ConversationsAdapter extends BaseAdapter
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
 					unreadIndicator.setVisibility(View.VISIBLE);
-					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.ic_messagecounter);
+					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
 					String unreadCountString = convInfo.getUnreadCountString();
 					LayoutParams lp = (LayoutParams) unreadIndicator.getLayoutParams();
 					lp.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
@@ -973,7 +973,7 @@ public class ConversationsAdapter extends BaseAdapter
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
 					unreadIndicator.setVisibility(View.VISIBLE);
-					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.ic_messagecounter);
+					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
 					String unreadCountString = convInfo.getUnreadCountString();
 					LayoutParams lp2 = (LayoutParams) unreadIndicator.getLayoutParams();
 					lp2.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
