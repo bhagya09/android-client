@@ -1336,19 +1336,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		contactInfo = Utils.getUserContactInfo(preferences);
 
-		profileItems = new ArrayList<ProfileItem>();
-
-		// Adding an item for the header
-			profileItems.add(new ProfileItem.ProfileStatusItem(ProfileItem.HEADER_ID));
-	
-		addStatusMessagesAsMyProfileItems(HikeConversationsDatabase.getInstance().getStatusMessages(false, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, mLocalMSISDN));
-
-		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() > 0)
-		{
-			profileItems.add(new ProfileItem.ProfileStatusItem(getJoinedHikeStatus(contactInfo)));
-		}
-
-		initializeListviewAndAdapter();
+		updatesFragment = new UpdatesFragment();
+		Bundle updatesBundle = new Bundle();
+		updatesBundle.putBoolean(UpdatesFragment.SHOW_PROFILE_HEADER, true);
+		updatesBundle.putStringArray(HikeConstants.MSISDNS, new String[]{mLocalMSISDN});
+		updatesFragment.setArguments(updatesBundle);
+		
+		getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, updatesFragment).commit();
+		
 		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
 			getHikeJoinTime();

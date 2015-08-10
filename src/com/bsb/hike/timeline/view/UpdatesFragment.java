@@ -314,7 +314,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private boolean shouldAddFTUEItem()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true) && !mShowProfileHeader;
 	}
 
 	private void addFTUEItem()

@@ -224,7 +224,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private IconLoader mIconImageLoader;
 
-	private TimelineUpdatesImageLoader profileImageLoader;
+	private TimelineUpdatesImageLoader timelineImageLoader;
 
 	private String mUserMsisdn;
 
@@ -257,7 +257,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		mStatusMessages = statusMessages;
 		mUserMsisdn = userMsisdn;
 		mShowUserProfile = showUserProfile;
-		profileImageLoader = new TimelineUpdatesImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
+		timelineImageLoader = new TimelineUpdatesImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
 		mIconImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(true);
 		mInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -332,19 +332,30 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		
 		if (viewType == USER_PROFILE_HEADER)
 		{
-			String mapedId = mFilteredMsisdns[0] + ProfileActivity.PROFILE_PIC_SUFFIX;
-			profileImageLoader.loadImage(mapedId, viewHolder.largeProfilePic);
-			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(mFilteredMsisdns[0]));
-			viewHolder.largeProfilePic.setTag(imageViewerInf);
-			viewHolder.name.setText(mUserMsisdn.equals(mFilteredMsisdns[0]) ? HikeMessengerApp.getInstance().getString(R.string.me) : ContactManager.getInstance().getName(mFilteredMsisdns[0]));
-			viewHolder.largeProfilePic.setOnClickListener(new View.OnClickListener()
+
+			if (mActivity.get() != null)
 			{
-				@Override
-				public void onClick(View v)
+				String mapedId = mFilteredMsisdns[0] + ProfileActivity.PROFILE_PIC_SUFFIX;
+
+				ProfileImageLoader profileImageLoader = new ProfileImageLoader(mActivity.get(), mFilteredMsisdns[0], viewHolder.largeProfilePic, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_profile_picture_size), false, true);
+				profileImageLoader.loadProfileImage(loaderManager);
+
+				ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(mFilteredMsisdns[0]));
+				viewHolder.largeProfilePic.setTag(imageViewerInf);
+				
+				viewHolder.largeProfilePic.setOnClickListener(new View.OnClickListener()
 				{
-					onViewImageClicked(v);					
-				}
-			});
+					@Override
+					public void onClick(View v)
+					{
+						onViewImageClicked(v);
+					}
+				});
+			}
+
+			viewHolder.name.setText(mUserMsisdn.equals(mFilteredMsisdns[0]) ? HikeMessengerApp.getInstance().getString(R.string.me) : ContactManager.getInstance().getName(
+					mFilteredMsisdns[0]));
+		
 			return;
 		}
 		
@@ -521,7 +532,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					viewHolder.statusImg.setOnClickListener(timelinePostDetailsListener);
 					// TODO
 					// profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, isListFlinging);
-					profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, false);
+					timelineImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, false);
 					viewHolder.statusImg.setVisibility(View.VISIBLE);
 				}
 				else
@@ -600,7 +611,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.largeProfilePic.setTag(statusMessage);
 			viewHolder.largeProfilePic.setOnClickListener(timelinePostDetailsListener);
 
-			profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
+			timelineImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
 
 			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, mContext));
 

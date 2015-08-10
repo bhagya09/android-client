@@ -102,6 +102,7 @@
     <dimen name="gift_card_width">208dp</dimen>
     <dimen name="gift_card_height">220dp</dimen>
     <dimen name="timeine_big_picture_size">200dp</dimen>
+    <dimen name="timeine_profile_picture_size">320dp</dimen>
     <dimen name="icon_picture_size">50dp</dimen>
     <dimen name="gallery_grid_spacing">5dp</dimen>
     <dimen name="gallery_cover_item_size">179dp</dimen>
