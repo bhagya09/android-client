@@ -1710,22 +1710,52 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		if(isNetworkError && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
-			TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
-			ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
-			String contactFirstName = msisdn;
-			if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
-			{
-				contactFirstName = contactInfo.getFirstName();
-			}
-			textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
-			activity.findViewById(R.id.network_error_card).setVisibility(View.VISIBLE);
-			activity.findViewById(R.id.network_error_card).setOnClickListener(this);
+			animateNetworkCard();
 		}
 		else
 		{
 			activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
 		}
 	};
+
+	private void animateNetworkCard()
+	{
+		TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
+		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
+		String contactFirstName = msisdn;
+		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
+		{
+			contactFirstName = contactInfo.getFirstName();
+		}
+		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
+		Animation slideIn  = AnimationUtils.loadAnimation(activity,R.anim.slide_in_from_left);
+		activity.findViewById(R.id.network_error_card).setVisibility(View.VISIBLE);
+		
+		slideIn.setDuration(800);
+		slideIn.setAnimationListener(new AnimationListener()
+		{
+			
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				
+			}
+		});
+		activity.findViewById(R.id.network_error_card).startAnimation(slideIn);
+		activity.findViewById(R.id.network_error_card).setOnClickListener(this);
+	}
 
 	/**
 	 * Overrides {@link ChatThread#onDestroy()}
