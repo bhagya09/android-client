@@ -1217,7 +1217,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public void setStickerRecommendFtueTipSeen()
 	{
-		if (mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		if (mTips!=null&&mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
 		{
 			Logger.d(TAG, "set sticker recommend tip seen : " + true);
 			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
@@ -1301,7 +1301,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		int width = (int) (Utils.scaledDensityMultiplier * 270);
 		int xOffset = -(int) (276 * Utils.scaledDensityMultiplier);
 		int yOffset = -(int) (0.5 * Utils.scaledDensityMultiplier);
-		attachmentPicker.show(width, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		attachmentPicker.show(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
 	}
 
 	/**
@@ -5259,6 +5259,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (mShareablePopupLayout.isKeyboardOpen())
 			{
 				attachmentPicker.dismiss();
+			}
+			else
+			{
+				attachmentPicker.onOrientationChange(newConfig.orientation);
 			}
 		}
 	}
