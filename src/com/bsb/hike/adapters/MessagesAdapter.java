@@ -2501,12 +2501,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (showBlackIcon)
 			{
-				broadcastIndicator.setImageResource(R.drawable.logostampchatthread);
+				broadcastIndicator.setImageResource(R.drawable.ic_message_logo);
 				broadcastIndicator.setVisibility(View.VISIBLE);
 			}
 			else
 			{
-				broadcastIndicator.setImageResource(R.drawable.logostampchatthread_white);
+				broadcastIndicator.setImageResource(R.drawable.ic_message_logo_white);
 				broadcastIndicator.setVisibility(View.VISIBLE);
 			}
 		}
