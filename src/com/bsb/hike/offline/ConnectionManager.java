@@ -62,7 +62,7 @@ public class ConnectionManager implements ChannelListener
 		}
 		catch (IllegalArgumentException | NoSuchFieldException e)
 		{
-			e.printStackTrace();
+			Logger.e(TAG, "Device is not htc");
 		}
 	}
 	
