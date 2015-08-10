@@ -5967,4 +5967,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public void analyticalData(String arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }
