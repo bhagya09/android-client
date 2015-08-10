@@ -6,6 +6,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
@@ -76,6 +78,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED, HikePubSub.ACTIVITY_FEED_COUNT_CHANGED };
 
 	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
+
+	private PopupWindow overFlowWindow;
 
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -225,7 +229,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.my_profile), 0, 0, R.string.my_profile));
 
-		final PopupWindow overFlowWindow = new PopupWindow(this);
+		overFlowWindow = new PopupWindow(this);
 
 		FrameLayout homeScreen = (FrameLayout) findViewById(R.id.home_screen);
 
@@ -597,5 +601,27 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			unreadCounter = result;
 		}
 
+	}
+	
+	@SuppressLint("NewApi")
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event)
+	{
+		if (Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(this).hasPermanentMenuKey()))
+		{
+			if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU)
+			{
+				if (overFlowWindow == null || !overFlowWindow.isShowing())
+				{
+					showTimelineOverFlow();
+				}
+				else
+				{
+					overFlowWindow.dismiss();
+				}
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
 	}
 }
