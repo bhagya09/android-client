@@ -67,6 +67,12 @@ public class VoIPConstants {
 	 */
 	public static final int CONFERENCE_CLIENTS_LIST_BROADCAST_REPEAT = 2000;
 	
+	/**
+	 * Do not attempt a reconnect before this much time has passed
+	 * since the last reconnect.
+	 */
+	public static final int RECONNECT_THRESHOLD = 10000;
+
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions

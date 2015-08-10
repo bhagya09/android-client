@@ -86,6 +86,7 @@ public class VoIPClient  {
 	private boolean keepRunning = true;
 	public boolean connected = false;
 	public boolean reconnecting = false;
+	private long lastReconnectAttemptAt = 0;
 	private int currentPacketNumber = 0, rawVoiceSent = 0;
 	public boolean socketInfoReceived = false, socketInfoSent = false;
 	private boolean establishingConnection = false;
@@ -384,6 +385,7 @@ public class VoIPClient  {
 
 		IceSocketTimeout = VoIPConstants.INITIAL_ICE_SOCKET_TIMEOUT;
 		keepRunning = true;
+		socketInfoSent = false;
 		
 		iceThread = new Thread(new Runnable() {
 
@@ -569,8 +571,15 @@ public class VoIPClient  {
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_TIMEOUT && !reconnecting) {
 //						Logger.w(logTag, "Heartbeat failure. Reconnecting.. ");
 						startReconnectBeeps();
-						if (!isInitiator() && connected)
-							reconnect();
+						if (connected) {
+							if (!isInitiator())
+								reconnect();
+							else {
+								Logger.w(tag, "Requesting a reconnect..");
+								VoIPDataPacket packet = new VoIPDataPacket(PacketType.REQUEST_RECONNECT);
+								sendPacket(packet, false);
+							}
+						} 
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
@@ -626,10 +635,13 @@ public class VoIPClient  {
 
 		if (reconnecting)
 			return;
-		else
-			reconnecting = true;
 
+		if (System.currentTimeMillis() - lastReconnectAttemptAt < VoIPConstants.RECONNECT_THRESHOLD)
+			return;
+		
+		reconnecting = true;
 		reconnectAttempts++;
+		lastReconnectAttemptAt = System.currentTimeMillis();
 		Logger.w(tag, "Reconnecting..");
 
 		// Interrupt the receiving thread since we will make the socket null
@@ -640,7 +652,6 @@ public class VoIPClient  {
 		setCallStatus(VoIPConstants.CallStatus.RECONNECTING);
 		sendHandlerMessage(VoIPConstants.MSG_RECONNECTING);
 		socketInfoReceived = false;
-		socketInfoSent = false;
 		connected = false;
 		retrieveExternalSocket();
 		startReconnectBeeps();
@@ -662,6 +673,11 @@ public class VoIPClient  {
 		if (socket == null) {
 			Logger.w(tag, "establishConnection() called with null socket.");
 			stop();
+			return;
+		}
+		
+		if (!socketInfoSent) {
+			Logger.w(tag, "Can't establish connection since we haven't sent socket info yet.");
 			return;
 		}
 		
@@ -1463,6 +1479,11 @@ public class VoIPClient  {
 						packetLoss = 0;
 						break;
 						
+					case REQUEST_RECONNECT:
+						Logger.w(tag, "Reconnection requested.");
+						reconnect();
+						break;
+						
 					default:
 						Logger.w(tag, "Received unexpected packet: " + dataPacket.getType());
 						break;
@@ -1998,20 +2019,24 @@ public class VoIPClient  {
 		if (isHostingConference || isInAHostedConference)
 			return;
 		
-		bitrateAdjustment -= 2000;
+		bitrateAdjustment -= remotePacketLoss * getBitrate() / 100;
 		int newBitrate = localBitrate + bitrateAdjustment;
 		
 		if (newBitrate < OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE) {
 			newBitrate = OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE;
 			bitrateAdjustment = OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE - localBitrate;
+			if (version >= 3) {
+				Logger.w(tag, "Putting 2 audio frames in every UDP packet now.");
+				audioFramesPerUDPPacket = 2;				
+			}
 		}
 		
 		if (newBitrate == localBitrate)
 			return;
 		
-		Logger.w(tag, "Remote packet loss: " + remotePacketLoss + ", new bitrate: " + newBitrate);
+		Logger.w(tag, "Remote packet loss: " + remotePacketLoss + ", new bitrate: " + getBitrate());
 		
-		opusWrapper.setEncoderBitrate(newBitrate);
+		opusWrapper.setEncoderBitrate(getBitrate());
 		sendPacket(new VoIPDataPacket(PacketType.RESET_PACKET_LOSS), false);
 		lastCongestionControlTimestamp = System.currentTimeMillis();
 	}
@@ -2119,6 +2144,7 @@ public class VoIPClient  {
 	}
 	
 	private void connectionEstablished() {
+		bitrateAdjustment = 0;
 		sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 	}
 
