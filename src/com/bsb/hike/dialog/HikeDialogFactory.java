@@ -122,6 +122,8 @@ public class HikeDialogFactory
 	public static final int MULTI_ADMIN_DIALOG = 41;
 
 	public static final int UNDO_MULTI_EDIT_CHANGES_DIALOG = 42;
+	
+	public static final int ADD_TO_FAV_DIALOG = 43;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -135,6 +137,10 @@ public class HikeDialogFactory
 		{
 		case FAVORITE_ADDED_DIALOG:
 			return showAddedAsFavoriteDialog(dialogId, context, listener, data);
+			
+		case ADD_TO_FAV_DIALOG:
+			return showAddToFavoriteDialog(dialogId, context, listener, data);
+			
 		case MULTI_ADMIN_DIALOG:
 			return showMultiAdminDialog(dialogId, context, listener, data);
 			
@@ -231,6 +237,62 @@ public class HikeDialogFactory
 		OnClickListener clickListener = new OnClickListener()
 		{
 
+			@Override
+			public void onClick(View arg0)
+			{
+				switch (arg0.getId())
+				{
+				case R.id.noButton:
+					if (listener != null)
+					{
+						listener.negativeClicked(hikeDialog);
+					}
+					else
+					{
+						hikeDialog.dismiss();
+					}
+					break;
+				case R.id.yesButton:
+					if (listener != null)
+					{
+						listener.positiveClicked(hikeDialog);
+					}
+					else
+					{
+						hikeDialog.dismiss();
+					}
+					break;
+				}
+
+			}
+		};
+		no.setOnClickListener(clickListener);
+		yes.setOnClickListener(clickListener);
+		hikeDialog.show();
+		return hikeDialog;
+	}
+	
+	private static HikeDialog showAddToFavoriteDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
+	{
+		String name = "";
+		try
+		{
+			name = (String) data[0];
+		}
+		catch (ClassCastException ex)
+		{
+			throw new IllegalArgumentException("Make sure You are sending one string , that is name to fill with in dialog");
+		}
+		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
+		hikeDialog.setContentView(R.layout.added_as_favorite_pop_up);
+		hikeDialog.setCancelable(true);
+		hikeDialog.findViewById(R.id.addedYouAsFavHeading).setVisibility(View.GONE);
+		TextView des = (TextView) hikeDialog.findViewById(R.id.addedYouAsFavDescription);
+		des.setText(context.getString(R.string.add_to_fav_confirmation, name));
+		View no = hikeDialog.findViewById(R.id.noButton);
+		View yes = hikeDialog.findViewById(R.id.yesButton);
+		OnClickListener clickListener = new OnClickListener()
+		{
 			@Override
 			public void onClick(View arg0)
 			{

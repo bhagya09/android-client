@@ -25,6 +25,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.text.util.Linkify;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,6 +44,7 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -89,7 +91,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.RoundedImageView;
 
-public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdapter.ViewHolder> implements IHandlerCallback, TaskCallbacks
+public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdapter.ViewHolder> implements IHandlerCallback, TaskCallbacks, Listener
 {
 	private final int PROFILE_PIC_CHANGE = -11;
 
@@ -224,7 +226,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private IconLoader mIconImageLoader;
 
-	private TimelineUpdatesImageLoader profileImageLoader;
+	private TimelineUpdatesImageLoader timelineImageLoader;
 
 	private String mUserMsisdn;
 
@@ -250,6 +252,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	
 	private HikeImageDownloader mImageDownloader;
 
+	private ContactInfo profileContactInfo;
+
 	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<ContactInfo> ftueFriendList, LoaderManager loadManager,
 			FragmentManager fragManager, boolean showUserProfile, String[] filterMsisdns)
 	{
@@ -257,7 +261,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		mStatusMessages = statusMessages;
 		mUserMsisdn = userMsisdn;
 		mShowUserProfile = showUserProfile;
-		profileImageLoader = new TimelineUpdatesImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
+		timelineImageLoader = new TimelineUpdatesImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
 		mIconImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(true);
 		mInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -269,6 +273,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		mHikeUiHandler = new HikeUiHandler(this);
 		isShowCountEnabled = Utils.isTimelineShowCountEnabled();
 		mFilteredMsisdns = filterMsisdns;
+		
+		if(mShowUserProfile)
+		{
+			profileContactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(filterMsisdns[0]);
+		}
+		
+		HikeMessengerApp.getInstance().getPubSub().addListener(HikePubSub.FAVORITE_TOGGLED, this);
 	}
 
 	@Override
@@ -332,19 +343,30 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		
 		if (viewType == USER_PROFILE_HEADER)
 		{
-			String mapedId = mFilteredMsisdns[0] + ProfileActivity.PROFILE_PIC_SUFFIX;
-			profileImageLoader.loadImage(mapedId, viewHolder.largeProfilePic);
-			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(mFilteredMsisdns[0]));
-			viewHolder.largeProfilePic.setTag(imageViewerInf);
-			viewHolder.name.setText(mUserMsisdn.equals(mFilteredMsisdns[0]) ? HikeMessengerApp.getInstance().getString(R.string.me) : ContactManager.getInstance().getName(mFilteredMsisdns[0]));
-			viewHolder.largeProfilePic.setOnClickListener(new View.OnClickListener()
+
+			if (mActivity.get() != null)
 			{
-				@Override
-				public void onClick(View v)
+				String mapedId = mFilteredMsisdns[0] + ProfileActivity.PROFILE_PIC_SUFFIX;
+
+				ProfileImageLoader profileImageLoader = new ProfileImageLoader(mActivity.get(), mFilteredMsisdns[0], viewHolder.largeProfilePic, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_profile_picture_size), false, true);
+				profileImageLoader.loadProfileImage(loaderManager);
+
+				ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(mFilteredMsisdns[0]));
+				viewHolder.largeProfilePic.setTag(imageViewerInf);
+				
+				viewHolder.largeProfilePic.setOnClickListener(new View.OnClickListener()
 				{
-					onViewImageClicked(v);					
-				}
-			});
+					@Override
+					public void onClick(View v)
+					{
+						onViewImageClicked(v);
+					}
+				});
+			}
+
+			viewHolder.name.setText(mUserMsisdn.equals(mFilteredMsisdns[0]) ? HikeMessengerApp.getInstance().getString(R.string.me) : ContactManager.getInstance().getName(
+					mFilteredMsisdns[0]));
+		
 			return;
 		}
 		
@@ -521,7 +543,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					viewHolder.statusImg.setOnClickListener(timelinePostDetailsListener);
 					// TODO
 					// profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, isListFlinging);
-					profileImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, false);
+					timelineImageLoader.loadImage(protip.getMappedId(), viewHolder.statusImg, false);
 					viewHolder.statusImg.setVisibility(View.VISIBLE);
 				}
 				else
@@ -600,7 +622,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.largeProfilePic.setTag(statusMessage);
 			viewHolder.largeProfilePic.setOnClickListener(timelinePostDetailsListener);
 
-			profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
+			timelineImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
 
 			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, mContext));
 
@@ -857,7 +879,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			optionsList.add(String.format(mContext.getString(R.string.message_person), argStatusMessage.getNotNullName()));
 		}
 
-		optionsList.add(mContext.getString(R.string.copy));
+		if (argStatusMessage.getStatusMessageType() == StatusMessageType.TEXT || argStatusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		{
+			optionsList.add(mContext.getString(R.string.copy));
+		}
 
 		optionsList.add(mContext.getString(R.string.delete_post));
 
@@ -1207,9 +1232,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		@Override
 		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)
 		{
-			buttonView.setEnabled(false);
-			buttonView.setClickable(false);
-
 			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
 
 			JSONObject json = new JSONObject();
@@ -1223,6 +1245,46 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				e.printStackTrace();
 			}
 
+			if (mShowUserProfile)
+			{
+				// First check if user is friends with msisdn
+				if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND)
+				{
+					toggleCompButtonState(buttonView, onLoveToggleListener);
+					if (mActivity.get() != null)
+					{
+						HikeDialogFactory.showDialog(mActivity.get(), HikeDialogFactory.ADD_TO_FAV_DIALOG, new HikeDialogListener()
+						{
+							@Override
+							public void positiveClicked(HikeDialog hikeDialog)
+							{
+								Utils.toggleFavorite(mContext, profileContactInfo, false);
+								if (hikeDialog != null && hikeDialog.isShowing())
+								{
+									hikeDialog.dismiss();
+								}
+							}
+
+							@Override
+							public void neutralClicked(HikeDialog hikeDialog)
+							{
+								// Do nothing
+							}
+
+							@Override
+							public void negativeClicked(HikeDialog hikeDialog)
+							{
+								if (hikeDialog != null && hikeDialog.isShowing())
+								{
+									hikeDialog.dismiss();
+								}
+							}
+						}, profileContactInfo.getNameOrMsisdn());
+					}
+					return;
+				}
+			}
+			
 			if (isChecked)
 			{
 				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
@@ -1271,9 +1333,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
 						buttonView.setEnabled(true);
 						buttonView.setClickable(true);
+						toggleCompButtonState(buttonView, onLoveToggleListener);
 					}
 				});
 				token.execute();
+				buttonView.setEnabled(false);
+				buttonView.setClickable(false);
 			}
 			else
 			{
@@ -1323,13 +1388,25 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
 						buttonView.setEnabled(true);
 						buttonView.setClickable(true);
+						toggleCompButtonState(buttonView, onLoveToggleListener);
 					}
 				});
 				token.execute();
+				buttonView.setEnabled(false);
+				buttonView.setClickable(false);
 			}
 		}
 	};
 
+	
+	private void toggleCompButtonState(CompoundButton argButton,OnCheckedChangeListener argListener)
+	{
+		//unlink-relink onchange listener
+		argButton.setOnCheckedChangeListener(null);
+		argButton.toggle();
+		argButton.setOnCheckedChangeListener(argListener);
+	}
+	
 	public void setProtipIndex(int startIndex)
 	{
 		mProtipIndex = startIndex;
@@ -1479,6 +1556,27 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	{
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		if (HikePubSub.FAVORITE_TOGGLED.equals(type) || HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || HikePubSub.REJECT_FRIEND_REQUEST.equals(type))
+		{
+			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
+
+			ContactInfo contactInfo = favoriteToggle.first;
+			FavoriteType favoriteType = favoriteToggle.second;
+
+			if (!profileContactInfo.getMsisdn().equals(contactInfo.getMsisdn()))
+			{
+				return;
+			}
+			else
+			{
+				this.profileContactInfo.setFavoriteType(favoriteType);				
+			}
+		}		
 	}
 	
 }
