@@ -67,18 +67,38 @@
             </RelativeLayout>
         </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/status_image"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/content_container"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="33dp"
-            android:layout_marginLeft="22dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="33dp"
-            android:scaleType="matrix"
-            android:src="@drawable/misc_timeline_ftue" />
+            android:layout_centerHorizontal="true" >
+
+            <ImageView
+                android:id="@+id/status_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="33dp"
+                android:layout_marginLeft="22dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="33dp"
+                android:scaleType="matrix"
+                android:src="@drawable/misc_timeline_ftue" />
+
+            <ImageButton
+                android:id="@+id/btn_remove_photo"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="15dp"
+                android:adjustViewBounds="false"
+                android:layout_marginRight="10dp"
+                android:background="@color/transparent"
+                android:onClick="removePhoto"
+                android:padding="10dp"
+                android:src="@drawable/ic_remove_photo" />
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/emoji_container"
@@ -101,18 +121,6 @@
 
             <include layout="@layout/mood_selector_layout" />
         </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/btn_remove_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignRight="@+id/status_image"
-            android:layout_alignTop="@+id/status_image"
-            android:adjustViewBounds="false"
-            android:background="@color/transparent"
-            android:onClick="removePhoto"
-            android:padding="10dp"
-            android:src="@drawable/ic_remove_photo" />
 
         <LinearLayout
             android:id="@+id/addMoodLayout"
