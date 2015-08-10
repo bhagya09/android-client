@@ -232,7 +232,7 @@ public class ActionsDataModel
 		{
 			if (cinfo.getMsisdn().equals(msisdn))
 			{
-				contactInfoList.remove(cinfo);
+				isRemoved = contactInfoList.remove(cinfo);
 				break;
 			}
 		}
