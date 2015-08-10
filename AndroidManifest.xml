@@ -251,7 +251,6 @@
         </activity>
         <activity
             android:name="com.bsb.hike.timeline.view.StatusUpdate"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustPan|stateHidden" >
         </activity>
         <activity
