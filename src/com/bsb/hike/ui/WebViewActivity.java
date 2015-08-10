@@ -802,7 +802,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				
 				if (parameter.drawableId != 0)
 				{
-					parameter.drawableId = parameter.drawableId == R.drawable.tick ? R.drawable.untick : R.drawable.tick;
+					parameter.drawableId = parameter.drawableId == R.drawable.control_radio_on ? R.drawable.control_radio_off : R.drawable.control_radio_on;
 					mActionBar.refreshOverflowMenuItem(parameter);
 				}
 				
