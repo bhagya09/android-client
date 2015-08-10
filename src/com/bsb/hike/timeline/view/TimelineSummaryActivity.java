@@ -186,7 +186,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		if (obj instanceof ActivityState)
 		{
 			mActivityState = (ActivityState) obj;
-			
 			mappedId = mActivityState.mappedId;
 			statusMessage = mActivityState.statusMessage;
 			msisdns = mActivityState.msisdnsList;
