@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -303,9 +304,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	    scaleX.setDuration(800);
 	    scaleY.setDuration(800);
 	    translateX.setInterpolator(new OvershootInterpolator(0.2f));
-	    translateY.setInterpolator(new OvershootInterpolator(0.2f));
-	    
-	   
+	    translateY.setInterpolator(new OvershootInterpolator(0.2f));   
 	    
 	    //Scale up at the middle of screen
 		ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 2.9f);
@@ -421,11 +420,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		ImageView progressBead = (ImageView)fragmentView.findViewById(R.id.bead);
 		progressBead.setVisibility(View.VISIBLE);
-		rotateAnimation = new RotateAnimation(0, 359.9f,Animation.RELATIVE_TO_SELF,0.38f,Animation.RELATIVE_TO_SELF,2.9f);
+		ObjectAnimator rotateAnimation = ObjectAnimator.ofFloat(progressBead,View.ROTATION,0, 359.9f);   
+		//,Animation.RELATIVE_TO_SELF,0.38f,Animation.RELATIVE_TO_SELF,2.9f);
+		progressBead.setPivotX(9);
+		progressBead.setPivotY(113);
 		rotateAnimation.setDuration(1000);
 		rotateAnimation.setRepeatCount(Animation.INFINITE);
 		rotateAnimation.setInterpolator(new LinearInterpolator());
-		progressBead.startAnimation(rotateAnimation);
+		rotateAnimation.start();
 	}
 
 	private void setupView()
