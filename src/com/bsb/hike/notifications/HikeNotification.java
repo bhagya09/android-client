@@ -1593,7 +1593,7 @@ public class HikeNotification
 			return;
 		}
 
-		showNotification(notificationIntent, icon, timeStamp, notificationId, message, key, message, activityFeed.getActor(), null, false, true);
+		showNotification(notificationIntent, icon, timeStamp, notificationId, message, key, message, activityFeed.getActor(), null, false, false);
 		
 		addNotificationId(notificationId);
 	}

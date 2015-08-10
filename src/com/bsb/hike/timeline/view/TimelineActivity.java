@@ -211,6 +211,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			public void onClick(View v)
 			{
 				loadActivityFeedFragment();
+				logAnalyticLogs();
 			}
 		});
 		return super.onCreateOptionsMenu(menu);
@@ -555,28 +556,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		ActivityFeedFragment activityFeedFragment = new ActivityFeedFragment();
 		getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).addToBackStack(null).commit();
-		TextView activityFeedTopBarIndicator = (TextView) activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
-		JSONObject metadata = new JSONObject();
-		try
-		{
-			if (activityFeedTopBarIndicator.isShown())
-			{
-				metadata.put(AnalyticsConstants.EVENT_SOURCE, AnalyticsConstants.WITH_RED_DOT);
-			}
-			else
-			{
-				metadata.put(AnalyticsConstants.EVENT_SOURCE, "null");
-			}
-			metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
-			metadata.put(HikeConstants.LogEvent.OS_VERSION, Build.VERSION.RELEASE);
-						
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ACTIONBAR_CLICK);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
-		}
-		catch (JSONException e)
-		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
 	}
 
 	class FetchUnreadFeedsTask extends AsyncTask<Void, Void, Integer>
@@ -602,7 +581,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 
 	}
-	
+
 	@SuppressLint("NewApi")
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event)
@@ -623,5 +602,32 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 		}
 		return super.onKeyUp(keyCode, event);
+
+	}
+
+	private void logAnalyticLogs()
+	{
+		TextView activityFeedTopBarIndicator = (TextView) activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			if (activityFeedTopBarIndicator.isShown())
+			{
+				metadata.put(AnalyticsConstants.EVENT_SOURCE, AnalyticsConstants.WITH_RED_DOT);
+			}
+			else
+			{
+				metadata.put(AnalyticsConstants.EVENT_SOURCE, "null");
+			}
+			metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
+			metadata.put(HikeConstants.LogEvent.OS_VERSION, Build.VERSION.RELEASE);
+
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ACTIONBAR_CLICK);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 }
