@@ -61,7 +61,7 @@ public class OfflineController
 	
 	private OfflineFileManager fileManager;
 	
-	private volatile OFFLINE_STATE offlineState;
+	private volatile OFFLINE_STATE offlineState=OFFLINE_STATE.NOT_CONNECTED;
 	
 	
 	private Handler mHandler = new Handler(HikeHandlerUtil.getInstance().getLooper())
@@ -111,8 +111,6 @@ public class OfflineController
 		fileManager = new OfflineFileManager();
 		hikeConverter = new HikeConverter(fileManager);
 		offlineManager = new OfflineManager(hikeConverter, hikeConverter);
-		setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
-		
 	}
 
 	public void addListener(IOfflineCallbacks listener)

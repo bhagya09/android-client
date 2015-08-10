@@ -21,6 +21,7 @@ import org.acra.sender.ReportSenderException;
 import org.acra.util.HttpRequest;
 
 import android.app.Application;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +47,7 @@ import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -850,6 +852,10 @@ public void onTrimMemory(int level)
 		{
 			fetchPlatformIDIfNotPresent();
 		}
+		
+		// Cancel any going OfflineNotification
+		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(OfflineConstants.NOTIFICATION_IDENTIFIER);
 	}
 	
 	private void initImportantAppComponents(SharedPreferences prefs)

@@ -165,5 +165,7 @@ public class OfflineConstants
 
 	public static final int TIMER_START_TIME = 18000;
 	
+	public static final int NOTIFICATION_IDENTIFIER = -101;
+	
 	
 }

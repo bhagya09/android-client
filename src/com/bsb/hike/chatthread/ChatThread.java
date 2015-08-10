@@ -37,6 +37,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -145,6 +147,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -588,7 +591,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 
 	
-	private void initMessageChannel() {
+	protected void initMessageChannel() {
 		
 		
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
@@ -615,6 +618,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			channelSelector = new OnlineChannel();
 		}
+
 	}
 
 

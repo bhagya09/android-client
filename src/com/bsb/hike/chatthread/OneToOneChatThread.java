@@ -222,6 +222,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		super.init();
 		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 		handleOfflineIntent(activity.getIntent());
+		
 	}
 	
 	private void handleOfflineIntent(Intent intent)
@@ -233,6 +234,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			msg.what=START_OFFLINE_CONNECTION;
 			uiHandler.sendMessage(msg);
 		}
+		
 	}
 
 	private void checkOfflineConnectionStatus()
@@ -1498,6 +1500,31 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		//TODO  -  Will Start Of Animation 
 	}
 
+	@Override
+	protected void initMessageChannel()
+	{
+		// TODO Auto-generated method stub
+		super.initMessageChannel();
+		Fragment frag = activity.getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
+		if (frag != null)
+		{
+			offlineAnimationFragment = (OfflineAnimationFragment) frag;
+			if (OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			{
+
+				offlineAnimationFragment.getDialog().show();
+				return;
+			}
+			if (OfflineController.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTING)
+				offlineAnimationFragment.getDialog().hide();
+			else
+			{
+				FragmentManager fm = activity.getSupportFragmentManager();
+				fm.beginTransaction().remove(frag).commitAllowingStateLoss();
+				fm.executePendingTransactions();
+			}
+		}
+	}
 	private void startFreeHikeConversation(Boolean showAnimation)
 	{
 		if(offlineController==null)
