@@ -76,6 +76,7 @@ import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -92,6 +93,7 @@ import com.bsb.hike.models.NuxSelectFriends;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedListener;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
@@ -1351,7 +1353,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 			if (OneToNConversationUtils.isGroupConversation(conv.getMsisdn()))
 			{
-				optionsList.add(getString(R.string.delete_leave));
+				if(ContactManager.getInstance().isGroupAlive(conv.getMsisdn())){
+					optionsList.add(getString(R.string.leave_group));
+				}else{
+					optionsList.add(getString(R.string.delete_chat));
+				}
 			}
 
 			else if (OneToNConversationUtils.isBroadcastConversation(conv.getMsisdn()))
@@ -1398,13 +1404,22 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.delete_chat).equals(option))
 				{
-					HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_CHAT_DIALOG, new HikeDialogListener()
+					int dialogId = HikeDialogFactory.DELETE_CHAT_DIALOG;
+					if (OneToNConversationUtils.isGroupConversation(conv.getMsisdn()))
+					{
+						dialogId = HikeDialogFactory.DELETE_GROUP_CONVERSATION_DIALOG;
+					}
+					HikeDialogFactory.showDialog(getActivity(), dialogId, new HikeDialogListener()
 					{
 						
 						@Override
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
+							if (OneToNConversationUtils.isGroupConversation(conv.getMsisdn()))
+							{
+								deleteGCAnalyticEvent(true);
+							}
 
 							hikeDialog.dismiss();
 							
@@ -1419,6 +1434,21 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							}
 						}
+
+						private void deleteGCAnalyticEvent(boolean confirm)
+						{
+							try
+							{
+								JSONObject metadata = new JSONObject();
+								metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.DELETE_GC_CONVERSATION);
+								metadata.put(HikeConstants.EVENT_CONFIRM, confirm);
+								HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+							}
+							catch (JSONException e)
+							{
+								Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+							}
+						}
 						
 						@Override
 						public void neutralClicked(HikeDialog hikeDialog)
@@ -1429,24 +1459,37 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void negativeClicked(HikeDialog hikeDialog)
 						{
 							hikeDialog.dismiss();
+							deleteGCAnalyticEvent(false);
 						}
 					}, conv.getLabel());
 					
 				}
-				else if (getString(R.string.delete_leave).equals(option))
+				else if (getString(R.string.leave_group).equals(option))
 				{
 					HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_GROUP_DIALOG, new HikeDialogListener()
 					{
 						
 						@Override
-						public void positiveClicked(HikeDialog hikeDialog)
-						{
-							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-							HikeMqttManagerNew.getInstance().sendMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, conv);
+						public void positiveClicked(HikeDialog hikeDialog) {
+							HikeMqttManagerNew.getInstance().sendMessage(
+									conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE),
+									MqttConstants.MQTT_QOS_ONE);
+
+							if (((CustomAlertDialog) hikeDialog).isChecked()) {
+								HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, conv);
+
+							} else {
+
+								if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(conv.getMsisdn(),
+										false) > 0) {
+									OneToNConversationUtils.saveStatusMesg(conv, getActivity().getApplicationContext());
+								}
+							}
+							OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_HOME);
 							hikeDialog.dismiss();
 						}
-						
+
+	
 						@Override
 						public void neutralClicked(HikeDialog hikeDialog)
 						{
@@ -1456,6 +1499,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void negativeClicked(HikeDialog hikeDialog)
 						{
 							hikeDialog.dismiss();
+							OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_HOME);
 						}
 					}, conv.getLabel());
 					
@@ -1486,6 +1530,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						}
 					}, conv.getLabel());
 				}
+			
 				else if (getString(R.string.email_conversations).equals(option))
 				{
 					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getSherlockActivity(), ConversationFragment.this);
