@@ -931,7 +931,6 @@
     <string name="video">VIDEOS</string>
     <string name="location_option">LOCATION</string>
     <string name="confirm_delete_chat_msg">Delete chat with \"%1$s\"? </string>
-    <string name="confirm_delete_group_msg">Delete and exit \"%1$s\" group?</string>
     <string name="email_chat">Email Chat</string>
     <string name="clear_chat">Clear Chat</string>
     <string name="add_shortcut">Add Shortcut</string>
@@ -1583,9 +1582,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="task_already_running">Task already running</string>
     <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
-    <string name="confirm_delete_group_msg">Are you sure you want to leave \"%1$s\"?</string>
-    <string name="delete_conversation">Delete Conversation</string>
-    <string name="delete_group_confirm">Are you sure you want to delete \"%1$s\"?</string>
     <string name="invite_friends_earn_rewards">Invite friends to hike and earn rewards</string>
     <string name="your_referral_code">Your <b>referral</b> code</string>
     <string name="share_referral_code">Share your referral code anywhere and earn rewards for every friend who joins through your invite</string>
@@ -1598,4 +1594,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="goto_timeline">Go to Timeline.</string>
     <string name="contacts_sync_error">Contact sync failed. Please try again</string>
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
+    <string name="confirm_delete_group_msg">Are you sure you want to exit \"%1$s\"?</string>
+    <string name="delete_conversation">Delete Conversation</string>
+    <string name="delete_group_confirm">Are you sure you want to delete \"%1$s\"?</string>
 </resources>

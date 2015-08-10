@@ -119,7 +119,7 @@ public class HikeDialogFactory
 	public static final int MULTI_ADMIN_DIALOG = 38;
 
 	public static final int UNDO_MULTI_EDIT_CHANGES_DIALOG = 39;
-	
+
 	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 40;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
