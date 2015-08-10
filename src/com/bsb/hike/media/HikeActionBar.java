@@ -428,13 +428,13 @@ public class HikeActionBar implements OverflowItemClickListener
 	
 	public boolean isOverflowMenuShowing()
 	{
-		if (overFlowMenuLayoutPrimary != null)
+		if (overFlowMenuLayoutPrimary != null && overFlowMenuLayoutPrimary.isShowing())
 		{
-			return overFlowMenuLayoutPrimary.isShowing();
+			return true;
 		}
-		if (overFlowMenuLayoutSecondary != null)
+		if (overFlowMenuLayoutSecondary != null && overFlowMenuLayoutSecondary.isShowing())
 		{
-			return overFlowMenuLayoutSecondary.isShowing();
+			return true;
 		}
 		
 		return false;

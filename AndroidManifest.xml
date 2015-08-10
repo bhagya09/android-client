@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-
-    android:versionCode="1320"
-    android:versionName="3.9.8.82.27.1.voip" >
+    android:versionCode="1327"
+    android:versionName="3.9.8.82.34.1.voip" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -283,10 +282,6 @@
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity android:name=".ui.CreateNewGroupOrBroadcastActivity" >
-        </activity>
-        <activity
-            android:name=".ui.FtueBroadcast"
-            android:configChanges="keyboardHidden|screenSize" >
         </activity>
         <activity
             android:name=".ui.PeopleActivity"
