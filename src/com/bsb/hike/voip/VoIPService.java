@@ -87,9 +87,11 @@ public class VoIPService extends Service {
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0, recordingSampleRate = 0;
+	private boolean voiceSignalAbsent = false;
+	private boolean inCellularCall = false;
 	public boolean recordingAndPlaybackRunning = false;
-	boolean voiceSignalAbsent = false;
 	
+	// Conference related
 	private boolean conferencingEnabled = false;
 	private boolean hostingConference = false;
 	
@@ -2024,7 +2026,7 @@ public class VoIPService extends Service {
 	}
 
 	public void startReconnectBeeps() {
-		if (reconnectingBeeps || hostingConference())
+		if (reconnectingBeeps || hostingConference() || inCellularCall)
 			return;
 		
 		reconnectingBeeps = true;
@@ -2262,12 +2264,15 @@ public class VoIPService extends Service {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-				if (TelephonyManager.EXTRA_STATE_RINGING.equals(state)) {
-					// We have an incoming call
-					Logger.w(tag, "Incoming call detected.");
+				if (TelephonyManager.EXTRA_STATE_RINGING.equals(state) ||
+						TelephonyManager.EXTRA_STATE_OFFHOOK.equals(state)) {
+					// We have an incoming or outgoing call
+					Logger.w(tag, "Cellular call detected.");
 					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-					if (isAudioRunning())
+					if (isAudioRunning()) {
+						inCellularCall = true;
 						setHold(true);
+					}
 					else
 						hangUp();
 				}
@@ -2275,8 +2280,10 @@ public class VoIPService extends Service {
 				if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
 					// Coming off a call
 					Logger.w(tag, "Call over.");
+					inCellularCall = false;
 					setHold(false);
 				}
+				
 			}
 		};
 
