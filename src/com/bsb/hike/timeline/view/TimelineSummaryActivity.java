@@ -213,7 +213,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
 
 			isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
-			
+
 			mActivityState.mappedId = mappedId;
 			mActivityState.statusMessage = mStatusMessage;
 			mActivityState.msisdnsList = msisdns;
@@ -385,7 +385,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			}
 		}
 
-		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled|| mStatusMessage.isMyStatusUpdate()))
+		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
 		{
 			textViewCounts.setOnClickListener(new View.OnClickListener()
 			{
@@ -661,8 +661,8 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
 
 		String name = ContactManager.getInstance().getName(mStatusMessage.getMsisdn(), true);
-		
-		if(name == null)
+
+		if (name == null)
 		{
 			ContactInfo userConInfo = Utils.getUserContactInfo(true);
 			if (userConInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
@@ -674,7 +674,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				name = mStatusMessage.getMsisdn();
 			}
 		}
-		
+
 		contactName.setText(name);
 
 		contactStatus.setText(mStatusMessage.getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));
@@ -723,7 +723,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private OnCheckedChangeListener onLoveToggleListener = new OnCheckedChangeListener()
 	{
 		@Override
-		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)
 		{
 			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
 
@@ -745,28 +745,36 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						JSONObject response = (JSONObject) result.getBody().getContent();
-						if (response.optString("stat").equals("ok"))
+						try
 						{
-							// Increment like count in actions table
-							String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+							JSONObject response = (JSONObject) result.getBody().getContent();
+							if (response.optString("stat").equals("ok"))
+							{
+								// Increment like count in actions table
+								String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 
-							ArrayList<String> actorList = new ArrayList<String>();
-							actorList.add(selfMsisdn);
+								ArrayList<String> actorList = new ArrayList<String>();
+								actorList.add(selfMsisdn);
 
-							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
-									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
+								HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
+										ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
 
-							isLikedByMe = true;
+								isLikedByMe = true;
 
-							msisdns.add(selfMsisdn);
+								msisdns.add(selfMsisdn);
 
-							notifyUI();
+								notifyUI();
 
-							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
-									.getMappedId());
+								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
+										statusMessage.getMappedId());
 
-							HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
+								HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
+							}
+						}
+						finally
+						{
+							buttonView.setEnabled(true);
+							buttonView.setClickable(true);
 						}
 					}
 
@@ -780,9 +788,14 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
+						buttonView.setEnabled(true);
+						buttonView.setClickable(true);
+						toggleCompButtonState(buttonView, onLoveToggleListener);
 					}
 				});
 				token.execute();
+				buttonView.setEnabled(false);
+				buttonView.setClickable(false);
 			}
 			else
 			{
@@ -791,28 +804,36 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						JSONObject response = (JSONObject) result.getBody().getContent();
-						if (response.optString("stat").equals("ok"))
+						try
 						{
-							// Decrement like count in actions table
-							String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+							JSONObject response = (JSONObject) result.getBody().getContent();
+							if (response.optString("stat").equals("ok"))
+							{
+								// Decrement like count in actions table
+								String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 
-							ArrayList<String> actorList = new ArrayList<String>();
-							actorList.add(selfMsisdn);
+								ArrayList<String> actorList = new ArrayList<String>();
+								actorList.add(selfMsisdn);
 
-							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
-									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
+								HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
+										ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
 
-							isLikedByMe = false;
+								isLikedByMe = false;
 
-							msisdns.remove(selfMsisdn);
+								msisdns.remove(selfMsisdn);
 
-							notifyUI();
+								notifyUI();
 
-							FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE, statusMessage
-									.getMappedId());
+								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
+										statusMessage.getMappedId());
 
-							HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
+								HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
+							}
+						}
+						finally
+						{
+							buttonView.setEnabled(true);
+							buttonView.setClickable(true);		
 						}
 					}
 
@@ -826,13 +847,26 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
+						buttonView.setEnabled(true);
+						buttonView.setClickable(true);
+						toggleCompButtonState(buttonView, onLoveToggleListener);
 					}
 				});
 				token.execute();
+				buttonView.setEnabled(false);
+				buttonView.setClickable(false);
 			}
 		}
 	};
 
+	private void toggleCompButtonState(CompoundButton argButton,OnCheckedChangeListener argListener)
+	{
+		//unlink-relink onchange listener
+		argButton.setOnCheckedChangeListener(null);
+		argButton.toggle();
+		argButton.setOnCheckedChangeListener(argListener);
+	}
+	
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
