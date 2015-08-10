@@ -140,14 +140,31 @@ public class ConnectionManager implements ChannelListener
 	}
 
 	public void startWifiScan() {
+		
+		// Switching off wifi Hotspot before wifi scanning
+		if(isHotspotCreated())
+		{
+			saveCurrentHotspotSSID();
+			closeExistingHotspot(prevConfig);
+			/*Adding sleep so that wifi can switch on after closing of hotspot .\
+				This may take longer on some devices . So will have to change logic later*/
+			try 
+			{
+				Thread.sleep(1000);
+			} 
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
 		if(!wifiManager.isWifiEnabled())
 		{
 			wifiManager.setWifiEnabled(true);
 		}
 		//We are trying to switch on user's wifi
 		int attempts =0;
-		
-		while(!wifiManager.isWifiEnabled() && attempts<OfflineConstants.WIFI_RETRY_COUNT);
+		while(!wifiManager.isWifiEnabled() && attempts<OfflineConstants.WIFI_RETRY_COUNT)
 		{
 			try 
 			{
