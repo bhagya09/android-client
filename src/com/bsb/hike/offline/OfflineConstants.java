@@ -158,6 +158,12 @@ public class OfflineConstants
 	public static final String OFFLINE_ANIMATION_FRAGMENT = "offline_animation_dialog";
 
 	public static final int WIFI_RETRY_COUNT = 40;
+
+	public static final int  FIRST_MESSAGE_TIME = 8000;
+
+	public static final int SECOND_MESSAGE_TIME = 18200;
+
+	public static final int TIMER_START_TIME = 18000;
 	
 	
 }

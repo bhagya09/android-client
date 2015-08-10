@@ -19,24 +19,19 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.RotateAnimation;
@@ -57,14 +52,12 @@ import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.google.android.gms.internal.ar;
+import com.bsb.hike.view.HoloCircularProgress;
 import com.google.gson.Gson;
 
 public class OfflineAnimationFragment extends DialogFragment implements IOfflineCallbacks ,OfflineConnectionRequestListener
@@ -121,6 +114,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private boolean shouldResumeFragment = false;
 	
+	private HoloCircularProgress circularProgress;
+	
 	private  Handler uiHandler = new Handler()
 	{
 		public void handleMessage(android.os.Message msg)
@@ -156,11 +151,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				updateAnimationText(connectionInfo,(String)(msg.obj));
 				break;
 			case UPDATE_ANIMATION_SECOND_MESSAGE:
-				
 				updateAnimationText(secondMessage,(String)msg.obj);
 				break;
 			case START_TIMER:
-				updateAnimationText(connectionInfo, "30");
+				updateAnimationText(connectionInfo,"" +timerDuration/1000);
 				startTimer();
 				break;
 			
@@ -246,7 +240,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationEnd(Animation animation)
 			{
-				if(message.equals("30"))
+				if(message.equals("" + timerDuration/1000))
 				{
 					timer.start();
 				}
@@ -402,7 +396,15 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
-				startRotateAnimation();
+				if(shouldResumeFragment && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTING)
+				{
+					updateUIOnDisconnect();
+				}
+				else
+				{
+					startRotateAnimation();
+				}
+				
 			}
 
 			@Override
@@ -436,6 +438,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		logo =(ImageView)fragmentView.findViewById(R.id.offline_icon);
 		retryButton = (Button)fragmentView.findViewById(R.id.retry_button);
 		frame = (FrameLayout)fragmentView.findViewById(R.id.animation_circular_progress_holder);
+		circularProgress = (HoloCircularProgress)fragmentView.findViewById(R.id.animation_circular_progress);
 		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
 		contactFirstName = msisdn;
 		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
@@ -494,7 +497,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Translucent);
 		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 	    // handle fragment arguments
-		timerDuration = offlineParameters.getConnectionTimeout() -30000;
+		timerDuration = offlineParameters.getConnectionTimeout() - OfflineConstants.TIMER_START_TIME;
 	    Bundle arguments = getArguments();
 	    if(arguments != null)
 	    {
@@ -532,13 +535,18 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 
 		shouldResumeFragment=(arg0!=null);
 		
-		
+		if(OfflineController.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
+		{
+			closeFragment();
+			return;
+		}
 		fragmentView.post(new Runnable()
 		{
 			
 			@Override
 			public void run()
 			{
+				circularProgress.setMarkerEnabled(false);
 				sendUiMessages();
 				startAnimation();
 			}
@@ -574,9 +582,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		connectionInfo.setVisibility(View.VISIBLE);
 		if (!shouldResumeFragment)
 		{
-			sendUIMessage(UPDATE_ANIMATION_MESSAGE, 15000, getResources().getString(R.string.offline_animation_second_message));
-			sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE, 30200, getResources().getString(R.string.offline_animation_third_message, contactFirstName));
-			sendUIMessage(START_TIMER, 30000, null);
+			sendUIMessage(UPDATE_ANIMATION_MESSAGE, OfflineConstants.FIRST_MESSAGE_TIME, getResources().getString(R.string.offline_animation_second_message));
+			sendUIMessage(UPDATE_ANIMATION_SECOND_MESSAGE,OfflineConstants.SECOND_MESSAGE_TIME, getResources().getString(R.string.offline_animation_third_message, contactFirstName));
+			sendUIMessage(START_TIMER, OfflineConstants.TIMER_START_TIME, null);
 		}
 		else
 		{
