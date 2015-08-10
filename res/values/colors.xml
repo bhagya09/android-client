@@ -459,6 +459,7 @@
     <color name="creepy_theme_status_bar_color">#273f4c</color>
     <color name="friends_theme_status_bar_color">#253636</color>
     <color name="music_theme_status_bar_color">#64656a</color>
+    <color name="ipl_theme_status_bar_color">#691e14</color>
   
     
 </resources>
