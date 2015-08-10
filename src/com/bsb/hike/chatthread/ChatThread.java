@@ -1609,7 +1609,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setText(searchText);
 			mComposeView.setSelection(searchText.length());
 		}
-		Utils.blockOrientationChange(activity);
 	}
 	
 	private void setUpSearchViews()
@@ -1748,7 +1747,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mAdapter.setSearchText(null);
 			searchText = null;
 		}
-		Utils.unblockOrientationChange(activity);
 	}
 
 	protected void showToast(int messageId)
