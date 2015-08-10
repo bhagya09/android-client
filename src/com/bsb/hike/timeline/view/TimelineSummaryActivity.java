@@ -280,16 +280,30 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		if (!msisdns.isEmpty())
 		{
 
-			if (isShowCountEnabled)
+			if (isShowCountEnabled || mStatusMessage.isMyStatusUpdate())
 			{
 				// Set count
 				if (isTextStatusMessage)
 				{
-					textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+					if (msisdns.size() == 1)
+					{
+						textViewCounts.setText(String.format(getString(R.string.post_like), msisdns.size()));
+					}
+					else
+					{
+						textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+					}
 				}
 				else
 				{
-					textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
+					if (msisdns.size() == 1)
+					{
+						textViewCounts.setText(String.format(getString(R.string.photo_like), msisdns.size()));
+					}
+					else
+					{
+						textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
+					}
 				}
 			}
 			else
@@ -371,7 +385,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			}
 		}
 
-		if (msisdns != null && !msisdns.isEmpty() && isShowLikesEnabled)
+		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled|| mStatusMessage.isMyStatusUpdate()))
 		{
 			textViewCounts.setOnClickListener(new View.OnClickListener()
 			{
