@@ -481,9 +481,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		});
 
-		if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
+		if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 		{
-			actionBar.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+			actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		}
 		else
 		{
