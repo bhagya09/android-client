@@ -349,6 +349,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		statusImage.setVisibility(View.GONE);
 		statusTxt.setHint(R.string.status_hint);
 		mImagePath = null;
+		toggleEnablePostButton();
 	}
 
 	@Override
