@@ -5383,9 +5383,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
 		{
-			mShareablePopupLayout.onCloseKeyBoard();
-
+			mShareablePopupLayout.dismiss();
 		}
+		
 		
 		if (mActionMode != null && mActionMode.isActionModeOn())
 		{
