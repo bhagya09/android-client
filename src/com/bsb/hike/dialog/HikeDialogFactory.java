@@ -113,7 +113,7 @@ public class HikeDialogFactory
 	public static final int DELETE_BLOCK = 35;
 	
 	public static final int DELETE_NON_MESSAGING_BOT = 36;
-	
+
 	public static final int GROUP_ADD_MEMBER_SETTINGS = 37;
 	
 	public static final int MULTI_ADMIN_DIALOG = 38;
@@ -967,8 +967,8 @@ public class HikeDialogFactory
 		case DELETE_GROUP_DIALOG:
 			deleteConfirmDialog.setBody(context.getString(R.string.confirm_delete_group_msg, (String) data[0]));
 			deleteConfirmDialog.setCheckBox(R.string.delete_conversation, true);
-			deleteConfirmDialog.setOkButton(android.R.string.yes, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
+			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
 			deleteConfirmDialog.setHeader(null);
 			break;
 			
