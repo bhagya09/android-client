@@ -25,7 +25,7 @@
         android:layout_marginLeft="@dimen/compose_chat_content_margin"
         android:layout_marginRight="@dimen/compose_chat_content_margin"
         android:layout_marginTop="0dp"
-        android:background="@drawable/bg_country_search_bar"
+        android:background="@drawable/bg_country_picker_selector"
         android:imeOptions="flagNoExtractUi"
         android:gravity="center_vertical"
         android:hint="@string/new_chat_compose_hint"

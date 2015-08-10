@@ -82,7 +82,8 @@
 	        android:background="@drawable/bg_overflow_menu_selector"
 	        android:gravity="center_vertical"
 	        android:orientation="horizontal"
-	        android:paddingRight="5dp" >
+	        android:paddingRight="5dp"
+	        android:paddingLeft="15dp" >
 	
 	    
 	        <LinearLayout

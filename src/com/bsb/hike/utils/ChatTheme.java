@@ -101,7 +101,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.blue_hike_status_bar_m;
 		}
 		
 	},
@@ -407,7 +407,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.love_2_theme_status_bar_color;
 		}
 
 	},
@@ -509,7 +509,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.almost_white;
+			return R.color.nature_theme_status_bar_color;
 		}
 		
 	},
@@ -611,7 +611,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.pin_color;
+			return R.color.rain2_theme_status_bar_color;
 		}
 
 	},
@@ -815,7 +815,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.geometric_1_theme_status_bar_color;
 		}
 
 	},
@@ -917,7 +917,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.blurred_light_theme_status_bar_color;
 		}
 
 	},
@@ -1120,7 +1120,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.friends_theme_status_bar_color;
 		}
 
 	},
@@ -1324,7 +1324,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.night_theme_status_bar_color;
 		}
 
 	},
@@ -1426,7 +1426,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.spring_theme_status_bar_color;
 		}
 
 	},
@@ -1630,7 +1630,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.music_theme_status_bar_color;
 		}
 
 	},
@@ -1732,7 +1732,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.starry_theme_status_bar_color;
 		}
 
 	},
@@ -1834,7 +1834,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.owl_theme_status_bar_color;
 		}
 
 	},
@@ -2140,7 +2140,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.hikin_couple_theme_status_bar_color;
 		}
 
 	},
@@ -2242,7 +2242,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.mountains_theme_status_bar_color;
 		}
 
 	},
@@ -2446,7 +2446,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.girly_theme_status_bar_color;
 		}
 
 	},
@@ -2548,7 +2548,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.mr_right_theme_status_bar_color;
 		}
 
 	},
@@ -2854,7 +2854,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.creepy_theme_status_bar_color;
 		}
 
 	},
@@ -2956,7 +2956,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.valentines_theme_status_bar_color;
 		}
 	},
 
@@ -3159,7 +3159,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.study_theme_status_bar_color;
 		}
 
 	},
@@ -3363,7 +3363,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.celebration_theme_status_bar_color;
 		}
 
 	},
@@ -3465,7 +3465,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.floral_theme_status_bar_color;
 		}
 
 	};
