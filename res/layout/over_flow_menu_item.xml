@@ -9,13 +9,13 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="12dp" >
 
-         <com.bsb.hike.view.RoundedImageView
+         <ImageView
              android:id="@+id/item_icon"
-             android:layout_width="@dimen/small_avatar"
-             android:layout_height="@dimen/small_avatar"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:scaleType="centerInside"
              android:layout_centerVertical="true"
-             android:layout_alignParentRight="true"
-             style="@style/AvatarStyle" />
+             android:layout_alignParentRight="true"/>
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/item_title"
