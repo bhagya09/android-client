@@ -1636,4 +1636,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="goto_timeline">Go to Timeline.</string>
     <string name="contacts_sync_error">Contact sync failed. Please try again</string>
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
+    <string name="add_to_fav_confirmation">You can like status posts by your favourites. Do you want to add %1$s as a favourite?</string>
 </resources>

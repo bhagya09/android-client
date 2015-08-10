@@ -219,8 +219,14 @@ public class ActionsDataModel
 		{
 			return false;
 		}
+		
+		ContactInfo contactInfo = Utils.getUserContactInfo(true);
 
-		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+		if (!msisdn.equals(contactInfo.getMsisdn()))
+		{
+			contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+		}
+		
 		if (contactInfo != null)
 		{
 			boolean isRemoved = contactInfoList.remove(contactInfo);
