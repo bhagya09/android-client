@@ -64,6 +64,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
 	
+	public static final int GALLERY_CROP_IMAGE = 64;
+	
 	public static final int GALLERY_ALLOW_MULTISELECT = 32;
 	
 	public static final int GALLERY_CATEGORIZE_BY_FOLDERS = 16;
