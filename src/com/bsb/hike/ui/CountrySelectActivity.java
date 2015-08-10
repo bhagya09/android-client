@@ -42,7 +42,7 @@ import com.bsb.hike.adapters.PinnedHeaderListView;
 import com.bsb.hike.adapters.SectionedBaseAdapter;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 
-public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity implements TextWatcher
+public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity 
 {
 	public static final String RESULT_COUNTRY_NAME = "resCName";
 
@@ -407,53 +407,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		}
 	}
 
-	@Override
-	public void afterTextChanged(Editable s)
-	{
-		String query = s.toString().trim().toLowerCase();
-
-		if (!TextUtils.isEmpty(query))
-		{
-			if (!(listView.getAdapter() instanceof SearchAdapter))
-			{
-				listView.setAdapter(searchListViewAdapter);
-				if (android.os.Build.VERSION.SDK_INT >= 11)
-				{
-					listView.setFastScrollAlwaysVisible(false);
-				}
-				listView.setFastScrollEnabled(false);
-				listView.setVerticalScrollBarEnabled(true);
-			}
-			searching = true;
-			filter.filter(query);
-		}
-		else
-		{
-			if ((listView.getAdapter() instanceof SearchAdapter))
-			{
-				searching = false;
-				listView.setAdapter(listViewAdapter);
-				if (android.os.Build.VERSION.SDK_INT >= 11)
-				{
-					listView.setFastScrollAlwaysVisible(true);
-				}
-				listView.setFastScrollEnabled(true);
-				listView.setVerticalScrollBarEnabled(false);
-			}
-		}
-
-	}
-
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count, int after)
-	{
-	}
-
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count)
-	{
-	}
-
+	
 	private class CountryFilter extends Filter
 	{
 		@Override
