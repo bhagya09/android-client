@@ -53,6 +53,7 @@ import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
+import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
 import com.bsb.hike.voip.VoIPUtils;
@@ -436,12 +437,27 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
+		Logger.w(tag, "keyCode: " + keyCode);
+		if (voipService == null)
+			return false;
+		
 		if (voipService!=null && !voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 			&& voipService.getPartnerClient() != null && voipService.getPartnerClient().isInitiator())
 		{
 			voipService.stopRingtone();
 			return true;
 		}
+		
+		if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
+
+			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
+				acceptCall();
+			} else
+				voipService.hangUp();
+			
+			return true;
+		}
+		
 		return false;
 	}
 

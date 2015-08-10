@@ -344,7 +344,7 @@ public class VoIPService extends Service {
 		
 		startConnectionTimeoutThread();
 		startBluetooth();
-		registerPhoneStateBroadcastReceiver();
+		registerBroadcastReceivers();
 	}
 	
 	@Override
@@ -352,7 +352,7 @@ public class VoIPService extends Service {
 		super.onDestroy();
 		stop();
 		dismissNotification();
-		unregisterPhoneStateBroadcastReceiver();
+		unregisterBroadcastReceivers();
 		
 		if (bluetoothHelper != null) {
 			bluetoothHelper.stop();
@@ -437,14 +437,6 @@ public class VoIPService extends Service {
 					HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE, 
 					partnerCallId, 
 					false);
-			
-			/*
-			 *  Would be great to start retrieving our external socket here.
-			 *  Unfortunately, we can't do that because we need to know the relay port:ip
-			 *  that the call initiator is going to connect to, since we need to connect
-			 *  to the same socket.  
-			 */
-			// retrieveExternalSocket();
 		}
 		
 		// Incoming call ack message
@@ -461,10 +453,6 @@ public class VoIPService extends Service {
 					HikeConstants.MqttMessageTypes.VOIP_CALL_RESPONSE_RESPONSE, 
 					getCallId(), 
 					true);
-			
-			// Start ringing
-			// playOutgoingCallRingtone();
-			
 		}
 		
 		// Incoming call ack ack message
@@ -477,9 +465,6 @@ public class VoIPService extends Service {
 			}
 
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_HANDSHAKE_COMPLETE);
-
-			// Start playing outgoing ring
-			// playIncomingCallRingtone();
 		}
 
 		// INCOMING CALL
@@ -2266,9 +2251,9 @@ public class VoIPService extends Service {
 	/**
 	 * Used for detecting cellular calls while in a VoIP call. 
 	 * Behaviour is to put the VoIP call on hold when a cellular call comes in, 
-	 * and unhold the call when the cellular call is terminated. 
+	 * and unhold the call when the cellular call is terminated.
 	 */
-	private void registerPhoneStateBroadcastReceiver() {
+	private void registerBroadcastReceivers() {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction("android.intent.action.PHONE_STATE");
 
@@ -2286,7 +2271,7 @@ public class VoIPService extends Service {
 					else
 						hangUp();
 				}
-				
+
 				if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
 					// Coming off a call
 					Logger.w(tag, "Call over.");
@@ -2294,11 +2279,12 @@ public class VoIPService extends Service {
 				}
 			}
 		};
-		
+
 		registerReceiver(phoneStateReceiver, filter);
+
 	}
 	
-	private void unregisterPhoneStateBroadcastReceiver() {
+	private void unregisterBroadcastReceivers() {
 		if (phoneStateReceiver != null)
 			unregisterReceiver(phoneStateReceiver);
 	}
@@ -2328,5 +2314,6 @@ public class VoIPService extends Service {
 	public void processErrorIntent(String action, String msisdn) {
 		Logger.w(tag, msisdn + " returned an error message: " + action);
 	}
+	
 }
 
