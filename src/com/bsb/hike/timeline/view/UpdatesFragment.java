@@ -492,7 +492,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 						{
 							timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
 							addFTUEItem();
-							timelineCardsAdapter.notifyItemInserted(0);
+							getActivity().runOnUiThread(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									timelineCardsAdapter.notifyItemInserted(0);
+								}
+							});
 						}
 					}
 
