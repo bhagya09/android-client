@@ -177,18 +177,9 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 				viewHolder.loveStatus.setVisibility(View.VISIBLE);
 			}
 
-			if (statusMessage.hasMood())
-			{
-				// For moods we dont want to use rounded corners
-				viewHolder.avatar.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
-				viewHolder.avatar.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				roundAvatar1.setOval(true);
-				setAvatar(feedDataModel.getActor(), viewHolder.avatar);
-			}
-
+			roundAvatar1.setOval(true);
+			setAvatar(feedDataModel.getActor(), viewHolder.avatar);
+			
 			if (viewType == TEXT)
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
