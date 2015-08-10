@@ -34,7 +34,8 @@ public class VoIPDataPacket implements Cloneable {
 	private long timestamp;
 	private boolean isVoice;
 	private ArrayList<BroadcastListItem> broadcastList = null;
-	
+	private ArrayList<byte[]> dataList = null;
+
 	int length = 0;		// Used to indicate length of actual data in "data"
 
 	public enum PacketType {
@@ -71,7 +72,12 @@ public class VoIPDataPacket implements Cloneable {
 		NETWORK_QUALITY (30),
 		HOLD_ON (31), 
 		HOLD_OFF (32),
-		CLIENTS_LIST (33)
+		CLIENTS_LIST (33),
+		RESET_PACKET_LOSS (34),
+		MULTIPLE_AUDIO_PACKETS (35),
+		MUTE_ON (36),
+		MUTE_OFF (37),
+		CLIENTS_LIST_JSON (38)
 		;
 		
 		private final int value;
@@ -154,6 +160,16 @@ public class VoIPDataPacket implements Cloneable {
 				return HOLD_OFF;
 			case 33:
 				return CLIENTS_LIST;
+			case 34:
+				return RESET_PACKET_LOSS;
+			case 35:
+				return MULTIPLE_AUDIO_PACKETS;
+			case 36:
+				return MUTE_ON;
+			case 37:
+				return MUTE_OFF;
+			case 38:
+				return CLIENTS_LIST_JSON;
 			default:
 				return UPDATE;
 			}
@@ -305,4 +321,15 @@ public class VoIPDataPacket implements Cloneable {
 		broadcastList.add(item);
 	}
 
+	public ArrayList<byte[]> getDataList() {
+		return dataList;
+	}
+
+	public void addToDataList(byte[] data) {
+		if (dataList == null) {
+			dataList = new ArrayList<>();
+		}
+		dataList.add(data);
+	}
+	
 }

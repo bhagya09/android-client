@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
@@ -62,7 +63,7 @@ public class ShareablePopupLayout
 	{
 		if (mKeyboardPopupLayout == null)
 		{
-			if (KeyboardPopupLayout21.shouldShow(context))
+			if (HikeMessengerApp.keyboardApproach(context))
 			{
 				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener,onSoftKeyboardListener) : new KeyboardPopupLayout21(mainView, firstTimeHeight,
 						context, eatOuterTouchIds, listener,onSoftKeyboardListener);
