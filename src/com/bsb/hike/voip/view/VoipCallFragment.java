@@ -437,11 +437,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		Logger.w(tag, "keyCode: " + keyCode);
 		if (voipService == null)
 			return false;
 		
-		if (voipService!=null && !voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+		if (!voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 			&& voipService.getPartnerClient() != null && voipService.getPartnerClient().isInitiator())
 		{
 			voipService.stopRingtone();
