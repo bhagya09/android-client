@@ -312,6 +312,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		return startIndex;
 	}
 
+	// mShowProfileHeader:- tells screen is Profile screen or TL screen
 	private boolean shouldAddFTUEItem()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true) && !mShowProfileHeader;
@@ -479,31 +480,22 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			statusMessages.addAll(result);
 			Logger.d(getClass().getSimpleName(), "Updating...");
 
-			// Get Fav users list from SharedPref for FTUE
 			if (shouldAddFTUEItem())
 			{
-				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				mFtueFriendList = getFtueFriendList();
+				if (mFtueFriendList != null && !mFtueFriendList.isEmpty())
 				{
-					@Override
-					public void run()
+					timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
+					addFTUEItem();
+					getActivity().runOnUiThread(new Runnable()
 					{
-						mFtueFriendList = getFtueFriendList();
-						if (mFtueFriendList != null && !mFtueFriendList.isEmpty())
+						@Override
+						public void run()
 						{
-							timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
-							addFTUEItem();
-							getActivity().runOnUiThread(new Runnable()
-							{
-								@Override
-								public void run()
-								{
-									timelineCardsAdapter.notifyItemInserted(0);
-								}
-							});
+							timelineCardsAdapter.notifyItemInserted(0);
 						}
-					}
-
-				}, 0);
+					});
+				}
 			}
 
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
@@ -688,6 +680,15 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		default:
 			break;
 		}
+	}
+
+	public boolean isEmpty()
+	{
+		if(isAdded() && isVisible() && timelineCardsAdapter != null)
+		{
+			return timelineCardsAdapter.getItemCount() == 0;
+		}
+		return false;
 	}
 
 }
