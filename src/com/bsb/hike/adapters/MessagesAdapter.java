@@ -1904,7 +1904,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 
-			String text;
+			CharSequence msgText = null;
 			if (!messageTextMap.containsKey(convMessage.getMsgID()))
 			{
 				CharSequence markedUp = convMessage.getMessage();
@@ -1913,10 +1913,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				textHolder.text.setText(markedUp);
 				Linkify.addLinks(textHolder.text, Linkify.ALL);
 				Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
-				messageTextMap.put(convMessage.getMsgID(), textHolder.text.getText());
+				msgText = textHolder.text.getText();
+				if (convMessage.getMsgID() > 0)
+					messageTextMap.put(convMessage.getMsgID(), msgText);
 			}
-			CharSequence markedUp = getSpannableSearchString(messageTextMap.get(convMessage.getMsgID()));
-			textHolder.text.setText(markedUp);
+			if (msgText == null)
+			{
+				msgText = getSpannableSearchString(messageTextMap.get(convMessage.getMsgID()));
+				textHolder.text.setText(msgText);
+			}
 
 			displayBroadcastIndicator(convMessage, textHolder.broadcastIndicator, true);
 			setTimeNStatus(position, textHolder, false, textHolder.messageContainer);
