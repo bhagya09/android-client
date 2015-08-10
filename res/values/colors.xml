@@ -439,5 +439,27 @@
     <color name="bg_custom_dialog">#EEEEEE</color>
     <color name="referral_text_colour">#898989</color>
     <color name="referral_code">#ebebeb</color>
+    <color name="spring_theme_status_bar_color">#49645a</color>
+    <color name="owl_theme_status_bar_color">#132a2a</color>
+    <color name="night_theme_status_bar_color">#07121c</color>
+    <color name="nature_theme_status_bar_color">#3f5c17</color>
+    <color name="mr_right_theme_status_bar_color">#413932</color>
+    <color name="celebration_theme_status_bar_color">#691e14</color>
+    <color name="mountains_theme_status_bar_color">#2c3735</color>
+    <color name="love_2_theme_status_bar_color">#7f2833</color>
+    <color name="hikin_couple_theme_status_bar_color">#644b30</color>
+    <color name="geometric_1_theme_status_bar_color">#6f4919</color>
+    <color name="valentines_theme_status_bar_color">#751d2e</color>
+    <color name="blurred_light_theme_status_bar_color">#772636</color>
+    <color name="study_theme_status_bar_color">#4b5427</color>
+    <color name="starry_theme_status_bar_color">#0a3054</color>
+    <color name="rain2_theme_status_bar_color">#121212</color>
+    <color name="girly_theme_status_bar_color">#832944</color>
+    <color name="floral_theme_status_bar_color">#702b3f</color>
+    <color name="creepy_theme_status_bar_color">#273f4c</color>
+    <color name="friends_theme_status_bar_color">#253636</color>
+    <color name="music_theme_status_bar_color">#64656a</color>
+  
+    
 </resources>
 	
