@@ -202,7 +202,13 @@ public class OfflineDisconnectFragment extends SherlockFragment
 					@Override
 					public void onAnimationStart(Animation animation)
 					{
-						// TODO Auto-generated method stub
+						listener.onDisconnectionRequest();
+						
+						//If connected user wants to disconnect and start another connection
+						if(type==0)
+						{
+							listener.onConnectionRequest(true);
+						}	
 						
 					}
 					
@@ -215,16 +221,7 @@ public class OfflineDisconnectFragment extends SherlockFragment
 					@Override
 					public void onAnimationEnd(Animation animation)
 					{
-						listener.onDisconnectionRequest();
-						
-						//If connected user wants to disconnect and start another connection
-						if(type==0)
-						{
-							listener.onConnectionRequest(true);
-						}
-						
-						
-						listener.removeDisconnectFragment(true);			
+						listener.removeDisconnectFragment(true);	
 					}
 				});
 				fragmentView.findViewById(R.id.offline_disconnect_view).startAnimation(anim);
