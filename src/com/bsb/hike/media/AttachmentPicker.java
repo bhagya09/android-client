@@ -121,6 +121,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		// we lazily inflate and
 		if (viewToShow != null)
 		{
+			setOrientation(activity.getResources().getConfiguration().orientation);
 			return;
 		}
 
