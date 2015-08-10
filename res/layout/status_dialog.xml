@@ -82,7 +82,8 @@
                 android:layout_marginLeft="22dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginTop="33dp"
-                android:scaleType="matrix"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
                 android:src="@drawable/misc_timeline_ftue" />
 
             <ImageButton
