@@ -164,7 +164,7 @@ public class ToastListener implements Listener
 			}
 			toaster.notifyStatusMessage(statusMessage, notificationType);
 		}
-		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
+		else if (HikePubSub.ACTIVITY_UPDATE_NOTIF.equals(type))
 		{
 			int notificationType = NotificationType.ACTIVITYUPDATE;
 			Activity activity = (currentActivity != null) ? currentActivity.get() : null;

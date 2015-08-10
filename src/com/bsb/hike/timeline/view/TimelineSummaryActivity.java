@@ -131,7 +131,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 	private View foregroundScreen;
 
-	private StatusMessage statusMessage;
+	private StatusMessage mStatusMessage;
 
 	private TextView fullTextView;
 
@@ -152,21 +152,21 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private boolean isShowCountEnabled;
 
 	private boolean isShowLikesEnabled;
-	
+
 	private ActivityState mActivityState;
-	
+
 	private HikeImageDownloader mImageDownloader;
-	
+
 	private ProgressDialog mDialog;
-	
+
 	public class ActivityState
 	{
 		public String mappedId;
-		
+
 		public StatusMessage statusMessage;
-		
+
 		public ArrayList<String> msisdnsList;
-		
+
 		public boolean isLikedByMe;
 	}
 
@@ -195,35 +195,39 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		{
 			mActivityState = (ActivityState) obj;
 			mappedId = mActivityState.mappedId;
-			statusMessage = mActivityState.statusMessage;
+			mStatusMessage = mActivityState.statusMessage;
 			msisdns = mActivityState.msisdnsList;
 			isLikedByMe = mActivityState.isLikedByMe;
 		}
 		else
 		{
 			mActivityState = new ActivityState();
-			
+
 			Bundle extras = getIntent().getExtras();
 
 			mappedId = extras.getString(HikeConstants.Extras.MAPPED_ID);
 
 			// TODO think of a better place to do this without breaking animation
-			statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
+			mStatusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
 
 			msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
-			
-			isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
 
+			isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
+			
+			mActivityState.mappedId = mappedId;
+			mActivityState.statusMessage = mStatusMessage;
+			mActivityState.msisdnsList = msisdns;
+			mActivityState.isLikedByMe = isLikedByMe;
 		}
 
-		if(msisdns == null)
+		if (msisdns == null)
 		{
-			//Empty list
+			// Empty list
 			msisdns = new ArrayList<String>();
 		}
 
-		checkBoxLove.setTag(statusMessage);
-		
+		checkBoxLove.setTag(mStatusMessage);
+
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
 		ViewTreeObserver observer = contentContainer.getViewTreeObserver();
@@ -241,14 +245,15 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			}
 		});
 
-		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+		if (mStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			isTextStatusMessage = true;
-			fullTextView.setText(statusMessage.getText());
+			fullTextView.setText(mStatusMessage.getText());
 			imageView.setVisibility(View.GONE);
 			fadeScreen.setBackgroundColor(Color.WHITE);
 			textViewCounts.setTextColor(Color.BLACK);
 			fullTextView.setTextColor(Color.BLACK);
+			checkBoxLove.setButtonDrawable(R.drawable.btn_love_selector);
 		}
 		else
 		{
@@ -275,16 +280,30 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		if (!msisdns.isEmpty())
 		{
 
-			if (isShowCountEnabled)
+			if (isShowCountEnabled || mStatusMessage.isMyStatusUpdate())
 			{
 				// Set count
 				if (isTextStatusMessage)
 				{
-					textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+					if (msisdns.size() == 1)
+					{
+						textViewCounts.setText(String.format(getString(R.string.post_like), msisdns.size()));
+					}
+					else
+					{
+						textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
+					}
 				}
 				else
 				{
-					textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
+					if (msisdns.size() == 1)
+					{
+						textViewCounts.setText(String.format(getString(R.string.photo_like), msisdns.size()));
+					}
+					else
+					{
+						textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
+					}
 				}
 			}
 			else
@@ -318,21 +337,25 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		textViewCounts = (TextView) findViewById(R.id.text_view_count);
 		checkBoxLove = (CheckBox) findViewById(R.id.btn_love);
 		fullTextView = (TextView) findViewById(R.id.text_view_full);
+		fullTextView.setMovementMethod(new ScrollingMovementMethod());
 		contentContainer = findViewById(R.id.content_container);
 		imageInfoDivider = findViewById(R.id.imageInfoDivider);
 		hikeUiHandler = new HikeUiHandler(this);
 	}
 
-	private static final int ANIM_DURATION = 280;
+	private int ANIM_DURATION = 280;
 
 	public void runEnterAnimation()
 	{
-		final long duration = (long) (ANIM_DURATION * 1);
+		if (mStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+		{
+			ANIM_DURATION = 0;
+		}
 		contentContainer.setScaleX(0.8f);
 		contentContainer.setScaleY(0.8f);
 		contentContainer.setAlpha(0f);
 
-		contentContainer.animate().setDuration(duration).scaleX(1).scaleY(1).alpha(1f);
+		contentContainer.animate().setDuration(ANIM_DURATION).scaleX(1).scaleY(1).alpha(1f);
 
 		float alphaFinal = isTextStatusMessage ? 1f : 0.95f;
 
@@ -351,18 +374,18 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		}
 		else
 		{
-			foregroundScreen.setVisibility(View.VISIBLE);
-			if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+			if (mStatusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
 			{
+				foregroundScreen.setVisibility(View.VISIBLE);
 				textViewCaption.setText(R.string.posted_photo);
 			}
 			else
 			{
-				textViewCaption.setText(statusMessage.getText());
+				textViewCaption.setText(mStatusMessage.getText());
 			}
 		}
 
-		if (msisdns != null && !msisdns.isEmpty() && isShowLikesEnabled)
+		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled|| mStatusMessage.isMyStatusUpdate()))
 		{
 			textViewCounts.setOnClickListener(new View.OnClickListener()
 			{
@@ -383,16 +406,17 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	 */
 	public void runExitAnimation(final Runnable endAction)
 	{
+		int duration = ANIM_DURATION * 1;
 		infoContainer.setVisibility(View.GONE);
-		contentContainer.animate().setDuration(100).scaleX(0.9f).scaleY(0.9f).alpha(1f);
+		contentContainer.animate().setDuration(duration).scaleX(0.9f).scaleY(0.9f).alpha(1f);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
-		bgAnim.setDuration(100);
+		bgAnim.setDuration(duration);
 
 		ObjectAnimator fgAnim = ObjectAnimator.ofFloat(foregroundScreen, "alpha", 0);
-		fgAnim.setDuration(100);
+		fgAnim.setDuration(duration);
 
 		ObjectAnimator actionBarAnim = ObjectAnimator.ofFloat(actionBarView, "alpha", 0);
-		actionBarAnim.setDuration(100);
+		actionBarAnim.setDuration(duration);
 
 		bgAnim.addListener(new AnimatorListener()
 		{
@@ -428,15 +452,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	@Override
 	public void onBackPressed()
 	{
-		 runExitAnimation(new Runnable()
-		 {
-		 public void run()
-		 {
 		finish();
-		 }
-		 });
-		
-		// actionBar.hide();
 	}
 
 	@Override
@@ -445,7 +461,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		super.finish();
 
 		// override transitions to skip the standard window animations
-		 overridePendingTransition(0, 0);
+		overridePendingTransition(0, 0);
 	}
 
 	private void showImage()
@@ -487,11 +503,11 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private void beginImageDownload()
 	{
 		String fileName = Utils.getProfileImageFileName(mappedId);
-    	mImageDownloader = HikeImageDownloader.newInstance(mappedId, fileName, hasCustomImage, true, null, null, null, true, false);
-    	mImageDownloader.setTaskCallbacks(this);
-    	mImageDownloader.startLoadingTask();
+		mImageDownloader = HikeImageDownloader.newInstance(mappedId, fileName, hasCustomImage, true, null, null, null, true, false);
+		mImageDownloader.setTaskCallbacks(this);
+		mImageDownloader.startLoadingTask();
 	}
-	
+
 	private void dismissProgressDialog()
 	{
 		if (mDialog != null)
@@ -572,7 +588,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 	public boolean hasFileKey()
 	{
-		if (!TextUtils.isEmpty(statusMessage.getFileKey()))
+		if (!TextUtils.isEmpty(mStatusMessage.getFileKey()))
 		{
 			return true;
 		}
@@ -600,7 +616,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
 			{
 				Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this,
-						ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false,false);
+						ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false, false);
 				// Add anything else to the intent
 				intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -644,9 +660,24 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
 
-		contactName.setText(ContactManager.getInstance().getName(statusMessage.getMsisdn(), false));
+		String name = ContactManager.getInstance().getName(mStatusMessage.getMsisdn(), true);
+		
+		if(name == null)
+		{
+			ContactInfo userConInfo = Utils.getUserContactInfo(true);
+			if (userConInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
+			{
+				name = getString(R.string.me);
+			}
+			else
+			{
+				name = mStatusMessage.getMsisdn();
+			}
+		}
+		
+		contactName.setText(name);
 
-		contactStatus.setText(statusMessage.getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));
+		contactStatus.setText(mStatusMessage.getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));
 
 		/**
 		 * Adding click listeners
@@ -679,10 +710,10 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			return;
 		}
 
-		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(statusMessage.getMsisdn());
+		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(mStatusMessage.getMsisdn());
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(statusMessage.getMsisdn(), false);
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(mStatusMessage.getMsisdn(), false);
 		}
 
 		avatar.setScaleType(ScaleType.FIT_CENTER);
@@ -801,7 +832,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			}
 		}
 	};
-	
+
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
@@ -812,13 +843,13 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	public void onProgressUpdate(float percent)
 	{
 		// DO NOTHING
-		
+
 	}
 
 	@Override
 	public void onTaskAlreadyRunning()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 }

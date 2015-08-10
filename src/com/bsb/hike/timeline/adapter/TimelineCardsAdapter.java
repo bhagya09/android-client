@@ -466,9 +466,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				{
 					selfLiked = likesData.isLikedBySelf();
 
-					if (isShowCountEnabled)
+					if (isShowCountEnabled || statusMessage.isMyStatusUpdate())
 					{
-						viewHolder.textBtnLove.setText(String.format(mContext.getString(R.string.num_likes), likesData.getCount()));
+						if (likesData.getCount() == 1)
+						{
+							viewHolder.textBtnLove.setText(String.format(mContext.getString(R.string.num_like), likesData.getCount()));
+						}
+						else
+						{
+							viewHolder.textBtnLove.setText(String.format(mContext.getString(R.string.num_likes), likesData.getCount()));
+						}
 					}
 					else
 					{
@@ -637,9 +644,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			{
 				selfLiked = likesData.isLikedBySelf();
 
-				if (isShowCountEnabled)
+				if (isShowCountEnabled || statusMessage.isMyStatusUpdate())
 				{
-					viewHolder.textBtnLove.setText(String.format(mContext.getString(R.string.num_likes), likesData.getCount()));
+					if (likesData.getCount() == 1)
+					{
+						viewHolder.textBtnLove.setText(String.format(mContext.getString(R.string.num_like), likesData.getCount()));
+					}
+					else
+					{
+						viewHolder.textBtnLove.setText(String.format(mContext.getString(R.string.num_likes), likesData.getCount()));
+					}
 				}
 				else
 				{

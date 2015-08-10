@@ -3674,6 +3674,8 @@ public class MqttMessagesManager
 					if (isSuccess)
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, feedData);
+						
+						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE_NOTIF, feedData);
 					}
 				}
 				catch (JSONException e)

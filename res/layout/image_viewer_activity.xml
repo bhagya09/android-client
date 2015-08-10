@@ -28,19 +28,6 @@
             android:layout_centerInParent="true"
             android:background="@color/transparent"
             android:onClick="onClick" />
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/text_view_full"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="25dp"
-            android:text="Your caption here!Your caption here!Your caption here!Your caption here!Your caption here!"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="italic" />
     </RelativeLayout>
 
     <View
@@ -51,6 +38,22 @@
         android:background="@drawable/image_viewer_fg"
         android:visibility="gone" >
     </View>
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/text_view_full"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/image_info_container"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/white"
+        android:text="Your caption here!Your caption here!Your caption here!Your caption here!Your caption here!"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="italic" />
 
     <LinearLayout
         android:id="@+id/image_info_container"
@@ -65,10 +68,10 @@
             android:layout_height="0dp"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:padding="10dp"
-            android:text="Your caption here!"
             android:maxLines="2"
+            android:padding="10dp"
             android:scrollbars="vertical"
+            android:text="Your caption here!"
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:textStyle="italic" />
