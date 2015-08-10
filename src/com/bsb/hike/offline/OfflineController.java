@@ -363,7 +363,6 @@ public class OfflineController
 	public void setOfflineState(OFFLINE_STATE offlineState)
 	{
 		this.offlineState = offlineState;
-		OfflineUtils.showNotification();
 		Logger.d("OfflineManager", "Offline state is " + offlineState);
 	}
 
