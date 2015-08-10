@@ -216,8 +216,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		final ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
 
-		optionsList.add(new OverFlowMenuItem(getString(R.string.clear_timeline), 0, 0, R.string.clear_timeline));
-
+		if(!mainFragment.isEmpty())
+		{
+			optionsList.add(new OverFlowMenuItem(getString(R.string.clear_timeline), 0, 0, R.string.clear_timeline));
+		}
+		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.favourites), 0, 0, R.string.favourites));
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.my_profile), 0, 0, R.string.my_profile));

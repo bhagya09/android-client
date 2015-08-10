@@ -675,4 +675,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 	}
 
+	public boolean isEmpty()
+	{
+		if(isAdded() && isVisible() && timelineCardsAdapter != null)
+		{
+			return timelineCardsAdapter.getItemCount() == 0;
+		}
+		return false;
+	}
+
 }
