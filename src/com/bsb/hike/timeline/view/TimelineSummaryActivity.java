@@ -646,7 +646,22 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
 
-		contactName.setText(ContactManager.getInstance().getName(mStatusMessage.getMsisdn(), false));
+		String name = ContactManager.getInstance().getName(mStatusMessage.getMsisdn(), true);
+		
+		if(name == null)
+		{
+			ContactInfo userConInfo = Utils.getUserContactInfo(true);
+			if (userConInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
+			{
+				name = getString(R.string.me);
+			}
+			else
+			{
+				name = mStatusMessage.getMsisdn();
+			}
+		}
+		
+		contactName.setText(name);
 
 		contactStatus.setText(mStatusMessage.getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));
 
