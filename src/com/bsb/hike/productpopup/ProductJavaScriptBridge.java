@@ -129,8 +129,11 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 
 		if (mHikeDialogFragment != null && mHikeDialogFragment.get() != null)
 		{
-			 mHikeDialogFragment.get().dismiss();
-			 HikeAlarmManager.cancelAlarm(mHikeDialogFragment.get().getActivity(), HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP);
+			if (mHikeDialogFragment.get().isAdded())
+			{
+				mHikeDialogFragment.get().dismiss();
+			}
+			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP);
 		}
 
 	}
