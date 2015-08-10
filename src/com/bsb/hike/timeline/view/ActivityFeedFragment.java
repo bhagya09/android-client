@@ -183,7 +183,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 
 	public void setupActionBar()
 	{
-		ActionBar actionBar = ((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar();
+		ActionBar actionBar = ((TimelineActivity) getActivity()).getSupportActionBar();
 
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 

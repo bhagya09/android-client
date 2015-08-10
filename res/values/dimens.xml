@@ -217,6 +217,4 @@
 	<dimen name="menu_list_padding_top">8dp</dimen>
 	<dimen name="menu_list_padding_bottom">8dp</dimen>
 	<dimen name="overflow_menu_shadow_padding">6.5dp</dimen>
-	<dimen name="photos_selector_top_padding">8dp</dimen>
-	<dimen name="preview_brush_width">38dp</dimen>
 </resources>

@@ -2276,6 +2276,17 @@ public class HikeConstants
 		public static final String SEND_DEVICE_DETAILS = "sendDeviceDetails";
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
+		
+		/**
+		 * Activity Feed 
+		 */
+		public static final String ACTIVITY_FEED_ACTIONBAR_CLICK = "tL_actf";
+		
+		public static final String ACTIVITY_FEED_ITEM_CLICKED = "tL_fdlst";
+		
+		public static final String FTUE_SHOW_ME_CLICKED = "tL_FTsM";
+		
+		public static final String FTUE_GOT_IT_CLICKED = "tL_GiT";
 
 		public static final String DPI = "dpi";
 

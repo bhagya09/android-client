@@ -2,10 +2,14 @@ package com.bsb.hike.timeline.adapter;
 
 import java.lang.ref.WeakReference;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -20,6 +24,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.RecyclerViewCursorAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -28,7 +34,9 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
@@ -270,6 +278,24 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 				}
 
 				startActivity(intent);
+				
+				JSONObject metadata = new JSONObject();
+				try
+				{
+					String postType = getPostType(statusMessage);
+					metadata.put(AnalyticsConstants.EVENT_SOURCE, postType);
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ITEM_CLICKED);
+					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
+								
+					String osVersion = Build.VERSION.RELEASE;
+					metadata.put(HikeConstants.LogEvent.OS_VERSION, osVersion);
+					
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
 			}
 		}
 	};
@@ -288,4 +314,25 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 	}
 
+	private String getPostType(StatusMessage statusMessage)
+	{
+		switch (statusMessage.getStatusMessageType())
+		{
+		case PROFILE_PIC:
+			return AnalyticsConstants.DISPLAY_PIC;
+
+		case IMAGE:
+			return AnalyticsConstants.POST_UPDATE;
+
+		case TEXT_IMAGE:
+			return AnalyticsConstants.POST_UPDATE;
+
+		case TEXT:
+			return AnalyticsConstants.STATUS_UPDATE;
+		
+		default:
+			break;
+		}
+		return null;
+	}
 }

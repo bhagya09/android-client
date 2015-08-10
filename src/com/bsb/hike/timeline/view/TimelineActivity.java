@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -22,13 +23,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.LinearLayout.LayoutParams;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -44,10 +45,10 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -399,39 +400,37 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public void onBackPressed()
 	{
-		Fragment fragment = getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG);
-		if (!(fragment != null && fragment.isVisible())
-				&& (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false) || getIntent().getBooleanExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, false)))
+		int count = getSupportFragmentManager().getBackStackEntryCount();
+		if (count == 0)
 		{
-			IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			//IS THIS FRAGMENT CHECK Req????
+			Fragment fragment = getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG);
+			if (!(fragment != null && fragment.isVisible())
+					&& (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false) || getIntent().getBooleanExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, false)))
+			{
+				IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			}
+			super.onBackPressed();
 		}
 		else
 		{
-			int count = getSupportFragmentManager().getBackStackEntryCount();
-			if (count == 0)
-			{
-				super.onBackPressed();
-			}
-			else
-			{
-				getSupportFragmentManager().popBackStack();
-				ActionBar actionBar = getSupportActionBar();
-				View actionBarView = actionBar.getCustomView();
-				View backContainer = actionBarView.findViewById(R.id.back);
+			getSupportFragmentManager().popBackStack();
+			ActionBar actionBar = getSupportActionBar();
+			View actionBarView = actionBar.getCustomView();
+			View backContainer = actionBarView.findViewById(R.id.back);
 
-				TextView title = (TextView) actionBarView.findViewById(R.id.title);
-				title.setText(R.string.timeline);
+			TextView title = (TextView) actionBarView.findViewById(R.id.title);
+			title.setText(R.string.timeline);
 
-				backContainer.setOnClickListener(new View.OnClickListener()
+			backContainer.setOnClickListener(new View.OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
 				{
-
-					@Override
-					public void onClick(View v)
-					{
-						onBackPressed();
-					}
-				});
-			}
+					onBackPressed();
+				}
+			});
 		}
 
 	}
@@ -549,7 +548,28 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		ActivityFeedFragment activityFeedFragment = new ActivityFeedFragment();
 		getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).addToBackStack(null).commit();
-
+		TextView activityFeedTopBarIndicator = (TextView) activityFeedMenuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			if (activityFeedTopBarIndicator.isShown())
+			{
+				metadata.put(AnalyticsConstants.EVENT_SOURCE, AnalyticsConstants.WITH_RED_DOT);
+			}
+			else
+			{
+				metadata.put(AnalyticsConstants.EVENT_SOURCE, "null");
+			}
+			metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
+			metadata.put(HikeConstants.LogEvent.OS_VERSION, Build.VERSION.RELEASE);
+						
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ACTIONBAR_CLICK);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 
 	class FetchUnreadFeedsTask extends AsyncTask<Void, Void, Integer>
