@@ -494,6 +494,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Translucent);
 		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 	    // handle fragment arguments
@@ -532,20 +533,18 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void onActivityCreated(Bundle arg0)
 	{
 		super.onActivityCreated(arg0);
-
 		shouldResumeFragment=(arg0!=null);
 		
-		if(OfflineController.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
-		{
-			closeFragment();
-			return;
-		}
 		fragmentView.post(new Runnable()
 		{
 			
 			@Override
 			public void run()
 			{
+				if(!isAdded())
+				{
+					return;
+				}
 				circularProgress.setMarkerEnabled(false);
 				sendUiMessages();
 				startAnimation();

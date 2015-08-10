@@ -1479,8 +1479,18 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		Fragment frag = activity.getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_ANIMATION_FRAGMENT);
 		if (frag != null)
 		{
-			offlineAnimationFragment = ((OfflineAnimationFragment) frag);
-			offlineAnimationFragment.setConnectionListner(this);
+			if(OfflineController.getInstance().getOfflineState() ==OFFLINE_STATE.CONNECTED)
+			{
+				FragmentManager fm = activity.getSupportFragmentManager();
+				fm.beginTransaction().remove(frag).commitAllowingStateLoss();
+				fm.executePendingTransactions();
+			}
+			else
+			{
+				offlineAnimationFragment = ((OfflineAnimationFragment) frag);
+				offlineAnimationFragment.setConnectionListner(this);
+			}
+			
 		}
 		
 		frag = activity.getSupportFragmentManager().findFragmentByTag(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
