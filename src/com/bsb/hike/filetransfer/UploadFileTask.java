@@ -483,6 +483,7 @@ public class UploadFileTask extends FileTransferBase
 						FTAnalyticEvents.sendVideoCompressionEvent(info.originalWidth + "x" + info.originalHeight, info.resultWidth + "x" + info.resultHeight,
 								(int) mFile.length(), (int) compFile.length(), 1);
 						selectedFile = compFile;
+						Utils.deleteFileFromHikeDir(context, mFile, hikeFileType);
 					}else{
 						if(info != null)
 						{
@@ -512,7 +513,7 @@ public class UploadFileTask extends FileTransferBase
 		{
 			try
 			{
-				Utils.downloadAndSaveFile(context, selectedFile, picasaUri);
+				Utils.downloadAndSaveFile(context.getContentResolver(), selectedFile, picasaUri);
 			}
 			catch (Exception e)
 			{
