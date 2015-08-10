@@ -101,5 +101,9 @@
     
      <style name="ButtonCustomDialog" parent="ButtonCustomDialogBase">
      </style>
+
+     <style name="NoTitleBar" parent="Base.NoTitleBar">
+         <item name="colorAccent">@color/white</item>
+     </style>
     
 </resources>
