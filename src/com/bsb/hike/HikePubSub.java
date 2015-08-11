@@ -416,6 +416,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String ACTIVITY_UPDATE = "activityUpdate";
 	
+	public static final String ACTIVITY_UPDATE_NOTIF = "activityUpdateNotif";
+	
 	public static final String TIMELINE_WIPE = "timelinewipe";
 
 	public static final String ACTIVITY_FEED_COUNT_CHANGED = "update_activity_feed_icon_notification";

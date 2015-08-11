@@ -317,7 +317,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	// mShowProfileHeader:- tells screen is Profile screen or TL screen
 	private boolean shouldAddFTUEItem()
 	{
-		return !mShowProfileHeader && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_TIMELINE_FTUE, true) && !mShowProfileHeader;
 	}
 
 	private void addFTUEItem()
@@ -489,7 +489,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				{
 					timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
 					addFTUEItem();
-					timelineCardsAdapter.notifyItemInserted(0);
+					getActivity().runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							timelineCardsAdapter.notifyItemInserted(0);
+						}
+					});
 				}
 			}
 

@@ -8,8 +8,8 @@
 
     <com.bsb.hike.view.RoundedImageView
         android:id="@+id/avatar"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_launcher" />
 
@@ -27,8 +27,8 @@
             android:layout_height="match_parent"
             android:text="Your contact"
             android:textColor="@android:color/black"
-            android:textSize="20dp"
-            android:textStyle="italic" />
+            android:textSize="16dp"
+            android:textStyle="bold|italic" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/contact_status"
@@ -36,8 +36,8 @@
             android:layout_height="match_parent"
             android:text="Liked this photo"
             android:textColor="@color/dark_grey_drop_shadow"
-            android:textSize="15dp"
-            android:textStyle="italic" />
+            android:textSize="14dp"
+            android:textStyle="normal" />
     </LinearLayout>
 
 </RelativeLayout>

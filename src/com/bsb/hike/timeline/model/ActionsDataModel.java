@@ -12,6 +12,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -178,6 +179,8 @@ public class ActionsDataModel
 	
 	public boolean addContact(String msisdn)
 	{
+		Logger.d("ActionsDataModel", "adding: "+msisdn);
+		
 		if (TextUtils.isEmpty(msisdn))
 		{
 			throw new IllegalArgumentException("addContact(argContactInfo) : input msisdn cannot be null");
@@ -197,7 +200,9 @@ public class ActionsDataModel
 		
 		if (contactInfo != null)
 		{
+			Logger.d("ActionsDataModel", "adding coninfo name: "+contactInfo.getName());
 			boolean isAdded = contactInfoList.add(contactInfo);
+			Logger.d("ActionsDataModel", "adding "+(isAdded?"issuccess":"failed"));
 			if (isAdded)
 			{
 				setCount(getCount() + 1);
@@ -210,6 +215,7 @@ public class ActionsDataModel
 
 	public boolean removeContact(String msisdn)
 	{
+		Logger.d("ActionsDataModel", "removing: " + msisdn);
 		if (TextUtils.isEmpty(msisdn))
 		{
 			throw new IllegalArgumentException("removeContact(argContactInfo) : input msisdn cannot be null");
@@ -220,17 +226,22 @@ public class ActionsDataModel
 			return false;
 		}
 
-		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
-		if (contactInfo != null)
+		boolean isRemoved = false;
+
+		for (ContactInfo cinfo : contactInfoList)
 		{
-			boolean isRemoved = contactInfoList.remove(contactInfo);
-			if (isRemoved)
+			if (cinfo.getMsisdn().equals(msisdn))
 			{
-				setCount(getCount() - 1);
+				isRemoved = contactInfoList.remove(cinfo);
+				break;
 			}
-			return isRemoved;
 		}
-		return false;
+
+		if (isRemoved)
+		{
+			setCount(getCount() - 1);
+		}
+		return isRemoved;
 	}
 
 	/**
