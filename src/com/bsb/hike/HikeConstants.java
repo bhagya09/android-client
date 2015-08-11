@@ -472,6 +472,8 @@ public class HikeConstants
 
 	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
 	
+	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
+	
 	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
 	
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
@@ -1145,6 +1147,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_ENABLED = "aec";
 
 	public static final String VOIP_CONFERENCING_ENABLED = "conf";
+
+	public static final String VOIP_GROUP_CALL_ENABLED = "gccall";
 
 	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 

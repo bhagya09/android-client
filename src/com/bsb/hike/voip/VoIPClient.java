@@ -367,6 +367,9 @@ public class VoIPClient  {
 			socket = new DatagramSocket();
 			socket.setReuseAddress(true);
 			socket.setSoTimeout((IceSocketTimeout++) * 1000);
+			
+			setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(context)); 
+			setOurInternalPort(socket.getLocalPort());
 		} catch (SocketException e) {
 			Logger.d(tag, "getNewSocket() SocketException: " + e.toString());
 		}
@@ -399,8 +402,6 @@ public class VoIPClient  {
 				int counter = 0;
 
 				getNewSocket();
-				setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(context)); 
-				setOurInternalPort(socket.getLocalPort());
 
 				while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
 					counter++;
