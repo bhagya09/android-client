@@ -252,9 +252,9 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
-	
+
 	public static int displayWidthPixels;
-	
+
 	public static int displayHeightPixels;
 
 	private static final String defaultCountryName = "India";
@@ -621,7 +621,7 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
-		
+
 		/*
 		 * Just after pin validation we need to set self msisdn field in ContactManager
 		 */
@@ -933,7 +933,6 @@ public class Utils
 		return deviceId;
 	}
 
-	
 	public static void recordDeviceDetails(Context context)
 	{
 		try
@@ -1078,9 +1077,9 @@ public class Utils
 
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
-	
+
 		String myMsisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-		
+
 		long userJoinTime = prefs.getLong(HikeMessengerApp.USER_JOIN_TIME, 0);
 
 		String myName;
@@ -1438,10 +1437,10 @@ public class Utils
 			if (cursor != null)
 				cursor.close();
 		}
-		
+
 		try
 		{
-			if(result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+			if (result == null && isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
 			{
 				result = getPathFromDocumentedUri(uri, mContext);
 			}
@@ -2465,18 +2464,18 @@ public class Utils
 		return getTempProfileImageFileName(msisdn, false);
 	}
 
-	public static String getTempProfileImageFileName(String msisdn,boolean useTimeStamp)
+	public static String getTempProfileImageFileName(String msisdn, boolean useTimeStamp)
 	{
 		String suffix = "_tmp.jpg";
-		
-		if(useTimeStamp)
+
+		if (useTimeStamp)
 		{
-			suffix = Long.toString(System.currentTimeMillis())+suffix;
+			suffix = Long.toString(System.currentTimeMillis()) + suffix;
 		}
-		
-		return getValidFileNameForMsisdn(msisdn) +suffix;
+
+		return getValidFileNameForMsisdn(msisdn) + suffix;
 	}
-	
+
 	public static String getProfileImageFileName(String msisdn)
 	{
 		return getValidFileNameForMsisdn(msisdn) + ".jpg";
@@ -2496,12 +2495,12 @@ public class Utils
 
 	public static boolean renameFiles(String newFilePath, String oldFilePath)
 	{
-		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage "+ newFilePath + ", "+ oldFilePath);
-		if(!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
+		Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage " + newFilePath + ", " + oldFilePath);
+		if (!TextUtils.isEmpty(oldFilePath) && !TextUtils.isEmpty(newFilePath))
 		{
 			File tempFile = new File(oldFilePath);
 			File newFile = new File(newFilePath);
-			if(tempFile.exists())
+			if (tempFile.exists())
 			{
 				return tempFile.renameTo(newFile);
 			}
@@ -2509,18 +2508,18 @@ public class Utils
 		}
 		else
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty "+ newFilePath + ", "+ oldFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside renameUniqueTempProfileImage, file name empty " + newFilePath + ", " + oldFilePath);
 			return false;
 		}
 	}
 
 	public static boolean removeFile(String tmpFilePath)
 	{
-		if(!TextUtils.isEmpty(tmpFilePath))
+		if (!TextUtils.isEmpty(tmpFilePath))
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage " + tmpFilePath);
 			File file = new File(tmpFilePath);
-			if(file.exists())
+			if (file.exists())
 			{
 				return file.delete();
 			}
@@ -2528,11 +2527,11 @@ public class Utils
 		}
 		else
 		{
-			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file "+ tmpFilePath);
+			Logger.d(Utils.class.getSimpleName(), "inside removeUniqueTempProfileImage, empty file " + tmpFilePath);
 			return false;
 		}
 	}
-	
+
 	public static void vibrateNudgeReceived(Context context)
 	{
 		String VIB_OFF = context.getResources().getString(R.string.vib_off);
@@ -2738,7 +2737,7 @@ public class Utils
 		InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(v, flags);
 	}
-	
+
 	public static void toggleSoftKeyboard(Context context)
 	{
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -3246,14 +3245,14 @@ public class Utils
 		}
 		file.delete();
 	}
-	
-	public static void deleteFile(Context context,String filename,HikeFileType type)
+
+	public static void deleteFile(Context context, String filename, HikeFileType type)
 	{
-		if(TextUtils.isEmpty(filename))
+		if (TextUtils.isEmpty(filename))
 		{
 			return;
 		}
-		
+
 		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
 		temp.delete(context);
 	}
@@ -6231,11 +6230,15 @@ public class Utils
 			result = false;
 			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "1.Exception on moving file", e1);
-		} catch (Exception e2) {
+		}
+		catch (Exception e2)
+		{
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "File", "2.Exception on moving file", e2);
-		} finally {
+		}
+		finally
+		{
 			closeStreams(in, out);
 		}
 		return result;
@@ -6571,7 +6574,7 @@ public class Utils
 
 		if (BuildConfig.DEBUG && (getExternalStorageState() != ExternalStorageState.NONE))
 		{
-			String testFolderName = HikeMessengerApp.getInstance().getPackageName() + "_test_9274563810";
+			String testFolderName = HikeMessengerApp.getInstance().getPackageName() + "_test_" + HikeConstants.APP_TEST_UID;
 			File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
 			File listRootFile[] = root.listFiles();
 
@@ -6607,27 +6610,26 @@ public class Utils
 		return result;
 	}
 
-						
 	public static void preFillArrayList(List<?> list, int capacity)
 	{
-		for(int i = 0; i < capacity; i++)
+		for (int i = 0; i < capacity; i++)
 		{
 			list.add(null);
 		}
 	}
-	
-	public static void deleteFiles(Context context,ArrayList<String> fileNames,HikeFileType type)
+
+	public static void deleteFiles(Context context, ArrayList<String> fileNames, HikeFileType type)
 	{
-		if(fileNames == null || fileNames.isEmpty())
+		if (fileNames == null || fileNames.isEmpty())
 		{
 			return;
 		}
-		
-		for(String filepath : fileNames)
+
+		for (String filepath : fileNames)
 		{
 			deleteFile(context, filepath, type);
 		}
-		
+
 	}
 
 	public static boolean ifColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
@@ -6652,7 +6654,7 @@ public class Utils
 		Logger.w("Utils", "ifColumnExistsInTable : " + givenColumnName + " does not column exists in " + tableName + " table");
 		return false;
 	}
-	
+
 	public static boolean isTableExists(SQLiteDatabase db, String tableName)
 	{
 		if ((tableName != null) && (db != null) && db.isOpen())
@@ -6685,14 +6687,14 @@ public class Utils
 
 		return false;
 	}
-	
+
 	public static JSONObject cloneJsonObject(JSONObject jsonObject)
 	{
-		if(jsonObject == null)
+		if (jsonObject == null)
 		{
 			return null;
 		}
-		
+
 		String names[] = new String[jsonObject.length()];
 
 		// get mapping keys
@@ -6703,7 +6705,7 @@ public class Utils
 			names[i++] = (String) iterator.next();
 		}
 
-		//create a new copy
+		// create a new copy
 		JSONObject cloneJson = null;
 		try
 		{
@@ -6717,4 +6719,3 @@ public class Utils
 		return cloneJson;
 	}
 }
-

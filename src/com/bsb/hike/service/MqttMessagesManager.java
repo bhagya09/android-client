@@ -2337,10 +2337,10 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
 		}
 		
-		if (data.has(HikeConstants.STICKER_TAG_REFRESH_INTERVAL))
+		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL))
 		{
-			long tagRefreshInterval = data.getLong(HikeConstants.STICKER_TAG_REFRESH_INTERVAL);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_TAG_REFRESH_INTERVAL, tagRefreshInterval);
+			long tagRefreshInterval = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, tagRefreshInterval);
 		}
 
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA))

@@ -1833,7 +1833,7 @@ public class StickerManager
 	
 	public void refreshTagData()
 	{
-		long stickerTagRefreshPeriod = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REFRESH_INTERVAL, StickerSearchConstants.DEFAULT_STICKER_TAG_REFRESH_TIME);
+		long stickerTagRefreshPeriod = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, StickerSearchConstants.DEFAULT_STICKER_TAG_REFRESH_TIME);
 		if((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_TAG_REFRESH_TIME, 0L)) > stickerTagRefreshPeriod)
 		{
 			StickerSearchManager.getInstance().downloadStickerTags(true);

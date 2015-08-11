@@ -378,10 +378,10 @@ public class StickerSearchManager
 	public void setAlarm()
 	{
 		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REBALANCING_TIME, StickerSearchConstants.REBALACING_DEFAULT_TIME), 0, 0, 0);
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME, StickerSearchConstants.REBALACING_DEFAULT_TIME), 0, 0, 0);
 		if (scheduleTime < System.currentTimeMillis())
 		{
-			scheduleTime += 24 * 60 * 60 * 1000;
+			scheduleTime += 24 * 60 * 60 * 1000; // Next day at predefined time
 		}
 		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true,
 				getRebalancingAlarmIntent(), true);

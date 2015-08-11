@@ -10,6 +10,8 @@ public class HikeConstants
 {
 	public static final String APP_PUSH_ID = "297726274089";
 
+	public static final String APP_TEST_UID = "9274563810";
+
 	public static final String MAP_API_KEY_DEBUG = "0Luu6V6IYSC0UpLSUZe7oO-bvd392OgrXSnY8aA";
 
 	public static final String MAP_API_KEY_PROD = "0Luu6V6IYSC3olBhRm5jHLKDIn5_CA3P17l_3Mw";
@@ -3099,11 +3101,11 @@ public class HikeConstants
 	// Constants for sticker search=========================================================================================[[
 	public static final String STICKER_RECOMMENDATION_ENABLED = "sre"; // boolean
 
-	public static final String STICKER_TAG_REFRESH_INTERVAL = "stri"; // long
+	public static final String STICKER_TAG_REFRESH_TIME_INTERVAL = "strt"; // long
 
 	public static final String STICKER_RECOMMENDATION_CONFIGURATION_DATA = "srcd"; // container key for all of following keys
 
-	public static final String STICKER_TAG_REBALANCING_TIME = "strt"; // integer
+	public static final String STICKER_TAG_REBALANCING_TRIGGER_TIME = "strtt"; // integer
 
 	public static final String STICKER_DATA_TRENDING = "t";
 
