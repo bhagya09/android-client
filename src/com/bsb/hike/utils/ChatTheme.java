@@ -34,7 +34,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent_2x;
+			return R.drawable.bg_header_transparent;
 		}
 
 		@Override
@@ -713,7 +713,7 @@ public enum ChatTheme
 		public int statusBarColor()
 		{
 			// TODO Auto-generated method stub
-			return R.color.blue_hike;
+			return R.color.ipl_theme_status_bar_color;
 		}
 
 	},
