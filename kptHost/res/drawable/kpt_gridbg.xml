@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-   <item android:state_focused="true" android:drawable="@color/kpt_white_color_text"/>
-   <item android:state_pressed="true" android:drawable="@drawable/kpt_tile" />
-   <item android:drawable="@drawable/kpt_tile" />
-</selector>
