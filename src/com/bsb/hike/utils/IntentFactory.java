@@ -628,7 +628,7 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String croppedOutputDestination)
+	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String outputDestination)
 	{
 		
 		boolean allowMultiSelect = (flags & GalleryActivity.GALLERY_ALLOW_MULTISELECT )!=0;
@@ -637,6 +637,7 @@ public class IntentFactory
 		boolean editSelectedImage = (flags & GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE)!=0;
 		boolean compressEdited = (flags & GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE)!=0;
 		boolean forProfileUpdate = (flags & GalleryActivity.GALLERY_FOR_PROFILE_PIC_UPDATE)!=0;
+		boolean cropImage = (flags & GalleryActivity.GALLERY_CROP_IMAGE)!=0;
 		
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
@@ -646,14 +647,14 @@ public class IntentFactory
 		
 		ArrayList<Intent> destIntents = new ArrayList<Intent>();
 		
-		if(editSelectedImage)
+		if(editSelectedImage && Utils.isPhotosEditEnabled())
 		{
-			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, null, forProfileUpdate));
+			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, cropImage?null:outputDestination, forProfileUpdate));
 		}
 		
-		if(croppedOutputDestination != null)
+		if(cropImage)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true,80, false));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, true,80, false));
 		}
 		
 		if(destIntents.size()>0)
