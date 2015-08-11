@@ -1148,6 +1148,8 @@ public class HikeConstants
 
 	public static final String VOIP_CONFERENCING_ENABLED = "conf";
 
+	public static final String VOIP_GROUP_CALL_ENABLED = "gccall";
+
 	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
