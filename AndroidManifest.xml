@@ -5,8 +5,8 @@
     package="com.bsb.hike"
     android:installLocation="auto"
 
-    android:versionCode="1330"
-    android:versionName="3.9.8.82.37" >
+    android:versionCode="1331"
+    android:versionName="3.9.8.82.38" >
     
     <uses-sdk
         android:minSdkVersion="14"
