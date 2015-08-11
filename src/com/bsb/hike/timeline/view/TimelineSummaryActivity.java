@@ -374,9 +374,9 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		}
 		else
 		{
+			foregroundScreen.setVisibility(View.VISIBLE);
 			if (mStatusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
 			{
-				foregroundScreen.setVisibility(View.VISIBLE);
 				textViewCaption.setText(R.string.posted_photo);
 			}
 			else
