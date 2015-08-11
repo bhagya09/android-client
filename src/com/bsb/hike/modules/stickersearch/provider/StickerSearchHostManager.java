@@ -935,7 +935,7 @@ public class StickerSearchHostManager
 	}
 
 	private Pair<String, LinkedHashSet<Sticker>> computeProbableStickers(String currentString, ArrayList<String> wordList, ArrayList<Integer> startIndexList,
-			ArrayList<Integer> endIndexList, String word, int wordIndexInText, boolean isFirstValidWordOfSingleCharacter)
+			ArrayList<Integer> endIndexList, String word, int wordIndexInText, boolean isClickedWordFirstSignificantWord)
 	{
 		LinkedHashSet<Sticker> stickers = new LinkedHashSet<Sticker>();
 		LinkedHashSet<Sticker> tempSelectedStickers = null;
@@ -951,12 +951,13 @@ public class StickerSearchHostManager
 		// determine if exact match is needed
 		int actualStartOfWord = startIndexList.get(wordIndexInText);
 		int actualEndOfWord = endIndexList.get(wordIndexInText) - 1;
+		boolean isFirstValidWordWithSingleCharacter = isClickedWordFirstSignificantWord && (word.length() == 1);
 		Logger.v(TAG, "ActualStartOfWord = " + actualStartOfWord + ", ActualEndOfWord = " + actualEndOfWord);
 		Logger.v(TAG, "CurrentTextEditingStartIndex = " + mCurrentTextEditingStartIndex + ", CurrentTextEditingEndIndex = " + mCurrentTextEditingEndIndex);
-		Logger.v(TAG, "isFirstValidWordOfSingleCharacter = " + (isFirstValidWordOfSingleCharacter && (word.length() == 1)));
+		Logger.v(TAG, "isFirstValidWordOfSingleCharacter = " + isFirstValidWordWithSingleCharacter);
 		boolean exactSearch = !((actualStartOfWord > mCurrentTextEditingStartIndex) ? ((actualStartOfWord <= mCurrentTextEditingEndIndex) && (actualEndOfWord == mCurrentTextEditingEndIndex))
 				: (actualEndOfWord >= mCurrentTextEditingEndIndex))
-				|| (isFirstValidWordOfSingleCharacter && (word.length() == 1));
+				|| isFirstValidWordWithSingleCharacter;
 
 		// pre-phrase part
 		int j;
@@ -1137,7 +1138,7 @@ public class StickerSearchHostManager
 			{
 				if (exactSearch)
 				{
-					if ((currentPhrase.length() == 1) && (isFirstValidWordOfSingleCharacter))
+					if (isFirstValidWordWithSingleCharacter)
 					{
 						tempSelectedStickers = getOrderedStickers(rawSearchText.toString().toUpperCase(Locale.ENGLISH), currentPhrase,
 								StickerSearchConstants.MINIMUM_MATCH_SCORE_SINGLE_CHARACTER);
