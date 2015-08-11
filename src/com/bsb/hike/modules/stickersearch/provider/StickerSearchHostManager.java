@@ -21,10 +21,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility.TextMatchManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
-import com.bsb.hike.modules.stickersearch.provider.db.StickerDataContainer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -65,7 +65,7 @@ public class StickerSearchHostManager
 
 	private static float MARGINAL_FULL_SCORE_LATERAL;
 
-	private static ConcurrentHashMap<String, ArrayList<StickerDataContainer>> sCacheForLocalSearch = new ConcurrentHashMap<String, ArrayList<StickerDataContainer>>();
+	private static ConcurrentHashMap<String, ArrayList<StickerAppositeDataContainer>> sCacheForLocalSearch = new ConcurrentHashMap<String, ArrayList<StickerAppositeDataContainer>>();
 
 	private static HashMap<String, Float> sCacheForLocalAnalogousScore = new HashMap<String, Float>();
 
@@ -388,11 +388,11 @@ public class StickerSearchHostManager
 
 					if (!sCacheForLocalSearch.containsKey(searchKey))
 					{
-						ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>();
+						ArrayList<StickerAppositeDataContainer> list = new ArrayList<StickerAppositeDataContainer>();
 						Logger.d(TAG, "Phrase \"" + searchKey + "\" was not found in local cache...");
 
 						// phrase sticker data
-						ArrayList<StickerDataContainer> phraseResultList = null;
+						ArrayList<StickerAppositeDataContainer> phraseResultList = null;
 						if (lastWordIndexInPhraseStartedWithPivot > i)
 						{
 							Logger.d(TAG, "Phrase \"" + searchKey + "\" is going to be serached in database...");
@@ -425,7 +425,7 @@ public class StickerSearchHostManager
 						Logger.d(TAG, "Phrase searching is done, now word searching is being started...");
 
 						// word sticker data
-						ArrayList<StickerDataContainer> wordResult = null;
+						ArrayList<StickerAppositeDataContainer> wordResult = null;
 
 						String partialSearchKey = value.toUpperCase(Locale.ENGLISH);
 						String wordSearchKey = partialSearchKey + (exactSearch ? StickerSearchConstants.STRING_EMPTY : StickerSearchConstants.STRING_PREDICATE);
@@ -437,7 +437,7 @@ public class StickerSearchHostManager
 							{
 								Logger.d(TAG, "Word \"" + wordSearchKey + "\" was not found in local cache...");
 
-								ArrayList<StickerDataContainer> wordResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(partialSearchKey,
+								ArrayList<StickerAppositeDataContainer> wordResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(partialSearchKey,
 										exactSearch);
 								if (wordResultList != null && wordResultList.size() > 0)
 								{
@@ -449,7 +449,7 @@ public class StickerSearchHostManager
 								else if (wordResultList == null)
 								{
 									Logger.i(TAG, "Saving to cache, Word searchKey::" + partialSearchKey + " ==> []");
-									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerDataContainer>());
+									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerAppositeDataContainer>());
 								}
 							}
 							else
@@ -464,7 +464,8 @@ public class StickerSearchHostManager
 							{
 								Logger.d(TAG, "Single word \"" + partialSearchKey + "\" was not found in local cache...");
 
-								ArrayList<StickerDataContainer> wordResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(partialSearchKey, true);
+								ArrayList<StickerAppositeDataContainer> wordResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(partialSearchKey,
+										true);
 								if (wordResultList != null && wordResultList.size() > 0)
 								{
 									wordResult = wordResultList;
@@ -475,7 +476,7 @@ public class StickerSearchHostManager
 								else if (wordResultList == null)
 								{
 									Logger.i(TAG, "Saving to cache, Single character word searchKey::" + partialSearchKey + " ==> []");
-									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerDataContainer>());
+									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerAppositeDataContainer>());
 								}
 							}
 							else
@@ -505,7 +506,7 @@ public class StickerSearchHostManager
 							if (lastWordIndexInPhraseStartedWithPivot > i)
 							{
 								Logger.i(TAG, "Saving to cache, Phrase searchKey::" + searchKey + " ==> []");
-								sCacheForLocalSearch.put(searchKey, new ArrayList<StickerDataContainer>());
+								sCacheForLocalSearch.put(searchKey, new ArrayList<StickerAppositeDataContainer>());
 
 								int currentMaxPermutationSize;
 								maxPermutationSize = MAXIMUM_PHRASE_PERMUTATION_SIZE - 1;
@@ -517,7 +518,7 @@ public class StickerSearchHostManager
 									searchText.setLength(0);
 									searchText.append(value);
 									currentMaxPermutationSize = maxPermutationSize;
-									ArrayList<StickerDataContainer> savedStickers;
+									ArrayList<StickerAppositeDataContainer> savedStickers;
 
 									for (lastIndexInPhraseStartedWithPivot = i + 1; currentMaxPermutationSize > 1 && lastIndexInPhraseStartedWithPivot < size; lastIndexInPhraseStartedWithPivot++)
 									{
@@ -598,7 +599,7 @@ public class StickerSearchHostManager
 					}
 					else
 					{
-						ArrayList<StickerDataContainer> savedStickers = sCacheForLocalSearch.get(searchKey);
+						ArrayList<StickerAppositeDataContainer> savedStickers = sCacheForLocalSearch.get(searchKey);
 						if ((savedStickers != null) && (savedStickers.size() > 0))
 						{
 							int marker = savedStickers.indexOf(null);
@@ -1204,7 +1205,7 @@ public class StickerSearchHostManager
 		Logger.i(TAG, "getOrderedStickers(" + rawSearchKey + ", " + searchKey + ", " + minimumMatchingScore + ")");
 
 		LinkedHashSet<Sticker> stickers = null;
-		ArrayList<StickerDataContainer> cachedStickerData = sCacheForLocalSearch.get(searchKey);
+		ArrayList<StickerAppositeDataContainer> cachedStickerData = sCacheForLocalSearch.get(searchKey);
 
 		if (!Utils.isEmpty(cachedStickerData))
 		{
@@ -1224,7 +1225,7 @@ public class StickerSearchHostManager
 		return stickers;
 	}
 
-	private LinkedHashSet<Sticker> computeOrderingAndGetStickers(String matchKey, ArrayList<StickerDataContainer> stickerData, float minimumMatchingScore)
+	private LinkedHashSet<Sticker> computeOrderingAndGetStickers(String matchKey, ArrayList<StickerAppositeDataContainer> stickerData, float minimumMatchingScore)
 	{
 		Logger.i(TAG, "computeOrderingAndGetStickers(" + matchKey + ", " + stickerData + ", " + minimumMatchingScore + ")");
 
@@ -1240,10 +1241,10 @@ public class StickerSearchHostManager
 
 			stickers = new LinkedHashSet<Sticker>();
 
-			ArrayList<StickerDataContainer> timePrioritizedStickerList = new ArrayList<StickerDataContainer>();
-			ArrayList<StickerDataContainer> tempStickerDataList = new ArrayList<StickerDataContainer>();
-			TreeSet<StickerDataContainer> leastButSignificantStickerDataList = new TreeSet<StickerDataContainer>();
-			StickerDataContainer stickerDataContainer;
+			ArrayList<StickerAppositeDataContainer> timePrioritizedStickerList = new ArrayList<StickerAppositeDataContainer>();
+			ArrayList<StickerAppositeDataContainer> tempStickerDataList = new ArrayList<StickerAppositeDataContainer>();
+			TreeSet<StickerAppositeDataContainer> leastButSignificantStickerDataList = new TreeSet<StickerAppositeDataContainer>();
+			StickerAppositeDataContainer stickerAppositeDataContainer;
 
 			// Calculate peak frequencies
 			float largestTrendingFrequency = Float.MIN_VALUE;
@@ -1256,25 +1257,25 @@ public class StickerSearchHostManager
 
 			for (int i = 0; i < count; i++)
 			{
-				stickerDataContainer = stickerData.get(i);
-				if (stickerDataContainer != null)
+				stickerAppositeDataContainer = stickerData.get(i);
+				if (stickerAppositeDataContainer != null)
 				{
 					// Trending frequency
-					stickerTrendingFrequency = stickerDataContainer.getTrendingFrequency();
+					stickerTrendingFrequency = stickerAppositeDataContainer.getTrendingFrequency();
 					if (stickerTrendingFrequency > largestTrendingFrequency)
 					{
 						largestTrendingFrequency = stickerTrendingFrequency;
 					}
 
 					// Local frequency
-					stickerLocalFrequency = stickerDataContainer.getLocalFrequency();
+					stickerLocalFrequency = stickerAppositeDataContainer.getLocalFrequency();
 					if (stickerLocalFrequency > largestLocalFrequency)
 					{
 						largestLocalFrequency = stickerLocalFrequency;
 					}
 
 					// Global frequency
-					stickerGlobalFrequency = stickerDataContainer.getGlobalFrequency();
+					stickerGlobalFrequency = stickerAppositeDataContainer.getGlobalFrequency();
 					if (stickerGlobalFrequency > largestGlobalFrequency)
 					{
 						largestGlobalFrequency = stickerGlobalFrequency;
@@ -1299,60 +1300,60 @@ public class StickerSearchHostManager
 			// Calculate overall score
 			for (int i = 0; i < count; i++)
 			{
-				stickerDataContainer = stickerData.get(i);
-				if (stickerDataContainer != null)
+				stickerAppositeDataContainer = stickerData.get(i);
+				if (stickerAppositeDataContainer != null)
 				{
-					int stickerMometCode = stickerDataContainer.getMomentCode();
+					int stickerMometCode = stickerAppositeDataContainer.getMomentCode();
 					float phraseMatchScore = computeAnalogousScoreForExactMatch(matchKey,
-							stickerDataContainer.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
+							stickerAppositeDataContainer.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
 
-					if (stickerDataContainer.getExactMatchOrder() == -1)
+					if (stickerAppositeDataContainer.getExactMatchOrder() == -1)
 					{
-						stickerDataContainer
+						stickerAppositeDataContainer
 								.setScore(
 										phraseMatchScore,
 										((WEIGHTAGE_MATCH_LATERAL * phraseMatchScore) + 0.00f
-												+ (WEIGHTAGE_FREQUENCY_TRENDING * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
-												+ (WEIGHTAGE_FREQUENCY_LOCAL * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
-												+ (WEIGHTAGE_FREQUENCY_GLOBAL * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEIGHTAGE_CONTEXT_MOMENT
+												+ (WEIGHTAGE_FREQUENCY_TRENDING * stickerAppositeDataContainer.getTrendingFrequency() / largestTrendingFrequency)
+												+ (WEIGHTAGE_FREQUENCY_LOCAL * stickerAppositeDataContainer.getLocalFrequency() / largestLocalFrequency)
+												+ (WEIGHTAGE_FREQUENCY_GLOBAL * stickerAppositeDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEIGHTAGE_CONTEXT_MOMENT
 												: 0.00f)));
 					}
 					else
 					{
-						stickerDataContainer
+						stickerAppositeDataContainer
 								.setScore(
 										phraseMatchScore,
 										((WEIGHTAGE_MATCH_LATERAL * phraseMatchScore)
-												+ (WEIGHTAGE_EXACT_MATCH * ((phraseMatchScore > LIMIT_EXACT_MATCH) ? phraseMatchScore : 0.00f) / (stickerDataContainer
+												+ (WEIGHTAGE_EXACT_MATCH * ((phraseMatchScore > LIMIT_EXACT_MATCH) ? phraseMatchScore : 0.00f) / (stickerAppositeDataContainer
 														.getExactMatchOrder() + 1))
-												+ (WEIGHTAGE_FREQUENCY_TRENDING * stickerDataContainer.getTrendingFrequency() / largestTrendingFrequency)
-												+ (WEIGHTAGE_FREQUENCY_LOCAL * stickerDataContainer.getLocalFrequency() / largestLocalFrequency)
-												+ (WEIGHTAGE_FREQUENCY_GLOBAL * stickerDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEIGHTAGE_CONTEXT_MOMENT
+												+ (WEIGHTAGE_FREQUENCY_TRENDING * stickerAppositeDataContainer.getTrendingFrequency() / largestTrendingFrequency)
+												+ (WEIGHTAGE_FREQUENCY_LOCAL * stickerAppositeDataContainer.getLocalFrequency() / largestLocalFrequency)
+												+ (WEIGHTAGE_FREQUENCY_GLOBAL * stickerAppositeDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEIGHTAGE_CONTEXT_MOMENT
 												: 0.00f)));
 					}
 
 					if (currentMomentTerminalCode == stickerMometCode)
 					{
-						timePrioritizedStickerList.add(stickerDataContainer);
+						timePrioritizedStickerList.add(stickerAppositeDataContainer);
 					}
 					else if (phraseMatchScore >= minimumMatchingScore)
 					{
-						tempStickerDataList.add(stickerDataContainer);
+						tempStickerDataList.add(stickerAppositeDataContainer);
 					}
 					else
 					{
 						if (leastButSignificantStickerDataList.size() >= NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL)
 						{
-							StickerDataContainer currentLeastSignificantSticker = leastButSignificantStickerDataList.last();
-							if (currentLeastSignificantSticker.compareTo(stickerDataContainer) == 1)
+							StickerAppositeDataContainer currentLeastSignificantSticker = leastButSignificantStickerDataList.last();
+							if (currentLeastSignificantSticker.compareTo(stickerAppositeDataContainer) == 1)
 							{
 								leastButSignificantStickerDataList.pollLast();
-								leastButSignificantStickerDataList.add(stickerDataContainer);
+								leastButSignificantStickerDataList.add(stickerAppositeDataContainer);
 							}
 						}
 						else
 						{
-							leastButSignificantStickerDataList.add(stickerDataContainer);
+							leastButSignificantStickerDataList.add(stickerAppositeDataContainer);
 						}
 					}
 				}
@@ -1365,15 +1366,16 @@ public class StickerSearchHostManager
 				Collections.sort(tempStickerDataList);
 				for (int i = 0; i < count; i++)
 				{
-					stickerDataContainer = tempStickerDataList.get(i);
-					stickers.add(StickerManager.getInstance().getStickerFromSetString(stickerDataContainer.getStickerCode(), stickerDataContainer.getStickerAvailabilityStatus()));
+					stickerAppositeDataContainer = tempStickerDataList.get(i);
+					stickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
+							stickerAppositeDataContainer.getStickerAvailabilityStatus()));
 				}
 
 				tempStickerDataList.clear();
 			}
 			else if (leastButSignificantStickerDataList.size() > 0)
 			{
-				for (StickerDataContainer marginalSticker : leastButSignificantStickerDataList)
+				for (StickerAppositeDataContainer marginalSticker : leastButSignificantStickerDataList)
 				{
 					stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
 				}
@@ -1392,7 +1394,7 @@ public class StickerSearchHostManager
 
 				for (int i = 0; i < timelyStcikersCount; i++)
 				{
-					StickerDataContainer timelySticker = timePrioritizedStickerList.get(i);
+					StickerAppositeDataContainer timelySticker = timePrioritizedStickerList.get(i);
 					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(timelySticker.getStickerCode(), timelySticker.getStickerAvailabilityStatus()));
 				}
 

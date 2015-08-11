@@ -21,6 +21,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -519,9 +520,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	private ArrayList<StickerDataContainer> searchIntoPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)
+	private ArrayList<StickerAppositeDataContainer> searchIntoPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)
 	{
-		ArrayList<StickerDataContainer> list = null;
+		ArrayList<StickerAppositeDataContainer> list = null;
 
 		if ((referenceArgs != null) && (referenceArgs.length > 0))
 		{
@@ -562,9 +563,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return list;
 	}
 
-	private ArrayList<StickerDataContainer> selectTagsForStickers(String matchKey, boolean isExactMatchNeeded, Cursor c)
+	private ArrayList<StickerAppositeDataContainer> selectTagsForStickers(String matchKey, boolean isExactMatchNeeded, Cursor c)
 	{
-		ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>(c.getCount());
+		ArrayList<StickerAppositeDataContainer> list = new ArrayList<StickerAppositeDataContainer>(c.getCount());
 		int[] columnIndices = computeColumnIndices(c);
 
 		while (c.moveToNext())
@@ -575,9 +576,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return list;
 	}
 
-	private ArrayList<StickerDataContainer> selectTagsForStickersWithLimit(String matchKey, boolean isExactMatchNeeded, Cursor c)
+	private ArrayList<StickerAppositeDataContainer> selectTagsForStickersWithLimit(String matchKey, boolean isExactMatchNeeded, Cursor c)
 	{
-		ArrayList<StickerDataContainer> list = new ArrayList<StickerDataContainer>(c.getCount());
+		ArrayList<StickerAppositeDataContainer> list = new ArrayList<StickerAppositeDataContainer>(c.getCount());
 		int[] columnIndices = computeColumnIndices(c);
 
 		String previousStickerCode = null;
@@ -752,13 +753,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return columnIndices;
 	}
 
-	private StickerDataContainer buildStickerData(Cursor c, int[] columnIndices)
+	private StickerAppositeDataContainer buildStickerData(Cursor c, int[] columnIndices)
 	{
-		StickerDataContainer sticker;
+		StickerAppositeDataContainer stickerAppositeDataContainer;
 
 		if (columnIndices.length == HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_COUNT)
 		{
-			sticker = new StickerDataContainer(c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE]),
+			stickerAppositeDataContainer = new StickerAppositeDataContainer(c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STICKER_CODE]),
 					c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TAG_PHRASE]),
 					c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY]),
 					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER]),
@@ -767,15 +768,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 		else
 		{
-			sticker = null;
+			stickerAppositeDataContainer = null;
 		}
 
-		return sticker;
+		return stickerAppositeDataContainer;
 	}
 
-	public ArrayList<StickerDataContainer> searchIntoFTSAndFindStickerList(String matchKey, boolean isExactMatchNeeded)
+	public ArrayList<StickerAppositeDataContainer> searchIntoFTSAndFindStickerList(String matchKey, boolean isExactMatchNeeded)
 	{
-		ArrayList<StickerDataContainer> result = null;
+		ArrayList<StickerAppositeDataContainer> result = null;
 		ArrayList<String> tempReferences = null;
 		String[] rows = null;
 		Cursor c = null;

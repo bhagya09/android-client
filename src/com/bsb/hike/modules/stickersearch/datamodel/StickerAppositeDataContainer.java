@@ -1,10 +1,10 @@
 /**
- * File   : StickerDataContainer.java
+ * File   : StickerAppositeDataContainer.java
  * Content: It is a container class to store all sticker related data for a particular tag.
  * @author  Ved Prakash Singh [ved@hike.in]
  */
 
-package com.bsb.hike.modules.stickersearch.provider.db;
+package com.bsb.hike.modules.stickersearch.datamodel;
 
 import java.util.ArrayList;
 
@@ -12,7 +12,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 
-public class StickerDataContainer implements Comparable<StickerDataContainer>
+public class StickerAppositeDataContainer implements Comparable<StickerAppositeDataContainer>
 {
 	private String mStickerCode;
 
@@ -48,7 +48,7 @@ public class StickerDataContainer implements Comparable<StickerDataContainer>
 
 	private ArrayList<Float> mFrequencies;
 
-	public StickerDataContainer(String stickerCode, String tag, String overallFrequencyFunction, int exactMatchOrder, int momentCode, int stickerAvailability)
+	public StickerAppositeDataContainer(String stickerCode, String tag, String overallFrequencyFunction, int exactMatchOrder, int momentCode, int stickerAvailability)
 	{
 		mStickerCode = stickerCode;
 		mTag = tag;
@@ -186,11 +186,11 @@ public class StickerDataContainer implements Comparable<StickerDataContainer>
 	@Override
 	public boolean equals(Object obj)
 	{
-		boolean result = (obj != null) && (obj instanceof StickerDataContainer);
+		boolean result = (obj != null) && (obj instanceof StickerAppositeDataContainer);
 
 		if (result)
 		{
-			StickerDataContainer comparableObject = (StickerDataContainer) obj;
+			StickerAppositeDataContainer comparableObject = (StickerAppositeDataContainer) obj;
 
 			result = ((mStickerCode == null) ? (comparableObject.getStickerCode() == null) : mStickerCode.equals(comparableObject.getStickerCode()))
 					&& ((mTag == null) ? (comparableObject.getStickerTag() == null) : mTag.equals(comparableObject.getStickerTag()))
@@ -226,7 +226,7 @@ public class StickerDataContainer implements Comparable<StickerDataContainer>
 	/*
 	 * LHS = RHS ==> return 0; LHS > RHS ==> return -1; LHS < RHS ==> return 1;
 	 */
-	public int compareTo(StickerDataContainer obj)
+	public int compareTo(StickerAppositeDataContainer obj)
 	{
 		if ((obj == null) || (mRecommendationScore > obj.mRecommendationScore))
 		{
