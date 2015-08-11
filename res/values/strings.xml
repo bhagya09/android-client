@@ -1551,7 +1551,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="cont_desc_photos_tab_filter">TabFilter</string>
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
 	<string name="now">Now</string>
-	<string name="sticker_recommend_tip">Tap on blue words.</string>
+	<string name="sticker_recommend_tip">Tap on blue words</string>
 	<string name="group_participant_info">You can add upto 500 members to a group</string>
 	<string name="make_admin">Make Admin</string>
 	<string name="admin_updating">Making %1$s an Admin</string>
