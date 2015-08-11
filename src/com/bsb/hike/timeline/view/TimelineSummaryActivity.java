@@ -61,6 +61,7 @@ import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ProfileImageLoader;
+import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.Animator.AnimatorListener;
@@ -248,7 +249,8 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		if (mStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			isTextStatusMessage = true;
-			fullTextView.setText(mStatusMessage.getText());
+			SmileyParser smileyParser = SmileyParser.getInstance();
+			fullTextView.setText(smileyParser.addSmileySpans(mStatusMessage.getText(), true));
 			imageView.setVisibility(View.GONE);
 			fadeScreen.setBackgroundColor(Color.WHITE);
 			textViewCounts.setTextColor(Color.BLACK);
