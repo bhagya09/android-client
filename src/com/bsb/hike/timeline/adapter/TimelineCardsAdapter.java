@@ -893,7 +893,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			optionsList.add(String.format(mContext.getString(R.string.message_person), argStatusMessage.getNotNullName()));
 		}
 
-		if (argStatusMessage.getStatusMessageType() == StatusMessageType.TEXT || argStatusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		if (argStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			optionsList.add(mContext.getString(R.string.copy));
 		}
