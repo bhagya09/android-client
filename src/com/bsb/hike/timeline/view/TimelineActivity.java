@@ -603,7 +603,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		if (Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(this).hasPermanentMenuKey()))
 		{
-			if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU)
+			if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU && (getSupportFragmentManager().getBackStackEntryCount() == 0))
 			{
 				if (overFlowWindow == null || !overFlowWindow.isShowing())
 				{
