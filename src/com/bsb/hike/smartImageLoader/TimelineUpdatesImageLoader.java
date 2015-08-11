@@ -170,7 +170,14 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 			}
 		}
 		Logger.d(TAG, "Bitmap from icondb");
-		return b.getBitmap();
+		if (b != null)
+		{
+			return b.getBitmap();
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	@Override
