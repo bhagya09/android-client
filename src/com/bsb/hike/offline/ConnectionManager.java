@@ -66,34 +66,6 @@ public class ConnectionManager implements ChannelListener
 		}
 	}
 	
-	public void setDeviceNameAsMsisdn() {
-		/*
-         * Setting device Name to msisdn
-         */
-        try {
-			Method m = wifiP2pManager.getClass().getMethod("setDeviceName", new Class[]{channel.getClass(), String.class,
-						WifiP2pManager.ActionListener.class});
-			m.invoke(wifiP2pManager, channel, OfflineUtils.getMyMsisdn(), new WifiP2pManager.ActionListener() {
-				@Override
-				public void onSuccess() {
-					
-				}
-				@Override
-				public void onFailure(int reason) {
-					Log.e(TAG, "Unable to set device name as msisdn");
-				}
-			});
-		} catch (NoSuchMethodException e) {
-			Log.e(TAG, e.toString());
-		} catch (IllegalAccessException e) {
-			Log.e(TAG,e.toString());
-		} catch (IllegalArgumentException e) {
-			Log.e(TAG,e.toString());
-		} catch (InvocationTargetException e) {
-			Log.e(TAG,e.toString());
-		}
-	}
-	
 	public void connectToHotspot(String targetMsisdn) 
 	{
 		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(),targetMsisdn);
