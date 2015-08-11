@@ -302,7 +302,9 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	public void onChunkRead(ReceiverConsignment receiverConsignment) {
 		fileManager.onChunkRead((ConvMessage) receiverConsignment.getTag());
 	}
-
+	
+	
+	// Convmessage is stored as tag here 
 	@Override
 	public void onFileCompleted(ReceiverConsignment receiver) 
 	{
