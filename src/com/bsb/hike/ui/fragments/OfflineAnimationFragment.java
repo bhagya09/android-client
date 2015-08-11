@@ -23,6 +23,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -53,6 +54,11 @@ import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
+import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
+import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
+import com.bsb.hike.smartcache.HikeLruCache;
+import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -462,13 +468,23 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				}
 			}
 		});
-		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
-		if (drawable == null)
-		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, true);
-		}
-		avatarImageView.setScaleType(ScaleType.FIT_CENTER);
-		avatarImageView.setImageDrawable(drawable);
+		int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 95, getActivity().getResources().getDisplayMetrics());
+//		Drawable drawable=HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+//		if(drawable==null)
+//		{
+//			 drawable=HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn,true);
+//			 avatarImageView.setImageDrawable(drawable);
+//		}
+//		else
+//		{
+		long startTime=System.currentTimeMillis();
+		ProfilePicImageLoader profileImageLoader=new ProfilePicImageLoader(getActivity(), size);
+		profileImageLoader.setDefaultAvatarIfNoCustomIcon(true);
+		profileImageLoader.setHiResDefaultAvatar(true);
+		String mapedId = msisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
+		profileImageLoader.loadImage(mapedId, avatarImageView, true,true);
+		Logger.d(TAG,"time taken in fetching image is "+(System.currentTimeMillis()-startTime)+"");
+		//}
 		
 	}
 	
