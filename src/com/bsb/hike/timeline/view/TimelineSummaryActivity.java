@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.text.util.Linkify;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,9 +42,12 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -141,6 +145,8 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private HikeImageDownloader mImageDownloader;
 
 	private ProgressDialog mDialog;
+	
+	private ContactInfo profileContactInfo;
 
 	public class ActivityState
 	{
@@ -527,6 +533,25 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				});
 			}
 		}
+		else if ((HikePubSub.FAVORITE_TOGGLED.equals(type) || HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || HikePubSub.REJECT_FRIEND_REQUEST.equals(type)))
+		{
+			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
+
+			ContactInfo contactInfo = favoriteToggle.first;
+			FavoriteType favoriteType = favoriteToggle.second;
+
+			if (profileContactInfo != null)
+			{
+				if (!profileContactInfo.getMsisdn().equals(contactInfo.getMsisdn()))
+				{
+					return;
+				}
+				else
+				{
+					this.profileContactInfo.setFavoriteType(favoriteType);
+				}
+			}
+		}
 	}
 
 	public void onCancelled()
@@ -704,6 +729,42 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				e.printStackTrace();
 			}
 
+			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn());
+			
+			// First check if user is friends with msisdn
+			if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND)
+			{
+				toggleCompButtonState(buttonView, onLoveToggleListener);
+				HikeDialogFactory.showDialog(TimelineSummaryActivity.this, HikeDialogFactory.ADD_TO_FAV_DIALOG, new HikeDialogListener()
+				{
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog)
+					{
+						Utils.toggleFavorite(getApplicationContext(), profileContactInfo, false);
+						if (hikeDialog != null && hikeDialog.isShowing())
+						{
+							hikeDialog.dismiss();
+						}
+					}
+
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog)
+					{
+						// Do nothing
+					}
+
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+						if (hikeDialog != null && hikeDialog.isShowing())
+						{
+							hikeDialog.dismiss();
+						}
+					}
+				}, profileContactInfo.getNameOrMsisdn());
+				return;
+			}
+			
 			if (isChecked)
 			{
 				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
@@ -852,4 +913,5 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		// TODO Auto-generated method stub
 
 	}
+	
 }
