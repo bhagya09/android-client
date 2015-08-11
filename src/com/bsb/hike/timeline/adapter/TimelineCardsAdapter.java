@@ -1575,7 +1575,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		if (HikePubSub.FAVORITE_TOGGLED.equals(type) || HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || HikePubSub.REJECT_FRIEND_REQUEST.equals(type))
+		if (mShowUserProfile && 
+				(HikePubSub.FAVORITE_TOGGLED.equals(type) || 
+						HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || 
+						HikePubSub.REJECT_FRIEND_REQUEST.equals(type)))
 		{
 			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
 
