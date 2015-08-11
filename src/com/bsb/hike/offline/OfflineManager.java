@@ -256,7 +256,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 	@Override
-	public void onConnetionToWifiNetwork()
+	public void onConnectionToWifiNetwork()
 	{
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
 		Logger.d(TAG, "CheckConnectedNetwork");
