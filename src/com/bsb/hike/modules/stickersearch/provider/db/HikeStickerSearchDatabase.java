@@ -21,8 +21,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
-import com.bsb.hike.modules.stickersearch.provider.TagToStcikerDataContainer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -347,7 +347,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<TagToStcikerDataContainer> stickersTagData)
+	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
 	{
 		Logger.i(TAG, "insertStickerTagData()");
 
@@ -363,7 +363,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		try
 		{
 			mDb.beginTransaction();
-			for (TagToStcikerDataContainer stickerTagData : stickersTagData)
+			for (StickerTagDataContainer stickerTagData : stickersTagData)
 			{
 				if (!isValidTagData(stickerTagData))
 				{
@@ -471,7 +471,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	private boolean isValidTagData(TagToStcikerDataContainer stickersTagData)
+	private boolean isValidTagData(StickerTagDataContainer stickersTagData)
 	{
 		return (stickersTagData == null) ? false : stickersTagData.isValidData();
 	}
@@ -1294,7 +1294,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			Logger.v(TAG_REBALANCING, "summarizeAndDoRebalancing(), Read data in total no. of blocks = " + blockCount);
 
-			// Frequency shifting must be carried out in following order only
+			/* Frequency shifting must be carried out in following order only */
 			// Before shifting==>
 			//
 			// Today ending at 4 am

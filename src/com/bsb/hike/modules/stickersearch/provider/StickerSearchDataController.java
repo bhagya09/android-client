@@ -23,6 +23,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -79,7 +80,7 @@ public enum StickerSearchDataController
 		Set<String> receivedStickerSet = new HashSet<String>();
 		HashSet<String> stickerCodeSet = new HashSet<String>();
 		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
-		ArrayList<TagToStcikerDataContainer> stickersTagData = new ArrayList<TagToStcikerDataContainer>();
+		ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
 		Iterator<String> categories = packsData.keys();
 
 		while (categories.hasNext())
@@ -401,7 +402,7 @@ public enum StickerSearchDataController
 							Logger.e(TAG, "setupStickerSearchWizard(), No attribute is attached with sticker: " + stickerInfo);
 						}
 
-						stickersTagData.add(new TagToStcikerDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
+						stickersTagData.add(new StickerTagDataContainer(stickerInfo, tagList, tagLanguageList, tagCategoryList, themeList, tagExactMatchPriorityList,
 								tagPriorityList, stickerMomentCode, stickerFestivals));
 						stickerCodeSet.add(stickerInfo);
 					}

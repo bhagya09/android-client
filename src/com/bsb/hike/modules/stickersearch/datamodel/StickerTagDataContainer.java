@@ -1,10 +1,10 @@
 /**
- * File   : TagToStcikerDataContainer.java
+ * File   : StickerTagDataContainer.java
  * Content: It is a container class to store all tag related data for a particular sticker.
  * @author  Ved Prakash Singh [ved@hike.in]
  */
 
-package com.bsb.hike.modules.stickersearch.provider;
+package com.bsb.hike.modules.stickersearch.datamodel;
 
 import java.util.ArrayList;
 
@@ -12,9 +12,9 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConst
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
-public class TagToStcikerDataContainer
+public class StickerTagDataContainer
 {
-	private static final String TAG = TagToStcikerDataContainer.class.getSimpleName();
+	private static final String TAG = StickerTagDataContainer.class.getSimpleName();
 
 	private String mStickerCode;
 
@@ -34,7 +34,7 @@ public class TagToStcikerDataContainer
 
 	private String mFestivals;
 
-	public TagToStcikerDataContainer(String stickerCode, ArrayList<String> tags, ArrayList<String> languages, ArrayList<String> tagCategories, ArrayList<String> themes,
+	public StickerTagDataContainer(String stickerCode, ArrayList<String> tags, ArrayList<String> languages, ArrayList<String> tagCategories, ArrayList<String> themes,
 			ArrayList<Integer> tagExactMatchPriorities, ArrayList<Integer> tagPriorities, int moment, String festivals)
 	{
 		mStickerCode = stickerCode;
@@ -133,11 +133,11 @@ public class TagToStcikerDataContainer
 	@Override
 	public boolean equals(Object obj)
 	{
-		boolean result = (obj != null) && (obj instanceof TagToStcikerDataContainer);
+		boolean result = (obj != null) && (obj instanceof StickerTagDataContainer);
 
 		if (result)
 		{
-			TagToStcikerDataContainer comparableObject = (TagToStcikerDataContainer) obj;
+			StickerTagDataContainer comparableObject = (StickerTagDataContainer) obj;
 
 			result = ((mStickerCode == null) ? (comparableObject.getStickerCode() == null) : mStickerCode.equals(comparableObject.getStickerCode()))
 					&& ((mTags == null) ? (comparableObject.getTagList() == null) : mTags.equals(comparableObject.getTagList()))
