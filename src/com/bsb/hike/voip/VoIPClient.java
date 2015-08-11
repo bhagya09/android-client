@@ -2004,6 +2004,8 @@ public class VoIPClient  {
 	
 	private void remotePacketLossUpdated() {
 		
+		// TODO Recover from reduced bitrate
+		
 		if (remotePacketLoss < VoIPConstants.ACCEPTABLE_PACKET_LOSS)
 			return;
 		
