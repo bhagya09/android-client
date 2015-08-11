@@ -408,6 +408,12 @@ public class StickerSearchUtility
 		return (req >= 0.01f) && (req <= 1.00f);
 	}
 
+	/* Get string for predictive search */
+	public static String getPredictiveSubString(String source, int offset, float predictionRatio)
+	{
+		return ((source != null) && (source.length() > offset)) ? source.substring(0, (int) (source.length() * predictionRatio + 0.50f)) : source;
+	}
+
 	/* Determine if given character is special character */
 	public static boolean isSpecialCharacter(char c)
 	{

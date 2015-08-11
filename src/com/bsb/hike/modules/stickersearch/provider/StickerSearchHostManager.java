@@ -368,8 +368,7 @@ public class StickerSearchHostManager
 						}
 
 						searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-						searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0,
-								(int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+						searchText.append(StickerSearchUtility.getPredictiveSubString(nextWord, MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION, LIMIT_AUTO_CORRECTION));
 
 						maxPermutationSize--;
 						lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
@@ -535,9 +534,10 @@ public class StickerSearchHostManager
 										{
 											continue;
 										}
+
 										searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-										searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length()
-												* LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+										searchText.append(StickerSearchUtility.getPredictiveSubString(nextWord, MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION, LIMIT_AUTO_CORRECTION));
+
 										currentMaxPermutationSize--;
 										lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 									}
@@ -661,9 +661,10 @@ public class StickerSearchHostManager
 									{
 										continue;
 									}
+
 									searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-									searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length()
-											* LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+									searchText.append(StickerSearchUtility.getPredictiveSubString(nextWord, MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION, LIMIT_AUTO_CORRECTION));
+
 									currentMaxPermutationSize--;
 									lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 								}
@@ -1002,11 +1003,10 @@ public class StickerSearchHostManager
 				// build phrase from a group of some words
 				for (j = 1; j < count; j++)
 				{
-					searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
 					nextWord = selectedTextInPhrase.get(j);
-					searchText
-							.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION) ? nextWord.substring(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5))
-									: nextWord);
+
+					searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
+					searchText.append(StickerSearchUtility.getPredictiveSubString(nextWord, MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION, LIMIT_AUTO_CORRECTION));
 
 					rawSearchText.append(StickerSearchConstants.STRING_SPACE);
 					rawSearchText.append(nextWord);
@@ -1110,8 +1110,7 @@ public class StickerSearchHostManager
 				}
 
 				searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
-				searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5))
-						: nextWord));
+				searchText.append(StickerSearchUtility.getPredictiveSubString(nextWord, MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION, LIMIT_AUTO_CORRECTION));
 
 				rawSearchText.append(StickerSearchConstants.STRING_SPACE);
 				rawSearchText.append(nextWord);
