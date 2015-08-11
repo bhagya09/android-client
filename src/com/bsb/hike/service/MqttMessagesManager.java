@@ -1688,6 +1688,11 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED);
 			editor.putBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED, enabled);
 		}
+		if (data.has(HikeConstants.VOIP_GROUP_CALL_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED);
+			editor.putBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED, enabled);
+		}
 		if (data.has(HikeConstants.VOIP_NETWORK_TEST_ENABLED))
 		{
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED);
