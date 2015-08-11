@@ -64,7 +64,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private TextView overflowIndicator;
 
-	// private TextView activityFeedTopBarIndicator;
 	private MenuItem activityFeedMenuItem;
 
 	private SharedPreferences accountPrefs;
@@ -75,7 +74,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	public static final int FETCH_FEED_FROM_DB = -2;
 
-	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED, HikePubSub.ACTIVITY_FEED_COUNT_CHANGED };
+	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED, HikePubSub.ACTIVITY_FEED_COUNT_CHANGED , HikePubSub.TIMELINE_WIPE};
 
 	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
 
@@ -105,6 +104,20 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 				public void run()
 				{
 					unreadCounter = count;
+					invalidateOptionsMenu();
+				}
+			});
+		}
+		if (HikePubSub.TIMELINE_WIPE.equals(type))
+		{
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STATUS_TABLE);
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.FEED_TABLE);
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					unreadCounter = NO_FEED_PRESENT;
 					invalidateOptionsMenu();
 				}
 			});
@@ -172,14 +185,16 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
-		if (savedInstanceState != null)
+
+		if(mainFragment == null)
 		{
-			return;
+			mainFragment = new UpdatesFragment();
 		}
 
-		mainFragment = new UpdatesFragment();
-
-		getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment).commit();
+		if(!mainFragment.isAdded())
+		{
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment).commit();
+		}
 
 	}
 
@@ -588,7 +603,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		if (Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(this).hasPermanentMenuKey()))
 		{
-			if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU)
+			if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU && (getSupportFragmentManager().getBackStackEntryCount() == 0))
 			{
 				if (overFlowWindow == null || !overFlowWindow.isShowing())
 				{
