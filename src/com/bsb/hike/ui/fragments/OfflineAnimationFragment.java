@@ -157,8 +157,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			case START_TIMER:
 				updateAnimationText(connectionInfo,"" +timerDuration/1000);
 				startTimer();
-				break;
-			
+				break;	
 		}
 		
 	}
@@ -201,13 +200,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationStart(Animation animation)
 			{
-				// TODO Auto-generated method stub
+				
 			}
 			
 			@Override
 			public void onAnimationRepeat(Animation animation)
 			{
-				// TODO Auto-generated method stub
 				
 			}
 			
@@ -217,7 +215,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				source.setText("");
 				source.setVisibility(View.VISIBLE);
 				source.startAnimation(appearAnimation);
-				
 			}
 		});
 		
@@ -234,7 +231,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationRepeat(Animation animation)
 			{
-				// TODO Auto-generated method stub
 				
 			}
 			
@@ -292,8 +288,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	    final int xd = (xDest -(imageViewLayout.getMeasuredHeight()*3)/4 );
 	    final int yd  = (yDest -(imageViewLayout.getMeasuredHeight())/2);
 	    
-	    //Toast.makeText(getActivity(), "" + xd + "-" + imageViewLayout.getWidth() + " - " + yd + " - "+ imageViewLayout.getHeight(), Toast.LENGTH_SHORT).show();
-	    
 	    //Translate to the middle and scale
 	    ObjectAnimator translateX = ObjectAnimator.ofFloat(imageViewLayout, "translationX",xd);
 	    ObjectAnimator translateY = ObjectAnimator.ofFloat(imageViewLayout, "translationY",yd);
@@ -305,7 +299,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	    scaleY.setDuration(800);
 	    translateX.setInterpolator(new OvershootInterpolator(0.2f));
 	    translateY.setInterpolator(new OvershootInterpolator(0.2f));   
-	    
+	  
 	    //Scale up at the middle of screen
 		ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 2.9f);
 		ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 2.9f);
@@ -318,10 +312,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		scaleXDown.setDuration(250);
 		scaleYDown.setDuration(250);
 	    
-		//Alpha animation on the holo circular ring
-	   /* ObjectAnimator alphaAnimation  =  ObjectAnimator.ofFloat(frame, View.ALPHA,0.0f,1.0f);
-		alphaAnimation.setDuration(100);
-		*/
 		//Scale up holo circular ring 
 		ObjectAnimator scaleXUpHolo = ObjectAnimator.ofFloat(frame, "scaleX", 1.1f);
 		ObjectAnimator scaleYUpHolo = ObjectAnimator.ofFloat(frame, "scaleY", 1.1f);
@@ -496,8 +486,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Translucent);
 		offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
-	    // handle fragment arguments
-		timerDuration = offlineParameters.getConnectionTimeout() - OfflineConstants.TIMER_START_TIME;
+	    timerDuration = offlineParameters.getConnectionTimeout() - OfflineConstants.TIMER_START_TIME;
 	    Bundle arguments = getArguments();
 	    if(arguments != null)
 	    {
@@ -636,7 +625,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		frame.setVisibility(View.INVISIBLE);
 		secondMessage.setVisibility(View.INVISIBLE);
 		removePostedMessages();
-		//scaleUpAvatar(3.5f, 3.5f);
 		showRetryButton();
 		connectionInfo.setText(getResources().getString(R.string.retry_connection));
 		
@@ -691,11 +679,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				 
 				 frame.setVisibility(View.INVISIBLE);
 				 secondMessage.setVisibility(View.INVISIBLE);
+		
 				 //Scale up 
 				 ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 3.5f);
 				 ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 3.5f);
 				 scaleXUp.setDuration(1500);
 				 scaleYUp.setDuration(1500);
+				
 				 //Translate back up
 				 ObjectAnimator translateX = ObjectAnimator.ofFloat(imageViewLayout, "translationX",originalPos[0] - (imageViewLayout.getWidth()*3)/4);
 				 ObjectAnimator translateY = ObjectAnimator.ofFloat(imageViewLayout, "translationY",originalPos[1] - (imageViewLayout.getHeight()*3)/4);
@@ -785,14 +775,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationStart(Animation animation)
 			{
-				// TODO Auto-generated method stub
-				
+					
 			}
 			
 			@Override
 			public void onAnimationRepeat(Animation animation)
 			{
-				// TODO Auto-generated method stub
 				
 			}
 			
@@ -825,15 +813,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationStart(Animation animation)
 			{
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void onAnimationRepeat(Animation animation)
 			{
-				// TODO Auto-generated method stub
-				
+					
 			}
 			
 			@Override
@@ -863,16 +849,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		uiHandler.removeMessages(START_TIMER);
 	}
 	
-	public void scaleUpAvatar(float xDest,float yDest)
-	{
-		ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", xDest);
-		ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", yDest);
-		AnimatorSet anim =  new AnimatorSet();
-		anim.setDuration(500);
-		anim.playTogether(scaleXUp,scaleYUp);
-		anim.start();
-	}
- 
 	private void hideAndStopTimer()
 	{
 		secondMessage.setVisibility(View.GONE);
@@ -883,16 +859,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	protected void hideTimer()
 	{
 		secondMessage.setVisibility(View.GONE);
-	}
-	
-	public AnimatorSet getScaleDownAvatarAnimator(float xDest,float yDest)
-	{
-		ObjectAnimator scaleXDown = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", xDest);
-		ObjectAnimator scaleYDown = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", yDest);
-		AnimatorSet anim =  new AnimatorSet();
-		anim.setDuration(500);
-		anim.playTogether(scaleXDown,scaleYDown);
-		return anim;
 	}
 	
 	public void hideRetryButton()
@@ -912,7 +878,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	public void onDisconnectionRequest()
 	{
 		listener.onDisconnectionRequest();
-		//closeFragment();
 	}
 
 	@Override

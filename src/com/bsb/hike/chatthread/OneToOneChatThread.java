@@ -43,6 +43,8 @@ import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -1728,10 +1730,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			contactFirstName = contactInfo.getFirstName();
 		}
 		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
-		Animation slideIn  = AnimationUtils.loadAnimation(activity,R.anim.slide_in_from_left);
+		Animation slideIn  = AnimationUtils.loadAnimation(activity,R.anim.slide_in_left);
 		activity.findViewById(R.id.network_error_card).setVisibility(View.VISIBLE);
-		
-		slideIn.setDuration(800);
+		slideIn.setDuration(600);
 		slideIn.setAnimationListener(new AnimationListener()
 		{
 			
