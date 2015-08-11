@@ -3038,6 +3038,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	
 	Handler handler = new Handler();
 
+	private HikeDialog dialog;
+
 	private boolean showDayIndicator(int position)
 	{
 		/*
@@ -3523,7 +3525,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		contact.name = name;
 		contact.items = items;
 		
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
+		this.dialog =HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
 		{
 			
 			@Override
@@ -4163,6 +4165,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if (mWebViewCardRenderer != null)
 		{
 			mWebViewCardRenderer.onDestroy();
+		}
+		if (dialog != null)
+		{
+			dialog.dismiss();
+			dialog = null;
 		}
 	}
 	
