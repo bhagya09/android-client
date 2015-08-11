@@ -105,12 +105,19 @@ public class OfflineFileManager
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 		synchronized (currentSendingFiles)
 		{
+
 			if (currentSendingFiles.containsKey(msgId))
 			{
-				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks()
-						* OfflineConstants.CHUNK_SIZE * 1024);
+				// Defensive check as in shutdown we  clear the map 
+				FileTransferModel mmModel = currentSendingFiles.get(msgId);
+				if (mmModel != null)
+				{
+					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(),mmModel.getTransferProgress().getCurrentChunks()
+							* OfflineConstants.CHUNK_SIZE * 1024);
+					return fss;
+				}
 			}
-			else if (TextUtils.isEmpty(hikeFile.getFileKey()))
+			if (TextUtils.isEmpty(hikeFile.getFileKey()))
 			{
 				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0);
 			}
@@ -140,19 +147,21 @@ public class OfflineFileManager
 
 			if (currentReceivingFiles.containsKey(msgId))
 			{
-				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks()
-						* OfflineConstants.CHUNK_SIZE * 1024);
+				FileTransferModel mmModel = currentReceivingFiles.get(msgId);
+				// Defensive check as in shutdown we  clear the map 
+				if (mmModel != null)
+				{
+					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), mmModel.getTransferProgress().getCurrentChunks() * OfflineConstants.CHUNK_SIZE * 1024);
+					return fss;
+				}
+			}
+			if (file.exists() || (hikeFile.getHikeFileType() == HikeFileType.CONTACT))
+			{
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 			}
 			else
 			{
-				if (file.exists() || (hikeFile.getHikeFileType() == HikeFileType.CONTACT))
-				{
-					fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
-				}
-				else
-				{
-					fss = new FileSavedState(FTState.ERROR, hikeFile.getFileKey());
-				}
+				fss = new FileSavedState(FTState.ERROR, hikeFile.getFileKey());
 			}
 		}
 		return fss;
