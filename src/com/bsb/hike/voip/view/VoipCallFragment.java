@@ -839,11 +839,12 @@ public class VoipCallFragment extends Fragment implements CallActions
 				updateConferenceList();
 		}
 
-		if (clientPartner.isHostingConference) {
-			addButton.setVisibility(View.GONE);
-		} else
-			addButton.setVisibility(View.VISIBLE);
-			
+		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
+			if (clientPartner.isHostingConference) {
+				addButton.setVisibility(View.GONE);
+			} else
+				addButton.setVisibility(View.VISIBLE);
+		}
 		
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
 		{

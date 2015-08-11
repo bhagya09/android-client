@@ -130,6 +130,7 @@ import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -1064,11 +1065,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			onBlueOverLayClick((ConvMessage) v.getTag(), v);
 			break;
 		case R.id.next:
-			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 			searchMessage(true,false);
 			break;
 		case R.id.previous:
-			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 			searchMessage(false,false);
 			break;
 		case R.id.search_clear_btn:
@@ -1216,7 +1215,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public void setStickerRecommendFtueTipSeen()
 	{
-		if (mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		if (mTips!=null&&mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
 		{
 			Logger.d(TAG, "set sticker recommend tip seen : " + true);
 			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
@@ -1300,7 +1299,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		int width = (int) (Utils.scaledDensityMultiplier * 270);
 		int xOffset = -(int) (276 * Utils.scaledDensityMultiplier);
 		int yOffset = -(int) (0.5 * Utils.scaledDensityMultiplier);
-		attachmentPicker.show(width, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		attachmentPicker.show(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
 	}
 
 	/**
@@ -1379,9 +1378,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (theme == ChatTheme.DEFAULT)
 		{
 			backgroundImage.setImageResource(theme.bgResId());
+			setChatBackground(R.color.chat_thread_default_bg);
 		}
 		else
 		{
+			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
 			Drawable drawable = Utils.getChatTheme(theme, activity);
 			if(!theme.isTiled())
@@ -1554,13 +1555,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void setupStickerSearch()
 	{
-		if(!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
+		if(!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
 			return;
 		}	
 		
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
-		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
+		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
 	
@@ -1602,7 +1603,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setText(searchText);
 			mComposeView.setSelection(searchText.length());
 		}
-		Utils.blockOrientationChange(activity);
 	}
 	
 	private void setUpSearchViews()
@@ -1672,6 +1672,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void searchMessage(boolean searchNext, boolean loop)
 	{
+		mConversationsView.setOnScrollListener(null);
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
@@ -1711,6 +1713,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		setMessagesRead();
 		loadingMoreMessages = false;
+		mConversationsView.setOnScrollListener(this);
 	}
 
 	protected void destroySearchMode()
@@ -1741,7 +1744,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mAdapter.setSearchText(null);
 			searchText = null;
 		}
-		Utils.unblockOrientationChange(activity);
 	}
 
 	protected void showToast(int messageId)
@@ -3925,6 +3927,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		if (shouldShowKeyboard())
 		{
+			tryToDismissAnyOpenPanels();
 			Utils.showSoftKeyboard(activity, mComposeView);
 		}
 		
@@ -4099,6 +4102,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 * We call this method to either re-init the stickerpicker and emoticon picker or update their listeners
 		 */
 		initShareablePopup();
+		StickerManager.getInstance().showStickerRecommendTurnOnToast();
 	}
 
 	protected void hideView(int viewId)
@@ -5252,6 +5256,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				attachmentPicker.dismiss();
 			}
+			else
+			{
+				attachmentPicker.onOrientationChange(newConfig.orientation);
+			}
 		}
 	}
 	
@@ -5316,7 +5324,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			else if (actionId == EditorInfo.IME_ACTION_SEARCH||(view.getId() ==R.id.search_text))
 			{
-				Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 				searchMessage(false,true);
 				return true;
 			}
@@ -5732,5 +5739,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void selectAllComposeText()
 	{
 			
+	}
+	
+	private void tryToDismissAnyOpenPanels()
+	{
+		hideOverflowMenu();
+		hideThemePicker();
 	}
 }

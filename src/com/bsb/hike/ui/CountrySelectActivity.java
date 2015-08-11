@@ -16,6 +16,8 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -26,16 +28,21 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.PinnedHeaderListView;
 import com.bsb.hike.adapters.SectionedBaseAdapter;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 
-public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity implements TextWatcher
+public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity 
 {
 	public static final String RESULT_COUNTRY_NAME = "resCName";
 
@@ -128,7 +135,6 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		listView = (PinnedHeaderListView) findViewById(R.id.listView);
 		listView.setVerticalScrollBarEnabled(false);
 		listView.setAdapter(listViewAdapter = new ListAdapter(this));
-		((EditText) findViewById(R.id.search_text)).addTextChangedListener(this);
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
 		{
 			@Override
@@ -401,53 +407,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		}
 	}
 
-	@Override
-	public void afterTextChanged(Editable s)
-	{
-		String query = s.toString().trim().toLowerCase();
-
-		if (!TextUtils.isEmpty(query))
-		{
-			if (!(listView.getAdapter() instanceof SearchAdapter))
-			{
-				listView.setAdapter(searchListViewAdapter);
-				if (android.os.Build.VERSION.SDK_INT >= 11)
-				{
-					listView.setFastScrollAlwaysVisible(false);
-				}
-				listView.setFastScrollEnabled(false);
-				listView.setVerticalScrollBarEnabled(true);
-			}
-			searching = true;
-			filter.filter(query);
-		}
-		else
-		{
-			if ((listView.getAdapter() instanceof SearchAdapter))
-			{
-				searching = false;
-				listView.setAdapter(listViewAdapter);
-				if (android.os.Build.VERSION.SDK_INT >= 11)
-				{
-					listView.setFastScrollAlwaysVisible(true);
-				}
-				listView.setFastScrollEnabled(true);
-				listView.setVerticalScrollBarEnabled(false);
-			}
-		}
-
-	}
-
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count, int after)
-	{
-	}
-
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count)
-	{
-	}
-
+	
 	private class CountryFilter extends Filter
 	{
 		@Override
@@ -484,4 +444,81 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 			searchListViewAdapter.notifyDataSetChanged();
 		}
 	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// TODO Auto-generated method stub
+		getMenuInflater().inflate(R.menu.country_select_menu, menu);
+		MenuItem searchMenuItem = menu.findItem(R.id.search);
+		final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+		searchView.clearFocus();
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		searchView.setOnQueryTextListener(onQueryTextListener);
+		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+		{
+
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item)
+			{
+				return true;
+			}
+
+			@Override
+			public boolean onMenuItemActionCollapse(MenuItem item)
+			{
+				searchView.setQuery("", true);
+				return true;
+			}
+		});
+
+		return true;
+	}
+
+	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
+	{
+
+		@Override
+		public boolean onQueryTextSubmit(String query)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean onQueryTextChange(String s)
+		{
+			String query = s.toString().trim().toLowerCase();
+
+			if (!TextUtils.isEmpty(query))
+			{
+				if (!(listView.getAdapter() instanceof SearchAdapter))
+				{
+					listView.setAdapter(searchListViewAdapter);
+					if (android.os.Build.VERSION.SDK_INT >= 11)
+					{
+						listView.setFastScrollAlwaysVisible(false);
+					}
+					listView.setFastScrollEnabled(false);
+					listView.setVerticalScrollBarEnabled(true);
+				}
+				searching = true;
+				filter.filter(query);
+			}
+			else
+			{
+				if ((listView.getAdapter() instanceof SearchAdapter))
+				{
+					searching = false;
+					listView.setAdapter(listViewAdapter);
+					if (android.os.Build.VERSION.SDK_INT >= 11)
+					{
+						listView.setFastScrollAlwaysVisible(true);
+					}
+					listView.setFastScrollEnabled(true);
+					listView.setVerticalScrollBarEnabled(false);
+				}
+			}
+			return true;
+		}
+	};
 }

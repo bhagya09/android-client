@@ -218,4 +218,11 @@
 	<dimen name="menu_list_padding_top">8dp</dimen>
 	<dimen name="menu_list_padding_bottom">8dp</dimen>
 	<dimen name="overflow_menu_shadow_padding">6.5dp</dimen>
+	<dimen name="photos_selector_top_padding">8dp</dimen>
+	<dimen name="preview_brush_width">38dp</dimen>
+	<dimen name="unread_badge_single_width">22dp</dimen>
+	<dimen name="unread_badge_double_width">24dp</dimen>
+	<dimen name="unread_badge_triple_width">30dp</dimen>
+	<dimen name="unread_badge_quad_width">36dp</dimen>
+	<dimen name="attachment_column_width">73dp</dimen>
 </resources>

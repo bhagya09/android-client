@@ -7,7 +7,7 @@
     <com.bsb.hike.adapters.PinnedHeaderListView
         android:headerDividersEnabled="false"
         android:id="@+id/addfriend_listview"
-        style="@style/HomeList" />
+        style="@style/ComposeList" />
 
     <include
         layout="@layout/spinner_center_screen"
