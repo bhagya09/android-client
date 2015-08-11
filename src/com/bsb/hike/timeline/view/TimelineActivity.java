@@ -185,14 +185,16 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
-		if (savedInstanceState != null)
+
+		if(mainFragment == null)
 		{
-			return;
+			mainFragment = new UpdatesFragment();
 		}
 
-		mainFragment = new UpdatesFragment();
-
-		getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment).commit();
+		if(!mainFragment.isAdded())
+		{
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment).commit();
+		}
 
 	}
 
