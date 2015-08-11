@@ -388,6 +388,12 @@ public class VoIPUtils {
 		return conferenceEnabled;
 	}
 	
+	public static boolean isGroupCallEnabled(Context context) 
+	{
+		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_GROUP_CALL_ENABLED, false);
+		return enabled;
+	}
+	
 	public static boolean isBluetoothEnabled(Context context) 
 	{
 		boolean bluetoothEnabled = true;
