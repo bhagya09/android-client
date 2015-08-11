@@ -391,17 +391,16 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			}
 		}
 
-		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
+		
+		textViewCounts.setOnClickListener(new View.OnClickListener()
 		{
-			textViewCounts.setOnClickListener(new View.OnClickListener()
+			@Override
+			public void onClick(View v)
 			{
-				@Override
-				public void onClick(View v)
-				{
-					showLikesContactsDialog();
-				}
-			});
-		}
+				showLikesContactsDialog();
+			}
+		});
+		
 	}
 
 	/**
@@ -608,6 +607,9 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	// TODO Move to HikeDialogFactory
 	public void showLikesContactsDialog()
 	{
+		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
+			return;
+		
 		final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, 11);
 		dialog.setContentView(R.layout.display_contacts_dialog);
 		dialog.setCancelable(true);
