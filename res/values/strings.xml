@@ -1595,4 +1595,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="goto_timeline">Go to Timeline.</string>
     <string name="contacts_sync_error">Contact sync failed. Please try again</string>
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
+    <string name="cloud_file_error">This file is not present on your phone. Please download it externally before sharing</string>
+    <string name="unknown_file_error">We could not locate the file on disk. Please try again</string>
 </resources>

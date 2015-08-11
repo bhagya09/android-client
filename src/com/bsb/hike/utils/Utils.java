@@ -1492,8 +1492,6 @@ public class Utils
 			try
 			{
 				file = getCloudFile(mContext, uri);
-				if(file != null)
-					returnFilePath = file.getAbsolutePath();
 			}
 			catch (IOException e)
 			{
@@ -1503,9 +1501,19 @@ public class Utils
 			{
 				er.printStackTrace();
 			}
-
+			if(file != null)
+			{
+				return file.getAbsolutePath();
+			}
+			else
+			{
+				Toast.makeText(mContext, R.string.cloud_file_error, Toast.LENGTH_SHORT).show();
+				return null;
+			}
 		}
 
+		if(returnFilePath == null)
+			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 		return returnFilePath;
 
 	}
@@ -2362,6 +2370,8 @@ public class Utils
 		ContentResolver cR = context.getContentResolver();
 		MimeTypeMap mime = MimeTypeMap.getSingleton();
 		String contentType = cR.getType(uri);
+		if(contentType == null)
+			return null;
 		HikeFileType hikeFileType = HikeFileType.fromString(contentType, false);
 		String extension = mime.getExtensionFromMimeType(contentType);
 		File destFile = null;
