@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -251,6 +252,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			isTextStatusMessage = true;
 			SmileyParser smileyParser = SmileyParser.getInstance();
 			fullTextView.setText(smileyParser.addSmileySpans(mStatusMessage.getText(), true));
+			Linkify.addLinks(fullTextView, Linkify.ALL);
 			imageView.setVisibility(View.GONE);
 			fadeScreen.setBackgroundColor(Color.WHITE);
 			textViewCounts.setTextColor(Color.BLACK);
@@ -376,28 +378,29 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		}
 		else
 		{
+			foregroundScreen.setVisibility(View.VISIBLE);
 			if (mStatusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
 			{
-				foregroundScreen.setVisibility(View.VISIBLE);
 				textViewCaption.setText(R.string.posted_photo);
 			}
 			else
 			{
-				textViewCaption.setText(mStatusMessage.getText());
+				SmileyParser smileyParser = SmileyParser.getInstance();
+				textViewCaption.setText(smileyParser.addSmileySpans(mStatusMessage.getText(), true));
+				Linkify.addLinks(textViewCaption, Linkify.ALL);
 			}
 		}
 
-		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
+		
+		textViewCounts.setOnClickListener(new View.OnClickListener()
 		{
-			textViewCounts.setOnClickListener(new View.OnClickListener()
+			@Override
+			public void onClick(View v)
 			{
-				@Override
-				public void onClick(View v)
-				{
-					showLikesContactsDialog();
-				}
-			});
-		}
+				showLikesContactsDialog();
+			}
+		});
+		
 	}
 
 	/**
@@ -604,6 +607,9 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	// TODO Move to HikeDialogFactory
 	public void showLikesContactsDialog()
 	{
+		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
+			return;
+		
 		final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, 11);
 		dialog.setContentView(R.layout.display_contacts_dialog);
 		dialog.setCancelable(true);

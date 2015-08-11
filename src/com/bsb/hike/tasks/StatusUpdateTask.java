@@ -108,7 +108,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 				if(suType == StatusMessageType.TEXT_IMAGE || suType == StatusMessageType.IMAGE)
 				{
 					// TODO Support all image formats (same code is present in ChangeProfileImageBaseActivity)
-					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + "/" + mappedId + ".jpg";
+					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
 
 					Utils.copyFile(imageFilePath, destFilePath);
 					
@@ -192,6 +192,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 			{
 				Logger.e(getClass().getSimpleName(), " post status request failed : " + httpException.getMessage());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
+				Utils.deleteFile(new File(imageFilePath));
 			}
 		};
 	}

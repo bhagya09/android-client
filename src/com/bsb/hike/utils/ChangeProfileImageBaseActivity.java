@@ -161,6 +161,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE;
 			if (!isPersonal)
 			{
+				galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
 				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath(useTimestamp));
 				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 			}
@@ -173,6 +174,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
+			galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
 			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath(useTimestamp));
 			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
