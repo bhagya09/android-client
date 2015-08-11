@@ -90,14 +90,14 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		
-		final SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-		searchView.setOnQueryTextListener(onQueryTextListener);
+		getMenuInflater().inflate(R.menu.country_select_menu, menu);
+		MenuItem searchMenuItem = menu.findItem(R.id.search);
+		final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 		searchView.clearFocus();
-
-		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 100, R.string.search);
-		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchItem.setIcon(R.drawable.ic_top_bar_search), searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-		MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener()
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		searchView.setOnQueryTextListener(onQueryTextListener);
+		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 		{
 
 			@Override
@@ -113,7 +113,6 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 				return true;
 			}
 		});
-
 
 		return true;
 	}

@@ -9,7 +9,7 @@
         android:title="@string/post_new_update"/>
     <item
         android:id="@+id/overflow_menu"
-        android:icon="@drawable/ic_overflow"
+        android:icon="@drawable/ic_overflow_home"
         app:showAsAction="always"
         android:title="@string/other">
         <menu>

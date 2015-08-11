@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@drawable/bg_phone_num_unselected" android:state_focused="true"/>
+    <item android:drawable="@drawable/bg_phone_num_selected" android:state_focused="true"/>
     <item android:drawable="@drawable/bg_phone_num_unselected"/>
 
 </selector>

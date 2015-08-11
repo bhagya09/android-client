@@ -201,7 +201,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				.findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
 		if (stickerRecommendPreference != null)
 		{
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true))
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
 			{
 				stickerRecommendPreference.setOnPreferenceChangeListener(this);
 			}
@@ -215,7 +215,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				.findPreference(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF);
 		if (stickerRecommendAutopopupPreference != null)
 		{
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true))
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
 			{
 				stickerRecommendAutopopupPreference.setDependency(HikeConstants.STICKER_RECOMMEND_PREF);
 				stickerRecommendAutopopupPreference.setOnPreferenceChangeListener(this);
@@ -1227,7 +1227,7 @@ private void setupToolBar(int titleRes){
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, isChecked);
 			StickerSearchManager.getInstance().setShowAutopopupSettingOn(isChecked);
-			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
+			StickerManager.getInstance().sendRecommendationAutopopupSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{

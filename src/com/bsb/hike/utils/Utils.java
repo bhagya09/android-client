@@ -6837,5 +6837,22 @@ public class Utils
 	{
 		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)) && (contactInfo.isOnhike());
 	}
+	
+	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
+	{
+		switch (unreadCount.length())
+		{
+		case 1:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
+		case 2:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_double_width);
+		case 3:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_triple_width);
+		case 4:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_quad_width);
+		default:
+			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
+		}
+	}
 }
 

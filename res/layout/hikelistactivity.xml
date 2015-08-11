@@ -56,7 +56,7 @@
 
         <com.bsb.hike.adapters.PinnedHeaderListView
             android:id="@+id/contact_list"
-            style="@style/HomeList"
+            style="@style/ComposeList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="1px"

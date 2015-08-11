@@ -175,7 +175,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			if (jsonObject.has(HikePlatformConstants.IS_CHECKED))
 			{
 				boolean isChecked = jsonObject.optBoolean(HikePlatformConstants.IS_CHECKED, true);
-				return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.tick : com.bsb.hike.R.drawable.untick, id, enabled);
+				return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.control_check_on : com.bsb.hike.R.drawable.control_check_off, id, enabled);
 			}
 			
 			else
