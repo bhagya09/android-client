@@ -452,7 +452,6 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 		MenuItem searchMenuItem = menu.findItem(R.id.search);
 		final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 		searchView.clearFocus();
-		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
