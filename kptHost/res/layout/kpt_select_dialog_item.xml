@@ -1,0 +1,15 @@
+<!--
+    This layout file is used by the AlertDialog when displaying a list of items.
+    This layout file is inflated and used as the TextView to display individual
+    items.
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/select_dialog_item_textview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:gravity="center_vertical"
+    android:paddingLeft="14dip"
+    android:paddingRight="15dip"
+    android:ellipsize="marquee"
+/>

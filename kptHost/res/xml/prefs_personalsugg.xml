@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto"
+    android:ellipsize="marquee"
+    android:icon="@drawable/kpt_personalize_suggestions"
+    android:key="Learn"
+    android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_3"
+    android:title="@string/kpt_learn_key" >
+
+    <com.kpt.adaptxt.beta.settings.WrappingPreference
+        android:ellipsize="marquee"
+        android:key="my_dictionary"
+        android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_1"
+        android:title="@string/kpt_mydictionary" >
+        <intent android:action="com.kpt.adaptxt.beta.settings.MY_DICTIONARY" />
+    </com.kpt.adaptxt.beta.settings.WrappingPreference>
+    <com.kpt.adaptxt.beta.settings.WrappingPreference
+        android:ellipsize="marquee"
+        android:key="learn"
+        android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_10_300"
+        android:title="@string/kpt_UI_STRING_MENU_ITEM_10_300" >
+        <intent android:action="com.kpt.adaptxt.beta.settings.KPTLearnFromActivity" >
+            <extra
+                android:name="@string/kpt_accounts_extra_data"
+                android:value="@string/kpt_learn_key" />
+        </intent>
+    </com.kpt.adaptxt.beta.settings.WrappingPreference>
+    
+<!--      <com.kpt.adaptxt.beta.settings.WrappingPreference
+        android:ellipsize="marquee"
+        android:key="location_pref"
+        android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_7_300"
+        android:title="@string/kpt_UI_STRING_MENU_ITEM_7_300" >
+        <intent android:action="com.kpt.adaptxt.beta.settings.LOCATION_PREF" />
+    </com.kpt.adaptxt.beta.settings.WrappingPreference>
+
+    <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+        android:defaultValue="true"
+        android:ellipsize="marquee"
+        android:key="silent_update"
+        android:persistent="true"
+        android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_6_300"
+        android:title="@string/kpt_UI_STRING_MENU_ITEM_6_300" />
+
+   
+    <com.kpt.adaptxt.beta.settings.WrappingPreference
+        android:ellipsize="marquee"
+        android:key="account_manager"
+        android:summary="@string/kpt_accounts_manager_summary"
+        android:title="@string/kpt_accounts_manger_title" >
+        <intent android:action="com.kpt.adaptxt.beta.settings.KPTSocialAccountManagerActivity" />
+    </com.kpt.adaptxt.beta.settings.WrappingPreference>
+ -->
+    <com.kpt.adaptxt.beta.settings.WrappingCheckBoxPreference
+        android:defaultValue="true"
+        android:ellipsize="marquee"
+        android:key="atr_feature"
+        android:persistent="true"
+        android:summary="@string/kpt_UI_STRING_MENUITEM_DESC_2_7003"
+        android:title="@string/kpt_UI_STRING_MENUITEMS_1_7003" />
+
+    <com.kpt.adaptxt.beta.settings.WrappingPreference
+        android:dependency="atr_feature"
+        android:ellipsize="marquee"
+        android:key="atr_settings"
+        android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_5"
+        android:title="@string/kpt_UI_STRING_MENUITEMS_2_7003" >
+    </com.kpt.adaptxt.beta.settings.WrappingPreference>
+
+</PreferenceScreen>
