@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.text.util.Linkify;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,9 +42,12 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -93,30 +97,11 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 	private ProfileImageLoader profileImageLoader;
 
-	private Runnable failedRunnable = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			dismissProgressDialog();
-		}
-	};
-
-	private Runnable cancelledRunnable = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			dismissProgressDialog();
-		}
-	};
-
 	private Runnable successRunnable = new Runnable()
 	{
 		@Override
 		public void run()
 		{
-			dismissProgressDialog();
 			profileImageLoader.loadFromFile();
 		}
 	};
@@ -160,6 +145,8 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	private HikeImageDownloader mImageDownloader;
 
 	private ProgressDialog mDialog;
+	
+	private ContactInfo profileContactInfo;
 
 	public class ActivityState
 	{
@@ -474,31 +461,26 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		profileImageLoader = new ProfileImageLoader(this, mappedId, imageView, imageSize, true, true);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
 		{
-
 			@Override
 			public void onLoaderReset(Loader<Boolean> arg0)
 			{
-				dismissProgressDialog();
 			}
 
 			@Override
 			public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
 			{
-				dismissProgressDialog();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
 			}
 
 			@Override
 			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
 			{
-				showProgressDialog();
 				return null;
 			}
 
 			@Override
 			public void startDownloading()
 			{
-				showProgressDialog();
 				beginImageDownload();
 			}
 		});
@@ -513,26 +495,10 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		mImageDownloader.startLoadingTask();
 	}
 
-	private void dismissProgressDialog()
-	{
-		if (mDialog != null)
-		{
-			mDialog.dismiss();
-			mDialog = null;
-		}
-	}
-
-	private void showProgressDialog()
-	{
-		mDialog = ProgressDialog.show(TimelineSummaryActivity.this, null, getResources().getString(R.string.downloading_image));
-		mDialog.setCancelable(true);
-	}
-
 	@Override
 	public void onDestroy()
 	{
 		super.onDestroy();
-		dismissProgressDialog();
 		HikeMessengerApp.getPubSub().removeListeners(this, profilePicPubSubListeners);
 	}
 
@@ -567,11 +533,29 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				});
 			}
 		}
+		else if ((HikePubSub.FAVORITE_TOGGLED.equals(type) || HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || HikePubSub.REJECT_FRIEND_REQUEST.equals(type)))
+		{
+			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
+
+			ContactInfo contactInfo = favoriteToggle.first;
+			FavoriteType favoriteType = favoriteToggle.second;
+
+			if (profileContactInfo != null)
+			{
+				if (!profileContactInfo.getMsisdn().equals(contactInfo.getMsisdn()))
+				{
+					return;
+				}
+				else
+				{
+					this.profileContactInfo.setFavoriteType(favoriteType);
+				}
+			}
+		}
 	}
 
 	public void onCancelled()
 	{
-		hikeUiHandler.post(cancelledRunnable);
 	}
 
 	public void onSuccess(Response result)
@@ -582,7 +566,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	public void onFailed()
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, mappedId);
-		hikeUiHandler.post(failedRunnable);
 	}
 
 	@Override
@@ -746,6 +729,42 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				e.printStackTrace();
 			}
 
+			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn());
+			
+			// First check if user is friends with msisdn
+			if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND)
+			{
+				toggleCompButtonState(buttonView, onLoveToggleListener);
+				HikeDialogFactory.showDialog(TimelineSummaryActivity.this, HikeDialogFactory.ADD_TO_FAV_DIALOG, new HikeDialogListener()
+				{
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog)
+					{
+						Utils.toggleFavorite(getApplicationContext(), profileContactInfo, false);
+						if (hikeDialog != null && hikeDialog.isShowing())
+						{
+							hikeDialog.dismiss();
+						}
+					}
+
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog)
+					{
+						// Do nothing
+					}
+
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+						if (hikeDialog != null && hikeDialog.isShowing())
+						{
+							hikeDialog.dismiss();
+						}
+					}
+				}, profileContactInfo.getNameOrMsisdn());
+				return;
+			}
+			
 			if (isChecked)
 			{
 				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
@@ -894,4 +913,5 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		// TODO Auto-generated method stub
 
 	}
+	
 }

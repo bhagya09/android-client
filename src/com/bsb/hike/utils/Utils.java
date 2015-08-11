@@ -6832,5 +6832,10 @@ public class Utils
 
 		return cloneJson;
 	}
+	
+	public static boolean showContactsUpdates(ContactInfo contactInfo)
+	{
+		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)) && (contactInfo.isOnhike());
+	}
 }
 

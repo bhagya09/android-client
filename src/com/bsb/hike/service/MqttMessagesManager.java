@@ -217,22 +217,6 @@ public class MqttMessagesManager
 		}
 	}
 
-	/**
-	 * Used to save user icon to db
-	 * @param iconData 
-	 * @param msisdn of the user
-	 * @throws JSONException
-	 */
-	private void saveUserIcon(JSONObject iconData, String msisdn) throws JSONException
-	{
-		String iconBase64 = iconData.getString(HikeConstants.DATA);
-		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
-
-		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
-	}
-	
-
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
@@ -1583,10 +1567,10 @@ public class MqttMessagesManager
 		FavoriteType currentType = contactInfo.getFavoriteType();
 		FavoriteType favoriteType = (currentType == FavoriteType.NOT_FRIEND || currentType == FavoriteType.REQUEST_RECEIVED_REJECTED || currentType == FavoriteType.REQUEST_RECEIVED) ? FavoriteType.REQUEST_RECEIVED
 				: FavoriteType.FRIEND;
-
+		
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(contactInfo, favoriteType);
 		this.pubSub.publish(favoriteType == FavoriteType.REQUEST_RECEIVED ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.FRIEND_REQUEST_ACCEPTED, favoriteToggle);
-
+		
 		if(favoriteType == favoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
@@ -1599,6 +1583,8 @@ public class MqttMessagesManager
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
 			}
 		}
+		
+		contactInfo.setFavoriteType(favoriteType);
 
 		if (favoriteType == FavoriteType.FRIEND)
 		{
