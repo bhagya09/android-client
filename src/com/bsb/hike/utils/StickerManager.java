@@ -37,6 +37,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -1390,6 +1391,20 @@ public class StickerManager
 
 		StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(getAllInitialyInsertedStickerCategories());
 		stickerSignupUpgradeDownloadTask.execute();
+	}
+	
+	public void showStickerRecommendTurnOnToast()
+	{
+		boolean stickerRecommendPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true);
+		boolean stickerRecommendAutoPerf = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+		boolean stickerRecommendTurnOnToastPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_SETTING_OFF_TOAST, false);
+		
+		
+		if(!stickerRecommendTurnOnToastPref && (!stickerRecommendAutoPerf || !stickerRecommendPref))
+		{
+			Toast.makeText(HikeMessengerApp.getInstance(), HikeMessengerApp.getInstance().getResources().getString(R.string.sticker_recommend_settings_toast), Toast.LENGTH_LONG).show();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_SETTING_OFF_TOAST, true);
+		}
 	}
 	
 	public void updateStickerCategoriesMetadata(JSONArray jsonArray)
