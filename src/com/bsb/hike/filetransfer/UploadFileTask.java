@@ -1356,6 +1356,10 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 		time = System.currentTimeMillis() - time;
+		boolean isCompleted = resCode == RESPONSE_OK ? true : false;
+		String netType = FileTransferManager.getInstance(context).getNetworkTypeString();
+		if (resCode == RESPONSE_OK || resCode == RESPONSE_ACCEPTED)
+			FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, time, contentRange, netType);
 		Logger.d(getClass().getSimpleName(), "Upload time: " + time / 1000 + "." + time % 1000 + "s.  Response: " + resCode);
 		return res;
 	}
