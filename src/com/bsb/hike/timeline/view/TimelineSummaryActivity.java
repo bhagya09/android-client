@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -61,6 +62,7 @@ import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ProfileImageLoader;
+import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.Animator.AnimatorListener;
@@ -248,7 +250,9 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		if (mStatusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			isTextStatusMessage = true;
-			fullTextView.setText(mStatusMessage.getText());
+			SmileyParser smileyParser = SmileyParser.getInstance();
+			fullTextView.setText(smileyParser.addSmileySpans(mStatusMessage.getText(), true));
+			Linkify.addLinks(fullTextView, Linkify.ALL);
 			imageView.setVisibility(View.GONE);
 			fadeScreen.setBackgroundColor(Color.WHITE);
 			textViewCounts.setTextColor(Color.BLACK);
@@ -374,14 +378,16 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		}
 		else
 		{
+			foregroundScreen.setVisibility(View.VISIBLE);
 			if (mStatusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
 			{
-				foregroundScreen.setVisibility(View.VISIBLE);
 				textViewCaption.setText(R.string.posted_photo);
 			}
 			else
 			{
-				textViewCaption.setText(mStatusMessage.getText());
+				SmileyParser smileyParser = SmileyParser.getInstance();
+				textViewCaption.setText(smileyParser.addSmileySpans(mStatusMessage.getText(), true));
+				Linkify.addLinks(textViewCaption, Linkify.ALL);
 			}
 		}
 
