@@ -907,14 +907,14 @@
         <item name="android:paddingBottom">8dp</item>
     </style>
 
-    <style name="TitleCustomDialog">
+    <style name="TitleCustomDialog" parent = "BaseStyleTextView">
         <item name="android:paddingBottom">12dp</item>
         <item name="android:paddingTop">16dp</item>
         <item name="android:paddingLeft">@dimen/custom_dialog_preferred_paddding</item>
         <item name="android:paddingRight">@dimen/custom_dialog_preferred_paddding</item>
     </style>
     
-    <style name="TitleTextStyleCustomDialog">
+    <style name="TitleTextStyleCustomDialog" parent = "BaseStyleTextView">
         <item name="android:textStyle">bold|italic</item>
         <item name="android:textColor">#de000000</item>
         <item name="android:textSize">20sp</item>
@@ -927,7 +927,7 @@
         <item name="android:paddingRight">@dimen/custom_dialog_preferred_paddding</item>
     </style>
     
-    <style name="ContentTextStyleCustomDialog">
+    <style name="ContentTextStyleCustomDialog" parent = "BaseStyleTextView">
         <item name="android:textColor">#8a000000</item>
         <item name="android:textSize">16sp</item>
     </style>
