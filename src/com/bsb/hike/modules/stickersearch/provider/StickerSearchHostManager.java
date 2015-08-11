@@ -365,9 +365,11 @@ public class StickerSearchHostManager
 						{
 							continue;
 						}
+
 						searchText.append(StickerSearchConstants.STRING_PREDICATE_NEXT);
 						searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0,
 								(int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5)) : nextWord));
+
 						maxPermutationSize--;
 						lastWordIndexInPhraseStartedWithPivot = lastIndexInPhraseStartedWithPivot;
 					}
@@ -388,7 +390,7 @@ public class StickerSearchHostManager
 
 					if (!sCacheForLocalSearch.containsKey(searchKey))
 					{
-						ArrayList<StickerAppositeDataContainer> list = new ArrayList<StickerAppositeDataContainer>();
+						ArrayList<StickerAppositeDataContainer> list = null;
 						Logger.d(TAG, "Phrase \"" + searchKey + "\" was not found in local cache...");
 
 						// phrase sticker data
@@ -397,7 +399,7 @@ public class StickerSearchHostManager
 						{
 							Logger.d(TAG, "Phrase \"" + searchKey + "\" is going to be serached in database...");
 							phraseResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(searchKey, false);
-							if (phraseResultList != null && phraseResultList.size() > 0)
+							if (!Utils.isEmpty(phraseResultList))
 							{
 								list = phraseResultList;
 								Logger.d(TAG, "Filtering phrase stickers before saving in local cache: " + list);
@@ -421,6 +423,10 @@ public class StickerSearchHostManager
 						}
 
 						// add separator between word stickers and phrase stickers
+						if (list == null)
+						{
+							list = new ArrayList<StickerAppositeDataContainer>();
+						}
 						list.add(null);
 						Logger.d(TAG, "Phrase searching is done, now word searching is being started...");
 
@@ -439,7 +445,7 @@ public class StickerSearchHostManager
 
 								ArrayList<StickerAppositeDataContainer> wordResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(partialSearchKey,
 										exactSearch);
-								if (wordResultList != null && wordResultList.size() > 0)
+								if (!Utils.isEmpty(wordResultList))
 								{
 									wordResult = wordResultList;
 									Logger.d(TAG, "Filtering word stickers before saving in local cache, searchKey::" + wordSearchKey + " ==> " + wordResult);
@@ -466,7 +472,7 @@ public class StickerSearchHostManager
 
 								ArrayList<StickerAppositeDataContainer> wordResultList = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(partialSearchKey,
 										true);
-								if (wordResultList != null && wordResultList.size() > 0)
+								if (!Utils.isEmpty(wordResultList))
 								{
 									wordResult = wordResultList;
 									Logger.d(TAG, "Filtering single character word stickers before saving in local cache, searchKey::" + partialSearchKey + " ==> " + wordResult);
@@ -485,7 +491,7 @@ public class StickerSearchHostManager
 							}
 						}
 
-						if (wordResult != null && wordResult.size() > 0)
+						if (!Utils.isEmpty(wordResult))
 						{
 							list.addAll(wordResult);
 							suggestionFoundOnLastValidWord = true;
@@ -544,7 +550,7 @@ public class StickerSearchHostManager
 									}
 
 									savedStickers = sCacheForLocalSearch.get(searchKey);
-									if ((savedStickers != null) && (savedStickers.size() > 0))
+									if (!Utils.isEmpty(savedStickers))
 									{
 										int marker = savedStickers.indexOf(null);
 										if (marker != 0)
@@ -600,7 +606,7 @@ public class StickerSearchHostManager
 					else
 					{
 						ArrayList<StickerAppositeDataContainer> savedStickers = sCacheForLocalSearch.get(searchKey);
-						if ((savedStickers != null) && (savedStickers.size() > 0))
+						if (!Utils.isEmpty(savedStickers))
 						{
 							int marker = savedStickers.indexOf(null);
 							if (marker != 0 && lastWordIndexInPhraseStartedWithPivot > i)
@@ -673,7 +679,7 @@ public class StickerSearchHostManager
 									}
 
 									savedStickers = sCacheForLocalSearch.get(searchKey);
-									if ((savedStickers != null) && (savedStickers.size() > 0))
+									if (!Utils.isEmpty(savedStickers))
 									{
 										if ((previousBoundary < startList.get(i)) || ((startList.get(i) == 0) && (previousBoundary == 0)))
 										{
@@ -736,14 +742,12 @@ public class StickerSearchHostManager
 									savedStickers = sCacheForLocalSearch.get(searchKey + StickerSearchConstants.STRING_PREDICATE);
 								}
 
-								if (savedStickers != null && (savedStickers.contains(null) ? savedStickers.size() > 1 : savedStickers.size() > 0))
+								if (!Utils.isEmpty(savedStickers))
 								{
-									{
-										// only word searched successfully, may be part of earlier phrase search successfully
-										previousBoundary = endList.get(i);
-										tempResult.add(new int[] { startList.get(i), previousBoundary });
-										Logger.d(TAG, "Making blue due to word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
-									}
+									// only word searched successfully, may be part of earlier phrase search successfully
+									previousBoundary = endList.get(i);
+									tempResult.add(new int[] { startList.get(i), previousBoundary });
+									Logger.d(TAG, "Making blue due to word \"" + searchKey + "\" in [" + startList.get(i) + " - " + previousBoundary + "]");
 								}
 							}
 						}
@@ -913,7 +917,7 @@ public class StickerSearchHostManager
 			}
 		}
 
-		if ((stickers != null) && (stickers.size() > 0))
+		if (!Utils.isEmpty(stickers))
 		{
 			selectedStickers = new ArrayList<Sticker>(stickers);
 			if (clickedPhrase == null)
@@ -1027,7 +1031,7 @@ public class StickerSearchHostManager
 							StickerSearchConstants.MINIMUM_MATCH_SCORE_PHRASE_LIMITED);
 				}
 
-				if ((tempSelectedStickers != null) && (tempSelectedStickers.size() > 0))
+				if (!Utils.isEmpty(tempSelectedStickers))
 				{
 					int marker = 0;
 					int markedLimit = 6 - (10 / maxPermutationSize);
@@ -1158,7 +1162,7 @@ public class StickerSearchHostManager
 						StickerSearchConstants.MINIMUM_MATCH_SCORE_PHRASE_LIMITED);
 			}
 
-			if (tempSelectedStickers != null && (tempSelectedStickers.size() > 0))
+			if (!Utils.isEmpty(tempSelectedStickers))
 			{
 				stickers.addAll(tempSelectedStickers);
 

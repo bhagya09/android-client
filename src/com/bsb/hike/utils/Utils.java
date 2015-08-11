@@ -6554,11 +6554,7 @@ public class Utils
 	 */
 	public static <S, T extends Iterable<S>> boolean isEmpty(T argument)
 	{
-		if (argument == null || !argument.iterator().hasNext())
-		{
-			return true;
-		}
-		return false;
+		return (argument == null) || !argument.iterator().hasNext();
 	}
 
 	/**
