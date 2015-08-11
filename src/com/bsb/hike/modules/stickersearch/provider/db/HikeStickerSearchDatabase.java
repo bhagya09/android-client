@@ -992,7 +992,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			j = indexLimit;
 		}
 
-		if (primaryKeys != null && primaryKeys.size() > 0)
+		if (!Utils.isEmpty(primaryKeys))
 		{
 			String[] tables = new String[HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT];
 			tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
