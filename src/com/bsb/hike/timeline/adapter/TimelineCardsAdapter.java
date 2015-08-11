@@ -623,7 +623,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			else
 			{
-				viewHolder.mainInfo.setText(statusMessage.getText());
+				SmileyParser smileyParser = SmileyParser.getInstance();
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
+				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
+				viewHolder.mainInfo.setMovementMethod(null);
 			}
 
 			viewHolder.largeProfilePic.setTag(statusMessage);
