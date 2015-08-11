@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -39,6 +40,8 @@ public class StickerSearchHostManager
 
 	private static int NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL;
 
+	private static String REGEX_SEPARATORS;
+
 	private static int MAXIMUM_SEARCH_TEXT_LIMIT;
 
 	private static int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT;
@@ -64,6 +67,8 @@ public class StickerSearchHostManager
 	private static float WEIGHTAGE_CONTEXT_MOMENT;
 
 	private static float MARGINAL_FULL_SCORE_LATERAL;
+
+	private static HashSet<Character> SEPARATOR_CHARS;
 
 	private static ConcurrentHashMap<String, ArrayList<StickerAppositeDataContainer>> sCacheForLocalSearch = new ConcurrentHashMap<String, ArrayList<StickerAppositeDataContainer>>();
 
@@ -114,6 +119,10 @@ public class StickerSearchHostManager
 		mCurrentTextSignificantLength = 0;
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()) + 1;
+
+		REGEX_SEPARATORS = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REGEX_SEPARATORS, StickerSearchConstants.REGEX_SEPARATORS);
+
+		SEPARATOR_CHARS = (HashSet<Character>) StickerSearchUtility.getSeparatorChars(REGEX_SEPARATORS);
 
 		MAXIMUM_SEARCH_TEXT_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT,
 				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_LIMIT);
@@ -289,7 +298,7 @@ public class StickerSearchHostManager
 			s = sourceText.subSequence(0, mCurrentTextSignificantLength);
 		}
 
-		Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> cobj = StickerSearchUtility.splitAndDoIndexing(s, " |\n|\t|,|\\.|\\?", 0);
+		Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> cobj = StickerSearchUtility.splitAndDoIndexing(s, REGEX_SEPARATORS, 0);
 		ArrayList<String> wordList = cobj.first;
 		ArrayList<Integer> startList = null;
 		ArrayList<Integer> endList = null;
@@ -309,8 +318,7 @@ public class StickerSearchHostManager
 				int lastPossibleConsiderableIndex = mWordEndIndicesInCurrentText.get(size - 1);
 				if (lastPossibleConsiderableIndex < sourceText.length())
 				{
-					char c = sourceText.charAt(lastPossibleConsiderableIndex);
-					if ((c == ' ') || (c == '\n') || (c == '\t') || (c == ',') || (c == '.') || (c == '?'))
+					if (SEPARATOR_CHARS.contains(sourceText.charAt(lastPossibleConsiderableIndex)))
 					{
 						mCurrentTextSignificantLength = lastPossibleConsiderableIndex;
 					}
@@ -1590,6 +1598,12 @@ public class StickerSearchHostManager
 			mMomentCode = null;
 
 			TextMatchManager.clearResources();
+
+			if (SEPARATOR_CHARS != null)
+			{
+				REGEX_SEPARATORS = null;
+				SEPARATOR_CHARS.clear();
+			}
 
 			sStickerSearchHostManager = null;
 		}

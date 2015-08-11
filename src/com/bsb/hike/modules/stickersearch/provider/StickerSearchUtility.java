@@ -9,7 +9,9 @@ package com.bsb.hike.modules.stickersearch.provider;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -384,6 +386,25 @@ public class StickerSearchUtility
 						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
 					}
 				}
+				else if (HikeConstants.STICKER_TAG_REGEX_SEPARATORS.equals(settingName))
+				{
+					try
+					{
+						String regex = json.getString(settingName);
+						if (isValidSeparatorsRegex(regex))
+						{
+							editor.putString(settingName, regex);
+						}
+						else
+						{
+							Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
 				else
 				{
 					Logger.w(tag, "Unknown setting data to save sticker recommendation configuration. Key '" + settingName + "' can't be handled.");
@@ -406,6 +427,52 @@ public class StickerSearchUtility
 	private static boolean isValidReq(float req)
 	{
 		return (req >= 0.01f) && (req <= 1.00f);
+	}
+
+	/* Check if given regular expression contains a valid list of separators */
+	private static boolean isValidSeparatorsRegex(String regex)
+	{
+		ArrayList<String> charSeparators = split(regex, StickerSearchConstants.REGEX_OR, 0);
+		boolean isValidSeparators = false;
+
+		if (!Utils.isEmpty(charSeparators))
+		{
+			isValidSeparators = true;
+			int separatorsCount = charSeparators.size();
+
+			for (int i = 0; i < separatorsCount; i++)
+			{
+				if (!((charSeparators.get(i).length() == 1) || charSeparators.get(i).equals(StickerSearchConstants.STRING_HEX_CHAR_OR)))
+				{
+					isValidSeparators = false;
+					break;
+				}
+			}
+		}
+
+		return isValidSeparators;
+	}
+
+	/* Get list of unique separator characters in the given regular expression */
+	public static Set<Character> getSeparatorChars(String regex)
+	{
+		ArrayList<String> charSeparators = split(regex, StickerSearchConstants.REGEX_OR, 0);
+		int separatorsCount = Utils.isEmpty(charSeparators) ? 0 : charSeparators.size();
+		HashSet<Character> chars = new HashSet<Character>();
+
+		for (int i = 0; i < separatorsCount; i++)
+		{
+			if (charSeparators.get(i).equals(StickerSearchConstants.STRING_HEX_CHAR_OR))
+			{
+				chars.add('|');
+			}
+			else
+			{
+				chars.add(charSeparators.get(i).charAt(0));
+			}
+		}
+
+		return chars;
 	}
 
 	/* Get string for predictive search */

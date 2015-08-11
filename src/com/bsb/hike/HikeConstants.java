@@ -3107,6 +3107,8 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_REBALANCING_TRIGGER_TIME = "strtt"; // integer
 
+	public static final String STICKER_TAG_REGEX_SEPARATORS = "strs"; // regular expression
+
 	public static final String STICKER_DATA_TRENDING = "t";
 
 	public static final String STICKER_DATA_LOCAL = "l";
