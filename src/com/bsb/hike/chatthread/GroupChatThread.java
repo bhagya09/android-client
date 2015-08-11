@@ -232,7 +232,7 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private boolean shouldShowCallIcon()
 	{
-		return VoIPUtils.isConferencingEnabled(activity.getApplicationContext());
+		return VoIPUtils.isGroupCallEnabled(activity.getApplicationContext());
 	}
 
 	/**
