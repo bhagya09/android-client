@@ -2,7 +2,9 @@ package com.bsb.hike.timeline.adapter;
 
 import java.util.List;
 
+import android.accounts.Account;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +14,13 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.RoundedImageView;
 
 public class DisplayContactsAdapter extends BaseAdapter
@@ -87,9 +93,24 @@ public class DisplayContactsAdapter extends BaseAdapter
 			throw new IllegalStateException("DisplayContactsAdapter getView(): msisdn which doesn't have contact info");
 		}
 
-		holder.contactName.setText(contactInfo.getNameOrMsisdn());
+		if (TextUtils.isEmpty(contactInfo.getName()))
+		{
+			ContactInfo myContactInfo = Utils.getUserContactInfo(false);
+			if (myContactInfo.getMsisdn().equals(getItem(position)))
+			{
+				holder.contactName.setText(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, mContext.getString(R.string.me)));
+			}
+			else
+			{
+				holder.contactName.setText(contactInfo.getNameOrMsisdn());
+			}
+		}
+		else
+		{
+			holder.contactName.setText(contactInfo.getNameOrMsisdn());
+		}
 
-		//TODO Make this generic
+		// TODO Make this generic
 		holder.contactStatus.setText(R.string.photo_like_text);
 
 		holder.avatar.setOval(true);

@@ -197,7 +197,7 @@ public class HttpRequests
 		
 		if(argMood != -1)
 		{
-			multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, String.valueOf(argMood)));
+			multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, String.valueOf(argMood+1)));
 		}
 
 		if(!TextUtils.isEmpty(imageFilePath))
