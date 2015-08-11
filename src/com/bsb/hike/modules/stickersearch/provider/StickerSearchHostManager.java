@@ -996,6 +996,8 @@ public class StickerSearchHostManager
 					searchText
 							.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION) ? nextWord.substring(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5))
 									: nextWord);
+
+					rawSearchText.append(StickerSearchConstants.STRING_SPACE);
 					rawSearchText.append(nextWord);
 				}
 
@@ -1100,6 +1102,7 @@ public class StickerSearchHostManager
 				searchText.append((nextWord.length() > MINIMUM_WORD_LENGTH_FOR_AUTO_CORRECTION ? nextWord.subSequence(0, (int) (nextWord.length() * LIMIT_AUTO_CORRECTION + 0.5))
 						: nextWord));
 
+				rawSearchText.append(StickerSearchConstants.STRING_SPACE);
 				rawSearchText.append(nextWord);
 
 				currentMaxPermutationSize--;
@@ -1198,7 +1201,7 @@ public class StickerSearchHostManager
 
 	private LinkedHashSet<Sticker> getOrderedStickers(String rawSearchKey, String searchKey, float minimumMatchingScore)
 	{
-		Logger.i(TAG, "getOrderedStickers(" + searchKey + ", " + minimumMatchingScore + ")");
+		Logger.i(TAG, "getOrderedStickers(" + rawSearchKey + ", " + searchKey + ", " + minimumMatchingScore + ")");
 
 		LinkedHashSet<Sticker> stickers = null;
 		ArrayList<StickerDataContainer> cachedStickerData = sCacheForLocalSearch.get(searchKey);
@@ -1411,34 +1414,41 @@ public class StickerSearchHostManager
 		if (result == null)
 		{
 			ArrayList<String> searchWords = StickerSearchUtility.split(searchKey, StickerSearchConstants.REGEX_SPACE, 0);
-			ArrayList<String> exactWords = StickerSearchUtility.split(tag, StickerSearchConstants.REGEX_SPACE, 0);
-			int searchWordsCount = searchWords.size();
-			int exactWordsCount = exactWords.size();
-			float count = 0;
+			while (searchWords.contains(StickerSearchConstants.STRING_EMPTY))
+			{
+				searchWords.remove(StickerSearchConstants.STRING_EMPTY);
+			}
 
-			String unmatchedSubString;
+			ArrayList<String> tagWords = StickerSearchUtility.split(tag, StickerSearchConstants.REGEX_SPACE, 0);
+			while (tagWords.contains(StickerSearchConstants.STRING_EMPTY))
+			{
+				tagWords.remove(StickerSearchConstants.STRING_EMPTY);
+			}
+
+			int searchWordsCount = searchWords.size();
+			int exactWordsCount = tagWords.size();
+			float matchCount = 0;
 			float localScore;
 
 			for (int indexInSearchKey = 0; indexInSearchKey < searchWordsCount; indexInSearchKey++)
 			{
 				for (int indexInTag = 0; indexInTag < exactWordsCount; indexInTag++)
 				{
-					if (exactWords.get(indexInTag).contains(searchWords.get(indexInSearchKey)))
+					if (tagWords.get(indexInTag).contains(searchWords.get(indexInSearchKey)))
 					{
-						unmatchedSubString = exactWords.get(indexInTag).replace(searchWords.get(indexInSearchKey), StickerSearchConstants.STRING_EMPTY);
-						localScore = 1.0f - (((float) unmatchedSubString.length()) / exactWords.get(indexInTag).length());
+						localScore = ((float) searchWords.get(indexInSearchKey).length()) / tagWords.get(indexInTag).length();
 
 						if (indexInSearchKey == indexInTag)
 						{
-							count += localScore;
+							matchCount += localScore;
 						}
 						else if (indexInSearchKey < indexInTag)
 						{
-							count += localScore * (((float) (indexInSearchKey + 1)) / (indexInTag + 1));
+							matchCount += localScore * (((float) (indexInSearchKey + 1)) / (indexInTag + 1));
 						}
 						else
 						{
-							count += localScore * (((float) (indexInTag + 1)) / (indexInSearchKey + 1));
+							matchCount += localScore * (((float) (indexInTag + 1)) / (indexInSearchKey + 1));
 						}
 
 						break;
@@ -1449,22 +1459,30 @@ public class StickerSearchHostManager
 			if (searchWordsCount > exactWordsCount)
 			{
 				// Apply first word full match prioritization before final scoring
-				if ((count < searchWordsCount) && (searchWords.get(0).equals(exactWords.get(0))))
+				if (matchCount < searchWordsCount)
 				{
-					count = count + MARGINAL_FULL_SCORE_LATERAL;
+					int firstWordMatchIndex = tagWords.indexOf(searchWords.get(0));
+					if (firstWordMatchIndex > -1)
+					{
+						matchCount = matchCount + (MARGINAL_FULL_SCORE_LATERAL / searchWordsCount) / (firstWordMatchIndex + 1);
+					}
 				}
 
-				result = Math.min(1.00f, (count / searchWordsCount));
+				result = Math.min(1.00f, (matchCount / searchWordsCount));
 			}
 			else
 			{
 				// Apply first word full match prioritization before final scoring
-				if ((count < exactWordsCount) && (searchWords.get(0).equals(exactWords.get(0))))
+				if (matchCount < exactWordsCount)
 				{
-					count = count + MARGINAL_FULL_SCORE_LATERAL;
+					int firstWordMatchIndex = tagWords.indexOf(searchWords.get(0));
+					if (firstWordMatchIndex > -1)
+					{
+						matchCount = matchCount + (MARGINAL_FULL_SCORE_LATERAL / searchWordsCount) / (firstWordMatchIndex + 1);
+					}
 				}
 
-				result = Math.min(1.00f, (count / exactWordsCount));
+				result = Math.min(1.00f, (matchCount / exactWordsCount));
 			}
 
 			sCacheForLocalAnalogousScore.put(cacheKey, result);
