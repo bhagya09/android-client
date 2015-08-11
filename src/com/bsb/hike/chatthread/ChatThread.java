@@ -1,5 +1,7 @@
 package com.bsb.hike.chatthread;
 
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -14,9 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -27,7 +27,6 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.hardware.Camera.Size;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -103,7 +102,6 @@ import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
-import com.bsb.hike.media.KeyboardPopupLayout21;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
@@ -131,6 +129,7 @@ import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -159,8 +158,6 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
  * 
@@ -601,7 +598,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mConversationDb = HikeConversationsDatabase.getInstance();
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
-		shouldKeyboardPopupShow=KeyboardPopupLayout21.shouldShow(activity);
+		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 	}
 
 	/**
@@ -1210,7 +1207,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	public void setStickerRecommendFtueTipSeen()
 	{
-		if (mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		if (mTips!=null&&mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
 		{
 			Logger.d(TAG, "set sticker recommend tip seen : " + true);
 			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
@@ -1542,13 +1539,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void setupStickerSearch()
 	{
-		if(!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, true) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
+		if(!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
 			return;
 		}	
 		
 		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
-		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
+		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
 	
@@ -4085,6 +4082,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 * We call this method to either re-init the stickerpicker and emoticon picker or update their listeners
 		 */
 		initShareablePopup();
+		StickerManager.getInstance().showStickerRecommendTurnOnToast();
 	}
 
 	protected void hideView(int viewId)
@@ -5690,7 +5688,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void onSaveInstanceState(Bundle outState)
 	{	
-		shouldKeyboardPopupShow=KeyboardPopupLayout21.shouldShow(activity);
+		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
 	}
 	

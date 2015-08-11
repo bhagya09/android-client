@@ -33,7 +33,6 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -51,8 +50,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
@@ -60,7 +57,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class PhotoViewerFragment extends SherlockFragment implements OnPageChangeListener,OnClickListener,SuccessfulImageLoadingListener
+public class PhotoViewerFragment extends SherlockFragment implements OnPageChangeListener
 {
 	private View mParent;
 	
@@ -120,10 +117,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private Menu menu;
 	
-	private  SharedFileImageLoader sharedMediaLoader;
-	
-	private Handler mHandler;
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -132,19 +125,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		initializeViews(mParent);
 		
 		readArguments();
-		int screenWidth = getResources().getDisplayMetrics().widthPixels;
-		int screenHeight = getResources().getDisplayMetrics().heightPixels;
-		int sizeOfImage = screenWidth < screenHeight ? screenWidth : screenHeight;
-		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
-		int actualSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
-
-		mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
-		
-		sharedMediaLoader = new SharedFileImageLoader(getActivity(), actualSize,false);
-		sharedMediaLoader.setDefaultDrawable(getActivity().getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
-		sharedMediaLoader.setCachingEnabled(false);
-		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
-
 		
 		if(savedInstanceState != null)
 		{
@@ -184,11 +164,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		}
 	}
 	
-	public SharedFileImageLoader getImageLoader()
-	{
-		return this.sharedMediaLoader;
-	}
-	
 	private void intialiazeViewPager()
 	{
 		int screenWidth = getResources().getDisplayMetrics().widthPixels;
@@ -203,7 +178,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(getArguments().containsKey(HikeConstants.FROM_CHAT_THREAD))
 			fromChatThread = getArguments().getBoolean(HikeConstants.FROM_CHAT_THREAD);
 		
-		smAdapter = new SharedMediaAdapter(getChildFragmentManager(), getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
+		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
 		selectedPager.setAdapter(smAdapter);
 		selectedPager.setOnPageChangeListener(this);
 		
@@ -281,7 +256,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		super.onPause();
 		if(smAdapter != null)
 		{
-			getImageLoader().setExitTasksEarly(true);
+			smAdapter.getSharedFileImageLoader().setExitTasksEarly(true);
 		}
 	}
 
@@ -308,14 +283,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if (!reachedEndRight && !loadingMoreItems && position == (getCount() - PAGER_LIMIT))
 		{
 			loadingMoreItems = true;
-			Logger.d(TAG,"loading items from right : " + maxMsgId);
+			//Logger.d(TAG,"loading items from right : " + maxMsgId);
 			loadItems(reachedEndRight, maxMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, true);
 		}
 
 		if (!reachedEndLeft && !loadingMoreItems && position == PAGER_LIMIT)
 		{
 			loadingMoreItems = true;
-			Logger.d(TAG, "loading items from left : " + minMsgId);
+			//Logger.d(TAG, "loading items from left : " + minMsgId);
 			loadItems(reachedEndLeft, minMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, false, true, position);
 
 		}
@@ -406,11 +381,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	
 	private void finish()
 	{
-		SherlockFragmentActivity fragment = getSherlockActivity();
-		if (fragment != null)
-		{
-			getSherlockActivity().onBackPressed();
-		}
+		getSherlockActivity().onBackPressed();
 	}
 
 	public static void openPhoto(int resId, Context context, ArrayList<HikeSharedFile> hikeSharedFiles, boolean fromChatThread, Conversation conversation)
@@ -683,10 +654,29 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 			toggleViewsVisibility();
 		}
-		if(smAdapter != null && getImageLoader().getIsExitTasksEarly())
+		if(smAdapter != null && smAdapter.getSharedFileImageLoader().getIsExitTasksEarly())
 		{
-			getImageLoader().setExitTasksEarly(false);
+			smAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
 			
+			/**
+				In onActivityCreated ---> intializeViewPager ----> smAdapter is already created
+				Which in turns call getView of Adaptor which does following 3 tasks
+				1) loads current image
+				2) loads all images to the left of current image ---> gives to adaptor---> notify
+				3) loads all images to the right of current image ---> gives to adaptor---> notify
+				Now here in resume, when notifDataSetChanged is called, then it is again loaded
+			
+				Earlier caching was there so could not find it, now here no caching, so can see it
+				this gives double loading for images on some device eg Samsung DUOS3
+			
+				after removing this, problem was solved with that device
+			 */
+			smAdapter.notifyDataSetChanged();
+			
+			/**
+			 * Instead refresh current visible view only
+			 */
+//			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
 		}
 		
 		super.onResume();
@@ -712,7 +702,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			animation.setFillAfter(true);
 			mParent.findViewById(R.id.info_group).startAnimation(animation);
 			mParent.findViewById(R.id.gradient).startAnimation(animation);
-			gallaryButton.setVisibility((gallaryButton.getVisibility() == View.VISIBLE)?View.GONE:View.VISIBLE);
 		}
 	}
 	
@@ -740,78 +729,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onDestroy()
 	{
+		// TODO Auto-generated method stub
+		
 		//To remove any callbacks, if present inside handler in adaptor
-		if(mHandler!=null)
+		if(smAdapter != null)
 		{
-			mHandler.removeCallbacksAndMessages(null);
+			smAdapter.onDestroy();
 		}
 		
 		super.onDestroy();
-	}
-
-	public static class RemoveLoaderRunnable implements Runnable
-	{
-		private ImageView imageView;
-		
-		public RemoveLoaderRunnable(ImageView imageView)
-		{
-			this.imageView = imageView;
-		}
-		
-		@Override
-		public void run()
-		{
-			if(imageView == null)
-			{
-				return;
-			}
-			
-			View parent = imageView.getRootView();
-			
-			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
-			{
-				parent.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-			}
-		}
-		
-	}
-	
-	/**
-	 * This is done via post runnable so that this "removing loader"
-	 * gets queued into loop and is performed after image is shown in view pager
-	 * 
-	 * Note:- Doing directly without post via Runnable, first loader is removed and
-	 * then image is shown to user, so there is no loader seen or there is black screen shown
-	 */
-	@Override
-	public void onSuccessfulImageLoaded(final ImageView imageView)
-	{
-		if(isAdded())
-		{
-			RemoveLoaderRunnable removeLoaderRunnable = new RemoveLoaderRunnable(imageView);
-			mHandler.post(removeLoaderRunnable);
-		}
-		
-	}
-
-	
-	@Override
-	public void onClick(View v) {
-		
-		if(getActivity() != null)
-		{
-			HikeSharedFile sharedMediaItem = (HikeSharedFile) v.getTag();
-			switch (sharedMediaItem.getHikeFileType())
-			{
-			case IMAGE:
-				toggleViewsVisibility();
-				break;
-			case VIDEO:
-					HikeSharedFile.openFile(sharedMediaItem, getActivity());
-				break;
-			default:
-				break;
-			}
-		}
 	}
 }

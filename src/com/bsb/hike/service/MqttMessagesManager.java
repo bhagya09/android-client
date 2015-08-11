@@ -1689,6 +1689,11 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED);
 			editor.putBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED, enabled);
 		}
+		if (data.has(HikeConstants.VOIP_GROUP_CALL_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED);
+			editor.putBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED, enabled);
+		}
 		if (data.has(HikeConstants.VOIP_NETWORK_TEST_ENABLED))
 		{
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED);
@@ -1763,11 +1768,6 @@ public class MqttMessagesManager
 			{
 				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 			}
-		}
-		if (data.has(HikeConstants.SHOW_BROADCAST))
-		{
-			boolean showBroadCast = data.getBoolean(HikeConstants.SHOW_BROADCAST);
-			editor.putBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, !showBroadCast);
 		}
 		if (data.has(HikeConstants.ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS))
 		{
