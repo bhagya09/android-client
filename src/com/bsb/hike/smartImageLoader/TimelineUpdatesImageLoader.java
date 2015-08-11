@@ -131,21 +131,9 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 
 		if (!orgFile.exists())
 		{
-			BitmapDrawable b = null;
-			if (loadingProfilePic)
-			{
-				b = this.getLruCache().getIconFromCache(id);
-			}
-			else
-			{
-				if (!TextUtils.isEmpty(statusMessage.getFileKey()))
-				{
-					b = this.getLruCache().getFileIconFromCache(statusMessage.getFileKey());
-				}
-			}
-			Logger.d(TAG, "Bitmap from icondb");
-			if (b != null)
-				return b.getBitmap();
+			Bitmap cacheBmp = getFromCache(id, loadingProfilePic, statusMessage);
+			if(cacheBmp!=null)
+				return cacheBmp;
 		}
 		else
 		{
@@ -153,6 +141,11 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 			{
 				bitmap = HikeBitmapFactory.scaleDownBitmap(orgFile.getPath(), mImageWidth, mImageHeight, Bitmap.Config.RGB_565, true, false);
 				Logger.d(TAG, id + " Compressed Bitmap size in KB: " + BitmapUtils.getBitmapSize(bitmap) / 1024);
+				
+				if(bitmap == null)
+				{
+					return getFromCache(id, loadingProfilePic, statusMessage);
+				}
 			}
 			catch (Exception e1)
 			{
@@ -160,6 +153,24 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 			}
 		}
 		return bitmap;
+	}
+	
+	private Bitmap getFromCache(String id, boolean loadingProfilePic, StatusMessage statusMessage)
+	{
+		BitmapDrawable b = null;
+		if (loadingProfilePic)
+		{
+			b = this.getLruCache().getIconFromCache(id);
+		}
+		else
+		{
+			if (!TextUtils.isEmpty(statusMessage.getFileKey()))
+			{
+				b = this.getLruCache().getFileIconFromCache(statusMessage.getFileKey());
+			}
+		}
+		Logger.d(TAG, "Bitmap from icondb");
+		return b.getBitmap();
 	}
 
 	@Override

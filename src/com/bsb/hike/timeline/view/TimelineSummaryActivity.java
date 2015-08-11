@@ -93,30 +93,11 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 	private ProfileImageLoader profileImageLoader;
 
-	private Runnable failedRunnable = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			dismissProgressDialog();
-		}
-	};
-
-	private Runnable cancelledRunnable = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			dismissProgressDialog();
-		}
-	};
-
 	private Runnable successRunnable = new Runnable()
 	{
 		@Override
 		public void run()
 		{
-			dismissProgressDialog();
 			profileImageLoader.loadFromFile();
 		}
 	};
@@ -474,31 +455,26 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		profileImageLoader = new ProfileImageLoader(this, mappedId, imageView, imageSize, true, true);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
 		{
-
 			@Override
 			public void onLoaderReset(Loader<Boolean> arg0)
 			{
-				dismissProgressDialog();
 			}
 
 			@Override
 			public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1)
 			{
-				dismissProgressDialog();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, null);
 			}
 
 			@Override
 			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1)
 			{
-				showProgressDialog();
 				return null;
 			}
 
 			@Override
 			public void startDownloading()
 			{
-				showProgressDialog();
 				beginImageDownload();
 			}
 		});
@@ -513,26 +489,10 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		mImageDownloader.startLoadingTask();
 	}
 
-	private void dismissProgressDialog()
-	{
-		if (mDialog != null)
-		{
-			mDialog.dismiss();
-			mDialog = null;
-		}
-	}
-
-	private void showProgressDialog()
-	{
-		mDialog = ProgressDialog.show(TimelineSummaryActivity.this, null, getResources().getString(R.string.downloading_image));
-		mDialog.setCancelable(true);
-	}
-
 	@Override
 	public void onDestroy()
 	{
 		super.onDestroy();
-		dismissProgressDialog();
 		HikeMessengerApp.getPubSub().removeListeners(this, profilePicPubSubListeners);
 	}
 
@@ -571,7 +531,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 	public void onCancelled()
 	{
-		hikeUiHandler.post(cancelledRunnable);
 	}
 
 	public void onSuccess(Response result)
@@ -582,7 +541,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	public void onFailed()
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, mappedId);
-		hikeUiHandler.post(failedRunnable);
 	}
 
 	@Override
