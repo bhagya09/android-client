@@ -21,13 +21,12 @@
         android:layout_centerInParent="true"
         android:background="@color/transparent" >
 
-        <com.bsb.hike.ui.utils.FullScreenImageView
+        <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:background="@color/transparent"
-            android:onClick="onClick" />
+            android:scaleType="fitCenter" />
     </RelativeLayout>
 
     <View
