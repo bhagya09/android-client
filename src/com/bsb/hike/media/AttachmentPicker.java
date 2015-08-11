@@ -8,9 +8,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -55,6 +57,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	private Activity activity;
 
 	private String msisdn;
+	
+	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
 
 	/**
 	 * 
@@ -86,6 +90,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	{
 		this(msisdn, null, listener, onDismissListener, activity.getApplicationContext(), startRespectiveActivities);
 		this.activity = activity;
+		this.currentConfig = activity.getResources().getConfiguration().orientation;
 		initDefaultAttachmentList();
 	}
 
@@ -116,12 +121,14 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		// we lazily inflate and
 		if (viewToShow != null)
 		{
+			setOrientation(activity.getResources().getConfiguration().orientation);
 			return;
 		}
 
 		View parentView = viewToShow = LayoutInflater.from(context).inflate(R.layout.attachments, null);
 
 		GridView attachmentsGridView = (GridView) parentView.findViewById(R.id.attachment_grid);
+		refreshGridView(attachmentsGridView);
 		attachmentsGridView.setAdapter(new ArrayAdapter<OverFlowMenuItem>(context, R.layout.attachment_item, R.id.text, overflowItems)
 		{
 
@@ -210,7 +217,42 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		});
 
 	}
+	
+	/**
+	 * This function should be called when orientation of screen is changed, it will update its view based on orientation
+	 * If picker is being shown, it will first dismiss current picker and then show it again using post on view
+	 * 
+	 * NOTE : It will not give dismiss callback to listener as this is not explicit dismiss
+	 * @param orientation
+	 */
+	public void onOrientationChange(int orientation)
+	{
+		setOrientation(orientation);
+	}
 
+	public void setOrientation(int orientation)
+	{
+		if(orientation != currentConfig)
+		{
+			this.currentConfig = orientation;
+			refreshGridView((GridView) viewToShow.findViewById(R.id.attachment_grid));
+		}
+	}
+
+	public void refreshGridView(GridView grid)
+	{
+		int numCol = getNumColumnsAttachments();
+		grid.setNumColumns(numCol);
+		LayoutParams lp = grid.getLayoutParams();
+		lp.width = numCol * context.getResources().getDimensionPixelSize(R.dimen.attachment_column_width);
+		grid.setLayoutParams(lp);
+	}
+	
+	private int getNumColumnsAttachments()
+	{
+		return currentConfig == Configuration.ORIENTATION_LANDSCAPE ? 4 : 3;
+	}
+	
 	private String getString(int id)
 	{
 		return context.getString(id);

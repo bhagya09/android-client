@@ -64,10 +64,12 @@
         <item name="android:activityCloseExitAnimation">@anim/slide_out_right_noalpha</item>
     </style>
 
-    <style name="NoTitleBar" parent="@style/Theme.AppCompat.Light.NoActionBar">
+    <style name="Base.NoTitleBar" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:textAllCaps">false</item>
     </style>
+
+    <style name="NoTitleBar" parent="Base.NoTitleBar"></style>
 
     <style name="WelcomeHikeMessage">
         <item name="android:layout_marginTop">@dimen/hike_logo_margin</item>
@@ -420,6 +422,11 @@
         <item name="android:colorPrimary">@color/blue_hike</item>
         <item name="android:colorAccent">@color/blue_hike</item>
     </style>
+
+<style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
+
+    <item name="android:colorControlActivated">@color/white</item>
+</style>
 
     <style name="Widget.Styled.PhotosActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/photos_action_bar_transcluscent_background</item>
@@ -907,14 +914,14 @@
         <item name="android:paddingBottom">8dp</item>
     </style>
 
-    <style name="TitleCustomDialog">
+    <style name="TitleCustomDialog" parent = "BaseStyleTextView">
         <item name="android:paddingBottom">12dp</item>
         <item name="android:paddingTop">16dp</item>
         <item name="android:paddingLeft">@dimen/custom_dialog_preferred_paddding</item>
         <item name="android:paddingRight">@dimen/custom_dialog_preferred_paddding</item>
     </style>
     
-    <style name="TitleTextStyleCustomDialog">
+    <style name="TitleTextStyleCustomDialog" parent = "BaseStyleTextView">
         <item name="android:textStyle">bold|italic</item>
         <item name="android:textColor">#de000000</item>
         <item name="android:textSize">20sp</item>
@@ -927,7 +934,7 @@
         <item name="android:paddingRight">@dimen/custom_dialog_preferred_paddding</item>
     </style>
     
-    <style name="ContentTextStyleCustomDialog">
+    <style name="ContentTextStyleCustomDialog" parent = "BaseStyleTextView">
         <item name="android:textColor">#8a000000</item>
         <item name="android:textSize">16sp</item>
     </style>
@@ -946,7 +953,7 @@
         <item name="android:paddingRight">8dp</item>
         <item name="android:textStyle">bold|italic</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:minWidth">0dp</item>
+        <item name="android:minWidth">64dp</item>
     </style>
 
     <style name="ButtonCustomDialog" parent = "ButtonCustomDialogBase">
@@ -989,4 +996,11 @@
         <item name="android:layout_width">@dimen/overflow_menu_width</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+    
+	 <style name="ComposeListParent" parent="HomeList">
+        <item name="android:divider">@drawable/compose_list_divider</item>
+    </style>
+    
+	 <style name="ComposeList" parent="ComposeListParent" />
+    
 </resources>

@@ -38,6 +38,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewConfiguration;
@@ -364,6 +365,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			setContentView(R.layout.profile);
 			View parent = findViewById(R.id.parent_layout);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background));
 //			ListView list = (ListView) parent.findViewById(R.id.profile_content);
 //			list.setDivider(null); //Removing the default dividers since they are not needed in the timeline
@@ -395,6 +397,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				setContentView(R.layout.profile);
 				View parent = findViewById(R.id.parent_layout);
+				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 				parent.setBackgroundColor(getResources().getColor(R.color.standerd_background)); //Changing background color form white for self profile
 				this.profileType = ProfileType.USER_PROFILE;
 				ListView list = (ListView) parent.findViewById(R.id.profile_content);
@@ -2214,7 +2217,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else if (HikePubSub.GROUP_END.equals(type))
 		{
-			mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO));
+			JSONObject obj = (JSONObject) object;
+			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
 			{
 				runOnUiThread(new Runnable()
 				{
@@ -3008,8 +3012,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	protected void updateUIForAdminChange(String msisdn) {
 		String mymsisdn  = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
 		if(!msisdn.equalsIgnoreCase(mymsisdn)){
-		GroupParticipant grpParticipant = participantMap.get(msisdn).getFirst();
-		grpParticipant.setType(GroupParticipant.Participant_Type.ADMIN);
+			PairModified<GroupParticipant, String> grpParticipantpair = participantMap
+					.get(msisdn);
+			if (grpParticipantpair != null) {
+				grpParticipantpair.getFirst().setType(GroupParticipant.Participant_Type.ADMIN);
+			}
 		}
 		runOnUiThread(new Runnable() {
 			@Override

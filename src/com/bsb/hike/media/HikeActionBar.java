@@ -198,6 +198,7 @@ public class HikeActionBar implements OverflowItemClickListener
 		 */
 		if (overFlowMenuLayoutPrimary != null)
 		{	
+			overFlowMenuLayoutPrimary.initView();
 			overFlowMenuLayoutPrimary.setAnimation();
 			overFlowMenuLayoutPrimary.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
@@ -221,6 +222,7 @@ public class HikeActionBar implements OverflowItemClickListener
 		 */
 		if (overFlowMenuLayoutSecondary != null)
 		{	
+			overFlowMenuLayoutSecondary.initView();
 			overFlowMenuLayoutSecondary.setAnimation();
 			overFlowMenuLayoutSecondary.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
@@ -436,13 +438,13 @@ public class HikeActionBar implements OverflowItemClickListener
 	
 	public boolean isOverflowMenuShowing()
 	{
-		if (overFlowMenuLayoutPrimary != null)
+		if (overFlowMenuLayoutPrimary != null && overFlowMenuLayoutPrimary.isShowing())
 		{
-			return overFlowMenuLayoutPrimary.isShowing();
+			return true;
 		}
-		if (overFlowMenuLayoutSecondary != null)
+		if (overFlowMenuLayoutSecondary != null && overFlowMenuLayoutSecondary.isShowing())
 		{
-			return overFlowMenuLayoutSecondary.isShowing();
+			return true;
 		}
 		
 		return false;

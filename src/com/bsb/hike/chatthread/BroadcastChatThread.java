@@ -170,6 +170,7 @@ public class BroadcastChatThread extends OneToNChatThread
 		if (numActivePeople > 0)
 		{
 			memberCountTextView.setText(activity.getResources().getString(R.string.num_people, (numActivePeople)));
+			memberCountTextView.setSelected(true);
 		}
 	}
 	

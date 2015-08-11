@@ -37,6 +37,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -1392,6 +1393,20 @@ public class StickerManager
 		stickerSignupUpgradeDownloadTask.execute();
 	}
 	
+	public void showStickerRecommendTurnOnToast()
+	{
+		boolean stickerRecommendPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true);
+		boolean stickerRecommendAutoPerf = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+		boolean stickerRecommendTurnOnToastPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_SETTING_OFF_TOAST, false);
+		
+		
+		if(!stickerRecommendTurnOnToastPref && (!stickerRecommendAutoPerf || !stickerRecommendPref))
+		{
+			Toast.makeText(HikeMessengerApp.getInstance(), HikeMessengerApp.getInstance().getResources().getString(R.string.sticker_recommend_settings_toast), Toast.LENGTH_LONG).show();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_SETTING_OFF_TOAST, true);
+		}
+	}
+	
 	public void updateStickerCategoriesMetadata(JSONArray jsonArray)
 	{
 		int length = jsonArray.length();
@@ -2095,7 +2110,7 @@ public class StickerManager
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_MANUAL_SETTING_STATE);
 			metadata.put(HikeConstants.SOURCE, source);
-			metadata.put("st", (state ? 1 : 0));
+			metadata.put("sts", (state ? 1 : 0));
 			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
@@ -2115,7 +2130,7 @@ public class StickerManager
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_AUTOPOPUP_SETTING_STATE);
 			metadata.put(HikeConstants.SOURCE, source);
-			metadata.put("st", (state ? 1 : 0));
+			metadata.put("sts", (state ? 1 : 0));
 			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}

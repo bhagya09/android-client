@@ -80,7 +80,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
 			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE };
 
-	private String[] friendMsisdns;
+	private String[] friendMsisdns = new String[]{};
 
 	private RecyclerView mUpdatesList;
 
@@ -101,7 +101,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private boolean mShowProfileHeader;
 
-	private String[] mMsisdnArray;
+	private ArrayList<String> mMsisdnArray = new ArrayList<String>();
 	
 	public static final int START_FTUE_WITH_INIT_CARD = 0;
 	
@@ -142,7 +142,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			mShowProfileHeader = getArguments().getBoolean(SHOW_PROFILE_HEADER, false);
 
-			mMsisdnArray = getArguments().getStringArray(HikeConstants.MSISDNS);
+			String[] msisdnArray = getArguments().getStringArray(HikeConstants.MSISDNS);
+			
+			for (String msisdn : msisdnArray)
+			{
+				mMsisdnArray.add(msisdn);
+			}
 		}
 
 		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager(), mShowProfileHeader,mMsisdnArray);
@@ -171,11 +176,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		if (Utils.isHoneycombOrHigher())
 		{
-			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,mMsisdnArray);
+			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
 		}
 		else
 		{
-			fetchUpdates.execute(mMsisdnArray);
+			fetchUpdates.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
 		}
 	}
 
@@ -386,7 +391,15 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			if (params != null && params.length > 0)
 			{
-				friendMsisdns = params;
+				for (String msisdn : params)
+				{
+					// TODO Improve for multiple msisdns
+					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+					{
+						friendMsisdns = params;
+						break;
+					}
+				}
 			}
 			else
 			{
@@ -402,18 +415,27 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					}
 					msisdnList.add(contactInfo.getMsisdn());
 				}
-				
+
 				msisdnList.add(userMsisdn);
 
 				friendMsisdns = new String[msisdnList.size()];
 				msisdnList.toArray(friendMsisdns);
 			}
 
-			List<StatusMessage> statusMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, friendMsisdns);
+			List<StatusMessage> statusMessages = null;
+
+			if (friendMsisdns.length > 0)
+			{
+				statusMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, friendMsisdns);
+			}
+			else
+			{
+				statusMessages = new ArrayList<>();
+			}
 
 			return statusMessages;
 		}
-
+		
 		@Override
 		protected void onPostExecute(List<StatusMessage> result)
 		{
