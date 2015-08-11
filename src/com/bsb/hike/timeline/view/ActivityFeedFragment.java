@@ -45,7 +45,6 @@ public class ActivityFeedFragment extends Fragment implements Listener
 	{
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		setupActionBar();
 	}
 
 	@Override
@@ -55,6 +54,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		mActivityFeedRecyclerView = (RecyclerView) parent.findViewById(R.id.activityFeedRecycleView);
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mActivityFeedRecyclerView.setLayoutManager(mLayoutManager);
+		setupActionBar();
 		return parent;
 	}
 
