@@ -632,7 +632,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void inflateMicroAppActionBar(String titleString)
 	{
-		actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
+		actionBarView = mActionBar.setCustomActionBarView(R.layout.webview_microapp_action_bar);
 		View backContainer = actionBarView.findViewById(R.id.back);
 		TextView title = (TextView) actionBarView.findViewById(R.id.contact_name);
 		title.setText(titleString);

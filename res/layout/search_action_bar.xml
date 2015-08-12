@@ -28,7 +28,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="4dp"
         android:layout_toLeftOf="@id/previous"
-        android:background="@drawable/bg_top_bar_search_box"
         android:gravity="center_vertical"
         android:orientation="horizontal" >
 
