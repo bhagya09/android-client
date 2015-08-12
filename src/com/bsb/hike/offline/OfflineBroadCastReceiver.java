@@ -106,7 +106,9 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 		{
 			int state = intent.getIntExtra("wifi_state", 0);
 			
-			if(!OfflineController.getInstance().isHotspotCreated())
+			// Doing this check as in some phone isHotSpotCreated was returning false .So adding another defensive check
+			
+			if(!OfflineController.getInstance().isHotspotCreated() && !OfflineUtils.isHotSpotCreated(OfflineController.getInstance().getConnectedDevice()))
 			{
 				return;
 			}

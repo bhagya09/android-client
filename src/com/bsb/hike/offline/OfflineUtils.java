@@ -714,6 +714,18 @@ public class OfflineUtils
 		}
 	}
 
+	public static boolean isHotSpotCreated(String connectedMsisdn)
+	{
+		if(TextUtils.isEmpty(connectedMsisdn))
+		{
+			return false;
+		}
+		
+		String myMsisdn=getMyMsisdn();
+		
+		return (myMsisdn.compareTo(connectedMsisdn) > 0);
+		
+	}
 	public static void handleOfflineRequestPacket(Context context,JSONObject packet)
 	{
 		String msisdn;
