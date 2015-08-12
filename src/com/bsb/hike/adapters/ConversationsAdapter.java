@@ -215,15 +215,8 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			if (!isSearchModeOn)
 			{
-				if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
-				{
-					animation = getSlideOutAnimation(convInfo);
-					startSlideOutAnimation(animation, v);
-				}
-				else
-				{
-					removeConversation(convInfo);
-				}
+				animation = getSlideOutAnimation(convInfo);
+				startSlideOutAnimation(animation, v);
 				removeBotMsisdn = null;
 			}
 			else
