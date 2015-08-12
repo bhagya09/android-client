@@ -40,6 +40,8 @@ public class StickerSearchHostManager
 
 	private static int NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL;
 
+	private static int NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED;
+
 	private static String REGEX_SEPARATORS;
 
 	private static int MAXIMUM_SEARCH_TEXT_LIMIT;
@@ -118,7 +120,9 @@ public class StickerSearchHostManager
 	{
 		mCurrentTextSignificantLength = 0;
 
-		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()) + 1;
+		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = Math.max(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()), 1);
+
+		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED = NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL + 1;
 
 		REGEX_SEPARATORS = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REGEX_SEPARATORS, StickerSearchConstants.REGEX_SEPARATORS);
 
@@ -1359,7 +1363,7 @@ public class StickerSearchHostManager
 					}
 					else
 					{
-						if (leastButSignificantStickerDataList.size() >= NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL)
+						if (leastButSignificantStickerDataList.size() >= NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED)
 						{
 							StickerAppositeDataContainer currentLeastSignificantSticker = leastButSignificantStickerDataList.last();
 							if (currentLeastSignificantSticker.compareTo(stickerAppositeDataContainer) == 1)

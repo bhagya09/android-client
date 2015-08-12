@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.TimeStamp;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.Logger;
@@ -53,8 +54,27 @@ public class StickerSearchUtility
 				{
 					try
 					{
-						int rebalancingTime = json.getInt(settingName);
-						editor.putInt(settingName, rebalancingTime);
+						JSONObject rebalancingData = json.getJSONObject(settingName);
+
+						if (rebalancingData != null)
+						{
+							TimeStamp timeStamp = new TimeStamp(rebalancingData.optInt(HikeConstants.STICKER_DATA_HOUR, 0), rebalancingData.optInt(
+									HikeConstants.STICKER_DATA_MINUTE, 0), rebalancingData.optInt(HikeConstants.STICKER_DATA_SECOND, 0), rebalancingData.optInt(
+									HikeConstants.STICKER_DATA_MILLI_SECOND, 0));
+
+							if (timeStamp.isValidTimeStampOfTheDay())
+							{
+								editor.putString(settingName, timeStamp.toString());
+							}
+							else
+							{
+								Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+							}
+						}
+						else
+						{
+							Logger.e(tag, "Empty data for '" + settingName + "' key.");
+						}
 					}
 					catch (JSONException e)
 					{

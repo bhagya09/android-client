@@ -29,7 +29,7 @@ public class StickerSearchConstants
 	// ========================================================Generic constants for data setup]]
 
 	// Generic constants for periodic tasks====================================================[[
-	public static final int REBALACING_DEFAULT_TIME = 4; // 4 a.m.
+	public static final int REBALACING_DEFAULT_TIME_HOUR = 4; // 4 a.m. time-stamp
 
 	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 14 * 24 * 60 * 60 * 1000L; // 14 days period in milliseconds
 
