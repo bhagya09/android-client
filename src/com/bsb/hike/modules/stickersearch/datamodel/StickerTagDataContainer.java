@@ -146,6 +146,7 @@ public class StickerTagDataContainer
 		result = prime * result + ((mTagCategories == null) ? 0 : mTagCategories.hashCode());
 		result = prime * result + ((mTags == null) ? 0 : mTags.hashCode());
 		result = prime * result + ((mThemes == null) ? 0 : mThemes.hashCode());
+
 		return result;
 	}
 

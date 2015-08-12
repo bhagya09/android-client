@@ -6,11 +6,13 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +22,6 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
-import com.bsb.hike.modules.stickersearch.datamodel.TimeStamp;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.Logger;
@@ -58,13 +59,16 @@ public class StickerSearchUtility
 
 						if (rebalancingData != null)
 						{
-							TimeStamp timeStamp = new TimeStamp(rebalancingData.optInt(HikeConstants.STICKER_DATA_HOUR, 0), rebalancingData.optInt(
-									HikeConstants.STICKER_DATA_MINUTE, 0), rebalancingData.optInt(HikeConstants.STICKER_DATA_SECOND, 0), rebalancingData.optInt(
-									HikeConstants.STICKER_DATA_MILLI_SECOND, 0));
+							Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
+							calendar.set(Calendar.HOUR_OF_DAY, rebalancingData.optInt(HikeConstants.STICKER_DATA_HOUR, 0));
+							calendar.set(Calendar.MINUTE, rebalancingData.optInt(HikeConstants.STICKER_DATA_MINUTE, 0));
+							calendar.set(Calendar.SECOND, rebalancingData.optInt(HikeConstants.STICKER_DATA_SECOND, 0));
+							calendar.set(Calendar.MILLISECOND, rebalancingData.optInt(HikeConstants.STICKER_DATA_MILLI_SECOND, 0));
 
-							if (timeStamp.isValidTimeStampOfTheDay())
+							if (Utils.isValidTimeStampOfTheDay(calendar))
 							{
-								editor.putString(settingName, timeStamp.toString());
+								SimpleDateFormat formatter = new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH);
+								editor.putString(settingName, formatter.format(calendar.getTime()));
 							}
 							else
 							{

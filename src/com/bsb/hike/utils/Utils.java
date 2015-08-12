@@ -22,6 +22,7 @@ import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -5551,7 +5552,47 @@ public class Utils
 		calendar.set(Calendar.MINUTE, minutes);
 		calendar.set(Calendar.SECOND, seconds);
 		calendar.set(Calendar.MILLISECOND, milliseconds);
+
 		return calendar.getTimeInMillis();
+	}
+
+	/**
+	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
+	 * 
+	 * @param Calendar
+	 *            calendar instance to be checked
+	 * @param timeStamp
+	 *            time-stamp to be parsed
+	 * @param default_ii
+	 *            time elements like hour, minute, second and millisecond
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static long getTimeInMillis(Calendar calendar, String timeStamp, int default_hh, int default_mm, int default_ss, int default_SSS)
+	{
+		if (!isBlank(timeStamp))
+		{
+			try
+			{
+				int date = calendar.get(Calendar.DATE);
+				int month = calendar.get(Calendar.MONTH);
+				int year = calendar.get(Calendar.YEAR);
+
+				calendar.setTime((new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).parse(timeStamp));
+
+				// Preserve supplied date from calendar instance, so that only time elements of a day are set from given time-stamp
+				calendar.set(Calendar.DATE, date);
+				calendar.set(Calendar.MONTH, month);
+				calendar.set(Calendar.YEAR, year);
+
+				return calendar.getTimeInMillis();
+			}
+			catch (ParseException e)
+			{
+				Logger.e("TimeStampParsing", "Error while parsing given time-stamp string...", e);
+			}
+		}
+
+		return getTimeInMillis(calendar, default_hh, default_mm, default_ss, default_SSS);
 	}
 
 	public static void disableNetworkListner(Context context)
@@ -6405,7 +6446,7 @@ public class Utils
 	 * Determine whether supplied String is actually empty or not.
 	 * 
 	 * @param String
-	 *            to be checked
+	 *            char-sequence to be checked
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isBlank(final CharSequence s)
@@ -6561,7 +6602,7 @@ public class Utils
 	 * Determine whether supplied module is being tested.
 	 * 
 	 * @param String
-	 *            of module name
+	 *            module name to be simulated
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
 	public static boolean isTestMode(String moduleName)
@@ -6651,6 +6692,15 @@ public class Utils
 		return false;
 	}
 
+	/**
+	 * Determine whether a table exists.
+	 * 
+	 * @param SQLiteDatabase
+	 *            databse instance contaning such table
+	 * @param String
+	 *            table name to be checked
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
 	public static boolean isTableExists(SQLiteDatabase db, String tableName)
 	{
 		if ((tableName != null) && (db != null) && db.isOpen())
@@ -6713,5 +6763,37 @@ public class Utils
 		}
 
 		return cloneJson;
+	}
+
+	/**
+	 * Determine whether a time-stamp represents correct clock time of a day.
+	 * 
+	 * @param Calendar
+	 *            calendar instance to be checked
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static boolean isValidTimeStampOfTheDay(Calendar calendar)
+	{
+		if ((calendar.get(Calendar.HOUR_OF_DAY) < 0) || (calendar.get(Calendar.HOUR_OF_DAY) >= 24))
+		{
+			return false;
+		}
+
+		if ((calendar.get(Calendar.MINUTE) < 0) || (calendar.get(Calendar.MINUTE) >= 60))
+		{
+			return false;
+		}
+
+		if ((calendar.get(Calendar.SECOND) < 0) || (calendar.get(Calendar.SECOND) >= 60))
+		{
+			return false;
+		}
+
+		if ((calendar.get(Calendar.MILLISECOND) < 0) || (calendar.get(Calendar.MILLISECOND) >= 1000))
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

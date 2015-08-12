@@ -1,6 +1,8 @@
 package com.bsb.hike.modules.stickersearch;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
 
 import org.json.JSONObject;
 
@@ -11,7 +13,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.modules.stickersearch.datamodel.TimeStamp;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
@@ -375,7 +376,7 @@ public class StickerSearchManager
 	{
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SET_ALARM_FIRST_TIME, false))
 		{
-			Logger.d(HikeStickerSearchDatabase.TAG_REBALANCING, "Setting alarm first time...");
+			Logger.d(HikeStickerSearchDatabase.TAG_REBALANCING, "Setting rebalancing alarm first time...");
 
 			setRebalancingAlarm();
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SET_ALARM_FIRST_TIME, true);
@@ -384,12 +385,13 @@ public class StickerSearchManager
 
 	public void setRebalancingAlarm()
 	{
-		long scheduleTime = new TimeStamp(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP, null),
-				StickerSearchConstants.REBALACING_DEFAULT_TIME_HOUR, 0, 0, 0).getTimeInMillis();
+		long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP, null),
+				StickerSearchConstants.REBALACING_DEFAULT_TIME_HOUR, 0, 0, 0);
 
 		if (scheduleTime < System.currentTimeMillis())
 		{
-			scheduleTime += 24 * 60 * 60 * 1000; // Next day at defined time
+			scheduleTime += 24 * 60 * 60 * 1000; // Next day at given time
 		}
 
 		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true,

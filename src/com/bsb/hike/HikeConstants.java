@@ -3194,4 +3194,6 @@ public class HikeConstants
 	public static final String STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT = "ssb_tfsc"; // float
 
 	// =========================================================================================Constants for sticker search]]
+
+	public static final String FORMAT_TIME_OF_THE_DAY = "HH:mm:ss.SSS";
 }
