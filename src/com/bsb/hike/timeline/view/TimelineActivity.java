@@ -79,6 +79,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
 	
 	private final String MAIN_ACTIVITY_FEED_TAG = "mainActivityFeedTag";
+	
+	private static final String TAG = "TimelineActivity";
 
 	private PopupWindow overFlowWindow;
 
@@ -190,10 +192,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		if(getSupportFragmentManager().findFragmentByTag(MAIN_ACTIVITY_FEED_TAG) == null)
 		{
-			if(mainFragment == null)
+			if(mainFragment != null)
 			{
-				mainFragment = new UpdatesFragment();
+				Logger.i(TAG, "Main Fragment was not null, Recreating");
 			}
+			mainFragment = new UpdatesFragment();
 			getSupportFragmentManager().beginTransaction().replace(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).addToBackStack(MAIN_ACTIVITY_FEED_TAG).commit();
 		}
 
