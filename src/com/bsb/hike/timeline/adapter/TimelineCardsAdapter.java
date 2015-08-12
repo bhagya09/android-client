@@ -1265,7 +1265,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (mShowUserProfile)
 			{
 				// First check if user is friends with msisdn
-				if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND)
+				if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND && !Utils.isSelfMsisdn(profileContactInfo.getMsisdn()))
 				{
 					toggleCompButtonState(buttonView, onLoveToggleListener);
 					if (mActivity.get() != null)

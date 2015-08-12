@@ -6854,5 +6854,10 @@ public class Utils
 			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
 		}
 	}
+	
+	public static boolean isSelfMsisdn(String argMsisdn)
+	{
+		return getUserContactInfo(false).getMsisdn().equals(argMsisdn);
+	}
 }
 

@@ -591,41 +591,42 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	public void showLikesContactsDialog()
 	{
 		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
-			return;
-		
-		final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, 11);
-		dialog.setContentView(R.layout.display_contacts_dialog);
-		dialog.setCancelable(true);
-
-		ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
-		DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns);
-		listContacts.setAdapter(contactsAdapter);
-		listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
 		{
 
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
-			{
-				Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this,
-						ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false, false);
-				// Add anything else to the intent
-				intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-			}
-		});
+			final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, 11);
+			dialog.setContentView(R.layout.display_contacts_dialog);
+			dialog.setCancelable(true);
 
-		ImageButton cancelButton = (ImageButton) dialog.findViewById(R.id.btn_cancel);
-		cancelButton.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View arg0)
+			ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
+			DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns);
+			listContacts.setAdapter(contactsAdapter);
+			listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
 			{
-				dialog.dismiss();
-			}
-		});
 
-		dialog.show();
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
+				{
+					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
+							.getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false, false);
+					// Add anything else to the intent
+					intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+				}
+			});
+
+			ImageButton cancelButton = (ImageButton) dialog.findViewById(R.id.btn_cancel);
+			cancelButton.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View arg0)
+				{
+					dialog.dismiss();
+				}
+			});
+
+			dialog.show();
+		}
 	}
 
 	private void setupActionBar()
@@ -732,7 +733,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn());
 			
 			// First check if user is friends with msisdn
-			if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND)
+			if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND && !Utils.isSelfMsisdn(profileContactInfo.getMsisdn()))
 			{
 				toggleCompButtonState(buttonView, onLoveToggleListener);
 				HikeDialogFactory.showDialog(TimelineSummaryActivity.this, HikeDialogFactory.ADD_TO_FAV_DIALOG, new HikeDialogListener()
