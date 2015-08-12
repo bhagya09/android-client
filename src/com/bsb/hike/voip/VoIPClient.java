@@ -750,7 +750,6 @@ public class VoIPClient  {
 				
 				if (connected == true) {
 					Logger.d(tag, "UDP connection established :) " + getPreferredConnectionMethod());
-					lastPacketReceived = 0;
 					connectionEstablished();
 
 					if (reconnecting) {
@@ -1376,7 +1375,7 @@ public class VoIPClient  {
 							try {
 								if (version >= 3) {
 									remotePacketLoss = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
-									remotePacketLossUpdated();
+									processRemotePacketLoss();
 								}
 
 							} catch (BufferUnderflowException e) {
@@ -2002,11 +2001,9 @@ public class VoIPClient  {
 		return currentCallQuality;
 	}
 	
-	private void remotePacketLossUpdated() {
+	private void processRemotePacketLoss() {
 		
-		// TODO Recover from reduced bitrate
-		
-		if (remotePacketLoss < VoIPConstants.ACCEPTABLE_PACKET_LOSS)
+		if (remotePacketLoss < VoIPConstants.ACCEPTABLE_PACKET_LOSS && bitrateAdjustment >= 0)
 			return;
 		
 		if (!audioStarted) 
@@ -2021,22 +2018,22 @@ public class VoIPClient  {
 		if (isHostingConference || isInAHostedConference)
 			return;
 		
-		bitrateAdjustment -= remotePacketLoss * getBitrate() / 100;
-		int newBitrate = localBitrate + bitrateAdjustment;
+		if (remotePacketLoss < VoIPConstants.ACCEPTABLE_PACKET_LOSS)
+			bitrateAdjustment += VoIPConstants.BITRATE_STEP_UP;
+		else
+			bitrateAdjustment -= remotePacketLoss * getBitrate() / 100;
 		
-		if (newBitrate < OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE) {
-			newBitrate = OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE;
+		if (getBitrate() < OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE) {
 			bitrateAdjustment = OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE - localBitrate;
-			if (version >= 3) {
-				Logger.w(tag, "Putting 2 audio frames in every UDP packet now.");
-				audioFramesPerUDPPacket = 2;				
+			if (version >= 3 && audioFramesPerUDPPacket < VoIPConstants.MAXIMUM_FRAMES_PER_PACKET) {
+				audioFramesPerUDPPacket++;	
+				bitrateAdjustment = 0;
 			}
 		}
 		
-		if (newBitrate == localBitrate)
-			return;
-		
-		Logger.w(tag, "Remote packet loss: " + remotePacketLoss + ", new bitrate: " + getBitrate());
+		Logger.d(tag, "Remote loss: " + remotePacketLoss + 
+				", bitrate: " + getBitrate() +
+				", frames/packet: " + audioFramesPerUDPPacket);
 		
 		opusWrapper.setEncoderBitrate(getBitrate());
 		sendPacket(new VoIPDataPacket(PacketType.RESET_PACKET_LOSS), false);
@@ -2146,7 +2143,9 @@ public class VoIPClient  {
 	}
 	
 	private void connectionEstablished() {
+		lastPacketReceived = 0;
 		bitrateAdjustment = 0;
+		audioFramesPerUDPPacket = 1;
 		sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 	}
 

@@ -416,7 +416,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 		catch (IllegalArgumentException e) {
-			Logger.d(tag, "shutdown() exception: " + e.toString());
+			// Expected. Can happen. 
 		}
 
 		if(activity.isShowingCallFailedFragment())
