@@ -198,16 +198,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (mActivityTask.emojiShowing)
 		{
 			showEmojiSelector();
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 		else if (mActivityTask.moodShowing)
 		{
 			showMoodSelector();
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 		else if (TextUtils.isEmpty(mImagePath))
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 
 		toggleEnablePostButton();
@@ -249,12 +249,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (mActivityTask.moodShowing || mActivityTask.emojiShowing)
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 
 		else
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 	}
 
@@ -355,6 +355,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mActivityTask.imageDeleted = true;
 		mImagePath = null;
 		toggleEnablePostButton();
+		if (shouldShowMoodsButton())
+		{
+			addMoodLayout.setVisibility(View.VISIBLE);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}
 	}
 
 	@Override
@@ -659,7 +664,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean shouldShowMoodsButton()
 	{
-		if (TextUtils.isEmpty(mImagePath) && !mActivityTask.imageDeleted)
+		if (TextUtils.isEmpty(mImagePath))
 		{
 			return true;
 		}
