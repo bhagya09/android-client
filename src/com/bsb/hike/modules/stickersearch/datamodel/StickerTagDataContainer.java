@@ -131,27 +131,148 @@ public class StickerTagDataContainer
 	}
 
 	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+
+		/* Computation must be followed in same order as used in equals() to avoid same hashCode generated for unequal object */
+		result = prime * result + mMomentCode;
+		result = prime * result + ((mTagExactMatchPriorities == null) ? 0 : mTagExactMatchPriorities.hashCode());
+		result = prime * result + ((mTagPriorities == null) ? 0 : mTagPriorities.hashCode());
+		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
+		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
+		result = prime * result + ((mLanguages == null) ? 0 : mLanguages.hashCode());
+		result = prime * result + ((mTagCategories == null) ? 0 : mTagCategories.hashCode());
+		result = prime * result + ((mTags == null) ? 0 : mTags.hashCode());
+		result = prime * result + ((mThemes == null) ? 0 : mThemes.hashCode());
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj)
 	{
-		boolean result = (obj != null) && (obj instanceof StickerTagDataContainer);
-
-		if (result)
+		if (this == obj)
 		{
-			StickerTagDataContainer comparableObject = (StickerTagDataContainer) obj;
-
-			result = ((mStickerCode == null) ? (comparableObject.getStickerCode() == null) : mStickerCode.equals(comparableObject.getStickerCode()))
-					&& ((mTags == null) ? (comparableObject.getTagList() == null) : mTags.equals(comparableObject.getTagList()))
-					&& ((mLanguages == null) ? (comparableObject.getLanguageList() == null) : mLanguages.equals(comparableObject.getLanguageList()))
-					&& ((mTagCategories == null) ? (comparableObject.getTagCategoryList() == null) : mTagCategories.equals(comparableObject.getTagCategoryList()))
-					&& ((mThemes == null) ? (comparableObject.getThemeList() == null) : mThemes.equals(comparableObject.getThemeList()))
-					&& ((mTagExactMatchPriorities == null) ? (comparableObject.getTagExactMatchPriorityList() == null) : mTagExactMatchPriorities.equals(comparableObject
-							.getTagExactMatchPriorityList()))
-					&& ((mTagPriorities == null) ? (comparableObject.getTagPopularityList() == null) : mTagPriorities.equals(comparableObject.getTagPopularityList()))
-					&& (mMomentCode == comparableObject.getMomentCode())
-					&& ((mFestivals == null) ? (comparableObject.getFestivalList() == null) : (mFestivals.equals(comparableObject.getFestivalList())));
+			return true;
 		}
 
-		return result;
+		if (obj == null)
+		{
+			return false;
+		}
+
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+
+		StickerTagDataContainer other = (StickerTagDataContainer) obj;
+
+		/* Compare in order of raw data types to derived data types i.e. comparison must be done earlier for those data types, which takes low comparison-processing time */
+		/* Like order cab be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes */
+		if (mMomentCode != other.mMomentCode)
+		{
+			return false;
+		}
+
+		if (mTagExactMatchPriorities == null)
+		{
+			if (other.mTagExactMatchPriorities != null)
+			{
+				return false;
+			}
+		}
+		else if (!mTagExactMatchPriorities.equals(other.mTagExactMatchPriorities))
+		{
+			return false;
+		}
+
+		if (mTagPriorities == null)
+		{
+			if (other.mTagPriorities != null)
+			{
+				return false;
+			}
+		}
+		else if (!mTagPriorities.equals(other.mTagPriorities))
+		{
+			return false;
+		}
+
+		if (mStickerCode == null)
+		{
+			if (other.mStickerCode != null)
+			{
+				return false;
+			}
+		}
+		else if (!mStickerCode.equals(other.mStickerCode))
+		{
+			return false;
+		}
+
+		if (mFestivals == null)
+		{
+			if (other.mFestivals != null)
+			{
+				return false;
+			}
+		}
+		else if (!mFestivals.equals(other.mFestivals))
+		{
+			return false;
+		}
+
+		if (mLanguages == null)
+		{
+			if (other.mLanguages != null)
+			{
+				return false;
+			}
+		}
+		else if (!mLanguages.equals(other.mLanguages))
+		{
+			return false;
+		}
+
+		if (mTagCategories == null)
+		{
+			if (other.mTagCategories != null)
+			{
+				return false;
+			}
+		}
+		else if (!mTagCategories.equals(other.mTagCategories))
+		{
+			return false;
+		}
+
+		if (mTags == null)
+		{
+			if (other.mTags != null)
+			{
+				return false;
+			}
+		}
+		else if (!mTags.equals(other.mTags))
+		{
+			return false;
+		}
+
+		if (mThemes == null)
+		{
+			if (other.mThemes != null)
+			{
+				return false;
+			}
+		}
+		else if (!mThemes.equals(other.mThemes))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

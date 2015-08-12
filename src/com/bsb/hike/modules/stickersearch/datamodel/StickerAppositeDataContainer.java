@@ -184,45 +184,6 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 	}
 
 	@Override
-	public boolean equals(Object obj)
-	{
-		boolean result = (obj != null) && (obj instanceof StickerAppositeDataContainer);
-
-		if (result)
-		{
-			StickerAppositeDataContainer comparableObject = (StickerAppositeDataContainer) obj;
-
-			result = ((mStickerCode == null) ? (comparableObject.getStickerCode() == null) : mStickerCode.equals(comparableObject.getStickerCode()))
-					&& ((mTag == null) ? (comparableObject.getStickerTag() == null) : mTag.equals(comparableObject.getStickerTag()))
-					&& ((mLanguageFunction == null) ? (comparableObject.getLanguageFunction() == null) : mLanguageFunction.equals(comparableObject.getLanguageFunction()))
-					&& ((mStateFunction == null) ? (comparableObject.getStateFunction() == null) : mStateFunction.equals(comparableObject.getStateFunction()))
-					&& ((mTagRelatedFrequencyFunction == null) ? (comparableObject.getTagRelatedFrequencyFunction() == null) : mTagRelatedFrequencyFunction.equals(comparableObject
-							.getTagRelatedFrequencyFunction()))
-					&& ((mOverallFrequencyFunction == null) ? (comparableObject.getOverallFrequencyFunction() == null) : mOverallFrequencyFunction.equals(comparableObject
-							.getOverallFrequencyFunction()))
-					&& (mExactMatchOrder == comparableObject.getExactMatchOrder())
-					&& (mMomentCode == comparableObject.getMomentCode())
-					&& ((mFestivals == null) ? (comparableObject.getFestivalList() == null) : (mFestivals.equals(comparableObject.getFestivalList())))
-					&& (mAge == comparableObject.mAge)
-					&& ((mStringsUsedWithSticker == null) ? (comparableObject.getStringsUsedWithSticker() == null) : mStringsUsedWithSticker.equals(comparableObject
-							.getStringsUsedWithSticker()))
-					&& ((mStringsNotUsedWithSticker == null) ? (comparableObject.getStringsNotUsedWithSticker() == null) : mStringsNotUsedWithSticker.equals(comparableObject
-							.getStringsNotUsedWithSticker())) && (mStickerAvailability == comparableObject.mStickerAvailability);
-		}
-
-		return result;
-	}
-
-	@Override
-	public String toString()
-	{
-		return "[sticker_info: " + mStickerCode + ", <tag=" + mTag + "><language_fn=" + mLanguageFunction + "><state_fn=" + mStateFunction + "><tag_fr_fn="
-				+ mTagRelatedFrequencyFunction + "><tfr_fn=" + mOverallFrequencyFunction + "><theme_fn=" + mStoryThemeFunction + "><exact_match_order=" + mExactMatchOrder
-				+ "><moment_code=" + mMomentCode + "><festival=" + mFestivals + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage="
-				+ mStringsNotUsedWithSticker + ">]";
-	}
-
-	@Override
 	/*
 	 * LHS = RHS ==> return 0; LHS > RHS ==> return -1; LHS < RHS ==> return 1;
 	 */
@@ -245,5 +206,217 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		}
 
 		return 1;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+
+		/* Computation must be followed in same order as used in equals() to avoid same hashCode generated for unequal object */
+		result = prime * result + mAge;
+		result = prime * result + mExactMatchOrder;
+		result = prime * result + mMomentCode;
+		result = prime * result + mStickerAvailability;
+		result = prime * result + ((mTag == null) ? 0 : mTag.hashCode());
+		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
+		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
+		result = prime * result + ((mFrequencies == null) ? 0 : mFrequencies.hashCode());
+		result = prime * result + ((mLanguageFunction == null) ? 0 : mLanguageFunction.hashCode());
+		result = prime * result + ((mOverallFrequencyFunction == null) ? 0 : mOverallFrequencyFunction.hashCode());
+		result = prime * result + ((mStateFunction == null) ? 0 : mStateFunction.hashCode());
+		result = prime * result + ((mStoryThemeFunction == null) ? 0 : mStoryThemeFunction.hashCode());
+		result = prime * result + ((mStringsNotUsedWithSticker == null) ? 0 : mStringsNotUsedWithSticker.hashCode());
+		result = prime * result + ((mStringsUsedWithSticker == null) ? 0 : mStringsUsedWithSticker.hashCode());
+		result = prime * result + ((mTagRelatedFrequencyFunction == null) ? 0 : mTagRelatedFrequencyFunction.hashCode());
+
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+
+		if (obj == null)
+		{
+			return false;
+		}
+
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+
+		StickerAppositeDataContainer other = (StickerAppositeDataContainer) obj;
+
+		/* Compare in order of raw data types to derived data types i.e. comparison must be done earlier for those data types, which takes low comparison-processing time */
+		/* Like order cab be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes */
+		if (mAge != other.mAge)
+		{
+			return false;
+		}
+
+		if (mExactMatchOrder != other.mExactMatchOrder)
+		{
+			return false;
+		}
+
+		if (mMomentCode != other.mMomentCode)
+		{
+			return false;
+		}
+
+		if (mStickerAvailability != other.mStickerAvailability)
+		{
+			return false;
+		}
+
+		if (mTag == null)
+		{
+			if (other.mTag != null)
+			{
+				return false;
+			}
+		}
+		else if (!mTag.equals(other.mTag))
+		{
+			return false;
+		}
+
+		if (mStickerCode == null)
+		{
+			if (other.mStickerCode != null)
+			{
+				return false;
+			}
+		}
+		else if (!mStickerCode.equals(other.mStickerCode))
+		{
+			return false;
+		}
+
+		if (mFestivals == null)
+		{
+			if (other.mFestivals != null)
+			{
+				return false;
+			}
+		}
+		else if (!mFestivals.equals(other.mFestivals))
+		{
+			return false;
+		}
+
+		if (mFrequencies == null)
+		{
+			if (other.mFrequencies != null)
+			{
+				return false;
+			}
+		}
+		else if (!mFrequencies.equals(other.mFrequencies))
+		{
+			return false;
+		}
+
+		if (mLanguageFunction == null)
+		{
+			if (other.mLanguageFunction != null)
+			{
+				return false;
+			}
+		}
+		else if (!mLanguageFunction.equals(other.mLanguageFunction))
+		{
+			return false;
+		}
+
+		if (mOverallFrequencyFunction == null)
+		{
+			if (other.mOverallFrequencyFunction != null)
+			{
+				return false;
+			}
+		}
+		else if (!mOverallFrequencyFunction.equals(other.mOverallFrequencyFunction))
+		{
+			return false;
+		}
+
+		if (mStateFunction == null)
+		{
+			if (other.mStateFunction != null)
+			{
+				return false;
+			}
+		}
+		else if (!mStateFunction.equals(other.mStateFunction))
+		{
+			return false;
+		}
+
+		if (mStoryThemeFunction == null)
+		{
+			if (other.mStoryThemeFunction != null)
+			{
+				return false;
+			}
+		}
+		else if (!mStoryThemeFunction.equals(other.mStoryThemeFunction))
+		{
+			return false;
+		}
+
+		if (mStringsNotUsedWithSticker == null)
+		{
+			if (other.mStringsNotUsedWithSticker != null)
+			{
+				return false;
+			}
+		}
+		else if (!mStringsNotUsedWithSticker.equals(other.mStringsNotUsedWithSticker))
+		{
+			return false;
+		}
+
+		if (mStringsUsedWithSticker == null)
+		{
+			if (other.mStringsUsedWithSticker != null)
+			{
+				return false;
+			}
+		}
+		else if (!mStringsUsedWithSticker.equals(other.mStringsUsedWithSticker))
+		{
+			return false;
+		}
+
+		if (mTagRelatedFrequencyFunction == null)
+		{
+			if (other.mTagRelatedFrequencyFunction != null)
+			{
+				return false;
+			}
+		}
+		else if (!mTagRelatedFrequencyFunction.equals(other.mTagRelatedFrequencyFunction))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "[sticker_info: " + mStickerCode + ", <tag=" + mTag + "><lan_fn=" + mLanguageFunction + "><st_fn=" + mStateFunction + "><tag_fr_fn=" + mTagRelatedFrequencyFunction
+				+ "><tfr_fn=" + mOverallFrequencyFunction + "><th_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mt_cd=" + mMomentCode + "><fes="
+				+ mFestivals + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr=" + mMatchingScore
+				+ "><sr_scr=" + mRecommendationScore + ">]";
 	}
 }

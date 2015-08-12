@@ -111,17 +111,60 @@ public class TimeStamp
 	}
 
 	@Override
-	public boolean equals(Object other)
+	public int hashCode()
 	{
-		boolean result = (other != null) && (other instanceof TimeStamp);
+		final int prime = 31;
+		int result = 1;
 
-		if (result)
-		{
-			TimeStamp ts = (TimeStamp) other;
-			result = (mHour == ts.getHour()) && (mMinute == ts.getMinute()) && (mSecond == ts.getSecond()) && (mMilliSecond == ts.getMilliSecond());
-		}
+		result = prime * result + mHour;
+		result = prime * result + mMinute;
+		result = prime * result + mSecond;
+		result = prime * result + mMilliSecond;
 
 		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+
+		if (obj == null)
+		{
+			return false;
+		}
+
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+
+		TimeStamp other = (TimeStamp) obj;
+
+		if (mHour != other.mHour)
+		{
+			return false;
+		}
+
+		if (mMinute != other.mMinute)
+		{
+			return false;
+		}
+
+		if (mSecond != other.mSecond)
+		{
+			return false;
+		}
+
+		if (mMilliSecond != other.mMilliSecond)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override
