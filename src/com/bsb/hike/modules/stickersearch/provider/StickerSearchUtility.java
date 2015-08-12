@@ -50,7 +50,7 @@ public class StickerSearchUtility
 			{
 				String settingName = configSettings.next();
 
-				if (HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME.equals(settingName))
+				if (HikeConstants.STICKER_TAG_REBALANCING_TRIGGER_TIME_STAMP.equals(settingName))
 				{
 					try
 					{
