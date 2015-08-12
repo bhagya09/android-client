@@ -6772,24 +6772,24 @@ public class Utils
 	 *            calendar instance to be checked
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
-	public static boolean isValidTimeStampOfTheDay(Calendar calendar)
+	public static boolean isValidTimeStampOfTheDay(int hh, int mm, int ss, int SSS)
 	{
-		if ((calendar.get(Calendar.HOUR_OF_DAY) < 0) || (calendar.get(Calendar.HOUR_OF_DAY) >= 24))
+		if ((hh < 0) || (hh >= 24))
 		{
 			return false;
 		}
 
-		if ((calendar.get(Calendar.MINUTE) < 0) || (calendar.get(Calendar.MINUTE) >= 60))
+		if ((mm < 0) || (mm >= 60))
 		{
 			return false;
 		}
 
-		if ((calendar.get(Calendar.SECOND) < 0) || (calendar.get(Calendar.SECOND) >= 60))
+		if ((ss < 0) || (ss >= 60))
 		{
 			return false;
 		}
 
-		if ((calendar.get(Calendar.MILLISECOND) < 0) || (calendar.get(Calendar.MILLISECOND) >= 1000))
+		if ((SSS < 0) || (SSS >= 1000))
 		{
 			return false;
 		}
