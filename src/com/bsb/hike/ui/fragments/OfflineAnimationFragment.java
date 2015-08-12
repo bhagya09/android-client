@@ -1,7 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
-
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.animation.Animator;
@@ -12,7 +11,6 @@ import android.content.DialogInterface.OnKeyListener;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Bundle;
@@ -28,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -40,11 +37,9 @@ import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
@@ -55,10 +50,7 @@ import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
-import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -67,29 +59,30 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.google.gson.Gson;
 
+
 public class OfflineAnimationFragment extends DialogFragment implements IOfflineCallbacks ,OfflineConnectionRequestListener
 {
-	protected static final String TAG = "OfflineAnimationFragment";
+	private static final String TAG = "OfflineAnimationFragment";
 
-	String msisdn;
+	private String msisdn;
 	
-	ImageView avatarImageView;
+	private ImageView avatarImageView;
 	
-	ImageView logo;
+	private ImageView logo;
 	
-	View fragmentView;
+	private View fragmentView;
 	
-	FrameLayout imageViewLayout;
+	private FrameLayout imageViewLayout;
 	
-	RotateAnimation  rotateAnimation;
+	private ObjectAnimator  rotateAnimation;
 	
-	FrameLayout frame;
+	private FrameLayout frame;
 	
-	int originalPos[] =  new int[2];
+	private int originalPos[] =  new int[2];
 	
-	TextView connectionInfo;
+	private TextView connectionInfo;
 	
-	String contactFirstName;
+	private String contactFirstName;
 	
 	private static final String MSISDN = "msisdn";
 
@@ -99,21 +92,21 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	protected static final int UPDATE_ANIMATION_SECOND_MESSAGE = 3;
 
-	TextView secondMessage;
+	private TextView secondMessage;
 	
-	Button retryButton;
+	private Button retryButton;
 	
-	OfflineConnectionRequestListener listener;
+	private OfflineConnectionRequestListener listener;
 	
-	CountDownTimer  timer = null;
+	private CountDownTimer  timer = null;
 	
-	AnimatorSet bringToCenter = null;
+	private AnimatorSet bringToCenter = null;
 	
-	AnimatorSet bringBackToTop = null;
+	private AnimatorSet bringBackToTop = null;
 	
-	OfflineDisconnectFragment offlineDisconnectFragment;
+	private OfflineDisconnectFragment offlineDisconnectFragment;
 	
-	View divider;
+	private View divider;
 	
 	private OfflineParameters offlineParameters=null;
 	
@@ -188,7 +181,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			}
 		};
 				
-		//timer.start();
 	}
 
 
@@ -369,7 +361,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	    bringToCenter.play(scaleXDown).with(scaleYDown).after(scaleXUp);
 		bringToCenter.play(scaleXUpHolo).with(scaleYUpHolo).after(1100);
 		bringToCenter.play(scaleYDownHolo).with(scaleXDownHolo).after(scaleXUpHolo);
-	    bringToCenter.addListener(new AnimatorListener()
+	    
+		bringToCenter.addListener(new AnimatorListener()
 		{
 			
 			@Override
@@ -413,7 +406,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		ImageView progressBead = (ImageView)fragmentView.findViewById(R.id.bead);
 		progressBead.setVisibility(View.VISIBLE);
-		ObjectAnimator rotateAnimation = ObjectAnimator.ofFloat(progressBead,View.ROTATION,0, 359.9f);   
+		rotateAnimation = ObjectAnimator.ofFloat(progressBead,View.ROTATION,0, 359.9f);   
 		//,Animation.RELATIVE_TO_SELF,0.38f,Animation.RELATIVE_TO_SELF,2.9f);
 		progressBead.setPivotX(11);
 		progressBead.setPivotY(frame.getHeight()/2);
@@ -458,22 +451,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			}
 		});
 		int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 95, getActivity().getResources().getDisplayMetrics());
-//		Drawable drawable=HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
-//		if(drawable==null)
-//		{
-//			 drawable=HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn,true);
-//			 avatarImageView.setImageDrawable(drawable);
-//		}
-//		else
-//		{
-		long startTime=System.currentTimeMillis();
+
 		ProfilePicImageLoader profileImageLoader=new ProfilePicImageLoader(getActivity(), size);
 		profileImageLoader.setDefaultAvatarIfNoCustomIcon(true);
 		profileImageLoader.setHiResDefaultAvatar(true);
 		String mapedId = msisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
 		profileImageLoader.loadImage(mapedId, avatarImageView, true,true);
-		Logger.d(TAG,"time taken in fetching image is "+(System.currentTimeMillis()-startTime)+"");
-		//}
 		
 	}
 	
@@ -554,6 +537,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				startAnimation();
 			}
 		});
+		
 		getDialog().setOnKeyListener(new OnKeyListener() 
 	    { 
 	        @Override 
