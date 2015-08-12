@@ -11,6 +11,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 
+import com.bsb.hike.HikeMessengerApp;
+
 /**
  * ListView capable to pin views at its top while the rest is still scrolled.
  */
@@ -64,6 +66,8 @@ public class PinnedSectionListView extends ListView
 
 	/** shadow instance with a pinned view, can be null. */
 	PinnedViewShadow mPinnedShadow;
+	
+	int currentPinPosition = -1;
 
 	/**
 	 * Pinned view Y-translation. We use it to stick pinned view to the next section.
@@ -210,6 +214,8 @@ public class PinnedSectionListView extends ListView
 		// try to recycle shadow
 		PinnedViewShadow pinnedShadow = mRecycleShadow;
 		mRecycleShadow = null;
+		
+		this.currentPinPosition = position;
 
 		// create new shadow, if needed
 		if (pinnedShadow == null)
@@ -240,7 +246,9 @@ public class PinnedSectionListView extends ListView
 			heightSize = maxHeight;
 
 		// measure & layout
-		int ws = MeasureSpec.makeMeasureSpec(getWidth() - getListPaddingLeft() - getListPaddingRight(), MeasureSpec.EXACTLY);
+		//Need to use the screen width here
+		int width = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+		int ws = MeasureSpec.makeMeasureSpec(width - getListPaddingLeft() - getListPaddingRight(), MeasureSpec.EXACTLY);
 		int hs = MeasureSpec.makeMeasureSpec(heightSize, heightMode);
 		pinnedView.measure(ws, hs);
 		pinnedView.layout(0, 0, pinnedView.getMeasuredWidth(), pinnedView.getMeasuredHeight());
@@ -398,6 +406,16 @@ public class PinnedSectionListView extends ListView
 			canvas.translate(pLeft, pTop + mTranslateY);
 			drawChild(canvas, mPinnedShadow.view, getDrawingTime());
 			canvas.restore();
+		}
+	}
+
+	public void onConfigChanged()
+	{
+		if (currentPinPosition != -1)
+		{
+			// Destroy the previous pinned shadow and create a new one
+			destroyPinnedShadow();
+			createPinnedShadow(currentPinPosition);
 		}
 	}
 }

@@ -1062,11 +1062,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			onBlueOverLayClick((ConvMessage) v.getTag(), v);
 			break;
 		case R.id.next:
-			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 			searchMessage(true,false);
 			break;
 		case R.id.previous:
-			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 			searchMessage(false,false);
 			break;
 		case R.id.search_clear_btn:
@@ -1606,7 +1604,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setText(searchText);
 			mComposeView.setSelection(searchText.length());
 		}
-		Utils.blockOrientationChange(activity);
 	}
 	
 	private void setUpSearchViews()
@@ -1676,6 +1673,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void searchMessage(boolean searchNext, boolean loop)
 	{
+		mConversationsView.setOnScrollListener(null);
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
@@ -1715,6 +1714,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		setMessagesRead();
 		loadingMoreMessages = false;
+		mConversationsView.setOnScrollListener(this);
 	}
 
 	protected void destroySearchMode()
@@ -1745,7 +1745,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mAdapter.setSearchText(null);
 			searchText = null;
 		}
-		Utils.unblockOrientationChange(activity);
 	}
 
 	protected void showToast(int messageId)
@@ -4104,6 +4103,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 * We call this method to either re-init the stickerpicker and emoticon picker or update their listeners
 		 */
 		initShareablePopup();
+		StickerManager.getInstance().showStickerRecommendTurnOnToast();
 	}
 
 	protected void hideView(int viewId)
@@ -5317,7 +5317,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			else if (actionId == EditorInfo.IME_ACTION_SEARCH||(view.getId() ==R.id.search_text))
 			{
-				Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 				searchMessage(false,true);
 				return true;
 			}
