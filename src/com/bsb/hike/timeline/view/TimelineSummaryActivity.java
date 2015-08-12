@@ -733,10 +733,12 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				e.printStackTrace();
 			}
 
-			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn());
+			ContactInfo userInfo = Utils.getUserContactInfo(false);
+			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn(), true, true);
 			
 			// First check if user is friends with msisdn
-			if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND)
+			if (!userInfo.getMsisdn().equals(statusMessage.getMsisdn()) &&
+					profileContactInfo.getFavoriteType() != FavoriteType.FRIEND)
 			{
 				toggleCompButtonState(buttonView, onLoveToggleListener);
 				HikeDialogFactory.showDialog(TimelineSummaryActivity.this, HikeDialogFactory.ADD_TO_FAV_DIALOG, new HikeDialogListener()
