@@ -183,6 +183,18 @@ public class FTAnalyticEvents
 	public static final String HOST_FALLBACK = "host_fallback";
 
 	public static final String FT_STATE_READ_FAIL = "ft_state_read_fail";
+
+	public static final String FT_BENCH_MARK = "ft_benchmarking";
+
+	public static final String FT_PROCESSING_TIME = "ft_pt";
+
+	public static final String FT_CHUNK_SIZE = "ft_cs";
+
+	public static final String FT_COMPLETED = "ft_c";
+
+	public static final String FT_FILE_ID = "ft_fId";
+
+	public static final String FT_CONTENT_RANGE = "ft_cr";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
@@ -398,6 +410,38 @@ public class FTAnalyticEvents
 			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, devArea, info);
 		} catch (JSONException e) {
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging dev exception log : "+ e);
+		}
+	}
+
+	/**
+	* Logs the file transfer processing time for every chunk 
+	* 
+	* @param taskType
+	* @param sessionId
+	* @param isCompleted
+	* @param chunkSize
+	* @param timeTaken
+	* @param contentRange
+	* @param networkType
+	*/
+	public static void logFTProcessingTime(String taskType, String sessionId, boolean isCompleted, long chunkSize, long timeTaken, String contentRange, String networkType) 
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
+			return;
+
+		JSONObject info = new JSONObject();
+		try {
+			info.put(FT_FILE_ID, sessionId);
+			info.put(FTR_TASK_TYPE, taskType);
+			info.put(FT_CHUNK_SIZE, chunkSize);
+			info.put(FT_PROCESSING_TIME, timeTaken);
+			info.put(FT_COMPLETED, isCompleted);
+			info.put(FT_CONTENT_RANGE, contentRange);
+			info.put(FT_NETWORK_TYPE, networkType);
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "FTR : Processing Time log : "+ info.toString());
+			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, FT_BENCH_MARK, info);
+		} catch (JSONException e) {
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging processing time : "+ e);
 		}
 	}
 
