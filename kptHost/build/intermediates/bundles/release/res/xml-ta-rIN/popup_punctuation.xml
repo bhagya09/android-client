@@ -20,31 +20,31 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-        <Key atx:keyLabel=":" atx:keyEdgeFlags="left" />
-        <Key atx:keyLabel="+" />
-        <Key atx:keyLabel="/" />
-        <Key atx:keyLabel="&amp;" />
-        <Key atx:keyLabel="(" />
-        <Key atx:keyLabel=")" />
-        <Key atx:keyLabel="॰" />
-        <Key atx:keyLabel="॥" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_keyLabel=":" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_keyLabel="+" />
+        <Key atx:kpt_keyLabel="/" />
+        <Key atx:kpt_keyLabel="&amp;" />
+        <Key atx:kpt_keyLabel="(" />
+        <Key atx:kpt_keyLabel=")" />
+        <Key atx:kpt_keyLabel="॰" />
+        <Key atx:kpt_keyLabel="॥" atx:kpt_keyEdgeFlags="right" />
     </Row>
-    <Row atx:rowEdgeFlags="bottom">
-        <Key atx:keyLabel=";" atx:keyEdgeFlags="left" />
-        <Key atx:keyLabel="." />
-        <Key atx:keyLabel="," />
-        <Key atx:keyLabel="\@" />
-        <Key atx:keyLabel="\'" />
-        <Key atx:keyLabel="&quot;" />
-        <Key atx:keyLabel="\?" />
-        <Key atx:keyLabel="!" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="bottom">
+        <Key atx:kpt_keyLabel=";" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_keyLabel="." />
+        <Key atx:kpt_keyLabel="," />
+        <Key atx:kpt_keyLabel="\@" />
+        <Key atx:kpt_keyLabel="\'" />
+        <Key atx:kpt_keyLabel="&quot;" />
+        <Key atx:kpt_keyLabel="\?" />
+        <Key atx:kpt_keyLabel="!" atx:kpt_keyEdgeFlags="right" />
     </Row>
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml-ta-rIN/popup_punctuation.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml-ta-rIN/popup_punctuation.xml -->

@@ -46,7 +46,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int backgroundDimAmount=0x7f01003b;
+        public static int kpt_backgroundDimAmount=0x7f01003b;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -54,7 +54,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int code=0x7f010007;
+        public static int kpt_code=0x7f010007;
         /** <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>May be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
@@ -63,11 +63,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int codes=0x7f01002a;
+        public static int kpt_codes=0x7f01002a;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int entryImages=0x7f01000c;
+        public static int kpt_entryImages=0x7f01000c;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -75,7 +75,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int fontSizeApplicable=0x7f01001a;
+        public static int kpt_fontSizeApplicable=0x7f01001a;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -83,7 +83,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int fontStyleApplicable=0x7f010019;
+        public static int kpt_fontStyleApplicable=0x7f010019;
         /** <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -96,11 +96,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int horizontalGap=0x7f01000f;
+        public static int kpt_horizontalGap=0x7f01000f;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int iconPreview=0x7f010031;
+        public static int kpt_iconPreview=0x7f010031;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -108,7 +108,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int iconText=0x7f010036;
+        public static int kpt_iconText=0x7f010036;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -116,7 +116,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isGlideSupported=0x7f01001c;
+        public static int kpt_isGlideSupported=0x7f01001c;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -124,7 +124,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isModifier=0x7f01002e;
+        public static int kpt_isModifier=0x7f01002e;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -132,7 +132,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isNumberRow=0x7f01003a;
+        public static int kpt_isNumberRow=0x7f01003a;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -140,7 +140,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isRTL=0x7f010018;
+        public static int kpt_isRTL=0x7f010018;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -148,7 +148,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isRepeatable=0x7f010030;
+        public static int kpt_isRepeatable=0x7f010030;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -156,11 +156,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isSticky=0x7f01002f;
+        public static int kpt_isSticky=0x7f01002f;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyBackground=0x7f01001e;
+        public static int kpt_keyBackground=0x7f01001e;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -171,7 +171,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>right</code></td><td>2</td><td></td></tr>
 </table>
          */
-        public static int keyEdgeFlags=0x7f01002d;
+        public static int kpt_keyEdgeFlags=0x7f01002d;
         /** <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -184,11 +184,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyHeight=0x7f01000e;
+        public static int kpt_keyHeight=0x7f01000e;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyIcon=0x7f010034;
+        public static int kpt_keyIcon=0x7f010034;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -196,7 +196,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel=0x7f010033;
+        public static int kpt_keyLabel=0x7f010033;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -204,7 +204,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel2=0x7f010005;
+        public static int kpt_keyLabel2=0x7f010005;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -214,7 +214,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel2TextSize=0x7f010016;
+        public static int kpt_keyLabel2TextSize=0x7f010016;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -222,7 +222,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel2XPos=0x7f010013;
+        public static int kpt_keyLabel2XPos=0x7f010013;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -230,7 +230,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel2YPos=0x7f010014;
+        public static int kpt_keyLabel2YPos=0x7f010014;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -240,7 +240,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabelTextSize=0x7f010015;
+        public static int kpt_keyLabelTextSize=0x7f010015;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -248,7 +248,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabelXPos=0x7f010011;
+        public static int kpt_keyLabelXPos=0x7f010011;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -256,7 +256,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabelYPos=0x7f010012;
+        public static int kpt_keyLabelYPos=0x7f010012;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -264,7 +264,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyOutputText=0x7f010032;
+        public static int kpt_keyOutputText=0x7f010032;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -274,11 +274,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyPreviewHeight=0x7f010025;
+        public static int kpt_keyPreviewHeight=0x7f010025;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyPreviewLayout=0x7f010023;
+        public static int kpt_keyPreviewLayout=0x7f010023;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -288,7 +288,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyPreviewOffset=0x7f010024;
+        public static int kpt_keyPreviewOffset=0x7f010024;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -296,7 +296,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keySpecialOper=0x7f010037;
+        public static int kpt_keySpecialOper=0x7f010037;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -305,7 +305,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextColor=0x7f010021;
+        public static int kpt_keyTextColor=0x7f010021;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -314,7 +314,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextColor1=0x7f010022;
+        public static int kpt_keyTextColor1=0x7f010022;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -323,7 +323,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextColor2=0x7f010000;
+        public static int kpt_keyTextColor2=0x7f010000;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -332,7 +332,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextColor3=0x7f010004;
+        public static int kpt_keyTextColor3=0x7f010004;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -342,7 +342,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextSize=0x7f01001f;
+        public static int kpt_keyTextSize=0x7f01001f;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -352,7 +352,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextSize2=0x7f010001;
+        public static int kpt_keyTextSize2=0x7f010001;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -362,7 +362,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextSize3=0x7f010003;
+        public static int kpt_keyTextSize3=0x7f010003;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -372,7 +372,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextSize4=0x7f010002;
+        public static int kpt_keyTextSize4=0x7f010002;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -380,7 +380,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyType=0x7f01001b;
+        public static int kpt_keyType=0x7f01001b;
         /** <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -393,19 +393,19 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyWidth=0x7f01000d;
+        public static int kpt_keyWidth=0x7f01000d;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyboardMode=0x7f010039;
+        public static int kpt_keyboardMode=0x7f010039;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyboardViewStyle=0x7f01001d;
+        public static int kpt_keyboardViewStyle=0x7f01001d;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int kptIcon=0x7f01000b;
+        public static int kpt_kptIcon=0x7f01000b;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -413,7 +413,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int label=0x7f010008;
+        public static int kpt_label=0x7f010008;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -423,7 +423,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int labelTextSize=0x7f010020;
+        public static int kpt_labelTextSize=0x7f010020;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -431,7 +431,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int languageType=0x7f010017;
+        public static int kpt_languageType=0x7f010017;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -439,7 +439,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int locale=0x7f01000a;
+        public static int kpt_locale=0x7f01000a;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -447,15 +447,15 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int popupCharacters=0x7f01002c;
+        public static int kpt_popupCharacters=0x7f01002c;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int popupKeyboard=0x7f01002b;
+        public static int kpt_popupKeyboard=0x7f01002b;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int popupLayout=0x7f010027;
+        public static int kpt_popupLayout=0x7f010027;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -466,7 +466,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>bottom</code></td><td>8</td><td></td></tr>
 </table>
          */
-        public static int rowEdgeFlags=0x7f010038;
+        public static int kpt_rowEdgeFlags=0x7f010038;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -475,7 +475,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int shadowColor=0x7f010028;
+        public static int kpt_shadowColor=0x7f010028;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -483,7 +483,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int shadowRadius=0x7f010029;
+        public static int kpt_shadowRadius=0x7f010029;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -491,7 +491,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int useExternalFont=0x7f010035;
+        public static int kpt_useExternalFont=0x7f010035;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -499,7 +499,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int values=0x7f010009;
+        public static int kpt_values=0x7f010009;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -507,7 +507,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int version=0x7f010006;
+        public static int kpt_version=0x7f010006;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -517,7 +517,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int verticalCorrection=0x7f010026;
+        public static int kpt_verticalCorrection=0x7f010026;
         /** <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -530,35 +530,35 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int verticalGap=0x7f010010;
+        public static int kpt_verticalGap=0x7f010010;
     }
     public static final class bool {
-        public static int V0_6=0x7f070000;
-        public static int V0_7=0x7f070001;
-        public static int V0_7_2=0x7f070002;
-        public static int V0_7_3=0x7f070003;
-        public static int V0_9=0x7f070004;
-        public static int V1_0=0x7f070005;
-        public static int config_swipeDisambiguation=0x7f070006;
-        public static int enable_autocorrect=0x7f070007;
-        public static int im_is_default=0x7f070008;
-        public static int kpt_config_sliding_key_input_enabled=0x7f070009;
-        public static int kpt_debug=0x7f07000a;
-        public static int kpt_enable_analytic_server=0x7f07000b;
-        public static int kpt_enable_appflyer=0x7f07000c;
-        public static int kpt_enable_inappbilling=0x7f07000d;
-        public static int kpt_enable_mat=0x7f07000e;
-        public static int voice_input_default=0x7f07000f;
+        public static int kpt_V0_6=0x7f070000;
+        public static int kpt_V0_7=0x7f070001;
+        public static int kpt_V0_7_2=0x7f070002;
+        public static int kpt_V0_7_3=0x7f070003;
+        public static int kpt_V0_9=0x7f070004;
+        public static int kpt_V1_0=0x7f070005;
+        public static int kpt_config_sliding_key_input_enabled=0x7f070006;
+        public static int kpt_config_swipeDisambiguation=0x7f070007;
+        public static int kpt_debug=0x7f070008;
+        public static int kpt_enable_analytic_server=0x7f070009;
+        public static int kpt_enable_appflyer=0x7f07000a;
+        public static int kpt_enable_autocorrect=0x7f07000b;
+        public static int kpt_enable_inappbilling=0x7f07000c;
+        public static int kpt_enable_mat=0x7f07000d;
+        public static int kpt_im_is_default=0x7f07000e;
+        public static int kpt_voice_input_default=0x7f07000f;
     }
     public static final class color {
-        public static int atr_option=0x7f080000;
-        public static int kpt_acc_dismiss_dk_fk=0x7f080001;
-        public static int kpt_acc_dismiss_grt=0x7f080002;
-        public static int kpt_acc_dismiss_olm=0x7f080003;
-        public static int kpt_acc_dismiss_red=0x7f080004;
-        public static int kpt_acc_dismiss_val=0x7f080005;
-        public static int kpt_appwidget_text=0x7f080006;
-        public static int kpt_appwidget_text_dk_fk=0x7f080007;
+        public static int kpt_acc_dismiss_dk_fk=0x7f080000;
+        public static int kpt_acc_dismiss_grt=0x7f080001;
+        public static int kpt_acc_dismiss_olm=0x7f080002;
+        public static int kpt_acc_dismiss_red=0x7f080003;
+        public static int kpt_acc_dismiss_val=0x7f080004;
+        public static int kpt_appwidget_text=0x7f080005;
+        public static int kpt_appwidget_text_dk_fk=0x7f080006;
+        public static int kpt_atr_option=0x7f080007;
         public static int kpt_auto_update_frequence_color_disable=0x7f080008;
         public static int kpt_auto_update_frequence_color_enable=0x7f080009;
         public static int kpt_balck_color_text=0x7f08000a;
@@ -647,7 +647,7 @@ containing a value of this type.
         public static int kpt_xi_enable_red=0x7f08005d;
     }
     public static final class dimen {
-        public static int kpt_accentuated_bubble_offset=0x7f090050;
+        public static int kpt_accentuated_bubble_offset=0x7f090051;
         public static int kpt_accessibility_edge_slop=0x7f090000;
         public static int kpt_bubble_pointer_offset=0x7f090001;
         public static int kpt_bubble_pointer_offset_dk_fk=0x7f090002;
@@ -671,7 +671,7 @@ containing a value of this type.
         public static int kpt_customization_size=0x7f090014;
         public static int kpt_customization_size_options=0x7f090015;
         public static int kpt_cv_preview_textsize=0x7f090016;
-        public static int kpt_dialog_height=0x7f090051;
+        public static int kpt_dialog_height=0x7f090052;
         public static int kpt_draw_space_key_arrows=0x7f090017;
         public static int kpt_expanded_height=0x7f090018;
         public static int kpt_expanded_height_dk_fk=0x7f090019;
@@ -696,43 +696,43 @@ containing a value of this type.
         public static int kpt_keyLabelTextSize_phone_sym=0x7f09002c;
         public static int kpt_keyLabelXPos=0x7f09002d;
         public static int kpt_keyLabelYPos=0x7f09002e;
-        public static int kpt_key_height=0x7f09002f;
-        public static int kpt_key_height_dk_fk=0x7f090030;
-        public static int kpt_key_height_land=0x7f090031;
-        public static int kpt_key_height_thai_3rows=0x7f090032;
-        public static int kpt_key_height_thai_punctuation=0x7f090033;
-        public static int kpt_key_height_when_4rows_xl=0x7f090034;
-        public static int kpt_key_preview_backing_height=0x7f090035;
-        public static int kpt_key_shape_text_size=0x7f090036;
-        public static int kpt_keyboard_vertical_correction=0x7f090037;
-        public static int kpt_keytextsize=0x7f090038;
-        public static int kpt_max_height_for_fullscreen=0x7f090039;
-        public static int kpt_max_textpreview_size=0x7f09003a;
-        public static int kpt_min_textpreview_size=0x7f09003b;
-        public static int kpt_more_keys_keyboard_slide_allowance=0x7f09003c;
-        public static int kpt_more_keys_keyboard_vertical_correction=0x7f09003d;
-        public static int kpt_normal_height=0x7f09003e;
-        public static int kpt_normal_height_dk_fk=0x7f09003f;
-        public static int kpt_number_row_key_height_dk_fk=0x7f090040;
-        public static int kpt_preview_text_size=0x7f09004e;
-        public static int kpt_primary_text_size=0x7f090041;
-        public static int kpt_secondary_text_size=0x7f090042;
-        public static int kpt_setup_wizard_textsize=0x7f090043;
-        public static int kpt_spacebar_text_size=0x7f090044;
-        public static int kpt_spacebar_text_size_dk_fk=0x7f090045;
-        public static int kpt_spacebar_text_vertical_offset=0x7f09004f;
-        public static int kpt_spacebar_text_vertical_offset_dk_fk=0x7f090052;
-        public static int kpt_spacebar_vertical_correction=0x7f090046;
-        public static int kpt_spacebar_vertical_correction_dk_fk=0x7f090047;
-        public static int kpt_sugg_icons_text_size=0x7f090048;
-        public static int kpt_text_size_max=0x7f090049;
-        public static int kpt_text_size_min=0x7f09004a;
-        public static int kpt_vertical_gap=0x7f09004b;
-        public static int kpt_vertical_gap_dk_fk=0x7f09004c;
-        public static int kpt_xhdpi_preview_text_size=0x7f09004d;
+        public static int kpt_keyLabelYPos_atx=0x7f09002f;
+        public static int kpt_key_height=0x7f090030;
+        public static int kpt_key_height_dk_fk=0x7f090031;
+        public static int kpt_key_height_land=0x7f090032;
+        public static int kpt_key_height_thai_3rows=0x7f090033;
+        public static int kpt_key_height_thai_punctuation=0x7f090034;
+        public static int kpt_key_height_when_4rows_xl=0x7f090035;
+        public static int kpt_key_preview_backing_height=0x7f090036;
+        public static int kpt_key_shape_text_size=0x7f090037;
+        public static int kpt_keyboard_vertical_correction=0x7f090038;
+        public static int kpt_keytextsize=0x7f090039;
+        public static int kpt_max_height_for_fullscreen=0x7f09003a;
+        public static int kpt_max_textpreview_size=0x7f09003b;
+        public static int kpt_min_textpreview_size=0x7f09003c;
+        public static int kpt_more_keys_keyboard_slide_allowance=0x7f09003d;
+        public static int kpt_more_keys_keyboard_vertical_correction=0x7f09003e;
+        public static int kpt_normal_height=0x7f09003f;
+        public static int kpt_normal_height_dk_fk=0x7f090040;
+        public static int kpt_number_row_key_height_dk_fk=0x7f090041;
+        public static int kpt_preview_text_size=0x7f09004f;
+        public static int kpt_primary_text_size=0x7f090042;
+        public static int kpt_secondary_text_size=0x7f090043;
+        public static int kpt_setup_wizard_textsize=0x7f090044;
+        public static int kpt_spacebar_text_size=0x7f090045;
+        public static int kpt_spacebar_text_size_dk_fk=0x7f090046;
+        public static int kpt_spacebar_text_vertical_offset=0x7f090050;
+        public static int kpt_spacebar_text_vertical_offset_dk_fk=0x7f090053;
+        public static int kpt_spacebar_vertical_correction=0x7f090047;
+        public static int kpt_spacebar_vertical_correction_dk_fk=0x7f090048;
+        public static int kpt_sugg_icons_text_size=0x7f090049;
+        public static int kpt_text_size_max=0x7f09004a;
+        public static int kpt_text_size_min=0x7f09004b;
+        public static int kpt_vertical_gap=0x7f09004c;
+        public static int kpt_vertical_gap_dk_fk=0x7f09004d;
+        public static int kpt_xhdpi_preview_text_size=0x7f09004e;
     }
     public static final class drawable {
-        public static int com_facebook_picker_default_separator_color=0x7f0200da;
         public static int kpt_acc_dismiss_vf=0x7f020000;
         public static int kpt_acc_dismiss_vf_bright=0x7f020001;
         public static int kpt_acc_dismiss_vf_olm=0x7f020002;
@@ -825,6 +825,7 @@ containing a value of this type.
         public static int kpt_clipboard_select_off=0x7f020059;
         public static int kpt_clipboard_select_on=0x7f02005a;
         public static int kpt_clipboard_up=0x7f02005b;
+        public static int kpt_com_facebook_picker_default_separator_color=0x7f0200da;
         public static int kpt_create_theme_list_divider=0x7f02005c;
         public static int kpt_customization_layout_colordrawable=0x7f0200db;
         public static int kpt_delete=0x7f02005d;
@@ -1207,36 +1208,36 @@ containing a value of this type.
         public static int xmldivider=0x7f0e0048;
     }
     public static final class integer {
-        public static int key_f1=0x7f0b0000;
-        public static int kpt_backgroundDimAlpha=0x7f0b0001;
-        public static int kpt_case_change=0x7f0b0002;
-        public static int kpt_clipboard=0x7f0b0003;
-        public static int kpt_config_gesture_dynamic_threshold_decay_duration=0x7f0b0004;
-        public static int kpt_config_gesture_dynamic_time_threshold_from=0x7f0b0005;
-        public static int kpt_config_gesture_dynamic_time_threshold_to=0x7f0b0006;
-        public static int kpt_config_gesture_floating_preview_text_linger_timeout=0x7f0b0007;
-        public static int kpt_config_gesture_preview_trail_fadeout_duration=0x7f0b0008;
-        public static int kpt_config_gesture_preview_trail_fadeout_start_delay=0x7f0b0009;
-        public static int kpt_config_gesture_preview_trail_update_interval=0x7f0b000a;
-        public static int kpt_config_gesture_recognition_minimum_time=0x7f0b000b;
-        public static int kpt_config_gesture_static_time_threshold_after_fast_typing=0x7f0b000c;
-        public static int kpt_config_ignore_alt_code_key_timeout=0x7f0b000d;
-        public static int kpt_config_key_preview_linger_timeout=0x7f0b000e;
-        public static int kpt_config_key_repeat_interval=0x7f0b000f;
-        public static int kpt_config_key_repeat_start_timeout=0x7f0b0010;
-        public static int kpt_config_keyboard_grid_height=0x7f0b0011;
-        public static int kpt_config_keyboard_grid_width=0x7f0b0012;
-        public static int kpt_config_long_press_key_timeout=0x7f0b0013;
-        public static int kpt_config_long_press_shift_key_timeout=0x7f0b0014;
-        public static int kpt_config_suppress_key_preview_after_batch_input_duration=0x7f0b0015;
-        public static int kpt_config_touch_noise_threshold_time=0x7f0b0016;
-        public static int kpt_copy=0x7f0b0017;
-        public static int kpt_cut=0x7f0b0018;
-        public static int kpt_display_numberic_kb=0x7f0b0019;
-        public static int kpt_functional_key_dont_send_to_core=0x7f0b001a;
-        public static int kpt_functional_key_send_to_core=0x7f0b001b;
-        public static int kpt_hide_keyboard=0x7f0b001c;
-        public static int kpt_inapp_billing_type=0x7f0b001d;
+        public static int kpt_backgroundDimAlpha=0x7f0b0000;
+        public static int kpt_case_change=0x7f0b0001;
+        public static int kpt_clipboard=0x7f0b0002;
+        public static int kpt_config_gesture_dynamic_threshold_decay_duration=0x7f0b0003;
+        public static int kpt_config_gesture_dynamic_time_threshold_from=0x7f0b0004;
+        public static int kpt_config_gesture_dynamic_time_threshold_to=0x7f0b0005;
+        public static int kpt_config_gesture_floating_preview_text_linger_timeout=0x7f0b0006;
+        public static int kpt_config_gesture_preview_trail_fadeout_duration=0x7f0b0007;
+        public static int kpt_config_gesture_preview_trail_fadeout_start_delay=0x7f0b0008;
+        public static int kpt_config_gesture_preview_trail_update_interval=0x7f0b0009;
+        public static int kpt_config_gesture_recognition_minimum_time=0x7f0b000a;
+        public static int kpt_config_gesture_static_time_threshold_after_fast_typing=0x7f0b000b;
+        public static int kpt_config_ignore_alt_code_key_timeout=0x7f0b000c;
+        public static int kpt_config_key_preview_linger_timeout=0x7f0b000d;
+        public static int kpt_config_key_repeat_interval=0x7f0b000e;
+        public static int kpt_config_key_repeat_start_timeout=0x7f0b000f;
+        public static int kpt_config_keyboard_grid_height=0x7f0b0010;
+        public static int kpt_config_keyboard_grid_width=0x7f0b0011;
+        public static int kpt_config_long_press_key_timeout=0x7f0b0012;
+        public static int kpt_config_long_press_shift_key_timeout=0x7f0b0013;
+        public static int kpt_config_suppress_key_preview_after_batch_input_duration=0x7f0b0014;
+        public static int kpt_config_touch_noise_threshold_time=0x7f0b0015;
+        public static int kpt_copy=0x7f0b0016;
+        public static int kpt_cut=0x7f0b0017;
+        public static int kpt_display_numberic_kb=0x7f0b0018;
+        public static int kpt_functional_key_dont_send_to_core=0x7f0b0019;
+        public static int kpt_functional_key_send_to_core=0x7f0b001a;
+        public static int kpt_hide_keyboard=0x7f0b001b;
+        public static int kpt_inapp_billing_type=0x7f0b001c;
+        public static int kpt_key_f1=0x7f0b001d;
         public static int kpt_key_type_normal=0x7f0b001e;
         public static int kpt_normal=0x7f0b001f;
         public static int kpt_paste=0x7f0b0020;
@@ -1244,12 +1245,12 @@ containing a value of this type.
         public static int kpt_post_twitter=0x7f0b0022;
         public static int kpt_selectall=0x7f0b0023;
         public static int kpt_space_gesture=0x7f0b0024;
-        public static int kpt_word_lookup_google=0x7f0b0025;
-        public static int kpt_word_lookup_google_maps=0x7f0b0026;
-        public static int kpt_word_lookup_wiki=0x7f0b0027;
-        public static int vibrate_acc_sugg=0x7f0b0028;
-        public static int vibrate_generic=0x7f0b0029;
-        public static int vibrate_no_sugg=0x7f0b002a;
+        public static int kpt_vibrate_acc_sugg=0x7f0b0025;
+        public static int kpt_vibrate_generic=0x7f0b0026;
+        public static int kpt_vibrate_no_sugg=0x7f0b0027;
+        public static int kpt_word_lookup_google=0x7f0b0028;
+        public static int kpt_word_lookup_google_maps=0x7f0b0029;
+        public static int kpt_word_lookup_wiki=0x7f0b002a;
     }
     public static final class layout {
         public static int kpt_account_manager=0x7f030000;
@@ -1855,68 +1856,68 @@ containing a value of this type.
         public static int kpt_prior_header_2=0x7f0c01ee;
         public static int kpt_prior_tool_tip_1=0x7f0c01ef;
         public static int kpt_prior_tool_tip_2=0x7f0c01f0;
-        public static int kpt_sdcard_required=0x7f0c01f1;
-        public static int kpt_search_addon=0x7f0c01f2;
-        public static int kpt_search_menu=0x7f0c01f3;
-        public static int kpt_search_word=0x7f0c01f4;
-        public static int kpt_send_mail=0x7f0c01f5;
-        public static int kpt_sentence_separators=0x7f0c01f6;
-        public static int kpt_server_register_error=0x7f0c01f7;
-        public static int kpt_server_registered=0x7f0c01f8;
-        public static int kpt_server_registering=0x7f0c01f9;
-        public static int kpt_server_unregister_error=0x7f0c01fa;
-        public static int kpt_server_unregistered=0x7f0c01fb;
-        public static int kpt_shared_user_label=0x7f0c01fc;
-        public static int kpt_smiley_korean_secondary_char=0x7f0c01fd;
-        public static int kpt_smiley_korean_secondary_char_value=0x7f0c01fe;
-        public static int kpt_smiley_secondary_char=0x7f0c01ff;
-        public static int kpt_smiley_secondary_char_value=0x7f0c0200;
-        public static int kpt_social_acc_add=0x7f0c0201;
-        public static int kpt_social_acc_del=0x7f0c0202;
-        public static int kpt_social_fetch_finish=0x7f0c0203;
-        public static int kpt_social_fetch_notify=0x7f0c0204;
-        public static int kpt_sound_on_keypress=0x7f0c0205;
-        public static int kpt_space=0x7f0c0206;
-        public static int kpt_subtitle=0x7f0c0207;
-        public static int kpt_suggested_punctuations=0x7f0c0208;
-        public static int kpt_system_info=0x7f0c0209;
+        public static int kpt_punctuations_list=0x7f0c01f1;
+        public static int kpt_sdcard_required=0x7f0c01f2;
+        public static int kpt_search_addon=0x7f0c01f3;
+        public static int kpt_search_menu=0x7f0c01f4;
+        public static int kpt_search_word=0x7f0c01f5;
+        public static int kpt_send_mail=0x7f0c01f6;
+        public static int kpt_sentence_separators=0x7f0c01f7;
+        public static int kpt_server_register_error=0x7f0c01f8;
+        public static int kpt_server_registered=0x7f0c01f9;
+        public static int kpt_server_registering=0x7f0c01fa;
+        public static int kpt_server_unregister_error=0x7f0c01fb;
+        public static int kpt_server_unregistered=0x7f0c01fc;
+        public static int kpt_shared_user_label=0x7f0c01fd;
+        public static int kpt_smiley_korean_secondary_char=0x7f0c01fe;
+        public static int kpt_smiley_korean_secondary_char_value=0x7f0c01ff;
+        public static int kpt_smiley_secondary_char=0x7f0c0200;
+        public static int kpt_smiley_secondary_char_value=0x7f0c0201;
+        public static int kpt_social_acc_add=0x7f0c0202;
+        public static int kpt_social_acc_del=0x7f0c0203;
+        public static int kpt_social_fetch_finish=0x7f0c0204;
+        public static int kpt_social_fetch_notify=0x7f0c0205;
+        public static int kpt_sound_on_keypress=0x7f0c0206;
+        public static int kpt_space=0x7f0c0207;
+        public static int kpt_subtitle=0x7f0c0208;
+        public static int kpt_suggested_punctuations=0x7f0c0209;
+        public static int kpt_system_info=0x7f0c020a;
         public static int kpt_t101_UI_STRING_MENUITEMS_9=0x7f0c022e;
         public static int kpt_t110_UI_STRING_ERROR_MESSAGE_2=0x7f0c022f;
-        public static int kpt_tap_disable=0x7f0c020a;
-        public static int kpt_tap_download=0x7f0c020b;
-        public static int kpt_tap_enable=0x7f0c020c;
-        public static int kpt_theme_category_title=0x7f0c020d;
-        public static int kpt_theme_title=0x7f0c020e;
-        public static int kpt_themes_layouts=0x7f0c020f;
-        public static int kpt_themes_master_xml_version=0x7f0c0210;
-        public static int kpt_ticker_text=0x7f0c0211;
-        public static int kpt_title_postman_dialog=0x7f0c0212;
-        public static int kpt_title_wait=0x7f0c0213;
-        public static int kpt_toast_hide_postman_dialog=0x7f0c0214;
-        public static int kpt_toast_hide_voice_dialog=0x7f0c0215;
-        public static int kpt_toast_internet=0x7f0c0216;
-        public static int kpt_toast_kb_change=0x7f0c0217;
-        public static int kpt_toast_language_selection=0x7f0c0218;
-        public static int kpt_toast_latest_version=0x7f0c0219;
-        public static int kpt_toast_novoice=0x7f0c021a;
+        public static int kpt_tap_disable=0x7f0c020b;
+        public static int kpt_tap_download=0x7f0c020c;
+        public static int kpt_tap_enable=0x7f0c020d;
+        public static int kpt_theme_category_title=0x7f0c020e;
+        public static int kpt_theme_title=0x7f0c020f;
+        public static int kpt_themes_layouts=0x7f0c0210;
+        public static int kpt_themes_master_xml_version=0x7f0c0211;
+        public static int kpt_ticker_text=0x7f0c0212;
+        public static int kpt_title_postman_dialog=0x7f0c0213;
+        public static int kpt_title_wait=0x7f0c0214;
+        public static int kpt_toast_hide_postman_dialog=0x7f0c0215;
+        public static int kpt_toast_hide_voice_dialog=0x7f0c0216;
+        public static int kpt_toast_internet=0x7f0c0217;
+        public static int kpt_toast_kb_change=0x7f0c0218;
+        public static int kpt_toast_language_selection=0x7f0c0219;
+        public static int kpt_toast_latest_version=0x7f0c021a;
+        public static int kpt_toast_novoice=0x7f0c021b;
         public static int kpt_update_dialog_title=0x7f0c0230;
-        public static int kpt_update_now=0x7f0c021b;
-        public static int kpt_version_name=0x7f0c021c;
-        public static int kpt_version_number=0x7f0c021d;
-        public static int kpt_vibrate_on_keypress=0x7f0c021e;
-        public static int kpt_website_predefined_key_1=0x7f0c021f;
-        public static int kpt_website_predefined_key_2=0x7f0c0220;
-        public static int kpt_website_predefined_value_1=0x7f0c0221;
-        public static int kpt_website_predefined_value_2=0x7f0c0222;
-        public static int kpt_word_separators=0x7f0c0223;
-        public static int punctuations_list=0x7f0c0224;
+        public static int kpt_update_now=0x7f0c021c;
+        public static int kpt_version_name=0x7f0c021d;
+        public static int kpt_version_number=0x7f0c021e;
+        public static int kpt_vibrate_on_keypress=0x7f0c021f;
+        public static int kpt_website_predefined_key_1=0x7f0c0220;
+        public static int kpt_website_predefined_key_2=0x7f0c0221;
+        public static int kpt_website_predefined_value_1=0x7f0c0222;
+        public static int kpt_website_predefined_value_2=0x7f0c0223;
+        public static int kpt_word_separators=0x7f0c0224;
     }
     public static final class style {
         public static int AdaptxtTheme=0x7f0d0000;
         public static int Adaptxtprefstyle=0x7f0d0001;
-        public static int Holo_ProgressBar_Horizontal=0x7f0d0002;
-        public static int Theme=0x7f0d0003;
-        public static int Theme_CustomDialog=0x7f0d0004;
+        public static int Kpt_Holo_ProgressBar_Horizontal=0x7f0d0002;
+        public static int Kpt_Theme=0x7f0d0003;
+        public static int Kpt_Theme_CustomDialog=0x7f0d0004;
         public static int Theme_Transparent=0x7f0d0005;
         public static int kpt_LightTabWidget=0x7f0d0006;
         public static int kpt_customize_headers=0x7f0d0007;
@@ -1980,31 +1981,31 @@ containing a value of this type.
         public static int prefs_themeslayouts=0x7f050035;
     }
     public static final class styleable {
-        /** Attributes that can be used with a Atx_KeyboardView.
+        /** Attributes that can be used with a Kpt_Atx_KeyboardView.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextColor2 com.kpt.adaptxt.beta:keyTextColor2}</code></td><td></td></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextColor3 com.kpt.adaptxt.beta:keyTextColor3}</code></td><td></td></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextSize2 com.kpt.adaptxt.beta:keyTextSize2}</code></td><td></td></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextSize3 com.kpt.adaptxt.beta:keyTextSize3}</code></td><td></td></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextSize4 com.kpt.adaptxt.beta:keyTextSize4}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextColor2 com.kpt.adaptxt.beta:kpt_keyTextColor2}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextColor3 com.kpt.adaptxt.beta:kpt_keyTextColor3}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextSize2 com.kpt.adaptxt.beta:kpt_keyTextSize2}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextSize3 com.kpt.adaptxt.beta:kpt_keyTextSize3}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextSize4 com.kpt.adaptxt.beta:kpt_keyTextSize4}</code></td><td></td></tr>
            </table>
-           @see #Atx_KeyboardView_keyTextColor2
-           @see #Atx_KeyboardView_keyTextColor3
-           @see #Atx_KeyboardView_keyTextSize2
-           @see #Atx_KeyboardView_keyTextSize3
-           @see #Atx_KeyboardView_keyTextSize4
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextColor2
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextColor3
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextSize2
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextSize3
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextSize4
          */
-        public static final int[] Atx_KeyboardView = {
+        public static final int[] Kpt_Atx_KeyboardView = {
             0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003,
             0x7f010004
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextColor2}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextColor2}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2014,12 +2015,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextColor2
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextColor2
         */
-        public static int Atx_KeyboardView_keyTextColor2 = 0;
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextColor2 = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextColor3}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextColor3}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2029,12 +2030,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextColor3
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextColor3
         */
-        public static int Atx_KeyboardView_keyTextColor3 = 4;
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextColor3 = 4;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextSize2}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextSize2}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2045,12 +2046,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextSize2
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextSize2
         */
-        public static int Atx_KeyboardView_keyTextSize2 = 1;
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextSize2 = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextSize3}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextSize3}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2061,12 +2062,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextSize3
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextSize3
         */
-        public static int Atx_KeyboardView_keyTextSize3 = 3;
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextSize3 = 3;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextSize4}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextSize4}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2077,25 +2078,25 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextSize4
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextSize4
         */
-        public static int Atx_KeyboardView_keyTextSize4 = 2;
-        /** Attributes that can be used with a Atx_Keyboard_Key.
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextSize4 = 2;
+        /** Attributes that can be used with a Kpt_Atx_Keyboard_Key.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Atx_Keyboard_Key_keyLabel2 com.kpt.adaptxt.beta:keyLabel2}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_Keyboard_Key_kpt_keyLabel2 com.kpt.adaptxt.beta:kpt_keyLabel2}</code></td><td></td></tr>
            </table>
-           @see #Atx_Keyboard_Key_keyLabel2
+           @see #Kpt_Atx_Keyboard_Key_kpt_keyLabel2
          */
-        public static final int[] Atx_Keyboard_Key = {
+        public static final int[] Kpt_Atx_Keyboard_Key = {
             0x7f010005
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel2}
-          attribute's value can be found in the {@link #Atx_Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel2}
+          attribute's value can be found in the {@link #Kpt_Atx_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2104,25 +2105,25 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel2
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel2
         */
-        public static int Atx_Keyboard_Key_keyLabel2 = 0;
-        /** Attributes that can be used with a HardKeyboardMap.
+        public static int Kpt_Atx_Keyboard_Key_kpt_keyLabel2 = 0;
+        /** Attributes that can be used with a Kpt_HardKeyboardMap.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #HardKeyboardMap_version com.kpt.adaptxt.beta:version}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_kpt_version com.kpt.adaptxt.beta:kpt_version}</code></td><td></td></tr>
            </table>
-           @see #HardKeyboardMap_version
+           @see #Kpt_HardKeyboardMap_kpt_version
          */
-        public static final int[] HardKeyboardMap = {
+        public static final int[] Kpt_HardKeyboardMap = {
             0x7f010006
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#version}
-          attribute's value can be found in the {@link #HardKeyboardMap} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_version}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2131,29 +2132,29 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:version
+          @attr name com.kpt.adaptxt.beta:kpt_version
         */
-        public static int HardKeyboardMap_version = 0;
-        /** Attributes that can be used with a HardKeyboardMap_Key.
+        public static int Kpt_HardKeyboardMap_kpt_version = 0;
+        /** Attributes that can be used with a Kpt_HardKeyboardMap_Key.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #HardKeyboardMap_Key_code com.kpt.adaptxt.beta:code}</code></td><td></td></tr>
-           <tr><td><code>{@link #HardKeyboardMap_Key_label com.kpt.adaptxt.beta:label}</code></td><td></td></tr>
-           <tr><td><code>{@link #HardKeyboardMap_Key_values com.kpt.adaptxt.beta:values}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_Key_kpt_code com.kpt.adaptxt.beta:kpt_code}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_Key_kpt_label com.kpt.adaptxt.beta:kpt_label}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_Key_kpt_values com.kpt.adaptxt.beta:kpt_values}</code></td><td></td></tr>
            </table>
-           @see #HardKeyboardMap_Key_code
-           @see #HardKeyboardMap_Key_label
-           @see #HardKeyboardMap_Key_values
+           @see #Kpt_HardKeyboardMap_Key_kpt_code
+           @see #Kpt_HardKeyboardMap_Key_kpt_label
+           @see #Kpt_HardKeyboardMap_Key_kpt_values
          */
-        public static final int[] HardKeyboardMap_Key = {
+        public static final int[] Kpt_HardKeyboardMap_Key = {
             0x7f010007, 0x7f010008, 0x7f010009
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#code}
-          attribute's value can be found in the {@link #HardKeyboardMap_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_code}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap_Key} array.
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -2162,12 +2163,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:code
+          @attr name com.kpt.adaptxt.beta:kpt_code
         */
-        public static int HardKeyboardMap_Key_code = 0;
+        public static int Kpt_HardKeyboardMap_Key_kpt_code = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#label}
-          attribute's value can be found in the {@link #HardKeyboardMap_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_label}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2176,12 +2177,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:label
+          @attr name com.kpt.adaptxt.beta:kpt_label
         */
-        public static int HardKeyboardMap_Key_label = 1;
+        public static int Kpt_HardKeyboardMap_Key_kpt_label = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#values}
-          attribute's value can be found in the {@link #HardKeyboardMap_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_values}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2190,25 +2191,25 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:values
+          @attr name com.kpt.adaptxt.beta:kpt_values
         */
-        public static int HardKeyboardMap_Key_values = 2;
-        /** Attributes that can be used with a HardKeyboardMap_Keymap.
+        public static int Kpt_HardKeyboardMap_Key_kpt_values = 2;
+        /** Attributes that can be used with a Kpt_HardKeyboardMap_Keymap.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #HardKeyboardMap_Keymap_locale com.kpt.adaptxt.beta:locale}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_Keymap_kpt_locale com.kpt.adaptxt.beta:kpt_locale}</code></td><td></td></tr>
            </table>
-           @see #HardKeyboardMap_Keymap_locale
+           @see #Kpt_HardKeyboardMap_Keymap_kpt_locale
          */
-        public static final int[] HardKeyboardMap_Keymap = {
+        public static final int[] Kpt_HardKeyboardMap_Keymap = {
             0x7f01000a
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#locale}
-          attribute's value can be found in the {@link #HardKeyboardMap_Keymap} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_locale}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap_Keymap} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2217,104 +2218,104 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:locale
+          @attr name com.kpt.adaptxt.beta:kpt_locale
         */
-        public static int HardKeyboardMap_Keymap_locale = 0;
-        /** Attributes that can be used with a IconPreferenceScreen.
+        public static int Kpt_HardKeyboardMap_Keymap_kpt_locale = 0;
+        /** Attributes that can be used with a Kpt_IconPreferenceScreen.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #IconPreferenceScreen_kptIcon com.kpt.adaptxt.beta:kptIcon}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_IconPreferenceScreen_kpt_kptIcon com.kpt.adaptxt.beta:kpt_kptIcon}</code></td><td></td></tr>
            </table>
-           @see #IconPreferenceScreen_kptIcon
+           @see #Kpt_IconPreferenceScreen_kpt_kptIcon
          */
-        public static final int[] IconPreferenceScreen = {
+        public static final int[] Kpt_IconPreferenceScreen = {
             0x7f01000b
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kptIcon}
-          attribute's value can be found in the {@link #IconPreferenceScreen} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_kptIcon}
+          attribute's value can be found in the {@link #Kpt_IconPreferenceScreen} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:kptIcon
+          @attr name com.kpt.adaptxt.beta:kpt_kptIcon
         */
-        public static int IconPreferenceScreen_kptIcon = 0;
-        /** Attributes that can be used with a ImageListPreference.
+        public static int Kpt_IconPreferenceScreen_kpt_kptIcon = 0;
+        /** Attributes that can be used with a Kpt_ImageListPreference.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #ImageListPreference_entryImages com.kpt.adaptxt.beta:entryImages}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_ImageListPreference_kpt_entryImages com.kpt.adaptxt.beta:kpt_entryImages}</code></td><td></td></tr>
            </table>
-           @see #ImageListPreference_entryImages
+           @see #Kpt_ImageListPreference_kpt_entryImages
          */
-        public static final int[] ImageListPreference = {
+        public static final int[] Kpt_ImageListPreference = {
             0x7f01000c
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#entryImages}
-          attribute's value can be found in the {@link #ImageListPreference} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_entryImages}
+          attribute's value can be found in the {@link #Kpt_ImageListPreference} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:entryImages
+          @attr name com.kpt.adaptxt.beta:kpt_entryImages
         */
-        public static int ImageListPreference_entryImages = 0;
-        /** Attributes that can be used with a Keyboard.
+        public static int Kpt_ImageListPreference_kpt_entryImages = 0;
+        /** Attributes that can be used with a Kpt_Keyboard.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Keyboard_fontSizeApplicable com.kpt.adaptxt.beta:fontSizeApplicable}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_fontStyleApplicable com.kpt.adaptxt.beta:fontStyleApplicable}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_horizontalGap com.kpt.adaptxt.beta:horizontalGap}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_isGlideSupported com.kpt.adaptxt.beta:isGlideSupported}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_isRTL com.kpt.adaptxt.beta:isRTL}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyHeight com.kpt.adaptxt.beta:keyHeight}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabel2TextSize com.kpt.adaptxt.beta:keyLabel2TextSize}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabel2XPos com.kpt.adaptxt.beta:keyLabel2XPos}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabel2YPos com.kpt.adaptxt.beta:keyLabel2YPos}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabelTextSize com.kpt.adaptxt.beta:keyLabelTextSize}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabelXPos com.kpt.adaptxt.beta:keyLabelXPos}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabelYPos com.kpt.adaptxt.beta:keyLabelYPos}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyType com.kpt.adaptxt.beta:keyType}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyWidth com.kpt.adaptxt.beta:keyWidth}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_languageType com.kpt.adaptxt.beta:languageType}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_verticalGap com.kpt.adaptxt.beta:verticalGap}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_fontSizeApplicable com.kpt.adaptxt.beta:kpt_fontSizeApplicable}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_fontStyleApplicable com.kpt.adaptxt.beta:kpt_fontStyleApplicable}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_horizontalGap com.kpt.adaptxt.beta:kpt_horizontalGap}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_isGlideSupported com.kpt.adaptxt.beta:kpt_isGlideSupported}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_isRTL com.kpt.adaptxt.beta:kpt_isRTL}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyHeight com.kpt.adaptxt.beta:kpt_keyHeight}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabel2TextSize com.kpt.adaptxt.beta:kpt_keyLabel2TextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabel2XPos com.kpt.adaptxt.beta:kpt_keyLabel2XPos}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabel2YPos com.kpt.adaptxt.beta:kpt_keyLabel2YPos}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabelTextSize com.kpt.adaptxt.beta:kpt_keyLabelTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabelXPos com.kpt.adaptxt.beta:kpt_keyLabelXPos}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabelYPos com.kpt.adaptxt.beta:kpt_keyLabelYPos}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyType com.kpt.adaptxt.beta:kpt_keyType}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyWidth com.kpt.adaptxt.beta:kpt_keyWidth}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_languageType com.kpt.adaptxt.beta:kpt_languageType}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_verticalGap com.kpt.adaptxt.beta:kpt_verticalGap}</code></td><td></td></tr>
            </table>
-           @see #Keyboard_fontSizeApplicable
-           @see #Keyboard_fontStyleApplicable
-           @see #Keyboard_horizontalGap
-           @see #Keyboard_isGlideSupported
-           @see #Keyboard_isRTL
-           @see #Keyboard_keyHeight
-           @see #Keyboard_keyLabel2TextSize
-           @see #Keyboard_keyLabel2XPos
-           @see #Keyboard_keyLabel2YPos
-           @see #Keyboard_keyLabelTextSize
-           @see #Keyboard_keyLabelXPos
-           @see #Keyboard_keyLabelYPos
-           @see #Keyboard_keyType
-           @see #Keyboard_keyWidth
-           @see #Keyboard_languageType
-           @see #Keyboard_verticalGap
+           @see #Kpt_Keyboard_kpt_fontSizeApplicable
+           @see #Kpt_Keyboard_kpt_fontStyleApplicable
+           @see #Kpt_Keyboard_kpt_horizontalGap
+           @see #Kpt_Keyboard_kpt_isGlideSupported
+           @see #Kpt_Keyboard_kpt_isRTL
+           @see #Kpt_Keyboard_kpt_keyHeight
+           @see #Kpt_Keyboard_kpt_keyLabel2TextSize
+           @see #Kpt_Keyboard_kpt_keyLabel2XPos
+           @see #Kpt_Keyboard_kpt_keyLabel2YPos
+           @see #Kpt_Keyboard_kpt_keyLabelTextSize
+           @see #Kpt_Keyboard_kpt_keyLabelXPos
+           @see #Kpt_Keyboard_kpt_keyLabelYPos
+           @see #Kpt_Keyboard_kpt_keyType
+           @see #Kpt_Keyboard_kpt_keyWidth
+           @see #Kpt_Keyboard_kpt_languageType
+           @see #Kpt_Keyboard_kpt_verticalGap
          */
-        public static final int[] Keyboard = {
+        public static final int[] Kpt_Keyboard = {
             0x7f01000d, 0x7f01000e, 0x7f01000f, 0x7f010010,
             0x7f010011, 0x7f010012, 0x7f010013, 0x7f010014,
             0x7f010015, 0x7f010016, 0x7f010017, 0x7f010018,
             0x7f010019, 0x7f01001a, 0x7f01001b, 0x7f01001c
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#fontSizeApplicable}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_fontSizeApplicable}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2323,12 +2324,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:fontSizeApplicable
+          @attr name com.kpt.adaptxt.beta:kpt_fontSizeApplicable
         */
-        public static int Keyboard_fontSizeApplicable = 13;
+        public static int Kpt_Keyboard_kpt_fontSizeApplicable = 13;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#fontStyleApplicable}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_fontStyleApplicable}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2337,12 +2338,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:fontStyleApplicable
+          @attr name com.kpt.adaptxt.beta:kpt_fontStyleApplicable
         */
-        public static int Keyboard_fontStyleApplicable = 12;
+        public static int Kpt_Keyboard_kpt_fontStyleApplicable = 12;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#horizontalGap}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_horizontalGap}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2356,12 +2357,12 @@ some parent container.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:horizontalGap
+          @attr name com.kpt.adaptxt.beta:kpt_horizontalGap
         */
-        public static int Keyboard_horizontalGap = 2;
+        public static int Kpt_Keyboard_kpt_horizontalGap = 2;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isGlideSupported}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isGlideSupported}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2370,12 +2371,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isGlideSupported
+          @attr name com.kpt.adaptxt.beta:kpt_isGlideSupported
         */
-        public static int Keyboard_isGlideSupported = 15;
+        public static int Kpt_Keyboard_kpt_isGlideSupported = 15;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isRTL}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isRTL}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2384,12 +2385,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isRTL
+          @attr name com.kpt.adaptxt.beta:kpt_isRTL
         */
-        public static int Keyboard_isRTL = 11;
+        public static int Kpt_Keyboard_kpt_isRTL = 11;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyHeight}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyHeight}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2403,12 +2404,12 @@ some parent container.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyHeight
+          @attr name com.kpt.adaptxt.beta:kpt_keyHeight
         */
-        public static int Keyboard_keyHeight = 1;
+        public static int Kpt_Keyboard_kpt_keyHeight = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel2TextSize}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel2TextSize}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2419,12 +2420,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel2TextSize
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel2TextSize
         */
-        public static int Keyboard_keyLabel2TextSize = 9;
+        public static int Kpt_Keyboard_kpt_keyLabel2TextSize = 9;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel2XPos}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel2XPos}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2433,12 +2434,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel2XPos
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel2XPos
         */
-        public static int Keyboard_keyLabel2XPos = 6;
+        public static int Kpt_Keyboard_kpt_keyLabel2XPos = 6;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel2YPos}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel2YPos}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2447,12 +2448,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel2YPos
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel2YPos
         */
-        public static int Keyboard_keyLabel2YPos = 7;
+        public static int Kpt_Keyboard_kpt_keyLabel2YPos = 7;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabelTextSize}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabelTextSize}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2463,12 +2464,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabelTextSize
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabelTextSize
         */
-        public static int Keyboard_keyLabelTextSize = 8;
+        public static int Kpt_Keyboard_kpt_keyLabelTextSize = 8;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabelXPos}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabelXPos}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2477,12 +2478,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabelXPos
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabelXPos
         */
-        public static int Keyboard_keyLabelXPos = 4;
+        public static int Kpt_Keyboard_kpt_keyLabelXPos = 4;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabelYPos}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabelYPos}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2491,12 +2492,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabelYPos
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabelYPos
         */
-        public static int Keyboard_keyLabelYPos = 5;
+        public static int Kpt_Keyboard_kpt_keyLabelYPos = 5;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyType}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyType}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -2505,12 +2506,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyType
+          @attr name com.kpt.adaptxt.beta:kpt_keyType
         */
-        public static int Keyboard_keyType = 14;
+        public static int Kpt_Keyboard_kpt_keyType = 14;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyWidth}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyWidth}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2524,12 +2525,12 @@ some parent container.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyWidth
+          @attr name com.kpt.adaptxt.beta:kpt_keyWidth
         */
-        public static int Keyboard_keyWidth = 0;
+        public static int Kpt_Keyboard_kpt_keyWidth = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#languageType}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_languageType}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -2538,12 +2539,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:languageType
+          @attr name com.kpt.adaptxt.beta:kpt_languageType
         */
-        public static int Keyboard_languageType = 10;
+        public static int Kpt_Keyboard_kpt_languageType = 10;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#verticalGap}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_verticalGap}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2557,62 +2558,62 @@ some parent container.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:verticalGap
+          @attr name com.kpt.adaptxt.beta:kpt_verticalGap
         */
-        public static int Keyboard_verticalGap = 3;
-        /** Attributes that can be used with a KeyboardView.
+        public static int Kpt_Keyboard_kpt_verticalGap = 3;
+        /** Attributes that can be used with a Kpt_KeyboardView.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #KeyboardView_keyBackground com.kpt.adaptxt.beta:keyBackground}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyPreviewHeight com.kpt.adaptxt.beta:keyPreviewHeight}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyPreviewLayout com.kpt.adaptxt.beta:keyPreviewLayout}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyPreviewOffset com.kpt.adaptxt.beta:keyPreviewOffset}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyTextColor com.kpt.adaptxt.beta:keyTextColor}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyTextColor1 com.kpt.adaptxt.beta:keyTextColor1}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyTextSize com.kpt.adaptxt.beta:keyTextSize}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyboardViewStyle com.kpt.adaptxt.beta:keyboardViewStyle}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_labelTextSize com.kpt.adaptxt.beta:labelTextSize}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_popupLayout com.kpt.adaptxt.beta:popupLayout}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_shadowColor com.kpt.adaptxt.beta:shadowColor}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_shadowRadius com.kpt.adaptxt.beta:shadowRadius}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_verticalCorrection com.kpt.adaptxt.beta:verticalCorrection}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyBackground com.kpt.adaptxt.beta:kpt_keyBackground}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyPreviewHeight com.kpt.adaptxt.beta:kpt_keyPreviewHeight}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyPreviewLayout com.kpt.adaptxt.beta:kpt_keyPreviewLayout}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyPreviewOffset com.kpt.adaptxt.beta:kpt_keyPreviewOffset}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyTextColor com.kpt.adaptxt.beta:kpt_keyTextColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyTextColor1 com.kpt.adaptxt.beta:kpt_keyTextColor1}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyTextSize com.kpt.adaptxt.beta:kpt_keyTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyboardViewStyle com.kpt.adaptxt.beta:kpt_keyboardViewStyle}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_labelTextSize com.kpt.adaptxt.beta:kpt_labelTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_popupLayout com.kpt.adaptxt.beta:kpt_popupLayout}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_shadowColor com.kpt.adaptxt.beta:kpt_shadowColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_shadowRadius com.kpt.adaptxt.beta:kpt_shadowRadius}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_verticalCorrection com.kpt.adaptxt.beta:kpt_verticalCorrection}</code></td><td></td></tr>
            </table>
-           @see #KeyboardView_keyBackground
-           @see #KeyboardView_keyPreviewHeight
-           @see #KeyboardView_keyPreviewLayout
-           @see #KeyboardView_keyPreviewOffset
-           @see #KeyboardView_keyTextColor
-           @see #KeyboardView_keyTextColor1
-           @see #KeyboardView_keyTextSize
-           @see #KeyboardView_keyboardViewStyle
-           @see #KeyboardView_labelTextSize
-           @see #KeyboardView_popupLayout
-           @see #KeyboardView_shadowColor
-           @see #KeyboardView_shadowRadius
-           @see #KeyboardView_verticalCorrection
+           @see #Kpt_KeyboardView_kpt_keyBackground
+           @see #Kpt_KeyboardView_kpt_keyPreviewHeight
+           @see #Kpt_KeyboardView_kpt_keyPreviewLayout
+           @see #Kpt_KeyboardView_kpt_keyPreviewOffset
+           @see #Kpt_KeyboardView_kpt_keyTextColor
+           @see #Kpt_KeyboardView_kpt_keyTextColor1
+           @see #Kpt_KeyboardView_kpt_keyTextSize
+           @see #Kpt_KeyboardView_kpt_keyboardViewStyle
+           @see #Kpt_KeyboardView_kpt_labelTextSize
+           @see #Kpt_KeyboardView_kpt_popupLayout
+           @see #Kpt_KeyboardView_kpt_shadowColor
+           @see #Kpt_KeyboardView_kpt_shadowRadius
+           @see #Kpt_KeyboardView_kpt_verticalCorrection
          */
-        public static final int[] KeyboardView = {
+        public static final int[] Kpt_KeyboardView = {
             0x7f01001d, 0x7f01001e, 0x7f01001f, 0x7f010020,
             0x7f010021, 0x7f010022, 0x7f010023, 0x7f010024,
             0x7f010025, 0x7f010026, 0x7f010027, 0x7f010028,
             0x7f010029
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyBackground}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyBackground}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyBackground
+          @attr name com.kpt.adaptxt.beta:kpt_keyBackground
         */
-        public static int KeyboardView_keyBackground = 1;
+        public static int Kpt_KeyboardView_kpt_keyBackground = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyPreviewHeight}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyPreviewHeight}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2623,22 +2624,22 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyPreviewHeight
+          @attr name com.kpt.adaptxt.beta:kpt_keyPreviewHeight
         */
-        public static int KeyboardView_keyPreviewHeight = 8;
+        public static int Kpt_KeyboardView_kpt_keyPreviewHeight = 8;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyPreviewLayout}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyPreviewLayout}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyPreviewLayout
+          @attr name com.kpt.adaptxt.beta:kpt_keyPreviewLayout
         */
-        public static int KeyboardView_keyPreviewLayout = 6;
+        public static int Kpt_KeyboardView_kpt_keyPreviewLayout = 6;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyPreviewOffset}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyPreviewOffset}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2649,12 +2650,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyPreviewOffset
+          @attr name com.kpt.adaptxt.beta:kpt_keyPreviewOffset
         */
-        public static int KeyboardView_keyPreviewOffset = 7;
+        public static int Kpt_KeyboardView_kpt_keyPreviewOffset = 7;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextColor}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextColor}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2664,12 +2665,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextColor
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextColor
         */
-        public static int KeyboardView_keyTextColor = 4;
+        public static int Kpt_KeyboardView_kpt_keyTextColor = 4;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextColor1}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextColor1}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2679,12 +2680,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextColor1
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextColor1
         */
-        public static int KeyboardView_keyTextColor1 = 5;
+        public static int Kpt_KeyboardView_kpt_keyTextColor1 = 5;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextSize}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextSize}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2695,22 +2696,22 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextSize
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextSize
         */
-        public static int KeyboardView_keyTextSize = 2;
+        public static int Kpt_KeyboardView_kpt_keyTextSize = 2;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyboardViewStyle}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyboardViewStyle}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyboardViewStyle
+          @attr name com.kpt.adaptxt.beta:kpt_keyboardViewStyle
         */
-        public static int KeyboardView_keyboardViewStyle = 0;
+        public static int Kpt_KeyboardView_kpt_keyboardViewStyle = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#labelTextSize}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_labelTextSize}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2721,22 +2722,22 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:labelTextSize
+          @attr name com.kpt.adaptxt.beta:kpt_labelTextSize
         */
-        public static int KeyboardView_labelTextSize = 3;
+        public static int Kpt_KeyboardView_kpt_labelTextSize = 3;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#popupLayout}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_popupLayout}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:popupLayout
+          @attr name com.kpt.adaptxt.beta:kpt_popupLayout
         */
-        public static int KeyboardView_popupLayout = 10;
+        public static int Kpt_KeyboardView_kpt_popupLayout = 10;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#shadowColor}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_shadowColor}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2746,12 +2747,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:shadowColor
+          @attr name com.kpt.adaptxt.beta:kpt_shadowColor
         */
-        public static int KeyboardView_shadowColor = 11;
+        public static int Kpt_KeyboardView_kpt_shadowColor = 11;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#shadowRadius}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_shadowRadius}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2760,12 +2761,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:shadowRadius
+          @attr name com.kpt.adaptxt.beta:kpt_shadowRadius
         */
-        public static int KeyboardView_shadowRadius = 12;
+        public static int Kpt_KeyboardView_kpt_shadowRadius = 12;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#verticalCorrection}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_verticalCorrection}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2776,61 +2777,61 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:verticalCorrection
+          @attr name com.kpt.adaptxt.beta:kpt_verticalCorrection
         */
-        public static int KeyboardView_verticalCorrection = 9;
-        /** Attributes that can be used with a KeyboardViewPreviewState.
+        public static int Kpt_KeyboardView_kpt_verticalCorrection = 9;
+        /** Attributes that can be used with a Kpt_KeyboardViewPreviewState.
          */
-        public static final int[] KeyboardViewPreviewState = {
+        public static final int[] Kpt_KeyboardViewPreviewState = {
             
         };
-        /** Attributes that can be used with a Keyboard_Key.
+        /** Attributes that can be used with a Kpt_Keyboard_Key.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Keyboard_Key_codes com.kpt.adaptxt.beta:codes}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_iconPreview com.kpt.adaptxt.beta:iconPreview}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_iconText com.kpt.adaptxt.beta:iconText}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_isModifier com.kpt.adaptxt.beta:isModifier}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_isRepeatable com.kpt.adaptxt.beta:isRepeatable}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_isSticky com.kpt.adaptxt.beta:isSticky}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyEdgeFlags com.kpt.adaptxt.beta:keyEdgeFlags}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyIcon com.kpt.adaptxt.beta:keyIcon}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyLabel com.kpt.adaptxt.beta:keyLabel}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyOutputText com.kpt.adaptxt.beta:keyOutputText}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keySpecialOper com.kpt.adaptxt.beta:keySpecialOper}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyboardMode com.kpt.adaptxt.beta:keyboardMode}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_popupCharacters com.kpt.adaptxt.beta:popupCharacters}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_popupKeyboard com.kpt.adaptxt.beta:popupKeyboard}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_useExternalFont com.kpt.adaptxt.beta:useExternalFont}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_codes com.kpt.adaptxt.beta:kpt_codes}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_iconPreview com.kpt.adaptxt.beta:kpt_iconPreview}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_iconText com.kpt.adaptxt.beta:kpt_iconText}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_isModifier com.kpt.adaptxt.beta:kpt_isModifier}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_isRepeatable com.kpt.adaptxt.beta:kpt_isRepeatable}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_isSticky com.kpt.adaptxt.beta:kpt_isSticky}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyEdgeFlags com.kpt.adaptxt.beta:kpt_keyEdgeFlags}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyIcon com.kpt.adaptxt.beta:kpt_keyIcon}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyLabel com.kpt.adaptxt.beta:kpt_keyLabel}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyOutputText com.kpt.adaptxt.beta:kpt_keyOutputText}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keySpecialOper com.kpt.adaptxt.beta:kpt_keySpecialOper}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyboardMode com.kpt.adaptxt.beta:kpt_keyboardMode}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_popupCharacters com.kpt.adaptxt.beta:kpt_popupCharacters}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_popupKeyboard com.kpt.adaptxt.beta:kpt_popupKeyboard}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_useExternalFont com.kpt.adaptxt.beta:kpt_useExternalFont}</code></td><td></td></tr>
            </table>
-           @see #Keyboard_Key_codes
-           @see #Keyboard_Key_iconPreview
-           @see #Keyboard_Key_iconText
-           @see #Keyboard_Key_isModifier
-           @see #Keyboard_Key_isRepeatable
-           @see #Keyboard_Key_isSticky
-           @see #Keyboard_Key_keyEdgeFlags
-           @see #Keyboard_Key_keyIcon
-           @see #Keyboard_Key_keyLabel
-           @see #Keyboard_Key_keyOutputText
-           @see #Keyboard_Key_keySpecialOper
-           @see #Keyboard_Key_keyboardMode
-           @see #Keyboard_Key_popupCharacters
-           @see #Keyboard_Key_popupKeyboard
-           @see #Keyboard_Key_useExternalFont
+           @see #Kpt_Keyboard_Key_kpt_codes
+           @see #Kpt_Keyboard_Key_kpt_iconPreview
+           @see #Kpt_Keyboard_Key_kpt_iconText
+           @see #Kpt_Keyboard_Key_kpt_isModifier
+           @see #Kpt_Keyboard_Key_kpt_isRepeatable
+           @see #Kpt_Keyboard_Key_kpt_isSticky
+           @see #Kpt_Keyboard_Key_kpt_keyEdgeFlags
+           @see #Kpt_Keyboard_Key_kpt_keyIcon
+           @see #Kpt_Keyboard_Key_kpt_keyLabel
+           @see #Kpt_Keyboard_Key_kpt_keyOutputText
+           @see #Kpt_Keyboard_Key_kpt_keySpecialOper
+           @see #Kpt_Keyboard_Key_kpt_keyboardMode
+           @see #Kpt_Keyboard_Key_kpt_popupCharacters
+           @see #Kpt_Keyboard_Key_kpt_popupKeyboard
+           @see #Kpt_Keyboard_Key_kpt_useExternalFont
          */
-        public static final int[] Keyboard_Key = {
+        public static final int[] Kpt_Keyboard_Key = {
             0x7f01002a, 0x7f01002b, 0x7f01002c, 0x7f01002d,
             0x7f01002e, 0x7f01002f, 0x7f010030, 0x7f010031,
             0x7f010032, 0x7f010033, 0x7f010034, 0x7f010035,
             0x7f010036, 0x7f010037, 0x7f010039
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#codes}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_codes}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2840,22 +2841,22 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:codes
+          @attr name com.kpt.adaptxt.beta:kpt_codes
         */
-        public static int Keyboard_Key_codes = 0;
+        public static int Kpt_Keyboard_Key_kpt_codes = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#iconPreview}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_iconPreview}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:iconPreview
+          @attr name com.kpt.adaptxt.beta:kpt_iconPreview
         */
-        public static int Keyboard_Key_iconPreview = 7;
+        public static int Kpt_Keyboard_Key_kpt_iconPreview = 7;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#iconText}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_iconText}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2864,12 +2865,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:iconText
+          @attr name com.kpt.adaptxt.beta:kpt_iconText
         */
-        public static int Keyboard_Key_iconText = 12;
+        public static int Kpt_Keyboard_Key_kpt_iconText = 12;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isModifier}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isModifier}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2878,12 +2879,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isModifier
+          @attr name com.kpt.adaptxt.beta:kpt_isModifier
         */
-        public static int Keyboard_Key_isModifier = 4;
+        public static int Kpt_Keyboard_Key_kpt_isModifier = 4;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isRepeatable}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isRepeatable}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2892,12 +2893,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isRepeatable
+          @attr name com.kpt.adaptxt.beta:kpt_isRepeatable
         */
-        public static int Keyboard_Key_isRepeatable = 6;
+        public static int Kpt_Keyboard_Key_kpt_isRepeatable = 6;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isSticky}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isSticky}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2906,12 +2907,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isSticky
+          @attr name com.kpt.adaptxt.beta:kpt_isSticky
         */
-        public static int Keyboard_Key_isSticky = 5;
+        public static int Kpt_Keyboard_Key_kpt_isSticky = 5;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyEdgeFlags}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyEdgeFlags}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be one or more (separated by '|') of the following constant values.</p>
@@ -2923,22 +2924,22 @@ containing a value of this type.
 <tr><td><code>left</code></td><td>1</td><td></td></tr>
 <tr><td><code>right</code></td><td>2</td><td></td></tr>
 </table>
-          @attr name com.kpt.adaptxt.beta:keyEdgeFlags
+          @attr name com.kpt.adaptxt.beta:kpt_keyEdgeFlags
         */
-        public static int Keyboard_Key_keyEdgeFlags = 3;
+        public static int Kpt_Keyboard_Key_kpt_keyEdgeFlags = 3;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyIcon}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyIcon}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyIcon
+          @attr name com.kpt.adaptxt.beta:kpt_keyIcon
         */
-        public static int Keyboard_Key_keyIcon = 10;
+        public static int Kpt_Keyboard_Key_kpt_keyIcon = 10;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2947,12 +2948,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel
         */
-        public static int Keyboard_Key_keyLabel = 9;
+        public static int Kpt_Keyboard_Key_kpt_keyLabel = 9;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyOutputText}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyOutputText}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2961,12 +2962,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyOutputText
+          @attr name com.kpt.adaptxt.beta:kpt_keyOutputText
         */
-        public static int Keyboard_Key_keyOutputText = 8;
+        public static int Kpt_Keyboard_Key_kpt_keyOutputText = 8;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keySpecialOper}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keySpecialOper}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -2975,22 +2976,22 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keySpecialOper
+          @attr name com.kpt.adaptxt.beta:kpt_keySpecialOper
         */
-        public static int Keyboard_Key_keySpecialOper = 13;
+        public static int Kpt_Keyboard_Key_kpt_keySpecialOper = 13;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyboardMode}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyboardMode}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyboardMode
+          @attr name com.kpt.adaptxt.beta:kpt_keyboardMode
         */
-        public static int Keyboard_Key_keyboardMode = 14;
+        public static int Kpt_Keyboard_Key_kpt_keyboardMode = 14;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#popupCharacters}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_popupCharacters}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2999,22 +3000,22 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:popupCharacters
+          @attr name com.kpt.adaptxt.beta:kpt_popupCharacters
         */
-        public static int Keyboard_Key_popupCharacters = 2;
+        public static int Kpt_Keyboard_Key_kpt_popupCharacters = 2;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#popupKeyboard}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_popupKeyboard}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:popupKeyboard
+          @attr name com.kpt.adaptxt.beta:kpt_popupKeyboard
         */
-        public static int Keyboard_Key_popupKeyboard = 1;
+        public static int Kpt_Keyboard_Key_kpt_popupKeyboard = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#useExternalFont}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_useExternalFont}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -3023,29 +3024,29 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:useExternalFont
+          @attr name com.kpt.adaptxt.beta:kpt_useExternalFont
         */
-        public static int Keyboard_Key_useExternalFont = 11;
-        /** Attributes that can be used with a Keyboard_Row.
+        public static int Kpt_Keyboard_Key_kpt_useExternalFont = 11;
+        /** Attributes that can be used with a Kpt_Keyboard_Row.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Keyboard_Row_isNumberRow com.kpt.adaptxt.beta:isNumberRow}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Row_keyboardMode com.kpt.adaptxt.beta:keyboardMode}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Row_rowEdgeFlags com.kpt.adaptxt.beta:rowEdgeFlags}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Row_kpt_isNumberRow com.kpt.adaptxt.beta:kpt_isNumberRow}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Row_kpt_keyboardMode com.kpt.adaptxt.beta:kpt_keyboardMode}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Row_kpt_rowEdgeFlags com.kpt.adaptxt.beta:kpt_rowEdgeFlags}</code></td><td></td></tr>
            </table>
-           @see #Keyboard_Row_isNumberRow
-           @see #Keyboard_Row_keyboardMode
-           @see #Keyboard_Row_rowEdgeFlags
+           @see #Kpt_Keyboard_Row_kpt_isNumberRow
+           @see #Kpt_Keyboard_Row_kpt_keyboardMode
+           @see #Kpt_Keyboard_Row_kpt_rowEdgeFlags
          */
-        public static final int[] Keyboard_Row = {
+        public static final int[] Kpt_Keyboard_Row = {
             0x7f010038, 0x7f010039, 0x7f01003a
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isNumberRow}
-          attribute's value can be found in the {@link #Keyboard_Row} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isNumberRow}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Row} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -3054,22 +3055,22 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isNumberRow
+          @attr name com.kpt.adaptxt.beta:kpt_isNumberRow
         */
-        public static int Keyboard_Row_isNumberRow = 2;
+        public static int Kpt_Keyboard_Row_kpt_isNumberRow = 2;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyboardMode}
-          attribute's value can be found in the {@link #Keyboard_Row} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyboardMode}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Row} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyboardMode
+          @attr name com.kpt.adaptxt.beta:kpt_keyboardMode
         */
-        public static int Keyboard_Row_keyboardMode = 1;
+        public static int Kpt_Keyboard_Row_kpt_keyboardMode = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#rowEdgeFlags}
-          attribute's value can be found in the {@link #Keyboard_Row} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_rowEdgeFlags}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Row} array.
 
 
           <p>Must be one or more (separated by '|') of the following constant values.</p>
@@ -3081,25 +3082,25 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>top</code></td><td>4</td><td></td></tr>
 <tr><td><code>bottom</code></td><td>8</td><td></td></tr>
 </table>
-          @attr name com.kpt.adaptxt.beta:rowEdgeFlags
+          @attr name com.kpt.adaptxt.beta:kpt_rowEdgeFlags
         */
-        public static int Keyboard_Row_rowEdgeFlags = 0;
-        /** Attributes that can be used with a Theme.
+        public static int Kpt_Keyboard_Row_kpt_rowEdgeFlags = 0;
+        /** Attributes that can be used with a Kpt_Theme.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Theme_backgroundDimAmount com.kpt.adaptxt.beta:backgroundDimAmount}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Theme_kpt_backgroundDimAmount com.kpt.adaptxt.beta:kpt_backgroundDimAmount}</code></td><td></td></tr>
            </table>
-           @see #Theme_backgroundDimAmount
+           @see #Kpt_Theme_kpt_backgroundDimAmount
          */
-        public static final int[] Theme = {
+        public static final int[] Kpt_Theme = {
             0x7f01003b
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#backgroundDimAmount}
-          attribute's value can be found in the {@link #Theme} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_backgroundDimAmount}
+          attribute's value can be found in the {@link #Kpt_Theme} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -3108,8 +3109,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:backgroundDimAmount
+          @attr name com.kpt.adaptxt.beta:kpt_backgroundDimAmount
         */
-        public static int Theme_backgroundDimAmount = 0;
+        public static int Kpt_Theme_kpt_backgroundDimAmount = 0;
     };
 }

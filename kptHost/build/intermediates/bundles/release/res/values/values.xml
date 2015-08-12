@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/arrays.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/arrays.xml -->
     <eat-comment/>
     <string-array name="kpt_ac_misspelts_entires">
 		<item>High</item>
@@ -160,37 +160,36 @@
 		<item>1</item>
 		<item>2</item>
 	</string-array>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/bools.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/bools.xml -->
     <eat-comment/>
-    <bool name="V0_6">false</bool>
-    <bool name="V0_7">false</bool>
-    <bool name="V0_7_2">false</bool>
-    <bool name="V0_7_3">true</bool>
-    <bool name="V0_9">true</bool>
-    <bool name="V1_0">true</bool>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/config.xml -->
-    <eat-comment/>
-    <bool name="config_swipeDisambiguation">true</bool>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/bools.xml -->
-    <eat-comment/>
-    <bool name="enable_autocorrect">true</bool>
-    <bool name="im_is_default">false</bool>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/dimens.xml -->
+    <bool name="kpt_V0_6">false</bool>
+    <bool name="kpt_V0_7">false</bool>
+    <bool name="kpt_V0_7_2">false</bool>
+    <bool name="kpt_V0_7_3">true</bool>
+    <bool name="kpt_V0_9">true</bool>
+    <bool name="kpt_V1_0">true</bool>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/dimens.xml -->
     <eat-comment/>
     <bool name="kpt_config_sliding_key_input_enabled">true</bool>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/config.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/config.xml -->
     <eat-comment/>
+    <bool name="kpt_config_swipeDisambiguation">true</bool>
     <bool name="kpt_debug">false</bool>
     <bool name="kpt_enable_analytic_server">true</bool>
     <bool name="kpt_enable_appflyer">true</bool>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/bools.xml -->
+    <eat-comment/>
+    <bool name="kpt_enable_autocorrect">true</bool>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/config.xml -->
+    <eat-comment/>
     <bool name="kpt_enable_inappbilling">true</bool>
     <bool name="kpt_enable_mat">false</bool>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/bools.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/bools.xml -->
     <eat-comment/>
-    <bool name="voice_input_default">true</bool>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/colors.xml -->
+    <bool name="kpt_im_is_default">false</bool>
+    <bool name="kpt_voice_input_default">true</bool>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/colors.xml -->
     <eat-comment/>
-    <color name="atr_option">#5b5a5a</color>
     <color name="kpt_acc_dismiss_dk_fk">#a2cffb</color>
     <color name="kpt_acc_dismiss_grt">#04ca04</color>
     <color name="kpt_acc_dismiss_olm">#84fffb</color>
@@ -198,6 +197,7 @@
     <color name="kpt_acc_dismiss_val">#2e68a1</color>
     <color name="kpt_appwidget_text">#ffffffff</color>
     <color name="kpt_appwidget_text_dk_fk">#ffffffff</color>
+    <color name="kpt_atr_option">#5b5a5a</color>
     <color name="kpt_auto_update_frequence_color_disable">#4C4646</color>
     <color name="kpt_auto_update_frequence_color_enable">#ffffff</color>
     <color name="kpt_balck_color_text">#000000</color>
@@ -216,11 +216,11 @@
     <color name="kpt_candidate_recommended_grt">#04ca04</color>
     <color name="kpt_candidate_recommended_olm">#84fffb</color>
     <color name="kpt_candidate_recommended_red">#e1be69</color>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/dimens.xml -->
     <eat-comment/>
     <color name="kpt_com_facebook_picker_search_bar_background">#f5f5f7</color>
     <color name="kpt_com_facebook_picker_search_bar_text">#bcbdc2</color>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/colors.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/colors.xml -->
     <eat-comment/>
     <color name="kpt_custom_dialog_bg_color">#2E2E2E</color>
     <color name="kpt_custom_keyshape_color_dk">#464646</color>
@@ -288,20 +288,20 @@
     <color name="kpt_xi_enable_grt">#f2ffb5</color>
     <color name="kpt_xi_enable_olm">#84fffb</color>
     <color name="kpt_xi_enable_red">#ffffff</color>
-    <declare-styleable name="Atx_KeyboardView"><attr format="color" name="keyTextColor2"/><attr format="dimension" name="keyTextSize2"/><attr format="dimension" name="keyTextSize4"/><attr format="dimension" name="keyTextSize3"/><attr format="color" name="keyTextColor3"/></declare-styleable>
-    <declare-styleable name="Atx_Keyboard_Key"><attr format="string" name="keyLabel2"/></declare-styleable>
-    <declare-styleable name="HardKeyboardMap"><attr format="float" name="version"/></declare-styleable>
-    <declare-styleable name="HardKeyboardMap_Key"><attr format="integer" name="code"/><attr format="string" name="label"/><attr format="string" name="values"/></declare-styleable>
-    <declare-styleable name="HardKeyboardMap_Keymap"><attr format="string" name="locale"/></declare-styleable>
-    <declare-styleable name="IconPreferenceScreen"><attr format="reference" name="kptIcon"/></declare-styleable>
-    <declare-styleable name="ImageListPreference"><attr format="reference" name="entryImages"/></declare-styleable>
-    <declare-styleable name="Keyboard"><attr format="dimension|fraction" name="keyWidth"/><attr format="dimension|fraction" name="keyHeight"/><attr format="dimension|fraction" name="horizontalGap"/><attr format="dimension|fraction" name="verticalGap"/><attr format="float" name="keyLabelXPos"/><attr format="float" name="keyLabelYPos"/><attr format="float" name="keyLabel2XPos"/><attr format="float" name="keyLabel2YPos"/><attr format="dimension" name="keyLabelTextSize"/><attr format="dimension" name="keyLabel2TextSize"/><attr format="integer" name="languageType"/><attr format="boolean" name="isRTL"/><attr format="boolean" name="fontStyleApplicable"/><attr format="boolean" name="fontSizeApplicable"/><attr format="integer" name="keyType"/><attr format="boolean" name="isGlideSupported"/></declare-styleable>
-    <declare-styleable name="KeyboardView"><attr format="reference" name="keyboardViewStyle"/><attr format="reference" name="keyBackground"/><attr format="dimension" name="keyTextSize"/><attr format="dimension" name="labelTextSize"/><attr format="color" name="keyTextColor"/><attr format="color" name="keyTextColor1"/><attr format="reference" name="keyPreviewLayout"/><attr format="dimension" name="keyPreviewOffset"/><attr format="dimension" name="keyPreviewHeight"/><attr format="dimension" name="verticalCorrection"/><attr format="reference" name="popupLayout"/><attr format="color" name="shadowColor"/><attr format="float" name="shadowRadius"/></declare-styleable>
-    <declare-styleable name="KeyboardViewPreviewState"/>
-    <declare-styleable name="Keyboard_Key"><attr format="integer|string" name="codes"/><attr format="reference" name="popupKeyboard"/><attr format="string" name="popupCharacters"/><attr name="keyEdgeFlags"><flag name="left" value="1"/><flag name="right" value="2"/></attr><attr format="boolean" name="isModifier"/><attr format="boolean" name="isSticky"/><attr format="boolean" name="isRepeatable"/><attr format="reference" name="iconPreview"/><attr format="string" name="keyOutputText"/><attr format="string" name="keyLabel"/><attr format="reference" name="keyIcon"/><attr format="boolean" name="useExternalFont"/><attr format="string" name="iconText"/><attr name="keyboardMode"/><attr format="integer" name="keySpecialOper"/></declare-styleable>
-    <declare-styleable name="Keyboard_Row"><attr name="rowEdgeFlags"><flag name="top" value="4"/><flag name="bottom" value="8"/></attr><attr format="reference" name="keyboardMode"/><attr format="boolean" name="isNumberRow"/></declare-styleable>
-    <declare-styleable name="Theme"><attr format="float" name="backgroundDimAmount"/></declare-styleable>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/dimens.xml -->
+    <declare-styleable name="Kpt_Atx_KeyboardView"><attr format="color" name="kpt_keyTextColor2"/><attr format="dimension" name="kpt_keyTextSize2"/><attr format="dimension" name="kpt_keyTextSize4"/><attr format="dimension" name="kpt_keyTextSize3"/><attr format="color" name="kpt_keyTextColor3"/></declare-styleable>
+    <declare-styleable name="Kpt_Atx_Keyboard_Key"><attr format="string" name="kpt_keyLabel2"/></declare-styleable>
+    <declare-styleable name="Kpt_HardKeyboardMap"><attr format="float" name="kpt_version"/></declare-styleable>
+    <declare-styleable name="Kpt_HardKeyboardMap_Key"><attr format="integer" name="kpt_code"/><attr format="string" name="kpt_label"/><attr format="string" name="kpt_values"/></declare-styleable>
+    <declare-styleable name="Kpt_HardKeyboardMap_Keymap"><attr format="string" name="kpt_locale"/></declare-styleable>
+    <declare-styleable name="Kpt_IconPreferenceScreen"><attr format="reference" name="kpt_kptIcon"/></declare-styleable>
+    <declare-styleable name="Kpt_ImageListPreference"><attr format="reference" name="kpt_entryImages"/></declare-styleable>
+    <declare-styleable name="Kpt_Keyboard"><attr format="dimension|fraction" name="kpt_keyWidth"/><attr format="dimension|fraction" name="kpt_keyHeight"/><attr format="dimension|fraction" name="kpt_horizontalGap"/><attr format="dimension|fraction" name="kpt_verticalGap"/><attr format="float" name="kpt_keyLabelXPos"/><attr format="float" name="kpt_keyLabelYPos"/><attr format="float" name="kpt_keyLabel2XPos"/><attr format="float" name="kpt_keyLabel2YPos"/><attr format="dimension" name="kpt_keyLabelTextSize"/><attr format="dimension" name="kpt_keyLabel2TextSize"/><attr format="integer" name="kpt_languageType"/><attr format="boolean" name="kpt_isRTL"/><attr format="boolean" name="kpt_fontStyleApplicable"/><attr format="boolean" name="kpt_fontSizeApplicable"/><attr format="integer" name="kpt_keyType"/><attr format="boolean" name="kpt_isGlideSupported"/></declare-styleable>
+    <declare-styleable name="Kpt_KeyboardView"><attr format="reference" name="kpt_keyboardViewStyle"/><attr format="reference" name="kpt_keyBackground"/><attr format="dimension" name="kpt_keyTextSize"/><attr format="dimension" name="kpt_labelTextSize"/><attr format="color" name="kpt_keyTextColor"/><attr format="color" name="kpt_keyTextColor1"/><attr format="reference" name="kpt_keyPreviewLayout"/><attr format="dimension" name="kpt_keyPreviewOffset"/><attr format="dimension" name="kpt_keyPreviewHeight"/><attr format="dimension" name="kpt_verticalCorrection"/><attr format="reference" name="kpt_popupLayout"/><attr format="color" name="kpt_shadowColor"/><attr format="float" name="kpt_shadowRadius"/></declare-styleable>
+    <declare-styleable name="Kpt_KeyboardViewPreviewState"/>
+    <declare-styleable name="Kpt_Keyboard_Key"><attr format="integer|string" name="kpt_codes"/><attr format="reference" name="kpt_popupKeyboard"/><attr format="string" name="kpt_popupCharacters"/><attr name="kpt_keyEdgeFlags"><flag name="left" value="1"/><flag name="right" value="2"/></attr><attr format="boolean" name="kpt_isModifier"/><attr format="boolean" name="kpt_isSticky"/><attr format="boolean" name="kpt_isRepeatable"/><attr format="reference" name="kpt_iconPreview"/><attr format="string" name="kpt_keyOutputText"/><attr format="string" name="kpt_keyLabel"/><attr format="reference" name="kpt_keyIcon"/><attr format="boolean" name="kpt_useExternalFont"/><attr format="string" name="kpt_iconText"/><attr name="kpt_keyboardMode"/><attr format="integer" name="kpt_keySpecialOper"/></declare-styleable>
+    <declare-styleable name="Kpt_Keyboard_Row"><attr name="kpt_rowEdgeFlags"><flag name="top" value="4"/><flag name="bottom" value="8"/></attr><attr format="reference" name="kpt_keyboardMode"/><attr format="boolean" name="kpt_isNumberRow"/></declare-styleable>
+    <declare-styleable name="Kpt_Theme"><attr format="float" name="kpt_backgroundDimAmount"/></declare-styleable>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/dimens.xml -->
     <eat-comment/>
     <dimen name="kpt_accessibility_edge_slop">8dp</dimen>
     <dimen name="kpt_bubble_pointer_offset">22dip</dimen>
@@ -350,6 +350,7 @@
     <dimen name="kpt_keyLabelTextSize_phone_sym">20sp</dimen>
     <item format="float" name="kpt_keyLabelXPos" type="dimen">0.50</item>
     <item format="float" name="kpt_keyLabelYPos" type="dimen">0.72</item>
+    <item format="float" name="kpt_keyLabelYPos_atx" type="dimen">0.72</item>
     <dimen name="kpt_key_height">54dip</dimen>
     <dimen name="kpt_key_height_dk_fk">54dip</dimen>
     <dimen name="kpt_key_height_land">38dip</dimen>
@@ -381,13 +382,13 @@
     <dimen name="kpt_vertical_gap">2px</dimen>
     <dimen name="kpt_vertical_gap_dk_fk">2px</dimen>
     <dimen name="kpt_xhdpi_preview_text_size">14sp</dimen>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/drawables.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/drawables.xml -->
     <eat-comment/>
-    <drawable name="com_facebook_picker_default_separator_color">#33464c59</drawable>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/colors.xml -->
+    <drawable name="kpt_com_facebook_picker_default_separator_color">#33464c59</drawable>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/colors.xml -->
     <eat-comment/>
     <drawable name="kpt_customization_layout_colordrawable">#353535</drawable>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/dimens.xml -->
     <eat-comment/>
     <fraction name="kpt_adaptxt_horizontal_gap">0%p</fraction>
     <fraction name="kpt_config_gesture_detect_fast_move_speed_threshold">150%</fraction>
@@ -411,17 +412,12 @@
     <fraction name="kpt_secondary_char_offset">0.28%p</fraction>
     <fraction name="kpt_secondary_char_offset_dk_fk">0.28%p</fraction>
     <fraction name="kpt_space_key_width">40%p</fraction>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/keycodes.xml -->
-    <eat-comment/>
-    <integer name="key_f1">-103</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/dimens.xml -->
-    <eat-comment/>
     <integer name="kpt_backgroundDimAlpha">128</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/glide_constants.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/glide_constants.xml -->
     <eat-comment/>
     <integer name="kpt_case_change">7</integer>
     <integer name="kpt_clipboard">5</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/dimens.xml -->
     <eat-comment/>
     <integer name="kpt_config_gesture_dynamic_threshold_decay_duration">450</integer>
     <integer name="kpt_config_gesture_dynamic_time_threshold_from">300</integer>
@@ -442,25 +438,28 @@
     <integer name="kpt_config_long_press_shift_key_timeout">1200</integer>
     <integer name="kpt_config_suppress_key_preview_after_batch_input_duration">1000</integer>
     <integer name="kpt_config_touch_noise_threshold_time">40</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/glide_constants.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/glide_constants.xml -->
     <eat-comment/>
     <integer name="kpt_copy">2</integer>
     <integer name="kpt_cut">1</integer>
     <integer name="kpt_display_numberic_kb">14</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <integer name="kpt_functional_key_dont_send_to_core">2</integer>
     <integer name="kpt_functional_key_send_to_core">1</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/glide_constants.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/glide_constants.xml -->
     <eat-comment/>
     <integer name="kpt_hide_keyboard">6</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/config.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/config.xml -->
     <eat-comment/>
     <integer name="kpt_inapp_billing_type">0</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/keycodes.xml -->
+    <eat-comment/>
+    <integer name="kpt_key_f1">-103</integer>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <integer name="kpt_key_type_normal">0</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/glide_constants.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/glide_constants.xml -->
     <eat-comment/>
     <integer name="kpt_normal">0</integer>
     <integer name="kpt_paste">3</integer>
@@ -468,15 +467,17 @@
     <integer name="kpt_post_twitter">12</integer>
     <integer name="kpt_selectall">4</integer>
     <integer name="kpt_space_gesture">13</integer>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/durations.xml -->
+    <eat-comment/>
+    <integer name="kpt_vibrate_acc_sugg">110</integer>
+    <integer name="kpt_vibrate_generic">20</integer>
+    <integer name="kpt_vibrate_no_sugg">30</integer>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/glide_constants.xml -->
+    <eat-comment/>
     <integer name="kpt_word_lookup_google">9</integer>
     <integer name="kpt_word_lookup_google_maps">10</integer>
     <integer name="kpt_word_lookup_wiki">8</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/durations.xml -->
-    <eat-comment/>
-    <integer name="vibrate_acc_sugg">110</integer>
-    <integer name="vibrate_generic">20</integer>
-    <integer name="vibrate_no_sugg">30</integer>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_Help">Help</string>
     <string name="kpt_MEANING_LOOKUP_URL">http://dictionary.reference.com/browse/</string>
@@ -567,28 +568,28 @@
     <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">Reset</string>
     <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">Save</string>
     <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">Exit</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_UI_STRING_KBCUSTOM_DEFAULT">Default</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14">Default</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14_200">Please install a dictionary add-on to enable this feature.</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_16_200">Inscription</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_17_200">Gothic</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_18_200">Humana</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_19_200">Serpentine</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">Themeboard</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_20_200">Belter</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_21_200">Americana</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_22_200">Jokerman</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_UI_STRING_MENUITEMS_1">Adaptxt Store</string>
     <string name="kpt_UI_STRING_MENUITEMS_1_7003">ATR</string>
@@ -741,18 +742,18 @@
     <string name="kpt_account_type_phone_summary">Adaptxt learns from your address book</string>
     <string name="kpt_account_type_sms">SMS</string>
     <string name="kpt_account_type_sms_summary">Adaptxt learns from your SMS</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_accounts_extra_data">learn_extra</string>
     <string name="kpt_accounts_key">Accounts</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_accounts_manager_summary">Add or remove your social accounts</string>
     <string name="kpt_accounts_manger_title">Social Account Manager</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_adaptxt_eula">Adaptxt EULA</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_adaptxt_icon_to">Adaptxt Icon to </string>
     <string name="kpt_add_account_button_label">Add new account</string>
@@ -766,7 +767,7 @@
     <string name="kpt_alert_dialog_cancel">Cancel</string>
     <string name="kpt_alert_dialog_ok">OK</string>
     <string name="kpt_already_registered">Device is already registered on server.</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_12key_email">1\@.-_,\?!\'\"()/:</string>
     <string name="kpt_alternates_for_12key_normal">1.,\?!\'\"-()\@/:_</string>
@@ -777,7 +778,7 @@
     <string name="kpt_alternates_for_asterisk">z†‡</string>
     <string name="kpt_alternates_for_attherate">zª</string>
     <string name="kpt_alternates_for_c">&amp;ç</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_chunjiin_0">0ㅇㅁ</string>
     <string name="kpt_alternates_for_chunjiin_1">1ㅣ</string>
@@ -790,37 +791,37 @@
     <string name="kpt_alternates_for_chunjiin_8">8ㅅㅎㅆ</string>
     <string name="kpt_alternates_for_chunjiin_9">9ㅈㅊㅉ</string>
     <string name="kpt_alternates_for_chunjiin_char">.,\?!\'\"1-()\@/:_</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_circumflex">y←↑→↓</string>
     <string name="kpt_alternates_for_copyright">t™</string>
     <string name="kpt_alternates_for_currency">m¢€£¥</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_d"/>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_def">3deféèêë</string>
     <string name="kpt_alternates_for_e">3éèêë</string>
     <string name="kpt_alternates_for_equalsign">l≠≈∞∑</string>
     <string name="kpt_alternates_for_exclamation">v¡</string>
     <string name="kpt_alternates_for_five">t⅝</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_g"/>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_ghi">4ghiíìîï</string>
     <string name="kpt_alternates_for_hypen">b–—</string>
     <string name="kpt_alternates_for_i">8íìîï</string>
     <string name="kpt_alternates_for_jkl">5jkl</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_korean_currency">$¥฿₫₨₱£€</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_l"/>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_leftcurlybracket">q([</string>
     <string name="kpt_alternates_for_leftparenthesis">j&lt;«[{</string>
@@ -833,20 +834,20 @@
     <string name="kpt_alternates_for_pqrs">7pqrsß</string>
     <string name="kpt_alternates_for_questionmark">h¿</string>
     <string name="kpt_alternates_for_quote">a‘’“”„</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_r"/>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_rightcurlybracket">w)]</string>
     <string name="kpt_alternates_for_rightparenthesis">k>»]}</string>
     <string name="kpt_alternates_for_s">_ß</string>
     <string name="kpt_alternates_for_seven">u⅞</string>
     <string name="kpt_alternates_for_slash">n\\</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_t"/>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_three">e³¾⅜</string>
     <string name="kpt_alternates_for_tuv">8tuvúüùû</string>
@@ -854,23 +855,23 @@
     <string name="kpt_alternates_for_u">7úüùû</string>
     <string name="kpt_alternates_for_wxyz">9wxyzÿ</string>
     <string name="kpt_alternates_for_y">6ÿ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_z"/>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_zero">pº°</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_android_market_app_unav">App store application not found</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_app_id">446254305482830</string>
     <string name="kpt_applications_predefined_key_1">109</string>
     <string name="kpt_applications_predefined_key_2">101</string>
     <string name="kpt_applications_predefined_value_1">Maps---com.google.android.apps.maps</string>
     <string name="kpt_applications_predefined_value_2">GMail---com.google.android.gm</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_atr_regular_expression">[^\\p{javaLetter}\\s]+</string>
     <string name="kpt_atr_shortcut_inputtype_text">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
@@ -889,13 +890,13 @@
     <string name="kpt_choose_kbd_theme">Keyboard Theme</string>
     <string name="kpt_choose_layout_landscape">Landscape Mode Layout</string>
     <string name="kpt_choose_layout_potrait">Portrait Mode Layout</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_clipboard_predefined_key_1">120</string>
     <string name="kpt_clipboard_predefined_key_2">99</string>
     <string name="kpt_clipboard_predefined_key_3">118</string>
     <string name="kpt_clipboard_predefined_key_4">97</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_compact">(Compact)</string>
     <string name="kpt_content_posted_failed">Content post failed</string>
@@ -926,10 +927,10 @@
     <string name="kpt_english_locale">EN</string>
     <string name="kpt_error_config">Please set the %1$s constant and recompile the app.</string>
     <string name="kpt_feedback_category">Sound &amp; Vibrate</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_font_typewriter">Typewriter</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_gcm_deleted">From GCM: server deleted %1$d pending messages!</string>
     <string name="kpt_gcm_error">From GCM: error (%1$s).</string>
@@ -937,7 +938,7 @@
     <string name="kpt_gcm_recoverable_error">From GCM: recoverable error (%1$s).</string>
     <string name="kpt_gcm_registered">From GCM: device successfully registered!</string>
     <string name="kpt_gcm_unregistered">From GCM: device successfully unregistered!</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_icontext_acc_dismiss">\u0101</string>
     <string name="kpt_icontext_alt_1">\u0100</string>
@@ -989,7 +990,7 @@
     <string name="kpt_icontext_thai_freeze_share">\u2618:\u010E</string>
     <string name="kpt_icontext_word_delete">\u0104</string>
     <string name="kpt_icontext_xi_key">\u011A</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_ime_language_selection_dialog_maint_mode">Refueling our engine, brb!</string>
     <string name="kpt_ime_language_selection_dialog_title">Select keyboard language</string>
@@ -1018,10 +1019,10 @@
     <string name="kpt_license_new_version">A new version of Adaptxt is available; do you want to update now?</string>
     <string name="kpt_loading_data">Loading...</string>
     <string name="kpt_loading_installed_apps">Loading installed applications list</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_location_xml_version">1.0</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_mydict_delete_all">Are you sure you want to delete all words in My dictionary?</string>
     <string name="kpt_mydict_dialog_del_title">Delete all</string>
@@ -1067,17 +1068,22 @@
     <string name="kpt_prior_header_2">Priority</string>
     <string name="kpt_prior_tool_tip_1">Drag and drop the handle to change dictionary priority.</string>
     <string name="kpt_prior_tool_tip_2">Tap here to learn more about this feature.</string>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
+    <eat-comment/>
+    <string name="kpt_punctuations_list">!,\",#,%,&amp;,\',(,),*,+ ,±,÷,×,\\,,- ,.,/,\,:,;,?,@,[,],_,{,},,¡,ª,«,»,¬ ,º,•,¿,–,—,\‘,\’ ,“,”,„,…,\' ,❝,❞,|,؟,॰,।,॥,،,۔,؛,™,®,©,‰,‼,°,&lt;,>,=,։,՞,\՝,․,\՜,֊,።,፣,፤,፥,₹,$,</string>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
+    <eat-comment/>
     <string name="kpt_sdcard_required">SD card required</string>
     <string name="kpt_search_addon">Search add-ons</string>
     <string name="kpt_search_menu">Search</string>
     <string name="kpt_search_word">Search word</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_send_mail">Send email...</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_sentence_separators">.,!?</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_server_register_error">Could not register device on Demo Server after %1$d attempts.</string>
     <string name="kpt_server_registered">From Demo Server: successfully added device!</string>
@@ -1087,11 +1093,11 @@
     <string name="kpt_shared_user_label">KPT Adaptxt</string>
     <string name="kpt_smiley_korean_secondary_char">ㅌ</string>
     <string name="kpt_smiley_korean_secondary_char_value">12620</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_smiley_secondary_char">x</string>
     <string name="kpt_smiley_secondary_char_value">120</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_social_acc_add">Your %s account has been added successfully.</string>
     <string name="kpt_social_acc_del">Your %s account has been deleted from Adaptxt only.</string>
@@ -1100,10 +1106,10 @@
     <string name="kpt_sound_on_keypress">Sound on keypress</string>
     <string name="kpt_space">Space</string>
     <string name="kpt_subtitle">Gesture : </string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_suggested_punctuations">!?,@_</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_system_info">System Info:</string>
     <string name="kpt_tap_disable">Tap to disable</string>
@@ -1112,10 +1118,10 @@
     <string name="kpt_theme_category_title">Themes</string>
     <string name="kpt_theme_title">Themes</string>
     <string name="kpt_themes_layouts">Themes and Layouts</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_themes_master_xml_version">3.0</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_ticker_text">Adaptxt</string>
     <string name="kpt_title_postman_dialog">Post to...</string>
@@ -1129,23 +1135,22 @@
     <string name="kpt_toast_novoice">Speech Recognizer not available on this device</string>
     <string name="kpt_update_now">Update now</string>
     <string name="kpt_version_name">V1_0</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_version_number">6.0</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_vibrate_on_keypress">Vibrate on keypress</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/strings_no_localization.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_website_predefined_key_1">119</string>
     <string name="kpt_website_predefined_key_2">103</string>
     <string name="kpt_website_predefined_value_1">www.weather.com</string>
     <string name="kpt_website_predefined_value_2">www.google.com</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/donottranslate.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_word_separators">.\u0009\u0020,;!?\n()[]*&amp;@{}/&lt;>_+=|\u0022</string>
-    <string name="punctuations_list">!,\",#,%,&amp;,\',(,),*,+ ,±,÷,×,\\,,- ,.,/,\,:,;,?,@,[,],_,{,},,¡,ª,«,»,¬ ,º,•,¿,–,—,\‘,\’ ,“,”,„,…,\' ,❝,❞,|,؟,॰,।,॥,،,۔,؛,™,®,©,‰,‼,°,&lt;,>,=,։,՞,\՝,․,\՜,֊,።,፣,፤,፥,₹,$,</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values/styles.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/styles.xml -->
     <eat-comment/>
     <style name="AdaptxtTheme" parent="@android:style/Theme">
 	<!--  To override the Tab Widget's style alone. Bug Id: 5902-->
@@ -1156,16 +1161,16 @@
                 <item name="android:textAppearanceMedium">@android:style/TextAppearance.Large</item>
                 <item name="android:textAppearanceLarge">@android:style/TextAppearance.Large</item>
 	</style>
-    <style name="Holo.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
+    <style name="Kpt_Holo.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/kpt_progress_horizontal_holo_dark</item>
         <item name="android:indeterminateDrawable">@drawable/kpt_progress_indeterminate_horizontal_holo</item>
         <item name="android:minHeight">16dip</item>
         <item name="android:maxHeight">16dip</item>
     </style>
-    <style name="Theme"> 
-        <item name="backgroundDimAmount">0.6</item>     	
+    <style name="Kpt_Theme"> 
+        <item name="kpt_backgroundDimAmount">0.6</item>     	
     </style>
-    <style name="Theme.CustomDialog">
+    <style name="Kpt_Theme.CustomDialog">
 		<item name="android:windowBackground">@null</item>
 	</style>
     <style name="Theme.Transparent" parent="AdaptxtTheme">

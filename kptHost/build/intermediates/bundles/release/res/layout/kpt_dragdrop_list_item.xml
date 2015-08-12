@@ -53,4 +53,4 @@
 		android:minHeight="?android:attr/listPreferredItemHeight"
 		android:text="TEXTO" android:layout_width="wrap_content" />
 		</LinearLayout>
-	--><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_dragdrop_list_item.xml -->
+	--><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_dragdrop_list_item.xml -->

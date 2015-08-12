@@ -22,4 +22,4 @@
     <item android:state_pressed="true"
         android:drawable="@drawable/kpt_highlight_pressed" />
 
-</selector><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/drawable/kpt_ic_suggest_scroll_background.xml -->
+</selector><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/drawable/kpt_ic_suggest_scroll_background.xml -->

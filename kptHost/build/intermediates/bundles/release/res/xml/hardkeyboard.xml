@@ -20,1590 +20,1590 @@
 
 <HardKeyboardMap xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:atx="http://schemas.android.com/apk/res-auto"
-	atx:version="1.0">
+	atx:kpt_version="1.0">
 
-	<Keymap atx:locale="en-GB">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="en-GB">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="pt-BR">
-		<Key atx:code="97" atx:label="a" atx:values="áàãâªæäåąăā" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éêèëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óõôºòöœøő" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="pt-BR">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàãâªæäåąăā" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éêèëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óõôºòöœøő" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="pt-PT">
-		<Key atx:code="97" atx:label="a" atx:values="áàãâªæäåąăā" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éêèëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óõôºòöœøő" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="pt-PT">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàãâªæäåąăā" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éêèëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óõôºòöœøő" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="el-GR">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="el-GR">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="ru-RU">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="ru-RU">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="be-BY">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="be-BY">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="bg-BG">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="bg-BG">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="ca-ES">
-		<Key atx:code="97" atx:label="a" atx:values="àáâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íïìîİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="ca-ES">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="àáâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íïìîİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="cs-CZ">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="čçć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éěèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ňñņń" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úůüùûųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ýÿ" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="cs-CZ">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="čçć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éěèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ňñņń" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úůüùûųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ýÿ" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="da-DK">
-		<Key atx:code="97" atx:label="a" atx:values="æåäáàâãąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="øöóòôõœőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="üúùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="da-DK">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="æåäáàâãąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="øöóòôõœőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="üúùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="de-DE">
-		<Key atx:code="97" atx:label="a" atx:values="äáàâæãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="öóòôõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="üúùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="de-DE">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="äáàâæãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="öóòôõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="üúùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="en-IN">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="en-IN">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="en-US">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="en-US">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="es-ES">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="es-ES">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="es-MX">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="es-MX">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="et-EE">
-		<Key atx:code="97" atx:label="a" atx:values="äáàâæãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="õöóòôœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="üúùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="et-EE">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="äáàâæãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="õöóòôœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="üúùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="eu-ES">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="eu-ES">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="fi-FI">
-		<Key atx:code="97" atx:label="a" atx:values="äåæáàâãąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="öøóòôõœőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="üúùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="fi-FI">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="äåæáàâãąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="öøóòôõœőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="üúùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="fr-CA">
-		<Key atx:code="97" atx:label="a" atx:values="àâæáäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="îïíìİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="ôöœóòõøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="ùûüúůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="fr-CA">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="àâæáäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="îïíìİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="ôöœóòõøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="ùûüúůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 	
-		<Keymap atx:locale="fr-CH">
-		<Key atx:code="97" atx:label="a" atx:values="àâæáäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="îïíìİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="ôöœóòõøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="ùûüúůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+		<Keymap atx:kpt_locale="fr-CH">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="àâæáäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="îïíìİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="ôöœóòõøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="ùûüúůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="fr-FR">
-		<Key atx:code="97" atx:label="a" atx:values="àâæáäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="îïíìİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="ôöœóòõøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="ùûüúůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="fr-FR">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="àâæáäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="îïíìİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="ôöœóòõøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="ùûüúůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="gl-ES">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="gl-ES">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="ha-NG">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="ha-NG">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="hr-HR">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="čćç" />
-		<Key atx:code="100" atx:label="d" atx:values="đďð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="hr-HR">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="čćç" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="đďð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="hu-HU">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óöőòôõœøº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüűùûůųū" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="hu-HU">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óöőòôõœøº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüűùûůųū" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="id-ID">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="id-ID">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="is-IS">
-		<Key atx:code="97" atx:label="a" atx:values="áæäàâãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ðďđ" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óöòôõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="þťţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ýÿ" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="is-IS">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áæäàâãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ðďđ" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óöòôõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="þťţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ýÿ" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="it-IT">
-		<Key atx:code="97" atx:label="a" atx:values="àáâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="ìíîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="òóôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="ùúüûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="it-IT">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="àáâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="ìíîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="òóôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="ùúüûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="lt-LT">
-		<Key atx:code="97" atx:label="a" atx:values="ąáàâæäãåăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="čçć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="ęėéèêëěē" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="įíìîïİıī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="ųūúüùûůű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="lt-LT">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="ąáàâæäãåăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="čçć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="ęėéèêëěē" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="įíìîïİıī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="ųūúüùûůű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="lv-LV">
-		<Key atx:code="97" atx:label="a" atx:values="āáàâæäãåąăª" />
-		<Key atx:code="99" atx:label="c" atx:values="čçć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="ēéèêëěęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="īíìîïİıį" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ņñńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="ūúüùûůųű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="lv-LV">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="āáàâæäãåąăª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="čçć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="ēéèêëěęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="īíìîïİıį" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ņñńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="ūúüùûůųű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="nl-NL">
-		<Key atx:code="97" atx:label="a" atx:values="àáâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèëêěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="ïíìîİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="öóòôõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="üúùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="nl-NL">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="àáâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèëêěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="ïíìîİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="öóòôõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="üúùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="no-NO">
-		<Key atx:code="97" atx:label="a" atx:values="æåäáàâãąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="øöóòôõœőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="üúùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="no-NO">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="æåäáàâãąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="øöóòôõœőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="üúùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="pl-PL">
-		<Key atx:code="97" atx:label="a" atx:values="ąáàâæäãåăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="ćçč" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="ęéèêëěēė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="łļľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ńñņň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="śßšş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="źżž" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="pl-PL">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="ąáàâæäãåăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="ćçč" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="ęéèêëěēė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="łļľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ńñņň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="śßšş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="źżž" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="ro-RO">
-		<Key atx:code="97" atx:label="a" atx:values="ăâáàæäãåąāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="îíìïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="şßšś" />
-		<Key atx:code="116" atx:label="t" atx:values="ţťþ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="ro-RO">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="ăâáàæäãåąāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="îíìïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="şßšś" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ţťþ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="sk-SK">
-		<Key atx:code="97" atx:label="a" atx:values="áäàâæãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="čçć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ľĺļł" />
-		<Key atx:code="110" atx:label="n" atx:values="ňñņń" />
-		<Key atx:code="111" atx:label="o" atx:values="óôòöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="ŕř" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ýÿ" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="sk-SK">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áäàâæãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="čçć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ľĺļł" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ňñņń" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óôòöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="ŕř" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ýÿ" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="sl-SL">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="čçć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="sl-SL">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="čçć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="sr-RS">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="čćç" />
-		<Key atx:code="100" atx:label="d" atx:values="đďð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="sr-RS">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="čćç" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="đďð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 	
-	<Keymap atx:locale="sr-CS">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="čćç" />
-		<Key atx:code="100" atx:label="d" atx:values="đďð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="šßśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="sr-CS">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="čćç" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="đďð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="šßśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="sv-SE">
-		<Key atx:code="97" atx:label="a" atx:values="åäæáàâãąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="öøóòôõœőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="üúùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="sv-SE">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="åäæáàâãąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="öøóòôõœőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="üúùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="tl-PH">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="tl-PH">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="tr-TR">
-		<Key atx:code="97" atx:label="a" atx:values="âáàæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="êéèëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ğģ" />
-		<Key atx:code="105" atx:label="i" atx:values="İıîíìïįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="öôóòõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="şßšś" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="üûúùůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="tr-TR">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="âáàæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="êéèëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ğģ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="İıîíìïįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="öôóòõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="şßšś" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="üûúùůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="uk-UA">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="єё" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="uk-UA">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="єё" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="vi-VN">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="đďð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="vi-VN">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="đďð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-	<Keymap atx:locale="ms-MY">
-		<Key atx:code="97" atx:label="a" atx:values="áàâæäãåąăāª" />
-		<Key atx:code="99" atx:label="c" atx:values="çčć" />
-		<Key atx:code="100" atx:label="d" atx:values="ďđð" />
-		<Key atx:code="101" atx:label="e" atx:values="éèêëěēęė" />
-		<Key atx:code="103" atx:label="g" atx:values="ģğ" />
-		<Key atx:code="105" atx:label="i" atx:values="íìîïİıįī" />
-		<Key atx:code="107" atx:label="k" atx:values="ķ" />
-		<Key atx:code="108" atx:label="l" atx:values="ļłľĺ" />
-		<Key atx:code="110" atx:label="n" atx:values="ñņńň" />
-		<Key atx:code="111" atx:label="o" atx:values="óòôöõœøőº" />
-		<Key atx:code="114" atx:label="r" atx:values="řŕ" />
-		<Key atx:code="115" atx:label="s" atx:values="ßšśş" />
-		<Key atx:code="116" atx:label="t" atx:values="ťþţ" />
-		<Key atx:code="117" atx:label="u" atx:values="úüùûůųūű" />
-		<Key atx:code="121" atx:label="y" atx:values="ÿý" />
-		<Key atx:code="122" atx:label="z" atx:values="žźż" />
-		<Key atx:code="945" atx:label="α" atx:values="ά" />
-		<Key atx:code="949" atx:label="ε" atx:values="έ" />
-		<Key atx:code="951" atx:label="η" atx:values="ή" />
-		<Key atx:code="953" atx:label="ι" atx:values="ίϊΐ" />
-		<Key atx:code="959" atx:label="ο" atx:values="ό" />
-		<Key atx:code="963" atx:label="σ" atx:values="ς" />
-		<Key atx:code="965" atx:label="υ" atx:values="ύϋΰ" />
-		<Key atx:code="969" atx:label="ω" atx:values="ώ" />
-		<Key atx:code="1091" atx:label="у" atx:values="ў" />
-		<Key atx:code="1077" atx:label="е" atx:values="ёє" />
-		<Key atx:code="1075" atx:label="г" atx:values="ґ" />
-		<Key atx:code="1080" atx:label="и" atx:values="ії" />
-		<Key atx:code="1100" atx:label="ь" atx:values="ъ" />
-		<Key atx:code="1079" atx:label="з" atx:values="ж"/>
-	  <Key atx:code="1089" atx:label="с" atx:values="шћ"/>
-	  <Key atx:code="1076" atx:label="д" atx:values="ђ"/>
-	  <Key atx:code="1094" atx:label="ц" atx:values="ч"/>
+	<Keymap atx:kpt_locale="ms-MY">
+		<Key atx:kpt_code="97" atx:kpt_label="a" atx:kpt_values="áàâæäãåąăāª" />
+		<Key atx:kpt_code="99" atx:kpt_label="c" atx:kpt_values="çčć" />
+		<Key atx:kpt_code="100" atx:kpt_label="d" atx:kpt_values="ďđð" />
+		<Key atx:kpt_code="101" atx:kpt_label="e" atx:kpt_values="éèêëěēęė" />
+		<Key atx:kpt_code="103" atx:kpt_label="g" atx:kpt_values="ģğ" />
+		<Key atx:kpt_code="105" atx:kpt_label="i" atx:kpt_values="íìîïİıįī" />
+		<Key atx:kpt_code="107" atx:kpt_label="k" atx:kpt_values="ķ" />
+		<Key atx:kpt_code="108" atx:kpt_label="l" atx:kpt_values="ļłľĺ" />
+		<Key atx:kpt_code="110" atx:kpt_label="n" atx:kpt_values="ñņńň" />
+		<Key atx:kpt_code="111" atx:kpt_label="o" atx:kpt_values="óòôöõœøőº" />
+		<Key atx:kpt_code="114" atx:kpt_label="r" atx:kpt_values="řŕ" />
+		<Key atx:kpt_code="115" atx:kpt_label="s" atx:kpt_values="ßšśş" />
+		<Key atx:kpt_code="116" atx:kpt_label="t" atx:kpt_values="ťþţ" />
+		<Key atx:kpt_code="117" atx:kpt_label="u" atx:kpt_values="úüùûůųūű" />
+		<Key atx:kpt_code="121" atx:kpt_label="y" atx:kpt_values="ÿý" />
+		<Key atx:kpt_code="122" atx:kpt_label="z" atx:kpt_values="žźż" />
+		<Key atx:kpt_code="945" atx:kpt_label="α" atx:kpt_values="ά" />
+		<Key atx:kpt_code="949" atx:kpt_label="ε" atx:kpt_values="έ" />
+		<Key atx:kpt_code="951" atx:kpt_label="η" atx:kpt_values="ή" />
+		<Key atx:kpt_code="953" atx:kpt_label="ι" atx:kpt_values="ίϊΐ" />
+		<Key atx:kpt_code="959" atx:kpt_label="ο" atx:kpt_values="ό" />
+		<Key atx:kpt_code="963" atx:kpt_label="σ" atx:kpt_values="ς" />
+		<Key atx:kpt_code="965" atx:kpt_label="υ" atx:kpt_values="ύϋΰ" />
+		<Key atx:kpt_code="969" atx:kpt_label="ω" atx:kpt_values="ώ" />
+		<Key atx:kpt_code="1091" atx:kpt_label="у" atx:kpt_values="ў" />
+		<Key atx:kpt_code="1077" atx:kpt_label="е" atx:kpt_values="ёє" />
+		<Key atx:kpt_code="1075" atx:kpt_label="г" atx:kpt_values="ґ" />
+		<Key atx:kpt_code="1080" atx:kpt_label="и" atx:kpt_values="ії" />
+		<Key atx:kpt_code="1100" atx:kpt_label="ь" atx:kpt_values="ъ" />
+		<Key atx:kpt_code="1079" atx:kpt_label="з" atx:kpt_values="ж"/>
+	  <Key atx:kpt_code="1089" atx:kpt_label="с" atx:kpt_values="шћ"/>
+	  <Key atx:kpt_code="1076" atx:kpt_label="д" atx:kpt_values="ђ"/>
+	  <Key atx:kpt_code="1094" atx:kpt_label="ц" atx:kpt_values="ч"/>
 	</Keymap>
 
-</HardKeyboardMap><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/hardkeyboard.xml -->
+</HardKeyboardMap><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/hardkeyboard.xml -->

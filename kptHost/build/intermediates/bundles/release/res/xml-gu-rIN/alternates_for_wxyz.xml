@@ -20,28 +20,28 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-        <Key atx:codes="57" atx:keyLabel="9" atx:keyEdgeFlags="left" />
-        <Key atx:codes="2735" atx:keyLabel="ય" />
-        <Key atx:codes="2736" atx:keyLabel="ર" />
-        <Key atx:codes="2738" atx:keyLabel="લ" />
-        <Key atx:codes="2741" atx:keyLabel="વ" />
-        <Key atx:codes="2742" atx:keyLabel="શ" />
-        <Key atx:codes="2743" atx:keyLabel="ષ" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_codes="57" atx:kpt_keyLabel="9" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="2735" atx:kpt_keyLabel="ય" />
+        <Key atx:kpt_codes="2736" atx:kpt_keyLabel="ર" />
+        <Key atx:kpt_codes="2738" atx:kpt_keyLabel="લ" />
+        <Key atx:kpt_codes="2741" atx:kpt_keyLabel="વ" />
+        <Key atx:kpt_codes="2742" atx:kpt_keyLabel="શ" />
+        <Key atx:kpt_codes="2743" atx:kpt_keyLabel="ષ" atx:kpt_keyEdgeFlags="right" />
     </Row>
     <Row>
-        <Key atx:codes="2744" atx:keyLabel="સ" atx:keyEdgeFlags="left" />
-        <Key atx:codes="2745" atx:keyLabel="હ" />
-        <Key atx:codes="2739" atx:keyLabel="ળ" />
-        <Key atx:codes="-1073" atx:keyLabel="ક્ષ" atx:keyOutputText="ક્ષ" />
-        <Key atx:codes="-1073" atx:keyLabel="જ્ઞ" atx:keyOutputText="જ્ઞ" />
-        <Key atx:codes="2799" atx:keyLabel="૯" atx:keyEdgeFlags="right" />
+        <Key atx:kpt_codes="2744" atx:kpt_keyLabel="સ" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="2745" atx:kpt_keyLabel="હ" />
+        <Key atx:kpt_codes="2739" atx:kpt_keyLabel="ળ" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="ક્ષ" atx:kpt_keyOutputText="ક્ષ" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="જ્ઞ" atx:kpt_keyOutputText="જ્ઞ" />
+        <Key atx:kpt_codes="2799" atx:kpt_keyLabel="૯" atx:kpt_keyEdgeFlags="right" />
     </Row>
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml-gu-rIN/alternates_for_wxyz.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml-gu-rIN/alternates_for_wxyz.xml -->

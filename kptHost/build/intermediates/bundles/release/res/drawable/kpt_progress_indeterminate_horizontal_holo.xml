@@ -28,4 +28,4 @@
     <item android:drawable="@drawable/kpt_progressbar_indeterminate_holo7" android:duration="60" />
     <item android:drawable="@drawable/kpt_progressbar_indeterminate_holo8" android:duration="60" />
 </animation-list>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/drawable/kpt_progress_indeterminate_horizontal_holo.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/drawable/kpt_progress_indeterminate_horizontal_holo.xml -->

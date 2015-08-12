@@ -68,4 +68,4 @@
 		    	android:text="@string/kpt_alert_dialog_cancel"
 		    	android:id="@+id/del_cancel"
 		    	android:clickable="true"/>
-</LinearLayout><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_deleteword.xml -->
+</LinearLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_deleteword.xml -->

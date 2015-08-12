@@ -20,16 +20,16 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-        <Key atx:codes="-1073" atx:keyLabel="ಜ್ಞ" atx:keyOutputText="ಜ್ಞ" atx:keyEdgeFlags="left" />
-        <Key atx:codes="-1073" atx:keyLabel="ತ್ರ" atx:keyOutputText="ತ್ರ" />
-        <Key atx:codes="-1073" atx:keyLabel="್ರ" atx:keyOutputText="್ರ" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="ಜ್ಞ" atx:kpt_keyOutputText="ಜ್ಞ" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="ತ್ರ" atx:kpt_keyOutputText="ತ್ರ" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="್ರ" atx:kpt_keyOutputText="್ರ" atx:kpt_keyEdgeFlags="right" />
     </Row>
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml-kn-rIN/popup_ligature2.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml-kn-rIN/popup_ligature2.xml -->

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-ml/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-ml/dimens.xml -->
     <eat-comment/>
     <dimen name="kpt_keyLabel2TextSize">14sp</dimen>
     <item format="float" name="kpt_keyLabel2XPos" type="dimen">0.50</item>
@@ -8,7 +8,7 @@
     <dimen name="kpt_keyLabelTextSize">14sp</dimen>
     <item format="float" name="kpt_keyLabelXPos" type="dimen">0.50</item>
     <item format="float" name="kpt_keyLabelYPos" type="dimen">0.72</item>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-ml/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-ml/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_MEANING_LOOKUP_URL">http://ml.wikipedia.org/wiki/</string>
     <string name="kpt_alternates_for_12key_email">1@.-।,?!൧/സഹളഴറംഃ്</string>

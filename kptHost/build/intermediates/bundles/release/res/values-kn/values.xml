@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/arrays.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/arrays.xml -->
     <eat-comment/>
     <string-array name="kpt_ac_misspelts_entires">    <item>ಅಧಿಕ</item><item>ಮಧ್ಯಮ (ಶಿಫಾರಸ್ಸು ಮಾಡಲಾಗಿದೆ)</item><item>ಕಡಿಮೆ</item></string-array>
     <string-array name="kpt_array_interactive_feedback"><item>ಕೀಲಿ ಒತ್ತಿದಾಗ ಕಂಪಿಸು</item><item>ಕೀಲಿ ಒತ್ತಿದಾಗ ಸದ್ದು ಮಾಡು</item></string-array>
@@ -33,19 +33,19 @@
    
 		<item>@string/kpt_UI_STRING_SBAR_MESSAGE_1_300</item>
 		<item>@string/kpt_UI_STRING_SBAR_MESSAGE_2_300</item></string-array>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/dimens.xml -->
     <eat-comment/>
     <dimen name="kpt_keyLabel2TextSize">14sp</dimen>
     <item format="float" name="kpt_keyLabel2XPos" type="dimen">0.70</item>
     <dimen name="kpt_keyLabelTextSize">14sp</dimen>
     <dimen name="kpt_setup_wizard_textsize">14sp</dimen>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings.xml -->
     <eat-comment/>
     <string name="kpt_Help">ಸಹಾಯ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_MEANING_LOOKUP_URL">http://kn.wikipedia.org/wiki/</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings.xml -->
     <eat-comment/>
     <string name="kpt_T100_UI_STRING_NOTIFICATIONBAR_MESSAGETEXT_1">ಪದಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಆಮದು ಮಾಡಿಕೊಳ್ಳಲಾಗಿದೆ</string>
     <string name="kpt_UI_STRING_AMGR_1">ಅನುಸ್ಥಾಪಿಸಲಾದ</string>
@@ -238,7 +238,7 @@
     <string name="kpt_addon_atleast_one">ಕನಿಷ್ಠ ಒಂದು ಪದಕೋಶವನ್ನು ಆಯ್ಕೆ ಮಾಡಬೇಕು</string>
     <string name="kpt_alert_dialog_cancel">ರದ್ದು ಮಾಡು</string>
     <string name="kpt_alert_dialog_ok">ಓಕೆ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_12key_email">1\@.-,\?!೧\'|*#/ಂಃ಼₹</string>
     <string name="kpt_alternates_for_12key_normal">1.,\?!೧\@-\'|*#/ಂಃ಼₹</string>
@@ -276,7 +276,7 @@
     <string name="kpt_alternates_for_two">ಾ೨</string>
     <string name="kpt_alternates_for_wxyz">9ಯರಲವಶಷಸಹಳ೯</string>
     <string name="kpt_alternates_for_zero">ೊ೦</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings.xml -->
     <eat-comment/>
     <string name="kpt_android_market_app_unav">App store ಅಪ್ಲಿಕೇಶನ್ ಕಂಡುಬಂದಿಲ್ಲ</string>
     <string name="kpt_atr_substitutn_alert">*ವಿಸ್ತರಣೆಯು 256 ಅಕ್ಷರಗಳಿಗಿಂತ ಕಡಿಮೆ ಇರಬೇಕು.</string>
@@ -320,10 +320,10 @@
     <string name="kpt_incompatible_dialog_title">ಅಪ್ಡೇಟ್</string>
     <string name="kpt_incompatible_message">Adaptxt ಬೇಸ್ ಅನ್ನು ಅಪ್ಡೇಟ್ ಮಾಡಲು ದಯವಿಟ್ಟು ಇಲ್ಲಿ ಟ್ಯಾಪ್ ಮಾಡಿ</string>
     <string name="kpt_incompatible_title">ಅನುಸ್ಥಾಪನೆ ಮಾಡಲಾದ ಆಡ್ ಆನ್ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_label_alpha_key">ಅ-ಳ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings.xml -->
     <eat-comment/>
     <string name="kpt_label_done_key">ಪೂರ್ಣಗೊಂಡಿದೆ</string>
     <string name="kpt_landscape_default">ಸಾಮಾನ್ಯ ಲ್ಯಾಂಡ್‌ಸ್ಕೇಪ್ ಲೇಔಟ್</string>
@@ -360,13 +360,13 @@
     <string name="kpt_pd_add_on_install_progress">ಆಡ್-ಆನ್ ಅನುಸ್ಥಾಪನೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ</string>
     <string name="kpt_pd_add_on_uninstall_progress">ಆಡ್-ಆನ್ ಅಸ್ಥಾಪನೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ</string>
     <string name="kpt_pd_loading_progress">ಡಾಟಾ ಲೋಡಿಂಗ್ ಪ್ರಗತಿಯಲ್ಲಿದೆ...</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_popular_domain_5">ಮ</string>
     <string name="kpt_popular_domain_6">".in"</string>
     <string name="kpt_popular_domain_lang_0">".co.in"</string>
     <string name="kpt_popular_domain_sc_value">3246</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings.xml -->
     <eat-comment/>
     <string name="kpt_potrait_default">ಸಾಮಾನ್ಯ ಪೋರ್ಟ್‌ರೇಟ್ ಲೇಔಟ್</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
@@ -380,11 +380,11 @@
     <string name="kpt_search_menu">ಹುಡುಕು</string>
     <string name="kpt_search_word">ಪದವನ್ನು ಹುಡುಕು</string>
     <string name="kpt_send_mail">ಇಮೇಲ್ ಕಳುಹಿಸು...</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_smiley_secondary_char">ಮ</string>
     <string name="kpt_smiley_secondary_char_value">3246</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-kn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-kn/strings.xml -->
     <eat-comment/>
     <string name="kpt_social_acc_add">ನಿಮ್ಮ%s ಖಾತೆಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸೇರಿಸಲಾಗಿದೆ.</string>
     <string name="kpt_social_acc_del">ನಿಮ್ಮ %s ಖಾತೆಯನ್ನು Adaptxtನಿಂದ ಮಾತ್ರವೇ ಅಳಿಸಲಾಗಿದೆ.</string>

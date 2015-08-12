@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/arrays.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/arrays.xml -->
     <eat-comment/>
     <string-array name="kpt_ac_misspelts_entires">
 		<item>हाय</item>
@@ -133,13 +133,13 @@
 		<item>१२३ -16</item>
 		<item>6/6 -18</item>
 	</string-array>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_Help">मदत</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_MEANING_LOOKUP_URL">http://mr.wikipedia.org/wiki/</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_T100_UI_STRING_NOTIFICATIONBAR_MESSAGETEXT_1">शब्दांची आयात यशस्वी</string>
     <string name="kpt_UI_STRING_AMGR_1">अन इस्टॉल झाले</string>
@@ -321,10 +321,10 @@
     <string name="kpt_account_type_phone_summary">Adaptxt ला तुमच्या ॲड्रेस बुकमधून माहिती मिळते</string>
     <string name="kpt_account_type_sms">एसएमएस</string>
     <string name="kpt_account_type_sms_summary">Adaptxt ला तुमच्या एसएमएस पासून माहिती मिळते</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_accounts_extra_data">learn_extra</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_accounts_manager_summary">सोशल अकाउंट्स समाविष्ट किंवा कमी करा </string>
     <string name="kpt_accounts_manger_title">सोशल अकाऊंट मॅनेजर </string>
@@ -338,7 +338,7 @@
     <string name="kpt_addon_atleast_one">एक डिक्शनरी तरी सिलेक्ट करणे आवश्यक </string>
     <string name="kpt_alert_dialog_cancel"> रद्द करा</string>
     <string name="kpt_alert_dialog_ok">ओके</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_12key_email">१\@.-,\?!1\'#/॰ंःँ़₹</string>
     <string name="kpt_alternates_for_12key_normal">१.,\?!1\@-\'#/॰ंःँ़₹</string>
@@ -381,14 +381,14 @@
     <string name="kpt_alternates_for_vertical_line">ङ।॥</string>
     <string name="kpt_alternates_for_wxyz">९यरलवशषसहळ9</string>
     <string name="kpt_alternates_for_zero">ौ0</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_android_market_app_unav">ॲप स्टोअरचे ॲप्लिकेशन सापडले नाही</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_atr_regular_expression">[^\\p{javaLetter}\\s]+</string>
     <string name="kpt_atr_shortcut_inputtype_text">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_atr_substitutn_alert">*विस्तार हा २५६ अक्षरांपेक्षा जास्त असता कामा नये</string>
     <string name="kpt_atx">एटीएक्स</string>
@@ -431,17 +431,17 @@
     <string name="kpt_incompatible_dialog_title">अपडेट</string>
     <string name="kpt_incompatible_message">Adaptxt अपडेट करण्यासाठी इथे टिचकी मारा</string>
     <string name="kpt_incompatible_title">इन्स्टॉल केलेला अॅड-ऑन अनुरुप नाही</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_label_alpha_key">अ-ज्ञ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_label_done_key">पूर्ण</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_label_phone_key">१२३</string>
     <string name="kpt_label_symbol_key">१२३#</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_landscape_default">लॅंडस्केप मोड चा लेआऊट</string>
     <string name="kpt_language_selection_title">Input languages</string>
@@ -477,7 +477,7 @@
     <string name="kpt_pd_add_on_install_progress">ऍड ऑन इन्टॉलेशन सुरू </string>
     <string name="kpt_pd_add_on_uninstall_progress"> ऍड ऑन अनइन्टॉलेशन सुरू </string>
     <string name="kpt_pd_loading_progress">डेटा लोड होत आहे...</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_phone_mode_change_to_alphabet">अ-ज्ञ</string>
     <string name="kpt_phone_mode_change_to_symbols">१२?</string>
@@ -485,7 +485,7 @@
     <string name="kpt_popular_domain_6">".in"</string>
     <string name="kpt_popular_domain_lang_0">".co.in"</string>
     <string name="kpt_popular_domain_sc_value">2326</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_potrait_default">पोट्रेट मोड चा लेआऊट</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
@@ -499,11 +499,11 @@
     <string name="kpt_search_menu">शोधा</string>
     <string name="kpt_search_word">शब्द शोधा</string>
     <string name="kpt_send_mail">इमेल पाठवा</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_smiley_secondary_char">ङ</string>
     <string name="kpt_smiley_secondary_char_value">2329</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mr/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
     <string name="kpt_social_acc_add">तुमचे %s अकाऊंट यशस्वीपणे समाविष्ट झाले आहे</string>
     <string name="kpt_social_acc_del">तुमचे %s अकाऊंट Adaptxt  मधून डिलिट झाले आहे.</string>

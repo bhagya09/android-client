@@ -20,16 +20,16 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-         <Key atx:keyLabel="ര" atx:keyOutputText="ര" atx:keyEdgeFlags="right" />
-        <Key atx:keyLabel="റ" atx:keyOutputText="റ" atx:keyEdgeFlags="left" />
-        <Key atx:keyLabel="ർ" atx:keyOutputText="ർ" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+         <Key atx:kpt_keyLabel="ര" atx:kpt_keyOutputText="ര" atx:kpt_keyEdgeFlags="right" />
+        <Key atx:kpt_keyLabel="റ" atx:kpt_keyOutputText="റ" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_keyLabel="ർ" atx:kpt_keyOutputText="ർ" atx:kpt_keyEdgeFlags="right" />
     </Row>
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml-ml-rIN/popup_ligature21.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml-ml-rIN/popup_ligature21.xml -->

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-land/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-land/dimens.xml -->
     <eat-comment/>
     <dimen name="kpt_candidate_height">14dip</dimen>
     <dimen name="kpt_candidate_strip_height">34dip</dimen>
     <dimen name="kpt_candidate_strip_height_dk_fk">34dip</dimen>
     <dimen name="kpt_keyLabel2TextSize">12sp</dimen>
+    <item format="float" name="kpt_keyLabel2XPos" type="dimen">0.75</item>
+    <item format="float" name="kpt_keyLabel2YPos" type="dimen">0.30</item>
     <dimen name="kpt_keyLabelTextSize">20sp</dimen>
+    <item format="float" name="kpt_keyLabelXPos" type="dimen">0.50</item>
+    <item format="float" name="kpt_keyLabelYPos" type="dimen">0.64</item>
     <dimen name="kpt_key_height">38dip</dimen>
     <dimen name="kpt_key_height_dk_fk">38dip</dimen>
     <dimen name="kpt_key_preview_backing_height">40dip</dimen>

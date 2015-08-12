@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/arrays.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/arrays.xml -->
     <eat-comment/>
     <string-array name="kpt_ac_misspelts_entires"><item>పెద్ద</item><item>మధ్యమం (సిఫార్సు)</item><item>తక్కువ</item></string-array>
     <string-array name="kpt_array_interactive_feedback"><item>కంపంనం కీ ఒత్తు</item><item>ధ్వని కోసం కీ ఒత్తు</item></string-array>
@@ -26,13 +26,13 @@
     <string-array name="kpt_suggestion_mode_strings"><item>స్వయంసిద్ధం</item><item>మా ఇంజను తిరిగి నింపబడుతుంది, brb!</item><item>Adaptxt రహస్య పదాలను నేర్చుకోదు</item><item>Adaptxt ను ఉపయోగించడానికి దయచేసి నిఘంటువుని సంస్థాపిచండి</item><item>లైసెన్సు తేదీ అయిపోయింది, దయచేసి నవీనీకరించండి</item>	<item>@string/kpt_UI_STRING_SBAR_ITEM_1_220</item>
 		<item>@string/kpt_UI_STRING_SBAR_MESSAGE_1_300</item>
 		<item>@string/kpt_UI_STRING_SBAR_MESSAGE_2_300</item> </string-array>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings.xml -->
     <eat-comment/>
     <string name="kpt_Help">సహాయం</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_MEANING_LOOKUP_URL">http://te.wikipedia.org/wiki/</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings.xml -->
     <eat-comment/>
     <string name="kpt_T100_UI_STRING_NOTIFICATIONBAR_MESSAGETEXT_1">పదాల ఎగుమతి విజయవంతం అయింది</string>
     <string name="kpt_UI_STRING_AMGR_1">స్థాపితమైన</string>
@@ -227,7 +227,7 @@
     <string name="kpt_addon_atleast_one">కనీసం ఒక్క నిఘంటువునైనా ఎన్నుకోవాలి</string>
     <string name="kpt_alert_dialog_cancel">రద్దు</string>
     <string name="kpt_alert_dialog_ok">సరే</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_12key_email">1@.-,?!౧/\'#ఁః్₹</string>
     <string name="kpt_alternates_for_12key_normal">1.,?!౧@-/\'#ః్₹</string>
@@ -259,7 +259,7 @@
     <string name="kpt_alternates_for_two">ా౨</string>
     <string name="kpt_alternates_for_wxyz">9యరలవశషసహళఱ౯</string>
     <string name="kpt_alternates_for_zero">ొ౦</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings.xml -->
     <eat-comment/>
     <string name="kpt_android_market_app_unav">App store ప్రకార్యం దొరకలేదు</string>
     <string name="kpt_atr_substitutn_alert">విస్తృతి తప్పక 256 అక్షరాలకంటే తక్కువ ఉండాలి</string>
@@ -303,10 +303,10 @@
     <string name="kpt_incompatible_dialog_title">ఆధునీకరణ</string>
     <string name="kpt_incompatible_message">Adaptxt మూలాన్ని నవీనీకరించడానికి దయచేసి దీనిని తిప్పండి</string>
     <string name="kpt_incompatible_title">add-on స్థాపనలు పూర్తి కాలేదు</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_label_alpha_key">అ-ఱ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings.xml -->
     <eat-comment/>
     <string name="kpt_label_done_key">ఐంది</string>
     <string name="kpt_landscape_default">సమతల ముద్రణ కోసం స్వీయ ఆకృతి</string>
@@ -343,13 +343,13 @@
     <string name="kpt_pd_add_on_install_progress">Add-on స్థాపన జరుగుతుంది</string>
     <string name="kpt_pd_add_on_uninstall_progress">Add-on విస్థాపన జరుగుతుంది</string>
     <string name="kpt_pd_loading_progress">దత్తాంశ ఎగుమతి అవుతుంది....</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_popular_domain_5">బ</string>
     <string name="kpt_popular_domain_6">".in"</string>
     <string name="kpt_popular_domain_lang_0">".co.in"</string>
     <string name="kpt_popular_domain_sc_value">3116</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings.xml -->
     <eat-comment/>
     <string name="kpt_potrait_default">నిలువు ముద్రణ కోసం స్వీయాకృత</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
@@ -363,11 +363,11 @@
     <string name="kpt_search_menu">వెతుకు</string>
     <string name="kpt_search_word">పదాన్ని వెతుకు</string>
     <string name="kpt_send_mail">ఈ-మెయిల్ పంపు</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_smiley_secondary_char">ప</string>
     <string name="kpt_smiley_secondary_char_value">3114</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-te/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings.xml -->
     <eat-comment/>
     <string name="kpt_social_acc_add">మీ  శాతాల ఖాతా విజయవంతంగా కలపబడింది</string>
     <string name="kpt_social_acc_del">మీ శాతాల ఖాతా కేవలం  Adaptxt లో మాత్రమే తొలగించబడింది</string>

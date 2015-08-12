@@ -8,4 +8,4 @@
     android:paddingLeft="15dip"
     android:layout_height="50dip"
     android:ellipsize="marquee" />
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_simple_spinner_item.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_simple_spinner_item.xml -->

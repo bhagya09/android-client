@@ -20,28 +20,28 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-        <Key atx:codes="2543" atx:keyLabel="৯" atx:keyEdgeFlags="left" />
-        <Key atx:codes="2479" atx:keyLabel="য" />
-        <Key atx:codes="2527" atx:keyLabel="য়" />
-        <Key atx:codes="2482" atx:keyLabel="ল" />
-        <Key atx:codes="2486" atx:keyLabel="শ" />
-        <Key atx:codes="2487" atx:keyLabel="ষ" />
-        <Key atx:codes="2544" atx:keyLabel="ৰ" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_codes="2543" atx:kpt_keyLabel="৯" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="2479" atx:kpt_keyLabel="য" />
+        <Key atx:kpt_codes="2527" atx:kpt_keyLabel="য়" />
+        <Key atx:kpt_codes="2482" atx:kpt_keyLabel="ল" />
+        <Key atx:kpt_codes="2486" atx:kpt_keyLabel="শ" />
+        <Key atx:kpt_codes="2487" atx:kpt_keyLabel="ষ" />
+        <Key atx:kpt_codes="2544" atx:kpt_keyLabel="ৰ" atx:kpt_keyEdgeFlags="right" />
     </Row>
-    <Row atx:rowEdgeFlags="bottom"> 
-        <Key atx:codes="2545" atx:keyLabel="ৱ" atx:keyEdgeFlags="left" />
-        <Key atx:codes="2510" atx:keyLabel="ৎ" />
-        <Key atx:codes="2488" atx:keyLabel="স" />
-        <Key atx:codes="2489" atx:keyLabel="হ" />
-        <Key atx:codes="-1073" atx:keyLabel="ক্ষ" atx:keyOutputText="ক্ষ" />
-        <Key atx:codes="57" atx:keyLabel="9" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="bottom"> 
+        <Key atx:kpt_codes="2545" atx:kpt_keyLabel="ৱ" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="2510" atx:kpt_keyLabel="ৎ" />
+        <Key atx:kpt_codes="2488" atx:kpt_keyLabel="স" />
+        <Key atx:kpt_codes="2489" atx:kpt_keyLabel="হ" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="ক্ষ" atx:kpt_keyOutputText="ক্ষ" />
+        <Key atx:kpt_codes="57" atx:kpt_keyLabel="9" atx:kpt_keyEdgeFlags="right" />
     </Row>
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml-as-rIN/popup_wxyz.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml-as-rIN/popup_wxyz.xml -->

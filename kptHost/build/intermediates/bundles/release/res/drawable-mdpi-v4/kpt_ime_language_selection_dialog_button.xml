@@ -7,4 +7,4 @@
           android:drawable="@drawable/kpt_language_select_dialog_cancel_focused" />
     <item android:drawable="@drawable/kpt_language_select_dialog_cancel_normal" />
 </selector>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/drawable-mdpi/kpt_ime_language_selection_dialog_button.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/drawable-mdpi/kpt_ime_language_selection_dialog_button.xml -->

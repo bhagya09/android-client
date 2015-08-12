@@ -20,32 +20,32 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-        <Key atx:codes="50" atx:keyLabel="2" atx:keyEdgeFlags="left" />
-        <Key atx:codes="2693" atx:keyLabel="અ" />
-        <Key atx:codes="2694" atx:keyLabel="આ" />
-        <Key atx:codes="2695" atx:keyLabel="ઇ" />
-        <Key atx:codes="2696" atx:keyLabel="ઈ" />
-        <Key atx:codes="2697" atx:keyLabel="ઉ" />
-        <Key atx:codes="2698" atx:keyLabel="ઊ" />
-        <Key atx:codes="2699" atx:keyLabel="ઋ" />
-        <Key atx:codes="-1073" atx:keyLabel="હૃ" atx:keyOutputText="હૃ" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_codes="50" atx:kpt_keyLabel="2" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="2693" atx:kpt_keyLabel="અ" />
+        <Key atx:kpt_codes="2694" atx:kpt_keyLabel="આ" />
+        <Key atx:kpt_codes="2695" atx:kpt_keyLabel="ઇ" />
+        <Key atx:kpt_codes="2696" atx:kpt_keyLabel="ઈ" />
+        <Key atx:kpt_codes="2697" atx:kpt_keyLabel="ઉ" />
+        <Key atx:kpt_codes="2698" atx:kpt_keyLabel="ઊ" />
+        <Key atx:kpt_codes="2699" atx:kpt_keyLabel="ઋ" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="હૃ" atx:kpt_keyOutputText="હૃ" atx:kpt_keyEdgeFlags="right" />
     </Row>
     <Row>
-        <Key atx:codes="2792" atx:keyLabel="૨" atx:keyEdgeFlags="left" />
-        <Key atx:codes="2750" atx:keyLabel="ા" />
-        <Key atx:codes="2751" atx:keyLabel="િ" />
-        <Key atx:codes="2752" atx:keyLabel="ી" />
-        <Key atx:codes="2753" atx:keyLabel="ુ" />
-        <Key atx:codes="2754" atx:keyLabel="ૂ" />
-        <Key atx:codes="2755" atx:keyLabel="ૃ" />
-        <Key atx:codes="2384" atx:keyLabel="ॐ" atx:keyEdgeFlags="right" />
+        <Key atx:kpt_codes="2792" atx:kpt_keyLabel="૨" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="2750" atx:kpt_keyLabel="ા" />
+        <Key atx:kpt_codes="2751" atx:kpt_keyLabel="િ" />
+        <Key atx:kpt_codes="2752" atx:kpt_keyLabel="ી" />
+        <Key atx:kpt_codes="2753" atx:kpt_keyLabel="ુ" />
+        <Key atx:kpt_codes="2754" atx:kpt_keyLabel="ૂ" />
+        <Key atx:kpt_codes="2755" atx:kpt_keyLabel="ૃ" />
+        <Key atx:kpt_codes="2384" atx:kpt_keyLabel="ॐ" atx:kpt_keyEdgeFlags="right" />
     </Row>
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml-gu-rIN/alternates_for_abc.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml-gu-rIN/alternates_for_abc.xml -->

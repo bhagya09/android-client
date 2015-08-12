@@ -22,6 +22,6 @@
 
 <input-method xmlns:android="http://schemas.android.com/apk/res/android"
         android:settingsActivity="com.kpt.adaptxt.beta.settings.KPTAdaptxtIMESettings"
-        android:isDefault="@bool/im_is_default"
+        android:isDefault="@bool/kpt_im_is_default"
 />
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/method.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/method.xml -->

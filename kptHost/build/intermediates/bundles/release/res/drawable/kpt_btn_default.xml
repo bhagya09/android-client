@@ -20,4 +20,4 @@
     <item android:state_pressed="true" 
         android:drawable="@drawable/kpt_list_selector_background_focus" />
 </selector>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/drawable/kpt_btn_default.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/drawable/kpt_btn_default.xml -->

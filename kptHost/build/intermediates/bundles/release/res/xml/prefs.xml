@@ -19,7 +19,7 @@
         android:key="pro_upgrade"
         android:title="@string/kpt_UI_STRING_SETTINGS_ITEM_2_300" 
         android:summary="@string/kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300"
-        atx:kptIcon="@drawable/upgrade_full_version">
+        atx:kpt_kptIcon="@drawable/upgrade_full_version">
         <intent android:action="com.kpt.adaptxt.beta.settings.AdaptxtTrailUpgrade" />
     </com.kpt.adaptxt.beta.settings.IconPreferenceScreen> -->
 
@@ -28,7 +28,7 @@
         android:key="add_on_mgr"
         android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_14_300"
         android:title="@string/kpt_UI_STRING_MENUITEMS_1" 
-        atx:kptIcon="@drawable/addon_manager">
+        atx:kpt_kptIcon="@drawable/addon_manager">
         <intent android:action="com.kpt.adaptxt.beta.settings.KPTAddonManager" />
     </com.kpt.adaptxt.beta.settings.IconPreferenceScreen> -->
     
@@ -36,7 +36,7 @@
         android:key="Learn"
         android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_3"
         android:title="@string/kpt_learn_key" 
-        atx:kptIcon="@drawable/personalize_suggestions">
+        atx:kpt_kptIcon="@drawable/personalize_suggestions">
          <intent android:action="com.kpt.adaptxt.beta.settings.KPTPersonalizeSuggestions" />          
     </com.kpt.adaptxt.beta.settings.IconPreferenceScreen> -->
     
@@ -44,20 +44,20 @@
         android:key="glide_layout"
         android:title="@string/kpt_UI_STRING_SETTINGS_ITEM_1_220"
         android:summary="@string/kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220" 
-        atx:kptIcon="@drawable/kpt_glide_settings_icon">
+        atx:kpt_kptIcon="@drawable/kpt_glide_settings_icon">
        <intent android:action="com.kpt.adaptxt.beta.settings.KPTGlideSettings.hike" />
     </com.kpt.adaptxt.beta.settings.IconPreferenceScreen>
     
    <!--  <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
             android:key="KBCustomization"
             android:title="@string/kpt_UI_STRING_MENUITEM_1_200"
-            atx:kptIcon="@drawable/keyboard_customization" /> -->
+            atx:kpt_kptIcon="@drawable/keyboard_customization" /> -->
     
     <com.kpt.adaptxt.beta.settings.IconPreferenceScreen
         android:key="advance_settings"
         android:summary="@string/kpt_UI_STRING_MENU_ITEM_DESC_15_300"
         android:title="@string/kpt_UI_STRING_MENUITEM_2_110" 
-        atx:kptIcon="@drawable/kpt_advanced_setting">
+        atx:kpt_kptIcon="@drawable/kpt_advanced_setting">
        <intent android:action="com.kpt.adaptxt.beta.settings.KPTPrefsAdvSettings.hike" />
     </com.kpt.adaptxt.beta.settings.IconPreferenceScreen>
     
@@ -65,7 +65,7 @@
         android:key="Adaptxt_Help"
         android:summary="@string/kpt_UI_STRING_MENUITEM_DESC_3_110"
         android:title="@string/kpt_Help"
-        atx:kptIcon="@drawable/help" >
+        atx:kpt_kptIcon="@drawable/help" >
      <intent android:action="com.kpt.adaptxt.beta.settings.KPTPrefsHelp" />
     </com.kpt.adaptxt.beta.settings.IconPreferenceScreen>
    
@@ -73,7 +73,7 @@
         android:key="Adaptxt_recommend"
         android:summary="@string/share_summary"
         android:title="@string/kpt_UI_STRING_MENUITEM_3_110" 
-        atx:kptIcon="@drawable/recommend">
+        atx:kpt_kptIcon="@drawable/recommend">
         <intent android:action="com.kpt.adaptxt.beta.settings.KPTPrefsRecommend" />
     </com.kpt.adaptxt.beta.settings.IconPreferenceScreen>
 
@@ -81,7 +81,7 @@
         android:key="latestversion"
         android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_10"
         android:title="@string/kpt_pref_latestVersion" 
-        atx:kptIcon="@drawable/latest_updates">
+        atx:kpt_kptIcon="@drawable/latest_updates">
     </com.kpt.adaptxt.beta.settings.IconPreferenceScreen> -->
 
-</PreferenceScreen><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/prefs.xml -->
+</PreferenceScreen><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/prefs.xml -->

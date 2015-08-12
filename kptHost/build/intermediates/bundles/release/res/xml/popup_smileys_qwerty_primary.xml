@@ -1,22 +1,22 @@
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="15%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="15%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
-     <Row atx:rowEdgeFlags="top">
-        <Key atx:keyLabel=":-)" atx:keyOutputText=":-) " atx:keyEdgeFlags="left" />
-        <Key atx:keyLabel=":-(" atx:keyOutputText=":-( "/>
-        <Key atx:keyLabel=";-)" atx:keyOutputText=";-) "/>
-        <Key atx:keyLabel=":-P" atx:keyOutputText=":-P "/>
-        <Key atx:keyLabel=":-D" atx:keyOutputText=":-D " atx:keyEdgeFlags="right" />
+     <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_keyLabel=":-)" atx:kpt_keyOutputText=":-) " atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_keyLabel=":-(" atx:kpt_keyOutputText=":-( "/>
+        <Key atx:kpt_keyLabel=";-)" atx:kpt_keyOutputText=";-) "/>
+        <Key atx:kpt_keyLabel=":-P" atx:kpt_keyOutputText=":-P "/>
+        <Key atx:kpt_keyLabel=":-D" atx:kpt_keyOutputText=":-D " atx:kpt_keyEdgeFlags="right" />
     </Row>
-    <Row atx:rowEdgeFlags="bottom" >
-        <Key atx:keyLabel=":O" atx:keyOutputText=":O " atx:keyEdgeFlags="left" />
-        <Key atx:keyLabel=":-*" atx:keyOutputText=":-* "/>
-        <Key atx:keyLabel="B-)" atx:keyOutputText="B-) "/>
-        <Key atx:keyLabel=":-$" atx:keyOutputText=":-$ "/>
-        <Key atx:keyLabel=":-\\" atx:keyOutputText=":-\\ " atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="bottom" >
+        <Key atx:kpt_keyLabel=":O" atx:kpt_keyOutputText=":O " atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_keyLabel=":-*" atx:kpt_keyOutputText=":-* "/>
+        <Key atx:kpt_keyLabel="B-)" atx:kpt_keyOutputText="B-) "/>
+        <Key atx:kpt_keyLabel=":-$" atx:kpt_keyOutputText=":-$ "/>
+        <Key atx:kpt_keyLabel=":-\\" atx:kpt_keyOutputText=":-\\ " atx:kpt_keyEdgeFlags="right" />
     </Row>
-    </Keyboard><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/popup_smileys_qwerty_primary.xml -->
+    </Keyboard><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/popup_smileys_qwerty_primary.xml -->

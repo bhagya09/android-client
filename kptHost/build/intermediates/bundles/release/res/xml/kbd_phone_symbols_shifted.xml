@@ -13,95 +13,95 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:horizontalGap="0dp"
+    atx:kpt_horizontalGap="0dp"
     
-    atx:keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize_phone_sym"
-    atx:keyLabel2XPos="@dimen/kpt_keyLabel2XPos"
-    atx:keyLabel2YPos="@dimen/kpt_keyLabel2YPos"
+    atx:kpt_keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize_phone_sym"
+    atx:kpt_keyLabel2XPos="@dimen/kpt_keyLabel2XPos"
+    atx:kpt_keyLabel2YPos="@dimen/kpt_keyLabel2YPos"
     
-    atx:keyLabelTextSize="@dimen/kpt_keyLabelTextSize_phone_sym"
-    atx:keyLabelXPos="@dimen/kpt_keyLabelXPos"
-    atx:keyLabelYPos="@dimen/kpt_keyLabelYPos"
+    atx:kpt_keyLabelTextSize="@dimen/kpt_keyLabelTextSize_phone_sym"
+    atx:kpt_keyLabelXPos="@dimen/kpt_keyLabelXPos"
+    atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelYPos"
     
-    atx:keyType="@integer/kpt_key_type_normal"
-    atx:isGlideSupported = "false"
+    atx:kpt_keyType="@integer/kpt_key_type_normal"
+    atx:kpt_isGlideSupported = "false"
     
-    atx:keyWidth="25%p"
-    atx:keyHeight="@dimen/kpt_key_height"
-    atx:verticalGap="0dp" >
+    atx:kpt_keyWidth="25%p"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
+    atx:kpt_verticalGap="0dp" >
 
     <Row>
         <Key
-            atx:codes="46"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="." />
+            atx:kpt_codes="46"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="." />
         <Key
-            atx:codes="44"
-            atx:keyLabel="," />
+            atx:kpt_codes="44"
+            atx:kpt_keyLabel="," />
         <Key
-            atx:codes="42"
-            atx:keyLabel="*" />
+            atx:kpt_codes="42"
+            atx:kpt_keyLabel="*" />
         <Key
-            atx:codes="-5"
-            atx:iconText="@string/kpt_icontext_delete"
-            atx:isRepeatable="true"
-            atx:keyEdgeFlags="right"
-            atx:keyLabelYPos="0.50"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="-5"
+            atx:kpt_iconText="@string/kpt_icontext_delete"
+            atx:kpt_isRepeatable="true"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row>
         <Key
-            atx:codes="63"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="\?" />
+            atx:kpt_codes="63"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="\?" />
         <Key
-            atx:codes="33"
-            atx:keyLabel="!" />
+            atx:kpt_codes="33"
+            atx:kpt_keyLabel="!" />
         <Key
-            atx:codes="35"
-            atx:keyLabel="\#" />
+            atx:kpt_codes="35"
+            atx:kpt_keyLabel="\#" />
         <Key
-            atx:codes="-15"
-            atx:keyEdgeFlags="right"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk" />
+            atx:kpt_codes="-15"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk" />
     </Row>
     <Row>
         <Key
-            atx:codes="45"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="-" />
+            atx:kpt_codes="45"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="-" />
         <Key
-            atx:codes="58"
-            atx:keyLabel=":" />
+            atx:kpt_codes="58"
+            atx:kpt_keyLabel=":" />
         <Key
-            atx:codes="59"
-            atx:keyLabel=";" />
+            atx:kpt_codes="59"
+            atx:kpt_keyLabel=";" />
         <Key
-            atx:codes="-13"
-            atx:iconText="@string/kpt_icontext_globe"
-            atx:keyEdgeFlags="right"
-            atx:keyLabelYPos="0.50"
-            atx:keyLabelTextSize="@dimen/kpt_keyLabel2GlobeShareTextSize"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="-13"
+            atx:kpt_iconText="@string/kpt_icontext_globe"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyLabelTextSize="@dimen/kpt_keyLabel2GlobeShareTextSize"
+            atx:kpt_useExternalFont="true" />
     </Row>
-    <Row atx:rowEdgeFlags="bottom" >
+    <Row atx:kpt_rowEdgeFlags="bottom" >
         <Key
-            atx:codes="-16"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="@string/kpt_label_phone_key" />
+            atx:kpt_codes="-16"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="@string/kpt_label_phone_key" />
         <Key
-            atx:codes="32"
-            atx:iconText="@string/kpt_icontext_space"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="32"
+            atx:kpt_iconText="@string/kpt_icontext_space"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="-18"
-            atx:keyLabel="1/6" />
+            atx:kpt_codes="-18"
+            atx:kpt_keyLabel="1/6" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyEdgeFlags="right"
-            atx:keyLabelYPos="0.50"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_useExternalFont="true" />
     </Row>
 
-</Keyboard><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/kbd_phone_symbols_shifted.xml -->
+</Keyboard><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/kbd_phone_symbols_shifted.xml -->

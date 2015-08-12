@@ -47,4 +47,4 @@
         android:layout_alignRight="@+id/grid_themes_name"
         android:src="@drawable/kpt_theme_download" />
 
-</RelativeLayout><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_themes_grid_layout.xml -->
+</RelativeLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_themes_grid_layout.xml -->

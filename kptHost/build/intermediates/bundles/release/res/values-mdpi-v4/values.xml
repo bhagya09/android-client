@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-mdpi/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mdpi/dimens.xml -->
     <eat-comment/>
     <dimen name="kpt_clipboard_textsize">14sp</dimen>
     <dimen name="kpt_customization_gallery_height">72dip</dimen>

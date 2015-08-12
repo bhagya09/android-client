@@ -6,4 +6,4 @@ android:toXDelta="100%"
 android:fromYDelta="0%" 
 android:toYDelta="0%"
 android:duration="1400"/>
-</set><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/anim/out_to_right.xml -->
+</set><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/anim/out_to_right.xml -->

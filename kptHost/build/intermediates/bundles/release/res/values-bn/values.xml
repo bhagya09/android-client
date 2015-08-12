@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/arrays.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/arrays.xml -->
     <eat-comment/>
     <string-array name="kpt_ac_misspelts_entires">
             <item>উচ্চ</item>
@@ -131,17 +131,17 @@
 		<item>১২৩ -16</item>
 		<item>6/6 -18</item>
 	</string-array>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/dimens.xml -->
     <eat-comment/>
     <dimen name="kpt_keyLabel2TextSize">14sp</dimen>
     <dimen name="kpt_keyLabelTextSize">14sp</dimen>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings.xml -->
     <eat-comment/>
     <string name="kpt_Help">সাহায্য</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_MEANING_LOOKUP_URL">http://bn.wikipedia.org/wiki/</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings.xml -->
     <eat-comment/>
     <string name="kpt_T100_UI_STRING_NOTIFICATIONBAR_MESSAGETEXT_1">শব্দগুলি সাফল্যের সাথে ইমপোর্ট করা হয়েছে</string>
     <string name="kpt_UI_STRING_AMGR_1">ইনস্টল করা</string>
@@ -334,7 +334,7 @@
     <string name="kpt_addon_atleast_one">অন্ততপক্ষে একটি অভিধান নির্বাচন করতে হবে</string>
     <string name="kpt_alert_dialog_cancel">বাতিল করুন</string>
     <string name="kpt_alert_dialog_ok">ওকে</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_12key_email">১\@.-।,\?!1#/৳৺ঁংঃ়₹</string>
     <string name="kpt_alternates_for_12key_normal">১।,\?!.1\@-#/৳৺ঁংঃ়₹</string>
@@ -369,7 +369,7 @@
     <string name="kpt_alternates_for_u">ঋৄ</string>
     <string name="kpt_alternates_for_wxyz">৯যয়রলশষৎসহ9</string>
     <string name="kpt_alternates_for_zero">ো0</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings.xml -->
     <eat-comment/>
     <string name="kpt_android_market_app_unav">অ্যাপ স্টোর অ্যাপ্লিকেশন পাওয়া যায়নি</string>
     <string name="kpt_atr_substitutn_alert">*বিস্তার অবশ্যই ২৫৬ অক্ষরের থেকে কম হতে হবে।</string>
@@ -413,17 +413,17 @@
     <string name="kpt_incompatible_dialog_title">আপডেট করুন</string>
     <string name="kpt_incompatible_message">অ্যাডাপটেক্সট বেস আপডেট করার জন্য অনুগ্রহ করে এখানে টিপুন</string>
     <string name="kpt_incompatible_title">ইনস্টল করা অ্যাড-অন সঙ্গতিপূর্ণ নয়</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_label_alpha_key">অ-হ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings.xml -->
     <eat-comment/>
     <string name="kpt_label_done_key">সম্পূর্ণ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_label_phone_key">১২৩</string>
     <string name="kpt_label_symbol_key">১২৩#</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings.xml -->
     <eat-comment/>
     <string name="kpt_landscape_default">আড়াআড়ি মোডের ডিফল্ট বিন্যাস</string>
     <string name="kpt_language_selection_title">ভাষা ইনপুট করুন</string>
@@ -459,14 +459,14 @@
     <string name="kpt_pd_add_on_install_progress">অ্যাড-অন ইন্সটলেশন চালু রয়েছে</string>
     <string name="kpt_pd_add_on_uninstall_progress">অ্যাড-অন আনইনস্টলেশন চালু রয়েছে</string>
     <string name="kpt_pd_loading_progress">লোডিং ডেটা চালু রয়েছে...</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_phone_mode_change_to_symbols">১২?</string>
     <string name="kpt_popular_domain_5">য</string>
     <string name="kpt_popular_domain_6">".bd"</string>
     <string name="kpt_popular_domain_lang_0">".co.in"</string>
     <string name="kpt_popular_domain_sc_value">2479</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings.xml -->
     <eat-comment/>
     <string name="kpt_potrait_default">পোট্রেট মোডের ডিফল্ট বিন্যাস</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
@@ -480,11 +480,11 @@
     <string name="kpt_search_menu">সন্ধান করুন</string>
     <string name="kpt_search_word">শব্দ সন্ধান করুন</string>
     <string name="kpt_send_mail">ইমেল পাঠান...</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_smiley_secondary_char">র</string>
     <string name="kpt_smiley_secondary_char_value">2480</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-bn/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings.xml -->
     <eat-comment/>
     <string name="kpt_social_acc_add">আপনার %s অ্যাকাউন্ট সাফল্যের সাথে যুক্ত হয়েছে।</string>
     <string name="kpt_social_acc_del">আপনার %s অ্যাকাউন্ট খালি অ্যাডাপটেক্সট থেকেই ডিলিট হয়েছে।</string>
