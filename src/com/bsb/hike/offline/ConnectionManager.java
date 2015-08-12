@@ -251,7 +251,13 @@ public class ConnectionManager implements ChannelListener
 		Log.d("OfflineManager", "HotSpot creation result is "+ result);
 		return result;
 	}
-	private boolean closeExistingHotspot(WifiConfiguration prevConfig2) {
+	private boolean closeExistingHotspot(WifiConfiguration config) {
+		
+		if(config==null)
+		{
+			return false;
+		}
+		
 		boolean result = false;
 		wifiManager.setWifiEnabled(false);
 		Method enableWifi;
@@ -262,7 +268,7 @@ public class ConnectionManager implements ChannelListener
 			return result;
 		}
 		try {
-			result = (Boolean) enableWifi.invoke(wifiManager,prevConfig2,false);
+			result = (Boolean) enableWifi.invoke(wifiManager,config,false);
 		} catch (IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			Log.e(TAG,e.toString());
@@ -436,6 +442,11 @@ public class ConnectionManager implements ChannelListener
 	    
 	private boolean setPreviousHotspotConfig()
 	{
+		if(prevConfig==null)
+		{
+			return false;
+		}
+		
 		Method setConfigMethod;
 		boolean result = false;
 		try 
