@@ -113,17 +113,17 @@ public class OfflineFileManager
 				if (mmModel != null)
 				{
 					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(),mmModel.getTransferProgress().getCurrentChunks()
-							* OfflineConstants.CHUNK_SIZE * 1024);
+							* OfflineConstants.CHUNK_SIZE * 1024,0);
 					return fss;
 				}
 			}
 			if (TextUtils.isEmpty(hikeFile.getFileKey()))
 			{
-				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0);
+				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0,0);
 			}
 			else
 			{
-				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey(),0);
 			}
 			return fss;
 		}
@@ -151,17 +151,17 @@ public class OfflineFileManager
 				// Defensive check as in shutdown we  clear the map 
 				if (mmModel != null)
 				{
-					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), mmModel.getTransferProgress().getCurrentChunks() * OfflineConstants.CHUNK_SIZE * 1024);
+					fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), mmModel.getTransferProgress().getCurrentChunks() * OfflineConstants.CHUNK_SIZE * 1024,0);
 					return fss;
 				}
 			}
 			if (file.exists() || (hikeFile.getHikeFileType() == HikeFileType.CONTACT))
 			{
-				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey(),0);
 			}
 			else
 			{
-				fss = new FileSavedState(FTState.ERROR, hikeFile.getFileKey());
+				fss = new FileSavedState(FTState.ERROR, hikeFile.getFileKey(),0);
 			}
 		}
 		return fss;

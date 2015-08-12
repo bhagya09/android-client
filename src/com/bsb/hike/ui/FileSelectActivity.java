@@ -430,7 +430,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 				}
 				boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
 				
-				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn, false);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn, false,false);
 				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT, intent);
 				Utils.executeAsyncTask(fileTransferTask);
 

@@ -34,15 +34,18 @@ public class HostInfo
 	private int connectRetryCount = 0;
 	
 	List<String> serverURIs = null;
+	
+	List<Integer> serverPorts = null;
 
 	private ConnectExceptions exceptionOnConnect = ConnectExceptions.NO_EXCEPTION;
 	
-	public HostInfo(HostInfo previousHostInfo, List<String> serverURIs)
+	public HostInfo(HostInfo previousHostInfo, List<String> serverURIs, List<Integer> serverPorts)
 	{
 		boolean isSslOn = Utils.switchSSLOn(HikeMessengerApp.getInstance());
 		boolean isProduction = Utils.isOnProduction();
 		
 		this.serverURIs = serverURIs;
+		this.serverPorts = serverPorts;
 		
 		setConnectRetryCount(previousHostInfo);
 		this.setHost(previousHostInfo, isProduction);
@@ -105,7 +108,8 @@ public class HostInfo
 		}
 		else if(previousHostInfo != null)
 		{
-			if(previousHostInfo.getExceptionOnConnect() == ConnectExceptions.DNS_EXCEPTION)
+			//if last connect try resulted into some exception try a fallback ip
+			if(previousHostInfo.getExceptionOnConnect() != ConnectExceptions.NO_EXCEPTION)
 			{
 				setHost(getIp());  //connect using ip fallback
 			}
@@ -179,11 +183,8 @@ public class HostInfo
 				setPort(getStanderedProductionPort(isSslOn));
 			}
 			// ssl off and we got an socket timeout than we go to fallback ports
-			else if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION )
-			{
-				setNextFallBackPort(previousHostInfo);
-			}
-			else if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.OTHER )
+			//if last connect try resulted into some exception try next fallback port 
+			else if (previousHostInfo.getExceptionOnConnect() != ConnectExceptions.NO_EXCEPTION )
 			{
 				setNextFallBackPort(previousHostInfo);
 			}
@@ -206,28 +207,39 @@ public class HostInfo
 		/*
 		 * on production for some countries ssl port connection is not allowed at all in these Countries we cannot use 443 as port fallback.
 		 * Logic is 
-		 * 1. 8080 -- fallback to --> 5222
-		 * 2. 5222 -- fallback to --> 443 if ssl is allowed
-		 * 3. again fallback to 8080 -- if tried above
+		 * 1. 5222 -- fallback to --> 8080
+		 * 2. 8080 -- fallback to --> 443 if ssl is allowed
+		 * 3. again fallback to 5222 -- if tried above
 		 */
 		boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
-		if(previousHostInfo.getPort() == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER)
+		
+		int port = 0;
+		for (int i = 1; i < serverPorts.size(); i++)
 		{
-			setPort(MqttConstants.FALLBACK_BROKER_PORT_5222);
+			if(previousHostInfo.getPort() == serverPorts.get(i-1))
+			{
+				port = serverPorts.get(i);
+				break;
+			}
 		}
-		else if(previousHostInfo.getPort() == MqttConstants.FALLBACK_BROKER_PORT_5222  && sslPortAllowedAsFallback)
+		
+		if(port != 0)
+		{
+			setPort(port);
+		}
+		else if(previousHostInfo.getPort() == serverPorts.get(serverPorts.size() -1 )  && sslPortAllowedAsFallback)
 		{
 			setPort(MqttConstants.FALLBACK_BROKER_PORT_NUMBER_SSL);
 		}
-		else 
+		else
 		{
-			setPort(MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
-		}	
+			setPort(serverPorts.get(0));
+		}
 	}
 	
 	private int getStanderedProductionPort(boolean isSslOn)
 	{
-		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : MqttConstants.PRODUCTION_BROKER_PORT_NUMBER;
+		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.LAST_MQTT_CONNECT_PORT, serverPorts.get(0));
 	}
 
 	public int getConnectTimeOut()
@@ -242,22 +254,52 @@ public class HostInfo
 
 	public void setConnectTimeOut(HostInfo previousHostInfo, int currentPortNum, boolean isSslOn)
 	{
+		/*
+		 * if it is not null ==> last connect try was a failure ==> we just need to increment time
+		 * in case of socketTimeOutException.  
+		 */
 		if (previousHostInfo != null)
 		{
 			/*
-			 * We might need to increment connect timeout if
-			 * 1. Last connect call resulted into socket timeout
-			 * 2. AND we have tried all fallback cases. (i.e. if we trying to connect of a default port 8080 OR 443(if ssl on)) 
+			 * We would need to increment connect timeout if
+			 * 1. last connect try resulted into some exception
 			 */
-			if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION 
-					&& currentPortNum == getStanderedProductionPort(isSslOn))
+			if (previousHostInfo.getExceptionOnConnect() != ConnectExceptions.NO_EXCEPTION)
 			{
 				incrementConnectRetryCount();
 			}
 		}
+		else
+		{
+			// if it is null ==> this is a fresh try ==> we need to start from last successful connect
+			// try time
+			long timeTakenInLastSuccessfullConnect = HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.TIME_TAKEN_IN_LAST_SOCKET_CONNECT, (long) (CONNECTION_TIMEOUT_SECONDS[0]));
+			
+			/*
+			 * current logic is to increment connect timeout every time by 4
+			 * and timeTakenInLastSuccessfullConnect is in milliseconds So
+			 * devide it by 4000. 
+			 */
+			int index = (int) (timeTakenInLastSuccessfullConnect/4000) ;
+			
+			index = index -1;
+			
+			if(index < 0)
+			{
+				index = 0;
+			}
+			else if (index >= CONNECTION_TIMEOUT_SECONDS.length)
+			{
+				index = CONNECTION_TIMEOUT_SECONDS.length - 1;
+			}
+			
+			connectRetryCount = index;
+		}
 
 		int connectTimeOut = CONNECTION_TIMEOUT_SECONDS[Math.min(CONNECTION_TIMEOUT_SECONDS.length - 1, connectRetryCount)];
 		setConnectTimeOut(connectTimeOut);
+		
+		Logger.e(this.getClass().getSimpleName(), "connectTimeOut " + connectTimeOut);
 	}
 
 	private void incrementConnectRetryCount()

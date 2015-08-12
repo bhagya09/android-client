@@ -1,8 +1,5 @@
 package com.bsb.hike.voip.view;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -635,6 +635,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private void updateUIOnDisconnect()
 	{
+		if (!isAdded())
+		{
+			return;
+		}
 		showRetryIcon(R.drawable.cross_retry);
 		cancelRotationAnimation();
 		hideAndStopTimer();
@@ -675,6 +679,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			public void run()
 			{
 				
+				if (!isAdded())
+				{
+					return;
+				}
 				 updateAnimationText(connectionInfo,getResources().getString(R.string.connection_established));
 				 
 				 if(rotateAnimation!=null)
@@ -781,7 +789,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	public void showRetryIcon(final int drawrable)
 	{
-		
+		if (!isAdded())
+		{
+			return;
+		}
 		Animation flipAnimationHalf = AnimationUtils.loadAnimation(getActivity(), R.anim.to_middle);
 		final Animation flipAnimationFull = AnimationUtils.loadAnimation(getActivity(), R.anim.from_middle);
 		

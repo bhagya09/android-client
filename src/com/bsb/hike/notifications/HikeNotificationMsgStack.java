@@ -327,7 +327,7 @@ public class HikeNotificationMsgStack implements Listener
 				
 				else
 				{
-					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
+					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
 				}
 
 				/*
@@ -358,7 +358,7 @@ public class HikeNotificationMsgStack implements Listener
 
 		else
 		{
-			return IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
+			return IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
 		}
 	}
 

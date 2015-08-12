@@ -310,7 +310,7 @@ public class OfflineUtils
 			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
 
 			Sticker tempStk = new Sticker(ctgId, stkId);
-			path = tempStk.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+			path = tempStk.getStickerPath();
 		}
 		catch (JSONException e)
 		{
@@ -436,6 +436,18 @@ public class OfflineUtils
         return tempPath;
     }
 	
+	public static boolean isSSIDWithQuotes(String ssid)
+	{
+		if(TextUtils.isEmpty(ssid))
+		{
+			return false;
+		}
+		if (ssid.length() > 2 && ssid.startsWith("\"") &&ssid.endsWith("\""))
+		{
+			return true;
+		}
+		return false;
+	}
 	public static void putStkLenInPkt(JSONObject packet, long length)
 	{
 
@@ -714,6 +726,20 @@ public class OfflineUtils
 		}
 	}
 
+	public static boolean isHotSpotCreated(String connectedMsisdn)
+	{
+		if(TextUtils.isEmpty(connectedMsisdn))
+		{
+			return false;
+		}
+		
+		String myMsisdn=getMyMsisdn();
+		
+		return (myMsisdn.compareTo(connectedMsisdn) > 0);
+		
+	}
+	
+	
 	public static void handleOfflineRequestPacket(Context context,JSONObject packet)
 	{
 		String msisdn;
@@ -727,7 +753,7 @@ public class OfflineUtils
 			}
 			
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
-			Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
+			Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
 			chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
@@ -749,7 +775,7 @@ public class OfflineUtils
 
 	private static Action[] getNotificationActions(Context context, String msisdn)
 	{
-		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
+		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
 		chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 		PendingIntent chatThreadPendingIntent = PendingIntent.getActivity(context, 0, chatThreadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

@@ -42,6 +42,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.MovingList;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.MessagingBridge_Alto;
@@ -76,7 +77,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 	Activity mContext;
 
-	ArrayList<ConvMessage> convMessages;
+	MovingList<ConvMessage> convMessages;
 
 	BaseAdapter adapter;
 
@@ -85,13 +86,18 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	// usually we have seen 3 cards will be inflated, so 3 holders will be initiated (just an optimizations)
 	ArrayList<WebViewHolder> holderList = new ArrayList<WebViewCardRenderer.WebViewHolder>(3);
 
-	public WebViewCardRenderer(Activity context, ArrayList<ConvMessage> convMessages, BaseAdapter adapter)
+	public WebViewCardRenderer(Activity context, MovingList<ConvMessage> convMessages, BaseAdapter adapter)
 	{
 		this.mContext = context;
 		this.adapter = adapter;
 		this.convMessages = convMessages;
 		cardAlarms = new SparseArray<String>(3);
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.PLATFORM_CARD_ALARM, this);
+	}
+	
+	public void updateMessageList(MovingList<ConvMessage> objects)
+	{
+		this.convMessages = objects;
 	}
 
 	public static class WebViewHolder extends MessagesAdapter.DetailViewHolder
