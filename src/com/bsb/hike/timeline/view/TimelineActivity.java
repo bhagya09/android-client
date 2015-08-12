@@ -593,6 +593,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		protected void onPostExecute(Integer result)
 		{
 			unreadCounter = result;
+			invalidateOptionsMenu();
 		}
 
 	}
