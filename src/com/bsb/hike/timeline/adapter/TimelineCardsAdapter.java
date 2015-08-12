@@ -454,6 +454,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.moodsContainer.setVisibility(View.GONE);
 
 			viewHolder.actionsLayout.setVisibility(View.GONE);
+			
+			//Due to view reusage
+			viewHolder.parent.setOnClickListener(null);
+			viewHolder.parent.setOnLongClickListener(null);
 
 			switch (statusMessage.getStatusMessageType())
 			{
