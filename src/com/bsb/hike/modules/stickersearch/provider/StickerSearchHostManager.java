@@ -462,12 +462,12 @@ public class StickerSearchHostManager
 									wordResult = wordResultList;
 									Logger.v(TAG, "Filtering word stickers before saving in local cache, searchKey::" + wordSearchKey + " ==> " + wordResult);
 
-									sCacheForLocalSearch.put(wordSearchKey, wordResult);
+									sCacheForLocalSearch.putIfAbsent(wordSearchKey, wordResult);
 								}
 								else if (wordResultList == null)
 								{
 									Logger.i(TAG, "Saving to cache, Word searchKey::" + partialSearchKey + " ==> []");
-									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerAppositeDataContainer>());
+									sCacheForLocalSearch.putIfAbsent(partialSearchKey, new ArrayList<StickerAppositeDataContainer>());
 								}
 							}
 							else
@@ -489,12 +489,12 @@ public class StickerSearchHostManager
 									wordResult = wordResultList;
 									Logger.v(TAG, "Filtering single character word stickers before saving in local cache, searchKey::" + partialSearchKey + " ==> " + wordResult);
 
-									sCacheForLocalSearch.put(partialSearchKey, wordResult);
+									sCacheForLocalSearch.putIfAbsent(partialSearchKey, wordResult);
 								}
 								else if (wordResultList == null)
 								{
 									Logger.i(TAG, "Saving to cache, Single character word searchKey::" + partialSearchKey + " ==> []");
-									sCacheForLocalSearch.put(partialSearchKey, new ArrayList<StickerAppositeDataContainer>());
+									sCacheForLocalSearch.putIfAbsent(partialSearchKey, new ArrayList<StickerAppositeDataContainer>());
 								}
 							}
 							else
@@ -1603,10 +1603,11 @@ public class StickerSearchHostManager
 
 			TextMatchManager.clearResources();
 
+			REGEX_SEPARATORS = null;
 			if (SEPARATOR_CHARS != null)
 			{
-				REGEX_SEPARATORS = null;
 				SEPARATOR_CHARS.clear();
+				SEPARATOR_CHARS = null;
 			}
 
 			sStickerSearchHostManager = null;

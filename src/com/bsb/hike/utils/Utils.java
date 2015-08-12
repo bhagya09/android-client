@@ -2265,12 +2265,15 @@ public class Utils
 		{
 			return null;
 		}
+
 		FileInputStream fileInputStream = null;
 		JSONObject currentFiles = null;
+		BufferedReader reader = null;
+
 		try
 		{
 			fileInputStream = new FileInputStream(hikeFileList);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
+			reader = new BufferedReader(new InputStreamReader(fileInputStream));
 
 			StringBuilder builder = new StringBuilder();
 			CharBuffer target = CharBuffer.allocate(10000);
@@ -2303,8 +2306,9 @@ public class Utils
 		}
 		finally
 		{
-			closeStreams(fileInputStream);
+			closeStreams(fileInputStream, reader);
 		}
+
 		return currentFiles;
 	}
 
