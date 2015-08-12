@@ -1989,7 +1989,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					controller.sendFile(offlineFileTransferList, offlineContact.getMsisdn());
 				}
 				
-				if (arrayList.size() > 1 && !fileTransferList.isEmpty()) 
+				// If the arrayList has 2 person 1 online and 1 offline contact then we need to initiate the preFileTransferTask
+				if (!fileTransferList.isEmpty() && ((offlineContact != null && arrayList.size() == 1) || (arrayList.size() > 1)))
 				{
 					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent, null, false, FILE_TRANSFER);
 					Utils.executeAsyncTask(prefileTransferTask);
