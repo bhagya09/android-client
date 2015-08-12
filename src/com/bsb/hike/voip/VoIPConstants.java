@@ -67,6 +67,25 @@ public class VoIPConstants {
 	 */
 	public static final int CONFERENCE_CLIENTS_LIST_BROADCAST_REPEAT = 2000;
 	
+	/**
+	 * Do not attempt a reconnect before this much time has passed
+	 * since the last reconnect.
+	 */
+	public static final int RECONNECT_THRESHOLD = 10000;
+
+	/**
+	 * Maximum number of audio frames that can be put in a single
+	 * UDP packet. 
+	 */
+	public static final int MAXIMUM_FRAMES_PER_PACKET = 3;
+
+	/**
+	 * If bitrate had been lowered previously and now there is 
+	 * no packet loss, then it will be increased in tiny
+	 * increments.
+	 */
+	public static final int BITRATE_STEP_UP = 200;
+
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions

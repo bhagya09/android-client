@@ -134,11 +134,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				shutdown(msg.getData());
 				break;
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
-				VoIPClient clientPartner = voipService.getPartnerClient();
-				if (clientPartner.isInitiator())
-					setupCalleeLayout();
-				else
-					setupCallerLayout();
+				if (!voipService.isAudioRunning()) {
+					VoIPClient clientPartner = voipService.getPartnerClient();
+					if (clientPartner.isInitiator())
+						setupCalleeLayout();
+					else
+						setupCallerLayout();
+				} else
+					updateCallStatus();
 				break;
 			case VoIPConstants.MSG_AUDIO_START:
 				isCallActive = true;
@@ -413,7 +416,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 		catch (IllegalArgumentException e) {
-			Logger.d(tag, "shutdown() exception: " + e.toString());
+			// Expected. Can happen. 
 		}
 
 		if(activity.isShowingCallFailedFragment())
