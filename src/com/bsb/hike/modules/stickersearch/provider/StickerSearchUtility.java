@@ -30,7 +30,7 @@ import android.util.Pair;
 
 public class StickerSearchUtility
 {
-	/* Determine if QA testing is enabled for making longer processes to shorter processes */
+	/* Determine if QA testing is enabled for simulating longer processes with shorter processes */
 	public static boolean isTestModeForSRModule()
 	{
 		return Utils.isTestMode(HikeConstants.MODULE_STICKER_SEARCH);
@@ -55,6 +55,25 @@ public class StickerSearchUtility
 					{
 						int rebalancingTime = json.getInt(settingName);
 						editor.putInt(settingName, rebalancingTime);
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
+					}
+				}
+				else if (HikeConstants.STICKER_TAG_REGEX_SEPARATORS.equals(settingName))
+				{
+					try
+					{
+						String regex = json.getString(settingName);
+						if (isValidSeparatorsRegex(regex))
+						{
+							editor.putString(settingName, regex);
+						}
+						else
+						{
+							Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
+						}
 					}
 					catch (JSONException e)
 					{
@@ -379,25 +398,6 @@ public class StickerSearchUtility
 						else
 						{
 							Logger.e(tag, "Empty data for '" + settingName + "' key.");
-						}
-					}
-					catch (JSONException e)
-					{
-						Logger.e(tag, "Invalid data for '" + settingName + "' key...", e);
-					}
-				}
-				else if (HikeConstants.STICKER_TAG_REGEX_SEPARATORS.equals(settingName))
-				{
-					try
-					{
-						String regex = json.getString(settingName);
-						if (isValidSeparatorsRegex(regex))
-						{
-							editor.putString(settingName, regex);
-						}
-						else
-						{
-							Logger.e(tag, "Invalid combination of data for '" + settingName + "' key...");
 						}
 					}
 					catch (JSONException e)
