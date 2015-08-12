@@ -102,7 +102,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public final static int FTUE_CARD_EXIT = -17;
 
 	public final static int FTUE_CARD_FAV = -18;
-	
+
 	public final static int USER_PROFILE_HEADER = -19;
 
 	private final int IMAGE = -15;
@@ -163,6 +163,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		ImageView cancelFTUE;
 
+		View profileBtnDivider;
+
+		ImageView changeProfile;
+
 		public ViewHolder(View convertView, int viewType)
 		{
 			super(convertView);
@@ -213,6 +217,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			case USER_PROFILE_HEADER:
 				largeProfilePic = (ImageView) convertView.findViewById(R.id.profile_pic);
 				extraInfo = (TextView) convertView.findViewById(R.id.details);
+				profileBtnDivider = convertView.findViewById(R.id.button_divider);
+				changeProfile = (ImageView) convertView.findViewById(R.id.change_profile);
 			}
 
 		}
@@ -273,13 +279,14 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		mHikeUiHandler = new HikeUiHandler(this);
 		isShowCountEnabled = Utils.isTimelineShowCountEnabled();
 		mFilteredMsisdns = filterMsisdns;
-		
-		if(mShowUserProfile)
+
+		if (mShowUserProfile)
 		{
 			profileContactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(filterMsisdns.get(0));
 		}
-		
-		HikeMessengerApp.getInstance().getPubSub().addListener(HikePubSub.FAVORITE_TOGGLED, this);
+
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.FAVORITE_TOGGLED, this);
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.DELETE_STATUS, this);
 	}
 
 	@Override
@@ -340,13 +347,13 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void onBindViewHolder(ViewHolder viewHolder, int position)
 	{
 		int viewType = viewHolder.getItemViewType();
-		
+
 		if (viewType == USER_PROFILE_HEADER)
 		{
 			String headerMsisdn = mFilteredMsisdns.get(0);
 			if (mActivity.get() != null)
 			{
-				String mapedId = mFilteredMsisdns.get(0) + ProfileActivity.PROFILE_PIC_SUFFIX;
+				String mapedId = headerMsisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
 
 				ProfileImageLoader profileImageLoader = new ProfileImageLoader(mActivity.get(), headerMsisdn, viewHolder.largeProfilePic, mContext.getResources()
 						.getDimensionPixelSize(R.dimen.timeine_profile_picture_size), false, true);
@@ -365,16 +372,39 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				});
 			}
 
-			viewHolder.name.setText(mUserMsisdn.equals(headerMsisdn) ? HikeMessengerApp.getInstance().getString(R.string.me) : ContactManager.getInstance().getName(headerMsisdn));
+			boolean isMyProfile = mUserMsisdn.equals(headerMsisdn);
+
+			viewHolder.name.setText(isMyProfile ? HikeMessengerApp.getInstance().getString(R.string.me) : ContactManager.getInstance().getName(headerMsisdn));
+
+			if (!isMyProfile)
+			{
+				viewHolder.profileBtnDivider.setVisibility(View.GONE);
+				viewHolder.changeProfile.setVisibility(View.GONE);
+			}
+			else
+			{
+				viewHolder.changeProfile.setOnClickListener(new View.OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						if (mActivity.get() != null && mActivity.get() instanceof ProfileActivity)
+						{
+							ProfileActivity profileActivity = (ProfileActivity) mActivity.get();
+							profileActivity.changeProfilePicture();
+						}
+					}
+				});
+			}
 
 			return;
 		}
-		
-		if(mShowUserProfile)
+
+		if (mShowUserProfile)
 		{
 			position -= 1;
 		}
-		
+
 		StatusMessage statusMessage = mStatusMessages.get(position);
 
 		ActionsDataModel likesData = mActionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
@@ -752,19 +782,19 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			break;
 		}
 
-		//TODO Removed for v1
-//		if (position >= mLastPosition)
-//		{
-//			Animator[] anims = getAnimators(viewHolder.itemView);
-//			int length = anims.length;
-//			for (int i = length; i > 0; i--)
-//			{
-//				Animator anim = anims[i - 1];
-//				anim.setInterpolator(cardInterp);
-//				anim.setDuration(500).start();
-//			}
-//			mLastPosition = position;
-//		}
+		// TODO Removed for v1
+		// if (position >= mLastPosition)
+		// {
+		// Animator[] anims = getAnimators(viewHolder.itemView);
+		// int length = anims.length;
+		// for (int i = length; i > 0; i--)
+		// {
+		// Animator anim = anims[i - 1];
+		// anim.setInterpolator(cardInterp);
+		// anim.setDuration(500).start();
+		// }
+		// mLastPosition = position;
+		// }
 
 		// Done to support Quick Return
 		if (position == 0 && !mShowUserProfile)
@@ -941,7 +971,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				else
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mStatusMessage.getMappedId());
-					removeStatusUpdate(mStatusMessage.getMappedId());
 				}
 			}
 			else if (String.format(mContext.getString(R.string.message_person), mStatusMessage.getNotNullName()).equals(option))
@@ -949,7 +978,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				if (mActivity.get() != null)
 				{
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
-							ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(mStatusMessage.getMsisdn()), false,false);
+							ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(mStatusMessage.getMsisdn()), false, false);
 					startActivity(intent);
 				}
 			}
@@ -972,9 +1001,19 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 		}
 
-		notifyDataSetChanged();
+		if (mActivity.get() != null)
+		{
+			mActivity.get().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					notifyDataSetChanged();
+				}
+			});
+		}
 	}
-	
+
 	public void onViewImageClicked(View v)
 	{
 		ImageViewerInfo imageViewerInfo = (ImageViewerInfo) v.getTag();
@@ -1011,8 +1050,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 							HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DP_CHANGE_STATUS_ID, "");
 						}
 
-						removeStatusUpdate(statusMessage.getMappedId());
-
 						if (hikeDialog != null && hikeDialog.isShowing())
 						{
 							hikeDialog.dismiss();
@@ -1041,7 +1078,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusMessage.getMappedId());
-				removeStatusUpdate(statusMessage.getMappedId());
 				hikeDialog.dismiss();
 			}
 
@@ -1164,7 +1200,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(),
-					statusMessage.getMsisdn()), false,false);
+					statusMessage.getMsisdn()), false, false);
 			// Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1201,7 +1237,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				{
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 				}
-				
+
 				break;
 
 			case FTUE_CARD_FAV:
@@ -1537,52 +1573,49 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void handleUIMessage(Message msg)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void beginImageDownload()
 	{
 		String fileName = Utils.getProfileImageFileName(mUserMsisdn);
-    	mImageDownloader = HikeImageDownloader.newInstance(mUserMsisdn, fileName, true, false, null, null, null, true, false);
-    	mImageDownloader.setTaskCallbacks(this);
-    	mImageDownloader.startLoadingTask();
+		mImageDownloader = HikeImageDownloader.newInstance(mUserMsisdn, fileName, true, false, null, null, null, true, false);
+		mImageDownloader.setTaskCallbacks(this);
+		mImageDownloader.startLoadingTask();
 	}
 
 	@Override
 	public void onProgressUpdate(float percent)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onCancelled()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onFailed()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onTaskAlreadyRunning()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		if (mShowUserProfile && 
-				(HikePubSub.FAVORITE_TOGGLED.equals(type) || 
-						HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || 
-						HikePubSub.REJECT_FRIEND_REQUEST.equals(type)))
+		if (mShowUserProfile && (HikePubSub.FAVORITE_TOGGLED.equals(type) || HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type) || HikePubSub.REJECT_FRIEND_REQUEST.equals(type)))
 		{
 			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
 
@@ -1595,14 +1628,22 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			else
 			{
-				this.profileContactInfo.setFavoriteType(favoriteType);				
+				this.profileContactInfo.setFavoriteType(favoriteType);
 			}
-		}		
+		}
+		else if (HikePubSub.DELETE_STATUS.equals(type))
+		{
+			if (object != null && object instanceof String)
+			{
+				removeStatusUpdate((String) object);
+			}
+		}
 	}
 
 	public void onDestroy()
 	{
-		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.FAVORITE_TOGGLED);		
+		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.FAVORITE_TOGGLED);
+		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.DELETE_STATUS);
 	}
-	
+
 }
