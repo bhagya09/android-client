@@ -1044,9 +1044,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			bottomScrollIndicatorClicked();
 			break;
 		case R.id.back:
-			actionBarBackPressed();
-			break;
-		case R.id.contact_info:
 			openProfileScreen();
 			break;
 		case R.id.overlay_layout:
@@ -4596,17 +4593,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		mActionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 
-		View backContainer = mActionBarView.findViewById(R.id.back);
-
-		View contactInfoContainer = mActionBarView.findViewById(R.id.contact_info);
-
-		/**
-		 * Adding click listeners
-		 */
-
+		View contactInfoContainer = mActionBarView.findViewById(R.id.back);
 		contactInfoContainer.setOnClickListener(this);
-		backContainer.setOnClickListener(this);
-		
+
 		setAvatar();
 	}
 
