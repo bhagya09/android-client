@@ -147,7 +147,7 @@ public class VoIPService extends Service {
 	private Handler clientListHandler;
 	
 	// Broadcast listeners
-	private BroadcastReceiver phoneStateReceiver = null;
+	private BroadcastReceiver phoneStateReceiver = null, powerButtonReceiver = null;
 	
 	// Support for conference calls
 	private Chronometer chronometer = null;
@@ -2292,11 +2292,24 @@ public class VoIPService extends Service {
 
 		registerReceiver(phoneStateReceiver, filter);
 
+		// Catch power button
+		IntentFilter powerButtonFilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+		powerButtonReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				Logger.d(tag, "Stopping ringtone.");
+				stopRingtone();
+			}
+		}; 
+		registerReceiver(powerButtonReceiver, powerButtonFilter);
 	}
 	
 	private void unregisterBroadcastReceivers() {
 		if (phoneStateReceiver != null)
 			unregisterReceiver(phoneStateReceiver);
+		if (powerButtonReceiver != null)
+			unregisterReceiver(powerButtonReceiver);
 	}
 	
 	private void startBluetooth() {
