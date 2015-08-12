@@ -185,7 +185,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		});
 
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
-		
+
 		statusTxt.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
@@ -205,11 +205,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			showMoodSelector();
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		}
-		else if(TextUtils.isEmpty(mImagePath))
+		else if (TextUtils.isEmpty(mImagePath))
 		{
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		}
-		
+
 		toggleEnablePostButton();
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubsubListeners);
@@ -301,8 +301,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		});
 
 		actionBar.setCustomView(actionBarView);
-		Toolbar parent=(Toolbar)actionBarView.getParent();
-		parent.setContentInsetsAbsolute(0,0);
+		Toolbar parent = (Toolbar) actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0, 0);
 	}
 
 	private void setTitle()
@@ -451,9 +451,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private void showEmojiSelector()
 	{
 		Utils.hideSoftKeyboard(this, statusTxt);
-		
+
 		hideEmojiOrMoodLayout();
-		
+
 		addMoodLayout.setVisibility(View.GONE);
 
 		mActivityTask.emojiShowing = true;
@@ -532,7 +532,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.hideSoftKeyboard(this, statusTxt);
 
 		addMoodLayout.setVisibility(View.GONE);
-		
+
 		mActivityTask.moodShowing = true;
 
 		showCancelButton(true);
