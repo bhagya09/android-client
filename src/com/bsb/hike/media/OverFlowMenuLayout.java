@@ -67,15 +67,15 @@ public class OverFlowMenuLayout implements OnItemClickListener
 
 	public View getView()
 	{
-		return viewToShow;
+		return viewToShow != null ? viewToShow : initView();
 	}
 
-	public void initView()
+	public View initView()
 	{
 		// TODO : Copypasted code from chat thread, make separate layout file
 		if (viewToShow != null)
 		{
-			return;
+			return viewToShow;
 		}
 		viewToShow = LayoutInflater.from(context).inflate(R.layout.overflow_menu, null);
 		ListView overFlowListView = (ListView) viewToShow.findViewById(R.id.overflow_menu_list);
@@ -96,6 +96,7 @@ public class OverFlowMenuLayout implements OnItemClickListener
 			}
 		});
 		overFlowListView.setOnItemClickListener(this);
+		return viewToShow;
 	}
 
 	protected void populateViewsForPosition(OverFlowMenuItem item, int position, View convertView)

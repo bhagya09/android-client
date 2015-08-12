@@ -23,6 +23,8 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.IChannelSelector;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -57,7 +59,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	private Activity activity;
 
 	private String msisdn;
-
+	
 	/**
 	 * 
 	 * @param overflowItems
@@ -109,16 +111,16 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	@Override
 	public View getView()
 	{
-		return viewToShow;
+		return viewToShow != null ? viewToShow : initView();
 	}
 
 	@Override
-	public void initView()
+	public View initView()
 	{
 		// we lazily inflate and
 		if (viewToShow != null)
 		{
-			return;
+			return viewToShow;
 		}
 
 		View parentView = viewToShow = LayoutInflater.from(context).inflate(R.layout.attachments, null);
@@ -146,6 +148,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 			}
 		});
 
+		
 		attachmentsGridView.setOnItemClickListener(new OnItemClickListener()
 		{
 
@@ -214,7 +217,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				}
 			}
 		});
-
+		return viewToShow;
 	}
 
 	private String getString(int id)

@@ -1589,4 +1589,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="cancel_offline_connection">Cancel Connection</string>
     <string name="connection_cancelled">Connection cancelled</string>
     <string name="retry_connection">Connection was not \n established. Try again?</string>
+    <string name="file_attachment_info_offline">Share apk , media , files  up to any size</string>
 </resources>
