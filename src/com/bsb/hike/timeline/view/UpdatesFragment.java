@@ -2,6 +2,7 @@ package com.bsb.hike.timeline.view;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -278,7 +279,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			if (shouldAddFTUEItem())
 			{
-				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				getActivity().runOnUiThread(new Runnable()
 				{
 					@Override
 					public void run()
@@ -288,24 +289,26 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							return;
 						}
 
-						int shownCounter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, START_FTUE_WITH_INIT_CARD);
-						if (shownCounter != 0)
+						if (object != null && object instanceof Set)
 						{
-							ContactInfo currentCardContact = mFtueFriendList.get(shownCounter - 1);
-							mFtueFriendList = new ArrayList<ContactInfo>();
-							mFtueFriendList.addAll(getFtueFriendList());
-							mFtueFriendList.add(0, currentCardContact);
+							mFtueFriendList = new ArrayList<ContactInfo>(); 
+							HashSet<String> msisdnSet = (HashSet<String>) object;
+							Iterator<String> iterator = msisdnSet.iterator();
+							while(iterator.hasNext())
+							{
+								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
+								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+								{
+									mFtueFriendList.add(info);
+								}
+							}
+							addFTUEItem();
+							updateFTUEMsisdnsList(mFtueFriendList);
+							notifyVisibleItems();
 						}
-						else
-						{
-							mFtueFriendList = getFtueFriendList();
-						}
-						timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
-						addFTUEItem();
-						notifyVisibleItems();
 					}
 
-				}, 0);
+				});
 			}
 		}
 	}
@@ -328,9 +331,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private void addFTUEItem()
 	{
-		int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, START_FTUE_WITH_INIT_CARD);
-		int cardCount = mFtueFriendList.size();
-
 		// If no msisdn to show, then no need to show FTUE
 		if (mFtueFriendList.isEmpty())
 		{
@@ -340,25 +340,28 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		StatusMessage ftueStatusMessage = null;
 		ContactInfo contact = null;
-		if (counter == 0)
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_SHOWN, false)
+				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
 		{
 			// To SHOW BASIC CARD
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_INIT, null, null, null, null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INIT_CARD_SHOWN, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INIT_CARD_ON_TOP, true);
 			return;
 		}
-		else if (counter <= cardCount)
-		{
-			// To SHOW Fav Card
-			contact = mFtueFriendList.get(counter - 1);
-			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
-			statusMessages.add(0, ftueStatusMessage);
-			return;
-		}
-		else if (counter == cardCount + 1)
+		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_SHOWN, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_ON_TOP, false))
 		{
 			// To SHOW Exit Card
 			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_EXIT, null, null, null, null, null, 0);
+			statusMessages.add(0, ftueStatusMessage);
+		}
+		else 
+		{
+			// To SHOW Fav Card
+			contact = mFtueFriendList.get(0);
+			ftueStatusMessage = new StatusMessage(TimelineCardsAdapter.FTUE_CARD_FAV, null, contact.getMsisdn(), contact.getName(), null, null, 0);
 			statusMessages.add(0, ftueStatusMessage);
 			return;
 		}
@@ -367,20 +370,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	/**
 	 * This sets two values in SP
 	 * 1) Set FLAG :-  ENABLE_TIMELINE_FTUE to false...as not to show Timeline till next packet comes
-	 * 2) set shown counter to 1:- if counter was 0 then 0, 
-	 * 							   else if was 1/2/3.. set to 1... 
-	 * 								i.e next time when FTUE enabled, start with fav card(no init card)
 	 */
 	private void resetSharedPrefOnRemovingFTUE()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
-
-		// counter = 0, means not shown init card so no need to change
-		// counter != 0, means init card is shown so do it 1
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, START_FTUE_WITH_INIT_CARD) != START_FTUE_WITH_INIT_CARD)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, START_FTUE_WITH_FAV_CARD);
-		}
+		
+		mFtueFriendList.clear();
 	}
 
 	private class FetchUpdates extends AsyncTask<String, Void, List<StatusMessage>>
@@ -550,6 +545,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			String list = settings.getData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null);
 			msisdnSet = Utils.getServerRecommendedContactsSelection(list, mymsisdn);
 			isFromSignUpList = true;
+			
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
 		}
 		else
 		{
@@ -588,7 +585,22 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			resetSharedPrefOnRemovingFTUE();
 		}
+		else
+		{
+			updateFTUEMsisdnsList(finalContactLsit);
+		}
 		return finalContactLsit;
+	}
+
+	private void updateFTUEMsisdnsList(List<ContactInfo> finalContactLsit)
+	{
+		Set<String> list = new HashSet<String>();
+		for(int i = 0; i< finalContactLsit.size(); i++)
+		{
+			list.add(finalContactLsit.get(i).getMsisdn());
+		}
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, list);
 	}
 
 	private IRequestListener actionUpdatesReqListener = new IRequestListener()

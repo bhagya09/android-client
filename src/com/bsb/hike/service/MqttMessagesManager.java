@@ -4297,7 +4297,7 @@ public class MqttMessagesManager
 	{
 		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 		JSONArray msisdnArray = data.optJSONArray(HikeConstants.CONTACTS);
-		String number = data.optString(HikeConstants.COUNT);
+		int counter = data.optInt(HikeConstants.COUNT);
 		Set<String> msisdnSet = null;
 		if (msisdnArray != null)
 		{
@@ -4307,9 +4307,41 @@ public class MqttMessagesManager
 				msisdnSet.add(msisdnArray.optString(i));
 			}
 		}
-		HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, Integer.parseInt(number));
+		
+		//case 1) if init not show or on top
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_SHOWN, true)
+				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
+		{
+			//just replace these values
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+		}
+		//case 2) exit card on top:-
+		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
+		{
+			//just replace these values
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+		}
+		
+		// case 3) fav card is on top
+		else
+		{
+			//fetch previous list
+			Set<String> list = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null);
+			if(list != null)
+			{
+				//fetch current item from previous list
+				String currentMsisdn = new ArrayList<String>(list).get(0);
+				
+				//add to new list
+				msisdnSet.add(currentMsisdn);
+				
+				//save new list
+				HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			}
+		}
+		
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, counter);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, msisdnSet);
 	}
 }
