@@ -322,6 +322,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_BG_INDEX + " ON " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(sql);
 
+		sql = getStickerShopTableCreateQuery();
+		db.execSQL(sql);
+		
 		sql = CREATE_TABLE + DBConstants.BOT_TABLE
 				+ " ("
 				+ DBConstants.MSISDN + " TEXT UNIQUE, "        //msisdn of bot
