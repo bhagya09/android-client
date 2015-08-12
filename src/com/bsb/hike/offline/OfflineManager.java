@@ -158,15 +158,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		connectionManager = new ConnectionManager(context, HikeHandlerUtil.getInstance().getLooper());
 		transporter = Transporter.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
-		setDeviceNameAsMsisdn();
 		receiver = new OfflineBroadCastReceiver(this);
 		Logger.d(TAG, "Contructor called");
-	}
-
-	private void setDeviceNameAsMsisdn()
-	{
-		// TODO : Restore back to previous deviceName
-		connectionManager.setDeviceNameAsMsisdn();
 	}
 
 	public void disconnect()
@@ -263,7 +256,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	}
 
 	@Override
-	public void onConnetionToWifiNetwork()
+	public void onConnectionToWifiNetwork()
 	{
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
 		Logger.d(TAG, "CheckConnectedNetwork");
