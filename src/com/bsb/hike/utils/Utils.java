@@ -6768,13 +6768,13 @@ public class Utils
 	/**
 	 * Determine whether a time-stamp represents correct clock time of a day.
 	 * 
-	 * @param Calendar
-	 *            calendar instance to be checked
+	 * @param HH_mm_ss_SSS
+	 *            time elements of the day
 	 * @author Ved Prakash Singh [ved@hike.in]
 	 */
-	public static boolean isValidTimeStampOfTheDay(int hh, int mm, int ss, int SSS)
+	public static boolean isValidTimeStampOfTheDay(int HH, int mm, int ss, int SSS)
 	{
-		if ((hh < 0) || (hh >= 24))
+		if ((HH < 0) || (HH >= 24))
 		{
 			return false;
 		}

@@ -59,16 +59,20 @@ public class StickerSearchUtility
 
 						if (rebalancingData != null)
 						{
-							Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
-							calendar.set(Calendar.HOUR_OF_DAY, rebalancingData.optInt(HikeConstants.STICKER_DATA_HOUR, 0));
-							calendar.set(Calendar.MINUTE, rebalancingData.optInt(HikeConstants.STICKER_DATA_MINUTE, 0));
-							calendar.set(Calendar.SECOND, rebalancingData.optInt(HikeConstants.STICKER_DATA_SECOND, 0));
-							calendar.set(Calendar.MILLISECOND, rebalancingData.optInt(HikeConstants.STICKER_DATA_MILLI_SECOND, 0));
+							int HH = rebalancingData.optInt(HikeConstants.STICKER_DATA_HOUR, 0);
+							int mm = rebalancingData.optInt(HikeConstants.STICKER_DATA_MINUTE, 0);
+							int ss = rebalancingData.optInt(HikeConstants.STICKER_DATA_SECOND, 0);
+							int SSS = rebalancingData.optInt(HikeConstants.STICKER_DATA_MILLI_SECOND, 0);
 
-							if (Utils.isValidTimeStampOfTheDay(calendar))
+							if (Utils.isValidTimeStampOfTheDay(HH, mm, ss, SSS))
 							{
-								SimpleDateFormat formatter = new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH);
-								editor.putString(settingName, formatter.format(calendar.getTime()));
+								Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
+								calendar.set(Calendar.HOUR_OF_DAY, HH);
+								calendar.set(Calendar.MINUTE, mm);
+								calendar.set(Calendar.SECOND, ss);
+								calendar.set(Calendar.MILLISECOND, SSS);
+
+								editor.putString(settingName, (new SimpleDateFormat(HikeConstants.FORMAT_TIME_OF_THE_DAY, Locale.ENGLISH)).format(calendar.getTime()));
 							}
 							else
 							{
