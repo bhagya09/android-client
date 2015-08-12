@@ -1599,5 +1599,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 		}		
 	}
+
+	public void onDestroy()
+	{
+		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.FAVORITE_TOGGLED);		
+	}
 	
 }

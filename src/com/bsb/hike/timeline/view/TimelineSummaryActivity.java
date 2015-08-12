@@ -87,7 +87,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 	private int imageSize;
 
-	private String[] profilePicPubSubListeners = { HikePubSub.ICON_CHANGED };
+	private String[] timelineSummaryPubSubListeners = { HikePubSub.ICON_CHANGED };
 
 	private View fadeScreen;
 
@@ -176,7 +176,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 		isShowLikesEnabled = Utils.isTimelineShowLikesEnabled();
 
-		HikeMessengerApp.getPubSub().addListeners(this, profilePicPubSubListeners);
+		HikeMessengerApp.getPubSub().addListeners(this, timelineSummaryPubSubListeners);
 
 		Object obj = getLastCustomNonConfigurationInstance();
 
@@ -499,7 +499,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	public void onDestroy()
 	{
 		super.onDestroy();
-		HikeMessengerApp.getPubSub().removeListeners(this, profilePicPubSubListeners);
+		HikeMessengerApp.getPubSub().removeListeners(this, timelineSummaryPubSubListeners);
 	}
 
 	@Override
