@@ -20,6 +20,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.text.util.Linkify;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
@@ -673,20 +674,24 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		 */
 		contactInfoContainer.setOnClickListener(this);
 
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
 
 		setAvatar();
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		switch (item.getItemId())
+		{
+		case android.R.id.home:
+			onBackPressed();
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+	
 	/**
 	 * This method is used to setAvatar for a contact.
 	 */
