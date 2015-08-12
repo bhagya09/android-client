@@ -237,6 +237,8 @@ public class ActionsDataModel
 			}
 		}
 
+		Logger.d("ActionsDataModel", "isRemoved: " + isRemoved);
+		
 		if (isRemoved)
 		{
 			setCount(getCount() - 1);

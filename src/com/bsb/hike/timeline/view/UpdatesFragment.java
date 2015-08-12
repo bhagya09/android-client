@@ -46,6 +46,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.timeline.ActionsDeserializer;
+import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -88,8 +89,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	private View actionsView;
 
-	private TimelineActions actionsData = new TimelineActions();
-
 	private Gson gson;
 
 	private List<ContactInfo> mFtueFriendList;
@@ -115,7 +114,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		actionsView = parent.findViewById(R.id.new_update_tab);
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mUpdatesList.setLayoutManager(mLayoutManager);
-
 		// TODO
 		// mUpdatesList.setEmptyView(parent.findViewById(android.R.id.empty));
 		return parent;
@@ -152,8 +150,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager(), mShowProfileHeader,mMsisdnArray);
 		
-		timelineCardsAdapter.setActionsData(actionsData);
-
 		mUpdatesList.setAdapter(timelineCardsAdapter);
 
 		if (!mShowProfileHeader)
@@ -195,7 +191,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	@Override
 	public void onEventReceived(String type, final Object object)
 	{
-
 		if (!isAdded())
 		{
 			return;
@@ -257,7 +252,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			if (object != null && object instanceof FeedDataModel)
 			{
 				FeedDataModel feedData = (FeedDataModel) object;
-				actionsData.updateByActivityFeed(feedData);
+				TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
 				notifyVisibleItems();
 			}
 		}
@@ -478,8 +473,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					@Override
 					public void run()
 					{
-						HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDList, actionsData);
-						timelineCardsAdapter.setActionsData(actionsData);
+						HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDList, TimelineActionsManager.getInstance().getActionsData());
 						notifyVisibleItems();
 					}
 				}, 0);
@@ -600,13 +594,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			if (Utils.isResponseValid(response))
 			{
-				actionsData = gson.fromJson(response.toString(), TimelineActions.class);
-
-				timelineCardsAdapter.setActionsData(actionsData);
+				TimelineActions actionsData = gson.fromJson(response.toString(), TimelineActions.class);
 
 				notifyVisibleItems();
 
 				HikeConversationsDatabase.getInstance().updateActionsData(actionsData, ActivityObjectTypes.STATUS_UPDATE);
+				
+				TimelineActionsManager.getInstance().setActionsData(actionsData);
 			}
 		}
 
