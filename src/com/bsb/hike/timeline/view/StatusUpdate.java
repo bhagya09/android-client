@@ -63,6 +63,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		boolean emojiShowing = false;
 
 		boolean moodShowing = false;
+
+		boolean imageDeleted = false;
 	}
 
 	private ActivityTask mActivityTask;
@@ -137,25 +139,27 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		readArguments(getIntent());
 
 		mIconImageLoader = new IconLoader(getApplicationContext(), getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
-		
+
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(false);
-		
+
 		mIconImageLoader.setDefaultDrawableNull(false);
 
 		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-		
+
 		avatar.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(selfMsisdn, false));
-		
+
 		mIconImageLoader.loadImage(selfMsisdn, avatar, false, true, false);
 
 		parentLayout.setOnSoftKeyboardListener(this);
 
-		if (!TextUtils.isEmpty(mImagePath))
+		if (!TextUtils.isEmpty(mImagePath) && !mActivityTask.imageDeleted)
 		{
 			Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
 			statusImage.setImageBitmap(bmp);
 			statusTxt.setHint(R.string.status_hint_image);
-		}else{
+		}
+		else
+		{
 			removePhoto(null);
 		}
 
@@ -348,6 +352,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		statusImage.setImageResource(0);
 		statusImage.setVisibility(View.GONE);
 		statusTxt.setHint(R.string.status_hint);
+		mActivityTask.imageDeleted = true;
 		mImagePath = null;
 		toggleEnablePostButton();
 	}
@@ -654,7 +659,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean shouldShowMoodsButton()
 	{
-		if (TextUtils.isEmpty(mImagePath))
+		if (TextUtils.isEmpty(mImagePath) && !mActivityTask.imageDeleted)
 		{
 			return true;
 		}
