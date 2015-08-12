@@ -40,7 +40,10 @@ public class ConnectionManager implements ChannelListener
     private WifiConfiguration prevConfig = null;
 	private int connectedNetworkId = -1;
 	private Looper looper;
+	
+	//isHtc indiactes that the device is htc as this is required to invoke some htc specific methods 
 	private boolean isHTC = false;
+	
 	private String currentnetId=null;
 	
 	public ConnectionManager(Context context, Looper looper)
@@ -56,6 +59,8 @@ public class ConnectionManager implements ChannelListener
         channel = wifiP2pManager.initialize(context, looper, this);
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         
+        //For htc devices , we need to call different set of reflection methods
+        //mWifiApProfile indicates that it is htc device
 		try
 		{
 	        isHTC = (WifiConfiguration.class.getDeclaredField("mWifiApProfile") != null) ? true : false;
@@ -116,8 +121,10 @@ public class ConnectionManager implements ChannelListener
 		// Switching off wifi Hotspot before wifi scanning
 		if(isHotspotCreated())
 		{
-			saveCurrentHotspotSSID();
-			closeExistingHotspot(prevConfig);
+			if(saveCurrentHotspotSSID())
+			{
+				closeExistingHotspot(prevConfig);
+			}
 			/*Adding sleep so that wifi can switch on after closing of hotspot .\
 				This may take longer on some devices . So will have to change logic later*/
 			try 
@@ -242,10 +249,12 @@ public class ConnectionManager implements ChannelListener
 	{
 		// save current WifiHotspot Name
 		Log.d("OfflineManager","wil create hotspot for "+wifiP2pDeviceName);
-		saveCurrentHotspotSSID();
-		if(isHotspotCreated())
+		if(saveCurrentHotspotSSID())
 		{
-			closeExistingHotspot(prevConfig);
+			if(isHotspotCreated())
+			{
+				closeExistingHotspot(prevConfig);
+			}
 		}
 		Boolean result = setWifiApEnabled(wifiP2pDeviceName, true);
 		Log.d("OfflineManager", "HotSpot creation result is "+ result);
@@ -386,7 +395,7 @@ public class ConnectionManager implements ChannelListener
 		}
 	}
 	
-	private void saveCurrentHotspotSSID() 
+	private Boolean saveCurrentHotspotSSID() 
 	{
 		try 
 		{
@@ -394,9 +403,10 @@ public class ConnectionManager implements ChannelListener
 		} 
 		catch (IllegalArgumentException e) 
 		{
-			Log.e(TAG,e.toString());
+			Logger.e(TAG, "Could not save previous config");
+			return false;
 		}
-		
+		return true;
 	}
 	
 	private WifiConfiguration getWifiApConfiguration()
@@ -428,7 +438,7 @@ public class ConnectionManager implements ChannelListener
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Logger.e(TAG, "Could not get htc config");
 		}
 		return htcWifiConfig;
 	}
