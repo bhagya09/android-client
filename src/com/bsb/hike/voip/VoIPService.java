@@ -1578,6 +1578,9 @@ public class VoIPService extends Service {
 
 							// Resample
 							byte[] output = dp.getData();
+							if (output == null)
+								continue;
+							
 							if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
 								// We need to resample the output signal
 								// Logger.d(logTag, "Resampling.");
@@ -1586,7 +1589,7 @@ public class VoIPService extends Service {
 							
 							// For streaming mode, we must write data in chunks <= buffer size
 							index = 0;
-							while (index < output.length && audioTrack != null) {
+							while (index < output.length) {
 								size = Math.min(minBufSizePlayback, output.length - index);
 								audioTrack.write(output, index, size);
 								index += size; 
