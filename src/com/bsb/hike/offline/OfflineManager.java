@@ -397,6 +397,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 		
 		startNotificationThread();
+		connectionManager.updateNetworkId();
 		if (myMsisdn.compareTo(msisdn) > 0)
 		{
 			Logger.d(TAG, "Will create Hotspot");
@@ -415,7 +416,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			handler.sendMessageDelayed(endTries,offlineParameters.getConnectionTimeout());
 			Logger.d(TAG,"time connect handler posted is "+handler.hasMessages(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE));
 		}
-		connectionManager.updateNetworkId();
+		
 	}
 
 	private void startNotificationThread()

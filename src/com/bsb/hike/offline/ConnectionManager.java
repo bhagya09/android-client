@@ -484,6 +484,13 @@ public class ConnectionManager implements ChannelListener
 		connectedNetworkId = -1;
 	}
 	
+	/**
+	 * 
+	 * @param ssid
+	 * 
+	 *            Some devices return SSID with quotes and some without it.So we are first checking that the SSID we saved is with quotes or not and then depending on that removing
+	 *            the quotes from the SavedSystemList
+	 */
 	private void connectToWifi(String ssid)
 	{
 		if(TextUtils.isEmpty(ssid))
@@ -497,11 +504,20 @@ public class ConnectionManager implements ChannelListener
 		}
 		
 		List<WifiConfiguration> list= wifiManager.getConfiguredNetworks();
-		if(list!=null)
+		if (list != null)
 		{
 			for (WifiConfiguration wifiConfiguration : wifiManager.getConfiguredNetworks())
 			{
-				if (wifiConfiguration != null && wifiConfiguration.SSID != null && wifiConfiguration.SSID.equals(ssid))
+				String currentSSID = "";
+				if (wifiConfiguration == null || TextUtils.isEmpty(wifiConfiguration.SSID))
+				{
+					continue;
+				}
+				if (OfflineUtils.isSSIDWithQuotes(wifiConfiguration.SSID) && !OfflineUtils.isSSIDWithQuotes(ssid))
+					currentSSID = wifiConfiguration.SSID.substring(1, wifiConfiguration.SSID.length() - 1);
+				else
+					currentSSID=wifiConfiguration.SSID;
+				if (currentSSID.equals(ssid))
 				{
 					Log.d("OfflineManager", "Disconnecting existing ssid");
 					wifiManager.disconnect();

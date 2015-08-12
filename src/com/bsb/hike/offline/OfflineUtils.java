@@ -436,6 +436,18 @@ public class OfflineUtils
         return tempPath;
     }
 	
+	public static boolean isSSIDWithQuotes(String ssid)
+	{
+		if(TextUtils.isEmpty(ssid))
+		{
+			return false;
+		}
+		if (ssid.length() > 2 && ssid.startsWith("\"") &&ssid.endsWith("\""))
+		{
+			return true;
+		}
+		return false;
+	}
 	public static void putStkLenInPkt(JSONObject packet, long length)
 	{
 
@@ -726,6 +738,8 @@ public class OfflineUtils
 		return (myMsisdn.compareTo(connectedMsisdn) > 0);
 		
 	}
+	
+	
 	public static void handleOfflineRequestPacket(Context context,JSONObject packet)
 	{
 		String msisdn;
