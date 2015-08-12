@@ -2380,6 +2380,15 @@ public class MqttMessagesManager
 				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE));
 			}
 		}
+		
+		if (data.has(HikeConstants.REWARDS_BOT_MSISDN))
+		{
+			editor.putString(HikeConstants.REWARDS_BOT_MSISDN, data.getString(HikeConstants.REWARDS_BOT_MSISDN));
+		}
+		if (data.has(HikeConstants.EXTRAS_BOT_MSISDN))
+		{
+			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
