@@ -77,10 +77,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED, HikePubSub.ACTIVITY_FEED_COUNT_CHANGED , HikePubSub.TIMELINE_WIPE};
 
 	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
-	
-	private final String MAIN_ACTIVITY_FEED_TAG = "mainActivityFeedTag";
-	
-	private static final String TAG = "TimelineActivity";
 
 	private PopupWindow overFlowWindow;
 
@@ -190,14 +186,14 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
 
-		if(getSupportFragmentManager().findFragmentByTag(MAIN_ACTIVITY_FEED_TAG) == null)
+		if(mainFragment == null)
 		{
-			if(mainFragment != null)
-			{
-				Logger.i(TAG, "Main Fragment was not null, Recreating");
-			}
 			mainFragment = new UpdatesFragment();
-			getSupportFragmentManager().beginTransaction().replace(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).addToBackStack(MAIN_ACTIVITY_FEED_TAG).commit();
+		}
+
+		if(!mainFragment.isAdded())
+		{
+			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment).commit();
 		}
 
 	}
@@ -428,12 +424,18 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public void onBackPressed()
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		if (count == 1)
+		if (count == 0)
 		{
-			IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			//IS THIS FRAGMENT CHECK Req????
+			Fragment fragment = getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG);
+			if (!(fragment != null && fragment.isVisible())
+					&& (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false) || getIntent().getBooleanExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, false)))
+			{
+				IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			}
 			super.onBackPressed();
 		}
-		else 
+		else
 		{
 			getSupportFragmentManager().popBackStack();
 			ActionBar actionBar = getSupportActionBar();
@@ -568,7 +570,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private void loadActivityFeedFragment()
 	{
 		ActivityFeedFragment activityFeedFragment = new ActivityFeedFragment();
-		getSupportFragmentManager().beginTransaction().replace(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).addToBackStack(FRAGMENT_ACTIVITY_FEED_TAG).commit();
+		getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, activityFeedFragment, FRAGMENT_ACTIVITY_FEED_TAG).addToBackStack(null).commit();
 	}
 
 	class FetchUnreadFeedsTask extends AsyncTask<Void, Void, Integer>
