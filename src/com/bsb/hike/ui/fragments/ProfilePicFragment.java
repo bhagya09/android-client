@@ -531,8 +531,6 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
-
 		hikeUiHandler.post(successRunnable);
 	}
 
