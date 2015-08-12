@@ -898,6 +898,13 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	{
 		return mActivityState;
 	}
+	
+	@Override
+	protected void onPause()
+	{
+		mActivityState.isLikedByMe = this.isLikedByMe;
+		super.onPause();
+	}
 
 	@Override
 	public void onProgressUpdate(float percent)
