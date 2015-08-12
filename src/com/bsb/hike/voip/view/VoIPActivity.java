@@ -12,15 +12,16 @@ import android.view.WindowManager;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
 import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
 
 /**
- * This activity does not extend <b>HikeAppStateBaseFragmentActivity</b> because
- * we do not want to send fg/bg packets from here because it leads to the problem that
- * even a missed call will mark the recipient as online.  
+ * This activity does not extend <b>HikeAppStateBaseFragmentActivity</b>.<br/>
+ * <p>
+ * We do not want to send fg/bg packets from here because it leads to the problem that
+ * even a missed call will mark the recipient as online.
+ * </p>  
  * 
  * @author anuj
  *
@@ -28,6 +29,7 @@ import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
 public class VoIPActivity extends SherlockFragmentActivity implements CallFragmentListener, CallFailedFragListener
 {
 	private VoipCallFragment mainFragment;
+	@SuppressWarnings("unused")
 	private String tag = VoIPConstants.TAG + " Activity";
 
 	@Override
@@ -35,13 +37,6 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.voip_activity);
-
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-		
-		setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
 		setupMainFragment();
 		Intent intent = getIntent();
@@ -51,6 +46,24 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 		}
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+		
+		setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
+	}
+	
 	private void setupMainFragment()
 	{
 		if(mainFragment!=null)
