@@ -96,7 +96,7 @@ public class NotificationThread implements Runnable
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
 
 		Logger.d("NotificationOffline", "Showing notification.." + connectingMsisdn);
-		Intent myIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, connectingMsisdn, false);
+		Intent myIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, connectingMsisdn, false,false);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		if (notificationManager == null)

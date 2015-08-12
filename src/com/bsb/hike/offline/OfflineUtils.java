@@ -310,7 +310,7 @@ public class OfflineUtils
 			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
 
 			Sticker tempStk = new Sticker(ctgId, stkId);
-			path = tempStk.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+			path = tempStk.getStickerPath();
 		}
 		catch (JSONException e)
 		{
@@ -727,7 +727,7 @@ public class OfflineUtils
 			}
 			
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
-			Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
+			Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
 			chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
 			Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context,msisdn, false);
@@ -749,7 +749,7 @@ public class OfflineUtils
 
 	private static Action[] getNotificationActions(Context context, String msisdn)
 	{
-		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false);
+		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
 		chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 		PendingIntent chatThreadPendingIntent = PendingIntent.getActivity(context, 0, chatThreadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

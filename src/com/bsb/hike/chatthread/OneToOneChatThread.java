@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,6 +76,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -316,7 +318,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
-		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
+			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
+		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, true, R.string.block_title));
 		
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
@@ -340,7 +344,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		if (mConversation == null)
 		{
 			mConversation = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((mContactInfo != null) ? mContactInfo.getName() : null).setIsOnHike(mContactInfo.isOnhike()).build();
-			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1));
+			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1, -1));
 		}
 
 		ChatTheme chatTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
@@ -401,7 +405,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP }, sharedPreference);
 		mTips.showTip();
 	}
 
@@ -1202,9 +1206,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * Overrides {@link ChatThread}'s {@link #setupActionBar()}, to set the last seen time
 	 */
 	@Override
-	protected void setupActionBar(boolean firstInflation)
+	protected void setupDefaultActionBar(boolean firstInflation)
 	{
-		super.setupActionBar(firstInflation);
+		super.setupDefaultActionBar(firstInflation);
 
 		setLabel(getConvLabel());
 		
@@ -2114,7 +2118,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		shouldScheduleH20Tip = true;
 	}
 
-	private void addAllUndeliverdMessages(List<ConvMessage> messages)
+	private void addAllUndeliverdMessages(MovingList<ConvMessage> messages)
 	{
 		int i = messages.size() - 1;
 		while (i >= 0)
@@ -3048,12 +3052,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			setEnabledH20NextButton(true);
 		}
 	}
-	
+
+	@Override
+	protected void setupSearchMode(String searchText)
+	{
+		super.setupSearchMode(searchText);
+	}
+
 	@Override
 	protected void destroySearchMode()
 	{
 		super.destroySearchMode();
 		
+		addUnkownContactBlockHeader();
 		if (isH20TipShowing())
 		{
 			setEnabledH20NextButton(true);
@@ -3108,9 +3119,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		
 		super.onPrepareOverflowOptionsMenu(overflowItems);
-		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
+		Iterator<OverFlowMenuItem> iteratorOverflowItems = overflowItems.iterator();
+		while(iteratorOverflowItems.hasNext())
 		{
 
+			OverFlowMenuItem overFlowMenuItem = iteratorOverflowItems.next();
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.add_as_favorite_menu:
@@ -3119,7 +3132,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				 */
 				if(!mContactInfo.isNotOrRejectedFavourite())
 				{
-					overflowItems.remove(overFlowMenuItem);
+					iteratorOverflowItems.remove();
 				}
 				else
 				{

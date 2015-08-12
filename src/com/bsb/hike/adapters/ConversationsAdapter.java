@@ -573,7 +573,7 @@ public class ConversationsAdapter extends BaseAdapter
 			else
 			{
 				List<List<ConvInfo>> resultList = new ArrayList<List<ConvInfo>>();
-				resultList.add(getOriginalList());
+				resultList.add(conversationList);
 				results.values = resultList;
 			}
 			results.count = 1;
@@ -653,25 +653,28 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			List<List<ConvInfo>> resultList = (List<List<ConvInfo>>) results.values;
 
-			List<ConvInfo> filteredSearchList = new ArrayList<ConvInfo>();
-			filteredSearchList.addAll(resultList.get(0));
-
-			if(phoneBookContacts!=null && !phoneBookContacts.isEmpty() && resultList.size() > 1)
+			if (resultList != null)
 			{
-				filteredSearchList.addAll(resultList.get(1));
-			}
-
-			completeList.clear();
-			completeList.addAll(filteredSearchList);
-			notifyDataSetChanged();
-			if (completeList.isEmpty() && !noResultRecorded)
-			{
-				recordNoResultsSearch();
-				noResultRecorded = true;
-			}
-			else if (!completeList.isEmpty())
-			{
-				noResultRecorded = false;
+				List<ConvInfo> filteredSearchList = new ArrayList<ConvInfo>();
+				filteredSearchList.addAll(resultList.get(0));
+	
+				if(phoneBookContacts!=null && !phoneBookContacts.isEmpty() && resultList.size() > 1)
+				{
+					filteredSearchList.addAll(resultList.get(1));
+				}
+	
+				completeList.clear();
+				completeList.addAll(filteredSearchList);
+				notifyDataSetChanged();
+				if (completeList.isEmpty() && !noResultRecorded)
+				{
+					recordNoResultsSearch();
+					noResultRecorded = true;
+				}
+				else if (!completeList.isEmpty())
+				{
+					noResultRecorded = false;
+				}
 			}
 		}
 	}
@@ -694,11 +697,6 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-	}
-
-	protected List<ConvInfo> getOriginalList()
-	{
-		return conversationList;
 	}
 
 	public void updateViewsRelatedToName(View parentView, ConvInfo convInfo)
@@ -1036,6 +1034,15 @@ public class ConversationsAdapter extends BaseAdapter
 			
 			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
+		}
+		else if (message.getParticipantInfoState() == ParticipantInfoState.CHANGE_ADMIN)
+		{
+			markedUp = OneToNConversationUtils.getAdminUpdatedMessage(message,context);
+		}
+		else if (message.getParticipantInfoState() == ParticipantInfoState.GC_SETTING_CHANGE)
+		{
+			
+			markedUp = OneToNConversationUtils.getSettingUpdatedMessage(message,context);
 		}
 		
 		else if (message.getParticipantInfoState() == ParticipantInfoState.DND_USER)

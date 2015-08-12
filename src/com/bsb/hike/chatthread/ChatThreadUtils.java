@@ -45,6 +45,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.offline.OfflineController;
@@ -426,7 +427,7 @@ public class ChatThreadUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 	}
 	
-	protected static boolean isLastMessageReceivedAndUnread(List<ConvMessage> messages)
+	protected static boolean isLastMessageReceivedAndUnread(MovingList<ConvMessage> messages)
 	{
 		ConvMessage lastMsg = null;
 

@@ -174,7 +174,15 @@ public class FTAnalyticEvents
 
 	public static final String UNABLE_TO_START_ACTIVITY = "unable_to_start_activity";
 
+	public static final String UNABLE_TO_CREATE_HIKE_TEMP_DIR = "unable_to_hike_temp_dir";
+
+	public static final String BAD_RESUME_LENGTH = "bad_resume_len";
+
+	public static final String JSON_PARSING_ISSUE = "json_parsing_issue";
+
 	public static final String HOST_FALLBACK = "host_fallback";
+
+	public static final String FT_STATE_READ_FAIL = "ft_state_read_fail";
 	
 	public static final int APK_ATTACHMENT = 7;
 	

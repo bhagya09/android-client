@@ -33,13 +33,10 @@ import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
 /**
@@ -70,7 +67,7 @@ public abstract class ImageWorker
 	
 	private boolean setDefaultDrawableNull = true;
 	
-	protected boolean isImageToBeCached = true;
+	protected boolean cachingEnabled = true;
 	
 	protected SuccessfulImageLoadingListener successfulImageLoadingListener;
 	
@@ -135,6 +132,7 @@ public abstract class ImageWorker
 				imageView.setBackgroundDrawable(null);
 			}
 		}
+		
 		if (mImageCache != null)
 		{
 			value = mImageCache.get(data);
@@ -164,7 +162,6 @@ public abstract class ImageWorker
 					mImageCache.putInCache(data, bd);
 				}
 				imageView.setImageDrawable(bd);
-				
 				sendImageCallback(imageView);
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
@@ -175,7 +172,9 @@ public abstract class ImageWorker
 					key = new String(data.substring(0, idx));
 				
 				setDefaultAvatar(imageView, key);
+				sendImageCallback(imageView);
 			}
+			
 		}
 		else if (cancelPotentialWork(data, imageView) && !isFlinging)
 		{
@@ -197,8 +196,6 @@ public abstract class ImageWorker
 			final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, loadingBitmap, task);
 			imageView.setImageDrawable(asyncDrawable);
 
-			sendImageCallback(imageView);
-			
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
 			// for more info on what was changed.
@@ -439,7 +436,7 @@ public abstract class ImageWorker
 
 				drawable = HikeBitmapFactory.getBitmapDrawable(mResources, bitmap);
 
-				if (mImageCache != null && isImageToBeCached)
+				if (mImageCache != null && cachingEnabled)
 				{
 					Logger.d(TAG, "Putting data in cache : " + dataString);
 					mImageCache.putInCache(dataString, drawable);
@@ -467,6 +464,7 @@ public abstract class ImageWorker
 				if (value != null)
 				{
 					setImageDrawable(imageView, value);
+					sendImageCallback(imageView);
 				}
 				else if (setDefaultAvatarIfNoCustomIcon)
 				{
@@ -476,6 +474,7 @@ public abstract class ImageWorker
 						key = new String(data.substring(0, idx));
 					
 					setDefaultAvatar(imageView, key);
+					sendImageCallback(imageView);
 				}
 				else if (defaultDrawable != null)
 				{
@@ -484,6 +483,7 @@ public abstract class ImageWorker
 					 * media viewer files for which we could not create thumbnails(ex. tif images)
 					 */
 					setImageDrawable(imageView, defaultDrawable);
+					sendImageCallback(imageView);
 					imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				}
 
@@ -566,7 +566,6 @@ public abstract class ImageWorker
 				imageView.setImageDrawable(drawable);
 			}
 			
-			sendImageCallback(imageView);
 		}
 		catch (Exception e)
 		{
@@ -592,14 +591,14 @@ public abstract class ImageWorker
 	    return bitmap;
 	}
 	
-	public void setImageToBeCached(boolean isImageToBeCached)
+	public void setCachingEnabled(boolean enableCache)
 	{
-		this.isImageToBeCached = isImageToBeCached;
+		this.cachingEnabled = enableCache;
 	}
 	
-	public boolean isImageToBeCached()
+	public boolean isCachingEnabled()
 	{
-		return isImageToBeCached;
+		return cachingEnabled;
 	}
 	
 	public interface SuccessfulImageLoadingListener{

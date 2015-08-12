@@ -68,7 +68,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
@@ -213,12 +212,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		//Make sure we are not launching share intent if our activity is restarted by OS
-		if(isShareIntent(getIntent()) && savedInstanceState == null)
-		{
-			handleFileShareIntent(getIntent());
-		}
-		
 		setupActionBar();
 
 		// Checking whether the state of the avatar and conv DB Upgrade settings
@@ -245,7 +238,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
-	
 	}
 	
 	@Override
@@ -269,62 +261,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	}
 	
-	private boolean isShareIntent(Intent intent)
-	{
-		if (Intent.ACTION_SEND.equals(intent.getAction()) || Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())) 
-		{
-			return true;
-		} 
-		
-		return false;
-	}
-	
-	private void handleFileShareIntent(Intent intent)
-	{
-
-		//If launching from android history, do not process 
-		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0)
-		{
-			return;
-		}
-		
-		if (Intent.ACTION_SEND.equals(intent.getAction()) ) 
-		{
-			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
-			{ 
-				String fileName = Utils.getAbsolutePathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
-				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
-			}
-			else
-			{
-				transferShareIntent(intent);
-			}
-		} 
-		
-		else if(Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction()))
-		{
-			transferShareIntent(intent);
-			
-			//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
-			
-			/*
-			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
-			if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
-			{
-				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
-				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
-				multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
-				startActivity(multiIntent);
-			}
-			else
-			{
-				handleShareIntent(intent);
-			}
-			*/
-		}
-	}
-
 	private void startFestivePopup(int type)
 	{
 		snowFallView = FestivePopup.startAndSetSnowFallView(HomeActivity.this, type, false);
@@ -594,11 +530,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			NUXManager.getInstance().startNUX(this);
 			return;
-		}
-		
-		if(isShareIntent(intent))
-		{
-			handleFileShareIntent(intent);
 		}
 		
 		if (mainFragment != null)
@@ -1120,20 +1051,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		deviceDetailsSent = true;
 	}
 
-	private void transferShareIntent(Intent shareIntent)
-	{
-		if(shareIntent == null)
-		{
-			return;
-		}
-		
-		Intent intent = new Intent(HomeActivity.this,ComposeChatActivity.class);
-		intent.putExtras(shareIntent.getExtras());
-		intent.setAction(shareIntent.getAction());
-		intent.setType(shareIntent.getType());
-		startActivity(intent);
-	}
-	
 	private void updateApp(int updateType)
 	{
 		if (TextUtils.isEmpty(this.accountPrefs.getString(HikeConstants.Extras.UPDATE_URL, "")))
@@ -1504,15 +1421,29 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (HikePubSub.CONTACT_SYNCED.equals(type))
 		{
-			Boolean[] ret = (Boolean[]) object;
-			final boolean manualSync = ret[0];
+			Pair<Boolean, Byte> ret = (Pair<Boolean, Byte>) object;
+			final boolean manualSync = ret.first;
+			final byte contactSyncResult = ret.second;
 			runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					if(manualSync)
-						Toast.makeText(getApplicationContext(), R.string.contacts_synced, Toast.LENGTH_SHORT).show();
+					if (manualSync)
+					{
+						if (contactSyncResult == ContactManager.SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK)
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_sync_no_contacts_found, Toast.LENGTH_SHORT).show();
+						}
+						else if (contactSyncResult == ContactManager.SYNC_CONTACTS_ERROR)
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_sync_error, Toast.LENGTH_SHORT).show();
+						}
+						else
+						{
+							Toast.makeText(getApplicationContext(), R.string.contacts_synced, Toast.LENGTH_SHORT).show();
+						}
+					}
 				}
 			});
 		}
@@ -1741,7 +1672,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			boolean isGamesClicked = accountPrefs.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, false);
 			boolean isRewardsClicked = accountPrefs.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, false);
 			boolean showTimelineRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, true);
-			boolean showBroadcastRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, true);
 			boolean showNUJRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
 
 			int count = 0;
@@ -1754,7 +1684,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newGamesIndicator.setText(String.valueOf(count));
 			}
 			if ((item.getKey() == 3 && !isGamesClicked) || (item.getKey() == 4 && !isRewardsClicked) || (item.getKey() == 7 && (count > 0 || showTimelineRedDot))
-					|| (item.getKey() == 10 && showBroadcastRedDot)|| (item.getKey() == 11 && showNUJRedDot))
+					|| (item.getKey() == 11 && showNUJRedDot))
 			{
 				newGamesIndicator.setVisibility(View.VISIBLE);
 			}
@@ -1899,15 +1829,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case HikeConstants.HOME_ACTIVITY_OVERFLOW.NEW_BROADCAST:
 					
 					sendBroadCastAnalytics();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, false);
-					if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_BROADCAST_FTUE_SCREEN, true))
-					{
-						IntentFactory.createBroadcastFtue(HomeActivity.this);
-					}
-					else
-					{
-						IntentFactory.createBroadcastDefault(HomeActivity.this);
-					}
+					IntentFactory.createBroadcastIntent(HomeActivity.this);
 					break;
 				}
 

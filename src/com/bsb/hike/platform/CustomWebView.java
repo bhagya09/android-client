@@ -133,7 +133,6 @@ public class CustomWebView extends WebView
 			{
 				removeJavascriptInterface(javaScriptInterface);
 			}
-			destroy();
 			isDestroyed = true;
 		}
 	}
@@ -192,5 +191,11 @@ public class CustomWebView extends WebView
 	{
 		return this.isShowing;
 	}
-
+	
+	public boolean isWebViewDestroyed()
+	{
+		return this.isDestroyed;
+	}
 }
+
+

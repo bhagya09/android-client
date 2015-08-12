@@ -153,16 +153,6 @@
                 android:visibility="gone" />
 
             <LinearLayout
-                android:id="@+id/pin_tip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:visibility="gone" >
-
-                <include layout="@layout/pin_tool_tip" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/new_message_indicator"
                 android:layout_width="wrap_content"
                 android:minWidth="148dp"
@@ -232,6 +222,27 @@
                 android:layout_height="1dp"
                 android:background="#14292d2e"
                 android:layout_alignParentBottom="true" />
+            
+           	<ViewStub 
+                android:id="@+id/sticker_recommendation_tip"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_alignParentBottom="true"
+                android:layout="@layout/sticker_recommend_tip_view" />
+            
+            <FrameLayout
+                    android:id="@+id/sticker_recommendation_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@drawable/ic_sticker_recommend_background_black"
+                    android:layout_alignParentBottom="true"
+                    android:contentDescription="sticker recommendation popup"
+                    android:visibility="invisible" >
+            </FrameLayout>
 
         </RelativeLayout>
 
