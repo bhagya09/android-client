@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">Чтобы подмигнуть друзьям, нажмите дважды</string>
     <string name="addedYouAsFavorite">добавил(а) пользователя %1$s в избранное</string>
     <string name="addedYouFrindDescription"><![CDATA[
- Вы открыли пользователю %1$s доступ к сведениям о своем <font color="#ef554e">последнем появлении в сети</font> и <font color="#0f8fe1">обновлениям статуса</font>. Попросить его сделать то же самое?
+ Вы открыли пользователю %1$s доступ к сведениям о своем <font color="#ef554e">последнем появлении в сети</font> и <font color="#1da8e8">обновлениям статуса</font>. Попросить его сделать то же самое?
 	    
     ]]></string>
     <string name="contacts_upper_case">КОНТАКТЫ</string>

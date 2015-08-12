@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">Einfach irgendwo doppeltippen, um deine Freunde anzustupsen</string>
     <string name="addedYouAsFavorite">Es wurden %1$s zu Favoriten hinzugefügt</string>
     <string name="addedYouFrindDescription"><![CDATA[
- Du teilst gerade deine Angabe zu <font color="#ef554e">Zuletzt online</font> und deine <font color="#0f8fe1">Statusmeldungen</font> mit %1$s. Möchtest du, dass er/sie diese Informationen auch mitteilt?
+ Du teilst gerade deine Angabe zu <font color="#ef554e">Zuletzt online</font> und deine <font color="#1da8e8">Statusmeldungen</font> mit %1$s. Möchtest du, dass er/sie diese Informationen auch mitteilt?
 	    
     ]]></string>
     <string name="contacts_upper_case">KONTAKTE</string>
