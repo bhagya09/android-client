@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -107,6 +108,7 @@ import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.PinnedSectionListView;
 import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
@@ -2504,5 +2506,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		if (listView != null)
+		{
+			((PinnedSectionListView) listView).onConfigChanged();
+		}
+		
+		super.onConfigurationChanged(newConfig);
 	}
 }
