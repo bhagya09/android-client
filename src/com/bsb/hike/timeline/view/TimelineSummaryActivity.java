@@ -592,7 +592,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	{
 		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
 		{
-
 			final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, 11);
 			dialog.setContentView(R.layout.display_contacts_dialog);
 			dialog.setCancelable(true);
@@ -614,7 +613,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					startActivity(intent);
 				}
 			});
-
 			ImageButton cancelButton = (ImageButton) dialog.findViewById(R.id.btn_cancel);
 			cancelButton.setOnClickListener(new View.OnClickListener()
 			{
@@ -624,7 +622,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					dialog.dismiss();
 				}
 			});
-
 			dialog.show();
 		}
 	}
@@ -730,7 +727,8 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				e.printStackTrace();
 			}
 
-			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn());
+			ContactInfo userInfo = Utils.getUserContactInfo(false);
+			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn(), true, true);
 			
 			// First check if user is friends with msisdn
 			if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND && !Utils.isSelfMsisdn(profileContactInfo.getMsisdn()))
