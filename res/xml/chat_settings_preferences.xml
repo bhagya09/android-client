@@ -41,7 +41,7 @@
         icon="@drawable/ic_instant_reco"
         android:defaultValue="true"
         android:key="stickerRecommendAutopopupPref"
-        android:layout="@layout/icon_preference"
+        android:layout="@layout/icon_sub_preference"
         android:summary="@string/sticker_recommendation_autopopup_setting_info"
         android:title="@string/sticker_recommendation_autopopup_setting_header"
         android:widgetLayout="@layout/checkbox_widget" />
