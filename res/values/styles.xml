@@ -827,7 +827,7 @@
 	
 	<style name="ListSectionTextView" parent="BaseStyleTextView">
 	    <item name="android:textColor">#1DA8E8</item>
-	    <item name="android:textSize">14sp</item>
+	    <item name="android:textSize">11sp</item>
 	    <item name="android:textStyle">bold|italic</item>
 	    <item name="android:layout_width">wrap_content</item>
 	    <item name="android:layout_height">wrap_content</item>
