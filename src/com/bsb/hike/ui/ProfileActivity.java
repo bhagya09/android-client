@@ -170,7 +170,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.CONTACT_DELETED, HikePubSub.DELETE_MESSAGE };
 
 	private String[] profilePubSubListeners = { HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.STATUS_MESSAGE_RECEIVED,
-			HikePubSub.ICON_CHANGED, HikePubSub.PROFILE_IMAGE_DOWNLOADED };
+			HikePubSub.ICON_CHANGED, HikePubSub.PROFILE_IMAGE_DOWNLOADED, HikePubSub.DELETE_MESSAGE };
 
 	private String[] profilEditPubSubListeners = { HikePubSub.PROFILE_UPDATE_FINISH };
 
@@ -367,8 +367,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			View parent = findViewById(R.id.parent_layout);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background));
-//			ListView list = (ListView) parent.findViewById(R.id.profile_content);
-//			list.setDivider(null); //Removing the default dividers since they are not needed in the timeline
 			this.profileType = ProfileType.CONTACT_INFO_TIMELINE;
 			setupContactTimelineScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
@@ -1296,20 +1294,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{				
-				beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU, true);
-				
-				JSONObject md = new JSONObject();
-
-				try
-				{
-					md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
-					md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
-				}
-				catch(JSONException e)
-				{
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
-				}
+				changeProfilePicture();
 			}
 		});
 		
@@ -1333,6 +1318,24 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		// Hide the cursor initially
 		Utils.hideCursor(mNameEdit, getResources());
+	}
+	
+	public void changeProfilePicture()
+	{
+		beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU, true);
+		
+		JSONObject md = new JSONObject();
+
+		try
+		{
+			md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
+			md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
+		}
 	}
 
 	private void setupProfileScreen(Bundle savedInstanceState)
@@ -2112,14 +2115,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						{
 							updateProfileImageInHeaderView();
 						}
-						else if(profileType == ProfileType.CONTACT_INFO_TIMELINE)
+						else if(profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 						{
 							updatesFragment.notifyVisibleItems();
-						}
-						else
-						{
-							profileAdapter.updateHasCustomPhoto();
-							profileAdapter.notifyDataSetChanged();
 						}
 					}
 				});
@@ -2344,12 +2342,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					{
 						updateProfileHeaderView();
 					}
-					else if (profileType == ProfileType.USER_PROFILE)
-					{
-						profileItems.add(1, new ProfileItem.ProfileStatusItem(statusMessage));
-						profileAdapter.notifyDataSetChanged();
-					}
-					else if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
+					else if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 					{
 						updatesFragment.notifyVisibleItems();
 					}

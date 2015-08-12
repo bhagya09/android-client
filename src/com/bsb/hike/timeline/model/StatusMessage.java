@@ -298,13 +298,7 @@ public class StatusMessage
 	
 	public boolean isMyStatusUpdate()
 	{
-		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-		if (getMsisdn().equals(selfMsisdn))
-		{
-			return true;
-		}
-
-		return false;
+		return Utils.isSelfMsisdn(msisdn);
 	}
 
 	public boolean isHistoricalUpdate()

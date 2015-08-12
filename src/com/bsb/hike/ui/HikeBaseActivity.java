@@ -199,6 +199,11 @@ public abstract class HikeBaseActivity extends AppCompatActivity
 		return super.onCreateOptionsMenu(menu);
 	}
 
+	/**
+	 * Providing a genetic back pressed framework. 
+	 * OnBackPressed will be called on pressing the back arrow key in actionbar.
+	 * If any activity wants a different implementation, intercept the click by overriding this method
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub

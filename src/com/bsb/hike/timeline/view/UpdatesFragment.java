@@ -188,6 +188,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		timelineCardsAdapter.onDestroy();
 		super.onDestroy();
 	}
 
