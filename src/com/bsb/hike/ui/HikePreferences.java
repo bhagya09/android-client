@@ -911,7 +911,7 @@ private void setupToolBar(int titleRes){
 				Object[] dialogStrings = new Object[4];
 				dialogStrings[0] = getString(R.string.initiate_reset_stealth_header);
 				dialogStrings[1] = getString(R.string.initiate_reset_stealth_body);
-				dialogStrings[2] = getString(R.string.confirm);
+				dialogStrings[2] = getString(R.string.CONFIRM);
 				dialogStrings[3] = getString(R.string.CANCEL);
 				
 				HikeDialogFactory.showDialog(this, HikeDialogFactory.RESET_STEALTH_DIALOG, new HikeDialogListener()

@@ -383,7 +383,7 @@ public class HikeDialogFactory
 
 		final CustomAlertDialog confirmDialog = new CustomAlertDialog(context, dialogId);
 		confirmDialog.setMessage(text);
-		confirmDialog.setPositiveButton(R.string.yes, listener);
+		confirmDialog.setPositiveButton(R.string.YES, listener);
 		confirmDialog.setNegativeButton(R.string.no, listener);
 		confirmDialog.show();
 		
@@ -626,7 +626,7 @@ public class HikeDialogFactory
 		final CustomAlertDialog firstConfirmDialog = new CustomAlertDialog(context, dialogId);
 		firstConfirmDialog.setTitle(R.string.are_you_sure);
 		firstConfirmDialog.setMessage(R.string.delete_confirm_msg_1);
-		firstConfirmDialog.setPositiveButton(R.string.confirm, listener);
+		firstConfirmDialog.setPositiveButton(R.string.CONFIRM, listener);
 		firstConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 		firstConfirmDialog.show();
 		return firstConfirmDialog;
@@ -670,7 +670,7 @@ public class HikeDialogFactory
 			confirmDialog.setTitle(R.string.select_all_confirmation_header);
 			confirmDialog.setMessage(context.getResources().getString(R.string.select_all_confirmation_msg, selectedContactsSize));
 		}
-		confirmDialog.setPositiveButton(R.string.yes, listener);
+		confirmDialog.setPositiveButton(R.string.YES, listener);
 		confirmDialog.setNegativeButton(R.string.no, listener);
 		confirmDialog.show();
 		
@@ -741,14 +741,14 @@ public class HikeDialogFactory
 		case DELETE_FROM_GROUP:
 			deleteConfirmDialog.setTitle(R.string.remove_from_group);
 			deleteConfirmDialog.setMessage(context.getString(R.string.remove_confirm, (String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 		
 		case DELETE_FROM_BROADCAST:
 			deleteConfirmDialog.setTitle(R.string.remove_from_broadcast);
 			deleteConfirmDialog.setMessage(context.getString(R.string.remove_confirm_broadcast, (String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
@@ -757,7 +757,7 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setTitle(R.string.delete);
 			deleteConfirmDialog.setMessage(context.getString(dialogId == DELETE_CHAT_DIALOG ? R.string.confirm_delete_chat_msg : R.string.confirm_delete_non_messaging,
 					(String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
@@ -796,7 +796,7 @@ public class HikeDialogFactory
 		case DELETE_BLOCK:
 			deleteConfirmDialog.setTitle(R.string.delete_block);
 			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_block_msg,(String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
@@ -887,7 +887,7 @@ public class HikeDialogFactory
 
 		dialog.setTitle(R.string.import_sms);
 		dialog.setMessage(R.string.import_sms_info);
-		dialog.setPositiveButton(R.string.yes, listener);
+		dialog.setPositiveButton(R.string.YES, listener);
 		dialog.setNegativeButton(R.string.no, listener);
 
 		DialogUtils.setupSyncDialogLayout(syncConfirmation, dialog);

@@ -1200,7 +1200,7 @@
     <string name="drag_tip_text">Toque e segure um pacote para reordenar os pacotes de adesivos</string>
     <string name="drag_tip_subtext">Toque e arraste para reorganizar os adesivos</string>
     <string name="CANCEL">CANCELAR</string>
-    <string name="sticker_confirm">CONFIRMAR</string>
+    <string name="CONFIRM">CONFIRMAR</string>
     <string name="n_more">MAIS %1$d</string>
     <string name="n_stickers">%1$d adesivos</string>
     <string name="last_backup">Último backup</string>

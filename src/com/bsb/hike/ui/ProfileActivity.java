@@ -1813,7 +1813,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			
 			builder = new AlertDialog.Builder(this);
 			builder.setMessage(isBroadcast ? R.string.delete_broadcast_confirm : R.string.leave_group_confirm);
-			builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
+			builder.setPositiveButton(R.string.YES, new DialogInterface.OnClickListener()
 			{
 
 				@Override
