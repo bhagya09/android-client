@@ -909,6 +909,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	protected void onPause()
 	{
 		mActivityState.isLikedByMe = this.isLikedByMe;
+		mActivityState.msisdnsList = msisdns;
 		super.onPause();
 	}
 
