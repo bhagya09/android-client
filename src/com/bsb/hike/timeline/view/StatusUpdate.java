@@ -589,7 +589,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		/*
 		 * Enabling if the text length is > 0 or if the user has selected a mood with some prefilled text.
 		 */
-		boolean enable = mActivityTask.moodId >= 0 || statusTxt.getText().toString().trim().length() > 0 || isEmojiOrMoodLayoutVisible() || !TextUtils.isEmpty(mImagePath);
+		boolean enable = mActivityTask.moodId >= 0 || statusTxt.getText().toString().trim().length() > 0 || !TextUtils.isEmpty(mImagePath);
 		Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, enable);
 	}
 
