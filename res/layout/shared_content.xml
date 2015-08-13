@@ -18,25 +18,24 @@
             android:layout_marginTop="0dp"
             layout="@layout/friends_group_view" />
 
-
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/sm_emptystate"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:gravity="center_vertical"
-                android:text="@string/no_file"
-                android:textColor="@color/mid_gray"
-                android:textSize="16sp"
-                android:layout_marginLeft="24dp"
-            	android:contentDescription="Empty State"
-            	android:visibility="gone" />
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/sm_emptystate"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="24dp"
+            android:contentDescription="Empty State"
+            android:gravity="center_vertical"
+            android:text="@string/no_file"
+            android:textColor="@color/mid_gray"
+            android:textSize="16sp"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/shared_content_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone" >
 
             <RelativeLayout
                 android:id="@+id/shared_files_rl"
@@ -120,7 +119,7 @@
                     android:text="23"
                     android:textColor="@color/mid_gray"
                     android:textSize="14sp" />
-                
+
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/count_pin_unread"
                     android:layout_width="wrap_content"
@@ -135,8 +134,8 @@
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:visibility="gone" />
-                
-				<com.bsb.hike.view.CustomFontTextView
+
+                <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/shared_pins"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -150,4 +149,5 @@
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>
+
 </LinearLayout>
