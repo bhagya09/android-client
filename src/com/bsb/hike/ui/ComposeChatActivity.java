@@ -2508,14 +2508,4 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 	}
 	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		if (listView != null)
-		{
-			((PinnedSectionListView) listView).onConfigChanged();
-		}
-		
-		super.onConfigurationChanged(newConfig);
-	}
 }

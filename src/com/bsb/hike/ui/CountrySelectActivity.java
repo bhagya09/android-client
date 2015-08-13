@@ -12,9 +12,12 @@ import java.util.List;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,24 +26,14 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.Filter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
-
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.PinnedHeaderListView;
 import com.bsb.hike.adapters.SectionedBaseAdapter;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.view.PinnedSectionListView;
 
 public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity 
 {
@@ -50,7 +43,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 
 	private SectionedBaseAdapter listViewAdapter;
 
-	private PinnedHeaderListView listView;
+	private PinnedSectionListView listView;
 
 	private boolean searching;
 
@@ -132,7 +125,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 
 		searchListViewAdapter = new SearchAdapter(this);
 
-		listView = (PinnedHeaderListView) findViewById(R.id.listView);
+		listView = (PinnedSectionListView) findViewById(R.id.listView);
 		listView.setVerticalScrollBarEnabled(false);
 		listView.setAdapter(listViewAdapter = new ListAdapter(this));
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener()

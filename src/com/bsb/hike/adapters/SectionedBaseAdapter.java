@@ -4,7 +4,9 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
-public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implements PinnedHeaderListView.PinnedSectionedHeaderAdapter
+import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
+
+public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implements PinnedSectionListAdapter
 {
 
 	/**
@@ -252,6 +254,11 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 		}
 		mSectionCount = getSectionCount();
 		return mSectionCount;
+	}
+	
+	public boolean isItemViewTypePinned(int position)
+	{
+		return isSectionHeader(position);
 	}
 
 }
