@@ -639,7 +639,7 @@
     <string name="protip_games">Juegos</string>
     <string name="ftue_grid_string">Start a conversation with one\nof your friends.</string>
     <string name="remind">Recordar</string>
-    <string name="ok">Aceptar</string>
+    <string name="OK">Aceptar</string>
     <string name="not_show_call_alert_msg">No volver a mostrar</string>
     <string name="view_profile">Ver perfil</string>
     <string name="normal_update_head">Actualización importante disponible</string>

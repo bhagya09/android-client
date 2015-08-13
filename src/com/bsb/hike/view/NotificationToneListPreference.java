@@ -80,7 +80,7 @@ public class NotificationToneListPreference extends ListPreference implements Di
 			}
 		});
 
-		builder.setPositiveButton(R.string.ok, this);
+		builder.setPositiveButton(R.string.OK, this);
 		builder.setNegativeButton(R.string.CANCEL, this);
 	}
 

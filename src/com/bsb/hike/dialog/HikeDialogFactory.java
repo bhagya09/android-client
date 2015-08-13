@@ -602,7 +602,7 @@ public class HikeDialogFactory
 		
 		dialog.setTitle(R.string.clear_conversation);
 		dialog.setMessage(R.string.confirm_clear_conversation);
-		dialog.setPositiveButton(R.string.ok, listener);
+		dialog.setPositiveButton(R.string.OK, listener);
 		dialog.setNegativeButton(R.string.CANCEL, listener);
 
 		dialog.show();
@@ -615,7 +615,7 @@ public class HikeDialogFactory
 
 		correctMSISDNConfirmDialog.setTitle(R.string.incorrect_msisdn_warning);
 		correctMSISDNConfirmDialog.setMessage(R.string.incorrect_msisdn_msg);
-		correctMSISDNConfirmDialog.setPositiveButton(R.string.ok, listener);
+		correctMSISDNConfirmDialog.setPositiveButton(R.string.OK, listener);
 		correctMSISDNConfirmDialog.show();
 
 		return correctMSISDNConfirmDialog;
@@ -648,7 +648,7 @@ public class HikeDialogFactory
 			forwardConfirmDialog.setTitle(R.string.forward);
 			forwardConfirmDialog.setMessage(DialogUtils.getForwardConfirmationText(context, arrayList, true));
 		}
-		forwardConfirmDialog.setPositiveButton(R.string.ok, listener);
+		forwardConfirmDialog.setPositiveButton(R.string.OK, listener);
 		forwardConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 		forwardConfirmDialog.show();
 		
@@ -734,7 +734,7 @@ public class HikeDialogFactory
 		case DELETE_STATUS_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.delete_status);
 			deleteConfirmDialog.setMessage(R.string.delete_status_confirmation);
-			deleteConfirmDialog.setPositiveButton(R.string.ok, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
 			break;
 			
@@ -803,7 +803,7 @@ public class HikeDialogFactory
 		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.multi_edit_undo_warning_header);
 			deleteConfirmDialog.setMessage(context.getString(R.string.multi_edit_undo_warning));
-			deleteConfirmDialog.setPositiveButton(R.string.ok, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			

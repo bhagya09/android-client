@@ -606,7 +606,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 
 	private void showErrorBox(String error)
 	{
-		new AlertDialog.Builder(this).setTitle(R.string.app_name).setMessage(error).setPositiveButton(R.string.ok, null).show();
+		new AlertDialog.Builder(this).setTitle(R.string.app_name).setMessage(error).setPositiveButton(R.string.OK, null).show();
 	}
 
 	private void listRoots()
