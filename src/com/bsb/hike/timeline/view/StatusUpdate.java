@@ -63,6 +63,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		boolean emojiShowing = false;
 
 		boolean moodShowing = false;
+		
+		boolean keyboardShowing = false;
 
 		boolean imageDeleted = false;
 	}
@@ -205,7 +207,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			showMoodSelector();
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
-		else if (TextUtils.isEmpty(mImagePath))
+		else if (TextUtils.isEmpty(mImagePath) || mActivityTask.keyboardShowing)
 		{
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
@@ -646,6 +648,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onShown()
 	{
+		mActivityTask.keyboardShowing = true;
 		hideEmojiOrMoodLayout();
 		Logger.d(StatusUpdate.class.getSimpleName(), "shown keyboard");
 	}
@@ -653,6 +656,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onHidden()
 	{
+		mActivityTask.keyboardShowing = false;
 		Logger.d(StatusUpdate.class.getSimpleName(), "hidden keyboard");
 	}
 
