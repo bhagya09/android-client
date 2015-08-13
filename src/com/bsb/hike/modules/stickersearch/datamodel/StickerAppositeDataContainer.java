@@ -214,7 +214,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		final int prime = 31;
 		int result = 1;
 
-		/* Computation must be followed in same order as used in equals() to avoid same hashCode generated for unequal object */
+		/* Computation must be followed in same order as used in equals() to avoid collision due to same hashCode generated for unequal object */
 		result = prime * result + mAge;
 		result = prime * result + mExactMatchOrder;
 		result = prime * result + mMomentCode;
@@ -415,7 +415,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 	public String toString()
 	{
 		return "[sticker_info: " + mStickerCode + ", <tag=" + mTag + "><lan_fn=" + mLanguageFunction + "><st_fn=" + mStateFunction + "><tag_fr_fn=" + mTagRelatedFrequencyFunction
-				+ "><tfr_fn=" + mOverallFrequencyFunction + "><th_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mt_cd=" + mMomentCode + "><fes="
+				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><fest="
 				+ mFestivals + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr=" + mMatchingScore
 				+ "><sr_scr=" + mRecommendationScore + ">]";
 	}

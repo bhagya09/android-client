@@ -22,13 +22,13 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import android.content.SharedPreferences.Editor;
-import android.util.Pair;
 
 public class StickerSearchUtility
 {
@@ -910,17 +910,15 @@ public class StickerSearchUtility
 	}
 
 	/* Split charSequence in regular manner with boundary indexing */
-	public static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression)
+	public static ArrayList<Word> splitWithIndexing(CharSequence input, String regExpression)
 	{
-		return splitAndDoIndexing(input, regExpression, 0);
+		return splitWithIndexing(input, regExpression, 0);
 	}
 
 	/* Split charSequence in regular manner with boundary indexing along with limit on splitting */
-	public static Pair<ArrayList<String>, Pair<ArrayList<Integer>, ArrayList<Integer>>> splitAndDoIndexing(CharSequence input, String regExpression, int limit)
+	public static ArrayList<Word> splitWithIndexing(CharSequence input, String regExpression, int limit)
 	{
-		ArrayList<String> matchList = null;
-		ArrayList<Integer> startList = null;
-		ArrayList<Integer> endList = null;
+		ArrayList<Word> wordList = null;
 
 		if ((input != null) && (regExpression != null))
 		{
@@ -928,31 +926,23 @@ public class StickerSearchUtility
 			int start = 0;
 			int length = input.length();
 			boolean matchLimited = (limit > 0);
-
-			// All 3 lists are coupled w.r.t. order of insertion of elements in each list
-			matchList = new ArrayList<String>(); // words
-			startList = new ArrayList<Integer>(); // start indexes of words (inclusive)
-			endList = new ArrayList<Integer>(); // end indexes of words (exclusive)
+			wordList = new ArrayList<Word>();
 
 			Matcher m = TextMatchManager.getPattern(regExpression).matcher(input);
 
 			// Add segments before each match found
 			while (m.find())
 			{
-				if (!matchLimited || (matchList.size() < (limit - 1)))
+				if (!matchLimited || (wordList.size() < (limit - 1)))
 				{
 					start = m.start();
-					matchList.add(input.subSequence(index, start).toString());
-					startList.add(index);
-					endList.add(start);
+					wordList.add(new Word(input.subSequence(index, start).toString(), index, start));
 					index = m.end();
 				}
-				else if (matchList.size() == (limit - 1))
+				else if (wordList.size() == (limit - 1))
 				{
 					// Add last one
-					matchList.add(input.subSequence(index, length).toString());
-					startList.add(index);
-					endList.add(length);
+					wordList.add(new Word(input.subSequence(index, length).toString(), index, length));
 					index = m.end();
 				}
 			}
@@ -960,36 +950,28 @@ public class StickerSearchUtility
 			// If no match was found, return this
 			if (index == 0)
 			{
-				matchList.add(input.toString());
-				startList.add(index);
-				endList.add(length);
+				wordList.add(new Word(input.toString(), index, length));
 			}
 			else
 			{
 				// Add remaining segment
-				if (!matchLimited || (matchList.size() < limit))
+				if (!matchLimited || (wordList.size() < limit))
 				{
-					matchList.add(input.subSequence(index, length).toString());
-					startList.add(index);
-					endList.add(length);
+					wordList.add(new Word(input.subSequence(index, length).toString(), index, length));
 				}
 
 				// Construct result
 				if (limit == 0)
 				{
-					int i = matchList.size() - 1;
-
-					while ((i > -1) && matchList.get(i).equals(StickerSearchConstants.STRING_EMPTY))
+					for (int i = (wordList.size() - 1); (i > -1) && (wordList.get(i).getValue().length() == 0); i--)
 					{
-						matchList.remove(i);
-						startList.remove(i);
-						endList.remove(i--);
+						wordList.remove(i);
 					}
 				}
 			}
 		}
 
-		return new Pair<>(matchList, new Pair<>(startList, endList));
+		return wordList;
 	}
 
 	public static class TextMatchManager

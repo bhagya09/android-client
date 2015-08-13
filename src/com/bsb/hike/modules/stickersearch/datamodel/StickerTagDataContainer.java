@@ -136,7 +136,7 @@ public class StickerTagDataContainer
 		final int prime = 31;
 		int result = 1;
 
-		/* Computation must be followed in same order as used in equals() to avoid same hashCode generated for unequal object */
+		/* Computation must be followed in same order as used in equals() to avoid collision due to same hashCode generated for unequal object */
 		result = prime * result + mMomentCode;
 		result = prime * result + ((mTagExactMatchPriorities == null) ? 0 : mTagExactMatchPriorities.hashCode());
 		result = prime * result + ((mTagPriorities == null) ? 0 : mTagPriorities.hashCode());
@@ -279,8 +279,7 @@ public class StickerTagDataContainer
 	@Override
 	public String toString()
 	{
-		return "[sticker_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><language=" + mLanguages + "><category=" + mTagCategories + "><theme=" + mThemes
-				+ "><exact_match_order=" + mTagExactMatchPriorities + "><tag_popularity_order=" + mTagPriorities + ">}, attributes: {<moment_code=" + mMomentCode + "><festival="
-				+ mFestivals + "}]";
+		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><cat=" + mTagCategories + "><thm=" + mThemes + "><ext_match_ord="
+				+ mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><fest=" + mFestivals + "}]";
 	}
 }
