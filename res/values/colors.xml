@@ -439,6 +439,7 @@
     <color name="bg_custom_dialog">#EEEEEE</color>
     <color name="referral_text_colour">#898989</color>
     <color name="referral_code">#ebebeb</color>
+    <color name="welcome_activity_status_bar_color">#f4f4f4</color>
     <color name="spring_theme_status_bar_color">#49645a</color>
     <color name="owl_theme_status_bar_color">#132a2a</color>
     <color name="night_theme_status_bar_color">#07121c</color>
