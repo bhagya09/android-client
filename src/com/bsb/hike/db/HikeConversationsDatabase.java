@@ -1851,6 +1851,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 					map.put(conv.getMsisdn(), new Pair<List<String>, Long>(lastMsisdns, timestamp));
 				}
+					/*
+					 * Shared data for platform card messages
+					 */
+					if (conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
+					{
+						PlatformUtils.sharedDataHandlingForMessages(conv);
+					}
 				}
 
 				incrementUnreadCounter(contact.getMsisdn(), unreadMessageCount);
@@ -1953,6 +1960,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (conv.isFileTransferMessage() && msgId > 0)
 				{
 					addSharedMedia(conv);
+				}
+
+				/*
+				 * Shared data for platform card messages
+				 */
+				if ((conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT) && conv.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+				{
+					PlatformUtils.sharedDataHandlingForMessages(conv);
 				}
 				resultList.add(conv);
 			}
