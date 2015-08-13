@@ -166,6 +166,8 @@ public class OfflineConstants
 	public static final int TIMER_START_TIME = 18000;
 	
 	public static final int NOTIFICATION_IDENTIFIER = -101;
+
+	public static final String OFFLINE_INDICATOR_CLICKED = "offline_indicator_clicked";
 	
 	
 }

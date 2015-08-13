@@ -1049,7 +1049,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mTips.hideTip();
 
 		// Remove the indicator if any on the overflow menu.
-		mActionBar.updateOverflowMenuIndicatorImage(0);
+		mActionBar.updateOverflowMenuIndicatorImage(0,false);
 
 		/**
 		 * Hiding the softkeyboard if we are in landscape mode
@@ -3349,7 +3349,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
 			}
 			// If the indicator is successfully displayed the setting is saved, so that its not shown again.
-			else if (mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_top_bar_indicator_search))
+			else if (mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_top_bar_indicator_search,false))
 			{
 				ctSearchIndicatorShown = true;
 				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
