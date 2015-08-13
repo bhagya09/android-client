@@ -276,7 +276,7 @@ public class DownloadFileTask extends FileTransferBase
 						boolean isCompleted = numRead == -1 ? true : false;
 						String contentRange = "bytes " + mStart + "-" + (mStart + byteRead) + "/" + _totalSize;
 						String netType = FileTransferManager.getInstance(context).getNetworkTypeString();
-						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, fileKey, isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType);
+						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, fileKey, isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, hikeFile.getFileTypeString());
 						time = System.currentTimeMillis();
 						Logger.d(getClass().getSimpleName(), "ChunkSize : " + chunkSize + "Bytes");
 						data = new byte[chunkSize];

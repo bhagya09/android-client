@@ -53,6 +53,7 @@ import android.provider.MediaStore.MediaColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -1359,7 +1360,11 @@ public class UploadFileTask extends FileTransferBase
 		boolean isCompleted = resCode == RESPONSE_OK ? true : false;
 		String netType = FileTransferManager.getInstance(context).getNetworkTypeString();
 		if (resCode == RESPONSE_OK || resCode == RESPONSE_ACCEPTED)
-			FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, time, contentRange, netType);
+		{
+			String fileExtension = Utils.getFileExtension(selectedFile.getPath());
+			String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+			FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, time, contentRange, netType, fileType);
+		}
 		Logger.d(getClass().getSimpleName(), "Upload time: " + time / 1000 + "." + time % 1000 + "s.  Response: " + resCode);
 		return res;
 	}
