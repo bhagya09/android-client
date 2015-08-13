@@ -195,6 +195,8 @@ public class FTAnalyticEvents
 	public static final String FT_FILE_ID = "ft_fId";
 
 	public static final String FT_CONTENT_RANGE = "ft_cr";
+
+	public static final String FT_FILE_TYPE = "ft_fileType";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
@@ -423,8 +425,9 @@ public class FTAnalyticEvents
 	* @param timeTaken
 	* @param contentRange
 	* @param networkType
+	* @param fileType
 	*/
-	public static void logFTProcessingTime(String taskType, String sessionId, boolean isCompleted, long chunkSize, long timeTaken, String contentRange, String networkType) 
+	public static void logFTProcessingTime(String taskType, String sessionId, boolean isCompleted, long chunkSize, long timeTaken, String contentRange, String networkType, String fileType) 
 	{
 		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
 			return;
@@ -438,6 +441,7 @@ public class FTAnalyticEvents
 			info.put(FT_COMPLETED, isCompleted);
 			info.put(FT_CONTENT_RANGE, contentRange);
 			info.put(FT_NETWORK_TYPE, networkType);
+			info.put(FT_FILE_TYPE, fileType);
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "FTR : Processing Time log : "+ info.toString());
 			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, FT_BENCH_MARK, info);
 		} catch (JSONException e) {
