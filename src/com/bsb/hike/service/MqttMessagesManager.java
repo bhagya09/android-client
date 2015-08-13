@@ -3,10 +3,10 @@ package com.bsb.hike.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -4301,7 +4301,7 @@ public class MqttMessagesManager
 		Set<String> msisdnSet = null;
 		if (msisdnArray != null)
 		{
-			msisdnSet = new HashSet<String>();
+			msisdnSet = new LinkedHashSet<String>();
 			for (int i = 0; i < msisdnArray.length(); i++)
 			{
 				msisdnSet.add(msisdnArray.optString(i));
