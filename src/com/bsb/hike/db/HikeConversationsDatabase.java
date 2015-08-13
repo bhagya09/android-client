@@ -1692,9 +1692,40 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Delete All entries from Feed Table for this SU
+	 * 
+	 * @return
+	 */
+	public boolean deleteActivityFeedForStatus(String mappedId)
+	{
+		boolean isComplete = false;
+
+		String whereClause = DBConstants.FEED_OBJECT_ID + "=?";
+
+		int rowDeleted = mDb.delete(DBConstants.FEED_TABLE, whereClause, new String[] { mappedId });
+
+		if (rowDeleted != 0)
+		{
+			isComplete = true;
+		}
+		else
+		{
+			isComplete = false;
+		}
+
+		if (isComplete)
+		{
+			fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+		}
+
+		return isComplete;
+	}
+
 	/**
 	 * Updates all rows of Feed_Table to 1 (i.e marks all Feeds as read)
+	 * 
 	 * @return
 	 */
 	public boolean updateActivityFeedReadStatus()
