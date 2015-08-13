@@ -2375,7 +2375,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					{
 						updateProfileHeaderView();
 					}
-					else if(profileType == ProfileType.CONTACT_INFO_TIMELINE)
+					else if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 					{
 						updatesFragment.notifyVisibleItems();
 					}
@@ -2423,7 +2423,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				@Override
 				public void run()
 				{
-					if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
+					if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 					{
 						updatesFragment.notifyVisibleItems();
 					}
@@ -2443,7 +2443,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					@Override
 					public void run()
 					{
-						if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
+						if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 						{
 							updatesFragment.notifyVisibleItems();
 						}
@@ -2459,7 +2459,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			runOnUiThread(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
@@ -2579,7 +2578,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							@Override
 							public void run() 
 							{
-								if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
+								if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 								{
 									updatesFragment.notifyVisibleItems();
 								}
@@ -2631,7 +2630,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					@Override
 					public void run() 
 					{
-						if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
+						if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 						{
 							updatesFragment.notifyVisibleItems();
 						}
