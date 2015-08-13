@@ -23,6 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginLeft="24dp"
+            style="@style/BaseStyleTextView"
             android:gravity="center_vertical"
             android:text="@string/no_media"
             android:textColor="@color/mid_gray"
@@ -33,9 +34,9 @@
             android:id="@+id/media_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="@dimen/sm_leftmargin"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:orientation="horizontal"
             android:visibility="gone" >
 
@@ -61,6 +62,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
+        android:layout_marginTop="6dp"
         android:background="@color/home_screen_list_divider" />
 
 </LinearLayout>
