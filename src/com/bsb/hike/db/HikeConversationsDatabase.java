@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -7424,4 +7426,248 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return null;
 	}
+
+	public String getMessageEventsForMicroapps(String nameSpace, boolean includeNormalEvent)
+	{
+		Cursor c = null;
+		try
+		{
+			if (!includeNormalEvent)
+			{
+				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS},
+						HIKE_CONTENT.NAMESPACE + "=? AND " + DBConstants.EVENT_TYPE + "=?", new String[] { nameSpace,
+								String.valueOf(HikePlatformConstants.EventType.SHARED_EVENT) }, null, null, null);
+			}
+			else
+			{
+				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE },
+						HIKE_CONTENT.NAMESPACE + "=?", new String[] { nameSpace }, null, null, null);
+			}
+
+			if (c.getCount() <=0)
+			{
+				return "{}";
+			}
+
+			ArrayList<JSONObject> dataList = new ArrayList<>();
+			int eventIdx = c.getColumnIndex(DBConstants.EVENT_ID);
+			int messageHashIdx = c.getColumnIndex(DBConstants.MESSAGE_HASH);
+			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
+			int msisdnIndex = c.getColumnIndex(MSISDN);
+			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+
+			while (c.moveToNext())
+			{
+				ContactInfo info = ContactManager.getInstance().getContact(c.getString(msisdnIndex));
+				JSONObject jsonObject = info.getPlatformInfo();
+				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
+				jsonObject.put(HikePlatformConstants.MESSAGE_HASH, c.getString(messageHashIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+				if (includeNormalEvent)
+				{
+					jsonObject.put(HikePlatformConstants.EVENT_TYPE, c.getInt(c.getColumnIndex(EVENT_TYPE)));
+				}
+				dataList.add(jsonObject);
+			}
+			return dataList.toString();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return "{}";
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public String getEventsForMessageHash(String messageHash, String namespace)
+	{
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE}, MESSAGE_HASH + "=? AND " + HIKE_CONTENT.NAMESPACE + "=?", new String[] { messageHash, namespace}, null, null, null);
+			if (c.getCount() <=0)
+			{
+				return "{}";
+			}
+
+			ArrayList<JSONObject> dataList = new ArrayList<>();
+			int eventIdx = c.getColumnIndex(DBConstants.EVENT_ID);
+			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
+			int msisdnIndex = c.getColumnIndex(MSISDN);
+			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+
+			while (c.moveToNext())
+			{
+				ContactInfo info = ContactManager.getInstance().getContact(c.getString(msisdnIndex));
+				JSONObject jsonObject = info.getPlatformInfo();
+				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+
+				jsonObject.put(HikePlatformConstants.EVENT_TYPE, c.getInt(c.getColumnIndex(EVENT_TYPE)));
+				dataList.add(jsonObject);
+			}
+			return dataList.toString();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return "{}";
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public void deleteEvent(String eventId)
+	{
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_ID  + "=?", new String[]{eventId});
+	}
+
+	public void deleteAllEventsForMessage(String messageHash)
+	{
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.MESSAGE_HASH + "=?", new String[]{messageHash});
+	}
+
+	public void deleteAllEventsForNamespace(String namespace)
+	{
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, HIKE_CONTENT.NAMESPACE + "=?", new String[]{namespace});
+	}
+
+	public long insertMessageEvent(MessageEvent messageEvent)
+	{
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.MESSAGE_HASH, messageEvent.getMessageHash());
+		values.put(DBConstants.EVENT_METADATA, messageEvent.getEventMetadata());
+		values.put(DBConstants.EVENT_STATUS, messageEvent.getEventStatus());
+		values.put(DBConstants.EVENT_TYPE, messageEvent.getEventType());
+		values.put(DBConstants.TIMESTAMP, messageEvent.getSentTimeStamp());
+		values.put(DBConstants.MAPPED_EVENT_ID, messageEvent.getMappedEventId());
+		values.put(DBConstants.MSISDN, messageEvent.getMsisdn());
+		values.put(HIKE_CONTENT.NAMESPACE, messageEvent.getNameSpace());
+		String eventHash = messageEvent.createEventHash();
+		if (!TextUtils.isEmpty(eventHash))
+		{
+			values.put(DBConstants.EVENT_HASH, eventHash);
+		}
+		return mDb.insert(DBConstants.MESSAGE_EVENT_TABLE, null, values);
+	}
+
+	/**
+	 * This method is used for the authentication of the message event
+	 * @param messageHash
+	 * @param from
+	 * @return
+	 */
+	public long getMessageIdFromMessageHash(String messageHash, String from)
+	{
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.MSISDN }, DBConstants.MESSAGE_HASH + " =?", new String[] { messageHash },
+					null, null, null, null);
+
+			int msgIdIdx = c.getColumnIndex(DBConstants.MESSAGE_ID);
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+
+			if (c.moveToFirst())
+			{
+				long msgId = c.getLong(msgIdIdx);
+				String msisdn = c.getString(msisdnIdx);
+				if (msisdn.equals(from))
+				{
+					return msgId;
+				}
+			}
+			return -1;
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+	}
+
+	/**
+	 * This method is used for getting message hash from message id. Message Hash is a base for all Card to card messaging in Platform.
+	 * @param messageId
+	 * @return
+	 */
+	public String getMessageHashFromMessageId(long messageId)
+	{
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_HASH }, DBConstants.MESSAGE_ID + " =?", new String[] { String.valueOf(messageId) },
+					null, null, null, null);
+
+
+
+			if (c.moveToFirst())
+			{
+				int msgHashIdx = c.getColumnIndex(DBConstants.MESSAGE_HASH);
+				return c.getString(msgHashIdx);
+			}
+			return "";
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+	}
+
+	public String getMsisdnFromMessageHash(String messageHash)
+	{
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MESSAGE_HASH + " =?", new String[] { messageHash },
+					null, null, null, null);
+
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+
+			if (c.moveToFirst())
+			{
+				return c.getString(msisdnIdx);
+			}
+			return null;
+		}
+
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+
 }

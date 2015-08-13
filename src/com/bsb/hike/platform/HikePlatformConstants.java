@@ -67,6 +67,7 @@ public interface HikePlatformConstants
 	public static final String CUSTOMER_SUPPORT_BOT_MSISDN = "+hikecs+";
 	public static final String MESSAGE_HASH = "h";
 	public static final String EVENT_ID = "eventId";
+	public static final String EVENT_STATUS = "eventStatus";
 	public static final String EVENT_DATA = "d";
 	public static final String EVENT_TYPE = "et";
 	public static final String SHARED_EVENT = "se";
