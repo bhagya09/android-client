@@ -156,16 +156,18 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		int sizeOfImage = getResources().getDimensionPixelSize(R.dimen.gallery_selection_item_size);
 
 		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
-		int actualSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
+		int thumbnailSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
+		//num of columns is 1 for preview as we will be displaying only one image at a time.
+		int previewSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, 1);
 
-		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, actualSize, null, true);
+		gridAdapter = new GalleryAdapter(this, galleryGridItems, true, thumbnailSize, null, true);
 
 		selectedGrid.setNumColumns(numColumns);
 		selectedGrid.setAdapter(gridAdapter);
 		selectedGrid.setOnScrollListener(this);
 		selectedGrid.setOnItemClickListener(this);
 
-		pagerAdapter = new GalleryPagerAdapter(actualSize);
+		pagerAdapter = new GalleryPagerAdapter(previewSize);
 		selectedPager.setAdapter(pagerAdapter);
 		selectedPager.setOnPageChangeListener(this);
 
@@ -183,6 +185,16 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			for (int i = 0;i<galleryItems.size();i++)
 			{
 				editedImages.add(null);
+			}
+		}
+		else
+		{
+			for(int i=editedImages.size()-1;i>=0;i--)
+			{
+				if(editedImages.get(i)!=null && !new File(editedImages.get(i)).exists())
+				{
+					editedImages.remove(i);
+				}
 			}
 		}
 	}
