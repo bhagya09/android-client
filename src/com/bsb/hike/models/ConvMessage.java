@@ -505,7 +505,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		{
 			Logger.i("ConvMessage", "Data has Platform Packet");
 			
-			platformData = data.getJSONObject(HikeConstants.PLATFORM_PACKET);			
+			platformData = data.optJSONObject(HikeConstants.PLATFORM_PACKET);
 		}
 		
 		this.isStickerMessage = HikeConstants.STICKER.equals(obj.optString(HikeConstants.SUB_TYPE));
@@ -949,7 +949,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 					break;
 
 				}
-				
+
 				object.put(HikeConstants.TYPE, mInvite ? HikeConstants.MqttMessageTypes.INVITE : HikeConstants.MqttMessageTypes.MESSAGE);
 				object.put(HikeConstants.SEND_TIMESTAMP, getSendTimestamp());
 			}
