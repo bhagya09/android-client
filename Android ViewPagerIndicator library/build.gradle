@@ -15,7 +15,7 @@ dependencies {
 }
 android {
     compileSdkVersion 19
-    buildToolsVersion '21.0.2'
+    buildToolsVersion '22.0.1'
     lintOptions {
         abortOnError false
     }
@@ -25,5 +25,9 @@ android {
             java.srcDirs = ['src']
             res.srcDirs = ['res']
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
