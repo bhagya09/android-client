@@ -191,17 +191,13 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
-
-		if(getSupportFragmentManager().findFragmentByTag(MAIN_ACTIVITY_FEED_TAG) == null)
+		mainFragment = (UpdatesFragment)getSupportFragmentManager().findFragmentByTag(MAIN_ACTIVITY_FEED_TAG);
+		
+		if(mainFragment == null)
 		{
-			if(mainFragment != null)
-			{
-				Logger.i(TAG, "Main Fragment was not null, Recreating");
-			}
 			mainFragment = new UpdatesFragment();
 			getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment,MAIN_ACTIVITY_FEED_TAG).addToBackStack(MAIN_ACTIVITY_FEED_TAG).commit();
 		}
-
 	}
 
 	@Override
