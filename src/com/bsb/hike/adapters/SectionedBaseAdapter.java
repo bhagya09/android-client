@@ -33,6 +33,11 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 	 * Caches the section count
 	 */
 	private int mSectionCount;
+	
+	protected enum ViewType
+	{
+		SECTION, OTHER;
+	}
 
 	public SectionedBaseAdapter()
 	{
@@ -122,9 +127,9 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 	{
 		if (isSectionHeader(position))
 		{
-			return getItemViewTypeCount() + getSectionHeaderViewType(getSectionForPosition(position));
+			return ViewType.SECTION.ordinal(); 
 		}
-		return getItemViewType(getSectionForPosition(position), getPositionInSectionForPosition(position));
+		return ViewType.OTHER.ordinal();
 	}
 
 	@Override
@@ -202,19 +207,9 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 		return false;
 	}
 
-	public int getItemViewType(int section, int position)
-	{
-		return 0;
-	}
-
 	public int getItemViewTypeCount()
 	{
-		return 1;
-	}
-
-	public int getSectionHeaderViewType(int section)
-	{
-		return 0;
+		return ViewType.values().length;
 	}
 
 	public int getSectionHeaderViewTypeCount()
@@ -256,9 +251,9 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 		return mSectionCount;
 	}
 	
-	public boolean isItemViewTypePinned(int position)
+	public boolean isItemViewTypePinned(int viewType)
 	{
-		return isSectionHeader(position);
+		return viewType == ViewType.SECTION.ordinal();
 	}
 
 }

@@ -262,12 +262,6 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 	}
 
 	@Override
-	public int getItemViewType(int section, int position)
-	{
-		return 0;
-	}
-
-	@Override
 	public int getItemViewTypeCount()
 	{
 		return 1;
