@@ -66,8 +66,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -1739,30 +1737,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, true);
 					editor.commit();
 					updateOverFlowMenuNotification();
-					String extraBotMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXTRAS_BOT_MSISDN, null);
-					if (extraBotMsisdn != null && BotUtils.isBot(extraBotMsisdn) && (BotUtils.getBotInfoForBotMsisdn(extraBotMsisdn)).isNonMessagingBot())
-					{
-						intent = IntentFactory.getNonMessagingBotIntent(extraBotMsisdn, HomeActivity.this);
-					}
-					else
-					{
-						intent = IntentFactory.getGamingIntent(HomeActivity.this);
-					}
+					intent = IntentFactory.getGamingIntent(HomeActivity.this);
 					break;
 					
 				case R.string.rewards:
 					editor.putBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, true);
 					editor.commit();
 					updateOverFlowMenuNotification();
-					String rewardsBotMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.REWARDS_BOT_MSISDN, null);
-					if (rewardsBotMsisdn != null && BotUtils.isBot(rewardsBotMsisdn) && (BotUtils.getBotInfoForBotMsisdn(rewardsBotMsisdn)).isNonMessagingBot())
-					{
-						intent = IntentFactory.getNonMessagingBotIntent(rewardsBotMsisdn, HomeActivity.this);
-					}
-					else
-					{
-						intent = IntentFactory.getRewardsIntent(HomeActivity.this);
-					}
+					intent = IntentFactory.getRewardsIntent(HomeActivity.this);
 					break;
 					
 				case R.string.settings:
