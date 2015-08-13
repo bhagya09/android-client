@@ -1412,6 +1412,7 @@ private void setupToolBar(int titleRes){
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
 			lp.setTitleColor(R.color.unread_message_blue);
 		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+		lp.setNegativeButtonText(R.string.CANCEL);
 	}
 
 	private String getLSSummaryText()
@@ -1491,6 +1492,7 @@ private void setupToolBar(int titleRes){
 			}
 		});
 		lp.setTitle(lp.getTitle() + ": " + lp.getValue());
+		lp.setNegativeButtonText(R.string.CANCEL);
 		
 		ListPreference ledPref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.COLOR_LED_PREF);
 		ledPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
@@ -1591,6 +1593,7 @@ private void setupToolBar(int titleRes){
 		}
 
 		ledPref.setTitle(ledPref.getTitle() + ": " + ledPref.getEntry());
+		ledPref.setNegativeButtonText(R.string.CANCEL);
 	}
 
 	@Override
