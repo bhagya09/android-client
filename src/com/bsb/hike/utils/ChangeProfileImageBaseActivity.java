@@ -461,7 +461,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 		};
 		deleteConfirmDialog.setPositiveButton(R.string.YES, dialogListener);
-		deleteConfirmDialog.setNegativeButton(R.string.no,dialogListener);
+		deleteConfirmDialog.setNegativeButton(R.string.NO,dialogListener);
 		deleteConfirmDialog.show();
 	}
 

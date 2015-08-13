@@ -1830,7 +1830,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					finish();
 				}
 			});
-			builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener()
+			builder.setNegativeButton(R.string.NO, new DialogInterface.OnClickListener()
 			{
 
 				@Override
