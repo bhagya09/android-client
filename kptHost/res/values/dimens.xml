@@ -24,7 +24,7 @@
     <dimen name="kpt_key_height_when_4rows_xl">50dip</dimen>
     <dimen name="kpt_key_height_thai_punctuation">40dip</dimen>
     <dimen name="kpt_bubble_pointer_offset">22dip</dimen>
-    <dimen name="kpt_candidate_strip_height">54dip</dimen>
+    <dimen name="kpt_candidate_strip_height">44dip</dimen>
     <dimen name="kpt_spacebar_vertical_correction">0dip</dimen>
     <dimen name="kpt_spacebar_text_size">11sp</dimen>
     <dimen name="kpt_func_key_height">60dip</dimen>
@@ -70,11 +70,12 @@
 	<item name="kpt_keyLabelNumYPos" format="float" type="dimen">0.6</item>
 	<item name="kpt_keyLabel2XPos" format="float" type="dimen">0.70</item>
 	<item name="kpt_keyLabel2YPos" format="float" type="dimen">0.25</item>
-	
+	<item name="kpt_keyLabel2XPosForDanda" format="float" type="dimen">0.60</item>
 	<!-- Below 2 values will change based on the language -->
 	<dimen name="kpt_keyLabelTextSize">20sp</dimen>
 	<dimen name="kpt_keyLabel2TextSize">12sp</dimen>
 	<dimen name="kpt_keyLabel2GlobeShareTextSize">16sp</dimen>
+	<dimen name="kpt_keyLabel2TextSizeForSpace">12sp</dimen>
 	
 	<!-- Below 2 values are for Phone_symbols and Phone_symbols_shifted. This is same for all
 		language -->
@@ -87,6 +88,8 @@
          <!-- Dimensions of Drak Theme   -->  
         
 <dimen name="kpt_key_height_dk_fk">54dip</dimen> 
+<dimen name="kpt_key_height_hindhi_5_rows_dk_fk">43dip</dimen> 
+<dimen name="kpt_hindhi_key_height_dk_fk">35dip</dimen> 
 <dimen name="kpt_number_row_key_height_dk_fk">40dip</dimen> 
   <dimen name="kpt_bubble_pointer_offset_dk_fk">22dip</dimen> 
   <dimen name="kpt_candidate_strip_height_dk_fk">54dip</dimen> 

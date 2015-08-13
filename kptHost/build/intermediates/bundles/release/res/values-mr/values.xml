@@ -164,19 +164,11 @@
     <string name="kpt_UI_STRING_ATR_COLUMNHEADER_2_7003">विस्तार</string>
     <string name="kpt_UI_STRING_COMMON_5_OFF">ऑटो करेक्शन\nऑफ</string>
     <string name="kpt_UI_STRING_COMMON_5_ON">ऑटो करेक्शन\nऑन</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300">आत्ता अपग्रेड करा</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300">नंतर</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_220">कस्टम गेश्चर तुम्हाला डिलीट करायचे आहे का?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_300">तुम्हाला ही कस्टम थीम डिलिट करायची आहे का?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_110">बाहेर पडायच्या आधी बदल सेव्ह करा?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_200">तुमची खरेदी पूर्ण करण्यासाठी ॲप स्टोअरला लॉग इन करा. तुम्हाला हे आत्ता करायचे आहे का?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_220">तुम्हाला सगळे कस्टम गेस्चर्स डिलीट करायचे आहेत का?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_300">तुम्हाला ही थीम अन इन्स्टॉल करायची आहे का?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_4_300">डिफॉल्ट थीम्स तुम्ही डिलिट करू शकत नाही.</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_1_300">तुम्ही तुमची इन-अ‍ॅप खरेदी ही Adaptxt च्या आधीच्या व्हर्जनमध्ये पूर्ण केल्यामुळे Adaptxtच्या फूल व्हर्जनला अपग्रेड करा. तुमचे पैसे तुम्हाला परत दिले जातील. तुमची चाचणी % दिवसांमध्ये संपत आहे.</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_2_300">Adaptxt वापरल्याबद्दल धन्यवाद. तुमचा चाचणी कालावधी संपला आहे. Adaptxt चा वापर सुरू ठेवण्याकरता  \"Upgrade now\" वर क्लिक करा.</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_2_7003">Adaptxtला नवीन शब्द आणि संदर्भ कळणार नाहीत.</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_3_300">Adaptxt ची नवीन फीचर्स अनुभवण्यासाठी तुमची डिक्शनरी अपडेट करा. </string>
     <string name="kpt_UI_STRING_DIALOG_MSG_3_7003">Adaptxtला पुन्हा नवीन शब्द आणि संदर्भ कळतील.</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_4_7003">*विस्तार म्हणून कमीतकमी ३ अक्षरे तरी टाका .</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_5_7003">*हा शॉर्टकट आधीच अस्तित्वात आहे.कृपया दुसरा निवडा.</string>
@@ -184,11 +176,8 @@
     <string name="kpt_UI_STRING_DIALOG_MSG_7_7003">*विस्तार फील्ड तुम्ही रिकामे ठेवू शकत नाही.</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_8_7003">तुम्हाला नक्की सगळे शॉर्टकट्स आणि विस्तार डिलिट करायचे आहेत का?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_220">गेश्चर्स डिलीट करू?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_1_300">कस्टम थीम</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_7003">प्रायव्हेट मोड सुरू?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_110">कीबोर्ड जुळणीच्या बाहेर?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_220">सगळे डिलीट करू?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_300">इनस्टॉल केलेली थीम</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_7003">प्रायव्हेट मोड बंद?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_4_200">ॲप स्टोअर अकाऊंट</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_5">अ‍ॅप्लिकेशनपासून शिका</string>
@@ -209,12 +198,8 @@
     <string name="kpt_UI_STRING_INAPP_TOAST_2">एकावेळी फक्त ५ ॲड ऑन्सचाच वापर करता येईल. कृपया आधी इन्स्टॉल केलेले ॲड ऑन्स काढून परत इन्स्टॉल करा</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_3">कनेक्शनमध्ये चूक, कृपया आपली नेटवर्क कनेक्टिव्हिटी तपासा आणि पुन्हा प्रयत्न करा</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_4">कनेक्शनची वेळ संपली,कृपया पुन्हा प्रयत्न करा</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">रिसेट</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">सेव्ह</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">बाहेर</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14">डिफॉल्ट</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14_200">हे फीचर सुरू करण्यासाठी डिक्शनरीचे ॲड ऑन इन्स्टॉल करा.</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">थीमबोर्ड</string>
     <string name="kpt_UI_STRING_MENUITEMS_1">Adaptxt स्टोअर</string>
     <string name="kpt_UI_STRING_MENUITEMS_1_7003">एटीआर</string>
     <string name="kpt_UI_STRING_MENUITEMS_2_7003">शॉर्टकट्स आणि विस्तार</string>
@@ -264,7 +249,6 @@
     <string name="kpt_UI_STRING_POPUP_ITEM_2_300">डिस्मिस की लपवा.</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_220">Glide हे अजून बीटा फीचर आहे. ते सुधारण्यासाठी आम्हाला प्रतिक्रियेसहित तुमचा सहभाग अपेक्षित आहे.</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_2_220">Adaptxt इनपुट टेक्स्ट साठी नवीन क्रांतिकारी पद्धत सुरु होत आहे. अधिक जाणून घेण्यासाठी हा मेसेज पहा.</string>
-    <string name="kpt_UI_STRING_QUICKSETTINGSITEM_1_110">कीबोर्ड जुळणी </string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_1_7003">लेआऊट्स\n</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003">खाजगी मोड\nबंद</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_I_7003">खाजगी मोड\nसुरू</string>
@@ -279,12 +263,10 @@
     <string name="kpt_UI_STRING_SETTINGS_ERRORMSG_1_220">तुम्ही हे अक्षर निवडले आहे ते आधीच दुसऱ्या गेस्चरसाठी वापरले गेले आहे</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_300">अनडू आणि एमपी &amp; डिस्मिस कीज</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_2_220">गेस्चर कस्टमाइज करा</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_2_300">फूल व्हर्जनला अपग्रेड करा.</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_3_220">Glide Beta प्रतिक्रिया</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220">Glide सुरु/बंद करा आणि गेश्चर्स कस्टमाइज करा</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300">ऑटो करेक्शन अनडू किंवा डिस्मिस करण्यासाठी कीजचा डिस्प्ले कस्टमाईज करा.</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_220">कस्टम शॉर्टकट्स तयार करा</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300">Adaptxt अपग्रेड करण्यासाठी इथे टिचकी मारा.</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220">शब्द तयार करण्यासाठी बोट न उचलता अक्षरांवरुन फिरवा</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220">Glide हे अजून बीटा फीचर आहे. ते सुधारण्यासाठी आम्हाला मदत करा</string>
     <string name="kpt_UI_STRING_SETTINGS_SITEM_1">तुमचे नवीन शब्द</string>
@@ -304,14 +286,11 @@
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300">लाल</string>
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_12_300">हिरवा</string>
     <string name="kpt_UI_STRING_THEME_ITEM1">निळा</string>
-    <string name="kpt_UI_STRING_TOAST_1_110">दिशा बदलण्याआधी कीबोर्ड जुळणीच्या बाहेर या </string>
     <string name="kpt_UI_STRING_TOAST_1_220">कस्टम गेश्चर्स यशस्वीपणे सेव्ह झाले</string>
     <string name="kpt_UI_STRING_TOAST_1_7003">मजकूराच्या भागात कुठलाच मजकूर टाकलेला नाही.</string>
-    <string name="kpt_UI_STRING_TOAST_2_110">बदल सेव्ह झाले </string>
     <string name="kpt_UI_STRING_TOAST_2_200"> Android v2.2 आणि वरच्या डिव्हायसेसनाच हे फीचर किंवा ॲड ऑन सपोर्ट करते.</string>
     <string name="kpt_UI_STRING_TOAST_2_220">अप्लिकेशन मिळू शकत नाही</string>
     <string name="kpt_UI_STRING_TOAST_2_7003">लॅटिन अक्षरांवर आधारित विरामचिन्हे आणि भेदकचिन्हे मजकूरातून काढून टाकलेली आहेत.</string>
-    <string name="kpt_UI_STRING_TOAST_3_110">कीबोर्डची उंची बदलण्यासाठी स्लायडरचा वापर करा.</string>
     <string name="kpt_UI_STRING_TOAST_4_110"> कृपया तुमच्या यंत्रावरील वेळ अचूक आहे याची खात्री करण्यासाठी\“ऑटोमॅटिक”\“अंडर”\“डेट ॲन्ड टाईम”\“ॲन्ड”\“टाईम झोन”\ असे सेटिंग करा.</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_1_2001">हे फीचर हा टेक्स्ट एडिटर सपोर्ट करत नाही</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_8_300">तुमच्या डिक्शनरीमधल्या शब्दांचा बॅकअप घेण्यासाठी मेमरी पुरेशी नाही</string>
@@ -487,13 +466,11 @@
     <string name="kpt_popular_domain_sc_value">2326</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-mr/strings.xml -->
     <eat-comment/>
-    <string name="kpt_potrait_default">पोट्रेट मोड चा लेआऊट</string>
+    <string name="kpt_potrait_default">लेआऊट सिलेक्ट करा</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
     <string name="kpt_pref_latestVersion">अद्ययावत व्हर्जन शोधा</string>
     <string name="kpt_prior_header_1">ऍड ऑन</string>
     <string name="kpt_prior_header_2">अग्रक्रम</string>
-    <string name="kpt_prior_tool_tip_1">डिक्शनरीचा अग्रक्रम बदलण्यासाठी आयकॉन हवा तिथे सरकवा.</string>
-    <string name="kpt_prior_tool_tip_2">या फीचरबद्दल अधिक माहिती मिळवण्यासाठी इथे क्लिक करा.</string>
     <string name="kpt_sdcard_required">एसडी कार्ड जरुरी </string>
     <string name="kpt_search_addon">ॲड ऑन्स शोधा</string>
     <string name="kpt_search_menu">शोधा</string>
@@ -523,8 +500,6 @@
     <string name="kpt_ticker_text">Adaptxt</string>
     <string name="kpt_title_postman_dialog">दाखल करा...</string>
     <string name="kpt_title_wait">कृपया वाट पहा...</string>
-    <string name="kpt_toast_hide_postman_dialog">तुम्ही युजर नेम आणि पासवर्ड पोस्ट करू शकत नाही</string>
-    <string name="kpt_toast_hide_voice_dialog">पासवर्ड फिल्ड्स साठी स्पीच रेक्गनाईजर उपलब्ध नाही</string>
     <string name="kpt_toast_internet">कृपया आपले इंटरनेट तपासून पहा</string>
     <string name="kpt_toast_kb_change"> इन्स्टॉल केलेल्या ऍड ऑन प्रमाणे कीबोर्ड लेआऊटमध्ये बदल केले आहेत</string>
     <string name="kpt_toast_language_selection"> कीबोर्डची डिफॉल्ट भाषा स्पेस बार वापरून किंवा इन्स्टॉलेशन नंतर आपला अग्रक्रम ठरवून बदलता येईल</string>

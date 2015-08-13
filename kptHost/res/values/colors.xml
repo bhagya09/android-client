@@ -26,7 +26,7 @@
     <color name="kpt_primary_key_color_red">#ffffff</color>
      <color name="kpt_primary_key_color_grt">#77ff00</color>
      
-    <color name="kpt_secondary_key_color_dk_fk">#a2cffb</color> 
+    <color name="kpt_secondary_key_color_dk_fk">#8f99a5</color> 
     <color name="kpt_secondary_key_color_val">#2e68a1</color>
     <color name="kpt_secondary_key_color_olm">#84fffb</color>  
     <color name="kpt_secondary_key_color_red">#e1be69</color>  
@@ -79,7 +79,7 @@
 <!-- <color name="kpt_candidate_other">#ff808080</color> -->
     <color name="kpt_transparent_dk_fk">#00000000</color>
     
-    <color name="kpt_preview_color_dk_fk">#a2cffb</color>
+    <color name="kpt_preview_color_dk_fk">#ffffff</color>
     <color name="kpt_preview_color_olm">#84fffb</color>
     <color name="kpt_preview_color_red">#ffffff</color>
      <color name="kpt_preview_color_grt">#77ff00</color>

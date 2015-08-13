@@ -67,4 +67,4 @@
         android:title="@string/kpt_UI_STRING_MENUITEMS_2_7003" >
     </com.kpt.adaptxt.beta.settings.WrappingPreference>
 
-</PreferenceScreen><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/prefs_personalsugg.xml -->
+</PreferenceScreen><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/prefs_personalsugg.xml -->

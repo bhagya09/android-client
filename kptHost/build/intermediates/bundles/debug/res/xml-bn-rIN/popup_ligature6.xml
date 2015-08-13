@@ -20,17 +20,17 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-        <Key atx:keyLabel="ণ" atx:keyOutputText="ণ" atx:keyEdgeFlags="left" />
-        <Key atx:codes="-1073" atx:keyLabel="ঙ্ক" atx:keyOutputText="ঙ্ক" />
-        <Key atx:codes="-1073" atx:keyLabel="ঙ্গ" atx:keyOutputText="ঙ্গ" />
-        <Key atx:codes="-1073" atx:keyLabel="জ্ঞ" atx:keyOutputText="জ্ঞ" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_keyLabel="ণ" atx:kpt_keyOutputText="ণ" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="ঙ্ক" atx:kpt_keyOutputText="ঙ্ক" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="ঙ্গ" atx:kpt_keyOutputText="ঙ্গ" />
+        <Key atx:kpt_codes="-1073" atx:kpt_keyLabel="জ্ঞ" atx:kpt_keyOutputText="জ্ঞ" atx:kpt_keyEdgeFlags="right" />
     </Row>
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml-bn-rIN/popup_ligature6.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml-bn-rIN/popup_ligature6.xml -->

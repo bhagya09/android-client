@@ -4,6 +4,7 @@
     <eat-comment/>
     <dimen name="kpt_draw_space_key_arrows">18px</dimen>
     <dimen name="kpt_glide_trace_width">6dip</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">18sp</dimen>
     <dimen name="kpt_keyLabelTextSize">16sp</dimen>
     <dimen name="kpt_max_textpreview_size">30sp</dimen>
     <dimen name="kpt_min_textpreview_size">10sp</dimen>

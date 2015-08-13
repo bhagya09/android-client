@@ -10,7 +10,6 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />
 
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -87,11 +86,9 @@
             android:name="com.kpt.adaptxt.beta.packageinstaller.KPTPackageListener"
             android:enabled="true" >
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
-
-                <data android:scheme="package" />
+                <action android:name="action_base_package_added" />
+                <action android:name="action_base_package_removed" />
+                <action android:name="action_base_package_replaced" />
             </intent-filter>
         </receiver>
 

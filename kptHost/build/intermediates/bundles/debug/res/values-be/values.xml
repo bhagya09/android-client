@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/arrays.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/arrays.xml -->
     <eat-comment/>
     <string-array name="kpt_ac_misspelts_entires">
 		<item>Інтэнсіўны</item>
@@ -55,13 +55,13 @@
 	<item>@string/kpt_UI_STRING_SBAR_MESSAGE_1_300</item>
 		<item>@string/kpt_UI_STRING_SBAR_MESSAGE_2_300</item>
 	</string-array>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
     <string name="kpt_Help">Даведка</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_MEANING_LOOKUP_URL">http://be.wikipedia.org/wiki/</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
     <string name="kpt_T100_UI_STRING_NOTIFICATIONBAR_MESSAGETEXT_1">Словы былі паспяхова дададзены</string>
     <string name="kpt_T101_UI_STRING_MENUITEMS_9">Словы:</string>
@@ -245,10 +245,10 @@
     <string name="kpt_account_type_phone_summary">Adaptxt вывучае Вашу адрасную кнігу</string>
     <string name="kpt_account_type_sms">SMS</string>
     <string name="kpt_account_type_sms_summary">Adaptxt вывучае Вашы SMS-паведамленні</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_accounts_extra_data">learn_extra</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
     <string name="kpt_accounts_manager_summary">Дадаць ці выдаліць сацыяльны аккаўнт</string>
     <string name="kpt_accounts_manger_title">Дыспетчар аккаўнтаў</string>
@@ -260,7 +260,7 @@
     <string name="kpt_addon_atleast_one"> Патрэбна выбраць хаця б адзін слоўнік </string>
     <string name="kpt_alert_dialog_cancel">Адмена</string>
     <string name="kpt_alert_dialog_ok">ОК</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_12key_email">1\@.-_,\?!\'\"()/:#+</string>
     <string name="kpt_alternates_for_12key_normal">1.,\?!\'\"-()\@/:_#+</string>
@@ -296,14 +296,14 @@
     <string name="kpt_alternates_for_wxyz">9ьэюяwxyz</string>
     <string name="kpt_alternates_for_z">яźž</string>
     <string name="kpt_alternates_for_zero">хº°</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
     <string name="kpt_android_market_app_unav"> Не ўдалося знайсці краму прыкладанняў</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_atr_regular_expression">[^\\p{javaLetter}\\s]+</string>
     <string name="kpt_atr_shortcut_inputtype_text">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
     <string name="kpt_atr_substitutn_alert">*Фраза павінна быць менш за 256 знакаў</string>
     <string name="kpt_atx">ATX</string>
@@ -346,17 +346,17 @@
     <string name="kpt_incompatible_dialog_title">Абнавіць</string>
     <string name="kpt_incompatible_message">Націсніце тут, каб абнавіць Adaptxt</string>
     <string name="kpt_incompatible_title">Усталяваны слоўнік не сумяшчаецца з праграмай</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_label_alpha_key">АБВ</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
     <string name="kpt_label_done_key">ОК</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_label_phone_key">123</string>
     <string name="kpt_label_symbol_key">123#</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
     <string name="kpt_landscape_default">Ландшафтная раскладка</string>
     <string name="kpt_language_selection_title">Мовы ўводу</string>
@@ -392,16 +392,16 @@
     <string name="kpt_pd_add_on_install_progress"> Ідзе ўсталяванне дадатковага слоўніка </string>
     <string name="kpt_pd_add_on_uninstall_progress"> Ідзе выдаленне дадатковага слоўніка </string>
     <string name="kpt_pd_loading_progress">Ідзе загрузка...</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_phone_mode_change_to_alphabet">АБВ</string>
     <string name="kpt_popular_domain_5">я</string>
     <string name="kpt_popular_domain_6">".ru"</string>
     <string name="kpt_popular_domain_lang_0">".by"</string>
     <string name="kpt_popular_domain_sc_value">1103</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
-    <string name="kpt_potrait_default">Партрэтная раскладка</string>
+    <string name="kpt_potrait_default">Выберыце раскладку</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
     <string name="kpt_pref_latestVersion">Абноўленая версія</string>
     <string name="kpt_prior_header_1">Слоўнік</string>
@@ -413,11 +413,11 @@
     <string name="kpt_search_menu">Пошук</string>
     <string name="kpt_search_word">Пошук слова</string>
     <string name="kpt_send_mail">Адправіць паведамленне</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_smiley_secondary_char">ч</string>
     <string name="kpt_smiley_secondary_char_value">1095</string>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-be/strings.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
     <string name="kpt_social_acc_add">Ваш %s аккаўнт быў дададзены.</string>
     <string name="kpt_social_acc_del">Ваш %s аккаўнт быў выдалены толькі з прыкладання Adaptxt.</string>

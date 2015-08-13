@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-land-ldpi/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-land-ldpi/dimens.xml -->
     <eat-comment/>
     <dimen name="kpt_accentuated_bubble_offset">5dip</dimen>
     <dimen name="kpt_dialog_height">83px</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">18sp</dimen>
     <dimen name="kpt_max_textpreview_size">30sp</dimen>
     <dimen name="kpt_min_textpreview_size">10sp</dimen>
     <dimen name="kpt_sugg_icons_text_size">28sp</dimen>

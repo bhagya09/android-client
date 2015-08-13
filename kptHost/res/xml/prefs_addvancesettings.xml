@@ -16,9 +16,9 @@
                 android:entryValues="@array/kpt_keyboard_type_values"
                 android:key="layout_portrait"
                 android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_14"
-                android:title="@string/kpt_choose_layout_potrait" />
+                android:title="@string/kpt_potrait_default" />
             
-            <com.kpt.adaptxt.beta.settings.KBDListPreference
+        <!--     <com.kpt.adaptxt.beta.settings.KBDListPreference
                 android:defaultValue="0"
                 android:dialogTitle="@string/kpt_landscape_default"
                 android:ellipsize="marquee"
@@ -26,7 +26,7 @@
                 android:entryValues="@array/kpt_keyboard_type_values"
                 android:key="layout_landscape"
                 android:summary="@string/kpt_UI_STRING_SETTINGS_SITEM_15"
-                android:title="@string/kpt_choose_layout_landscape" />
+                android:title="@string/kpt_choose_layout_landscape" /> -->
         </PreferenceCategory>
         
     

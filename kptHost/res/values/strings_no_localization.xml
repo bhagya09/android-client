@@ -20,8 +20,8 @@
     <string name="kpt_icontext_suggestion_expand">\u011C</string>   
     <string name="kpt_icontext_keyboard_hide">\u011D</string>   
     <string name="kpt_icontext_xi_key">\u011A</string>   
-    <string name="kpt_icontext_shift_off">\u010B</string>
-    <string name="kpt_icontext_shift_on">\u010C</string>
+    <string name="kpt_icontext_shift_off">\u010C</string>
+    <string name="kpt_icontext_shift_on">\u010B</string>
     <string name="kpt_icontext_space">\u011E</string>
     <string name="kpt_icontext_shift_lock">\u010D</string>
     <string name="kpt_icontext_acc_dismiss">\u0101</string>
@@ -105,5 +105,5 @@
    	<string name="kpt_adaptxt_eula">Adaptxt EULA</string>
    	<string name="kpt_themes_master_xml_version">3.0</string>
    	
-   	<string name="kpt_version_number">6.0</string>
+   	<string name="kpt_version_number">8.0</string>
 </resources>

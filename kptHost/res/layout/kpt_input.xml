@@ -84,9 +84,9 @@
             android:focusable="true"
             android:focusableInTouchMode="true" >
 
-            <include
+            <!-- <include
                 android:id="@+id/clipboard_id"
-                layout="@layout/kpt_clipboard_layout" />
+                layout="@layout/kpt_clipboard_layout" /> -->
             
         </LinearLayout>
         

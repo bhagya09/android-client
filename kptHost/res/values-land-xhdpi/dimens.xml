@@ -26,5 +26,6 @@
     <dimen name="kpt_sugg_icons_text_size">10sp</dimen>
     <dimen name="kpt_min_textpreview_size">10sp</dimen>
     <dimen name="kpt_max_textpreview_size">50sp</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">12sp</dimen>
         
 </resources>

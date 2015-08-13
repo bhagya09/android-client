@@ -2,4 +2,4 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true"
           android:drawable="@android:drawable/list_selector_background" />
-</selector><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/drawable/kpt_social_selector_bg.xml -->
+</selector><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/drawable/kpt_social_selector_bg.xml -->

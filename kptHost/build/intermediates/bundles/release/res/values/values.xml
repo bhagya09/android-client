@@ -249,7 +249,7 @@
     <color name="kpt_holo_blue_dark">#537fab</color>
     <color name="kpt_orange_selector_dialog">#faa700</color>
     <color name="kpt_preview_color">#a2cffb</color>
-    <color name="kpt_preview_color_dk_fk">#a2cffb</color>
+    <color name="kpt_preview_color_dk_fk">#ffffff</color>
     <color name="kpt_preview_color_grt">#77ff00</color>
     <color name="kpt_preview_color_olm">#84fffb</color>
     <color name="kpt_preview_color_red">#ffffff</color>
@@ -261,7 +261,7 @@
     <color name="kpt_primary_key_color_red">#ffffff</color>
     <color name="kpt_primary_key_color_val">#000000</color>
     <color name="kpt_secondary_key_color">#a2cffb</color>
-    <color name="kpt_secondary_key_color_dk_fk">#a2cffb</color>
+    <color name="kpt_secondary_key_color_dk_fk">#8f99a5</color>
     <color name="kpt_secondary_key_color_grt">#04ca04</color>
     <color name="kpt_secondary_key_color_olm">#84fffb</color>
     <color name="kpt_secondary_key_color_red">#e1be69</color>
@@ -298,7 +298,7 @@
     <declare-styleable name="Kpt_Keyboard"><attr format="dimension|fraction" name="kpt_keyWidth"/><attr format="dimension|fraction" name="kpt_keyHeight"/><attr format="dimension|fraction" name="kpt_horizontalGap"/><attr format="dimension|fraction" name="kpt_verticalGap"/><attr format="float" name="kpt_keyLabelXPos"/><attr format="float" name="kpt_keyLabelYPos"/><attr format="float" name="kpt_keyLabel2XPos"/><attr format="float" name="kpt_keyLabel2YPos"/><attr format="dimension" name="kpt_keyLabelTextSize"/><attr format="dimension" name="kpt_keyLabel2TextSize"/><attr format="integer" name="kpt_languageType"/><attr format="boolean" name="kpt_isRTL"/><attr format="boolean" name="kpt_fontStyleApplicable"/><attr format="boolean" name="kpt_fontSizeApplicable"/><attr format="integer" name="kpt_keyType"/><attr format="boolean" name="kpt_isGlideSupported"/></declare-styleable>
     <declare-styleable name="Kpt_KeyboardView"><attr format="reference" name="kpt_keyboardViewStyle"/><attr format="reference" name="kpt_keyBackground"/><attr format="dimension" name="kpt_keyTextSize"/><attr format="dimension" name="kpt_labelTextSize"/><attr format="color" name="kpt_keyTextColor"/><attr format="color" name="kpt_keyTextColor1"/><attr format="reference" name="kpt_keyPreviewLayout"/><attr format="dimension" name="kpt_keyPreviewOffset"/><attr format="dimension" name="kpt_keyPreviewHeight"/><attr format="dimension" name="kpt_verticalCorrection"/><attr format="reference" name="kpt_popupLayout"/><attr format="color" name="kpt_shadowColor"/><attr format="float" name="kpt_shadowRadius"/></declare-styleable>
     <declare-styleable name="Kpt_KeyboardViewPreviewState"/>
-    <declare-styleable name="Kpt_Keyboard_Key"><attr format="integer|string" name="kpt_codes"/><attr format="reference" name="kpt_popupKeyboard"/><attr format="string" name="kpt_popupCharacters"/><attr name="kpt_keyEdgeFlags"><flag name="left" value="1"/><flag name="right" value="2"/></attr><attr format="boolean" name="kpt_isModifier"/><attr format="boolean" name="kpt_isSticky"/><attr format="boolean" name="kpt_isRepeatable"/><attr format="reference" name="kpt_iconPreview"/><attr format="string" name="kpt_keyOutputText"/><attr format="string" name="kpt_keyLabel"/><attr format="reference" name="kpt_keyIcon"/><attr format="boolean" name="kpt_useExternalFont"/><attr format="string" name="kpt_iconText"/><attr name="kpt_keyboardMode"/><attr format="integer" name="kpt_keySpecialOper"/></declare-styleable>
+    <declare-styleable name="Kpt_Keyboard_Key"><attr format="integer|string" name="kpt_codes"/><attr format="reference" name="kpt_popupKeyboard"/><attr format="string" name="kpt_popupCharacters"/><attr name="kpt_keyEdgeFlags"><flag name="left" value="1"/><flag name="right" value="2"/></attr><attr format="boolean" name="kpt_isModifier"/><attr format="boolean" name="kpt_isSticky"/><attr format="boolean" name="kpt_isRepeatable"/><attr format="reference" name="kpt_iconPreview"/><attr format="string" name="kpt_keyOutputText"/><attr format="string" name="kpt_keyLabel"/><attr format="reference" name="kpt_keyIcon"/><attr format="boolean" name="kpt_useExternalFont"/><attr format="string" name="kpt_iconText"/><attr name="kpt_keyboardMode"/><attr format="integer" name="kpt_keySpecialOper"/><attr format="integer" name="kpt_syllable_index"/><attr format="integer" name="kpt_vowel_unicode"/><attr format="string" name="kpt_vowel_base"/></declare-styleable>
     <declare-styleable name="Kpt_Keyboard_Row"><attr name="kpt_rowEdgeFlags"><flag name="top" value="4"/><flag name="bottom" value="8"/></attr><attr format="reference" name="kpt_keyboardMode"/><attr format="boolean" name="kpt_isNumberRow"/></declare-styleable>
     <declare-styleable name="Kpt_Theme"><attr format="float" name="kpt_backgroundDimAmount"/></declare-styleable>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/dimens.xml -->
@@ -307,7 +307,7 @@
     <dimen name="kpt_bubble_pointer_offset">22dip</dimen>
     <dimen name="kpt_bubble_pointer_offset_dk_fk">22dip</dimen>
     <dimen name="kpt_candidate_height">54dip</dimen>
-    <dimen name="kpt_candidate_strip_height">54dip</dimen>
+    <dimen name="kpt_candidate_strip_height">44dip</dimen>
     <dimen name="kpt_candidate_strip_height_dk_fk">54dip</dimen>
     <dimen name="kpt_candidate_strip_max_height">60dip</dimen>
     <dimen name="kpt_candidate_strip_min_height">40dip</dimen>
@@ -340,10 +340,13 @@
     <dimen name="kpt_gesture_preview_trail_end_width">2.5dp</dimen>
     <dimen name="kpt_gesture_preview_trail_start_width">12.6dp</dimen>
     <dimen name="kpt_glide_trace_width">6dip</dimen>
+    <dimen name="kpt_hindhi_key_height_dk_fk">35dip</dimen>
     <dimen name="kpt_keyLabel2GlobeShareTextSize">16sp</dimen>
     <dimen name="kpt_keyLabel2TextSize">12sp</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">12sp</dimen>
     <dimen name="kpt_keyLabel2TextSize_phone_sym">14sp</dimen>
     <item format="float" name="kpt_keyLabel2XPos" type="dimen">0.70</item>
+    <item format="float" name="kpt_keyLabel2XPosForDanda" type="dimen">0.60</item>
     <item format="float" name="kpt_keyLabel2YPos" type="dimen">0.25</item>
     <item format="float" name="kpt_keyLabelNumYPos" type="dimen">0.6</item>
     <dimen name="kpt_keyLabelTextSize">20sp</dimen>
@@ -353,6 +356,7 @@
     <item format="float" name="kpt_keyLabelYPos_atx" type="dimen">0.72</item>
     <dimen name="kpt_key_height">54dip</dimen>
     <dimen name="kpt_key_height_dk_fk">54dip</dimen>
+    <dimen name="kpt_key_height_hindhi_5_rows_dk_fk">43dip</dimen>
     <dimen name="kpt_key_height_land">38dip</dimen>
     <dimen name="kpt_key_height_thai_3rows">54dip</dimen>
     <dimen name="kpt_key_height_thai_punctuation">40dip</dimen>
@@ -508,27 +512,17 @@
     <string name="kpt_UI_STRING_ATR_COLUMNHEADER_2_7003">Expansion</string>
     <string name="kpt_UI_STRING_COMMON_5_OFF">Auto\nCorrection Off</string>
     <string name="kpt_UI_STRING_COMMON_5_ON">Auto\nCorrection On</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300">Upgrade now</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300">Later</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_210">\nYour dictionaries need to be updated to support the new auto spacing feature.\n Tap on OK to access the Adaptxt Store and update the dictionaries now.\n</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_220">Do you want to delete the custom gesture?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_300">Do you want to delete this custom theme?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_110">Save changes before you exit?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_200">Please log in to the appstore to complete your purchase. Would you like to do this now?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_220">Do you want to delete all the custom gestures?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_300">Do you want to uninstall this theme?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_3_300">Adaptxt needs access to your location. Please turn on Location Services. </string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_5">Application-based suggestions work best when Adaptxt learns your writing pattern from your social 
         accounts and Gmail. Tap on the respective application after dismissing the dialog to enable learning from applications.</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_6_300">Only 1 location can be saved at a time. Delete a location to add another location.</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_7_300">Do you want to delete the active location?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_8_300">Verifying location</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_1_300">Since you have already completed in-app purchases in previous versions of Adaptxt,
-         please upgrade to Adaptxt v3.0 and email us at support@adaptxt.com with your Gmail id and we will refund your money. Your trial expires in  %d days.</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_2_300">Thank you for using Adaptxt. 
-        Your trial period has expired. Tap on \"Upgrade now\" to continue using Adaptxt.</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_2_7003">Adaptxt will not learn new words and context.</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_3_300">Update your dictionaries to experience the new Adaptxt features</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_3_7003">Adaptxt will start learning words and context again.</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_4_7003">*Please enter a minimum of 3 characters as an expansion</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_5_7003">*This shortcut already exists, please enter a different shortcut</string>
@@ -536,11 +530,8 @@
     <string name="kpt_UI_STRING_DIALOG_MSG_7_7003">*The expansion field cannot be empty.</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_8_7003">Are you sure you want to delete all shortcuts and expansions?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_220">Delete gesture?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_1_300">Custom Theme</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_7003">Enable Private Mode?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_110">Exit Keyboard Customization?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_220">Delete all?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_300">Installed theme</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_7003">Disable Private Mode?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_3_300">Location Service Disabled</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_4_200">Appstore Account.</string>
@@ -565,9 +556,6 @@
     <string name="kpt_UI_STRING_INAPP_TOAST_2">Only 5 add-ons can be used at a time. Please uninstall any of the installed add-ons and try again.</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_3">Connection error, please check your network connectivity and try again</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_4">Connection timed out, please try again</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">Reset</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">Save</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">Exit</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
     <string name="kpt_UI_STRING_KBCUSTOM_DEFAULT">Default</string>
@@ -581,11 +569,6 @@
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_17_200">Gothic</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_18_200">Humana</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_19_200">Serpentine</string>
-    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
-    <eat-comment/>
-    <string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">Themeboard</string>
-    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
-    <eat-comment/>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_20_200">Belter</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_21_200">Americana</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_22_200">Jokerman</string>
@@ -641,15 +624,12 @@
     <string name="kpt_UI_STRING_POPUP_ITEMS_4_7003">Insert</string>
     <string name="kpt_UI_STRING_POPUP_ITEMS_5_7003">Delete from dictionary</string>
     <string name="kpt_UI_STRING_POPUP_ITEMS_6_7003">Delete ATR</string>
-    <string name="kpt_UI_STRING_POPUP_ITEM_1_300">Hide undo key</string>
     <string name="kpt_UI_STRING_POPUP_ITEM_2_110">Pop-up on keypress</string>
-    <string name="kpt_UI_STRING_POPUP_ITEM_2_300">Hide dismiss key</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_220">Glide is still a beta feature. We would like you to participate in improving it with your feedback.</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_300">Try location based suggestions</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_2_220">Adaptxt is introducing a new revolutionary way to input text.Tap on this message to find out more..</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_2_300">Try applications based suggestions</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_3_300">Upgrade to the full version of Adaptxt</string>
-    <string name="kpt_UI_STRING_QUICKSETTINGSITEM_1_110">Keyboard\nCustomization</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_1_7003">Layouts</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003">Private Mode\nOFF</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_I_7003">Private Mode\nON</string>
@@ -657,19 +637,15 @@
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_4_7003">Settings</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_6_7003">ATR Options</string>
     <string name="kpt_UI_STRING_SBAR_ITEM_1_220">Please try again</string>
-    <string name="kpt_UI_STRING_SBAR_MESSAGE_1_300">Update your dictionaries</string>
-    <string name="kpt_UI_STRING_SBAR_MESSAGE_2_300">Updating dictionaries</string>
     <string name="kpt_UI_STRING_SBAR_MESSAGE_3">License expired, tap to update</string>
     <string name="kpt_UI_STRING_SETTINGS_ERRORMSG_1_220">The character you have chosen is already assigned to another shortcut</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_220">Glide</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_300">Undo &amp; Dismiss Keys</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_2_220">Customize Gestures</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_2_300">Upgrade to full version</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_3_220">Glide Feedback</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220">Enable/disable Glide and customize gesture shortcuts</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300">Customize the display of keys to undo or dismiss auto correction</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_220">Create custom shortcuts</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300">Tap here to upgrade Adaptxt</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220">Slide over the letters to form words without lifting the finger</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220">Glide is still a beta feature. Help us improve it with your valuable feedback</string>
     <string name="kpt_UI_STRING_SETTINGS_SITEM_1">Your new words</string>
@@ -689,18 +665,14 @@
     <string name="kpt_UI_STRING_SETTINGS_SITEM_9">Vibration and sound feedback</string>
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300">Red</string>
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_12_300">Green</string>
-    <string name="kpt_UI_STRING_SETUPWIZARD_MESSAGE_1_300">What\'s New?</string>
     <string name="kpt_UI_STRING_TEXTBOX_1_300">Enter a location</string>
     <string name="kpt_UI_STRING_TEXTBOX_2_300">Only one location is supported</string>
     <string name="kpt_UI_STRING_THEME_ITEM1">Blue</string>
-    <string name="kpt_UI_STRING_TOAST_1_110">Please exit Keyboard Customization before you change orientation</string>
     <string name="kpt_UI_STRING_TOAST_1_220">Custom gesture saved successfully</string>
     <string name="kpt_UI_STRING_TOAST_1_7003">No text has been entered in the text field.</string>
-    <string name="kpt_UI_STRING_TOAST_2_110">Changes saved</string>
     <string name="kpt_UI_STRING_TOAST_2_200">This feature or add-on is only supported for devices running Android v2.2 and above.</string>
     <string name="kpt_UI_STRING_TOAST_2_220">The application cannot be found</string>
     <string name="kpt_UI_STRING_TOAST_2_7003">Accents and diacritics have been removed from the text.</string>
-    <string name="kpt_UI_STRING_TOAST_3_110">Use the slider to modify the keyboard height.</string>
     <string name="kpt_UI_STRING_TOAST_4_110">Please ensure that your device time is accurate by setting it to \"Automatic\" under \"Date and time\" in your device settings.</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_10_300">Waiting for your location </string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_1_2001">This feature is not supported in this text editor</string>
@@ -711,32 +683,6 @@
     <string name="kpt_UI_STRING_TOAST_MESSAGE_8_300">Insufficient phone memory to back up your dictionary words</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_9_300">Sorry, this location is not currently supported </string>
     <string name="kpt_UI_STRING_TRY_AGAIN">Try Again.</string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_1_300"><b>Location-Based Suggestions</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_2_300"><b>Application-Based Suggestions</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_4_300"><b>Keyboard Customization</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_5_300"><b>Shortcuts and Expansions (ATR)</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_6_300"><b>Gesture Shortcuts</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_7_300"><b>Phone Keypad (12-Key)</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_1_300">Define a location to allow Adaptxt to update its vocabulary and provide you with relevant suggestions.\n\nTo set a location, navigate to Adaptxt Settings > Personalize Suggestions > Location-Based Suggestions.
-</string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_2_300">Adaptxt learns and adapts to the different writing styles 
-        and vocabulary you use in each application.\n\nTo enable/disable this feature, navigate to Adaptxt Settings > Personalize Suggestions > Application-Based Suggestions.</string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_3_300">You can enable or customize the 
-        keys to undo or dismiss auto correction.\n\nTo access the settings, navigate to Adaptxt Settings > Advanced Settings > Undo and Dismiss Keys.</string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_4_300">Use Keyboard Customization to personalize your keyboard.\n\nYou can customize key shape and height, font style and size, keyboard and font color. You can also set a background picture of your choice.\n\nAccess this feature from Adaptxt Settings > Keyboard Customization.
-	</string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_5_300">The ATR (Automatic Text Replacement) feature allows you to enter 
-        commonly used phrases without having to type them in full. Create your own ATR by saving a shortcut and phrase 
-        expansion from the ATR menu.\n\nType an ATR shortcut in a text editor and it will appear in the suggestion bar with a \"+\" symbol. 
-        Tap on the shortcut to enter its expansion in the editor.\n\nTo create ATR shortcuts, navigate to Adaptxt Settings > Personalize Suggestions > Shortcuts and Expansions.
-    </string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_6_300">Create custom shortcuts to launch your favorite 
-        applications and websites, or to access clipboard functions directly from the keyboard.\n\nTo use these shortcuts, glide from the Adaptxt key to a letter previously assigned to the particular action.\n\nTo create gesture shortcuts, navigate to Adaptxt Settings > Glide > Custom Gestures > Applications/Websites/Clipboard.
-    </string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_7_300">You can use the classic 12-key layout to enter text 
-        in either Predictive or Multitap mode.\n\nTo change the current layout, navigate to Adaptxt Settings > Advanced Settings > Keyboard Layouts. 
-    </string>
-    <string name="kpt_UI_STRING_TUTORIAL_HEADER_1_300"><b>Adaptxt Tutorial</b></string>
     <string name="kpt_account_alert_msg">You are about to delete the account</string>
     <string name="kpt_account_type_phone">Contacts</string>
     <string name="kpt_account_type_phone_summary">Adaptxt learns from your address book</string>
@@ -778,21 +724,6 @@
     <string name="kpt_alternates_for_asterisk">z†‡</string>
     <string name="kpt_alternates_for_attherate">zª</string>
     <string name="kpt_alternates_for_c">&amp;ç</string>
-    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
-    <eat-comment/>
-    <string name="kpt_alternates_for_chunjiin_0">0ㅇㅁ</string>
-    <string name="kpt_alternates_for_chunjiin_1">1ㅣ</string>
-    <string name="kpt_alternates_for_chunjiin_2">2ㆍ‥</string>
-    <string name="kpt_alternates_for_chunjiin_3">3ㅡ</string>
-    <string name="kpt_alternates_for_chunjiin_4">4ㄱㅋㄲ</string>
-    <string name="kpt_alternates_for_chunjiin_5">5ㄴㄹ</string>
-    <string name="kpt_alternates_for_chunjiin_6">6ㄷㅌㄸ</string>
-    <string name="kpt_alternates_for_chunjiin_7">7ㅂㅍㅃ</string>
-    <string name="kpt_alternates_for_chunjiin_8">8ㅅㅎㅆ</string>
-    <string name="kpt_alternates_for_chunjiin_9">9ㅈㅊㅉ</string>
-    <string name="kpt_alternates_for_chunjiin_char">.,\?!\'\"1-()\@/:_</string>
-    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
-    <eat-comment/>
     <string name="kpt_alternates_for_circumflex">y←↑→↓</string>
     <string name="kpt_alternates_for_copyright">t™</string>
     <string name="kpt_alternates_for_currency">m¢€£¥</string>
@@ -815,9 +746,6 @@
     <string name="kpt_alternates_for_hypen">b–—</string>
     <string name="kpt_alternates_for_i">8íìîï</string>
     <string name="kpt_alternates_for_jkl">5jkl</string>
-    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
-    <eat-comment/>
-    <string name="kpt_alternates_for_korean_currency">$¥฿₫₨₱£€</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_alternates_for_l"/>
@@ -972,8 +900,8 @@
     <string name="kpt_icontext_share">\u010E</string>
     <string name="kpt_icontext_shift_indic">\u2611</string>
     <string name="kpt_icontext_shift_lock">\u010D</string>
-    <string name="kpt_icontext_shift_off">\u010B</string>
-    <string name="kpt_icontext_shift_on">\u010C</string>
+    <string name="kpt_icontext_shift_off">\u010C</string>
+    <string name="kpt_icontext_shift_on">\u010B</string>
     <string name="kpt_icontext_space">\u011E</string>
     <string name="kpt_icontext_space_chevron_left">\u260D</string>
     <string name="kpt_icontext_space_chevron_right">\u260E</string>
@@ -998,7 +926,6 @@
     <string name="kpt_incompatible_dialog_title">Update</string>
     <string name="kpt_incompatible_message">Please tap here to update Adaptxt base</string>
     <string name="kpt_incompatible_title">The add-on installed is not compatible</string>
-    <string name="kpt_kpt_UI_STRING_SBAR_MESSAGE_3_300">Trial expired, tap to upgrade</string>
     <string name="kpt_label_alpha_key">ABC</string>
     <string name="kpt_label_alt_key_norm">1/2</string>
     <string name="kpt_label_alt_key_shift">2/2</string>
@@ -1051,7 +978,7 @@
     <string name="kpt_pd_loading_progress">Loading data in progress...</string>
     <string name="kpt_phone_mode_change_to_alphabet">ABC</string>
     <string name="kpt_phone_mode_change_to_sym_shift">!@#</string>
-    <string name="kpt_phone_mode_change_to_symbols">12?</string>
+    <string name="kpt_phone_mode_change_to_symbols">123?</string>
     <string name="kpt_popular_domain_0">"http://"</string>
     <string name="kpt_popular_domain_1">"www."</string>
     <string name="kpt_popular_domain_2">".com"</string>
@@ -1061,13 +988,11 @@
     <string name="kpt_popular_domain_6">".edu"</string>
     <string name="kpt_popular_domain_lang_0">".us"</string>
     <string name="kpt_popular_domain_sc_value">101</string>
-    <string name="kpt_potrait_default">Default layout for portrait mode</string>
+    <string name="kpt_potrait_default">Select Layout</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
     <string name="kpt_pref_latestVersion">Check for the Latest Version</string>
     <string name="kpt_prior_header_1">Add-On</string>
     <string name="kpt_prior_header_2">Priority</string>
-    <string name="kpt_prior_tool_tip_1">Drag and drop the handle to change dictionary priority.</string>
-    <string name="kpt_prior_tool_tip_2">Tap here to learn more about this feature.</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/donottranslate.xml -->
     <eat-comment/>
     <string name="kpt_punctuations_list">!,\",#,%,&amp;,\',(,),*,+ ,±,÷,×,\\,,- ,.,/,\,:,;,?,@,[,],_,{,},,¡,ª,«,»,¬ ,º,•,¿,–,—,\‘,\’ ,“,”,„,…,\' ,❝,❞,|,؟,॰,।,॥,،,۔,؛,™,®,©,‰,‼,°,&lt;,>,=,։,՞,\՝,․,\՜,֊,።,፣,፤,፥,₹,$,</string>
@@ -1091,8 +1016,6 @@
     <string name="kpt_server_unregister_error">Could not unregister device on Demo Server (%1$s).</string>
     <string name="kpt_server_unregistered">From Demo Server: successfully removed device!</string>
     <string name="kpt_shared_user_label">KPT Adaptxt</string>
-    <string name="kpt_smiley_korean_secondary_char">ㅌ</string>
-    <string name="kpt_smiley_korean_secondary_char_value">12620</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_smiley_secondary_char">x</string>
@@ -1126,8 +1049,6 @@
     <string name="kpt_ticker_text">Adaptxt</string>
     <string name="kpt_title_postman_dialog">Post to...</string>
     <string name="kpt_title_wait">Please wait...</string>
-    <string name="kpt_toast_hide_postman_dialog">User name and passwords cannot be posted</string>
-    <string name="kpt_toast_hide_voice_dialog">Speech Recognizer is not available for Password fields</string>
     <string name="kpt_toast_internet">Please check your Internet connection</string>
     <string name="kpt_toast_kb_change">Keyboard layout to be changed as per the add-on installed</string>
     <string name="kpt_toast_language_selection">The default keyboard language can be changed using the space bar or by accessing the Prioritize Add-Ons tab after installation</string>
@@ -1137,7 +1058,7 @@
     <string name="kpt_version_name">V1_0</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings_no_localization.xml -->
     <eat-comment/>
-    <string name="kpt_version_number">6.0</string>
+    <string name="kpt_version_number">8.0</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values/strings.xml -->
     <eat-comment/>
     <string name="kpt_vibrate_on_keypress">Vibrate on keypress</string>

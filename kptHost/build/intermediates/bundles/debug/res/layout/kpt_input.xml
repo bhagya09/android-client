@@ -45,19 +45,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            atx:keyPreviewHeight="50dip"
-            atx:keyPreviewLayout="@layout/kpt_keyboard_key_preview"
-            atx:keyPreviewOffset="-12dip"
-            atx:keyTextColor="@color/kpt_primary_key_color"
-            atx:keyTextColor1="@color/kpt_primary_key_color_dk_fk"
-            atx:keyTextColor2="@color/kpt_secondary_key_color"
-            atx:keyTextColor3="@color/kpt_secondary_key_color_dk_fk"
-            atx:keyTextSize="20sp"
-            atx:keyTextSize2="14sp"
-            atx:keyTextSize3="@dimen/kpt_preview_text_size"
-            atx:keyTextSize4="12sp"
-            atx:popupLayout="@layout/kpt_keyboard_popup_keyboard"
-            atx:shadowRadius="0" />
+            atx:kpt_keyPreviewHeight="50dip"
+            atx:kpt_keyPreviewLayout="@layout/kpt_keyboard_key_preview"
+            atx:kpt_keyPreviewOffset="-12dip"
+            atx:kpt_keyTextColor="@color/kpt_primary_key_color"
+            atx:kpt_keyTextColor1="@color/kpt_primary_key_color_dk_fk"
+            atx:kpt_keyTextColor2="@color/kpt_secondary_key_color"
+            atx:kpt_keyTextColor3="@color/kpt_secondary_key_color_dk_fk"
+            atx:kpt_keyTextSize="20sp"
+            atx:kpt_keyTextSize2="14sp"
+            atx:kpt_keyTextSize3="@dimen/kpt_preview_text_size"
+            atx:kpt_keyTextSize4="12sp"
+            atx:kpt_popupLayout="@layout/kpt_keyboard_popup_keyboard"
+            atx:kpt_shadowRadius="0" />
 
         <!-- place a glide view on top of keyboard view -->
        <!--  <com.kpt.adaptxt.beta.glide.KPTGlideView
@@ -84,12 +84,12 @@
             android:focusable="true"
             android:focusableInTouchMode="true" >
 
-            <include
+            <!-- <include
                 android:id="@+id/clipboard_id"
-                layout="@layout/kpt_clipboard_layout" />
+                layout="@layout/kpt_clipboard_layout" /> -->
             
         </LinearLayout>
         
     </FrameLayout>
 
-</LinearLayout><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_input.xml -->
+</LinearLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_input.xml -->

@@ -86,19 +86,11 @@
     <string name="kpt_UI_STRING_ATR_COLUMNHEADER_2_7003">विस्तारण</string>
     <string name="kpt_UI_STRING_COMMON_5_OFF">स्वतः\nशुद्धीकरण बंद</string>
     <string name="kpt_UI_STRING_COMMON_5_ON">स्वतः\nशुद्धीकरण चालू</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300">अभी अपग्रेड करें</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300">बाद में</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_220">क्या आप इस कस्टम संकेत को हटाना चाहते हैं?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_300">क्या आप इस कस्टम थीम को हटाना चाहते हैं?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_110">बाहर जाने से पहले अपने बदलावों को सहेजें?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_200">खरीदने के लिए ऍपस्टोर में लॉग-इन करें। क्या आप अभी खरीदना चाहेंगे?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_220">क्या आप सभी कस्टम संकेत हटाना चाहते हैं?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_300">क्या आप इस थीम को हटाना चाहते हैं?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_4_300">डीफॉल्ट थीमों को आप हटा नहीं सकते</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_1_300">चूंकि आपने पहले ही Adaptxt के पिछले संस्करणों का इन-ऐप खरीद किया है, Adaptxt - के फुल वर्ज़न के अपग्रेड होने पर आपका पैसा रीफण्ड हो जाएगा। आपका ट्रायल पीरियड %d दिन में खत्म हो रहा है।</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_2_300">Adaptxt का प्रयोग करने के लिए धन्यवाद। आपका ट्रायल पीरियड खत्म हो चुका है। Adaptxt का प्रयोग जारी रखने के लिए \"अभी अपग्रेड करें"\ पर टैप करें।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_2_7003">Adaptxt नए शब्द और संदर्भ नहीं सीखेगा।</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_3_300">Adaptx के नए फीचरों के अनुभव के लिए अपने शब्दकोशों को अपडेट करें</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_3_7003">Adaptxt शब्द और संदर्भ पुनः सीखेगा</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_4_7003">* विस्तारण के लिए कम-से-कम 3 अक्षर लिखें।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_5_7003">* यह शॉर्टकट पहले से ही मौजूद है, कृपया दूसरा शॉर्टकट डालें।</string>
@@ -106,11 +98,8 @@
     <string name="kpt_UI_STRING_DIALOG_MSG_7_7003">*विस्तारण क्षेत्र को खाली नहीं छोड़ सकते।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_8_7003">क्या आप सभी शॉर्टकट और उनके विस्तृत रूपों को हटाना चाहते हैं।</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_220">संकेत हटाएं?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_1_300">कस्टम थीम</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_7003">निजी मोड सक्रिय करना है?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_110">कुंजीपटल अनुकूलन से बाहर जाएं?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_220">सभी हटाना है?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_300">स्थापित थीम</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_7003"> निजी मोड बंद करना है?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_4_200">ऍपस्टोर खाता</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_5">अप्लिकेशन से सीखें</string>
@@ -131,12 +120,8 @@
     <string name="kpt_UI_STRING_INAPP_TOAST_2">केवल पांच ऍड-ऑन एक साथ प्रयुक्त हो सकते हैं। कृपया किसी पूर्व स्थापित ऍड-ऑन को विस्थापित करें और पुनः प्रयास करें।</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_3">संपर्क त्रुटि, कृपया अपना नेटवर्क संपर्क जांचें और पुनः प्रयास करें</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_4">संपर्क नहीं रहा, कृपया पुनः प्रयास करें</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">रीसेट करें</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">सहेजें</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">बाहर जाएं</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14">डीफॉल्ट</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14_200">इस फीचर को सक्रिय करने के लिए कोई शब्दकोश ऍड-ऑन स्थापित करें।</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">रंग विन्यास</string>
     <string name="kpt_UI_STRING_MENUITEMS_1">Adaptxt स्टोर</string>
     <string name="kpt_UI_STRING_MENUITEMS_1_7003">ATR</string>
     <string name="kpt_UI_STRING_MENUITEMS_2_7003">शॉर्टकट व विस्तारण</string>
@@ -186,7 +171,6 @@
     <string name="kpt_UI_STRING_POPUP_ITEM_2_300">रद्दीकरण कुंजी छुपाएं</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_220">Glide अभी एक बीटा फीचर है। इसको और उन्नत बनाने के लिए हमें आपके सुझाव की अपेक्षा है।</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_2_220">Adaptxt प्रस्तुत करता है पाठ लेखन का एक क्रांतिकारी तरीका। और जानकारी के लिए इस संदेश पर टैप करें।</string>
-    <string name="kpt_UI_STRING_QUICKSETTINGSITEM_1_110">कुंजीपटल\nअनुकूलन</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_1_7003">प्रारूप</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003">निजी मोड\nबंद</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_I_7003">निजी मोड\nचालू</string>
@@ -201,12 +185,10 @@
     <string name="kpt_UI_STRING_SETTINGS_ERRORMSG_1_220">आपने जिस अक्षर का चयन किया है वह पहले ही किसी अन्य संकेत के लिए निर्धारित है</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_300">पूर्ववत और रद्दीकरण कुंजी</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_2_220">संकेत संपादित करें</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_2_300">फुल वर्जन में अपग्रेड करें</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_3_220">Glide Beta सुझाव</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220">Glide को सक्रिय/निष्क्रिय और संकेतों को संपादित करें</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300">स्वतः शुद्धीकरण के पूर्ववत या रद्दीकरण कुंजी के डिस्प्ले को कस्टमाइज करें</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_220">कस्टम शॉर्टकट बनाएं</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300">Adaptxt अपग्रेड करने के लिए यहां टैप करें</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220">शब्द बनाने के लिए उंगली को बिना उठाए अक्षरों पर फिराएं</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220">Glide अभी एक बीटा फीचर है। अपने बहुमूल्य सुझाव देकर इसे और उन्नत करने में हमारी मदद करें।</string>
     <string name="kpt_UI_STRING_SETTINGS_SITEM_1">आपके नए शब्द</string>
@@ -226,14 +208,11 @@
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300">लाल</string>
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_12_300">हरा</string>
     <string name="kpt_UI_STRING_THEME_ITEM1">नीला</string>
-    <string name="kpt_UI_STRING_TOAST_1_110">अभिविन्यास बदलने से पहले कृपया कुंजीपटल अनुकूलन से बाहर जाएं</string>
     <string name="kpt_UI_STRING_TOAST_1_220">कस्टम संकेत सफलतापूर्वक सहेजा गया</string>
     <string name="kpt_UI_STRING_TOAST_1_7003">पाठ क्षेत्र में कुछ भी लिखा नहीं गया है!</string>
-    <string name="kpt_UI_STRING_TOAST_2_110">बदलाव सहेजे गए</string>
     <string name="kpt_UI_STRING_TOAST_2_200">यह फीचर या ऍड-ऑन केवल ऍण्ड्रॉयड वर्जन 2.2. या उससे उपर के यंत्रों के लिए बनाया गया है।</string>
     <string name="kpt_UI_STRING_TOAST_2_220">यह अप्लीकेशन नहीं मिला</string>
     <string name="kpt_UI_STRING_TOAST_2_7003">पाठ के लैटिन आधारित अक्षरों से स्वराघात व अन्य मात्राएं हटा दी गई है।</string>
-    <string name="kpt_UI_STRING_TOAST_3_110">कुंजीपटल की ऊँचाई बदलने के लिए स्लाइडर का प्रयोग करें।</string>
     <string name="kpt_UI_STRING_TOAST_4_110">अपने यंत्र का समय ठीक सुनिश्चित करने के लिए कृपया अपने यंत्र के सेटिंग्स में "तिथि और समय" को "स्वतः" सेट करें।</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_1_2001">यह फीचर इस पाठ संपादक में उपलब्ध नहीं है</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_8_300">आपके शब्दकोश के शब्दों के बैक-अप हेतु अपर्याप्त मेमोरी</string>
@@ -279,6 +258,7 @@
     <string name="kpt_alternates_for_five">ू५</string>
     <string name="kpt_alternates_for_four">ी४</string>
     <string name="kpt_alternates_for_ghi">4कखगघङ४</string>
+    <string name="kpt_alternates_for_hindhi_punctuation">\?॥!.,।</string>
     <string name="kpt_alternates_for_hypen">व_— </string>
     <string name="kpt_alternates_for_jkl">5चछजझञ५</string>
     <string name="kpt_alternates_for_leftcurlybracket">q([</string>
@@ -405,20 +385,18 @@
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-hi/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_phone_mode_change_to_alphabet">अ-ह</string>
-    <string name="kpt_phone_mode_change_to_symbols">12?</string>
+    <string name="kpt_phone_mode_change_to_symbols">123?</string>
     <string name="kpt_popular_domain_5">़</string>
     <string name="kpt_popular_domain_6">".in"</string>
     <string name="kpt_popular_domain_lang_0">".co.in"</string>
     <string name="kpt_popular_domain_sc_value">2364</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-hi/strings.xml -->
     <eat-comment/>
-    <string name="kpt_potrait_default">पोर्ट्रेट मोड में डिफ़ॉल्ट</string>
+    <string name="kpt_potrait_default">लेआउट चुनें</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
     <string name="kpt_pref_latestVersion">नवीनतम वर्ज़न का पता करें</string>
     <string name="kpt_prior_header_1">ऍड-ऑन</string>
     <string name="kpt_prior_header_2">प्राथमिकता</string>
-    <string name="kpt_prior_tool_tip_1">शब्दकोशों की प्राथमिकता बदलने के लिए हैण्डल को खींचकर छोड़ें।</string>
-    <string name="kpt_prior_tool_tip_2">इस फीचर के बारे में और जानने के लिए यहां टैप करें।</string>
     <string name="kpt_sdcard_required">मेमोरी कार्ड जरूरी</string>
     <string name="kpt_search_addon">ऍड-ऑन खोजें</string>
     <string name="kpt_search_menu">खोज</string>
@@ -448,8 +426,6 @@
     <string name="kpt_ticker_text">Adaptxt</string>
     <string name="kpt_title_postman_dialog">प्रेषित करें...</string>
     <string name="kpt_title_wait">कृपया प्रतीक्षा करें...</string>
-    <string name="kpt_toast_hide_postman_dialog">यूज़रनेम और पासवर्ड को प्रेषित नहीं किया जा सकता</string>
-    <string name="kpt_toast_hide_voice_dialog">पासवर्ड फील्ड के लिए स्पीच रिकॉग्नाइज़र उपलब्ध नहीं है</string>
     <string name="kpt_toast_internet">कृपया अपने इंटरनेट कनेक्शन की जांच करें </string>
     <string name="kpt_toast_kb_change">स्थापित ऍड-ऑन के अनुसार कुंजीपटल प्रारूप को बदला जा रहा है</string>
     <string name="kpt_toast_language_selection">डिफ़ॉल्ट कुंजीपटल भाषा को स्थापना के बाद स्पेस बार या प्राथमिकता टैब का उपयोग करते हुए बदला जा सकता है</string>

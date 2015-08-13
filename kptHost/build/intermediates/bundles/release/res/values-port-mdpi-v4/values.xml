@@ -4,6 +4,7 @@
     <eat-comment/>
     <dimen name="kpt_accentuated_bubble_offset">87dip</dimen>
     <dimen name="kpt_dialog_height">171px</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">18sp</dimen>
     <dimen name="kpt_max_textpreview_size">30sp</dimen>
     <dimen name="kpt_min_textpreview_size">10sp</dimen>
 </resources>

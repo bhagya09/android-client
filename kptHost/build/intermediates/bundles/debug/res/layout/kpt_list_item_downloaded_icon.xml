@@ -42,7 +42,7 @@
 
     <ProgressBar
         android:id="@+id/addon_progressbar"
-        style="@style/Holo.ProgressBar.Horizontal"
+        style="@style/Kpt_Holo.ProgressBar.Horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
@@ -52,4 +52,4 @@
         android:visibility="gone" >
     </ProgressBar>
 
-</LinearLayout><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_list_item_downloaded_icon.xml -->
+</LinearLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_list_item_downloaded_icon.xml -->

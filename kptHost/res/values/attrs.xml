@@ -144,6 +144,15 @@
         <!-- the special operation of the key -->
         <attr name="kpt_keySpecialOper" format="integer" />
         
+        <!-- index of the charactar in the hindhi aplhabet. -->
+        <attr name="kpt_syllable_index" format="integer" />
+        
+        <!-- unicode of the vowel in the conjuction charactar in the hindhi aplhabet. -->
+        <attr name="kpt_vowel_unicode" format="integer" />
+        
+        <!-- all the conjuction charactars that are formed after that particular vowel added to all the charactars in the hindhi aplhabet. -->
+        <attr name="kpt_vowel_base" format="string" />
+        
     </declare-styleable>
 		
 	

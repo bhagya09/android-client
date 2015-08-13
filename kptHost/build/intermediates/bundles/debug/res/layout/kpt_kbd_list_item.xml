@@ -15,4 +15,4 @@
         android:layout_alignParentRight="true"
         android:gravity="center_vertical"
         android:textSize="20dip" />
-</RelativeLayout><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_kbd_list_item.xml -->
+</RelativeLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_kbd_list_item.xml -->

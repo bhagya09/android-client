@@ -41,7 +41,6 @@
         android:id="@+id/delete_word_divider_ltr"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:background="@drawable/kpt_keyboard_suggest_strip_divider_main_val"
         android:visibility="gone"  />
 
     <LinearLayout
@@ -107,7 +106,6 @@
         android:id="@+id/delete_word_divider_rtl"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:background="@drawable/kpt_keyboard_suggest_strip_divider_main_val"
         android:visibility="gone" />
 
     <TextView
@@ -138,8 +136,9 @@
     <ImageView
         android:id="@+id/xmldivider"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="@drawable/kpt_keyboard_suggest_strip_divider_main_val" />
+        android:layout_height="match_parent" 
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
 
     <TextView
         android:id="@+id/candidate_expand_suggestions"

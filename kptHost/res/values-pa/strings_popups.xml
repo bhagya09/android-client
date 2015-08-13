@@ -65,7 +65,7 @@
 	<string name="kpt_popular_domain_lang_0">".co.in"</string>
 
 	<!-- phone keypad settings -->
-	<string name="kpt_phone_mode_change_to_symbols">12?</string>
+	<string name="kpt_phone_mode_change_to_symbols">123?</string>
 	<string name="kpt_phone_mode_change_to_alphabet">ਅ-ਵ</string>
 	<string name="kpt_atr_shortcut_inputtype_text">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
 	<string name="kpt_atr_regular_expression">[^\\p{javaLetter}\\s]+</string>

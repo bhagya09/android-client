@@ -8,35 +8,29 @@
 package com.kpt.adaptxt.beta;
 
 public final class R {
-    public static final class anim {
-        public static int in_from_left=0x7f040000;
-        public static int in_from_right=0x7f040001;
-        public static int out_to_left=0x7f040002;
-        public static int out_to_right=0x7f040003;
-    }
     public static final class array {
-        public static int kpt_ac_misspelts_entires=0x7f060000;
-        public static int kpt_ac_misspelts_values=0x7f060001;
-        public static int kpt_array_interactive_feedback=0x7f060002;
-        public static int kpt_auto_update_cycle=0x7f060003;
-        public static int kpt_clipboard_options_items=0x7f060004;
-        public static int kpt_custom_gestures_options_items=0x7f060005;
-        public static int kpt_hide_xi_acc_options=0x7f060006;
-        public static int kpt_hide_xi_acc_values=0x7f060007;
-        public static int kpt_keyboard_type_values=0x7f060008;
-        public static int kpt_keyboard_types=0x7f060009;
-        public static int kpt_keyboard_types_tablet=0x7f060015;
-        public static int kpt_learn_from_settings=0x7f06000a;
-        public static int kpt_suggestion_mode_strings=0x7f06000b;
-        public static int kpt_symbols_page_1=0x7f06000c;
-        public static int kpt_symbols_page_2=0x7f06000d;
-        public static int kpt_symbols_page_3=0x7f06000e;
-        public static int kpt_symbols_page_4=0x7f06000f;
-        public static int kpt_symbols_page_5=0x7f060010;
-        public static int kpt_symbols_page_6=0x7f060011;
-        public static int kpt_theme_image_entries=0x7f060012;
-        public static int kpt_theme_options_entries=0x7f060013;
-        public static int kpt_theme_options_values=0x7f060014;
+        public static int kpt_ac_misspelts_entires=0x7f050000;
+        public static int kpt_ac_misspelts_values=0x7f050001;
+        public static int kpt_array_interactive_feedback=0x7f050002;
+        public static int kpt_auto_update_cycle=0x7f050003;
+        public static int kpt_clipboard_options_items=0x7f050004;
+        public static int kpt_custom_gestures_options_items=0x7f050005;
+        public static int kpt_hide_xi_acc_options=0x7f050006;
+        public static int kpt_hide_xi_acc_values=0x7f050007;
+        public static int kpt_keyboard_type_values=0x7f050008;
+        public static int kpt_keyboard_types=0x7f050009;
+        public static int kpt_keyboard_types_tablet=0x7f050015;
+        public static int kpt_learn_from_settings=0x7f05000a;
+        public static int kpt_suggestion_mode_strings=0x7f05000b;
+        public static int kpt_symbols_page_1=0x7f05000c;
+        public static int kpt_symbols_page_2=0x7f05000d;
+        public static int kpt_symbols_page_3=0x7f05000e;
+        public static int kpt_symbols_page_4=0x7f05000f;
+        public static int kpt_symbols_page_5=0x7f050010;
+        public static int kpt_symbols_page_6=0x7f050011;
+        public static int kpt_theme_image_entries=0x7f050012;
+        public static int kpt_theme_options_entries=0x7f050013;
+        public static int kpt_theme_options_values=0x7f050014;
     }
     public static final class attr {
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -46,7 +40,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int backgroundDimAmount=0x7f01003b;
+        public static int kpt_backgroundDimAmount=0x7f01003e;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -54,7 +48,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int code=0x7f010007;
+        public static int kpt_code=0x7f010007;
         /** <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>May be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
@@ -63,11 +57,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int codes=0x7f01002a;
+        public static int kpt_codes=0x7f01002a;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int entryImages=0x7f01000c;
+        public static int kpt_entryImages=0x7f01000c;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -75,7 +69,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int fontSizeApplicable=0x7f01001a;
+        public static int kpt_fontSizeApplicable=0x7f01001a;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -83,7 +77,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int fontStyleApplicable=0x7f010019;
+        public static int kpt_fontStyleApplicable=0x7f010019;
         /** <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -96,11 +90,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int horizontalGap=0x7f01000f;
+        public static int kpt_horizontalGap=0x7f01000f;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int iconPreview=0x7f010031;
+        public static int kpt_iconPreview=0x7f010031;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -108,7 +102,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int iconText=0x7f010036;
+        public static int kpt_iconText=0x7f010036;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -116,7 +110,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isGlideSupported=0x7f01001c;
+        public static int kpt_isGlideSupported=0x7f01001c;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -124,7 +118,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isModifier=0x7f01002e;
+        public static int kpt_isModifier=0x7f01002e;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -132,7 +126,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isNumberRow=0x7f01003a;
+        public static int kpt_isNumberRow=0x7f01003d;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -140,7 +134,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isRTL=0x7f010018;
+        public static int kpt_isRTL=0x7f010018;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -148,7 +142,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isRepeatable=0x7f010030;
+        public static int kpt_isRepeatable=0x7f010030;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -156,11 +150,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int isSticky=0x7f01002f;
+        public static int kpt_isSticky=0x7f01002f;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyBackground=0x7f01001e;
+        public static int kpt_keyBackground=0x7f01001e;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -171,7 +165,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>right</code></td><td>2</td><td></td></tr>
 </table>
          */
-        public static int keyEdgeFlags=0x7f01002d;
+        public static int kpt_keyEdgeFlags=0x7f01002d;
         /** <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -184,11 +178,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyHeight=0x7f01000e;
+        public static int kpt_keyHeight=0x7f01000e;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyIcon=0x7f010034;
+        public static int kpt_keyIcon=0x7f010034;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -196,7 +190,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel=0x7f010033;
+        public static int kpt_keyLabel=0x7f010033;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -204,7 +198,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel2=0x7f010005;
+        public static int kpt_keyLabel2=0x7f010005;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -214,7 +208,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel2TextSize=0x7f010016;
+        public static int kpt_keyLabel2TextSize=0x7f010016;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -222,7 +216,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel2XPos=0x7f010013;
+        public static int kpt_keyLabel2XPos=0x7f010013;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -230,7 +224,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabel2YPos=0x7f010014;
+        public static int kpt_keyLabel2YPos=0x7f010014;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -240,7 +234,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabelTextSize=0x7f010015;
+        public static int kpt_keyLabelTextSize=0x7f010015;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -248,7 +242,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabelXPos=0x7f010011;
+        public static int kpt_keyLabelXPos=0x7f010011;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -256,7 +250,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyLabelYPos=0x7f010012;
+        public static int kpt_keyLabelYPos=0x7f010012;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -264,7 +258,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyOutputText=0x7f010032;
+        public static int kpt_keyOutputText=0x7f010032;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -274,11 +268,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyPreviewHeight=0x7f010025;
+        public static int kpt_keyPreviewHeight=0x7f010025;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyPreviewLayout=0x7f010023;
+        public static int kpt_keyPreviewLayout=0x7f010023;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -288,7 +282,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyPreviewOffset=0x7f010024;
+        public static int kpt_keyPreviewOffset=0x7f010024;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -296,7 +290,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keySpecialOper=0x7f010037;
+        public static int kpt_keySpecialOper=0x7f010037;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -305,7 +299,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextColor=0x7f010021;
+        public static int kpt_keyTextColor=0x7f010021;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -314,7 +308,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextColor1=0x7f010022;
+        public static int kpt_keyTextColor1=0x7f010022;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -323,7 +317,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextColor2=0x7f010000;
+        public static int kpt_keyTextColor2=0x7f010000;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -332,7 +326,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextColor3=0x7f010004;
+        public static int kpt_keyTextColor3=0x7f010004;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -342,7 +336,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextSize=0x7f01001f;
+        public static int kpt_keyTextSize=0x7f01001f;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -352,7 +346,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextSize2=0x7f010001;
+        public static int kpt_keyTextSize2=0x7f010001;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -362,7 +356,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextSize3=0x7f010003;
+        public static int kpt_keyTextSize3=0x7f010003;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -372,7 +366,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyTextSize4=0x7f010002;
+        public static int kpt_keyTextSize4=0x7f010002;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -380,7 +374,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyType=0x7f01001b;
+        public static int kpt_keyType=0x7f01001b;
         /** <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -393,19 +387,19 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int keyWidth=0x7f01000d;
+        public static int kpt_keyWidth=0x7f01000d;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyboardMode=0x7f010039;
+        public static int kpt_keyboardMode=0x7f01003c;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int keyboardViewStyle=0x7f01001d;
+        public static int kpt_keyboardViewStyle=0x7f01001d;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int kptIcon=0x7f01000b;
+        public static int kpt_kptIcon=0x7f01000b;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -413,7 +407,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int label=0x7f010008;
+        public static int kpt_label=0x7f010008;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -423,7 +417,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int labelTextSize=0x7f010020;
+        public static int kpt_labelTextSize=0x7f010020;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -431,7 +425,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int languageType=0x7f010017;
+        public static int kpt_languageType=0x7f010017;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -439,7 +433,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int locale=0x7f01000a;
+        public static int kpt_locale=0x7f01000a;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -447,15 +441,15 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int popupCharacters=0x7f01002c;
+        public static int kpt_popupCharacters=0x7f01002c;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int popupKeyboard=0x7f01002b;
+        public static int kpt_popupKeyboard=0x7f01002b;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static int popupLayout=0x7f010027;
+        public static int kpt_popupLayout=0x7f010027;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -466,7 +460,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>bottom</code></td><td>8</td><td></td></tr>
 </table>
          */
-        public static int rowEdgeFlags=0x7f010038;
+        public static int kpt_rowEdgeFlags=0x7f01003b;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -475,7 +469,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int shadowColor=0x7f010028;
+        public static int kpt_shadowColor=0x7f010028;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -483,7 +477,15 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int shadowRadius=0x7f010029;
+        public static int kpt_shadowRadius=0x7f010029;
+        /** <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static int kpt_syllable_index=0x7f010038;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -491,7 +493,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int useExternalFont=0x7f010035;
+        public static int kpt_useExternalFont=0x7f010035;
         /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -499,7 +501,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int values=0x7f010009;
+        public static int kpt_values=0x7f010009;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -507,7 +509,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int version=0x7f010006;
+        public static int kpt_version=0x7f010006;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -517,7 +519,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int verticalCorrection=0x7f010026;
+        public static int kpt_verticalCorrection=0x7f010026;
         /** <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -530,726 +532,665 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static int verticalGap=0x7f010010;
+        public static int kpt_verticalGap=0x7f010010;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static int kpt_vowel_base=0x7f01003a;
+        /** <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static int kpt_vowel_unicode=0x7f010039;
     }
     public static final class bool {
-        public static int V0_6=0x7f070000;
-        public static int V0_7=0x7f070001;
-        public static int V0_7_2=0x7f070002;
-        public static int V0_7_3=0x7f070003;
-        public static int V0_9=0x7f070004;
-        public static int V1_0=0x7f070005;
-        public static int config_swipeDisambiguation=0x7f070006;
-        public static int enable_autocorrect=0x7f070007;
-        public static int im_is_default=0x7f070008;
-        public static int kpt_config_sliding_key_input_enabled=0x7f070009;
-        public static int kpt_debug=0x7f07000a;
-        public static int kpt_enable_analytic_server=0x7f07000b;
-        public static int kpt_enable_appflyer=0x7f07000c;
-        public static int kpt_enable_inappbilling=0x7f07000d;
-        public static int kpt_enable_mat=0x7f07000e;
-        public static int voice_input_default=0x7f07000f;
+        public static int kpt_V0_6=0x7f060000;
+        public static int kpt_V0_7=0x7f060001;
+        public static int kpt_V0_7_2=0x7f060002;
+        public static int kpt_V0_7_3=0x7f060003;
+        public static int kpt_V0_9=0x7f060004;
+        public static int kpt_V1_0=0x7f060005;
+        public static int kpt_config_sliding_key_input_enabled=0x7f060006;
+        public static int kpt_config_swipeDisambiguation=0x7f060007;
+        public static int kpt_debug=0x7f060008;
+        public static int kpt_enable_analytic_server=0x7f060009;
+        public static int kpt_enable_appflyer=0x7f06000a;
+        public static int kpt_enable_autocorrect=0x7f06000b;
+        public static int kpt_enable_inappbilling=0x7f06000c;
+        public static int kpt_enable_mat=0x7f06000d;
+        public static int kpt_im_is_default=0x7f06000e;
+        public static int kpt_voice_input_default=0x7f06000f;
     }
     public static final class color {
-        public static int atr_option=0x7f080000;
-        public static int kpt_acc_dismiss_dk_fk=0x7f080001;
-        public static int kpt_acc_dismiss_grt=0x7f080002;
-        public static int kpt_acc_dismiss_olm=0x7f080003;
-        public static int kpt_acc_dismiss_red=0x7f080004;
-        public static int kpt_acc_dismiss_val=0x7f080005;
-        public static int kpt_appwidget_text=0x7f080006;
-        public static int kpt_appwidget_text_dk_fk=0x7f080007;
-        public static int kpt_auto_update_frequence_color_disable=0x7f080008;
-        public static int kpt_auto_update_frequence_color_enable=0x7f080009;
-        public static int kpt_balck_color_text=0x7f08000a;
-        public static int kpt_blue_color_text=0x7f08000b;
-        public static int kpt_candidate_normal=0x7f08000c;
-        public static int kpt_candidate_normal_dk_fk=0x7f08000d;
-        public static int kpt_candidate_normal_grt=0x7f08000e;
-        public static int kpt_candidate_normal_red=0x7f08000f;
-        public static int kpt_candidate_private_dk_fk=0x7f080010;
-        public static int kpt_candidate_private_grt=0x7f080011;
-        public static int kpt_candidate_private_olm=0x7f080012;
-        public static int kpt_candidate_private_red=0x7f080013;
-        public static int kpt_candidate_private_val=0x7f080014;
-        public static int kpt_candidate_recommended=0x7f080015;
-        public static int kpt_candidate_recommended_dk_fk=0x7f080016;
-        public static int kpt_candidate_recommended_grt=0x7f080017;
-        public static int kpt_candidate_recommended_olm=0x7f080018;
-        public static int kpt_candidate_recommended_red=0x7f080019;
-        public static int kpt_com_facebook_picker_search_bar_background=0x7f08001a;
-        public static int kpt_com_facebook_picker_search_bar_text=0x7f08001b;
-        public static int kpt_custom_dialog_bg_color=0x7f08001c;
-        public static int kpt_custom_keyshape_color_dk=0x7f08001d;
-        public static int kpt_custom_keyshape_color_fk_val=0x7f08001e;
-        public static int kpt_custom_keyshape_color_grt=0x7f08001f;
-        public static int kpt_custom_keyshape_color_olm=0x7f080020;
-        public static int kpt_custom_keyshape_color_red=0x7f080021;
-        public static int kpt_customization_apply_option_bg=0x7f080022;
-        public static int kpt_customization_header_color=0x7f080023;
-        public static int kpt_customization_layout_color=0x7f080024;
-        public static int kpt_customization_options_text_color=0x7f080025;
-        public static int kpt_default_blue_drwablescolor=0x7f080026;
-        public static int kpt_default_dark_drwablescolor=0x7f080027;
-        public static int kpt_default_white_drwablescolor=0x7f080028;
-        public static int kpt_eula_click_color=0x7f080029;
-        public static int kpt_eula_click_color_dk_fk=0x7f08002a;
-        public static int kpt_functional_keys_white_color=0x7f08002b;
-        public static int kpt_glide_trace_color_dk_fk=0x7f08002c;
-        public static int kpt_glide_trace_color_grt=0x7f08002d;
-        public static int kpt_glide_trace_color_olm=0x7f08002e;
-        public static int kpt_glide_trace_color_red=0x7f08002f;
-        public static int kpt_glide_trace_color_val=0x7f080030;
-        public static int kpt_green_color_text=0x7f080031;
-        public static int kpt_help_bg_color=0x7f080032;
-        public static int kpt_help_text_color=0x7f080033;
-        public static int kpt_holo_blue_dark=0x7f080034;
-        public static int kpt_orange_selector_dialog=0x7f080035;
-        public static int kpt_preview_color=0x7f080036;
-        public static int kpt_preview_color_dk_fk=0x7f080037;
-        public static int kpt_preview_color_grt=0x7f080038;
-        public static int kpt_preview_color_olm=0x7f080039;
-        public static int kpt_preview_color_red=0x7f08003a;
-        public static int kpt_preview_color_val=0x7f08003b;
-        public static int kpt_primary_key_color=0x7f08003c;
-        public static int kpt_primary_key_color_dk_fk=0x7f08003d;
-        public static int kpt_primary_key_color_grt=0x7f08003e;
-        public static int kpt_primary_key_color_olm=0x7f08003f;
-        public static int kpt_primary_key_color_red=0x7f080040;
-        public static int kpt_primary_key_color_val=0x7f080041;
-        public static int kpt_secondary_key_color=0x7f080042;
-        public static int kpt_secondary_key_color_dk_fk=0x7f080043;
-        public static int kpt_secondary_key_color_grt=0x7f080044;
-        public static int kpt_secondary_key_color_olm=0x7f080045;
-        public static int kpt_secondary_key_color_red=0x7f080046;
-        public static int kpt_secondary_key_color_val=0x7f080047;
-        public static int kpt_selected_tab=0x7f080048;
-        public static int kpt_setup_wizard_bg_color=0x7f080049;
-        public static int kpt_setup_wizard_eula_color=0x7f08004a;
-        public static int kpt_setup_wizard_eula_text_color=0x7f08004b;
-        public static int kpt_setup_wizard_step_disabled_color=0x7f08004c;
-        public static int kpt_setup_wizard_tap_eula=0x7f08004d;
-        public static int kpt_tab_color=0x7f08004e;
-        public static int kpt_transparent=0x7f08004f;
-        public static int kpt_transparent_dk_fk=0x7f080050;
-        public static int kpt_unselected_tab=0x7f080051;
-        public static int kpt_unselected_tab1=0x7f080052;
-        public static int kpt_white_color_text=0x7f080053;
-        public static int kpt_xi_disable_dk=0x7f080054;
-        public static int kpt_xi_disable_fk_val=0x7f080055;
-        public static int kpt_xi_disable_grt=0x7f080056;
-        public static int kpt_xi_disable_olm=0x7f080057;
-        public static int kpt_xi_disable_red=0x7f080058;
-        public static int kpt_xi_enable_dk=0x7f080059;
-        public static int kpt_xi_enable_fk_val=0x7f08005a;
-        public static int kpt_xi_enable_grt=0x7f08005b;
-        public static int kpt_xi_enable_olm=0x7f08005c;
-        public static int kpt_xi_enable_red=0x7f08005d;
+        public static int kpt_acc_dismiss_dk_fk=0x7f070000;
+        public static int kpt_acc_dismiss_grt=0x7f070001;
+        public static int kpt_acc_dismiss_olm=0x7f070002;
+        public static int kpt_acc_dismiss_red=0x7f070003;
+        public static int kpt_acc_dismiss_val=0x7f070004;
+        public static int kpt_appwidget_text=0x7f070005;
+        public static int kpt_appwidget_text_dk_fk=0x7f070006;
+        public static int kpt_atr_option=0x7f070007;
+        public static int kpt_auto_update_frequence_color_disable=0x7f070008;
+        public static int kpt_auto_update_frequence_color_enable=0x7f070009;
+        public static int kpt_balck_color_text=0x7f07000a;
+        public static int kpt_blue_color_text=0x7f07000b;
+        public static int kpt_candidate_normal=0x7f07000c;
+        public static int kpt_candidate_normal_dk_fk=0x7f07000d;
+        public static int kpt_candidate_normal_grt=0x7f07000e;
+        public static int kpt_candidate_normal_red=0x7f07000f;
+        public static int kpt_candidate_private_dk_fk=0x7f070010;
+        public static int kpt_candidate_private_grt=0x7f070011;
+        public static int kpt_candidate_private_olm=0x7f070012;
+        public static int kpt_candidate_private_red=0x7f070013;
+        public static int kpt_candidate_private_val=0x7f070014;
+        public static int kpt_candidate_recommended=0x7f070015;
+        public static int kpt_candidate_recommended_dk_fk=0x7f070016;
+        public static int kpt_candidate_recommended_grt=0x7f070017;
+        public static int kpt_candidate_recommended_olm=0x7f070018;
+        public static int kpt_candidate_recommended_red=0x7f070019;
+        public static int kpt_com_facebook_picker_search_bar_background=0x7f07001a;
+        public static int kpt_com_facebook_picker_search_bar_text=0x7f07001b;
+        public static int kpt_custom_dialog_bg_color=0x7f07001c;
+        public static int kpt_custom_keyshape_color_dk=0x7f07001d;
+        public static int kpt_custom_keyshape_color_fk_val=0x7f07001e;
+        public static int kpt_custom_keyshape_color_grt=0x7f07001f;
+        public static int kpt_custom_keyshape_color_olm=0x7f070020;
+        public static int kpt_custom_keyshape_color_red=0x7f070021;
+        public static int kpt_customization_apply_option_bg=0x7f070022;
+        public static int kpt_customization_header_color=0x7f070023;
+        public static int kpt_customization_layout_color=0x7f070024;
+        public static int kpt_customization_options_text_color=0x7f070025;
+        public static int kpt_default_blue_drwablescolor=0x7f070026;
+        public static int kpt_default_dark_drwablescolor=0x7f070027;
+        public static int kpt_default_white_drwablescolor=0x7f070028;
+        public static int kpt_eula_click_color=0x7f070029;
+        public static int kpt_eula_click_color_dk_fk=0x7f07002a;
+        public static int kpt_functional_keys_white_color=0x7f07002b;
+        public static int kpt_glide_trace_color_dk_fk=0x7f07002c;
+        public static int kpt_glide_trace_color_grt=0x7f07002d;
+        public static int kpt_glide_trace_color_olm=0x7f07002e;
+        public static int kpt_glide_trace_color_red=0x7f07002f;
+        public static int kpt_glide_trace_color_val=0x7f070030;
+        public static int kpt_green_color_text=0x7f070031;
+        public static int kpt_help_bg_color=0x7f070032;
+        public static int kpt_help_text_color=0x7f070033;
+        public static int kpt_holo_blue_dark=0x7f070034;
+        public static int kpt_orange_selector_dialog=0x7f070035;
+        public static int kpt_preview_color=0x7f070036;
+        public static int kpt_preview_color_dk_fk=0x7f070037;
+        public static int kpt_preview_color_grt=0x7f070038;
+        public static int kpt_preview_color_olm=0x7f070039;
+        public static int kpt_preview_color_red=0x7f07003a;
+        public static int kpt_preview_color_val=0x7f07003b;
+        public static int kpt_primary_key_color=0x7f07003c;
+        public static int kpt_primary_key_color_dk_fk=0x7f07003d;
+        public static int kpt_primary_key_color_grt=0x7f07003e;
+        public static int kpt_primary_key_color_olm=0x7f07003f;
+        public static int kpt_primary_key_color_red=0x7f070040;
+        public static int kpt_primary_key_color_val=0x7f070041;
+        public static int kpt_secondary_key_color=0x7f070042;
+        public static int kpt_secondary_key_color_dk_fk=0x7f070043;
+        public static int kpt_secondary_key_color_grt=0x7f070044;
+        public static int kpt_secondary_key_color_olm=0x7f070045;
+        public static int kpt_secondary_key_color_red=0x7f070046;
+        public static int kpt_secondary_key_color_val=0x7f070047;
+        public static int kpt_selected_tab=0x7f070048;
+        public static int kpt_setup_wizard_bg_color=0x7f070049;
+        public static int kpt_setup_wizard_eula_color=0x7f07004a;
+        public static int kpt_setup_wizard_eula_text_color=0x7f07004b;
+        public static int kpt_setup_wizard_step_disabled_color=0x7f07004c;
+        public static int kpt_setup_wizard_tap_eula=0x7f07004d;
+        public static int kpt_tab_color=0x7f07004e;
+        public static int kpt_transparent=0x7f07004f;
+        public static int kpt_transparent_dk_fk=0x7f070050;
+        public static int kpt_unselected_tab=0x7f070051;
+        public static int kpt_unselected_tab1=0x7f070052;
+        public static int kpt_white_color_text=0x7f070053;
+        public static int kpt_xi_disable_dk=0x7f070054;
+        public static int kpt_xi_disable_fk_val=0x7f070055;
+        public static int kpt_xi_disable_grt=0x7f070056;
+        public static int kpt_xi_disable_olm=0x7f070057;
+        public static int kpt_xi_disable_red=0x7f070058;
+        public static int kpt_xi_enable_dk=0x7f070059;
+        public static int kpt_xi_enable_fk_val=0x7f07005a;
+        public static int kpt_xi_enable_grt=0x7f07005b;
+        public static int kpt_xi_enable_olm=0x7f07005c;
+        public static int kpt_xi_enable_red=0x7f07005d;
     }
     public static final class dimen {
-        public static int kpt_accentuated_bubble_offset=0x7f090050;
-        public static int kpt_accessibility_edge_slop=0x7f090000;
-        public static int kpt_bubble_pointer_offset=0x7f090001;
-        public static int kpt_bubble_pointer_offset_dk_fk=0x7f090002;
-        public static int kpt_candidate_height=0x7f090003;
-        public static int kpt_candidate_strip_height=0x7f090004;
-        public static int kpt_candidate_strip_height_dk_fk=0x7f090005;
-        public static int kpt_candidate_strip_max_height=0x7f090006;
-        public static int kpt_candidate_strip_min_height=0x7f090007;
-        public static int kpt_clipboard_textsize=0x7f090008;
-        public static int kpt_com_facebook_picker_divider_width=0x7f090009;
-        public static int kpt_com_facebook_picker_place_image_size=0x7f09000a;
-        public static int kpt_config_key_hysteresis_distance=0x7f09000b;
-        public static int kpt_config_key_hysteresis_distance_for_sliding_modifier=0x7f09000c;
-        public static int kpt_config_touch_noise_threshold_distance=0x7f09000d;
-        public static int kpt_cust_gestures_text_size=0x7f09000e;
-        public static int kpt_cust_gestures_warning_text_size=0x7f09000f;
-        public static int kpt_custom_shape_border_width=0x7f090010;
-        public static int kpt_custom_theme_horiz_padding_12_key=0x7f090011;
-        public static int kpt_customization_gallery_height=0x7f090012;
-        public static int kpt_customization_gallery_width=0x7f090013;
-        public static int kpt_customization_size=0x7f090014;
-        public static int kpt_customization_size_options=0x7f090015;
-        public static int kpt_cv_preview_textsize=0x7f090016;
-        public static int kpt_dialog_height=0x7f090051;
-        public static int kpt_draw_space_key_arrows=0x7f090017;
-        public static int kpt_expanded_height=0x7f090018;
-        public static int kpt_expanded_height_dk_fk=0x7f090019;
-        public static int kpt_external_font_text_size=0x7f09001a;
-        public static int kpt_func_key_height=0x7f09001b;
-        public static int kpt_func_key_height_dk_fk=0x7f09001c;
-        public static int kpt_gesture_floating_preview_horizontal_padding=0x7f09001d;
-        public static int kpt_gesture_floating_preview_round_radius=0x7f09001e;
-        public static int kpt_gesture_floating_preview_text_offset=0x7f09001f;
-        public static int kpt_gesture_floating_preview_text_size=0x7f090020;
-        public static int kpt_gesture_floating_preview_vertical_padding=0x7f090021;
-        public static int kpt_gesture_preview_trail_end_width=0x7f090022;
-        public static int kpt_gesture_preview_trail_start_width=0x7f090023;
-        public static int kpt_glide_trace_width=0x7f090024;
-        public static int kpt_keyLabel2GlobeShareTextSize=0x7f090025;
-        public static int kpt_keyLabel2TextSize=0x7f090026;
-        public static int kpt_keyLabel2TextSize_phone_sym=0x7f090027;
-        public static int kpt_keyLabel2XPos=0x7f090028;
-        public static int kpt_keyLabel2YPos=0x7f090029;
-        public static int kpt_keyLabelNumYPos=0x7f09002a;
-        public static int kpt_keyLabelTextSize=0x7f09002b;
-        public static int kpt_keyLabelTextSize_phone_sym=0x7f09002c;
-        public static int kpt_keyLabelXPos=0x7f09002d;
-        public static int kpt_keyLabelYPos=0x7f09002e;
-        public static int kpt_key_height=0x7f09002f;
-        public static int kpt_key_height_dk_fk=0x7f090030;
-        public static int kpt_key_height_land=0x7f090031;
-        public static int kpt_key_height_thai_3rows=0x7f090032;
-        public static int kpt_key_height_thai_punctuation=0x7f090033;
-        public static int kpt_key_height_when_4rows_xl=0x7f090034;
-        public static int kpt_key_preview_backing_height=0x7f090035;
-        public static int kpt_key_shape_text_size=0x7f090036;
-        public static int kpt_keyboard_vertical_correction=0x7f090037;
-        public static int kpt_keytextsize=0x7f090038;
-        public static int kpt_max_height_for_fullscreen=0x7f090039;
-        public static int kpt_max_textpreview_size=0x7f09003a;
-        public static int kpt_min_textpreview_size=0x7f09003b;
-        public static int kpt_more_keys_keyboard_slide_allowance=0x7f09003c;
-        public static int kpt_more_keys_keyboard_vertical_correction=0x7f09003d;
-        public static int kpt_normal_height=0x7f09003e;
-        public static int kpt_normal_height_dk_fk=0x7f09003f;
-        public static int kpt_number_row_key_height_dk_fk=0x7f090040;
-        public static int kpt_preview_text_size=0x7f09004e;
-        public static int kpt_primary_text_size=0x7f090041;
-        public static int kpt_secondary_text_size=0x7f090042;
-        public static int kpt_setup_wizard_textsize=0x7f090043;
-        public static int kpt_spacebar_text_size=0x7f090044;
-        public static int kpt_spacebar_text_size_dk_fk=0x7f090045;
-        public static int kpt_spacebar_text_vertical_offset=0x7f09004f;
-        public static int kpt_spacebar_text_vertical_offset_dk_fk=0x7f090052;
-        public static int kpt_spacebar_vertical_correction=0x7f090046;
-        public static int kpt_spacebar_vertical_correction_dk_fk=0x7f090047;
-        public static int kpt_sugg_icons_text_size=0x7f090048;
-        public static int kpt_text_size_max=0x7f090049;
-        public static int kpt_text_size_min=0x7f09004a;
-        public static int kpt_vertical_gap=0x7f09004b;
-        public static int kpt_vertical_gap_dk_fk=0x7f09004c;
-        public static int kpt_xhdpi_preview_text_size=0x7f09004d;
+        public static int kpt_accentuated_bubble_offset=0x7f080055;
+        public static int kpt_accessibility_edge_slop=0x7f080000;
+        public static int kpt_bubble_pointer_offset=0x7f080001;
+        public static int kpt_bubble_pointer_offset_dk_fk=0x7f080002;
+        public static int kpt_candidate_height=0x7f080003;
+        public static int kpt_candidate_strip_height=0x7f080004;
+        public static int kpt_candidate_strip_height_dk_fk=0x7f080005;
+        public static int kpt_candidate_strip_max_height=0x7f080006;
+        public static int kpt_candidate_strip_min_height=0x7f080007;
+        public static int kpt_clipboard_textsize=0x7f080008;
+        public static int kpt_com_facebook_picker_divider_width=0x7f080009;
+        public static int kpt_com_facebook_picker_place_image_size=0x7f08000a;
+        public static int kpt_config_key_hysteresis_distance=0x7f08000b;
+        public static int kpt_config_key_hysteresis_distance_for_sliding_modifier=0x7f08000c;
+        public static int kpt_config_touch_noise_threshold_distance=0x7f08000d;
+        public static int kpt_cust_gestures_text_size=0x7f08000e;
+        public static int kpt_cust_gestures_warning_text_size=0x7f08000f;
+        public static int kpt_custom_shape_border_width=0x7f080010;
+        public static int kpt_custom_theme_horiz_padding_12_key=0x7f080011;
+        public static int kpt_customization_gallery_height=0x7f080012;
+        public static int kpt_customization_gallery_width=0x7f080013;
+        public static int kpt_customization_size=0x7f080014;
+        public static int kpt_customization_size_options=0x7f080015;
+        public static int kpt_cv_preview_textsize=0x7f080016;
+        public static int kpt_dialog_height=0x7f080056;
+        public static int kpt_draw_space_key_arrows=0x7f080017;
+        public static int kpt_expanded_height=0x7f080018;
+        public static int kpt_expanded_height_dk_fk=0x7f080019;
+        public static int kpt_external_font_text_size=0x7f08001a;
+        public static int kpt_func_key_height=0x7f08001b;
+        public static int kpt_func_key_height_dk_fk=0x7f08001c;
+        public static int kpt_gesture_floating_preview_horizontal_padding=0x7f08001d;
+        public static int kpt_gesture_floating_preview_round_radius=0x7f08001e;
+        public static int kpt_gesture_floating_preview_text_offset=0x7f08001f;
+        public static int kpt_gesture_floating_preview_text_size=0x7f080020;
+        public static int kpt_gesture_floating_preview_vertical_padding=0x7f080021;
+        public static int kpt_gesture_preview_trail_end_width=0x7f080022;
+        public static int kpt_gesture_preview_trail_start_width=0x7f080023;
+        public static int kpt_glide_trace_width=0x7f080024;
+        public static int kpt_hindhi_key_height_dk_fk=0x7f080025;
+        public static int kpt_keyLabel2GlobeShareTextSize=0x7f080026;
+        public static int kpt_keyLabel2TextSize=0x7f080027;
+        public static int kpt_keyLabel2TextSizeForSpace=0x7f080028;
+        public static int kpt_keyLabel2TextSize_phone_sym=0x7f080029;
+        public static int kpt_keyLabel2XPos=0x7f08002a;
+        public static int kpt_keyLabel2XPosForDanda=0x7f08002b;
+        public static int kpt_keyLabel2YPos=0x7f08002c;
+        public static int kpt_keyLabelNumYPos=0x7f08002d;
+        public static int kpt_keyLabelTextSize=0x7f08002e;
+        public static int kpt_keyLabelTextSize_phone_sym=0x7f08002f;
+        public static int kpt_keyLabelXPos=0x7f080030;
+        public static int kpt_keyLabelYPos=0x7f080031;
+        public static int kpt_keyLabelYPos_atx=0x7f080032;
+        public static int kpt_key_height=0x7f080033;
+        public static int kpt_key_height_dk_fk=0x7f080034;
+        public static int kpt_key_height_hindhi_5_rows_dk_fk=0x7f080035;
+        public static int kpt_key_height_land=0x7f080036;
+        public static int kpt_key_height_thai_3rows=0x7f080037;
+        public static int kpt_key_height_thai_punctuation=0x7f080038;
+        public static int kpt_key_height_when_4rows_xl=0x7f080039;
+        public static int kpt_key_preview_backing_height=0x7f08003a;
+        public static int kpt_key_shape_text_size=0x7f08003b;
+        public static int kpt_keyboard_vertical_correction=0x7f08003c;
+        public static int kpt_keytextsize=0x7f08003d;
+        public static int kpt_max_height_for_fullscreen=0x7f08003e;
+        public static int kpt_max_textpreview_size=0x7f08003f;
+        public static int kpt_min_textpreview_size=0x7f080040;
+        public static int kpt_more_keys_keyboard_slide_allowance=0x7f080041;
+        public static int kpt_more_keys_keyboard_vertical_correction=0x7f080042;
+        public static int kpt_normal_height=0x7f080043;
+        public static int kpt_normal_height_dk_fk=0x7f080044;
+        public static int kpt_number_row_key_height_dk_fk=0x7f080045;
+        public static int kpt_preview_text_size=0x7f080053;
+        public static int kpt_primary_text_size=0x7f080046;
+        public static int kpt_secondary_text_size=0x7f080047;
+        public static int kpt_setup_wizard_textsize=0x7f080048;
+        public static int kpt_spacebar_text_size=0x7f080049;
+        public static int kpt_spacebar_text_size_dk_fk=0x7f08004a;
+        public static int kpt_spacebar_text_vertical_offset=0x7f080054;
+        public static int kpt_spacebar_text_vertical_offset_dk_fk=0x7f080057;
+        public static int kpt_spacebar_vertical_correction=0x7f08004b;
+        public static int kpt_spacebar_vertical_correction_dk_fk=0x7f08004c;
+        public static int kpt_sugg_icons_text_size=0x7f08004d;
+        public static int kpt_text_size_max=0x7f08004e;
+        public static int kpt_text_size_min=0x7f08004f;
+        public static int kpt_vertical_gap=0x7f080050;
+        public static int kpt_vertical_gap_dk_fk=0x7f080051;
+        public static int kpt_xhdpi_preview_text_size=0x7f080052;
     }
     public static final class drawable {
-        public static int com_facebook_picker_default_separator_color=0x7f0200da;
         public static int kpt_acc_dismiss_vf=0x7f020000;
-        public static int kpt_acc_dismiss_vf_bright=0x7f020001;
-        public static int kpt_acc_dismiss_vf_olm=0x7f020002;
-        public static int kpt_acc_tail=0x7f020003;
-        public static int kpt_adaptxt_feedback_dk_fk=0x7f020004;
-        public static int kpt_adaptxt_feedback_olm=0x7f020005;
-        public static int kpt_adaptxt_feedback_val=0x7f020006;
-        public static int kpt_adaptxt_launcher_icon=0x7f020007;
-        public static int kpt_adaptxt_launcher_logo=0x7f020008;
-        public static int kpt_adaptxt_settings_fk=0x7f020009;
-        public static int kpt_add=0x7f02000a;
-        public static int kpt_addon_manager=0x7f02000b;
-        public static int kpt_advanced_setting=0x7f02000c;
-        public static int kpt_alert_icon=0x7f02000d;
-        public static int kpt_all_sug_close=0x7f02000e;
-        public static int kpt_all_sug_open=0x7f02000f;
-        public static int kpt_atr_options_disable=0x7f020010;
-        public static int kpt_atr_options_enable=0x7f020011;
-        public static int kpt_btn_circle_normal=0x7f020012;
-        public static int kpt_btn_close=0x7f020013;
-        public static int kpt_btn_close_normal=0x7f020014;
-        public static int kpt_btn_close_normal_dk_fk=0x7f020015;
-        public static int kpt_btn_close_pressed=0x7f020016;
-        public static int kpt_btn_close_pressed_dk_fk=0x7f020017;
-        public static int kpt_btn_close_selected=0x7f020018;
-        public static int kpt_btn_default=0x7f020019;
-        public static int kpt_btn_keyboard_key_dk_fk=0x7f02001a;
-        public static int kpt_btn_keyboard_key_fk_val=0x7f02001b;
-        public static int kpt_btn_keyboard_key_normal_dk_fk=0x7f02001c;
-        public static int kpt_btn_keyboard_key_normal_fk_val=0x7f02001d;
-        public static int kpt_btn_keyboard_key_normal_off_dk_fk=0x7f02001e;
-        public static int kpt_btn_keyboard_key_normal_off_fk_val=0x7f02001f;
-        public static int kpt_btn_keyboard_key_normal_off_olm=0x7f020020;
-        public static int kpt_btn_keyboard_key_normal_olm=0x7f020021;
-        public static int kpt_btn_keyboard_key_normal_on_dk_fk=0x7f020022;
-        public static int kpt_btn_keyboard_key_normal_on_fk_val=0x7f020023;
-        public static int kpt_btn_keyboard_key_normal_on_olm=0x7f020024;
-        public static int kpt_btn_keyboard_key_normal_popup=0x7f020025;
-        public static int kpt_btn_keyboard_key_normal_popup_dk_fk=0x7f020026;
-        public static int kpt_btn_keyboard_key_normal_popup_fk_val=0x7f020027;
-        public static int kpt_btn_keyboard_key_normal_popup_olm=0x7f020028;
-        public static int kpt_btn_keyboard_key_normal_special_dk_fk=0x7f020029;
-        public static int kpt_btn_keyboard_key_normal_special_fk_val=0x7f02002a;
-        public static int kpt_btn_keyboard_key_normal_special_olm=0x7f02002b;
-        public static int kpt_btn_keyboard_key_olm=0x7f02002c;
-        public static int kpt_btn_keyboard_key_popup=0x7f02002d;
-        public static int kpt_btn_keyboard_key_popup_dk_fk=0x7f02002e;
-        public static int kpt_btn_keyboard_key_popup_olm=0x7f02002f;
-        public static int kpt_btn_keyboard_key_popup_val=0x7f020030;
-        public static int kpt_btn_keyboard_key_pressed=0x7f020031;
-        public static int kpt_btn_keyboard_key_pressed_dk_fk=0x7f020032;
-        public static int kpt_btn_keyboard_key_pressed_fk_val=0x7f020033;
-        public static int kpt_btn_keyboard_key_pressed_off=0x7f020034;
-        public static int kpt_btn_keyboard_key_pressed_off_dk_fk=0x7f020035;
-        public static int kpt_btn_keyboard_key_pressed_off_fk_val=0x7f020036;
-        public static int kpt_btn_keyboard_key_pressed_off_olm=0x7f020037;
-        public static int kpt_btn_keyboard_key_pressed_olm=0x7f020038;
-        public static int kpt_btn_keyboard_key_pressed_on=0x7f020039;
-        public static int kpt_btn_keyboard_key_pressed_on_dk_fk=0x7f02003a;
-        public static int kpt_btn_keyboard_key_pressed_on_fk_val=0x7f02003b;
-        public static int kpt_btn_keyboard_key_pressed_on_olm=0x7f02003c;
-        public static int kpt_btn_keyboard_key_pressed_popup=0x7f02003d;
-        public static int kpt_btn_keyboard_key_pressed_popup_dk_fk=0x7f02003e;
-        public static int kpt_btn_keyboard_key_pressed_popup_fk_val=0x7f02003f;
-        public static int kpt_btn_keyboard_key_pressed_popup_olm=0x7f020040;
-        public static int kpt_btn_keyboard_key_pressed_special=0x7f020041;
-        public static int kpt_btn_keyboard_key_pressed_special_dk_fk=0x7f020042;
-        public static int kpt_btn_keyboard_key_pressed_special_fk_val=0x7f020043;
-        public static int kpt_btn_keyboard_key_pressed_special_olm=0x7f020044;
-        public static int kpt_btn_keypad_phone_mic=0x7f020045;
-        public static int kpt_btn_phone_keyboard_mice=0x7f020046;
-        public static int kpt_bulb_preview=0x7f020047;
-        public static int kpt_candidate_feedback_background=0x7f020048;
-        public static int kpt_candidate_feedback_delete_word_bt=0x7f020049;
-        public static int kpt_candidate_feedback_delete_word_dk=0x7f02004a;
-        public static int kpt_candidate_feedback_delete_word_olm=0x7f02004b;
-        public static int kpt_caution=0x7f02004c;
-        public static int kpt_clipboard_copy=0x7f02004d;
-        public static int kpt_clipboard_copy_dis=0x7f02004e;
-        public static int kpt_clipboard_cut=0x7f02004f;
-        public static int kpt_clipboard_cut_dis=0x7f020050;
-        public static int kpt_clipboard_delete=0x7f020051;
-        public static int kpt_clipboard_down=0x7f020052;
-        public static int kpt_clipboard_fun=0x7f020053;
-        public static int kpt_clipboard_left=0x7f020054;
-        public static int kpt_clipboard_normal=0x7f020055;
-        public static int kpt_clipboard_paste=0x7f020056;
-        public static int kpt_clipboard_paste_dis=0x7f020057;
-        public static int kpt_clipboard_right=0x7f020058;
-        public static int kpt_clipboard_select_off=0x7f020059;
-        public static int kpt_clipboard_select_on=0x7f02005a;
-        public static int kpt_clipboard_up=0x7f02005b;
-        public static int kpt_create_theme_list_divider=0x7f02005c;
-        public static int kpt_customization_layout_colordrawable=0x7f0200db;
-        public static int kpt_delete=0x7f02005d;
-        public static int kpt_delete_disable=0x7f02005e;
-        public static int kpt_delete_enable=0x7f02005f;
-        public static int kpt_dictionary_backup_icon=0x7f020060;
-        public static int kpt_divider=0x7f020061;
-        public static int kpt_divider_hori=0x7f020062;
-        public static int kpt_divider_prior=0x7f020063;
-        public static int kpt_download_cancel=0x7f020064;
-        public static int kpt_eula_logo=0x7f020065;
-        public static int kpt_filled_box=0x7f020066;
-        public static int kpt_glide_settings_icon=0x7f020067;
-        public static int kpt_gridbg=0x7f020068;
-        public static int kpt_header_bg=0x7f020069;
-        public static int kpt_highlight_pressed=0x7f02006a;
-        public static int kpt_ic_add=0x7f02006b;
-        public static int kpt_ic_input_add=0x7f02006c;
-        public static int kpt_ic_menu_more=0x7f02006d;
-        public static int kpt_ic_menu_upload=0x7f02006e;
-        public static int kpt_ic_mic_dialog=0x7f02006f;
-        public static int kpt_ic_popup_sync_1=0x7f020070;
-        public static int kpt_ic_suggest_scroll_background=0x7f020071;
-        public static int kpt_ic_suggest_strip_microphone=0x7f020072;
-        public static int kpt_icmpmove=0x7f020073;
-        public static int kpt_image_full_brighttheme=0x7f020074;
-        public static int kpt_image_full_sportstheme=0x7f020075;
-        public static int kpt_image_full_theme=0x7f020076;
-        public static int kpt_image_hide_dismiss=0x7f020077;
-        public static int kpt_image_hide_undo=0x7f020078;
-        public static int kpt_ime_language_selection_dialog_button=0x7f020079;
-        public static int kpt_invalid_entry=0x7f02007a;
-        public static int kpt_kb_background_dk=0x7f02007b;
-        public static int kpt_kb_background_fk_val=0x7f02007c;
-        public static int kpt_kb_background_olm=0x7f02007d;
-        public static int kpt_kb_background_val=0x7f02007e;
-        public static int kpt_keyboard_cutomization_options_vertical=0x7f02007f;
-        public static int kpt_keyboard_key_feedback=0x7f020080;
-        public static int kpt_keyboard_key_feedback_background=0x7f020081;
-        public static int kpt_keyboard_key_feedback_background_more_val=0x7f020082;
-        public static int kpt_keyboard_key_feedback_background_olm=0x7f020083;
-        public static int kpt_keyboard_key_feedback_background_val=0x7f020084;
-        public static int kpt_keyboard_key_feedback_more_background=0x7f020085;
-        public static int kpt_keyboard_key_feedback_more_background_olm=0x7f020086;
-        public static int kpt_keyboard_shift_idic_dk=0x7f020087;
-        public static int kpt_keyboard_suggest_strip=0x7f020088;
-        public static int kpt_keyboard_suggest_strip_divider=0x7f020089;
-        public static int kpt_keyboard_suggest_strip_divider_ct=0x7f02008a;
-        public static int kpt_keyboard_suggest_strip_divider_main_val=0x7f02008b;
-        public static int kpt_keyboard_suggest_strip_divider_olm=0x7f02008c;
-        public static int kpt_keyboard_suggest_strip_grt=0x7f02008d;
-        public static int kpt_keyboard_suggest_strip_olm=0x7f02008e;
-        public static int kpt_keyboard_suggest_strip_val=0x7f02008f;
-        public static int kpt_language_select_dialog_cancel_focused=0x7f020090;
-        public static int kpt_language_select_dialog_cancel_normal=0x7f020091;
-        public static int kpt_language_select_dialog_cancel_selected=0x7f020092;
-        public static int kpt_layout_icon=0x7f020093;
-        public static int kpt_list_selector_background=0x7f020094;
-        public static int kpt_list_selector_background_disabled=0x7f020095;
-        public static int kpt_list_selector_background_focus=0x7f020096;
-        public static int kpt_list_selector_background_longpress=0x7f020097;
-        public static int kpt_list_selector_background_pressed=0x7f020098;
-        public static int kpt_list_selector_background_transition=0x7f020099;
-        public static int kpt_mic_slash=0x7f02009a;
-        public static int kpt_mini_kb_background_dk=0x7f02009b;
-        public static int kpt_mini_kb_background_olm=0x7f02009c;
-        public static int kpt_mini_kb_background_val=0x7f02009d;
-        public static int kpt_my_location_disable=0x7f02009e;
-        public static int kpt_normal_space_key_dk_fk=0x7f02009f;
-        public static int kpt_normal_space_key_fk_val=0x7f0200a0;
-        public static int kpt_normal_space_key_olm=0x7f0200a1;
-        public static int kpt_notification_icon=0x7f0200a2;
-        public static int kpt_ok_cancel=0x7f0200a3;
-        public static int kpt_panel_background=0x7f0200a4;
-        public static int kpt_personalize_suggestions=0x7f0200a5;
-        public static int kpt_phone_arrow_key=0x7f0200a6;
-        public static int kpt_phone_keyboard_space_fk_val=0x7f0200a7;
-        public static int kpt_privatemode_icon=0x7f0200a8;
-        public static int kpt_privatemode_icon_on=0x7f0200a9;
-        public static int kpt_progress1=0x7f0200aa;
-        public static int kpt_progress2=0x7f0200ab;
-        public static int kpt_progress3=0x7f0200ac;
-        public static int kpt_progress4=0x7f0200ad;
-        public static int kpt_progress5=0x7f0200ae;
-        public static int kpt_progress6=0x7f0200af;
-        public static int kpt_progress_bg_holo_dark=0x7f0200b0;
-        public static int kpt_progress_horizontal_holo_dark=0x7f0200b1;
-        public static int kpt_progress_indeterminate_horizontal_holo=0x7f0200b2;
-        public static int kpt_progress_primary_holo_dark=0x7f0200b3;
-        public static int kpt_progress_secondary_holo_dark=0x7f0200b4;
-        public static int kpt_progressbar_indeterminate_holo1=0x7f0200b5;
-        public static int kpt_progressbar_indeterminate_holo2=0x7f0200b6;
-        public static int kpt_progressbar_indeterminate_holo3=0x7f0200b7;
-        public static int kpt_progressbar_indeterminate_holo4=0x7f0200b8;
-        public static int kpt_progressbar_indeterminate_holo5=0x7f0200b9;
-        public static int kpt_progressbar_indeterminate_holo6=0x7f0200ba;
-        public static int kpt_progressbar_indeterminate_holo7=0x7f0200bb;
-        public static int kpt_progressbar_indeterminate_holo8=0x7f0200bc;
-        public static int kpt_remove_accents_icon=0x7f0200bd;
-        public static int kpt_remove_accents_icon_disable=0x7f0200be;
-        public static int kpt_removebg=0x7f0200bf;
-        public static int kpt_settings_icon=0x7f0200c0;
-        public static int kpt_social_selector_bg=0x7f0200c1;
-        public static int kpt_space_icon=0x7f0200c2;
-        public static int kpt_space_icon_dk=0x7f0200c3;
-        public static int kpt_suggestionbar_expand_dk=0x7f0200c4;
-        public static int kpt_suggestionbar_expand_fk=0x7f0200c5;
-        public static int kpt_suggestionbar_expand_olm=0x7f0200c6;
-        public static int kpt_sym_keyboard_feedback_space=0x7f0200c7;
-        public static int kpt_sym_keyboard_space_dk_fk=0x7f0200c8;
-        public static int kpt_sym_keyboard_space_fk_val=0x7f0200c9;
-        public static int kpt_tab_mini_header=0x7f0200ca;
-        public static int kpt_tab_selected=0x7f0200cb;
-        public static int kpt_tab_unselected=0x7f0200cc;
-        public static int kpt_tabone=0x7f0200cd;
-        public static int kpt_tabthree=0x7f0200ce;
-        public static int kpt_tabtwo=0x7f0200cf;
-        public static int kpt_taptodownload=0x7f0200d0;
-        public static int kpt_text_selector=0x7f0200d1;
-        public static int kpt_theme_download=0x7f0200d2;
-        public static int kpt_theme_icon=0x7f0200d3;
-        public static int kpt_theme_icon_2=0x7f0200d4;
-        public static int kpt_theme_icon_disabled=0x7f0200d5;
-        public static int kpt_theme_target=0x7f0200d6;
-        public static int kpt_themes_layout=0x7f0200d7;
-        public static int kpt_tile=0x7f0200d8;
-        public static int kpt_valid_entry=0x7f0200d9;
+        public static int kpt_acc_tail=0x7f020001;
+        public static int kpt_adaptxt_feedback_dk_fk=0x7f020002;
+        public static int kpt_adaptxt_feedback_olm=0x7f020003;
+        public static int kpt_adaptxt_feedback_val=0x7f020004;
+        public static int kpt_adaptxt_launcher_icon=0x7f020005;
+        public static int kpt_adaptxt_launcher_logo=0x7f020006;
+        public static int kpt_adaptxt_settings_fk=0x7f020007;
+        public static int kpt_add=0x7f020008;
+        public static int kpt_addon_manager=0x7f020009;
+        public static int kpt_advanced_setting=0x7f02000a;
+        public static int kpt_alert_icon=0x7f02000b;
+        public static int kpt_all_sug_close=0x7f02000c;
+        public static int kpt_all_sug_open=0x7f02000d;
+        public static int kpt_atr_options_disable=0x7f02000e;
+        public static int kpt_atr_options_enable=0x7f02000f;
+        public static int kpt_btn_circle_normal=0x7f020010;
+        public static int kpt_btn_close=0x7f020011;
+        public static int kpt_btn_close_normal=0x7f020012;
+        public static int kpt_btn_close_normal_dk_fk=0x7f020013;
+        public static int kpt_btn_close_pressed=0x7f020014;
+        public static int kpt_btn_close_pressed_dk_fk=0x7f020015;
+        public static int kpt_btn_close_selected=0x7f020016;
+        public static int kpt_btn_default=0x7f020017;
+        public static int kpt_btn_keyboard_key_dk_fk=0x7f020018;
+        public static int kpt_btn_keyboard_key_normal_dk_fk=0x7f020019;
+        public static int kpt_btn_keyboard_key_normal_off_dk_fk=0x7f02001a;
+        public static int kpt_btn_keyboard_key_normal_on_dk_fk=0x7f02001b;
+        public static int kpt_btn_keyboard_key_normal_popup=0x7f02001c;
+        public static int kpt_btn_keyboard_key_normal_popup_dk_fk=0x7f02001d;
+        public static int kpt_btn_keyboard_key_normal_special_dk_fk=0x7f02001e;
+        public static int kpt_btn_keyboard_key_popup=0x7f02001f;
+        public static int kpt_btn_keyboard_key_popup_dk_fk=0x7f020020;
+        public static int kpt_btn_keyboard_key_pressed=0x7f020021;
+        public static int kpt_btn_keyboard_key_pressed_dk_fk=0x7f020022;
+        public static int kpt_btn_keyboard_key_pressed_off=0x7f020023;
+        public static int kpt_btn_keyboard_key_pressed_off_dk_fk=0x7f020024;
+        public static int kpt_btn_keyboard_key_pressed_on=0x7f020025;
+        public static int kpt_btn_keyboard_key_pressed_on_dk_fk=0x7f020026;
+        public static int kpt_btn_keyboard_key_pressed_popup=0x7f020027;
+        public static int kpt_btn_keyboard_key_pressed_popup_dk_fk=0x7f020028;
+        public static int kpt_btn_keyboard_key_pressed_special=0x7f020029;
+        public static int kpt_btn_keyboard_key_pressed_special_dk_fk=0x7f02002a;
+        public static int kpt_btn_keyboard_space_dk_fk=0x7f02002b;
+        public static int kpt_candidate_feedback_background=0x7f02002c;
+        public static int kpt_candidate_feedback_delete_word_dk=0x7f02002d;
+        public static int kpt_candidate_feedback_delete_word_olm=0x7f02002e;
+        public static int kpt_caution=0x7f02002f;
+        public static int kpt_com_facebook_picker_default_separator_color=0x7f02009d;
+        public static int kpt_create_theme_list_divider=0x7f020030;
+        public static int kpt_customization_layout_colordrawable=0x7f02009e;
+        public static int kpt_delete=0x7f020031;
+        public static int kpt_delete_disable=0x7f020032;
+        public static int kpt_delete_enable=0x7f020033;
+        public static int kpt_dictionary_backup_icon=0x7f020034;
+        public static int kpt_divider=0x7f020035;
+        public static int kpt_divider_hori=0x7f020036;
+        public static int kpt_divider_prior=0x7f020037;
+        public static int kpt_download_cancel=0x7f020038;
+        public static int kpt_filled_box=0x7f020039;
+        public static int kpt_glide_settings_icon=0x7f02003a;
+        public static int kpt_gridbg=0x7f02003b;
+        public static int kpt_header_bg=0x7f02003c;
+        public static int kpt_highlight_pressed=0x7f02003d;
+        public static int kpt_ic_add=0x7f02003e;
+        public static int kpt_ic_input_add=0x7f02003f;
+        public static int kpt_ic_menu_more=0x7f020040;
+        public static int kpt_ic_menu_upload=0x7f020041;
+        public static int kpt_ic_mic_dialog=0x7f020042;
+        public static int kpt_ic_popup_sync_1=0x7f020043;
+        public static int kpt_ic_suggest_scroll_background=0x7f020044;
+        public static int kpt_ic_suggest_strip_microphone=0x7f020045;
+        public static int kpt_icmpmove=0x7f020046;
+        public static int kpt_image_full_brighttheme=0x7f020047;
+        public static int kpt_image_full_sportstheme=0x7f020048;
+        public static int kpt_image_full_theme=0x7f020049;
+        public static int kpt_image_hide_dismiss=0x7f02004a;
+        public static int kpt_image_hide_undo=0x7f02004b;
+        public static int kpt_ime_language_selection_dialog_button=0x7f02004c;
+        public static int kpt_invalid_entry=0x7f02004d;
+        public static int kpt_kb_background_dk=0x7f02004e;
+        public static int kpt_kb_background_fk_val=0x7f02004f;
+        public static int kpt_kb_background_olm=0x7f020050;
+        public static int kpt_kb_background_val=0x7f020051;
+        public static int kpt_keyboard_cutomization_options_vertical=0x7f020052;
+        public static int kpt_keyboard_key_feedback=0x7f020053;
+        public static int kpt_keyboard_key_feedback_background=0x7f020054;
+        public static int kpt_keyboard_key_feedback_more_background=0x7f020055;
+        public static int kpt_keyboard_sapce=0x7f020056;
+        public static int kpt_keyboard_suggest_strip=0x7f020057;
+        public static int kpt_keyboard_suggest_strip_divider=0x7f020058;
+        public static int kpt_language_select_dialog_cancel_focused=0x7f020059;
+        public static int kpt_language_select_dialog_cancel_normal=0x7f02005a;
+        public static int kpt_language_select_dialog_cancel_selected=0x7f02005b;
+        public static int kpt_layout_icon=0x7f02005c;
+        public static int kpt_list_selector_background=0x7f02005d;
+        public static int kpt_list_selector_background_disabled=0x7f02005e;
+        public static int kpt_list_selector_background_focus=0x7f02005f;
+        public static int kpt_list_selector_background_longpress=0x7f020060;
+        public static int kpt_list_selector_background_pressed=0x7f020061;
+        public static int kpt_list_selector_background_transition=0x7f020062;
+        public static int kpt_mic_slash=0x7f020063;
+        public static int kpt_mini_kb_background_dk=0x7f020064;
+        public static int kpt_mini_kb_background_olm=0x7f020065;
+        public static int kpt_mini_kb_background_val=0x7f020066;
+        public static int kpt_my_location_disable=0x7f020067;
+        public static int kpt_normal_space_key_dk_fk=0x7f020068;
+        public static int kpt_notification_icon=0x7f020069;
+        public static int kpt_ok_cancel=0x7f02006a;
+        public static int kpt_panel_background=0x7f02006b;
+        public static int kpt_personalize_suggestions=0x7f02006c;
+        public static int kpt_phone_arrow_key=0x7f02006d;
+        public static int kpt_privatemode_icon=0x7f02006e;
+        public static int kpt_privatemode_icon_on=0x7f02006f;
+        public static int kpt_progress1=0x7f020070;
+        public static int kpt_progress2=0x7f020071;
+        public static int kpt_progress3=0x7f020072;
+        public static int kpt_progress4=0x7f020073;
+        public static int kpt_progress5=0x7f020074;
+        public static int kpt_progress6=0x7f020075;
+        public static int kpt_progress_bg_holo_dark=0x7f020076;
+        public static int kpt_progress_horizontal_holo_dark=0x7f020077;
+        public static int kpt_progress_indeterminate_horizontal_holo=0x7f020078;
+        public static int kpt_progress_primary_holo_dark=0x7f020079;
+        public static int kpt_progress_secondary_holo_dark=0x7f02007a;
+        public static int kpt_progressbar_indeterminate_holo1=0x7f02007b;
+        public static int kpt_progressbar_indeterminate_holo2=0x7f02007c;
+        public static int kpt_progressbar_indeterminate_holo3=0x7f02007d;
+        public static int kpt_progressbar_indeterminate_holo4=0x7f02007e;
+        public static int kpt_progressbar_indeterminate_holo5=0x7f02007f;
+        public static int kpt_progressbar_indeterminate_holo6=0x7f020080;
+        public static int kpt_progressbar_indeterminate_holo7=0x7f020081;
+        public static int kpt_progressbar_indeterminate_holo8=0x7f020082;
+        public static int kpt_remove_accents_icon=0x7f020083;
+        public static int kpt_remove_accents_icon_disable=0x7f020084;
+        public static int kpt_removebg=0x7f020085;
+        public static int kpt_settings_icon=0x7f020086;
+        public static int kpt_social_selector_bg=0x7f020087;
+        public static int kpt_space_icon=0x7f020088;
+        public static int kpt_space_icon_dk=0x7f020089;
+        public static int kpt_suggestionbar_expand_dk=0x7f02008a;
+        public static int kpt_sym_keyboard_feedback_space=0x7f02008b;
+        public static int kpt_sym_keyboard_space_dk_fk=0x7f02008c;
+        public static int kpt_tab_mini_header=0x7f02008d;
+        public static int kpt_tab_selected=0x7f02008e;
+        public static int kpt_tab_unselected=0x7f02008f;
+        public static int kpt_tabone=0x7f020090;
+        public static int kpt_tabthree=0x7f020091;
+        public static int kpt_tabtwo=0x7f020092;
+        public static int kpt_taptodownload=0x7f020093;
+        public static int kpt_text_selector=0x7f020094;
+        public static int kpt_theme_download=0x7f020095;
+        public static int kpt_theme_icon=0x7f020096;
+        public static int kpt_theme_icon_2=0x7f020097;
+        public static int kpt_theme_icon_disabled=0x7f020098;
+        public static int kpt_theme_target=0x7f020099;
+        public static int kpt_themes_layout=0x7f02009a;
+        public static int kpt_tile=0x7f02009b;
+        public static int kpt_valid_entry=0x7f02009c;
     }
     public static final class fraction {
-        public static int kpt_adaptxt_horizontal_gap=0x7f0a0000;
-        public static int kpt_config_gesture_detect_fast_move_speed_threshold=0x7f0a0001;
-        public static int kpt_config_gesture_dynamic_distance_threshold_from=0x7f0a0002;
-        public static int kpt_config_gesture_dynamic_distance_threshold_to=0x7f0a0003;
-        public static int kpt_config_gesture_recognition_speed_threshold=0x7f0a0004;
-        public static int kpt_config_gesture_sampling_minimum_distance=0x7f0a0005;
-        public static int kpt_horizontal_gap_row1=0x7f0a0006;
-        public static int kpt_horizontal_gap_row2=0x7f0a0007;
-        public static int kpt_horizontal_gap_row3=0x7f0a0008;
-        public static int kpt_horizontal_gap_row4=0x7f0a0009;
-        public static int kpt_key_width_row1=0x7f0a000a;
-        public static int kpt_key_width_row2=0x7f0a000b;
-        public static int kpt_key_width_row3=0x7f0a000c;
-        public static int kpt_key_width_row4=0x7f0a000d;
-        public static int kpt_modifier_key_width=0x7f0a000e;
-        public static int kpt_primary_char_offset=0x7f0a000f;
-        public static int kpt_primary_char_offset_dk_fk=0x7f0a0010;
-        public static int kpt_primary_char_popup_key_offset=0x7f0a0011;
-        public static int kpt_primary_char_popup_key_offset_dk_fk=0x7f0a0012;
-        public static int kpt_secondary_char_offset=0x7f0a0013;
-        public static int kpt_secondary_char_offset_dk_fk=0x7f0a0014;
-        public static int kpt_space_key_width=0x7f0a0015;
+        public static int kpt_adaptxt_horizontal_gap=0x7f090000;
+        public static int kpt_config_gesture_detect_fast_move_speed_threshold=0x7f090001;
+        public static int kpt_config_gesture_dynamic_distance_threshold_from=0x7f090002;
+        public static int kpt_config_gesture_dynamic_distance_threshold_to=0x7f090003;
+        public static int kpt_config_gesture_recognition_speed_threshold=0x7f090004;
+        public static int kpt_config_gesture_sampling_minimum_distance=0x7f090005;
+        public static int kpt_horizontal_gap_row1=0x7f090006;
+        public static int kpt_horizontal_gap_row2=0x7f090007;
+        public static int kpt_horizontal_gap_row3=0x7f090008;
+        public static int kpt_horizontal_gap_row4=0x7f090009;
+        public static int kpt_key_width_row1=0x7f09000a;
+        public static int kpt_key_width_row2=0x7f09000b;
+        public static int kpt_key_width_row3=0x7f09000c;
+        public static int kpt_key_width_row4=0x7f09000d;
+        public static int kpt_modifier_key_width=0x7f09000e;
+        public static int kpt_primary_char_offset=0x7f09000f;
+        public static int kpt_primary_char_offset_dk_fk=0x7f090010;
+        public static int kpt_primary_char_popup_key_offset=0x7f090011;
+        public static int kpt_primary_char_popup_key_offset_dk_fk=0x7f090012;
+        public static int kpt_secondary_char_offset=0x7f090013;
+        public static int kpt_secondary_char_offset_dk_fk=0x7f090014;
+        public static int kpt_space_key_width=0x7f090015;
     }
     public static final class id {
-        public static int ImageView01=0x7f0e007c;
-        public static int SearchListView=0x7f0e0017;
-        public static int acc_head=0x7f0e004e;
-        public static int acc_head_ltr=0x7f0e003f;
-        public static int acc_head_rtl=0x7f0e0043;
-        public static int acc_parent=0x7f0e004d;
-        public static int acc_parent_ltr=0x7f0e003e;
-        public static int acc_parent_rtl=0x7f0e0042;
-        public static int acc_tail=0x7f0e004f;
-        public static int acc_tail_ltr=0x7f0e0040;
-        public static int acc_tail_rtl=0x7f0e0044;
-        public static int account_msg=0x7f0e0005;
-        public static int account_row_icon=0x7f0e0050;
-        public static int account_row_text=0x7f0e0051;
-        public static int account_setting_account_status_icon=0x7f0e0008;
-        public static int account_settings_mainTxt=0x7f0e0009;
-        public static int account_settings_subTxt=0x7f0e000a;
-        public static int account_status_icon=0x7f0e0006;
-        public static int account_type=0x7f0e0004;
-        public static int accounts_layout_linear=0x7f0e000b;
-        public static int addon_downlaod_title_bar=0x7f0e0014;
-        public static int addon_option_cancel=0x7f0e0020;
-        public static int addon_option_disable=0x7f0e001e;
-        public static int addon_option_uninstall=0x7f0e001d;
-        public static int addon_option_update=0x7f0e001f;
-        public static int addon_progressbar=0x7f0e0099;
-        public static int addons_search=0x7f0e0013;
-        public static int addshortcut=0x7f0e0038;
-        public static int app_icon=0x7f0e0027;
-        public static int app_name=0x7f0e0028;
-        public static int autoUpdateCheckALL=0x7f0e0094;
-        public static int autoUpdateCheckBook=0x7f0e0092;
-        public static int autoupdateNow=0x7f0e0091;
-        public static int bottom=0x7f0e0002;
-        public static int button=0x7f0e00b1;
-        public static int button_bar=0x7f0e0053;
-        public static int button_text=0x7f0e00b2;
-        public static int cancel=0x7f0e0031;
-        public static int candidate_expand_suggestions=0x7f0e0049;
-        public static int candidates=0x7f0e0041;
-        public static int childView=0x7f0e0089;
-        public static int chkTxt=0x7f0e0097;
-        public static int clip_copy=0x7f0e005f;
-        public static int clip_cut=0x7f0e0056;
-        public static int clip_delete=0x7f0e0059;
-        public static int clip_down=0x7f0e0060;
-        public static int clip_keyboard_return=0x7f0e0058;
-        public static int clip_left=0x7f0e005b;
-        public static int clip_paste=0x7f0e0061;
-        public static int clip_right=0x7f0e005d;
-        public static int clip_select=0x7f0e005c;
-        public static int clip_up=0x7f0e0057;
-        public static int clipboard_id=0x7f0e008a;
-        public static int clipboard_row1=0x7f0e0055;
-        public static int clipboard_row2=0x7f0e005a;
-        public static int clipboard_row3=0x7f0e005e;
-        public static int compact=0x7f0e0082;
-        public static int cust_theme_elipse=0x7f0e008b;
-        public static int custom_gesture_applications_spinner=0x7f0e000f;
-        public static int custom_gesture_create_new=0x7f0e0065;
-        public static int custom_gesture_shortcut_char=0x7f0e000c;
-        public static int custom_gesture_shortcut_type=0x7f0e000e;
-        public static int custom_gesture_types_spinner=0x7f0e0067;
-        public static int custom_gesture_websites_clipboard_edittext=0x7f0e0010;
-        public static int del_cancel=0x7f0e006f;
-        public static int del_word_deleteword=0x7f0e006d;
-        public static int del_word_insert=0x7f0e006c;
-        public static int del_word_title=0x7f0e006b;
-        public static int delete_icon=0x7f0e004b;
-        public static int delete_icon_ltr=0x7f0e003c;
-        public static int delete_icon_rtl=0x7f0e0046;
-        public static int delete_word_divider=0x7f0e004c;
-        public static int delete_word_divider_ltr=0x7f0e003d;
-        public static int delete_word_divider_rtl=0x7f0e0045;
-        public static int deleteparent=0x7f0e006a;
-        public static int delshortcut=0x7f0e0039;
-        public static int description=0x7f0e0052;
-        public static int divider=0x7f0e0068;
-        public static int divider1=0x7f0e00a9;
-        public static int divider2=0x7f0e00ab;
-        public static int done=0x7f0e0030;
-        public static int downlaod_percentage=0x7f0e009f;
-        public static int download_left_list=0x7f0e0018;
-        public static int download_title_left=0x7f0e0015;
-        public static int drag_list=0x7f0e007d;
-        public static int dummy=0x7f0e0007;
-        public static int editText=0x7f0e0021;
-        public static int enableView=0x7f0e00ca;
-        public static int enable_theme=0x7f0e0074;
-        public static int etAddWord=0x7f0e0011;
-        public static int expandSuggView=0x7f0e0088;
-        public static int facebook=0x7f0e0090;
-        public static int flagimage=0x7f0e0081;
-        public static int generate_shortcut=0x7f0e002c;
-        public static int grid_themes_download=0x7f0e00c3;
-        public static int grid_themes_logo=0x7f0e00c2;
-        public static int grid_themes_name=0x7f0e00c1;
-        public static int hsv=0x7f0e0016;
-        public static int icon=0x7f0e0034;
-        public static int icon_download_cancel=0x7f0e009a;
-        public static int image=0x7f0e00af;
-        public static int iv_icon=0x7f0e0062;
-        public static int key_preview=0x7f0e008c;
-        public static int key_preview_backing=0x7f0e0085;
-        public static int keyboardView=0x7f0e0087;
-        public static int language=0x7f0e001a;
-        public static int language_selection_dialog=0x7f0e0083;
-        public static int language_selection_list_view=0x7f0e0084;
-        public static int left=0x7f0e0000;
-        public static int likewebview=0x7f0e0095;
-        public static int linear1=0x7f0e009c;
-        public static int linearLayout1=0x7f0e0019;
-        public static int linearLayout2=0x7f0e002a;
-        public static int list=0x7f0e0024;
-        public static int listView=0x7f0e0022;
-        public static int list_header_title=0x7f0e0096;
-        public static int list_header_title1=0x7f0e009d;
-        public static int list_item_icon_relativelayout=0x7f0e009e;
-        public static int list_items=0x7f0e0069;
-        public static int llParent=0x7f0e0054;
-        public static int main_image=0x7f0e00ae;
-        public static int mainlayout=0x7f0e0023;
-        public static int mode_email=0x7f0e00d9;
-        public static int mode_email_hide_xi=0x7f0e00df;
-        public static int mode_im=0x7f0e00da;
-        public static int mode_im_hide_xi=0x7f0e00e0;
-        public static int mode_normal=0x7f0e00d7;
-        public static int mode_normal_hide_xi=0x7f0e00dd;
-        public static int mode_password=0x7f0e00dc;
-        public static int mode_url=0x7f0e00d8;
-        public static int mode_url_hide_xi=0x7f0e00de;
-        public static int mode_urll=0x7f0e00e2;
-        public static int mode_webentry=0x7f0e00db;
-        public static int mode_webentry_hide_xi=0x7f0e00e1;
-        public static int more_keys_keyboard_view=0x7f0e008d;
-        public static int mygrid=0x7f0e00c0;
-        public static int mylayout_tooltip=0x7f0e0075;
-        public static int parentLayout=0x7f0e0037;
-        public static int phone=0x7f0e008e;
-        public static int phone_first_row_email=0x7f0e00d0;
-        public static int phone_first_row_normal=0x7f0e00cf;
-        public static int phone_first_row_url=0x7f0e00d1;
-        public static int phone_last_row_no_voice=0x7f0e00d2;
-        public static int phone_last_row_no_voice_hide_xi=0x7f0e00d5;
-        public static int phone_last_row_password=0x7f0e00d4;
-        public static int phone_last_row_with_voice=0x7f0e00d3;
-        public static int phone_last_row_with_voice_hide_xi=0x7f0e00d6;
-        public static int popup_Ok=0x7f0e00a5;
-        public static int popup_cancel=0x7f0e00a3;
-        public static int popup_default=0x7f0e00a4;
-        public static int popup_seekBar=0x7f0e00a2;
-        public static int popup_value=0x7f0e00a6;
-        public static int pref_text=0x7f0e00cd;
-        public static int price=0x7f0e009b;
-        public static int priorityView=0x7f0e00cb;
-        public static int private_custom_theme=0x7f0e004a;
-        public static int private_custom_theme_ltr=0x7f0e003b;
-        public static int private_custom_theme_rtl=0x7f0e0047;
-        public static int progress=0x7f0e00b0;
-        public static int quick_sett_atr_dialog=0x7f0e00ac;
-        public static int quick_sett_layouts=0x7f0e00a8;
-        public static int quick_sett_prvtmode=0x7f0e00a7;
-        public static int quick_sett_rmvaccents=0x7f0e00ad;
-        public static int quick_sett_settings=0x7f0e00aa;
-        public static int radioButton=0x7f0e0072;
-        public static int right=0x7f0e0001;
-        public static int rl=0x7f0e00a1;
-        public static int select_dialog_item_textview=0x7f0e00b3;
-        public static int shortcut=0x7f0e0029;
-        public static int shortcutField=0x7f0e002b;
-        public static int shortcutView=0x7f0e0035;
-        public static int shortcut_alert=0x7f0e002d;
-        public static int shortcut_already_exits_warning=0x7f0e000d;
-        public static int shortcut_delete=0x7f0e00b4;
-        public static int shortcut_sub_text=0x7f0e00b6;
-        public static int shortcut_title=0x7f0e00b5;
-        public static int shortname=0x7f0e0080;
-        public static int sms=0x7f0e008f;
-        public static int sound_Ok=0x7f0e00b9;
-        public static int sound_cancel=0x7f0e00b7;
-        public static int sound_default=0x7f0e00b8;
-        public static int sound_value=0x7f0e00ba;
-        public static int spacebar_scroll=0x7f0e00bb;
-        public static int spinner=0x7f0e0093;
-        public static int substitution=0x7f0e002e;
-        public static int substitutionField=0x7f0e002f;
-        public static int substitutionView=0x7f0e0036;
-        public static int subtext_downloaded=0x7f0e0098;
-        public static int suggest_strip=0x7f0e003a;
-        public static int suggestion_container=0x7f0e0086;
-        public static int tabPager=0x7f0e001c;
-        public static int technical=0x7f0e001b;
-        public static int text=0x7f0e0032;
-        public static int text0=0x7f0e0033;
-        public static int text1=0x7f0e007e;
-        public static int text2=0x7f0e007f;
-        public static int theme_download_lag_progress_parent=0x7f0e00bf;
-        public static int theme_download_title_left=0x7f0e00bd;
-        public static int theme_downloaded_left_list=0x7f0e00be;
-        public static int theme_image=0x7f0e0073;
-        public static int theme_list=0x7f0e00c4;
-        public static int theme_select_delete=0x7f0e0070;
-        public static int theme_select_image=0x7f0e0071;
-        public static int title_parent=0x7f0e0064;
-        public static int title_trial=0x7f0e0026;
-        public static int top=0x7f0e0003;
-        public static int tvErrorMsg=0x7f0e0012;
-        public static int tv_name=0x7f0e0063;
-        public static int vert_divider=0x7f0e0066;
-        public static int vib_Ok=0x7f0e00c8;
-        public static int vib_cancell=0x7f0e00c6;
-        public static int vib_default=0x7f0e00c7;
-        public static int vibration_seekBar=0x7f0e00c5;
-        public static int vibration_value=0x7f0e00c9;
-        public static int webview_parent=0x7f0e00bc;
-        public static int widget0=0x7f0e0025;
-        public static int widget27=0x7f0e00cc;
-        public static int widget31=0x7f0e00ce;
-        public static int widget32=0x7f0e0076;
-        public static int widget33=0x7f0e0077;
-        public static int widget34=0x7f0e0078;
-        public static int widget37=0x7f0e0079;
-        public static int widget38=0x7f0e007a;
-        public static int widget39=0x7f0e007b;
-        public static int word_list=0x7f0e00a0;
-        public static int word_meaning=0x7f0e006e;
-        public static int xmldivider=0x7f0e0048;
+        public static int ImageView01=0x7f0d0068;
+        public static int SearchListView=0x7f0d0017;
+        public static int acc_head_ltr=0x7f0d003f;
+        public static int acc_head_rtl=0x7f0d0043;
+        public static int acc_parent_ltr=0x7f0d003e;
+        public static int acc_parent_rtl=0x7f0d0042;
+        public static int acc_tail_ltr=0x7f0d0040;
+        public static int acc_tail_rtl=0x7f0d0044;
+        public static int account_msg=0x7f0d0005;
+        public static int account_row_icon=0x7f0d004a;
+        public static int account_row_text=0x7f0d004b;
+        public static int account_setting_account_status_icon=0x7f0d0008;
+        public static int account_settings_mainTxt=0x7f0d0009;
+        public static int account_settings_subTxt=0x7f0d000a;
+        public static int account_status_icon=0x7f0d0006;
+        public static int account_type=0x7f0d0004;
+        public static int accounts_layout_linear=0x7f0d000b;
+        public static int addon_downlaod_title_bar=0x7f0d0014;
+        public static int addon_option_cancel=0x7f0d0020;
+        public static int addon_option_disable=0x7f0d001e;
+        public static int addon_option_uninstall=0x7f0d001d;
+        public static int addon_option_update=0x7f0d001f;
+        public static int addon_progressbar=0x7f0d0084;
+        public static int addons_search=0x7f0d0013;
+        public static int addshortcut=0x7f0d0038;
+        public static int app_icon=0x7f0d0027;
+        public static int app_name=0x7f0d0028;
+        public static int autoUpdateCheckALL=0x7f0d007f;
+        public static int autoUpdateCheckBook=0x7f0d007d;
+        public static int autoupdateNow=0x7f0d007c;
+        public static int bottom=0x7f0d0002;
+        public static int button=0x7f0d009d;
+        public static int button_bar=0x7f0d004d;
+        public static int button_text=0x7f0d009e;
+        public static int cancel=0x7f0d0031;
+        public static int candidate_expand_suggestions=0x7f0d0049;
+        public static int candidates=0x7f0d0041;
+        public static int childView=0x7f0d0075;
+        public static int chkTxt=0x7f0d0082;
+        public static int compact=0x7f0d006e;
+        public static int cust_theme_elipse=0x7f0d0076;
+        public static int custom_gesture_applications_spinner=0x7f0d000f;
+        public static int custom_gesture_create_new=0x7f0d0051;
+        public static int custom_gesture_shortcut_char=0x7f0d000c;
+        public static int custom_gesture_shortcut_type=0x7f0d000e;
+        public static int custom_gesture_types_spinner=0x7f0d0053;
+        public static int custom_gesture_websites_clipboard_edittext=0x7f0d0010;
+        public static int del_cancel=0x7f0d005b;
+        public static int del_word_deleteword=0x7f0d0059;
+        public static int del_word_insert=0x7f0d0058;
+        public static int del_word_title=0x7f0d0057;
+        public static int delete_icon_ltr=0x7f0d003c;
+        public static int delete_icon_rtl=0x7f0d0046;
+        public static int delete_word_divider_ltr=0x7f0d003d;
+        public static int delete_word_divider_rtl=0x7f0d0045;
+        public static int deleteparent=0x7f0d0056;
+        public static int delshortcut=0x7f0d0039;
+        public static int description=0x7f0d004c;
+        public static int divider=0x7f0d0054;
+        public static int divider1=0x7f0d0095;
+        public static int divider2=0x7f0d0097;
+        public static int done=0x7f0d0030;
+        public static int downlaod_percentage=0x7f0d008a;
+        public static int download_left_list=0x7f0d0018;
+        public static int download_title_left=0x7f0d0015;
+        public static int drag_list=0x7f0d0069;
+        public static int dummy=0x7f0d0007;
+        public static int editText=0x7f0d0021;
+        public static int enableView=0x7f0d00b6;
+        public static int enable_theme=0x7f0d0060;
+        public static int etAddWord=0x7f0d0011;
+        public static int expandSuggView=0x7f0d0074;
+        public static int facebook=0x7f0d007b;
+        public static int flagimage=0x7f0d006d;
+        public static int generate_shortcut=0x7f0d002c;
+        public static int grid_themes_download=0x7f0d00af;
+        public static int grid_themes_logo=0x7f0d00ae;
+        public static int grid_themes_name=0x7f0d00ad;
+        public static int hsv=0x7f0d0016;
+        public static int icon=0x7f0d0034;
+        public static int icon_download_cancel=0x7f0d0085;
+        public static int image=0x7f0d009b;
+        public static int iv_icon=0x7f0d004e;
+        public static int key_preview=0x7f0d0077;
+        public static int key_preview_backing=0x7f0d0071;
+        public static int keyboardView=0x7f0d0073;
+        public static int language=0x7f0d001a;
+        public static int language_selection_dialog=0x7f0d006f;
+        public static int language_selection_list_view=0x7f0d0070;
+        public static int left=0x7f0d0000;
+        public static int likewebview=0x7f0d0080;
+        public static int linear1=0x7f0d0087;
+        public static int linearLayout1=0x7f0d0019;
+        public static int linearLayout2=0x7f0d002a;
+        public static int list=0x7f0d0024;
+        public static int listView=0x7f0d0022;
+        public static int list_header_title=0x7f0d0081;
+        public static int list_header_title1=0x7f0d0088;
+        public static int list_item_icon_relativelayout=0x7f0d0089;
+        public static int list_items=0x7f0d0055;
+        public static int llParent=0x7f0d0092;
+        public static int main_image=0x7f0d009a;
+        public static int mainlayout=0x7f0d0023;
+        public static int mode_email=0x7f0d00c5;
+        public static int mode_email_hide_xi=0x7f0d00cb;
+        public static int mode_im=0x7f0d00c6;
+        public static int mode_im_hide_xi=0x7f0d00cc;
+        public static int mode_normal=0x7f0d00c3;
+        public static int mode_normal_hide_xi=0x7f0d00c9;
+        public static int mode_password=0x7f0d00c8;
+        public static int mode_url=0x7f0d00c4;
+        public static int mode_url_hide_xi=0x7f0d00ca;
+        public static int mode_webentry=0x7f0d00c7;
+        public static int mode_webentry_hide_xi=0x7f0d00cd;
+        public static int more_keys_keyboard_view=0x7f0d0078;
+        public static int mygrid=0x7f0d00ac;
+        public static int mylayout_tooltip=0x7f0d0061;
+        public static int parentLayout=0x7f0d0037;
+        public static int phone=0x7f0d0079;
+        public static int phone_first_row_email=0x7f0d00bc;
+        public static int phone_first_row_normal=0x7f0d00bb;
+        public static int phone_first_row_url=0x7f0d00bd;
+        public static int phone_last_row_no_voice=0x7f0d00be;
+        public static int phone_last_row_no_voice_hide_xi=0x7f0d00c1;
+        public static int phone_last_row_password=0x7f0d00c0;
+        public static int phone_last_row_with_voice=0x7f0d00bf;
+        public static int phone_last_row_with_voice_hide_xi=0x7f0d00c2;
+        public static int popup_Ok=0x7f0d0090;
+        public static int popup_cancel=0x7f0d008e;
+        public static int popup_default=0x7f0d008f;
+        public static int popup_seekBar=0x7f0d008d;
+        public static int popup_value=0x7f0d0091;
+        public static int pref_text=0x7f0d00b9;
+        public static int price=0x7f0d0086;
+        public static int priorityView=0x7f0d00b7;
+        public static int private_custom_theme_ltr=0x7f0d003b;
+        public static int private_custom_theme_rtl=0x7f0d0047;
+        public static int progress=0x7f0d009c;
+        public static int quick_sett_atr_dialog=0x7f0d0098;
+        public static int quick_sett_layouts=0x7f0d0094;
+        public static int quick_sett_prvtmode=0x7f0d0093;
+        public static int quick_sett_rmvaccents=0x7f0d0099;
+        public static int quick_sett_settings=0x7f0d0096;
+        public static int radioButton=0x7f0d005e;
+        public static int right=0x7f0d0001;
+        public static int rl=0x7f0d008c;
+        public static int select_dialog_item_textview=0x7f0d009f;
+        public static int shortcut=0x7f0d0029;
+        public static int shortcutField=0x7f0d002b;
+        public static int shortcutView=0x7f0d0035;
+        public static int shortcut_alert=0x7f0d002d;
+        public static int shortcut_already_exits_warning=0x7f0d000d;
+        public static int shortcut_delete=0x7f0d00a0;
+        public static int shortcut_sub_text=0x7f0d00a2;
+        public static int shortcut_title=0x7f0d00a1;
+        public static int shortname=0x7f0d006c;
+        public static int sms=0x7f0d007a;
+        public static int sound_Ok=0x7f0d00a5;
+        public static int sound_cancel=0x7f0d00a3;
+        public static int sound_default=0x7f0d00a4;
+        public static int sound_value=0x7f0d00a6;
+        public static int spacebar_scroll=0x7f0d00a7;
+        public static int spinner=0x7f0d007e;
+        public static int substitution=0x7f0d002e;
+        public static int substitutionField=0x7f0d002f;
+        public static int substitutionView=0x7f0d0036;
+        public static int subtext_downloaded=0x7f0d0083;
+        public static int suggest_strip=0x7f0d003a;
+        public static int suggestion_container=0x7f0d0072;
+        public static int tabPager=0x7f0d001c;
+        public static int technical=0x7f0d001b;
+        public static int text=0x7f0d0032;
+        public static int text0=0x7f0d0033;
+        public static int text1=0x7f0d006a;
+        public static int text2=0x7f0d006b;
+        public static int theme_download_lag_progress_parent=0x7f0d00ab;
+        public static int theme_download_title_left=0x7f0d00a9;
+        public static int theme_downloaded_left_list=0x7f0d00aa;
+        public static int theme_image=0x7f0d005f;
+        public static int theme_list=0x7f0d00b0;
+        public static int theme_select_delete=0x7f0d005c;
+        public static int theme_select_image=0x7f0d005d;
+        public static int title_parent=0x7f0d0050;
+        public static int title_trial=0x7f0d0026;
+        public static int top=0x7f0d0003;
+        public static int tvErrorMsg=0x7f0d0012;
+        public static int tv_name=0x7f0d004f;
+        public static int vert_divider=0x7f0d0052;
+        public static int vib_Ok=0x7f0d00b4;
+        public static int vib_cancell=0x7f0d00b2;
+        public static int vib_default=0x7f0d00b3;
+        public static int vibration_seekBar=0x7f0d00b1;
+        public static int vibration_value=0x7f0d00b5;
+        public static int webview_parent=0x7f0d00a8;
+        public static int widget0=0x7f0d0025;
+        public static int widget27=0x7f0d00b8;
+        public static int widget31=0x7f0d00ba;
+        public static int widget32=0x7f0d0062;
+        public static int widget33=0x7f0d0063;
+        public static int widget34=0x7f0d0064;
+        public static int widget37=0x7f0d0065;
+        public static int widget38=0x7f0d0066;
+        public static int widget39=0x7f0d0067;
+        public static int word_list=0x7f0d008b;
+        public static int word_meaning=0x7f0d005a;
+        public static int xmldivider=0x7f0d0048;
     }
     public static final class integer {
-        public static int key_f1=0x7f0b0000;
-        public static int kpt_backgroundDimAlpha=0x7f0b0001;
-        public static int kpt_case_change=0x7f0b0002;
-        public static int kpt_clipboard=0x7f0b0003;
-        public static int kpt_config_gesture_dynamic_threshold_decay_duration=0x7f0b0004;
-        public static int kpt_config_gesture_dynamic_time_threshold_from=0x7f0b0005;
-        public static int kpt_config_gesture_dynamic_time_threshold_to=0x7f0b0006;
-        public static int kpt_config_gesture_floating_preview_text_linger_timeout=0x7f0b0007;
-        public static int kpt_config_gesture_preview_trail_fadeout_duration=0x7f0b0008;
-        public static int kpt_config_gesture_preview_trail_fadeout_start_delay=0x7f0b0009;
-        public static int kpt_config_gesture_preview_trail_update_interval=0x7f0b000a;
-        public static int kpt_config_gesture_recognition_minimum_time=0x7f0b000b;
-        public static int kpt_config_gesture_static_time_threshold_after_fast_typing=0x7f0b000c;
-        public static int kpt_config_ignore_alt_code_key_timeout=0x7f0b000d;
-        public static int kpt_config_key_preview_linger_timeout=0x7f0b000e;
-        public static int kpt_config_key_repeat_interval=0x7f0b000f;
-        public static int kpt_config_key_repeat_start_timeout=0x7f0b0010;
-        public static int kpt_config_keyboard_grid_height=0x7f0b0011;
-        public static int kpt_config_keyboard_grid_width=0x7f0b0012;
-        public static int kpt_config_long_press_key_timeout=0x7f0b0013;
-        public static int kpt_config_long_press_shift_key_timeout=0x7f0b0014;
-        public static int kpt_config_suppress_key_preview_after_batch_input_duration=0x7f0b0015;
-        public static int kpt_config_touch_noise_threshold_time=0x7f0b0016;
-        public static int kpt_copy=0x7f0b0017;
-        public static int kpt_cut=0x7f0b0018;
-        public static int kpt_display_numberic_kb=0x7f0b0019;
-        public static int kpt_functional_key_dont_send_to_core=0x7f0b001a;
-        public static int kpt_functional_key_send_to_core=0x7f0b001b;
-        public static int kpt_hide_keyboard=0x7f0b001c;
-        public static int kpt_inapp_billing_type=0x7f0b001d;
-        public static int kpt_key_type_normal=0x7f0b001e;
-        public static int kpt_normal=0x7f0b001f;
-        public static int kpt_paste=0x7f0b0020;
-        public static int kpt_post_facebook=0x7f0b0021;
-        public static int kpt_post_twitter=0x7f0b0022;
-        public static int kpt_selectall=0x7f0b0023;
-        public static int kpt_space_gesture=0x7f0b0024;
-        public static int kpt_word_lookup_google=0x7f0b0025;
-        public static int kpt_word_lookup_google_maps=0x7f0b0026;
-        public static int kpt_word_lookup_wiki=0x7f0b0027;
-        public static int vibrate_acc_sugg=0x7f0b0028;
-        public static int vibrate_generic=0x7f0b0029;
-        public static int vibrate_no_sugg=0x7f0b002a;
+        public static int kpt_backgroundDimAlpha=0x7f0a0000;
+        public static int kpt_case_change=0x7f0a0001;
+        public static int kpt_clipboard=0x7f0a0002;
+        public static int kpt_config_gesture_dynamic_threshold_decay_duration=0x7f0a0003;
+        public static int kpt_config_gesture_dynamic_time_threshold_from=0x7f0a0004;
+        public static int kpt_config_gesture_dynamic_time_threshold_to=0x7f0a0005;
+        public static int kpt_config_gesture_floating_preview_text_linger_timeout=0x7f0a0006;
+        public static int kpt_config_gesture_preview_trail_fadeout_duration=0x7f0a0007;
+        public static int kpt_config_gesture_preview_trail_fadeout_start_delay=0x7f0a0008;
+        public static int kpt_config_gesture_preview_trail_update_interval=0x7f0a0009;
+        public static int kpt_config_gesture_recognition_minimum_time=0x7f0a000a;
+        public static int kpt_config_gesture_static_time_threshold_after_fast_typing=0x7f0a000b;
+        public static int kpt_config_ignore_alt_code_key_timeout=0x7f0a000c;
+        public static int kpt_config_key_preview_linger_timeout=0x7f0a000d;
+        public static int kpt_config_key_repeat_interval=0x7f0a000e;
+        public static int kpt_config_key_repeat_start_timeout=0x7f0a000f;
+        public static int kpt_config_keyboard_grid_height=0x7f0a0010;
+        public static int kpt_config_keyboard_grid_width=0x7f0a0011;
+        public static int kpt_config_long_press_key_timeout=0x7f0a0012;
+        public static int kpt_config_long_press_shift_key_timeout=0x7f0a0013;
+        public static int kpt_config_suppress_key_preview_after_batch_input_duration=0x7f0a0014;
+        public static int kpt_config_touch_noise_threshold_time=0x7f0a0015;
+        public static int kpt_copy=0x7f0a0016;
+        public static int kpt_cut=0x7f0a0017;
+        public static int kpt_display_numberic_kb=0x7f0a0018;
+        public static int kpt_functional_key_dont_send_to_core=0x7f0a0019;
+        public static int kpt_functional_key_send_to_core=0x7f0a001a;
+        public static int kpt_hide_keyboard=0x7f0a001b;
+        public static int kpt_inapp_billing_type=0x7f0a001c;
+        public static int kpt_key_f1=0x7f0a001d;
+        public static int kpt_key_type_normal=0x7f0a001e;
+        public static int kpt_normal=0x7f0a001f;
+        public static int kpt_paste=0x7f0a0020;
+        public static int kpt_post_facebook=0x7f0a0021;
+        public static int kpt_post_twitter=0x7f0a0022;
+        public static int kpt_selectall=0x7f0a0023;
+        public static int kpt_space_gesture=0x7f0a0024;
+        public static int kpt_vibrate_acc_sugg=0x7f0a0025;
+        public static int kpt_vibrate_generic=0x7f0a0026;
+        public static int kpt_vibrate_no_sugg=0x7f0a0027;
+        public static int kpt_word_lookup_google=0x7f0a0028;
+        public static int kpt_word_lookup_google_maps=0x7f0a0029;
+        public static int kpt_word_lookup_wiki=0x7f0a002a;
     }
     public static final class layout {
         public static int kpt_account_manager=0x7f030000;
@@ -1270,741 +1211,710 @@ containing a value of this type.
         public static int kpt_atr_wordslist=0x7f03000f;
         public static int kpt_candidate_preview=0x7f030010;
         public static int kpt_candidates=0x7f030011;
-        public static int kpt_candidates_activity=0x7f030012;
-        public static int kpt_choose_account=0x7f030013;
-        public static int kpt_choose_account_row=0x7f030014;
-        public static int kpt_choose_account_type=0x7f030015;
-        public static int kpt_choose_type_and_account=0x7f030016;
-        public static int kpt_clipboard_layout=0x7f030017;
-        public static int kpt_crop_selector=0x7f030018;
-        public static int kpt_custom_gesture_below_ics=0x7f030019;
-        public static int kpt_custom_gestures_body=0x7f03001a;
-        public static int kpt_custom_gestures_title=0x7f03001b;
-        public static int kpt_deleteword=0x7f03001c;
-        public static int kpt_downaddonlist=0x7f03001d;
-        public static int kpt_downloaded_theme_list_item=0x7f03001e;
-        public static int kpt_downloaded_themes=0x7f03001f;
-        public static int kpt_dragdrop_list=0x7f030020;
-        public static int kpt_dragdrop_list_item=0x7f030021;
-        public static int kpt_hide_xi_list_item=0x7f030022;
-        public static int kpt_ime_language_selection_dialog=0x7f030023;
-        public static int kpt_input=0x7f030024;
-        public static int kpt_kbd_list_item=0x7f030025;
-        public static int kpt_keyboard_key_preview=0x7f030026;
-        public static int kpt_keyboard_popup_keyboard=0x7f030027;
-        public static int kpt_language_selection_list_radio_item=0x7f030028;
-        public static int kpt_language_selection_maint_mode_text_view_item=0x7f030029;
-        public static int kpt_learn=0x7f03002a;
-        public static int kpt_likedialog=0x7f03002b;
-        public static int kpt_list_item_downloaded_icon=0x7f03002c;
-        public static int kpt_list_item_icon_text=0x7f03002d;
-        public static int kpt_my_dictionary_list=0x7f03002e;
-        public static int kpt_my_dictionary_listview=0x7f03002f;
-        public static int kpt_popularaddonslist=0x7f030030;
-        public static int kpt_popup_delay=0x7f030031;
-        public static int kpt_preference_icon=0x7f030032;
-        public static int kpt_quicksettings=0x7f030033;
-        public static int kpt_recognition_status=0x7f030034;
-        public static int kpt_search=0x7f030035;
-        public static int kpt_select_dialog_item=0x7f030036;
-        public static int kpt_shortcuts_display_list_item=0x7f030037;
-        public static int kpt_simple_list_item_1=0x7f030038;
-        public static int kpt_simple_spinner_item=0x7f030039;
-        public static int kpt_sound_delay=0x7f03003a;
-        public static int kpt_spacebar_view=0x7f03003b;
-        public static int kpt_theme_details_layout=0x7f03003c;
-        public static int kpt_theme_download=0x7f03003d;
-        public static int kpt_theme_list_item=0x7f03003e;
-        public static int kpt_themes_grid_layout=0x7f03003f;
-        public static int kpt_themes_layout=0x7f030040;
-        public static int kpt_two_txtview_list_row=0x7f030041;
-        public static int kpt_vibration_delay=0x7f030042;
-        public static int kpt_viewpager=0x7f030043;
-        public static int kpt_voice_punctuation_hint=0x7f030044;
-        public static int my_dictionary_listview=0x7f030045;
+        public static int kpt_choose_account=0x7f030012;
+        public static int kpt_choose_account_row=0x7f030013;
+        public static int kpt_choose_account_type=0x7f030014;
+        public static int kpt_choose_type_and_account=0x7f030015;
+        public static int kpt_crop_selector=0x7f030016;
+        public static int kpt_custom_gesture_below_ics=0x7f030017;
+        public static int kpt_custom_gestures_body=0x7f030018;
+        public static int kpt_custom_gestures_title=0x7f030019;
+        public static int kpt_deleteword=0x7f03001a;
+        public static int kpt_downaddonlist=0x7f03001b;
+        public static int kpt_downloaded_theme_list_item=0x7f03001c;
+        public static int kpt_downloaded_themes=0x7f03001d;
+        public static int kpt_dragdrop_list=0x7f03001e;
+        public static int kpt_dragdrop_list_item=0x7f03001f;
+        public static int kpt_hide_xi_list_item=0x7f030020;
+        public static int kpt_ime_language_selection_dialog=0x7f030021;
+        public static int kpt_input=0x7f030022;
+        public static int kpt_kbd_list_item=0x7f030023;
+        public static int kpt_keyboard_key_preview=0x7f030024;
+        public static int kpt_keyboard_popup_keyboard=0x7f030025;
+        public static int kpt_language_selection_list_radio_item=0x7f030026;
+        public static int kpt_language_selection_maint_mode_text_view_item=0x7f030027;
+        public static int kpt_learn=0x7f030028;
+        public static int kpt_likedialog=0x7f030029;
+        public static int kpt_list_item_downloaded_icon=0x7f03002a;
+        public static int kpt_list_item_icon_text=0x7f03002b;
+        public static int kpt_my_dictionary_list=0x7f03002c;
+        public static int kpt_my_dictionary_listview=0x7f03002d;
+        public static int kpt_popularaddonslist=0x7f03002e;
+        public static int kpt_popup_delay=0x7f03002f;
+        public static int kpt_preference_icon=0x7f030030;
+        public static int kpt_quicksettings=0x7f030031;
+        public static int kpt_recognition_status=0x7f030032;
+        public static int kpt_search=0x7f030033;
+        public static int kpt_select_dialog_item=0x7f030034;
+        public static int kpt_shortcuts_display_list_item=0x7f030035;
+        public static int kpt_simple_list_item_1=0x7f030036;
+        public static int kpt_simple_spinner_item=0x7f030037;
+        public static int kpt_sound_delay=0x7f030038;
+        public static int kpt_spacebar_view=0x7f030039;
+        public static int kpt_theme_details_layout=0x7f03003a;
+        public static int kpt_theme_download=0x7f03003b;
+        public static int kpt_theme_list_item=0x7f03003c;
+        public static int kpt_themes_grid_layout=0x7f03003d;
+        public static int kpt_themes_layout=0x7f03003e;
+        public static int kpt_two_txtview_list_row=0x7f03003f;
+        public static int kpt_vibration_delay=0x7f030040;
+        public static int kpt_viewpager=0x7f030041;
+        public static int kpt_voice_punctuation_hint=0x7f030042;
+        public static int my_dictionary_listview=0x7f030043;
     }
     public static final class string {
-        public static int kpt_Help=0x7f0c0000;
-        public static int kpt_MEANING_LOOKUP_URL=0x7f0c0001;
-        public static int kpt_T100_UI_STRING_NOTIFICATIONBAR_MESSAGETEXT_1=0x7f0c0002;
-        public static int kpt_T101_UI_STRING_MENUITEMS_9=0x7f0c0003;
-        public static int kpt_T110_UI_STRING_ERROR_MESSAGE_2=0x7f0c0004;
-        public static int kpt_UI_STRING_AMGR_1=0x7f0c0005;
-        public static int kpt_UI_STRING_AMGR_10=0x7f0c0006;
-        public static int kpt_UI_STRING_AMGR_11=0x7f0c0007;
-        public static int kpt_UI_STRING_AMGR_1_300=0x7f0c0008;
-        public static int kpt_UI_STRING_AMGR_2=0x7f0c0009;
-        public static int kpt_UI_STRING_AMGR_2_300=0x7f0c000a;
-        public static int kpt_UI_STRING_AMGR_3=0x7f0c000b;
-        public static int kpt_UI_STRING_AMGR_4_DISABLE=0x7f0c000c;
-        public static int kpt_UI_STRING_AMGR_4_ENABLE=0x7f0c000d;
-        public static int kpt_UI_STRING_AMGR_5=0x7f0c000e;
-        public static int kpt_UI_STRING_AMGR_6=0x7f0c000f;
-        public static int kpt_UI_STRING_AMGR_7=0x7f0c0010;
-        public static int kpt_UI_STRING_AMGR_8=0x7f0c0011;
-        public static int kpt_UI_STRING_AMGR_9=0x7f0c0012;
-        public static int kpt_UI_STRING_APP_TITLE=0x7f0c0013;
-        public static int kpt_UI_STRING_APP_TITLE_1_300=0x7f0c0014;
-        public static int kpt_UI_STRING_APP_TITLE_2_300=0x7f0c0015;
-        public static int kpt_UI_STRING_ATRIM_ITEM1=0x7f0c0016;
-        public static int kpt_UI_STRING_ATRIM_ITEM2=0x7f0c0017;
-        public static int kpt_UI_STRING_ATR_BUTTON_1_7003=0x7f0c0018;
-        public static int kpt_UI_STRING_ATR_COLUMNHEADER_1_7003=0x7f0c0019;
-        public static int kpt_UI_STRING_ATR_COLUMNHEADER_2_7003=0x7f0c001a;
-        public static int kpt_UI_STRING_COMMON_5_OFF=0x7f0c001b;
-        public static int kpt_UI_STRING_COMMON_5_ON=0x7f0c001c;
-        public static int kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300=0x7f0c001d;
-        public static int kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300=0x7f0c001e;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_1_210=0x7f0c001f;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_1_220=0x7f0c0020;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_1_300=0x7f0c0021;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_2_110=0x7f0c0022;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_2_200=0x7f0c0023;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_2_220=0x7f0c0024;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_2_300=0x7f0c0025;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_3_300=0x7f0c0026;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_4_300=0x7f0c0225;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_5=0x7f0c0027;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_6_300=0x7f0c0028;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_7_300=0x7f0c0029;
-        public static int kpt_UI_STRING_DIALOG_MESSAGE_8_300=0x7f0c002a;
-        public static int kpt_UI_STRING_DIALOG_MSG_1_300=0x7f0c002b;
-        public static int kpt_UI_STRING_DIALOG_MSG_2_300=0x7f0c002c;
-        public static int kpt_UI_STRING_DIALOG_MSG_2_7003=0x7f0c002d;
-        public static int kpt_UI_STRING_DIALOG_MSG_3_300=0x7f0c002e;
-        public static int kpt_UI_STRING_DIALOG_MSG_3_7003=0x7f0c002f;
-        public static int kpt_UI_STRING_DIALOG_MSG_4_7003=0x7f0c0030;
-        public static int kpt_UI_STRING_DIALOG_MSG_5_7003=0x7f0c0031;
-        public static int kpt_UI_STRING_DIALOG_MSG_6_7003=0x7f0c0032;
-        public static int kpt_UI_STRING_DIALOG_MSG_7_7003=0x7f0c0033;
-        public static int kpt_UI_STRING_DIALOG_MSG_8_7003=0x7f0c0034;
-        public static int kpt_UI_STRING_DIALOG_TITLE_1_220=0x7f0c0035;
-        public static int kpt_UI_STRING_DIALOG_TITLE_1_300=0x7f0c0036;
-        public static int kpt_UI_STRING_DIALOG_TITLE_1_7003=0x7f0c0037;
-        public static int kpt_UI_STRING_DIALOG_TITLE_2_110=0x7f0c0038;
-        public static int kpt_UI_STRING_DIALOG_TITLE_2_220=0x7f0c0039;
-        public static int kpt_UI_STRING_DIALOG_TITLE_2_300=0x7f0c003a;
-        public static int kpt_UI_STRING_DIALOG_TITLE_2_7003=0x7f0c003b;
-        public static int kpt_UI_STRING_DIALOG_TITLE_3_300=0x7f0c003c;
-        public static int kpt_UI_STRING_DIALOG_TITLE_4_200=0x7f0c003d;
-        public static int kpt_UI_STRING_DIALOG_TITLE_5=0x7f0c003e;
-        public static int kpt_UI_STRING_DIALOG_TITLE_6=0x7f0c003f;
-        public static int kpt_UI_STRING_DIALOG_TITLE_6_300=0x7f0c0040;
-        public static int kpt_UI_STRING_DIALOG_TITLE_7=0x7f0c0041;
-        public static int kpt_UI_STRING_DIALOG_TITLE_7_300=0x7f0c0042;
-        public static int kpt_UI_STRING_EMAILSUBJECT_1_220=0x7f0c0043;
-        public static int kpt_UI_STRING_ERROR_MESSAGE_1_110=0x7f0c0044;
-        public static int kpt_UI_STRING_HEADER_2_7002=0x7f0c0045;
-        public static int kpt_UI_STRING_HEADER_2_7003=0x7f0c0046;
-        public static int kpt_UI_STRING_HEADER_4=0x7f0c0047;
-        public static int kpt_UI_STRING_INAPP_DIALOG_MESSAGE_1=0x7f0c0048;
-        public static int kpt_UI_STRING_INAPP_NOTIFICATION_MESSAGE_1=0x7f0c0049;
-        public static int kpt_UI_STRING_INAPP_STATUS_1=0x7f0c004a;
-        public static int kpt_UI_STRING_INAPP_STATUS_2=0x7f0c004b;
-        public static int kpt_UI_STRING_INAPP_SUBTEXT_1=0x7f0c004c;
-        public static int kpt_UI_STRING_INAPP_SUBTEXT_2=0x7f0c004d;
-        public static int kpt_UI_STRING_INAPP_SUBTEXT_3=0x7f0c004e;
-        public static int kpt_UI_STRING_INAPP_TOAST_1=0x7f0c004f;
-        public static int kpt_UI_STRING_INAPP_TOAST_2=0x7f0c0050;
-        public static int kpt_UI_STRING_INAPP_TOAST_3=0x7f0c0051;
-        public static int kpt_UI_STRING_INAPP_TOAST_4=0x7f0c0052;
-        public static int kpt_UI_STRING_KBCUSTOM_BUTTON_1_110=0x7f0c0053;
-        public static int kpt_UI_STRING_KBCUSTOM_BUTTON_2_110=0x7f0c0054;
-        public static int kpt_UI_STRING_KBCUSTOM_BUTTON_3_110=0x7f0c0055;
-        public static int kpt_UI_STRING_KBCUSTOM_DEFAULT=0x7f0c0056;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_14=0x7f0c0057;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_14_200=0x7f0c0058;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_16_200=0x7f0c0059;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_17_200=0x7f0c005a;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_18_200=0x7f0c005b;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_19_200=0x7f0c005c;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_1_110=0x7f0c005d;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_20_200=0x7f0c005e;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_21_200=0x7f0c005f;
-        public static int kpt_UI_STRING_KBCUSTOM_ITEM_22_200=0x7f0c0060;
-        public static int kpt_UI_STRING_MENUITEMS_1=0x7f0c0061;
-        public static int kpt_UI_STRING_MENUITEMS_1_7003=0x7f0c0062;
-        public static int kpt_UI_STRING_MENUITEMS_2_7003=0x7f0c0063;
-        public static int kpt_UI_STRING_MENUITEM_1_110=0x7f0c0064;
-        public static int kpt_UI_STRING_MENUITEM_1_300=0x7f0c0065;
-        public static int kpt_UI_STRING_MENUITEM_2_110=0x7f0c0066;
-        public static int kpt_UI_STRING_MENUITEM_DESC_1_110=0x7f0c0067;
-        public static int kpt_UI_STRING_MENUITEM_DESC_2_110=0x7f0c0068;
-        public static int kpt_UI_STRING_MENUITEM_DESC_2_7003=0x7f0c0069;
-        public static int kpt_UI_STRING_MENUITEM_DESC_3_7003=0x7f0c006a;
-        public static int kpt_UI_STRING_MENUKEY_ITEMS_1_7003=0x7f0c006b;
-        public static int kpt_UI_STRING_MENUKEY_ITEMS_2_7003=0x7f0c006c;
-        public static int kpt_UI_STRING_MENU_ITEM_10_300=0x7f0c006d;
-        public static int kpt_UI_STRING_MENU_ITEM_11_300=0x7f0c006e;
-        public static int kpt_UI_STRING_MENU_ITEM_12_300=0x7f0c006f;
-        public static int kpt_UI_STRING_MENU_ITEM_1_300=0x7f0c0070;
-        public static int kpt_UI_STRING_MENU_ITEM_2_300=0x7f0c0071;
-        public static int kpt_UI_STRING_MENU_ITEM_3_300=0x7f0c0072;
-        public static int kpt_UI_STRING_MENU_ITEM_4_300=0x7f0c0073;
-        public static int kpt_UI_STRING_MENU_ITEM_5_300=0x7f0c0074;
-        public static int kpt_UI_STRING_MENU_ITEM_6_300=0x7f0c0075;
-        public static int kpt_UI_STRING_MENU_ITEM_7_300=0x7f0c0076;
-        public static int kpt_UI_STRING_MENU_ITEM_8_300=0x7f0c0077;
-        public static int kpt_UI_STRING_MENU_ITEM_9_300=0x7f0c0078;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_10_300=0x7f0c0079;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_12_300=0x7f0c007a;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_14_300=0x7f0c007b;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_15_300=0x7f0c007c;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_1_300=0x7f0c007d;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_2_300=0x7f0c007e;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_3_300=0x7f0c007f;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_4_300=0x7f0c0080;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_5_300=0x7f0c0081;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_6_300=0x7f0c0082;
-        public static int kpt_UI_STRING_MENU_ITEM_DESC_7_300=0x7f0c0083;
-        public static int kpt_UI_STRING_MYDICT_ITEM1=0x7f0c0084;
-        public static int kpt_UI_STRING_MYDICT_ITEM2=0x7f0c0085;
-        public static int kpt_UI_STRING_MYDICT_ITEM3=0x7f0c0086;
-        public static int kpt_UI_STRING_MYDICT_ITEM4=0x7f0c0087;
-        public static int kpt_UI_STRING_MYDICT_ITEM5=0x7f0c0088;
-        public static int kpt_UI_STRING_NOTIFICATION_1_200=0x7f0c0089;
-        public static int kpt_UI_STRING_NOTIFICATION_2_200=0x7f0c008a;
-        public static int kpt_UI_STRING_NOTIFICATION_3_200=0x7f0c008b;
-        public static int kpt_UI_STRING_NOTIFICATION_4_200=0x7f0c008c;
-        public static int kpt_UI_STRING_NOTIFICATION_5_1_200=0x7f0c008d;
-        public static int kpt_UI_STRING_NOTIFICATION_5_2_200=0x7f0c0226;
-        public static int kpt_UI_STRING_NO_NETWORK=0x7f0c008e;
-        public static int kpt_UI_STRING_POPUP_ITEMS_1_1000=0x7f0c008f;
-        public static int kpt_UI_STRING_POPUP_ITEMS_4_7003=0x7f0c0090;
-        public static int kpt_UI_STRING_POPUP_ITEMS_5_7003=0x7f0c0091;
-        public static int kpt_UI_STRING_POPUP_ITEMS_6_7003=0x7f0c0092;
-        public static int kpt_UI_STRING_POPUP_ITEM_1_300=0x7f0c0093;
-        public static int kpt_UI_STRING_POPUP_ITEM_2_110=0x7f0c0094;
-        public static int kpt_UI_STRING_POPUP_ITEM_2_300=0x7f0c0095;
-        public static int kpt_UI_STRING_PUSHNOTIFICATION_1_220=0x7f0c0096;
-        public static int kpt_UI_STRING_PUSHNOTIFICATION_1_300=0x7f0c0097;
-        public static int kpt_UI_STRING_PUSHNOTIFICATION_2_220=0x7f0c0098;
-        public static int kpt_UI_STRING_PUSHNOTIFICATION_2_300=0x7f0c0099;
-        public static int kpt_UI_STRING_PUSHNOTIFICATION_3_300=0x7f0c009a;
-        public static int kpt_UI_STRING_QUICKSETTINGSITEM_1_110=0x7f0c009b;
-        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_1_7003=0x7f0c009c;
-        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003=0x7f0c009d;
-        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_I_7003=0x7f0c009e;
-        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_3_7003=0x7f0c009f;
-        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_4_7003=0x7f0c00a0;
-        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_6_7003=0x7f0c00a1;
-        public static int kpt_UI_STRING_SBAR_ITEM_1_220=0x7f0c00a2;
-        public static int kpt_UI_STRING_SBAR_MESSAGE_1_300=0x7f0c00a3;
-        public static int kpt_UI_STRING_SBAR_MESSAGE_2_300=0x7f0c00a4;
-        public static int kpt_UI_STRING_SBAR_MESSAGE_3=0x7f0c00a5;
-        public static int kpt_UI_STRING_SBAR_MESSAGE_3_300=0x7f0c0227;
-        public static int kpt_UI_STRING_SETTINGS_ERRORMSG_1_220=0x7f0c00a6;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_1_220=0x7f0c00a7;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_1_300=0x7f0c00a8;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_2_220=0x7f0c00a9;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_2_300=0x7f0c00aa;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_3_220=0x7f0c00ab;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220=0x7f0c00ac;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300=0x7f0c00ad;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_2_220=0x7f0c00ae;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300=0x7f0c00af;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220=0x7f0c00b0;
-        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220=0x7f0c00b1;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_1=0x7f0c00b2;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_10=0x7f0c00b3;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_11=0x7f0c00b4;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_12=0x7f0c00b5;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_13=0x7f0c00b6;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_14=0x7f0c00b7;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_15=0x7f0c00b8;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_3=0x7f0c00b9;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_4=0x7f0c00ba;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_5=0x7f0c00bb;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_6=0x7f0c00bc;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_7=0x7f0c00bd;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_8=0x7f0c00be;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_8A=0x7f0c00bf;
-        public static int kpt_UI_STRING_SETTINGS_SITEM_9=0x7f0c00c0;
-        public static int kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300=0x7f0c00c1;
-        public static int kpt_UI_STRING_SETUPWIZARD_MENUITEM_12_300=0x7f0c00c2;
-        public static int kpt_UI_STRING_SETUPWIZARD_MESSAGE_1_300=0x7f0c00c3;
-        public static int kpt_UI_STRING_TEXTBOX_1_300=0x7f0c00c4;
-        public static int kpt_UI_STRING_TEXTBOX_2_300=0x7f0c00c5;
-        public static int kpt_UI_STRING_THEME_ITEM1=0x7f0c00c6;
-        public static int kpt_UI_STRING_TOAST_1_110=0x7f0c00c7;
-        public static int kpt_UI_STRING_TOAST_1_220=0x7f0c00c8;
-        public static int kpt_UI_STRING_TOAST_1_7003=0x7f0c00c9;
-        public static int kpt_UI_STRING_TOAST_2_110=0x7f0c00ca;
-        public static int kpt_UI_STRING_TOAST_2_200=0x7f0c00cb;
-        public static int kpt_UI_STRING_TOAST_2_220=0x7f0c00cc;
-        public static int kpt_UI_STRING_TOAST_2_7003=0x7f0c00cd;
-        public static int kpt_UI_STRING_TOAST_3_110=0x7f0c00ce;
-        public static int kpt_UI_STRING_TOAST_4_110=0x7f0c00cf;
-        public static int kpt_UI_STRING_TOAST_MESSAGE_10_300=0x7f0c00d0;
-        public static int kpt_UI_STRING_TOAST_MESSAGE_1_2001=0x7f0c00d1;
-        public static int kpt_UI_STRING_TOAST_MESSAGE_3_300=0x7f0c00d2;
-        public static int kpt_UI_STRING_TOAST_MESSAGE_5_300=0x7f0c00d3;
-        public static int kpt_UI_STRING_TOAST_MESSAGE_6_300=0x7f0c00d4;
-        public static int kpt_UI_STRING_TOAST_MESSAGE_7_300=0x7f0c00d5;
-        public static int kpt_UI_STRING_TOAST_MESSAGE_8_300=0x7f0c00d6;
-        public static int kpt_UI_STRING_TOAST_MESSAGE_9_300=0x7f0c00d7;
-        public static int kpt_UI_STRING_TRY_AGAIN=0x7f0c00d8;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_1_300=0x7f0c00d9;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_2_300=0x7f0c00da;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_4_300=0x7f0c00db;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_5_300=0x7f0c00dc;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_6_300=0x7f0c00dd;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_7_300=0x7f0c00de;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_1_300=0x7f0c00df;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_2_300=0x7f0c00e0;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_3_300=0x7f0c00e1;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_4_300=0x7f0c00e2;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_5_300=0x7f0c00e3;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_6_300=0x7f0c00e4;
-        public static int kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_7_300=0x7f0c00e5;
-        public static int kpt_UI_STRING_TUTORIAL_HEADER_1_300=0x7f0c00e6;
-        public static int kpt_account_alert_msg=0x7f0c00e7;
-        public static int kpt_account_type_phone=0x7f0c00e8;
-        public static int kpt_account_type_phone_summary=0x7f0c00e9;
-        public static int kpt_account_type_sms=0x7f0c00ea;
-        public static int kpt_account_type_sms_summary=0x7f0c00eb;
-        public static int kpt_accounts_extra_data=0x7f0c00ec;
-        public static int kpt_accounts_key=0x7f0c00ed;
-        public static int kpt_accounts_manager_summary=0x7f0c00ee;
-        public static int kpt_accounts_manger_title=0x7f0c00ef;
-        public static int kpt_adaptxt_eula=0x7f0c00f0;
-        public static int kpt_adaptxt_icon_to=0x7f0c00f1;
-        public static int kpt_add_account_button_label=0x7f0c00f2;
-        public static int kpt_add_on_manager_summary=0x7f0c00f3;
-        public static int kpt_add_on_manager_title=0x7f0c00f4;
-        public static int kpt_added_word=0x7f0c00f5;
-        public static int kpt_addon_atleast_one=0x7f0c00f6;
-        public static int kpt_alert_dialog_cancel=0x7f0c00f7;
-        public static int kpt_alert_dialog_ok=0x7f0c00f8;
-        public static int kpt_already_registered=0x7f0c00f9;
-        public static int kpt_alternates_for_12key_email=0x7f0c00fa;
-        public static int kpt_alternates_for_12key_normal=0x7f0c00fb;
-        public static int kpt_alternates_for_12key_url=0x7f0c00fc;
-        public static int kpt_alternates_for_a=0x7f0c00fd;
-        public static int kpt_alternates_for_aa=0x7f0c0233;
-        public static int kpt_alternates_for_abbreviation=0x7f0c0237;
-        public static int kpt_alternates_for_abc=0x7f0c00fe;
-        public static int kpt_alternates_for_ampersand=0x7f0c0238;
-        public static int kpt_alternates_for_apostrophe=0x7f0c00ff;
-        public static int kpt_alternates_for_asterisk=0x7f0c0100;
-        public static int kpt_alternates_for_attherate=0x7f0c0101;
-        public static int kpt_alternates_for_c=0x7f0c0102;
-        public static int kpt_alternates_for_chunjiin_0=0x7f0c0103;
-        public static int kpt_alternates_for_chunjiin_1=0x7f0c0104;
-        public static int kpt_alternates_for_chunjiin_2=0x7f0c0105;
-        public static int kpt_alternates_for_chunjiin_3=0x7f0c0106;
-        public static int kpt_alternates_for_chunjiin_4=0x7f0c0107;
-        public static int kpt_alternates_for_chunjiin_5=0x7f0c0108;
-        public static int kpt_alternates_for_chunjiin_6=0x7f0c0109;
-        public static int kpt_alternates_for_chunjiin_7=0x7f0c010a;
-        public static int kpt_alternates_for_chunjiin_8=0x7f0c010b;
-        public static int kpt_alternates_for_chunjiin_9=0x7f0c010c;
-        public static int kpt_alternates_for_chunjiin_char=0x7f0c010d;
-        public static int kpt_alternates_for_circumflex=0x7f0c010e;
-        public static int kpt_alternates_for_comma=0x7f0c023b;
-        public static int kpt_alternates_for_copyright=0x7f0c010f;
-        public static int kpt_alternates_for_currency=0x7f0c0110;
-        public static int kpt_alternates_for_d=0x7f0c0111;
-        public static int kpt_alternates_for_danda=0x7f0c0239;
-        public static int kpt_alternates_for_def=0x7f0c0112;
-        public static int kpt_alternates_for_e=0x7f0c0113;
-        public static int kpt_alternates_for_eight=0x7f0c0228;
-        public static int kpt_alternates_for_equal=0x7f0c023a;
-        public static int kpt_alternates_for_equalsign=0x7f0c0114;
-        public static int kpt_alternates_for_exclamation=0x7f0c0115;
-        public static int kpt_alternates_for_exclamationsign=0x7f0c0232;
-        public static int kpt_alternates_for_five=0x7f0c0116;
-        public static int kpt_alternates_for_four=0x7f0c0229;
-        public static int kpt_alternates_for_fraction=0x7f0c0245;
-        public static int kpt_alternates_for_g=0x7f0c0117;
-        public static int kpt_alternates_for_ghi=0x7f0c0118;
-        public static int kpt_alternates_for_h=0x7f0c022a;
-        public static int kpt_alternates_for_hypen=0x7f0c0119;
-        public static int kpt_alternates_for_hyphen=0x7f0c0231;
-        public static int kpt_alternates_for_i=0x7f0c011a;
-        public static int kpt_alternates_for_i2=0x7f0c023d;
-        public static int kpt_alternates_for_jkl=0x7f0c011b;
-        public static int kpt_alternates_for_korean_currency=0x7f0c011c;
-        public static int kpt_alternates_for_l=0x7f0c011d;
-        public static int kpt_alternates_for_leftcurlybracket=0x7f0c011e;
-        public static int kpt_alternates_for_leftparanthesis=0x7f0c0242;
-        public static int kpt_alternates_for_leftparenthesis=0x7f0c011f;
-        public static int kpt_alternates_for_mno=0x7f0c0120;
-        public static int kpt_alternates_for_n=0x7f0c0121;
-        public static int kpt_alternates_for_nine=0x7f0c022b;
-        public static int kpt_alternates_for_numbersign=0x7f0c023e;
-        public static int kpt_alternates_for_o=0x7f0c0122;
-        public static int kpt_alternates_for_one=0x7f0c0123;
-        public static int kpt_alternates_for_p=0x7f0c023f;
-        public static int kpt_alternates_for_p2=0x7f0c0240;
-        public static int kpt_alternates_for_percentage=0x7f0c0124;
-        public static int kpt_alternates_for_plus=0x7f0c0125;
-        public static int kpt_alternates_for_pqrs=0x7f0c0126;
-        public static int kpt_alternates_for_q=0x7f0c0234;
-        public static int kpt_alternates_for_questionmark=0x7f0c0127;
-        public static int kpt_alternates_for_quote=0x7f0c0128;
-        public static int kpt_alternates_for_r=0x7f0c0129;
-        public static int kpt_alternates_for_rightcurlybracket=0x7f0c012a;
-        public static int kpt_alternates_for_rightparanthesis=0x7f0c0243;
-        public static int kpt_alternates_for_rightparenthesis=0x7f0c012b;
-        public static int kpt_alternates_for_s=0x7f0c012c;
-        public static int kpt_alternates_for_seven=0x7f0c012d;
-        public static int kpt_alternates_for_six=0x7f0c022c;
-        public static int kpt_alternates_for_slash=0x7f0c012e;
-        public static int kpt_alternates_for_space=0x7f0c022d;
-        public static int kpt_alternates_for_squarebracket=0x7f0c023c;
-        public static int kpt_alternates_for_t=0x7f0c012f;
-        public static int kpt_alternates_for_three=0x7f0c0130;
-        public static int kpt_alternates_for_tuv=0x7f0c0131;
-        public static int kpt_alternates_for_two=0x7f0c0132;
-        public static int kpt_alternates_for_u=0x7f0c0133;
-        public static int kpt_alternates_for_vertical_line=0x7f0c0241;
-        public static int kpt_alternates_for_w=0x7f0c0235;
-        public static int kpt_alternates_for_wxyz=0x7f0c0134;
-        public static int kpt_alternates_for_x=0x7f0c0236;
-        public static int kpt_alternates_for_y=0x7f0c0135;
-        public static int kpt_alternates_for_z=0x7f0c0136;
-        public static int kpt_alternates_for_zero=0x7f0c0137;
-        public static int kpt_android_market_app_unav=0x7f0c0138;
-        public static int kpt_app_id=0x7f0c0139;
-        public static int kpt_applications_predefined_key_1=0x7f0c013a;
-        public static int kpt_applications_predefined_key_2=0x7f0c013b;
-        public static int kpt_applications_predefined_value_1=0x7f0c013c;
-        public static int kpt_applications_predefined_value_2=0x7f0c013d;
-        public static int kpt_atr_regular_expression=0x7f0c013e;
-        public static int kpt_atr_shortcut_inputtype_text=0x7f0c013f;
-        public static int kpt_atr_substitutn_alert=0x7f0c0140;
-        public static int kpt_atx=0x7f0c0141;
-        public static int kpt_atx_namespace=0x7f0c0142;
-        public static int kpt_auto_update_all=0x7f0c0143;
-        public static int kpt_auto_update_chkbox=0x7f0c0144;
-        public static int kpt_autocorrect_dialog_header=0x7f0c0145;
-        public static int kpt_autocorrect_misspelts=0x7f0c0146;
-        public static int kpt_autocorrect_misspelts_mode=0x7f0c0147;
-        public static int kpt_backup_progress=0x7f0c0148;
-        public static int kpt_base_incompatible_dialog_message=0x7f0c0149;
-        public static int kpt_cancel=0x7f0c014a;
-        public static int kpt_change_keyboard_layout=0x7f0c014b;
-        public static int kpt_choose_kbd_theme=0x7f0c014c;
-        public static int kpt_choose_layout_landscape=0x7f0c014d;
-        public static int kpt_choose_layout_potrait=0x7f0c014e;
-        public static int kpt_clipboard_predefined_key_1=0x7f0c014f;
-        public static int kpt_clipboard_predefined_key_2=0x7f0c0150;
-        public static int kpt_clipboard_predefined_key_3=0x7f0c0151;
-        public static int kpt_clipboard_predefined_key_4=0x7f0c0152;
-        public static int kpt_compact=0x7f0c0153;
-        public static int kpt_content_posted_failed=0x7f0c0154;
-        public static int kpt_content_posted_success=0x7f0c0155;
-        public static int kpt_custom_gestures_max_limit_reached=0x7f0c0156;
-        public static int kpt_cycle=0x7f0c0157;
-        public static int kpt_default_keyboard_txt=0x7f0c0158;
-        public static int kpt_dialog_gesture_type_app=0x7f0c0159;
-        public static int kpt_dialog_gesture_type_clipboard=0x7f0c015a;
-        public static int kpt_dialog_gesture_type_website=0x7f0c015b;
-        public static int kpt_dialog_message_sdcard_absent=0x7f0c015c;
-        public static int kpt_dialog_message_sdcard_no_space=0x7f0c015d;
-        public static int kpt_dialog_title=0x7f0c015e;
-        public static int kpt_dialog_title_warning=0x7f0c015f;
-        public static int kpt_dictionary_msg=0x7f0c0160;
-        public static int kpt_disable_auto_update_all=0x7f0c0161;
-        public static int kpt_display_accents=0x7f0c0162;
-        public static int kpt_domain_output_text=0x7f0c0163;
-        public static int kpt_email_adaptxt=0x7f0c0164;
-        public static int kpt_email_add_comment=0x7f0c0165;
-        public static int kpt_email_addon=0x7f0c0166;
-        public static int kpt_email_android=0x7f0c0167;
-        public static int kpt_email_model=0x7f0c0168;
-        public static int kpt_enable_auto_update_all=0x7f0c0169;
-        public static int kpt_enable_context=0x7f0c016a;
-        public static int kpt_english_ime_name=0x7f0c016b;
-        public static int kpt_english_ime_settings=0x7f0c016c;
-        public static int kpt_english_locale=0x7f0c016d;
-        public static int kpt_error_config=0x7f0c016e;
-        public static int kpt_feedback_category=0x7f0c016f;
-        public static int kpt_font_typewriter=0x7f0c0170;
-        public static int kpt_gcm_deleted=0x7f0c0171;
-        public static int kpt_gcm_error=0x7f0c0172;
-        public static int kpt_gcm_message=0x7f0c0173;
-        public static int kpt_gcm_recoverable_error=0x7f0c0174;
-        public static int kpt_gcm_registered=0x7f0c0175;
-        public static int kpt_gcm_unregistered=0x7f0c0176;
-        public static int kpt_icontext_acc_dismiss=0x7f0c0177;
-        public static int kpt_icontext_alt_1=0x7f0c0178;
-        public static int kpt_icontext_alt_2=0x7f0c0179;
-        public static int kpt_icontext_clipboard_close=0x7f0c017a;
-        public static int kpt_icontext_clipboard_down=0x7f0c017b;
-        public static int kpt_icontext_clipboard_left=0x7f0c017c;
-        public static int kpt_icontext_clipboard_right=0x7f0c017d;
-        public static int kpt_icontext_clipboard_select_off=0x7f0c017e;
-        public static int kpt_icontext_clipboard_select_on=0x7f0c017f;
-        public static int kpt_icontext_clipboard_up=0x7f0c0180;
-        public static int kpt_icontext_comma_mic=0x7f0c0181;
-        public static int kpt_icontext_danda_share=0x7f0c0182;
-        public static int kpt_icontext_delete=0x7f0c0183;
-        public static int kpt_icontext_dot_share=0x7f0c0184;
-        public static int kpt_icontext_enter=0x7f0c0185;
-        public static int kpt_icontext_enter_default=0x7f0c0186;
+        public static int kpt_Help=0x7f0b0000;
+        public static int kpt_MEANING_LOOKUP_URL=0x7f0b0001;
+        public static int kpt_T100_UI_STRING_NOTIFICATIONBAR_MESSAGETEXT_1=0x7f0b0002;
+        public static int kpt_T101_UI_STRING_MENUITEMS_9=0x7f0b0003;
+        public static int kpt_T110_UI_STRING_ERROR_MESSAGE_2=0x7f0b0004;
+        public static int kpt_UI_STRING_AMGR_1=0x7f0b0005;
+        public static int kpt_UI_STRING_AMGR_10=0x7f0b0006;
+        public static int kpt_UI_STRING_AMGR_11=0x7f0b0007;
+        public static int kpt_UI_STRING_AMGR_1_300=0x7f0b0008;
+        public static int kpt_UI_STRING_AMGR_2=0x7f0b0009;
+        public static int kpt_UI_STRING_AMGR_2_300=0x7f0b000a;
+        public static int kpt_UI_STRING_AMGR_3=0x7f0b000b;
+        public static int kpt_UI_STRING_AMGR_4_DISABLE=0x7f0b000c;
+        public static int kpt_UI_STRING_AMGR_4_ENABLE=0x7f0b000d;
+        public static int kpt_UI_STRING_AMGR_5=0x7f0b000e;
+        public static int kpt_UI_STRING_AMGR_6=0x7f0b000f;
+        public static int kpt_UI_STRING_AMGR_7=0x7f0b0010;
+        public static int kpt_UI_STRING_AMGR_8=0x7f0b0011;
+        public static int kpt_UI_STRING_AMGR_9=0x7f0b0012;
+        public static int kpt_UI_STRING_APP_TITLE=0x7f0b0013;
+        public static int kpt_UI_STRING_APP_TITLE_1_300=0x7f0b0014;
+        public static int kpt_UI_STRING_APP_TITLE_2_300=0x7f0b0015;
+        public static int kpt_UI_STRING_ATRIM_ITEM1=0x7f0b0016;
+        public static int kpt_UI_STRING_ATRIM_ITEM2=0x7f0b0017;
+        public static int kpt_UI_STRING_ATR_BUTTON_1_7003=0x7f0b0018;
+        public static int kpt_UI_STRING_ATR_COLUMNHEADER_1_7003=0x7f0b0019;
+        public static int kpt_UI_STRING_ATR_COLUMNHEADER_2_7003=0x7f0b001a;
+        public static int kpt_UI_STRING_COMMON_5_OFF=0x7f0b001b;
+        public static int kpt_UI_STRING_COMMON_5_ON=0x7f0b001c;
+        public static int kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300=0x7f0b01fb;
+        public static int kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300=0x7f0b01fc;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_1_210=0x7f0b001d;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_1_220=0x7f0b001e;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_1_300=0x7f0b01fd;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_2_110=0x7f0b01fe;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_2_200=0x7f0b001f;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_2_220=0x7f0b0020;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_2_300=0x7f0b01ff;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_3_300=0x7f0b0021;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_4_300=0x7f0b01ea;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_5=0x7f0b0022;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_6_300=0x7f0b0023;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_7_300=0x7f0b0024;
+        public static int kpt_UI_STRING_DIALOG_MESSAGE_8_300=0x7f0b0025;
+        public static int kpt_UI_STRING_DIALOG_MSG_1_300=0x7f0b0200;
+        public static int kpt_UI_STRING_DIALOG_MSG_2_300=0x7f0b0201;
+        public static int kpt_UI_STRING_DIALOG_MSG_2_7003=0x7f0b0026;
+        public static int kpt_UI_STRING_DIALOG_MSG_3_300=0x7f0b0202;
+        public static int kpt_UI_STRING_DIALOG_MSG_3_7003=0x7f0b0027;
+        public static int kpt_UI_STRING_DIALOG_MSG_4_7003=0x7f0b0028;
+        public static int kpt_UI_STRING_DIALOG_MSG_5_7003=0x7f0b0029;
+        public static int kpt_UI_STRING_DIALOG_MSG_6_7003=0x7f0b002a;
+        public static int kpt_UI_STRING_DIALOG_MSG_7_7003=0x7f0b002b;
+        public static int kpt_UI_STRING_DIALOG_MSG_8_7003=0x7f0b002c;
+        public static int kpt_UI_STRING_DIALOG_TITLE_1_220=0x7f0b002d;
+        public static int kpt_UI_STRING_DIALOG_TITLE_1_300=0x7f0b0203;
+        public static int kpt_UI_STRING_DIALOG_TITLE_1_7003=0x7f0b002e;
+        public static int kpt_UI_STRING_DIALOG_TITLE_2_110=0x7f0b0204;
+        public static int kpt_UI_STRING_DIALOG_TITLE_2_220=0x7f0b002f;
+        public static int kpt_UI_STRING_DIALOG_TITLE_2_300=0x7f0b0205;
+        public static int kpt_UI_STRING_DIALOG_TITLE_2_7003=0x7f0b0030;
+        public static int kpt_UI_STRING_DIALOG_TITLE_3_300=0x7f0b0031;
+        public static int kpt_UI_STRING_DIALOG_TITLE_4_200=0x7f0b0032;
+        public static int kpt_UI_STRING_DIALOG_TITLE_5=0x7f0b0033;
+        public static int kpt_UI_STRING_DIALOG_TITLE_6=0x7f0b0034;
+        public static int kpt_UI_STRING_DIALOG_TITLE_6_300=0x7f0b0035;
+        public static int kpt_UI_STRING_DIALOG_TITLE_7=0x7f0b0036;
+        public static int kpt_UI_STRING_DIALOG_TITLE_7_300=0x7f0b0037;
+        public static int kpt_UI_STRING_EMAILSUBJECT_1_220=0x7f0b0038;
+        public static int kpt_UI_STRING_ERROR_MESSAGE_1_110=0x7f0b0039;
+        public static int kpt_UI_STRING_HEADER_2_7002=0x7f0b003a;
+        public static int kpt_UI_STRING_HEADER_2_7003=0x7f0b003b;
+        public static int kpt_UI_STRING_HEADER_4=0x7f0b003c;
+        public static int kpt_UI_STRING_INAPP_DIALOG_MESSAGE_1=0x7f0b003d;
+        public static int kpt_UI_STRING_INAPP_NOTIFICATION_MESSAGE_1=0x7f0b003e;
+        public static int kpt_UI_STRING_INAPP_STATUS_1=0x7f0b003f;
+        public static int kpt_UI_STRING_INAPP_STATUS_2=0x7f0b0040;
+        public static int kpt_UI_STRING_INAPP_SUBTEXT_1=0x7f0b0041;
+        public static int kpt_UI_STRING_INAPP_SUBTEXT_2=0x7f0b0042;
+        public static int kpt_UI_STRING_INAPP_SUBTEXT_3=0x7f0b0043;
+        public static int kpt_UI_STRING_INAPP_TOAST_1=0x7f0b0044;
+        public static int kpt_UI_STRING_INAPP_TOAST_2=0x7f0b0045;
+        public static int kpt_UI_STRING_INAPP_TOAST_3=0x7f0b0046;
+        public static int kpt_UI_STRING_INAPP_TOAST_4=0x7f0b0047;
+        public static int kpt_UI_STRING_KBCUSTOM_BUTTON_1_110=0x7f0b0206;
+        public static int kpt_UI_STRING_KBCUSTOM_BUTTON_2_110=0x7f0b0207;
+        public static int kpt_UI_STRING_KBCUSTOM_BUTTON_3_110=0x7f0b0208;
+        public static int kpt_UI_STRING_KBCUSTOM_DEFAULT=0x7f0b0048;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_14=0x7f0b0049;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_14_200=0x7f0b004a;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_16_200=0x7f0b004b;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_17_200=0x7f0b004c;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_18_200=0x7f0b004d;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_19_200=0x7f0b004e;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_1_110=0x7f0b0209;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_20_200=0x7f0b004f;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_21_200=0x7f0b0050;
+        public static int kpt_UI_STRING_KBCUSTOM_ITEM_22_200=0x7f0b0051;
+        public static int kpt_UI_STRING_MENUITEMS_1=0x7f0b0052;
+        public static int kpt_UI_STRING_MENUITEMS_1_7003=0x7f0b0053;
+        public static int kpt_UI_STRING_MENUITEMS_2_7003=0x7f0b0054;
+        public static int kpt_UI_STRING_MENUITEM_1_110=0x7f0b0055;
+        public static int kpt_UI_STRING_MENUITEM_1_300=0x7f0b0056;
+        public static int kpt_UI_STRING_MENUITEM_2_110=0x7f0b0057;
+        public static int kpt_UI_STRING_MENUITEM_DESC_1_110=0x7f0b0058;
+        public static int kpt_UI_STRING_MENUITEM_DESC_2_110=0x7f0b0059;
+        public static int kpt_UI_STRING_MENUITEM_DESC_2_7003=0x7f0b005a;
+        public static int kpt_UI_STRING_MENUITEM_DESC_3_7003=0x7f0b005b;
+        public static int kpt_UI_STRING_MENUKEY_ITEMS_1_7003=0x7f0b005c;
+        public static int kpt_UI_STRING_MENUKEY_ITEMS_2_7003=0x7f0b005d;
+        public static int kpt_UI_STRING_MENU_ITEM_10_300=0x7f0b005e;
+        public static int kpt_UI_STRING_MENU_ITEM_11_300=0x7f0b005f;
+        public static int kpt_UI_STRING_MENU_ITEM_12_300=0x7f0b0060;
+        public static int kpt_UI_STRING_MENU_ITEM_1_300=0x7f0b0061;
+        public static int kpt_UI_STRING_MENU_ITEM_2_300=0x7f0b0062;
+        public static int kpt_UI_STRING_MENU_ITEM_3_300=0x7f0b0063;
+        public static int kpt_UI_STRING_MENU_ITEM_4_300=0x7f0b0064;
+        public static int kpt_UI_STRING_MENU_ITEM_5_300=0x7f0b0065;
+        public static int kpt_UI_STRING_MENU_ITEM_6_300=0x7f0b0066;
+        public static int kpt_UI_STRING_MENU_ITEM_7_300=0x7f0b0067;
+        public static int kpt_UI_STRING_MENU_ITEM_8_300=0x7f0b0068;
+        public static int kpt_UI_STRING_MENU_ITEM_9_300=0x7f0b0069;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_10_300=0x7f0b006a;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_12_300=0x7f0b006b;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_14_300=0x7f0b006c;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_15_300=0x7f0b006d;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_1_300=0x7f0b006e;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_2_300=0x7f0b006f;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_3_300=0x7f0b0070;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_4_300=0x7f0b0071;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_5_300=0x7f0b0072;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_6_300=0x7f0b0073;
+        public static int kpt_UI_STRING_MENU_ITEM_DESC_7_300=0x7f0b0074;
+        public static int kpt_UI_STRING_MYDICT_ITEM1=0x7f0b0075;
+        public static int kpt_UI_STRING_MYDICT_ITEM2=0x7f0b0076;
+        public static int kpt_UI_STRING_MYDICT_ITEM3=0x7f0b0077;
+        public static int kpt_UI_STRING_MYDICT_ITEM4=0x7f0b0078;
+        public static int kpt_UI_STRING_MYDICT_ITEM5=0x7f0b0079;
+        public static int kpt_UI_STRING_NOTIFICATION_1_200=0x7f0b007a;
+        public static int kpt_UI_STRING_NOTIFICATION_2_200=0x7f0b007b;
+        public static int kpt_UI_STRING_NOTIFICATION_3_200=0x7f0b007c;
+        public static int kpt_UI_STRING_NOTIFICATION_4_200=0x7f0b007d;
+        public static int kpt_UI_STRING_NOTIFICATION_5_1_200=0x7f0b007e;
+        public static int kpt_UI_STRING_NOTIFICATION_5_2_200=0x7f0b01eb;
+        public static int kpt_UI_STRING_NO_NETWORK=0x7f0b007f;
+        public static int kpt_UI_STRING_POPUP_ITEMS_1_1000=0x7f0b0080;
+        public static int kpt_UI_STRING_POPUP_ITEMS_4_7003=0x7f0b0081;
+        public static int kpt_UI_STRING_POPUP_ITEMS_5_7003=0x7f0b0082;
+        public static int kpt_UI_STRING_POPUP_ITEMS_6_7003=0x7f0b0083;
+        public static int kpt_UI_STRING_POPUP_ITEM_1_300=0x7f0b01ec;
+        public static int kpt_UI_STRING_POPUP_ITEM_2_110=0x7f0b0084;
+        public static int kpt_UI_STRING_POPUP_ITEM_2_300=0x7f0b01ed;
+        public static int kpt_UI_STRING_PUSHNOTIFICATION_1_220=0x7f0b0085;
+        public static int kpt_UI_STRING_PUSHNOTIFICATION_1_300=0x7f0b0086;
+        public static int kpt_UI_STRING_PUSHNOTIFICATION_2_220=0x7f0b0087;
+        public static int kpt_UI_STRING_PUSHNOTIFICATION_2_300=0x7f0b0088;
+        public static int kpt_UI_STRING_PUSHNOTIFICATION_3_300=0x7f0b0089;
+        public static int kpt_UI_STRING_QUICKSETTINGSITEM_1_110=0x7f0b020a;
+        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_1_7003=0x7f0b008a;
+        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003=0x7f0b008b;
+        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_I_7003=0x7f0b008c;
+        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_3_7003=0x7f0b008d;
+        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_4_7003=0x7f0b008e;
+        public static int kpt_UI_STRING_QUICKSETTINGS_ITEMS_6_7003=0x7f0b008f;
+        public static int kpt_UI_STRING_SBAR_ITEM_1_220=0x7f0b0090;
+        public static int kpt_UI_STRING_SBAR_MESSAGE_1_300=0x7f0b01ee;
+        public static int kpt_UI_STRING_SBAR_MESSAGE_2_300=0x7f0b01ef;
+        public static int kpt_UI_STRING_SBAR_MESSAGE_3=0x7f0b0091;
+        public static int kpt_UI_STRING_SBAR_MESSAGE_3_300=0x7f0b01f0;
+        public static int kpt_UI_STRING_SETTINGS_ERRORMSG_1_220=0x7f0b0092;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_1_220=0x7f0b0093;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_1_300=0x7f0b0094;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_2_220=0x7f0b0095;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_2_300=0x7f0b020b;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_3_220=0x7f0b0096;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220=0x7f0b0097;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300=0x7f0b0098;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_2_220=0x7f0b0099;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300=0x7f0b020c;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220=0x7f0b009a;
+        public static int kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220=0x7f0b009b;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_1=0x7f0b009c;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_10=0x7f0b009d;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_11=0x7f0b009e;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_12=0x7f0b009f;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_13=0x7f0b00a0;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_14=0x7f0b00a1;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_15=0x7f0b00a2;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_3=0x7f0b00a3;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_4=0x7f0b00a4;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_5=0x7f0b00a5;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_6=0x7f0b00a6;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_7=0x7f0b00a7;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_8=0x7f0b00a8;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_8A=0x7f0b00a9;
+        public static int kpt_UI_STRING_SETTINGS_SITEM_9=0x7f0b00aa;
+        public static int kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300=0x7f0b00ab;
+        public static int kpt_UI_STRING_SETUPWIZARD_MENUITEM_12_300=0x7f0b00ac;
+        public static int kpt_UI_STRING_TEXTBOX_1_300=0x7f0b00ad;
+        public static int kpt_UI_STRING_TEXTBOX_2_300=0x7f0b00ae;
+        public static int kpt_UI_STRING_THEME_ITEM1=0x7f0b00af;
+        public static int kpt_UI_STRING_TOAST_1_110=0x7f0b020d;
+        public static int kpt_UI_STRING_TOAST_1_220=0x7f0b00b0;
+        public static int kpt_UI_STRING_TOAST_1_7003=0x7f0b00b1;
+        public static int kpt_UI_STRING_TOAST_2_110=0x7f0b020e;
+        public static int kpt_UI_STRING_TOAST_2_200=0x7f0b00b2;
+        public static int kpt_UI_STRING_TOAST_2_220=0x7f0b00b3;
+        public static int kpt_UI_STRING_TOAST_2_7003=0x7f0b00b4;
+        public static int kpt_UI_STRING_TOAST_3_110=0x7f0b020f;
+        public static int kpt_UI_STRING_TOAST_4_110=0x7f0b00b5;
+        public static int kpt_UI_STRING_TOAST_MESSAGE_10_300=0x7f0b00b6;
+        public static int kpt_UI_STRING_TOAST_MESSAGE_1_2001=0x7f0b00b7;
+        public static int kpt_UI_STRING_TOAST_MESSAGE_3_300=0x7f0b00b8;
+        public static int kpt_UI_STRING_TOAST_MESSAGE_5_300=0x7f0b00b9;
+        public static int kpt_UI_STRING_TOAST_MESSAGE_6_300=0x7f0b00ba;
+        public static int kpt_UI_STRING_TOAST_MESSAGE_7_300=0x7f0b00bb;
+        public static int kpt_UI_STRING_TOAST_MESSAGE_8_300=0x7f0b00bc;
+        public static int kpt_UI_STRING_TOAST_MESSAGE_9_300=0x7f0b00bd;
+        public static int kpt_UI_STRING_TRY_AGAIN=0x7f0b00be;
+        public static int kpt_account_alert_msg=0x7f0b00bf;
+        public static int kpt_account_type_phone=0x7f0b00c0;
+        public static int kpt_account_type_phone_summary=0x7f0b00c1;
+        public static int kpt_account_type_sms=0x7f0b00c2;
+        public static int kpt_account_type_sms_summary=0x7f0b00c3;
+        public static int kpt_accounts_extra_data=0x7f0b00c4;
+        public static int kpt_accounts_key=0x7f0b00c5;
+        public static int kpt_accounts_manager_summary=0x7f0b00c6;
+        public static int kpt_accounts_manger_title=0x7f0b00c7;
+        public static int kpt_adaptxt_eula=0x7f0b00c8;
+        public static int kpt_adaptxt_icon_to=0x7f0b00c9;
+        public static int kpt_add_account_button_label=0x7f0b00ca;
+        public static int kpt_add_on_manager_summary=0x7f0b00cb;
+        public static int kpt_add_on_manager_title=0x7f0b00cc;
+        public static int kpt_added_word=0x7f0b00cd;
+        public static int kpt_addon_atleast_one=0x7f0b00ce;
+        public static int kpt_alert_dialog_cancel=0x7f0b00cf;
+        public static int kpt_alert_dialog_ok=0x7f0b00d0;
+        public static int kpt_already_registered=0x7f0b00d1;
+        public static int kpt_alternates_for_12key_email=0x7f0b00d2;
+        public static int kpt_alternates_for_12key_normal=0x7f0b00d3;
+        public static int kpt_alternates_for_12key_url=0x7f0b00d4;
+        public static int kpt_alternates_for_a=0x7f0b00d5;
+        public static int kpt_alternates_for_aa=0x7f0b0215;
+        public static int kpt_alternates_for_abbreviation=0x7f0b021a;
+        public static int kpt_alternates_for_abc=0x7f0b00d6;
+        public static int kpt_alternates_for_ampersand=0x7f0b021b;
+        public static int kpt_alternates_for_apostrophe=0x7f0b00d7;
+        public static int kpt_alternates_for_asterisk=0x7f0b00d8;
+        public static int kpt_alternates_for_attherate=0x7f0b00d9;
+        public static int kpt_alternates_for_c=0x7f0b00da;
+        public static int kpt_alternates_for_circumflex=0x7f0b00db;
+        public static int kpt_alternates_for_comma=0x7f0b021e;
+        public static int kpt_alternates_for_copyright=0x7f0b00dc;
+        public static int kpt_alternates_for_currency=0x7f0b00dd;
+        public static int kpt_alternates_for_d=0x7f0b00de;
+        public static int kpt_alternates_for_danda=0x7f0b021c;
+        public static int kpt_alternates_for_def=0x7f0b00df;
+        public static int kpt_alternates_for_e=0x7f0b00e0;
+        public static int kpt_alternates_for_eight=0x7f0b01f1;
+        public static int kpt_alternates_for_equal=0x7f0b021d;
+        public static int kpt_alternates_for_equalsign=0x7f0b00e1;
+        public static int kpt_alternates_for_exclamation=0x7f0b00e2;
+        public static int kpt_alternates_for_exclamationsign=0x7f0b0210;
+        public static int kpt_alternates_for_five=0x7f0b00e3;
+        public static int kpt_alternates_for_four=0x7f0b01f2;
+        public static int kpt_alternates_for_fraction=0x7f0b0228;
+        public static int kpt_alternates_for_g=0x7f0b00e4;
+        public static int kpt_alternates_for_ghi=0x7f0b00e5;
+        public static int kpt_alternates_for_h=0x7f0b01f3;
+        public static int kpt_alternates_for_hindhi_punctuation=0x7f0b0216;
+        public static int kpt_alternates_for_hypen=0x7f0b00e6;
+        public static int kpt_alternates_for_hyphen=0x7f0b01fa;
+        public static int kpt_alternates_for_i=0x7f0b00e7;
+        public static int kpt_alternates_for_i2=0x7f0b0220;
+        public static int kpt_alternates_for_jkl=0x7f0b00e8;
+        public static int kpt_alternates_for_l=0x7f0b00e9;
+        public static int kpt_alternates_for_leftcurlybracket=0x7f0b00ea;
+        public static int kpt_alternates_for_leftparanthesis=0x7f0b0225;
+        public static int kpt_alternates_for_leftparenthesis=0x7f0b00eb;
+        public static int kpt_alternates_for_mno=0x7f0b00ec;
+        public static int kpt_alternates_for_n=0x7f0b00ed;
+        public static int kpt_alternates_for_nine=0x7f0b01f4;
+        public static int kpt_alternates_for_numbersign=0x7f0b0221;
+        public static int kpt_alternates_for_o=0x7f0b00ee;
+        public static int kpt_alternates_for_one=0x7f0b00ef;
+        public static int kpt_alternates_for_p=0x7f0b0222;
+        public static int kpt_alternates_for_p2=0x7f0b0223;
+        public static int kpt_alternates_for_percentage=0x7f0b00f0;
+        public static int kpt_alternates_for_plus=0x7f0b00f1;
+        public static int kpt_alternates_for_pqrs=0x7f0b00f2;
+        public static int kpt_alternates_for_q=0x7f0b0217;
+        public static int kpt_alternates_for_questionmark=0x7f0b00f3;
+        public static int kpt_alternates_for_quote=0x7f0b00f4;
+        public static int kpt_alternates_for_r=0x7f0b00f5;
+        public static int kpt_alternates_for_rightcurlybracket=0x7f0b00f6;
+        public static int kpt_alternates_for_rightparanthesis=0x7f0b0226;
+        public static int kpt_alternates_for_rightparenthesis=0x7f0b00f7;
+        public static int kpt_alternates_for_s=0x7f0b00f8;
+        public static int kpt_alternates_for_seven=0x7f0b00f9;
+        public static int kpt_alternates_for_six=0x7f0b01f5;
+        public static int kpt_alternates_for_slash=0x7f0b00fa;
+        public static int kpt_alternates_for_space=0x7f0b01f6;
+        public static int kpt_alternates_for_squarebracket=0x7f0b021f;
+        public static int kpt_alternates_for_t=0x7f0b00fb;
+        public static int kpt_alternates_for_three=0x7f0b00fc;
+        public static int kpt_alternates_for_tuv=0x7f0b00fd;
+        public static int kpt_alternates_for_two=0x7f0b00fe;
+        public static int kpt_alternates_for_u=0x7f0b00ff;
+        public static int kpt_alternates_for_vertical_line=0x7f0b0224;
+        public static int kpt_alternates_for_w=0x7f0b0218;
+        public static int kpt_alternates_for_wxyz=0x7f0b0100;
+        public static int kpt_alternates_for_x=0x7f0b0219;
+        public static int kpt_alternates_for_y=0x7f0b0101;
+        public static int kpt_alternates_for_z=0x7f0b0102;
+        public static int kpt_alternates_for_zero=0x7f0b0103;
+        public static int kpt_android_market_app_unav=0x7f0b0104;
+        public static int kpt_app_id=0x7f0b0105;
+        public static int kpt_applications_predefined_key_1=0x7f0b0106;
+        public static int kpt_applications_predefined_key_2=0x7f0b0107;
+        public static int kpt_applications_predefined_value_1=0x7f0b0108;
+        public static int kpt_applications_predefined_value_2=0x7f0b0109;
+        public static int kpt_atr_regular_expression=0x7f0b010a;
+        public static int kpt_atr_shortcut_inputtype_text=0x7f0b010b;
+        public static int kpt_atr_substitutn_alert=0x7f0b010c;
+        public static int kpt_atx=0x7f0b010d;
+        public static int kpt_atx_namespace=0x7f0b010e;
+        public static int kpt_auto_update_all=0x7f0b010f;
+        public static int kpt_auto_update_chkbox=0x7f0b0110;
+        public static int kpt_autocorrect_dialog_header=0x7f0b0111;
+        public static int kpt_autocorrect_misspelts=0x7f0b0112;
+        public static int kpt_autocorrect_misspelts_mode=0x7f0b0113;
+        public static int kpt_backup_progress=0x7f0b0114;
+        public static int kpt_base_incompatible_dialog_message=0x7f0b0115;
+        public static int kpt_cancel=0x7f0b0116;
+        public static int kpt_change_keyboard_layout=0x7f0b0117;
+        public static int kpt_choose_kbd_theme=0x7f0b0118;
+        public static int kpt_choose_layout_landscape=0x7f0b0119;
+        public static int kpt_choose_layout_potrait=0x7f0b011a;
+        public static int kpt_clipboard_predefined_key_1=0x7f0b011b;
+        public static int kpt_clipboard_predefined_key_2=0x7f0b011c;
+        public static int kpt_clipboard_predefined_key_3=0x7f0b011d;
+        public static int kpt_clipboard_predefined_key_4=0x7f0b011e;
+        public static int kpt_compact=0x7f0b011f;
+        public static int kpt_content_posted_failed=0x7f0b0120;
+        public static int kpt_content_posted_success=0x7f0b0121;
+        public static int kpt_custom_gestures_max_limit_reached=0x7f0b0122;
+        public static int kpt_cycle=0x7f0b0123;
+        public static int kpt_default_keyboard_txt=0x7f0b0124;
+        public static int kpt_dialog_gesture_type_app=0x7f0b0125;
+        public static int kpt_dialog_gesture_type_clipboard=0x7f0b0126;
+        public static int kpt_dialog_gesture_type_website=0x7f0b0127;
+        public static int kpt_dialog_message_sdcard_absent=0x7f0b0128;
+        public static int kpt_dialog_message_sdcard_no_space=0x7f0b0129;
+        public static int kpt_dialog_title=0x7f0b012a;
+        public static int kpt_dialog_title_warning=0x7f0b012b;
+        public static int kpt_dictionary_msg=0x7f0b012c;
+        public static int kpt_disable_auto_update_all=0x7f0b012d;
+        public static int kpt_display_accents=0x7f0b012e;
+        public static int kpt_domain_output_text=0x7f0b012f;
+        public static int kpt_email_adaptxt=0x7f0b0130;
+        public static int kpt_email_add_comment=0x7f0b0131;
+        public static int kpt_email_addon=0x7f0b0132;
+        public static int kpt_email_android=0x7f0b0133;
+        public static int kpt_email_model=0x7f0b0134;
+        public static int kpt_enable_auto_update_all=0x7f0b0135;
+        public static int kpt_enable_context=0x7f0b0136;
+        public static int kpt_english_ime_name=0x7f0b0137;
+        public static int kpt_english_ime_settings=0x7f0b0138;
+        public static int kpt_english_locale=0x7f0b0139;
+        public static int kpt_error_config=0x7f0b013a;
+        public static int kpt_feedback_category=0x7f0b013b;
+        public static int kpt_font_typewriter=0x7f0b013c;
+        public static int kpt_gcm_deleted=0x7f0b013d;
+        public static int kpt_gcm_error=0x7f0b013e;
+        public static int kpt_gcm_message=0x7f0b013f;
+        public static int kpt_gcm_recoverable_error=0x7f0b0140;
+        public static int kpt_gcm_registered=0x7f0b0141;
+        public static int kpt_gcm_unregistered=0x7f0b0142;
+        public static int kpt_icontext_acc_dismiss=0x7f0b0143;
+        public static int kpt_icontext_alt_1=0x7f0b0144;
+        public static int kpt_icontext_alt_2=0x7f0b0145;
+        public static int kpt_icontext_clipboard_close=0x7f0b0146;
+        public static int kpt_icontext_clipboard_down=0x7f0b0147;
+        public static int kpt_icontext_clipboard_left=0x7f0b0148;
+        public static int kpt_icontext_clipboard_right=0x7f0b0149;
+        public static int kpt_icontext_clipboard_select_off=0x7f0b014a;
+        public static int kpt_icontext_clipboard_select_on=0x7f0b014b;
+        public static int kpt_icontext_clipboard_up=0x7f0b014c;
+        public static int kpt_icontext_comma_mic=0x7f0b014d;
+        public static int kpt_icontext_danda_share=0x7f0b014e;
+        public static int kpt_icontext_delete=0x7f0b014f;
+        public static int kpt_icontext_dot_share=0x7f0b0150;
+        public static int kpt_icontext_enter=0x7f0b0151;
+        public static int kpt_icontext_enter_default=0x7f0b0152;
         /**  :\u0105 
          */
-        public static int kpt_icontext_enter_done=0x7f0c0187;
-        public static int kpt_icontext_enter_go=0x7f0c0188;
-        public static int kpt_icontext_enter_kbhide=0x7f0c0189;
+        public static int kpt_icontext_enter_done=0x7f0b0153;
+        public static int kpt_icontext_enter_go=0x7f0b0154;
+        public static int kpt_icontext_enter_kbhide=0x7f0b0155;
         /**  :\u0105 
          */
-        public static int kpt_icontext_enter_next=0x7f0c018a;
-        public static int kpt_icontext_enter_search=0x7f0c018b;
-        public static int kpt_icontext_enter_send=0x7f0c018c;
-        public static int kpt_icontext_globe=0x7f0c018d;
-        public static int kpt_icontext_globe_share=0x7f0c018e;
-        public static int kpt_icontext_keyboard_hide=0x7f0c018f;
-        public static int kpt_icontext_mic=0x7f0c0190;
-        public static int kpt_icontext_mic_thai_feedback=0x7f0c0191;
-        public static int kpt_icontext_navigation_right=0x7f0c0192;
-        public static int kpt_icontext_private_mode=0x7f0c0193;
-        public static int kpt_icontext_share=0x7f0c0194;
-        public static int kpt_icontext_shift_indic=0x7f0c0195;
-        public static int kpt_icontext_shift_lock=0x7f0c0196;
-        public static int kpt_icontext_shift_off=0x7f0c0197;
-        public static int kpt_icontext_shift_on=0x7f0c0198;
-        public static int kpt_icontext_space=0x7f0c0199;
-        public static int kpt_icontext_space_chevron_left=0x7f0c019a;
-        public static int kpt_icontext_space_chevron_right=0x7f0c019b;
-        public static int kpt_icontext_space_zero=0x7f0c019c;
-        public static int kpt_icontext_suggestion_expand=0x7f0c019d;
-        public static int kpt_icontext_suggestion_shrink=0x7f0c019e;
-        public static int kpt_icontext_thai8=0x7f0c019f;
-        public static int kpt_icontext_thai8_key_8=0x7f0c01a0;
-        public static int kpt_icontext_thai9=0x7f0c01a1;
-        public static int kpt_icontext_thai9_key_9=0x7f0c01a2;
-        public static int kpt_icontext_thai_feedback=0x7f0c01a3;
-        public static int kpt_icontext_thai_freeze=0x7f0c01a4;
-        public static int kpt_icontext_thai_freeze_mic=0x7f0c01a5;
-        public static int kpt_icontext_thai_freeze_share=0x7f0c01a6;
-        public static int kpt_icontext_word_delete=0x7f0c01a7;
-        public static int kpt_icontext_xi_key=0x7f0c01a8;
-        public static int kpt_ime_language_selection_dialog_maint_mode=0x7f0c01a9;
-        public static int kpt_ime_language_selection_dialog_title=0x7f0c01aa;
-        public static int kpt_incompatible_dialog_message=0x7f0c01ab;
-        public static int kpt_incompatible_dialog_title=0x7f0c01ac;
-        public static int kpt_incompatible_message=0x7f0c01ad;
-        public static int kpt_incompatible_title=0x7f0c01ae;
-        public static int kpt_kpt_UI_STRING_SBAR_MESSAGE_3_300=0x7f0c01af;
-        public static int kpt_label_alpha_key=0x7f0c01b0;
-        public static int kpt_label_alt_key=0x7f0c0244;
-        public static int kpt_label_alt_key_norm=0x7f0c01b1;
-        public static int kpt_label_alt_key_shift=0x7f0c01b2;
-        public static int kpt_label_done_key=0x7f0c01b3;
-        public static int kpt_label_phone_key=0x7f0c01b4;
-        public static int kpt_label_symbol_key=0x7f0c01b5;
-        public static int kpt_landscape_default=0x7f0c01b6;
-        public static int kpt_language_selection_title=0x7f0c01b7;
-        public static int kpt_layout_category_title=0x7f0c01b8;
-        public static int kpt_learn_from_summary=0x7f0c01b9;
-        public static int kpt_learn_from_title=0x7f0c01ba;
-        public static int kpt_learn_key=0x7f0c01bb;
-        public static int kpt_learn_profile=0x7f0c01bc;
-        public static int kpt_license_backup=0x7f0c01bd;
-        public static int kpt_license_backup_done=0x7f0c01be;
-        public static int kpt_license_dialog_title=0x7f0c01bf;
-        public static int kpt_license_exp=0x7f0c01c0;
-        public static int kpt_license_new_version=0x7f0c01c1;
-        public static int kpt_loading_data=0x7f0c01c2;
-        public static int kpt_loading_installed_apps=0x7f0c01c3;
-        public static int kpt_location_xml_version=0x7f0c01c4;
-        public static int kpt_mydict_delete_all=0x7f0c01c5;
-        public static int kpt_mydict_dialog_del_title=0x7f0c01c6;
-        public static int kpt_mydict_dialog_message=0x7f0c01c7;
-        public static int kpt_mydict_import_subtext=0x7f0c01c8;
-        public static int kpt_mydict_list_item_backup=0x7f0c01c9;
-        public static int kpt_mydict_list_item_import=0x7f0c01ca;
-        public static int kpt_mydict_menu_item_add=0x7f0c01cb;
-        public static int kpt_mydict_toast_no_userdict=0x7f0c01cc;
-        public static int kpt_mydictionary=0x7f0c01cd;
-        public static int kpt_no_network_connectivity=0x7f0c01ce;
-        public static int kpt_notification_backup_done=0x7f0c01cf;
-        public static int kpt_notofication_addon_downloading=0x7f0c01d0;
-        public static int kpt_option_full_theme=0x7f0c01d1;
-        public static int kpt_option_olympics=0x7f0c01d2;
-        public static int kpt_option_postman_more=0x7f0c01d3;
-        public static int kpt_option_valentine=0x7f0c01d4;
-        public static int kpt_options_clear=0x7f0c01d5;
-        public static int kpt_options_exit=0x7f0c01d6;
-        public static int kpt_options_register=0x7f0c01d7;
-        public static int kpt_options_unregister=0x7f0c01d8;
-        public static int kpt_package_install_success_toast=0x7f0c01d9;
-        public static int kpt_package_uninstall_success_message=0x7f0c01da;
-        public static int kpt_pd_add_on_install_progress=0x7f0c01db;
-        public static int kpt_pd_add_on_uninstall_progress=0x7f0c01dc;
-        public static int kpt_pd_loading_progress=0x7f0c01dd;
-        public static int kpt_phone_mode_change_to_alphabet=0x7f0c01de;
-        public static int kpt_phone_mode_change_to_sym_shift=0x7f0c01df;
-        public static int kpt_phone_mode_change_to_symbols=0x7f0c01e0;
-        public static int kpt_popular_domain_0=0x7f0c01e1;
-        public static int kpt_popular_domain_1=0x7f0c01e2;
-        public static int kpt_popular_domain_2=0x7f0c01e3;
-        public static int kpt_popular_domain_3=0x7f0c01e4;
-        public static int kpt_popular_domain_4=0x7f0c01e5;
-        public static int kpt_popular_domain_5=0x7f0c01e6;
-        public static int kpt_popular_domain_6=0x7f0c01e7;
-        public static int kpt_popular_domain_lang_0=0x7f0c01e8;
-        public static int kpt_popular_domain_sc_value=0x7f0c01e9;
-        public static int kpt_potrait_default=0x7f0c01ea;
-        public static int kpt_pref_kpt_summary=0x7f0c01eb;
-        public static int kpt_pref_latestVersion=0x7f0c01ec;
-        public static int kpt_prior_header_1=0x7f0c01ed;
-        public static int kpt_prior_header_2=0x7f0c01ee;
-        public static int kpt_prior_tool_tip_1=0x7f0c01ef;
-        public static int kpt_prior_tool_tip_2=0x7f0c01f0;
-        public static int kpt_sdcard_required=0x7f0c01f1;
-        public static int kpt_search_addon=0x7f0c01f2;
-        public static int kpt_search_menu=0x7f0c01f3;
-        public static int kpt_search_word=0x7f0c01f4;
-        public static int kpt_send_mail=0x7f0c01f5;
-        public static int kpt_sentence_separators=0x7f0c01f6;
-        public static int kpt_server_register_error=0x7f0c01f7;
-        public static int kpt_server_registered=0x7f0c01f8;
-        public static int kpt_server_registering=0x7f0c01f9;
-        public static int kpt_server_unregister_error=0x7f0c01fa;
-        public static int kpt_server_unregistered=0x7f0c01fb;
-        public static int kpt_shared_user_label=0x7f0c01fc;
-        public static int kpt_smiley_korean_secondary_char=0x7f0c01fd;
-        public static int kpt_smiley_korean_secondary_char_value=0x7f0c01fe;
-        public static int kpt_smiley_secondary_char=0x7f0c01ff;
-        public static int kpt_smiley_secondary_char_value=0x7f0c0200;
-        public static int kpt_social_acc_add=0x7f0c0201;
-        public static int kpt_social_acc_del=0x7f0c0202;
-        public static int kpt_social_fetch_finish=0x7f0c0203;
-        public static int kpt_social_fetch_notify=0x7f0c0204;
-        public static int kpt_sound_on_keypress=0x7f0c0205;
-        public static int kpt_space=0x7f0c0206;
-        public static int kpt_subtitle=0x7f0c0207;
-        public static int kpt_suggested_punctuations=0x7f0c0208;
-        public static int kpt_system_info=0x7f0c0209;
-        public static int kpt_t101_UI_STRING_MENUITEMS_9=0x7f0c022e;
-        public static int kpt_t110_UI_STRING_ERROR_MESSAGE_2=0x7f0c022f;
-        public static int kpt_tap_disable=0x7f0c020a;
-        public static int kpt_tap_download=0x7f0c020b;
-        public static int kpt_tap_enable=0x7f0c020c;
-        public static int kpt_theme_category_title=0x7f0c020d;
-        public static int kpt_theme_title=0x7f0c020e;
-        public static int kpt_themes_layouts=0x7f0c020f;
-        public static int kpt_themes_master_xml_version=0x7f0c0210;
-        public static int kpt_ticker_text=0x7f0c0211;
-        public static int kpt_title_postman_dialog=0x7f0c0212;
-        public static int kpt_title_wait=0x7f0c0213;
-        public static int kpt_toast_hide_postman_dialog=0x7f0c0214;
-        public static int kpt_toast_hide_voice_dialog=0x7f0c0215;
-        public static int kpt_toast_internet=0x7f0c0216;
-        public static int kpt_toast_kb_change=0x7f0c0217;
-        public static int kpt_toast_language_selection=0x7f0c0218;
-        public static int kpt_toast_latest_version=0x7f0c0219;
-        public static int kpt_toast_novoice=0x7f0c021a;
-        public static int kpt_update_dialog_title=0x7f0c0230;
-        public static int kpt_update_now=0x7f0c021b;
-        public static int kpt_version_name=0x7f0c021c;
-        public static int kpt_version_number=0x7f0c021d;
-        public static int kpt_vibrate_on_keypress=0x7f0c021e;
-        public static int kpt_website_predefined_key_1=0x7f0c021f;
-        public static int kpt_website_predefined_key_2=0x7f0c0220;
-        public static int kpt_website_predefined_value_1=0x7f0c0221;
-        public static int kpt_website_predefined_value_2=0x7f0c0222;
-        public static int kpt_word_separators=0x7f0c0223;
-        public static int punctuations_list=0x7f0c0224;
+        public static int kpt_icontext_enter_next=0x7f0b0156;
+        public static int kpt_icontext_enter_search=0x7f0b0157;
+        public static int kpt_icontext_enter_send=0x7f0b0158;
+        public static int kpt_icontext_globe=0x7f0b0159;
+        public static int kpt_icontext_globe_share=0x7f0b015a;
+        public static int kpt_icontext_keyboard_hide=0x7f0b015b;
+        public static int kpt_icontext_mic=0x7f0b015c;
+        public static int kpt_icontext_mic_thai_feedback=0x7f0b015d;
+        public static int kpt_icontext_navigation_right=0x7f0b015e;
+        public static int kpt_icontext_private_mode=0x7f0b015f;
+        public static int kpt_icontext_share=0x7f0b0160;
+        public static int kpt_icontext_shift_indic=0x7f0b0161;
+        public static int kpt_icontext_shift_lock=0x7f0b0162;
+        public static int kpt_icontext_shift_off=0x7f0b0163;
+        public static int kpt_icontext_shift_on=0x7f0b0164;
+        public static int kpt_icontext_space=0x7f0b0165;
+        public static int kpt_icontext_space_chevron_left=0x7f0b0166;
+        public static int kpt_icontext_space_chevron_right=0x7f0b0167;
+        public static int kpt_icontext_space_zero=0x7f0b0168;
+        public static int kpt_icontext_suggestion_expand=0x7f0b0169;
+        public static int kpt_icontext_suggestion_shrink=0x7f0b016a;
+        public static int kpt_icontext_thai8=0x7f0b016b;
+        public static int kpt_icontext_thai8_key_8=0x7f0b016c;
+        public static int kpt_icontext_thai9=0x7f0b016d;
+        public static int kpt_icontext_thai9_key_9=0x7f0b016e;
+        public static int kpt_icontext_thai_feedback=0x7f0b016f;
+        public static int kpt_icontext_thai_freeze=0x7f0b0170;
+        public static int kpt_icontext_thai_freeze_mic=0x7f0b0171;
+        public static int kpt_icontext_thai_freeze_share=0x7f0b0172;
+        public static int kpt_icontext_word_delete=0x7f0b0173;
+        public static int kpt_icontext_xi_key=0x7f0b0174;
+        public static int kpt_ime_language_selection_dialog_maint_mode=0x7f0b0175;
+        public static int kpt_ime_language_selection_dialog_title=0x7f0b0176;
+        public static int kpt_incompatible_dialog_message=0x7f0b0177;
+        public static int kpt_incompatible_dialog_title=0x7f0b0178;
+        public static int kpt_incompatible_message=0x7f0b0179;
+        public static int kpt_incompatible_title=0x7f0b017a;
+        public static int kpt_label_alpha_key=0x7f0b017b;
+        public static int kpt_label_alt_key=0x7f0b0227;
+        public static int kpt_label_alt_key_norm=0x7f0b017c;
+        public static int kpt_label_alt_key_shift=0x7f0b017d;
+        public static int kpt_label_done_key=0x7f0b017e;
+        public static int kpt_label_phone_key=0x7f0b017f;
+        public static int kpt_label_symbol_key=0x7f0b0180;
+        public static int kpt_landscape_default=0x7f0b0181;
+        public static int kpt_language_selection_title=0x7f0b0182;
+        public static int kpt_layout_category_title=0x7f0b0183;
+        public static int kpt_learn_from_summary=0x7f0b0184;
+        public static int kpt_learn_from_title=0x7f0b0185;
+        public static int kpt_learn_key=0x7f0b0186;
+        public static int kpt_learn_profile=0x7f0b0187;
+        public static int kpt_license_backup=0x7f0b0188;
+        public static int kpt_license_backup_done=0x7f0b0189;
+        public static int kpt_license_dialog_title=0x7f0b018a;
+        public static int kpt_license_exp=0x7f0b018b;
+        public static int kpt_license_new_version=0x7f0b018c;
+        public static int kpt_loading_data=0x7f0b018d;
+        public static int kpt_loading_installed_apps=0x7f0b018e;
+        public static int kpt_location_xml_version=0x7f0b018f;
+        public static int kpt_mydict_delete_all=0x7f0b0190;
+        public static int kpt_mydict_dialog_del_title=0x7f0b0191;
+        public static int kpt_mydict_dialog_message=0x7f0b0192;
+        public static int kpt_mydict_import_subtext=0x7f0b0193;
+        public static int kpt_mydict_list_item_backup=0x7f0b0194;
+        public static int kpt_mydict_list_item_import=0x7f0b0195;
+        public static int kpt_mydict_menu_item_add=0x7f0b0196;
+        public static int kpt_mydict_toast_no_userdict=0x7f0b0197;
+        public static int kpt_mydictionary=0x7f0b0198;
+        public static int kpt_no_network_connectivity=0x7f0b0199;
+        public static int kpt_notification_backup_done=0x7f0b019a;
+        public static int kpt_notofication_addon_downloading=0x7f0b019b;
+        public static int kpt_option_full_theme=0x7f0b019c;
+        public static int kpt_option_olympics=0x7f0b019d;
+        public static int kpt_option_postman_more=0x7f0b019e;
+        public static int kpt_option_valentine=0x7f0b019f;
+        public static int kpt_options_clear=0x7f0b01a0;
+        public static int kpt_options_exit=0x7f0b01a1;
+        public static int kpt_options_register=0x7f0b01a2;
+        public static int kpt_options_unregister=0x7f0b01a3;
+        public static int kpt_package_install_success_toast=0x7f0b01a4;
+        public static int kpt_package_uninstall_success_message=0x7f0b01a5;
+        public static int kpt_pd_add_on_install_progress=0x7f0b01a6;
+        public static int kpt_pd_add_on_uninstall_progress=0x7f0b01a7;
+        public static int kpt_pd_loading_progress=0x7f0b01a8;
+        public static int kpt_phone_mode_change_to_alphabet=0x7f0b01a9;
+        public static int kpt_phone_mode_change_to_sym_shift=0x7f0b01aa;
+        public static int kpt_phone_mode_change_to_symbols=0x7f0b01ab;
+        public static int kpt_popular_domain_0=0x7f0b01ac;
+        public static int kpt_popular_domain_1=0x7f0b01ad;
+        public static int kpt_popular_domain_2=0x7f0b01ae;
+        public static int kpt_popular_domain_3=0x7f0b01af;
+        public static int kpt_popular_domain_4=0x7f0b01b0;
+        public static int kpt_popular_domain_5=0x7f0b01b1;
+        public static int kpt_popular_domain_6=0x7f0b01b2;
+        public static int kpt_popular_domain_lang_0=0x7f0b01b3;
+        public static int kpt_popular_domain_sc_value=0x7f0b01b4;
+        public static int kpt_potrait_default=0x7f0b01b5;
+        public static int kpt_pref_kpt_summary=0x7f0b01b6;
+        public static int kpt_pref_latestVersion=0x7f0b01b7;
+        public static int kpt_prior_header_1=0x7f0b01b8;
+        public static int kpt_prior_header_2=0x7f0b01b9;
+        public static int kpt_prior_tool_tip_1=0x7f0b0211;
+        public static int kpt_prior_tool_tip_2=0x7f0b0212;
+        public static int kpt_punctuations_list=0x7f0b01ba;
+        public static int kpt_sdcard_required=0x7f0b01bb;
+        public static int kpt_search_addon=0x7f0b01bc;
+        public static int kpt_search_menu=0x7f0b01bd;
+        public static int kpt_search_word=0x7f0b01be;
+        public static int kpt_send_mail=0x7f0b01bf;
+        public static int kpt_sentence_separators=0x7f0b01c0;
+        public static int kpt_server_register_error=0x7f0b01c1;
+        public static int kpt_server_registered=0x7f0b01c2;
+        public static int kpt_server_registering=0x7f0b01c3;
+        public static int kpt_server_unregister_error=0x7f0b01c4;
+        public static int kpt_server_unregistered=0x7f0b01c5;
+        public static int kpt_shared_user_label=0x7f0b01c6;
+        public static int kpt_smiley_secondary_char=0x7f0b01c7;
+        public static int kpt_smiley_secondary_char_value=0x7f0b01c8;
+        public static int kpt_social_acc_add=0x7f0b01c9;
+        public static int kpt_social_acc_del=0x7f0b01ca;
+        public static int kpt_social_fetch_finish=0x7f0b01cb;
+        public static int kpt_social_fetch_notify=0x7f0b01cc;
+        public static int kpt_sound_on_keypress=0x7f0b01cd;
+        public static int kpt_space=0x7f0b01ce;
+        public static int kpt_subtitle=0x7f0b01cf;
+        public static int kpt_suggested_punctuations=0x7f0b01d0;
+        public static int kpt_system_info=0x7f0b01d1;
+        public static int kpt_t101_UI_STRING_MENUITEMS_9=0x7f0b01f7;
+        public static int kpt_t110_UI_STRING_ERROR_MESSAGE_2=0x7f0b01f8;
+        public static int kpt_tap_disable=0x7f0b01d2;
+        public static int kpt_tap_download=0x7f0b01d3;
+        public static int kpt_tap_enable=0x7f0b01d4;
+        public static int kpt_theme_category_title=0x7f0b01d5;
+        public static int kpt_theme_title=0x7f0b01d6;
+        public static int kpt_themes_layouts=0x7f0b01d7;
+        public static int kpt_themes_master_xml_version=0x7f0b01d8;
+        public static int kpt_ticker_text=0x7f0b01d9;
+        public static int kpt_title_postman_dialog=0x7f0b01da;
+        public static int kpt_title_wait=0x7f0b01db;
+        public static int kpt_toast_hide_postman_dialog=0x7f0b0213;
+        public static int kpt_toast_hide_voice_dialog=0x7f0b0214;
+        public static int kpt_toast_internet=0x7f0b01dc;
+        public static int kpt_toast_kb_change=0x7f0b01dd;
+        public static int kpt_toast_language_selection=0x7f0b01de;
+        public static int kpt_toast_latest_version=0x7f0b01df;
+        public static int kpt_toast_novoice=0x7f0b01e0;
+        public static int kpt_update_dialog_title=0x7f0b01f9;
+        public static int kpt_update_now=0x7f0b01e1;
+        public static int kpt_version_name=0x7f0b01e2;
+        public static int kpt_version_number=0x7f0b01e3;
+        public static int kpt_vibrate_on_keypress=0x7f0b01e4;
+        public static int kpt_website_predefined_key_1=0x7f0b01e5;
+        public static int kpt_website_predefined_key_2=0x7f0b01e6;
+        public static int kpt_website_predefined_value_1=0x7f0b01e7;
+        public static int kpt_website_predefined_value_2=0x7f0b01e8;
+        public static int kpt_word_separators=0x7f0b01e9;
     }
     public static final class style {
-        public static int AdaptxtTheme=0x7f0d0000;
-        public static int Adaptxtprefstyle=0x7f0d0001;
-        public static int Holo_ProgressBar_Horizontal=0x7f0d0002;
-        public static int Theme=0x7f0d0003;
-        public static int Theme_CustomDialog=0x7f0d0004;
-        public static int Theme_Transparent=0x7f0d0005;
-        public static int kpt_LightTabWidget=0x7f0d0006;
-        public static int kpt_customize_headers=0x7f0d0007;
-        public static int kpt_full_screen_dialog=0x7f0d0008;
-        public static int kpt_myDialog=0x7f0d0009;
+        public static int AdaptxtTheme=0x7f0c0000;
+        public static int Adaptxtprefstyle=0x7f0c0001;
+        public static int Kpt_Holo_ProgressBar_Horizontal=0x7f0c0002;
+        public static int Kpt_Theme=0x7f0c0003;
+        public static int Kpt_Theme_CustomDialog=0x7f0c0004;
+        public static int Theme_Transparent=0x7f0c0005;
+        public static int kpt_LightTabWidget=0x7f0c0006;
+        public static int kpt_customize_headers=0x7f0c0007;
+        public static int kpt_full_screen_dialog=0x7f0c0008;
+        public static int kpt_myDialog=0x7f0c0009;
     }
     public static final class xml {
-        public static int addon_mgr_pref_layout=0x7f050000;
-        public static int alternates_for_abc=0x7f050001;
-        public static int alternates_for_wxyz=0x7f050002;
-        public static int hardkeyboard=0x7f050003;
-        public static int kbd_extension=0x7f050004;
-        public static int kbd_normal_qwerty_phone_fk=0x7f050005;
-        public static int kbd_normal_qwerty_phone_symbols_fk=0x7f050006;
-        public static int kbd_phone=0x7f050007;
-        public static int kbd_phone_symbols=0x7f050008;
-        public static int kbd_phone_symbols_shifted=0x7f050009;
-        public static int kbd_popup_template=0x7f05000a;
-        public static int kbd_qwerty_fk=0x7f05000b;
-        public static int kbd_symbols_fk=0x7f05000c;
-        public static int kbd_symbols_shift_fk=0x7f05000d;
-        public static int method=0x7f05000e;
-        public static int my_dic_pref_layout=0x7f05000f;
-        public static int popup_domains=0x7f050010;
-        public static int popup_ligature1=0x7f050011;
-        public static int popup_ligature10=0x7f050012;
-        public static int popup_ligature11=0x7f050013;
-        public static int popup_ligature12=0x7f050014;
-        public static int popup_ligature13=0x7f050015;
-        public static int popup_ligature14=0x7f050016;
-        public static int popup_ligature15=0x7f050017;
-        public static int popup_ligature16=0x7f050018;
-        public static int popup_ligature17=0x7f050019;
-        public static int popup_ligature18=0x7f05001a;
-        public static int popup_ligature19=0x7f05001b;
-        public static int popup_ligature2=0x7f05001c;
-        public static int popup_ligature20=0x7f05001d;
-        public static int popup_ligature21=0x7f05001e;
-        public static int popup_ligature3=0x7f05001f;
-        public static int popup_ligature4=0x7f050020;
-        public static int popup_ligature5=0x7f050021;
-        public static int popup_ligature6=0x7f050022;
-        public static int popup_ligature7=0x7f050023;
-        public static int popup_ligature8=0x7f050024;
-        public static int popup_ligature9=0x7f050025;
-        public static int popup_ligature_1=0x7f050026;
-        public static int popup_ligature_2=0x7f050027;
-        public static int popup_ligature_3=0x7f050028;
-        public static int popup_ligature_4=0x7f050029;
-        public static int popup_ligature_5=0x7f05002a;
-        public static int popup_punctuation=0x7f05002b;
-        public static int popup_smileys=0x7f05002c;
-        public static int popup_smileys_qwerty=0x7f05002d;
-        public static int popup_smileys_qwerty_primary=0x7f05002e;
-        public static int popup_symbols=0x7f05002f;
-        public static int popup_wxyz=0x7f050030;
-        public static int prefs=0x7f050031;
-        public static int prefs_addvancesettings=0x7f050032;
-        public static int prefs_glide_settings=0x7f050033;
-        public static int prefs_personalsugg=0x7f050034;
-        public static int prefs_themeslayouts=0x7f050035;
+        public static int addon_mgr_pref_layout=0x7f040000;
+        public static int alternates_for_abc=0x7f040001;
+        public static int alternates_for_wxyz=0x7f040002;
+        public static int hardkeyboard=0x7f040003;
+        public static int kbd_extension=0x7f040004;
+        public static int kbd_normal_qwerty_phone_fk=0x7f040005;
+        public static int kbd_normal_qwerty_phone_symbols_fk=0x7f040006;
+        public static int kbd_phone=0x7f040007;
+        public static int kbd_phone_symbols=0x7f040008;
+        public static int kbd_phone_symbols_shifted=0x7f040009;
+        public static int kbd_popup_template=0x7f04000a;
+        public static int kbd_qwerty_fk=0x7f04000b;
+        public static int kbd_symbols_fk=0x7f04000c;
+        public static int kbd_symbols_shift_fk=0x7f04000d;
+        public static int method=0x7f04000e;
+        public static int my_dic_pref_layout=0x7f04000f;
+        public static int popup_domains=0x7f040010;
+        public static int popup_ligature1=0x7f040011;
+        public static int popup_ligature10=0x7f040012;
+        public static int popup_ligature11=0x7f040013;
+        public static int popup_ligature12=0x7f040014;
+        public static int popup_ligature13=0x7f040015;
+        public static int popup_ligature14=0x7f040016;
+        public static int popup_ligature15=0x7f040017;
+        public static int popup_ligature16=0x7f040018;
+        public static int popup_ligature17=0x7f040019;
+        public static int popup_ligature18=0x7f04001a;
+        public static int popup_ligature19=0x7f04001b;
+        public static int popup_ligature2=0x7f04001c;
+        public static int popup_ligature20=0x7f04001d;
+        public static int popup_ligature21=0x7f04001e;
+        public static int popup_ligature3=0x7f04001f;
+        public static int popup_ligature4=0x7f040020;
+        public static int popup_ligature5=0x7f040021;
+        public static int popup_ligature6=0x7f040022;
+        public static int popup_ligature7=0x7f040023;
+        public static int popup_ligature8=0x7f040024;
+        public static int popup_ligature9=0x7f040025;
+        public static int popup_ligature_1=0x7f040026;
+        public static int popup_ligature_2=0x7f040027;
+        public static int popup_ligature_3=0x7f040028;
+        public static int popup_ligature_4=0x7f040029;
+        public static int popup_ligature_5=0x7f04002a;
+        public static int popup_punctuation=0x7f04002b;
+        public static int popup_smileys=0x7f04002c;
+        public static int popup_smileys_qwerty=0x7f04002d;
+        public static int popup_smileys_qwerty_primary=0x7f04002e;
+        public static int popup_symbols=0x7f04002f;
+        public static int popup_wxyz=0x7f040030;
+        public static int prefs=0x7f040031;
+        public static int prefs_addvancesettings=0x7f040032;
+        public static int prefs_glide_settings=0x7f040033;
+        public static int prefs_personalsugg=0x7f040034;
+        public static int prefs_themeslayouts=0x7f040035;
     }
     public static final class styleable {
-        /** Attributes that can be used with a Atx_KeyboardView.
+        /** Attributes that can be used with a Kpt_Atx_KeyboardView.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextColor2 com.kpt.adaptxt.beta:keyTextColor2}</code></td><td></td></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextColor3 com.kpt.adaptxt.beta:keyTextColor3}</code></td><td></td></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextSize2 com.kpt.adaptxt.beta:keyTextSize2}</code></td><td></td></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextSize3 com.kpt.adaptxt.beta:keyTextSize3}</code></td><td></td></tr>
-           <tr><td><code>{@link #Atx_KeyboardView_keyTextSize4 com.kpt.adaptxt.beta:keyTextSize4}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextColor2 com.kpt.adaptxt.beta:kpt_keyTextColor2}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextColor3 com.kpt.adaptxt.beta:kpt_keyTextColor3}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextSize2 com.kpt.adaptxt.beta:kpt_keyTextSize2}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextSize3 com.kpt.adaptxt.beta:kpt_keyTextSize3}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_KeyboardView_kpt_keyTextSize4 com.kpt.adaptxt.beta:kpt_keyTextSize4}</code></td><td></td></tr>
            </table>
-           @see #Atx_KeyboardView_keyTextColor2
-           @see #Atx_KeyboardView_keyTextColor3
-           @see #Atx_KeyboardView_keyTextSize2
-           @see #Atx_KeyboardView_keyTextSize3
-           @see #Atx_KeyboardView_keyTextSize4
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextColor2
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextColor3
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextSize2
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextSize3
+           @see #Kpt_Atx_KeyboardView_kpt_keyTextSize4
          */
-        public static final int[] Atx_KeyboardView = {
+        public static final int[] Kpt_Atx_KeyboardView = {
             0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003,
             0x7f010004
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextColor2}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextColor2}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2014,12 +1924,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextColor2
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextColor2
         */
-        public static int Atx_KeyboardView_keyTextColor2 = 0;
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextColor2 = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextColor3}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextColor3}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2029,12 +1939,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextColor3
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextColor3
         */
-        public static int Atx_KeyboardView_keyTextColor3 = 4;
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextColor3 = 4;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextSize2}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextSize2}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2045,12 +1955,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextSize2
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextSize2
         */
-        public static int Atx_KeyboardView_keyTextSize2 = 1;
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextSize2 = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextSize3}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextSize3}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2061,12 +1971,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextSize3
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextSize3
         */
-        public static int Atx_KeyboardView_keyTextSize3 = 3;
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextSize3 = 3;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextSize4}
-          attribute's value can be found in the {@link #Atx_KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextSize4}
+          attribute's value can be found in the {@link #Kpt_Atx_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2077,25 +1987,25 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextSize4
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextSize4
         */
-        public static int Atx_KeyboardView_keyTextSize4 = 2;
-        /** Attributes that can be used with a Atx_Keyboard_Key.
+        public static int Kpt_Atx_KeyboardView_kpt_keyTextSize4 = 2;
+        /** Attributes that can be used with a Kpt_Atx_Keyboard_Key.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Atx_Keyboard_Key_keyLabel2 com.kpt.adaptxt.beta:keyLabel2}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Atx_Keyboard_Key_kpt_keyLabel2 com.kpt.adaptxt.beta:kpt_keyLabel2}</code></td><td></td></tr>
            </table>
-           @see #Atx_Keyboard_Key_keyLabel2
+           @see #Kpt_Atx_Keyboard_Key_kpt_keyLabel2
          */
-        public static final int[] Atx_Keyboard_Key = {
+        public static final int[] Kpt_Atx_Keyboard_Key = {
             0x7f010005
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel2}
-          attribute's value can be found in the {@link #Atx_Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel2}
+          attribute's value can be found in the {@link #Kpt_Atx_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2104,25 +2014,25 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel2
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel2
         */
-        public static int Atx_Keyboard_Key_keyLabel2 = 0;
-        /** Attributes that can be used with a HardKeyboardMap.
+        public static int Kpt_Atx_Keyboard_Key_kpt_keyLabel2 = 0;
+        /** Attributes that can be used with a Kpt_HardKeyboardMap.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #HardKeyboardMap_version com.kpt.adaptxt.beta:version}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_kpt_version com.kpt.adaptxt.beta:kpt_version}</code></td><td></td></tr>
            </table>
-           @see #HardKeyboardMap_version
+           @see #Kpt_HardKeyboardMap_kpt_version
          */
-        public static final int[] HardKeyboardMap = {
+        public static final int[] Kpt_HardKeyboardMap = {
             0x7f010006
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#version}
-          attribute's value can be found in the {@link #HardKeyboardMap} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_version}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2131,29 +2041,29 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:version
+          @attr name com.kpt.adaptxt.beta:kpt_version
         */
-        public static int HardKeyboardMap_version = 0;
-        /** Attributes that can be used with a HardKeyboardMap_Key.
+        public static int Kpt_HardKeyboardMap_kpt_version = 0;
+        /** Attributes that can be used with a Kpt_HardKeyboardMap_Key.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #HardKeyboardMap_Key_code com.kpt.adaptxt.beta:code}</code></td><td></td></tr>
-           <tr><td><code>{@link #HardKeyboardMap_Key_label com.kpt.adaptxt.beta:label}</code></td><td></td></tr>
-           <tr><td><code>{@link #HardKeyboardMap_Key_values com.kpt.adaptxt.beta:values}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_Key_kpt_code com.kpt.adaptxt.beta:kpt_code}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_Key_kpt_label com.kpt.adaptxt.beta:kpt_label}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_Key_kpt_values com.kpt.adaptxt.beta:kpt_values}</code></td><td></td></tr>
            </table>
-           @see #HardKeyboardMap_Key_code
-           @see #HardKeyboardMap_Key_label
-           @see #HardKeyboardMap_Key_values
+           @see #Kpt_HardKeyboardMap_Key_kpt_code
+           @see #Kpt_HardKeyboardMap_Key_kpt_label
+           @see #Kpt_HardKeyboardMap_Key_kpt_values
          */
-        public static final int[] HardKeyboardMap_Key = {
+        public static final int[] Kpt_HardKeyboardMap_Key = {
             0x7f010007, 0x7f010008, 0x7f010009
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#code}
-          attribute's value can be found in the {@link #HardKeyboardMap_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_code}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap_Key} array.
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -2162,12 +2072,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:code
+          @attr name com.kpt.adaptxt.beta:kpt_code
         */
-        public static int HardKeyboardMap_Key_code = 0;
+        public static int Kpt_HardKeyboardMap_Key_kpt_code = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#label}
-          attribute's value can be found in the {@link #HardKeyboardMap_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_label}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2176,12 +2086,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:label
+          @attr name com.kpt.adaptxt.beta:kpt_label
         */
-        public static int HardKeyboardMap_Key_label = 1;
+        public static int Kpt_HardKeyboardMap_Key_kpt_label = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#values}
-          attribute's value can be found in the {@link #HardKeyboardMap_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_values}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2190,25 +2100,25 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:values
+          @attr name com.kpt.adaptxt.beta:kpt_values
         */
-        public static int HardKeyboardMap_Key_values = 2;
-        /** Attributes that can be used with a HardKeyboardMap_Keymap.
+        public static int Kpt_HardKeyboardMap_Key_kpt_values = 2;
+        /** Attributes that can be used with a Kpt_HardKeyboardMap_Keymap.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #HardKeyboardMap_Keymap_locale com.kpt.adaptxt.beta:locale}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_HardKeyboardMap_Keymap_kpt_locale com.kpt.adaptxt.beta:kpt_locale}</code></td><td></td></tr>
            </table>
-           @see #HardKeyboardMap_Keymap_locale
+           @see #Kpt_HardKeyboardMap_Keymap_kpt_locale
          */
-        public static final int[] HardKeyboardMap_Keymap = {
+        public static final int[] Kpt_HardKeyboardMap_Keymap = {
             0x7f01000a
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#locale}
-          attribute's value can be found in the {@link #HardKeyboardMap_Keymap} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_locale}
+          attribute's value can be found in the {@link #Kpt_HardKeyboardMap_Keymap} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2217,104 +2127,104 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:locale
+          @attr name com.kpt.adaptxt.beta:kpt_locale
         */
-        public static int HardKeyboardMap_Keymap_locale = 0;
-        /** Attributes that can be used with a IconPreferenceScreen.
+        public static int Kpt_HardKeyboardMap_Keymap_kpt_locale = 0;
+        /** Attributes that can be used with a Kpt_IconPreferenceScreen.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #IconPreferenceScreen_kptIcon com.kpt.adaptxt.beta:kptIcon}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_IconPreferenceScreen_kpt_kptIcon com.kpt.adaptxt.beta:kpt_kptIcon}</code></td><td></td></tr>
            </table>
-           @see #IconPreferenceScreen_kptIcon
+           @see #Kpt_IconPreferenceScreen_kpt_kptIcon
          */
-        public static final int[] IconPreferenceScreen = {
+        public static final int[] Kpt_IconPreferenceScreen = {
             0x7f01000b
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kptIcon}
-          attribute's value can be found in the {@link #IconPreferenceScreen} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_kptIcon}
+          attribute's value can be found in the {@link #Kpt_IconPreferenceScreen} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:kptIcon
+          @attr name com.kpt.adaptxt.beta:kpt_kptIcon
         */
-        public static int IconPreferenceScreen_kptIcon = 0;
-        /** Attributes that can be used with a ImageListPreference.
+        public static int Kpt_IconPreferenceScreen_kpt_kptIcon = 0;
+        /** Attributes that can be used with a Kpt_ImageListPreference.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #ImageListPreference_entryImages com.kpt.adaptxt.beta:entryImages}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_ImageListPreference_kpt_entryImages com.kpt.adaptxt.beta:kpt_entryImages}</code></td><td></td></tr>
            </table>
-           @see #ImageListPreference_entryImages
+           @see #Kpt_ImageListPreference_kpt_entryImages
          */
-        public static final int[] ImageListPreference = {
+        public static final int[] Kpt_ImageListPreference = {
             0x7f01000c
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#entryImages}
-          attribute's value can be found in the {@link #ImageListPreference} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_entryImages}
+          attribute's value can be found in the {@link #Kpt_ImageListPreference} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:entryImages
+          @attr name com.kpt.adaptxt.beta:kpt_entryImages
         */
-        public static int ImageListPreference_entryImages = 0;
-        /** Attributes that can be used with a Keyboard.
+        public static int Kpt_ImageListPreference_kpt_entryImages = 0;
+        /** Attributes that can be used with a Kpt_Keyboard.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Keyboard_fontSizeApplicable com.kpt.adaptxt.beta:fontSizeApplicable}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_fontStyleApplicable com.kpt.adaptxt.beta:fontStyleApplicable}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_horizontalGap com.kpt.adaptxt.beta:horizontalGap}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_isGlideSupported com.kpt.adaptxt.beta:isGlideSupported}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_isRTL com.kpt.adaptxt.beta:isRTL}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyHeight com.kpt.adaptxt.beta:keyHeight}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabel2TextSize com.kpt.adaptxt.beta:keyLabel2TextSize}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabel2XPos com.kpt.adaptxt.beta:keyLabel2XPos}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabel2YPos com.kpt.adaptxt.beta:keyLabel2YPos}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabelTextSize com.kpt.adaptxt.beta:keyLabelTextSize}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabelXPos com.kpt.adaptxt.beta:keyLabelXPos}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyLabelYPos com.kpt.adaptxt.beta:keyLabelYPos}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyType com.kpt.adaptxt.beta:keyType}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_keyWidth com.kpt.adaptxt.beta:keyWidth}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_languageType com.kpt.adaptxt.beta:languageType}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_verticalGap com.kpt.adaptxt.beta:verticalGap}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_fontSizeApplicable com.kpt.adaptxt.beta:kpt_fontSizeApplicable}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_fontStyleApplicable com.kpt.adaptxt.beta:kpt_fontStyleApplicable}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_horizontalGap com.kpt.adaptxt.beta:kpt_horizontalGap}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_isGlideSupported com.kpt.adaptxt.beta:kpt_isGlideSupported}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_isRTL com.kpt.adaptxt.beta:kpt_isRTL}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyHeight com.kpt.adaptxt.beta:kpt_keyHeight}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabel2TextSize com.kpt.adaptxt.beta:kpt_keyLabel2TextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabel2XPos com.kpt.adaptxt.beta:kpt_keyLabel2XPos}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabel2YPos com.kpt.adaptxt.beta:kpt_keyLabel2YPos}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabelTextSize com.kpt.adaptxt.beta:kpt_keyLabelTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabelXPos com.kpt.adaptxt.beta:kpt_keyLabelXPos}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyLabelYPos com.kpt.adaptxt.beta:kpt_keyLabelYPos}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyType com.kpt.adaptxt.beta:kpt_keyType}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_keyWidth com.kpt.adaptxt.beta:kpt_keyWidth}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_languageType com.kpt.adaptxt.beta:kpt_languageType}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_kpt_verticalGap com.kpt.adaptxt.beta:kpt_verticalGap}</code></td><td></td></tr>
            </table>
-           @see #Keyboard_fontSizeApplicable
-           @see #Keyboard_fontStyleApplicable
-           @see #Keyboard_horizontalGap
-           @see #Keyboard_isGlideSupported
-           @see #Keyboard_isRTL
-           @see #Keyboard_keyHeight
-           @see #Keyboard_keyLabel2TextSize
-           @see #Keyboard_keyLabel2XPos
-           @see #Keyboard_keyLabel2YPos
-           @see #Keyboard_keyLabelTextSize
-           @see #Keyboard_keyLabelXPos
-           @see #Keyboard_keyLabelYPos
-           @see #Keyboard_keyType
-           @see #Keyboard_keyWidth
-           @see #Keyboard_languageType
-           @see #Keyboard_verticalGap
+           @see #Kpt_Keyboard_kpt_fontSizeApplicable
+           @see #Kpt_Keyboard_kpt_fontStyleApplicable
+           @see #Kpt_Keyboard_kpt_horizontalGap
+           @see #Kpt_Keyboard_kpt_isGlideSupported
+           @see #Kpt_Keyboard_kpt_isRTL
+           @see #Kpt_Keyboard_kpt_keyHeight
+           @see #Kpt_Keyboard_kpt_keyLabel2TextSize
+           @see #Kpt_Keyboard_kpt_keyLabel2XPos
+           @see #Kpt_Keyboard_kpt_keyLabel2YPos
+           @see #Kpt_Keyboard_kpt_keyLabelTextSize
+           @see #Kpt_Keyboard_kpt_keyLabelXPos
+           @see #Kpt_Keyboard_kpt_keyLabelYPos
+           @see #Kpt_Keyboard_kpt_keyType
+           @see #Kpt_Keyboard_kpt_keyWidth
+           @see #Kpt_Keyboard_kpt_languageType
+           @see #Kpt_Keyboard_kpt_verticalGap
          */
-        public static final int[] Keyboard = {
+        public static final int[] Kpt_Keyboard = {
             0x7f01000d, 0x7f01000e, 0x7f01000f, 0x7f010010,
             0x7f010011, 0x7f010012, 0x7f010013, 0x7f010014,
             0x7f010015, 0x7f010016, 0x7f010017, 0x7f010018,
             0x7f010019, 0x7f01001a, 0x7f01001b, 0x7f01001c
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#fontSizeApplicable}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_fontSizeApplicable}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2323,12 +2233,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:fontSizeApplicable
+          @attr name com.kpt.adaptxt.beta:kpt_fontSizeApplicable
         */
-        public static int Keyboard_fontSizeApplicable = 13;
+        public static int Kpt_Keyboard_kpt_fontSizeApplicable = 13;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#fontStyleApplicable}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_fontStyleApplicable}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2337,12 +2247,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:fontStyleApplicable
+          @attr name com.kpt.adaptxt.beta:kpt_fontStyleApplicable
         */
-        public static int Keyboard_fontStyleApplicable = 12;
+        public static int Kpt_Keyboard_kpt_fontStyleApplicable = 12;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#horizontalGap}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_horizontalGap}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2356,12 +2266,12 @@ some parent container.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:horizontalGap
+          @attr name com.kpt.adaptxt.beta:kpt_horizontalGap
         */
-        public static int Keyboard_horizontalGap = 2;
+        public static int Kpt_Keyboard_kpt_horizontalGap = 2;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isGlideSupported}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isGlideSupported}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2370,12 +2280,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isGlideSupported
+          @attr name com.kpt.adaptxt.beta:kpt_isGlideSupported
         */
-        public static int Keyboard_isGlideSupported = 15;
+        public static int Kpt_Keyboard_kpt_isGlideSupported = 15;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isRTL}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isRTL}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2384,12 +2294,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isRTL
+          @attr name com.kpt.adaptxt.beta:kpt_isRTL
         */
-        public static int Keyboard_isRTL = 11;
+        public static int Kpt_Keyboard_kpt_isRTL = 11;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyHeight}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyHeight}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2403,12 +2313,12 @@ some parent container.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyHeight
+          @attr name com.kpt.adaptxt.beta:kpt_keyHeight
         */
-        public static int Keyboard_keyHeight = 1;
+        public static int Kpt_Keyboard_kpt_keyHeight = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel2TextSize}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel2TextSize}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2419,12 +2329,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel2TextSize
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel2TextSize
         */
-        public static int Keyboard_keyLabel2TextSize = 9;
+        public static int Kpt_Keyboard_kpt_keyLabel2TextSize = 9;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel2XPos}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel2XPos}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2433,12 +2343,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel2XPos
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel2XPos
         */
-        public static int Keyboard_keyLabel2XPos = 6;
+        public static int Kpt_Keyboard_kpt_keyLabel2XPos = 6;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel2YPos}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel2YPos}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2447,12 +2357,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel2YPos
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel2YPos
         */
-        public static int Keyboard_keyLabel2YPos = 7;
+        public static int Kpt_Keyboard_kpt_keyLabel2YPos = 7;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabelTextSize}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabelTextSize}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2463,12 +2373,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabelTextSize
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabelTextSize
         */
-        public static int Keyboard_keyLabelTextSize = 8;
+        public static int Kpt_Keyboard_kpt_keyLabelTextSize = 8;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabelXPos}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabelXPos}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2477,12 +2387,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabelXPos
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabelXPos
         */
-        public static int Keyboard_keyLabelXPos = 4;
+        public static int Kpt_Keyboard_kpt_keyLabelXPos = 4;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabelYPos}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabelYPos}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2491,12 +2401,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabelYPos
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabelYPos
         */
-        public static int Keyboard_keyLabelYPos = 5;
+        public static int Kpt_Keyboard_kpt_keyLabelYPos = 5;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyType}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyType}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -2505,12 +2415,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyType
+          @attr name com.kpt.adaptxt.beta:kpt_keyType
         */
-        public static int Keyboard_keyType = 14;
+        public static int Kpt_Keyboard_kpt_keyType = 14;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyWidth}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyWidth}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2524,12 +2434,12 @@ some parent container.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyWidth
+          @attr name com.kpt.adaptxt.beta:kpt_keyWidth
         */
-        public static int Keyboard_keyWidth = 0;
+        public static int Kpt_Keyboard_kpt_keyWidth = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#languageType}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_languageType}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -2538,12 +2448,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:languageType
+          @attr name com.kpt.adaptxt.beta:kpt_languageType
         */
-        public static int Keyboard_languageType = 10;
+        public static int Kpt_Keyboard_kpt_languageType = 10;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#verticalGap}
-          attribute's value can be found in the {@link #Keyboard} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_verticalGap}
+          attribute's value can be found in the {@link #Kpt_Keyboard} array.
 
 
           <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2557,62 +2467,62 @@ some parent container.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:verticalGap
+          @attr name com.kpt.adaptxt.beta:kpt_verticalGap
         */
-        public static int Keyboard_verticalGap = 3;
-        /** Attributes that can be used with a KeyboardView.
+        public static int Kpt_Keyboard_kpt_verticalGap = 3;
+        /** Attributes that can be used with a Kpt_KeyboardView.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #KeyboardView_keyBackground com.kpt.adaptxt.beta:keyBackground}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyPreviewHeight com.kpt.adaptxt.beta:keyPreviewHeight}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyPreviewLayout com.kpt.adaptxt.beta:keyPreviewLayout}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyPreviewOffset com.kpt.adaptxt.beta:keyPreviewOffset}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyTextColor com.kpt.adaptxt.beta:keyTextColor}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyTextColor1 com.kpt.adaptxt.beta:keyTextColor1}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyTextSize com.kpt.adaptxt.beta:keyTextSize}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_keyboardViewStyle com.kpt.adaptxt.beta:keyboardViewStyle}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_labelTextSize com.kpt.adaptxt.beta:labelTextSize}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_popupLayout com.kpt.adaptxt.beta:popupLayout}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_shadowColor com.kpt.adaptxt.beta:shadowColor}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_shadowRadius com.kpt.adaptxt.beta:shadowRadius}</code></td><td></td></tr>
-           <tr><td><code>{@link #KeyboardView_verticalCorrection com.kpt.adaptxt.beta:verticalCorrection}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyBackground com.kpt.adaptxt.beta:kpt_keyBackground}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyPreviewHeight com.kpt.adaptxt.beta:kpt_keyPreviewHeight}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyPreviewLayout com.kpt.adaptxt.beta:kpt_keyPreviewLayout}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyPreviewOffset com.kpt.adaptxt.beta:kpt_keyPreviewOffset}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyTextColor com.kpt.adaptxt.beta:kpt_keyTextColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyTextColor1 com.kpt.adaptxt.beta:kpt_keyTextColor1}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyTextSize com.kpt.adaptxt.beta:kpt_keyTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_keyboardViewStyle com.kpt.adaptxt.beta:kpt_keyboardViewStyle}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_labelTextSize com.kpt.adaptxt.beta:kpt_labelTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_popupLayout com.kpt.adaptxt.beta:kpt_popupLayout}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_shadowColor com.kpt.adaptxt.beta:kpt_shadowColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_shadowRadius com.kpt.adaptxt.beta:kpt_shadowRadius}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_KeyboardView_kpt_verticalCorrection com.kpt.adaptxt.beta:kpt_verticalCorrection}</code></td><td></td></tr>
            </table>
-           @see #KeyboardView_keyBackground
-           @see #KeyboardView_keyPreviewHeight
-           @see #KeyboardView_keyPreviewLayout
-           @see #KeyboardView_keyPreviewOffset
-           @see #KeyboardView_keyTextColor
-           @see #KeyboardView_keyTextColor1
-           @see #KeyboardView_keyTextSize
-           @see #KeyboardView_keyboardViewStyle
-           @see #KeyboardView_labelTextSize
-           @see #KeyboardView_popupLayout
-           @see #KeyboardView_shadowColor
-           @see #KeyboardView_shadowRadius
-           @see #KeyboardView_verticalCorrection
+           @see #Kpt_KeyboardView_kpt_keyBackground
+           @see #Kpt_KeyboardView_kpt_keyPreviewHeight
+           @see #Kpt_KeyboardView_kpt_keyPreviewLayout
+           @see #Kpt_KeyboardView_kpt_keyPreviewOffset
+           @see #Kpt_KeyboardView_kpt_keyTextColor
+           @see #Kpt_KeyboardView_kpt_keyTextColor1
+           @see #Kpt_KeyboardView_kpt_keyTextSize
+           @see #Kpt_KeyboardView_kpt_keyboardViewStyle
+           @see #Kpt_KeyboardView_kpt_labelTextSize
+           @see #Kpt_KeyboardView_kpt_popupLayout
+           @see #Kpt_KeyboardView_kpt_shadowColor
+           @see #Kpt_KeyboardView_kpt_shadowRadius
+           @see #Kpt_KeyboardView_kpt_verticalCorrection
          */
-        public static final int[] KeyboardView = {
+        public static final int[] Kpt_KeyboardView = {
             0x7f01001d, 0x7f01001e, 0x7f01001f, 0x7f010020,
             0x7f010021, 0x7f010022, 0x7f010023, 0x7f010024,
             0x7f010025, 0x7f010026, 0x7f010027, 0x7f010028,
             0x7f010029
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyBackground}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyBackground}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyBackground
+          @attr name com.kpt.adaptxt.beta:kpt_keyBackground
         */
-        public static int KeyboardView_keyBackground = 1;
+        public static int Kpt_KeyboardView_kpt_keyBackground = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyPreviewHeight}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyPreviewHeight}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2623,22 +2533,22 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyPreviewHeight
+          @attr name com.kpt.adaptxt.beta:kpt_keyPreviewHeight
         */
-        public static int KeyboardView_keyPreviewHeight = 8;
+        public static int Kpt_KeyboardView_kpt_keyPreviewHeight = 8;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyPreviewLayout}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyPreviewLayout}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyPreviewLayout
+          @attr name com.kpt.adaptxt.beta:kpt_keyPreviewLayout
         */
-        public static int KeyboardView_keyPreviewLayout = 6;
+        public static int Kpt_KeyboardView_kpt_keyPreviewLayout = 6;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyPreviewOffset}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyPreviewOffset}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2649,12 +2559,12 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyPreviewOffset
+          @attr name com.kpt.adaptxt.beta:kpt_keyPreviewOffset
         */
-        public static int KeyboardView_keyPreviewOffset = 7;
+        public static int Kpt_KeyboardView_kpt_keyPreviewOffset = 7;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextColor}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextColor}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2664,12 +2574,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextColor
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextColor
         */
-        public static int KeyboardView_keyTextColor = 4;
+        public static int Kpt_KeyboardView_kpt_keyTextColor = 4;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextColor1}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextColor1}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2679,12 +2589,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextColor1
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextColor1
         */
-        public static int KeyboardView_keyTextColor1 = 5;
+        public static int Kpt_KeyboardView_kpt_keyTextColor1 = 5;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyTextSize}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyTextSize}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2695,22 +2605,22 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyTextSize
+          @attr name com.kpt.adaptxt.beta:kpt_keyTextSize
         */
-        public static int KeyboardView_keyTextSize = 2;
+        public static int Kpt_KeyboardView_kpt_keyTextSize = 2;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyboardViewStyle}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyboardViewStyle}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyboardViewStyle
+          @attr name com.kpt.adaptxt.beta:kpt_keyboardViewStyle
         */
-        public static int KeyboardView_keyboardViewStyle = 0;
+        public static int Kpt_KeyboardView_kpt_keyboardViewStyle = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#labelTextSize}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_labelTextSize}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2721,22 +2631,22 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:labelTextSize
+          @attr name com.kpt.adaptxt.beta:kpt_labelTextSize
         */
-        public static int KeyboardView_labelTextSize = 3;
+        public static int Kpt_KeyboardView_kpt_labelTextSize = 3;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#popupLayout}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_popupLayout}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:popupLayout
+          @attr name com.kpt.adaptxt.beta:kpt_popupLayout
         */
-        public static int KeyboardView_popupLayout = 10;
+        public static int Kpt_KeyboardView_kpt_popupLayout = 10;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#shadowColor}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_shadowColor}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -2746,12 +2656,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:shadowColor
+          @attr name com.kpt.adaptxt.beta:kpt_shadowColor
         */
-        public static int KeyboardView_shadowColor = 11;
+        public static int Kpt_KeyboardView_kpt_shadowColor = 11;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#shadowRadius}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_shadowRadius}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -2760,12 +2670,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:shadowRadius
+          @attr name com.kpt.adaptxt.beta:kpt_shadowRadius
         */
-        public static int KeyboardView_shadowRadius = 12;
+        public static int Kpt_KeyboardView_kpt_shadowRadius = 12;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#verticalCorrection}
-          attribute's value can be found in the {@link #KeyboardView} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_verticalCorrection}
+          attribute's value can be found in the {@link #Kpt_KeyboardView} array.
 
 
           <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
@@ -2776,61 +2686,68 @@ in (inches), mm (millimeters).
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:verticalCorrection
+          @attr name com.kpt.adaptxt.beta:kpt_verticalCorrection
         */
-        public static int KeyboardView_verticalCorrection = 9;
-        /** Attributes that can be used with a KeyboardViewPreviewState.
+        public static int Kpt_KeyboardView_kpt_verticalCorrection = 9;
+        /** Attributes that can be used with a Kpt_KeyboardViewPreviewState.
          */
-        public static final int[] KeyboardViewPreviewState = {
+        public static final int[] Kpt_KeyboardViewPreviewState = {
             
         };
-        /** Attributes that can be used with a Keyboard_Key.
+        /** Attributes that can be used with a Kpt_Keyboard_Key.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Keyboard_Key_codes com.kpt.adaptxt.beta:codes}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_iconPreview com.kpt.adaptxt.beta:iconPreview}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_iconText com.kpt.adaptxt.beta:iconText}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_isModifier com.kpt.adaptxt.beta:isModifier}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_isRepeatable com.kpt.adaptxt.beta:isRepeatable}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_isSticky com.kpt.adaptxt.beta:isSticky}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyEdgeFlags com.kpt.adaptxt.beta:keyEdgeFlags}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyIcon com.kpt.adaptxt.beta:keyIcon}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyLabel com.kpt.adaptxt.beta:keyLabel}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyOutputText com.kpt.adaptxt.beta:keyOutputText}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keySpecialOper com.kpt.adaptxt.beta:keySpecialOper}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_keyboardMode com.kpt.adaptxt.beta:keyboardMode}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_popupCharacters com.kpt.adaptxt.beta:popupCharacters}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_popupKeyboard com.kpt.adaptxt.beta:popupKeyboard}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Key_useExternalFont com.kpt.adaptxt.beta:useExternalFont}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_codes com.kpt.adaptxt.beta:kpt_codes}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_iconPreview com.kpt.adaptxt.beta:kpt_iconPreview}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_iconText com.kpt.adaptxt.beta:kpt_iconText}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_isModifier com.kpt.adaptxt.beta:kpt_isModifier}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_isRepeatable com.kpt.adaptxt.beta:kpt_isRepeatable}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_isSticky com.kpt.adaptxt.beta:kpt_isSticky}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyEdgeFlags com.kpt.adaptxt.beta:kpt_keyEdgeFlags}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyIcon com.kpt.adaptxt.beta:kpt_keyIcon}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyLabel com.kpt.adaptxt.beta:kpt_keyLabel}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyOutputText com.kpt.adaptxt.beta:kpt_keyOutputText}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keySpecialOper com.kpt.adaptxt.beta:kpt_keySpecialOper}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_keyboardMode com.kpt.adaptxt.beta:kpt_keyboardMode}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_popupCharacters com.kpt.adaptxt.beta:kpt_popupCharacters}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_popupKeyboard com.kpt.adaptxt.beta:kpt_popupKeyboard}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_syllable_index com.kpt.adaptxt.beta:kpt_syllable_index}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_useExternalFont com.kpt.adaptxt.beta:kpt_useExternalFont}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_vowel_base com.kpt.adaptxt.beta:kpt_vowel_base}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Key_kpt_vowel_unicode com.kpt.adaptxt.beta:kpt_vowel_unicode}</code></td><td></td></tr>
            </table>
-           @see #Keyboard_Key_codes
-           @see #Keyboard_Key_iconPreview
-           @see #Keyboard_Key_iconText
-           @see #Keyboard_Key_isModifier
-           @see #Keyboard_Key_isRepeatable
-           @see #Keyboard_Key_isSticky
-           @see #Keyboard_Key_keyEdgeFlags
-           @see #Keyboard_Key_keyIcon
-           @see #Keyboard_Key_keyLabel
-           @see #Keyboard_Key_keyOutputText
-           @see #Keyboard_Key_keySpecialOper
-           @see #Keyboard_Key_keyboardMode
-           @see #Keyboard_Key_popupCharacters
-           @see #Keyboard_Key_popupKeyboard
-           @see #Keyboard_Key_useExternalFont
+           @see #Kpt_Keyboard_Key_kpt_codes
+           @see #Kpt_Keyboard_Key_kpt_iconPreview
+           @see #Kpt_Keyboard_Key_kpt_iconText
+           @see #Kpt_Keyboard_Key_kpt_isModifier
+           @see #Kpt_Keyboard_Key_kpt_isRepeatable
+           @see #Kpt_Keyboard_Key_kpt_isSticky
+           @see #Kpt_Keyboard_Key_kpt_keyEdgeFlags
+           @see #Kpt_Keyboard_Key_kpt_keyIcon
+           @see #Kpt_Keyboard_Key_kpt_keyLabel
+           @see #Kpt_Keyboard_Key_kpt_keyOutputText
+           @see #Kpt_Keyboard_Key_kpt_keySpecialOper
+           @see #Kpt_Keyboard_Key_kpt_keyboardMode
+           @see #Kpt_Keyboard_Key_kpt_popupCharacters
+           @see #Kpt_Keyboard_Key_kpt_popupKeyboard
+           @see #Kpt_Keyboard_Key_kpt_syllable_index
+           @see #Kpt_Keyboard_Key_kpt_useExternalFont
+           @see #Kpt_Keyboard_Key_kpt_vowel_base
+           @see #Kpt_Keyboard_Key_kpt_vowel_unicode
          */
-        public static final int[] Keyboard_Key = {
+        public static final int[] Kpt_Keyboard_Key = {
             0x7f01002a, 0x7f01002b, 0x7f01002c, 0x7f01002d,
             0x7f01002e, 0x7f01002f, 0x7f010030, 0x7f010031,
             0x7f010032, 0x7f010033, 0x7f010034, 0x7f010035,
-            0x7f010036, 0x7f010037, 0x7f010039
+            0x7f010036, 0x7f010037, 0x7f010038, 0x7f010039,
+            0x7f01003a, 0x7f01003c
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#codes}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_codes}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2840,22 +2757,22 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:codes
+          @attr name com.kpt.adaptxt.beta:kpt_codes
         */
-        public static int Keyboard_Key_codes = 0;
+        public static int Kpt_Keyboard_Key_kpt_codes = 0;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#iconPreview}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_iconPreview}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:iconPreview
+          @attr name com.kpt.adaptxt.beta:kpt_iconPreview
         */
-        public static int Keyboard_Key_iconPreview = 7;
+        public static int Kpt_Keyboard_Key_kpt_iconPreview = 7;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#iconText}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_iconText}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2864,12 +2781,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:iconText
+          @attr name com.kpt.adaptxt.beta:kpt_iconText
         */
-        public static int Keyboard_Key_iconText = 12;
+        public static int Kpt_Keyboard_Key_kpt_iconText = 12;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isModifier}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isModifier}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2878,12 +2795,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isModifier
+          @attr name com.kpt.adaptxt.beta:kpt_isModifier
         */
-        public static int Keyboard_Key_isModifier = 4;
+        public static int Kpt_Keyboard_Key_kpt_isModifier = 4;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isRepeatable}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isRepeatable}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2892,12 +2809,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isRepeatable
+          @attr name com.kpt.adaptxt.beta:kpt_isRepeatable
         */
-        public static int Keyboard_Key_isRepeatable = 6;
+        public static int Kpt_Keyboard_Key_kpt_isRepeatable = 6;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isSticky}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isSticky}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -2906,12 +2823,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isSticky
+          @attr name com.kpt.adaptxt.beta:kpt_isSticky
         */
-        public static int Keyboard_Key_isSticky = 5;
+        public static int Kpt_Keyboard_Key_kpt_isSticky = 5;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyEdgeFlags}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyEdgeFlags}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be one or more (separated by '|') of the following constant values.</p>
@@ -2923,22 +2840,22 @@ containing a value of this type.
 <tr><td><code>left</code></td><td>1</td><td></td></tr>
 <tr><td><code>right</code></td><td>2</td><td></td></tr>
 </table>
-          @attr name com.kpt.adaptxt.beta:keyEdgeFlags
+          @attr name com.kpt.adaptxt.beta:kpt_keyEdgeFlags
         */
-        public static int Keyboard_Key_keyEdgeFlags = 3;
+        public static int Kpt_Keyboard_Key_kpt_keyEdgeFlags = 3;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyIcon}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyIcon}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyIcon
+          @attr name com.kpt.adaptxt.beta:kpt_keyIcon
         */
-        public static int Keyboard_Key_keyIcon = 10;
+        public static int Kpt_Keyboard_Key_kpt_keyIcon = 10;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyLabel}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyLabel}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2947,12 +2864,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyLabel
+          @attr name com.kpt.adaptxt.beta:kpt_keyLabel
         */
-        public static int Keyboard_Key_keyLabel = 9;
+        public static int Kpt_Keyboard_Key_kpt_keyLabel = 9;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyOutputText}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyOutputText}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2961,12 +2878,12 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keyOutputText
+          @attr name com.kpt.adaptxt.beta:kpt_keyOutputText
         */
-        public static int Keyboard_Key_keyOutputText = 8;
+        public static int Kpt_Keyboard_Key_kpt_keyOutputText = 8;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keySpecialOper}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keySpecialOper}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be an integer value, such as "<code>100</code>".
@@ -2975,22 +2892,22 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:keySpecialOper
+          @attr name com.kpt.adaptxt.beta:kpt_keySpecialOper
         */
-        public static int Keyboard_Key_keySpecialOper = 13;
+        public static int Kpt_Keyboard_Key_kpt_keySpecialOper = 13;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyboardMode}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyboardMode}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyboardMode
+          @attr name com.kpt.adaptxt.beta:kpt_keyboardMode
         */
-        public static int Keyboard_Key_keyboardMode = 14;
+        public static int Kpt_Keyboard_Key_kpt_keyboardMode = 17;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#popupCharacters}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_popupCharacters}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
@@ -2999,22 +2916,36 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:popupCharacters
+          @attr name com.kpt.adaptxt.beta:kpt_popupCharacters
         */
-        public static int Keyboard_Key_popupCharacters = 2;
+        public static int Kpt_Keyboard_Key_kpt_popupCharacters = 2;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#popupKeyboard}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_popupKeyboard}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:popupKeyboard
+          @attr name com.kpt.adaptxt.beta:kpt_popupKeyboard
         */
-        public static int Keyboard_Key_popupKeyboard = 1;
+        public static int Kpt_Keyboard_Key_kpt_popupKeyboard = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#useExternalFont}
-          attribute's value can be found in the {@link #Keyboard_Key} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_syllable_index}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.kpt.adaptxt.beta:kpt_syllable_index
+        */
+        public static int Kpt_Keyboard_Key_kpt_syllable_index = 14;
+        /**
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_useExternalFont}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -3023,29 +2954,57 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:useExternalFont
+          @attr name com.kpt.adaptxt.beta:kpt_useExternalFont
         */
-        public static int Keyboard_Key_useExternalFont = 11;
-        /** Attributes that can be used with a Keyboard_Row.
+        public static int Kpt_Keyboard_Key_kpt_useExternalFont = 11;
+        /**
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_vowel_base}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.kpt.adaptxt.beta:kpt_vowel_base
+        */
+        public static int Kpt_Keyboard_Key_kpt_vowel_base = 16;
+        /**
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_vowel_unicode}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Key} array.
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.kpt.adaptxt.beta:kpt_vowel_unicode
+        */
+        public static int Kpt_Keyboard_Key_kpt_vowel_unicode = 15;
+        /** Attributes that can be used with a Kpt_Keyboard_Row.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Keyboard_Row_isNumberRow com.kpt.adaptxt.beta:isNumberRow}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Row_keyboardMode com.kpt.adaptxt.beta:keyboardMode}</code></td><td></td></tr>
-           <tr><td><code>{@link #Keyboard_Row_rowEdgeFlags com.kpt.adaptxt.beta:rowEdgeFlags}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Row_kpt_isNumberRow com.kpt.adaptxt.beta:kpt_isNumberRow}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Row_kpt_keyboardMode com.kpt.adaptxt.beta:kpt_keyboardMode}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Keyboard_Row_kpt_rowEdgeFlags com.kpt.adaptxt.beta:kpt_rowEdgeFlags}</code></td><td></td></tr>
            </table>
-           @see #Keyboard_Row_isNumberRow
-           @see #Keyboard_Row_keyboardMode
-           @see #Keyboard_Row_rowEdgeFlags
+           @see #Kpt_Keyboard_Row_kpt_isNumberRow
+           @see #Kpt_Keyboard_Row_kpt_keyboardMode
+           @see #Kpt_Keyboard_Row_kpt_rowEdgeFlags
          */
-        public static final int[] Keyboard_Row = {
-            0x7f010038, 0x7f010039, 0x7f01003a
+        public static final int[] Kpt_Keyboard_Row = {
+            0x7f01003b, 0x7f01003c, 0x7f01003d
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#isNumberRow}
-          attribute's value can be found in the {@link #Keyboard_Row} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_isNumberRow}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Row} array.
 
 
           <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
@@ -3054,22 +3013,22 @@ containing a value of this type.
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:isNumberRow
+          @attr name com.kpt.adaptxt.beta:kpt_isNumberRow
         */
-        public static int Keyboard_Row_isNumberRow = 2;
+        public static int Kpt_Keyboard_Row_kpt_isNumberRow = 2;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#keyboardMode}
-          attribute's value can be found in the {@link #Keyboard_Row} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_keyboardMode}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Row} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.kpt.adaptxt.beta:keyboardMode
+          @attr name com.kpt.adaptxt.beta:kpt_keyboardMode
         */
-        public static int Keyboard_Row_keyboardMode = 1;
+        public static int Kpt_Keyboard_Row_kpt_keyboardMode = 1;
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#rowEdgeFlags}
-          attribute's value can be found in the {@link #Keyboard_Row} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_rowEdgeFlags}
+          attribute's value can be found in the {@link #Kpt_Keyboard_Row} array.
 
 
           <p>Must be one or more (separated by '|') of the following constant values.</p>
@@ -3081,25 +3040,25 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>top</code></td><td>4</td><td></td></tr>
 <tr><td><code>bottom</code></td><td>8</td><td></td></tr>
 </table>
-          @attr name com.kpt.adaptxt.beta:rowEdgeFlags
+          @attr name com.kpt.adaptxt.beta:kpt_rowEdgeFlags
         */
-        public static int Keyboard_Row_rowEdgeFlags = 0;
-        /** Attributes that can be used with a Theme.
+        public static int Kpt_Keyboard_Row_kpt_rowEdgeFlags = 0;
+        /** Attributes that can be used with a Kpt_Theme.
            <p>Includes the following attributes:</p>
            <table>
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #Theme_backgroundDimAmount com.kpt.adaptxt.beta:backgroundDimAmount}</code></td><td></td></tr>
+           <tr><td><code>{@link #Kpt_Theme_kpt_backgroundDimAmount com.kpt.adaptxt.beta:kpt_backgroundDimAmount}</code></td><td></td></tr>
            </table>
-           @see #Theme_backgroundDimAmount
+           @see #Kpt_Theme_kpt_backgroundDimAmount
          */
-        public static final int[] Theme = {
-            0x7f01003b
+        public static final int[] Kpt_Theme = {
+            0x7f01003e
         };
         /**
-          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#backgroundDimAmount}
-          attribute's value can be found in the {@link #Theme} array.
+          <p>This symbol is the offset where the {@link com.kpt.adaptxt.beta.R.attr#kpt_backgroundDimAmount}
+          attribute's value can be found in the {@link #Kpt_Theme} array.
 
 
           <p>Must be a floating point value, such as "<code>1.2</code>".
@@ -3108,8 +3067,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name com.kpt.adaptxt.beta:backgroundDimAmount
+          @attr name com.kpt.adaptxt.beta:kpt_backgroundDimAmount
         */
-        public static int Theme_backgroundDimAmount = 0;
+        public static int Kpt_Theme_kpt_backgroundDimAmount = 0;
     };
 }

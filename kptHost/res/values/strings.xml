@@ -184,8 +184,6 @@
 	<string name="kpt_default_keyboard_txt">Current keyboard language</string>
 	<string name="kpt_tap_disable">Tap to disable</string>
 	<string name="kpt_tap_enable">Tap to enable</string>
-	<string name="kpt_prior_tool_tip_1">Drag and drop the handle to change dictionary priority.</string> 
-	<string name="kpt_prior_tool_tip_2">Tap here to learn more about this feature.</string> 
 	<string name="kpt_prior_header_1">Add-On</string> 
 	<string name="kpt_prior_header_2">Priority</string> 
 	<string name="kpt_alert_dialog_cancel">Cancel</string> 
@@ -242,20 +240,21 @@
 	
 	
 	
-<!-- text for space -->
+	<!-- text for space -->
 	<string name="kpt_space">Space</string>
 	
 	<!-- phone keypad settings -->
-	<string name="kpt_phone_mode_change_to_symbols">12?</string>
+	<string name="kpt_phone_mode_change_to_symbols">123?</string>
 	<string name="kpt_phone_mode_change_to_alphabet">ABC</string>
 	<string name="kpt_phone_mode_change_to_sym_shift">!@#</string>
 	<string name="kpt_atx">ATX</string>
 	
 	<!-- Themes and layout settings -->
+	<string name="kpt_potrait_default">Select Layout</string>
+	
 	<string name="kpt_choose_kbd_theme">Keyboard Theme</string>
 	<string name="kpt_choose_layout_potrait">Portrait Mode Layout</string>
 	<string name="kpt_choose_layout_landscape">Landscape Mode Layout</string>
-	<string name="kpt_potrait_default">Default layout for portrait mode</string>
 	<string name="kpt_landscape_default">Default layout for landscape mode</string>
 	<string name="kpt_theme_category_title">Themes</string>
 	<string name="kpt_layout_category_title">Keyboard Layouts</string>
@@ -395,20 +394,6 @@
     <string name="kpt_UI_STRING_DIALOG_TITLE_7">Attention</string>
     <string name="kpt_UI_STRING_ERROR_MESSAGE_1_110">The word you have entered already exists, please enter a different one.</string>
     
-    <!-- Keyboard Customization -->
-    <string name="kpt_UI_STRING_QUICKSETTINGSITEM_1_110">Keyboard\nCustomization</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">Themeboard</string>
-    
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">Reset</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">Save</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">Exit</string>
-    
-    <string name="kpt_UI_STRING_TOAST_3_110">Use the slider to modify the keyboard height.</string>
-    <string name="kpt_UI_STRING_TOAST_1_110">Please exit Keyboard Customization before you change orientation</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_110">Exit Keyboard Customization?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_110">Save changes before you exit?</string>
-    <string name="kpt_UI_STRING_TOAST_2_110">Changes saved</string>
-    
 	<string name="kpt_UI_STRING_MENUITEM_2_110">Advanced Settings</string>
 	<string name="kpt_UI_STRING_MENUITEM_DESC_2_110">Control auto correction and touch feedback settings</string>
 	
@@ -433,23 +418,6 @@
 	<string name="kpt_UI_STRING_KBCUSTOM_ITEM_14_200">Please install a dictionary add-on to enable this feature.</string>
 	<string name="kpt_UI_STRING_TOAST_2_200">This feature or add-on is only supported for devices running Android v2.2 and above.</string>
 	<string name="kpt_license_exp">License Expired</string>
-	
-	<string name="kpt_alternates_for_chunjiin_1">1ㅣ</string>
-	<string name="kpt_alternates_for_chunjiin_2">2ㆍ‥</string>
-	<string name="kpt_alternates_for_chunjiin_3">3ㅡ</string>
-	<string name="kpt_alternates_for_chunjiin_4">4ㄱㅋㄲ</string>
-	<string name="kpt_alternates_for_chunjiin_5">5ㄴㄹ</string>
-	<string name="kpt_alternates_for_chunjiin_6">6ㄷㅌㄸ</string>
-	<string name="kpt_alternates_for_chunjiin_7">7ㅂㅍㅃ</string>
-	<string name="kpt_alternates_for_chunjiin_8">8ㅅㅎㅆ</string>
-	<string name="kpt_alternates_for_chunjiin_9">9ㅈㅊㅉ</string>
-	<string name="kpt_alternates_for_chunjiin_0">0ㅇㅁ</string>
-	<string name="kpt_alternates_for_chunjiin_char">.,\?!\'\&quot;1-()\@/:_</string>
-	
-	<string name="kpt_smiley_korean_secondary_char">ㅌ</string>  
-	<string name="kpt_smiley_korean_secondary_char_value">12620</string>
-	
-	<string name="kpt_alternates_for_korean_currency">$¥฿₫₨₱£€</string>
 	
 	<!-- Strings update for V2.1 -->
 	
@@ -493,11 +461,6 @@
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220">Glide is still a beta feature. Help us improve it with your valuable feedback</string>
     
     <string name="kpt_UI_STRING_SETTINGS_ERRORMSG_1_220">The character you have chosen is already assigned to another shortcut</string>
- 
-    <!-- <string name="kpt_cut">Cut</string>
-    <string name="kpt_copy">Copy</string>
-    <string name="kpt_paste">Paste</string>
-    <string name="kpt_selectall">Select all</string> -->
     
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_220">Delete gesture?</string>
 	<string name="kpt_UI_STRING_DIALOG_MESSAGE_1_220">Do you want to delete the custom gesture?</string>
@@ -523,19 +486,10 @@
     <string name="kpt_loading_installed_apps">Loading installed applications list</string>
     <string name="kpt_UI_STRING_SBAR_ITEM_1_220">Please try again</string>
     
-    <string name="kpt_toast_hide_voice_dialog">Speech Recognizer is not available for Password fields</string> 
-    <string name="kpt_toast_hide_postman_dialog">User name and passwords cannot be posted</string>
-    
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_300">Undo &amp; Dismiss Keys</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300">Customize the display of keys to undo or dismiss auto correction</string>
-    <string name="kpt_UI_STRING_POPUP_ITEM_1_300">Hide undo key</string>
-    <string name="kpt_UI_STRING_POPUP_ITEM_2_300">Hide dismiss key</string>
     
     <!-- SP V 3.0 Sprint 2 -->
-    
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_2_300">Upgrade to full version</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300">Tap here to upgrade Adaptxt</string>
-    <string name="kpt_kpt_UI_STRING_SBAR_MESSAGE_3_300">Trial expired, tap to upgrade</string>
     
     <string name="kpt_UI_STRING_APP_TITLE">Adaptxt – Trial</string>
     <string name="kpt_UI_STRING_APP_TITLE_1_300">Adaptxt – Trial</string>
@@ -543,25 +497,6 @@
     
     <string name="kpt_UI_STRING_AMGR_1_300">Dictionary</string>
     <string name="kpt_UI_STRING_AMGR_2_300">New</string>
-    
-    <string name="kpt_UI_STRING_SBAR_MESSAGE_1_300">Update your dictionaries</string>
-    <string name="kpt_UI_STRING_SBAR_MESSAGE_2_300">Updating dictionaries</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_3_300">Update your dictionaries to experience the new Adaptxt features</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_1_300">Since you have already completed in-app purchases in previous versions of Adaptxt,
-         please upgrade to Adaptxt v3.0 and email us at support@adaptxt.com with your Gmail id and we will refund your money. Your trial expires in  %d days.</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300">Upgrade now</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300">Later</string>
-    
-    <string name="kpt_UI_STRING_DIALOG_MSG_2_300">Thank you for using Adaptxt. 
-        Your trial period has expired. Tap on \"Upgrade now\" to continue using Adaptxt.</string>
-        
-    
-    <string name="kpt_UI_STRING_DIALOG_TITLE_1_300">Custom Theme</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_300">Do you want to delete this custom theme?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_300">Installed theme</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_300">Do you want to uninstall this theme?</string>
-   <!--  <string name="kpt_UI_STRING_DIALOG_MESSAGE_4_300">You can’t delete default themes</string> -->
-    
     
     <string name="kpt_UI_STRING_MENU_ITEM_1_300">Auto Spacing</string>
     <string name="kpt_UI_STRING_MENU_ITEM_DESC_1_300">Automatically add a space when selecting suggestions or punctuation according to the language rules</string>
@@ -629,41 +564,6 @@
     <string name="kpt_UI_STRING_MENU_ITEM_DESC_12_300">Log in to Gmail for Adaptxt to start learning</string>
        
     
-    <string name="kpt_UI_STRING_SETUPWIZARD_MESSAGE_1_300">What\'s New?</string>
-    <string name="kpt_UI_STRING_TUTORIAL_HEADER_1_300"><b>Adaptxt Tutorial</b></string>
-    
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_1_300"><b>Location-Based Suggestions</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_1_300">Define a location to allow Adaptxt to update its vocabulary and provide you with relevant suggestions.\n\nTo set a location, navigate to Adaptxt Settings > Personalize Suggestions > Location-Based Suggestions.
-</string>
-        
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_2_300"><b>Application-Based Suggestions</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_2_300">Adaptxt learns and adapts to the different writing styles 
-        and vocabulary you use in each application.\n\nTo enable/disable this feature, navigate to Adaptxt Settings > Personalize Suggestions > Application-Based Suggestions.</string>
-	
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_3_300">You can enable or customize the 
-        keys to undo or dismiss auto correction.\n\nTo access the settings, navigate to Adaptxt Settings > Advanced Settings > Undo and Dismiss Keys.</string>
-		
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_4_300"><b>Keyboard Customization</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_4_300">Use Keyboard Customization to personalize your keyboard.\n\nYou can customize key shape and height, font style and size, keyboard and font color. You can also set a background picture of your choice.\n\nAccess this feature from Adaptxt Settings > Keyboard Customization.
-	</string>
-	
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_5_300"><b>Shortcuts and Expansions (ATR)</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_5_300">The ATR (Automatic Text Replacement) feature allows you to enter 
-        commonly used phrases without having to type them in full. Create your own ATR by saving a shortcut and phrase 
-        expansion from the ATR menu.\n\nType an ATR shortcut in a text editor and it will appear in the suggestion bar with a \"+\" symbol. 
-        Tap on the shortcut to enter its expansion in the editor.\n\nTo create ATR shortcuts, navigate to Adaptxt Settings > Personalize Suggestions > Shortcuts and Expansions.
-    </string>
-    
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_6_300"><b>Gesture Shortcuts</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_6_300">Create custom shortcuts to launch your favorite 
-        applications and websites, or to access clipboard functions directly from the keyboard.\n\nTo use these shortcuts, glide from the Adaptxt key to a letter previously assigned to the particular action.\n\nTo create gesture shortcuts, navigate to Adaptxt Settings > Glide > Custom Gestures > Applications/Websites/Clipboard.
-    </string>
-    
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_7_300"><b>Phone Keypad (12-Key)</b></string>
-    <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_DESC_7_300">You can use the classic 12-key layout to enter text 
-        in either Predictive or Multitap mode.\n\nTo change the current layout, navigate to Adaptxt Settings > Advanced Settings > Keyboard Layouts. 
-    </string>
-    
     <string name="kpt_UI_STRING_TOAST_MESSAGE_8_300">Insufficient phone memory to back up your dictionary words</string>
     <string name="kpt_UI_STRING_MENU_ITEM_DESC_14_300">Download dictionaries and themes</string>
     <string name="kpt_UI_STRING_MENU_ITEM_DESC_15_300">Keyboard layouts, auto correction, touch feedback and more</string>
@@ -671,16 +571,6 @@
 
    
    <string name="kpt_UI_STRING_MENUITEM_1_300">Other Settings</string>
-       
-        	
-    <!-- <string name="kpt_UI_STRING_TUTORIAL_DIALOG_HEADER_7_300"><b>Adaptxt Pro (only for Trial)</b>\n
-        Adaptxt Pro includes the following features:\n
-			\t•	Language and specialized dictionaries\n
-			\t•	Glide\n
-			\t•	Keyboard customization\n
-			\t•	Themes\n
-		To purchase the Pro version of Adaptxt, navigate to Adaptxt Settings > Upgrade to Pro.
-        </string> -->
 
 	<string name="kpt_add_account_button_label">Add new account</string>
 	

@@ -20,10 +20,10 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="10%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/kbd_popup_template.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/kbd_popup_template.xml -->

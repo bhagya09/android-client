@@ -232,10 +232,10 @@
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
             atx:kpt_codes="-13"
-            atx:kpt_iconText="@string/kpt_icontext_globe_share"
+            atx:kpt_iconText="@string/kpt_icontext_globe"
             atx:kpt_keyEdgeFlags="right"
-            atx:kpt_keyLabelYPos="0.70"
-            atx:kpt_keyLabel2YPos="0.25"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyLabelTextSize="@dimen/kpt_keyLabel2GlobeShareTextSize"
             atx:kpt_useExternalFont="true" />
     </Row>
 
@@ -272,7 +272,8 @@
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
             atx:kpt_keyEdgeFlags="right"
-            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="12.5%p"
             atx:kpt_useExternalFont="true" />
     </Row>
     <Row
@@ -313,7 +314,7 @@
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
             atx:kpt_keyEdgeFlags="right"
-            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyLabelYPos="0.50"
             atx:kpt_keyWidth="12.5%p"
             atx:kpt_useExternalFont="true" />
     </Row>
@@ -358,7 +359,7 @@
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
             atx:kpt_keyEdgeFlags="right"
-            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyLabelYPos="0.50"
             atx:kpt_keyWidth="12.5%p"
             atx:kpt_useExternalFont="true" />
     </Row>
@@ -388,7 +389,8 @@
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
             atx:kpt_keyEdgeFlags="right"
-            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="12.5%p"
             atx:kpt_useExternalFont="true" />
     </Row>
     <Row
@@ -423,7 +425,7 @@
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
             atx:kpt_keyEdgeFlags="right"
-            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyLabelYPos="0.50"
             atx:kpt_keyWidth="12.5%p"
             atx:kpt_useExternalFont="true" />
     </Row>

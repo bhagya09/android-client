@@ -75,19 +75,11 @@
     <string name="kpt_UI_STRING_ATR_COLUMNHEADER_2_7003">ਵਿਸਤਾਰ</string>
     <string name="kpt_UI_STRING_COMMON_5_OFF">ਆਟੋ\n ਕਰੈਕਸ਼ਨ ਬੰਦ</string>
     <string name="kpt_UI_STRING_COMMON_5_ON">ਆਟੋ\nਕਰੈਕਸ਼ਨ ਚਾਲੂ</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300">ਹੁਣੇ ਅੱਪਗਰੇਡ ਕਰੋ</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300">ਬਾਅਦ ਵਿੱਚ</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_220">ਕੀ ਤੁਸੀਂ ਵਿਸ਼ੇਸ਼ ਵਿਉਂਤੀ ਸੈਨਤ ਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_300">ਕੀ ਤੁਸੀਂ ਇਸ ਲੋੜ ਅਨੁਸਾਰ ਵਿਉਂਤੇ ਥੀਮ ਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_110">ਕੀ ਤੁਹਾਡੇ ਬਾਹਰ ਜਾਣ ਤੋਂ ਪਹਿਲਾਂ ਤਬਦੀਲੀਆਂ ਨੂੰ ਰੱਖਿਅਤ ਕੀਤਾ ਜਾਵੇ?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_200">ਆਪਣੀ ਖਰੀਦ ਨੂੰ ਪੂਰਾ ਕਰਨ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਐਪਸਟੋਰ ’ਤੇ ਲਾਗ ਇਨ ਕਰੋ। ਕੀ ਤੁਸੀਂ ਹੁਣੇ ਅਜਿਹਾ ਕਰਨਾ ਚਾਹੋਂਗੇ?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_220">ਕੀ ਤੁਸੀਂ ਸਾਰੀਆਂ ਲੋੜ ਅਨੁਸਾਰ ਵਿਉਂਤੀਆਂ ਸੈਨਤਾਂ ਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_300">ਕੀ ਤੁਸੀਂ ਇਸ ਥੀਮ ਨੂੰ ਹਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_4_300">ਤੁਸੀਂ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਥੀਮਾਂ ਨੂੰ ਮਿਟਾ ਨਹੀਂ ਸਕਦੇ</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_1_300">ਕਿਉਂਕਿ Adaptxt ਦੇ ਪਿਛਲੇ ਸੰਸਕਰਣਾਂ ਵਿੱਚ ਤੁਸੀਂ ਪਹਿਲਾਂ ਹੀ ਐਪਲੀਕੇਸ਼ਨ-ਅੰਦਰੋਂ ਖਰੀਦਾਂ ਨੂੰ ਪੂਰਾ ਕੀਤਾ ਹੈ, ਕਿਰਪਾ ਕਰਕੇ ਅੱਪਗਰੇਡ ਕਰਕੇ Adaptxt ਦਾ ਸੰਪੂਰਨ ਸੰਸਕਰਣ ਲਓ ਅਤੇ ਤੁਹਾਡੇ ਪੈਸਿਆਂ ਨੂੰ ਵਾਪਸ ਕਰ ਦਿੱਤਾ ਜਾਵੇਗਾ।  ਤੁਹਾਡੀ ਅਜਮਾਇਸ਼ %d ਦਿਨਾਂ ਵਿੱਚ ਖਤਮ ਹੋ ਜਾਵੇਗੀ।</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_2_300">Adaptxt ਦੀ ਵਰਤੋਂ ਕਰਨ ਵਾਸਤੇ ਤੁਹਾਡਾ ਧੰਨਵਾਦ। ਤੁਹਾਡੀ ਅਜਮਾਇਸ਼ੀ ਮਿਆਦ ਖਤਮ ਹੋ ਗਈ ਹੈ। Adaptxt ਦੀ ਵਰਤੋਂ ਕਰਨਾ ਜਾਰੀ ਰੱਖਣ ਲਈ \"ਹੁਣੇ ਅੱਪਗਰੇਡ ਕਰੋ\" ’ਤੇ ਠਕੋਰੋ।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_2_7003">Adaptxt ਨਵੇਂ ਸ਼ਬਦਾਂ ਅਤੇ ਸੰਦਰਭ ਨੂੰ ਨਹੀਂ ਸਿੱਖੇਗਾ।</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_3_300">ਨਵੀਆਂ Adaptxt ਖੂਬੀਆਂ ਦਾ ਤਜ਼ਰਬਾ ਲੈਣ ਲਈ ਆਪਣੇ ਸ਼ਬਦਕੋਸ਼ਾਂ ਨੂੰ ਨਵੀਨਤਮ ਕਰੋ</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_3_7003">Adaptxt ਸ਼ਬਦਾਂ ਅਤੇ ਸੰਦਰਭ ਨੂੰ ਦੁਬਾਰਾ ਸਿੱਖਣਾ ਸ਼ੁਰੂ ਕਰੇਗਾ।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_4_7003">*ਕਿਰਪਾ ਕਰਕੇ ਵਿਸਤਾਰ ਵਜੋਂ ਘੱਟੋ ਘੱਟ 3 ਅੱਖਰ ਦਾਖਲ ਕਰੋ</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_5_7003">*ਇਹ ਸ਼ਾਰਟਕੱਟ ਪਹਿਲਾਂ ਤੋਂ ਮੌਜ਼ੂਦ ਹੈ, ਕਿਰਪਾ ਕਰਕੇ ਕੋਈ ਦੂਸਰਾ ਸ਼ਾਰਟਕੱਟ ਦਾਖਲ ਕਰੋ</string>
@@ -95,11 +87,8 @@
     <string name="kpt_UI_STRING_DIALOG_MSG_7_7003">*ਵਿਸਤਾਰ ਫੀਲਡ ਖਾਲੀ ਨਹੀਂ ਹੋ ਸਕਦਾ।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_8_7003">ਕੀ ਤੁਹਾਨੂੰ ਯਕੀਨ ਹੈ ਕਿ ਤੁਸੀਂ ਸਾਰੇ ਸ਼ਾਰਟਕੱਟਾਂ ਅਤੇ ਵਿਸਤਾਰਾਂ ਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_220">ਸੈਨਤ ਨੂੰ ਮਿਟਾ ਦਿੱਤਾ ਜਾਵੇ?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_1_300">ਲੋੜ ਅਨੁਸਾਰ ਵਿਉਂਤਿਆ ਥੀਮ</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_7003">ਪ੍ਰਾਈਵੇਟ ਮੋਡ ਨੂੰ ਕਿਰਿਆਸ਼ੀਲ ਕੀਤਾ ਜਾਵੇ?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_110">ਕੀ-ਬੋਰਡ ਅਨੁਕੂਲਕਰਨ ਤੋਂ ਬਾਹਰ ਜਾਈਏ?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_220">ਸਭ ਨੂੰ ਮਿਟਾ ਦਿੱਤਾ ਜਾਵੇ?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_300">ਸਥਾਪਤ ਥੀਮ</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_7003">ਪ੍ਰਾਈਵੇਟ ਮੋਡ ਨੂੰ ਅਕਿਰਿਆਸ਼ੀਲ ਕੀਤਾ ਜਾਵੇ?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_4_200">ਐਪਸਟੋਰ ਖਾਤਾ</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_5">ਐਪਲੀਕੇਸ਼ਨਾਂ ਤੋਂ ਸਿੱਖੋ</string>
@@ -120,12 +109,8 @@
     <string name="kpt_UI_STRING_INAPP_TOAST_2">ਇੱਕ ਸਮੇਂ ’ਤੇ ਕੇਵਲ 5 ਐਡ-ਆਨਜ਼ ਦੀ ਵਰਤੋਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਸਥਾਪਤ ਕੀਤੇ ਗਏ ਐਡ-ਆਨਜ਼ ਵਿੱਚੋਂ ਕਿਸੇ ਨੂੰ ਵੀ ਹਟਾਓ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_3">ਕਨੈਕਸ਼ਨ ਦੀ ਗੜਬੜ, ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ  ਨੈੱਟਵਰਕ ਦੀ ਸਬੰਧ ਸਥਾਪਨਾ ਦੀ ਜਾਂਚ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_4">ਕਨੈਕਸ਼ਨ ਦਾ ਸਮਾਂ ਸਮਾਪਤ ਹੋਇਆ, ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">ਮੁੜ-ਸੈੱਟ ਕਰੋ</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">ਰੱਖਿਅਤ ਕਰੋ</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">ਬਾਹਰ ਜਾਓ</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14">ਪੂਰਵ-ਨਿਰਧਾਰਤ</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14_200">ਇਸ ਖੂਬੀ ਨੂੰ ਕਿਰਿਆਸ਼ੀਲ ਕਰਨ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਸ਼ਬਦਕੋਸ਼ ਐਡ-ਆਨ ਸਥਾਪਤ ਕਰੋ।</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">ਥੀਮਬੋਰਡ</string>
     <string name="kpt_UI_STRING_MENUITEMS_1">Adaptxt ਸਟੋਰ</string>
     <string name="kpt_UI_STRING_MENUITEMS_1_7003">ਏ.ਟੀ.ਆਰ.</string>
     <string name="kpt_UI_STRING_MENUITEMS_2_7003">ਸ਼ਾਰਟਕੱਟ ਅਤੇ ਵਿਸਤਾਰ</string>
@@ -175,7 +160,6 @@
     <string name="kpt_UI_STRING_POPUP_ITEM_2_300">ਡਿਸਮਿਸ ਕੁੰਜੀ ਨੂੰ ਛੁਪਾਓ</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_220">Glide ਅਜੇ ਵੀ ਇੱਕ ਪ੍ਰਯੋਗ ਅਧੀਨ ਖੂਬੀ ਹੈ। ਅਸੀਂ ਚਾਹਾਂਗੇ ਕਿ ਤੁਸੀਂ ਆਪਣੀ ਫੀਡਬੈਕ ਦੇ ਨਾਲ ਇਸਨੂੰ ਸੁਧਾਰਨ ਵਿੱਚ ਭਾਗ ਲਵੋਂ।</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_2_220">Adaptxt ਲਿਖਤ ਨੂੰ ਦਾਖਲ ਕਰਨ ਦੇ ਇੱਕ ਨਵੇਂ ਕ੍ਰਾਂਤੀਕਾਰੀ ਤਰੀਕੇ ਨੂੰ ਲਿਆ ਰਿਹਾ ਹੈ। ਵਧੇਰੇ ਜਾਣਨ ਲਈ ਇਸ ਸੰਦੇਸ਼ ਉੱਤੇ ਠਕੋਰੋ।</string>
-    <string name="kpt_UI_STRING_QUICKSETTINGSITEM_1_110">ਕੀ-ਬੋਰਡ\nਅਨੁਕੂਲਕਰਨ </string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_1_7003">ਖਾਕੇ</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003">ਪ੍ਰਾਈਵੇਟ ਮੋਡ\nਆਫ</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_I_7003">ਪ੍ਰਾਈਵੇਟ ਮੋਡ\nਆਨ</string>
@@ -190,12 +174,10 @@
     <string name="kpt_UI_STRING_SETTINGS_ERRORMSG_1_220">ਜਿਸ ਚਿੰਨ੍ਹ ਦੀ ਤੁਸੀਂ ਚੋਣ ਕੀਤੀ ਹੈ ਉਹ ਪਹਿਲਾਂ ਹੀ ਕਿਸੇ ਹੋਰ ਸੈਨਤ ਦੇ ਨਾਲ ਜੋੜਿਆ ਜਾ ਚੁੱਕਾ ਹੈ</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_300">ਅਨਡੂ &amp; ਡਿਸਮਿਸ ਕੁੰਜੀਆਂ</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_2_220">ਸੈਨਤਾਂ ਨੂੰ ਲੋੜ ਅਨੁਸਾਰ ਵਿਉਂਤੋ</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_2_300">ਅੱਪਗਰੇਡ ਕਰਕੇ ਸੰਪੂਰਨ ਸੰਸਕਰਣ ਲਓ</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_3_220">Glide Beta ਫੀਡਬੈਕ</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220">Glide ਨੂੰ ਕਿਰਿਆਸ਼ੀਲ/ਅਕਿਰਿਆਸ਼ੀਲ ਕਰੋ ਅਤੇ ਸੈਨਤਾਂ ਨੂੰ ਲੋੜ ਅਨੁਸਾਰ ਵਿਉਂਤੋ</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300">ਆਟੋ ਕਰੈਕਸ਼ਨ ਨੂੰ ਅਨਡੂ ਜਾਂ ਡਿਸਮਿਸ ਕਰਨ ਲਈ ਕੁੰਜੀਆਂ ਦੇ ਪ੍ਰਦਰਸ਼ਨ ਨੂੰ ਅਨੁਕੂਲ ਕਰੋ</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_220">ਲੋੜ ਅਨੁਸਾਰ ਵਿਉਂਤੇ ਸ਼ਾਰਟਕੱਟਾਂ ਦੀ ਸਿਰਜਣਾ ਕਰੋ</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300">Adaptxt ਨੂੰ ਅੱਪਗਰੇਡ ਕਰਨ ਲਈ ਏਥੇ ਠਕੋਰੋ</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220">ਉਂਗਲ ਨੂੰ ਚੁੱਕੇ ਬਿਨਾਂ ਸ਼ਬਦਾਂ ਦਾ ਨਿਰਮਾਣ ਕਰਨ ਲਈ ਅੱਖਰਾਂ ਨੂੰ ਖਿਸਕਾਓ</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220">Glide ਅਜੇ ਵੀ ਇੱਕ ਪ੍ਰਯੋਗ ਅਧੀਨ ਖੂਬੀ ਹੈ। ਆਪਣੀ ਬਹੁਮੁੱਲੀ ਫੀਡਬੈਕ ਦੇ ਨਾਲ ਇਸਨੂੰ ਸੁਧਾਰਨ ਵਿੱਚ ਸਾਡੀ ਮਦਦ ਕਰੋ</string>
     <string name="kpt_UI_STRING_SETTINGS_SITEM_1">ਤੁਹਾਡੇ ਨਵੇਂ ਸ਼ਬਦ</string>
@@ -215,14 +197,11 @@
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300">ਲਾਲ</string>
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_12_300">ਹਰਾ</string>
     <string name="kpt_UI_STRING_THEME_ITEM1">ਨੀਲਾ ਥੀਮ</string>
-    <string name="kpt_UI_STRING_TOAST_1_110">ਕਿਰਪਾ ਕਰਕੇ ਦਿਸ਼ਾ ਬਦਲਣ ਤੋਂ ਪਹਿਲਾਂ ਕੀ-ਬੋਰਡ ਅਨੁਕੂਲਕਰਨ ਤੋਂ ਬਾਹਰ ਨਿਕਲੋ</string>
     <string name="kpt_UI_STRING_TOAST_1_220">ਲੋੜ ਅਨੁਸਾਰ ਵਿਉਂਤੀ ਸੈਨਤ ਨੂੰ ਸਫਲਤਾਪੂਰਵਕ ਰੱਖਿਅਤ ਕੀਤਾ ਗਿਆ</string>
     <string name="kpt_UI_STRING_TOAST_1_7003">ਟੈਕਸਟ ਫੀਲਡ ਵਿੱਚ ਕੋਈ ਵੀ ਲਿਖਤ ਦਾਖਲ ਨਹੀਂ ਕੀਤੀ ਗਈ ਹੈ।</string>
-    <string name="kpt_UI_STRING_TOAST_2_110">ਤਬਦੀਲੀਆਂ ਰੱਖਿਅਤ ਕੀਤੀਆਂ ਗਈਆਂ</string>
     <string name="kpt_UI_STRING_TOAST_2_200">ਇਸ ਖੂਬੀ ਜਾਂ ਐਡ-ਆਨ ਦਾ ਸਮਰਥਨ ਕੇਵਲ Android v2.2 ਅਤੇ ਇਸਤੋਂ ਉੱਪਰਲੇ ਸੰਸਕਰਣਾਂ ’ਤੇ ਚੱਲ ਰਹੀਆਂ ਡੀਵਾਈਸਾਂ ਵਾਸਤੇ ਕੀਤਾ ਜਾਂਦਾ ਹੈ।</string>
     <string name="kpt_UI_STRING_TOAST_2_220">ਐਪਲੀਕੇਸ਼ਨ ਨੂੰ ਲੱਭਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ</string>
     <string name="kpt_UI_STRING_TOAST_2_7003">ਸਵਰ-ਚਿੰਨ੍ਹ ਅਤੇ ਉਚਾਰਣ-ਸੂਚਕ ਚਿੰਨ੍ਹਾਂ ਨੂੰ ਲਿਖਤ ਵਿੱਚੋਂ ਹਟਾ ਦਿੱਤਾ ਗਿਆ ਹੈ।</string>
-    <string name="kpt_UI_STRING_TOAST_3_110">ਕੀਬੋਰਡ ਦੀ ਉਚਾਈ ਵਿੱਚ ਸੋਧ ਕਰਨ ਲਈ ਸਲਾਈਡਰ ਦੀ ਵਰਤੋਂ ਕਰੋ।</string>
     <string name="kpt_UI_STRING_TOAST_4_110">ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਡੀਵਾਈਸ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ \"ਤਾਰੀਖ਼ ਅਤੇ ਸਮਾਂ\" ਦੇ ਤਹਿਤ ਇਸਨੂੰ \"ਸਵੈਚਲਿਤ\" ’ਤੇ ਸੈੱਟ ਕਰਕੇ ਆਪਣੀ ਡੀਵਾਈਸ ਦੇ ਸਮੇਂ ਦਾ ਸਟੀਕ ਹੋਣਾ ਯਕੀਨੀ ਬਣਾਓ।</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_1_2001">ਇਸ ਟੈਕਸਟ ਐਡੀਟਰ ਵਿੱਚ ਇਸ ਖੂਬੀ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕੀਤਾ ਜਾਂਦਾ।</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_8_300">ਤੁਹਾਡੇ ਸ਼ਬਦਕੋਸ਼ ਦੇ ਸ਼ਬਦਾਂ ਨੂੰ ਸਾਂਭ ਕੇ ਰੱਖਣ ਵਾਸਤੇ ਫ਼ੋਨ ਦੀ ਯਾਦਦਾਸ਼ਤ ਕਾਫੀ ਨਹੀਂ ਹੈ</string>
@@ -380,20 +359,18 @@
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-pa/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_phone_mode_change_to_alphabet">ਅ-ਵ</string>
-    <string name="kpt_phone_mode_change_to_symbols">12?</string>
+    <string name="kpt_phone_mode_change_to_symbols">123?</string>
     <string name="kpt_popular_domain_5">ਪ</string>
     <string name="kpt_popular_domain_6">".in"</string>
     <string name="kpt_popular_domain_lang_0">".co.in"</string>
     <string name="kpt_popular_domain_sc_value">2602</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-pa/strings.xml -->
     <eat-comment/>
-    <string name="kpt_potrait_default">ਪੋਰਟਰੇਟ ਮੋਡ ਵਾਸਤੇ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਖਾਕਾ</string>
+    <string name="kpt_potrait_default">ਖਾਕਾ ਚੁਣੋ</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
     <string name="kpt_pref_latestVersion">ਤਾਜ਼ੇ ਸੰਸਕਰਣ ਵਾਸਤੇ ਪੜਤਾਲ ਕਰੋ</string>
     <string name="kpt_prior_header_1">ਐਡ-ਆਨ</string>
     <string name="kpt_prior_header_2">ਪ੍ਰਾਥਮਿਕਤਾ</string>
-    <string name="kpt_prior_tool_tip_1">ਸ਼ਬਦਕੋਸ਼ ਪ੍ਰਾਥਮਿਕਤਾ ਬਦਲਣ ਲਈ ਹੈਂਡਲ ਨੂੰ ਧਰੂਸੋ ਅਤੇ ਛੱਡੋ।</string>
-    <string name="kpt_prior_tool_tip_2">ਇਸ ਖੂਬੀ ਬਾਰੇ ਹੋਰ ਵਧੇਰੇ ਜਾਣਨ ਲਈ ਏਥੇ ਠਕੋਰੋ।</string>
     <string name="kpt_sdcard_required">SD ਕਾਰਡ ਦੀ ਲੋੜ ਹੈ</string>
     <string name="kpt_search_addon">ਐਡ-ਆਨ ਤਲਾਸ਼ ਕਰੋ</string>
     <string name="kpt_search_menu">ਤਲਾਸ਼ ਕਰੋ</string>
@@ -423,8 +400,6 @@
     <string name="kpt_ticker_text">Adaptxt</string>
     <string name="kpt_title_postman_dialog">ਅੱਗੇ ਦਿੱਤਿਆਂ ਵਿੱਚੋਂ ਕਿਸੇ ’ਤੇ ਪੋਸਟ ਕਰੋ....</string>
     <string name="kpt_title_wait">ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕ ਕਰੋ...</string>
-    <string name="kpt_toast_hide_postman_dialog">ਵਰਤੋਂਕਾਰ ਦੇ ਨਾਮ ਅਤੇ ਪਾਸਵਰਡਾਂ ਨੂੰ ਪੋਸਟ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ</string>
-    <string name="kpt_toast_hide_voice_dialog">ਪਾਸਵਰਡ ਫੀਲਡਾਂ ਵਾਸਤੇ ਸਪੀਚ ਰੀਕੌਗਨਾਈਜ਼ਰ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
     <string name="kpt_toast_internet">ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਇੰਟਰਨੈੱਟ ਕਨੈਕਸ਼ਨ ਦੀ ਜਾਂਚ ਕਰੋ</string>
     <string name="kpt_toast_kb_change">ਸਥਾਪਤ ਕੀਤੇ ਐਡ-ਆਨ ਅਨੁਸਾਰ ਕੀ-ਬੋਰਡ ਖਾਕੇ ਨੂੰ ਬਦਲਿਆ ਜਾਵੇ</string>
     <string name="kpt_toast_language_selection">ਪੂਰਵ-ਨਿਰਧਾਰਤ ਕੀ-ਬੋਰਡ ਭਾਸ਼ਾ ਨੂੰ ਸਪੇਸਬਾਰ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਜਾਂ ਸਥਾਪਨਾ ਦੇ ਬਾਅਦ Prioritize Add-Ons ਟੈਬ ਤੱਕ ਪਹੁੰਚ ਕਰਕੇ ਬਦਲਿਆ ਜਾ ਸਕਦਾ ਹੈ</string>

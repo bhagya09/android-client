@@ -24,4 +24,5 @@
 	<dimen name="kpt_dialog_height">227px</dimen>
 	<dimen name="kpt_min_textpreview_size">10sp</dimen>
     <dimen name="kpt_max_textpreview_size">30sp</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">12sp</dimen>
 </resources>

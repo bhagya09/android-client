@@ -166,19 +166,11 @@
     <string name="kpt_UI_STRING_ATR_COLUMNHEADER_2_7003">বিস্তার</string>
     <string name="kpt_UI_STRING_COMMON_5_OFF">শ্বয়ংক্রিয় সংশোধন\nবন্ধ</string>
     <string name="kpt_UI_STRING_COMMON_5_ON">স্বয়ংক্রিয় সংশোধন\nচালু</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300">এখনই আপগ্রেড করুন</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300">পরে</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_220">আপনি কি কাস্টম সংকেত ডিলিট করতে চান?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_300">আপনি কি কাস্টম থীমটিকে ডিলিট করতে চান?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_110">বেরিয়ে আসার আগে পরিবর্তনগুলি সেভ করতে চান?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_200">Pleaseআপনার কেনা সম্পূর্ণ হওয়ার জন্য অ্যাপস্টোর এ লগ ইন করুন। আপনি কি এটি এখুনি করতে চান? </string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_220">আপনি কি সমস্ত কাস্টম সংকেতগুলিকে ডিলিট করতে চান?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_300">আপনি কি এই থীমটি আন ইনস্টল করতে চান?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_4_300">আপনি ডিফল্ট থীমগুলি অপসারণ করতে পারবেন না</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_1_300">যেহেতু অ্যাডাপটেক্সটের পূর্ববর্তী ভার্সানে ইন-অ্যাপ ক্রয় ইতিমধ্যেই আপনি সম্পূর্ণ করেছেন, অনুগ্রহ করে অ্যাডাপটেক্সটের সম্পূর্ণ- ভার্সানে আপগ্রেড করুন এবং আপনার পয়সা ফেরত দেওয়া হবে। আপনার ট্রায়াল  %d দিনে শেষ হয়ে যাবে।  </string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_2_300">অ্যাডাপটেক্সট ব্যবহার করার জন্য ধন্যবাদ। আপনার ট্রায়াল সময়কাল অতিক্রম করে গেছে। অ্যাডাপটেক্সট ব্যবহার চালু রাখার জন্য \"এখনই আপগ্রেড করুন\" তে আলতো চিপুন।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_2_7003">অ্যাডাপটেক্সট নতুন শব্দ এবং কথা শিখবে না</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_3_300">নতুন অ্যাডাপটেক্সট বৈশিষ্ট্যের অভিজ্ঞতার জন্য আপনার অভিধান আপডেট করুন</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_3_7003">অ্যাডাপটেক্সট শব্দ এবং কথা পুনরায় শিখবে।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_4_7003">*বিস্তাররের জন্য অনুগ্রহ করে নূন্যতম ৩টি অক্ষর এন্টার করুন</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_5_7003">*এই শর্টকাটটি ইতিমধ্যেই বিদ্যমান, অনুগ্রহ করে একটি আলাদা শর্টকাট ব্যবহার করুন</string>
@@ -186,11 +178,8 @@
     <string name="kpt_UI_STRING_DIALOG_MSG_7_7003">*বিস্তার ক্ষেত্র খালি থাকতে পারে না।</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_8_7003">আপনি কি নিশ্চিত আপনি সকল শর্টকাট এবং বিস্তারগুলি অপসারণ করবেন?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_220">সংকেত ডিলিট করা হবে? </string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_1_300">কাস্টম থীম</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_7003">প্রাইভেট মোড সক্রিয়?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_110">কীবোর্ড কাস্টমাইজেশন থেকে বেরিয়ে আসতে চান?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_220">সবগুলিকে ডিলিট করতে চান?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_300">ইনস্টল করা থীম</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_7003">প্রাইভেটমোড নিস্ক্রিয়?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_4_200">অ্যাপস্টোর অ্যাকাউন্ট </string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_5">অ্যাপ্লিকেশন থেকে শিখুন</string>
@@ -211,12 +200,8 @@
     <string name="kpt_UI_STRING_INAPP_TOAST_2">একসাথে কেবলমাত্র ৫ টি অ্যাড-অন ব্যবহার করা যাবে। অনুগ্রহ করে ইনস্টল করা অ্যাড-অন গুলি আন ইনস্টল করুন এবং পুনরায় চেষ্টা করুন।</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_3">সংযোগ ত্রুটি, অনুগ্রহ করে আপনার নেটওয়ার্ক সংযোগ চেক করুন এবং পুনরায় চেষ্টা করুন</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_4">সংযোগ টাইমআউট হয়ে গেছে, অনুগ্রহ করে পুনরায় চেষ্টা করুন</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">রিসেট</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">সেভ</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">এক্সিট</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14">ডিফল্ট</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14_200">এই বৈশিষ্ট্যটি সক্রিয় করার জন্য অনুগ্রহ করে একটি ডিকশেনারি অ্যাড-অন ইনস্টল করুন।</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">থীমবোর্ড</string>
     <string name="kpt_UI_STRING_MENUITEMS_1">Adaptxt স্টোর</string>
     <string name="kpt_UI_STRING_MENUITEMS_1_7003">এটিআর</string>
     <string name="kpt_UI_STRING_MENUITEMS_2_7003">শর্টকাট এবং বিস্তার</string>
@@ -266,7 +251,6 @@
     <string name="kpt_UI_STRING_POPUP_ITEM_2_300">ডিসমিস কী লোকান</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_220">Glide (গ্লাইড) এখনও পর্যন্ত একটি বিটা বৈশিষ্ট্য। আমরা চাই এর এর উন্নতিকরণে আপনি আপনার প্রতিক্রিয়ার সাথে অংশগ্রহণ করুন। </string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_2_220">টেক্সট লেখার জন্য অ্যাডাপটেক্সট নিয়ে এসেছে একটি বৈপ্লবিক পদ্ধতি। অধিক জানার জন্য এই মেসেজে আলতো চিপুন</string>
-    <string name="kpt_UI_STRING_QUICKSETTINGSITEM_1_110">কীবোর্ড\nকাস্টমাইজেশন </string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_1_7003">লেআউটস</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003">প্রাইভেট মোড\nবন্ধ</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_I_7003">প্রাইভেট মোড\nচালু</string>
@@ -281,12 +265,10 @@
     <string name="kpt_UI_STRING_SETTINGS_ERRORMSG_1_220">আপনি যে চরিত্রটি নির্বাচন করেছেন তা ইতিমধ্যে অন্য একটি সংকেতের সাথে নিযুক্ত রয়েছে</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_300">আনডু &amp; অপসারণ কী</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_2_220">সংকেতগুলি অনুকূলিতকরণ করুন</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_2_300">সম্পূর্ণ ভার্সানে আপগ্রেড করুন</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_3_220">Glide Beta প্রতিক্রিয়া</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220">Glide সক্রিয়/নিস্ক্রিয় করুন এবং সংকেত কাস্টমাইজ করুন</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300">স্বয়ংক্রিয় সংশোধন আনডু বা বাদ দেওয়ার জন্য ডিসপ্লে কীগুলিকে কাস্টমাইজ করুন</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_220">কাস্টম শর্টকাট তৈরী করুন</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300">অ্যাডাপটেক্সট আপগ্রেড করার জন্য আলতো চিপুন</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220">শব্দ তৈরী করার জন্য আঙুল না উঠিয়ে অক্ষরগুলিকে টেনে আনুন</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220">Glide (গ্লাইড) এখনও একটি বিটা বৈশিষ্ট্য। আপনার মূল্যাবান প্রতিক্রিয়া দিয়ে এর উন্নতিকরণে আমাদের সাহায্য করুন। </string>
     <string name="kpt_UI_STRING_SETTINGS_SITEM_1">আপনার নতুন শব্দগুলি</string>
@@ -306,14 +288,11 @@
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300">লাল</string>
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_12_300">সবুজ</string>
     <string name="kpt_UI_STRING_THEME_ITEM1">নীল</string>
-    <string name="kpt_UI_STRING_TOAST_1_110">ওরিয়েন্টেশন পরিবর্তন করার আগে অনুগ্রহ করে কীবোর্ড কাস্টমাইজেশন থেকে বেরিয়ে আসুন </string>
     <string name="kpt_UI_STRING_TOAST_1_220">কাস্টম সংকেতগুলি সাফল্যের সাথে সেভ করা হয়েছে</string>
     <string name="kpt_UI_STRING_TOAST_1_7003">টেক্সট ফিল্ডে কোন টেক্সট এন্টার করা হয়নি।</string>
-    <string name="kpt_UI_STRING_TOAST_2_110">পরিবর্তন গুলি সেভ হয়েছে </string>
     <string name="kpt_UI_STRING_TOAST_2_200">Tএই বৈশিষ্ট্যটি কেবলমাত্র অ্যানড্রয়েড v2.2 এবং তার ওপরের ডিভাইসগুলিকে সাপোর্ট করে</string>
     <string name="kpt_UI_STRING_TOAST_2_220">প্রয়োগটি কুঁজে পাওয়া যায় নি</string>
     <string name="kpt_UI_STRING_TOAST_2_7003">টেক্সট থেকে উচ্চারণ এবং বৈশিষ্ট্য অপসারণ করা হয়েছে</string>
-    <string name="kpt_UI_STRING_TOAST_3_110">কীবোর্ডের উচ্চতা পরিবর্তন করার জন্য স্লাইডার ব্যবহার করুন।</string>
     <string name="kpt_UI_STRING_TOAST_4_110">অনুগ্রহ করে আপনার ডিভাইস টাইম সঠিক তা সুনিশ্চিত করতে এটিকে সেটিং করুন এইভাবে \"স্বয়ংক্রিয়\" দিন এবং তারিখের \"অধীনে \" আপনার ডিভাইস সেটিংস এ।</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_1_2001">এই টেক্সট এডিটরে এই বৈশিষ্ট্যটি সাপোর্ট করে না</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_8_300">আপনার অভিধানে্র শব্দগুলির ব্যাক আপ নেওয়ার জন্য অপর্যাপ্ত ফোন মেমরী</string>
@@ -468,13 +447,11 @@
     <string name="kpt_popular_domain_sc_value">2479</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-bn/strings.xml -->
     <eat-comment/>
-    <string name="kpt_potrait_default">পোট্রেট মোডের ডিফল্ট বিন্যাস</string>
+    <string name="kpt_potrait_default">নির্বাচন বিন্যাস</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
     <string name="kpt_pref_latestVersion">আধুনিক ভার্সান চেক করুন</string>
     <string name="kpt_prior_header_1">অ্যাড-অন</string>
     <string name="kpt_prior_header_2">অগ্রাধিকার</string>
-    <string name="kpt_prior_tool_tip_1">অভিধানের অগ্রাধিকার পরিবর্তন করার জন্য হ্যান্ডেলটিকে টেনে এনে ফেলুন।</string>
-    <string name="kpt_prior_tool_tip_2">এই বৈশিষ্ট্যটি জানার জন্য এখানে টিপুন।</string>
     <string name="kpt_sdcard_required">SD কার্ড প্রয়োজন</string>
     <string name="kpt_search_addon">অ্যাড-অনগুলি সার্চ করুন</string>
     <string name="kpt_search_menu">সন্ধান করুন</string>
@@ -504,8 +481,6 @@
     <string name="kpt_ticker_text">অ্যাডাপটেক্সট</string>
     <string name="kpt_title_postman_dialog">এখানে পোস্ট করুন...</string>
     <string name="kpt_title_wait">অনুগ্রহ করে অপেক্ষা করুন...</string>
-    <string name="kpt_toast_hide_postman_dialog">ইউজারের নাম ও পাসওয়ার্ড পোস্ট করা যাবে না </string>
-    <string name="kpt_toast_hide_voice_dialog">পাসওয়ার্ড ক্ষেত্রগুলির জন্য ভাষা সনাক্তকারী উপলভ্য নেই</string>
     <string name="kpt_toast_internet">অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ চেক করুন</string>
     <string name="kpt_toast_kb_change">ইন্সটল করা অ্যাডঅন অনুসারে কীবোর্ড লেআউট পরিবর্তন করতে হবে</string>
     <string name="kpt_toast_language_selection">ইনস্টল করার পরে  স্পেশ বার ব্যবহার করে অথবা অ্যাড-অন গুলি অগ্রাধিকার করুন অ্যাকসেস করে ডিফল্ট কীবোর্ড ভাষা পরিবর্তন করা যাবে।</string>

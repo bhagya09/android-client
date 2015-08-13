@@ -218,6 +218,7 @@
         <Key
             atx:kpt_codes="32"
             atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyLabel2TextSize="@dimen/kpt_keyLabel2TextSizeForSpace"
             atx:kpt_keyWidth="35%p" />
         <Key
             atx:kpt_codes="46"

@@ -5,21 +5,17 @@
 <string name="kpt_prior_header_2">ಆದ್ಯತೆ</string>
 <string name="kpt_UI_STRING_SETTINGS_ITEM_1_300">ರದ್ದುಗೊಳಿಸು &amp; ವಜಾ ಕೀಲಿಗಳು</string>
 <string name="kpt_sdcard_required">ಎಸ್‌ಡಿ ಕಾರ್ಡ್‌ನ ಅಗತ್ಯವಿದೆ</string>
-<string name="kpt_UI_STRING_DIALOG_MSG_1_300">Adaptxtನ ಹಿಂದಿನ ಆವೃತ್ತಿಗಳಲ್ಲಿ ಇನ್-ಆಪ್ ಖರೀದಿಗಳನ್ನು ನೀವು ಈಗಾಗಲೇ ಪೂರ್ಣಗೊಳಿಸಿರುವುದರಿಂದ, ದಯವಿಟ್ಟು Adaptxt - ಸಂಪೂರ್ಣ ಆವೃತ್ತಿಗೆ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿಕೊಳ್ಳಿ ಮತ್ತು ನಿಮ್ಮ ಹಣವನ್ನು ಹಿಂದಿರುಗಿಸಲಾಗುವುದು. ನಿಮ್ಮ ಟ್ರೈಯಲ್ %d ದಿನಗಳಲ್ಲಿ ಅಂತ್ಯಗೊಳ್ಳಲಿದೆ.</string>
 <string name="kpt_UI_STRING_SBAR_MESSAGE_2_300">ಡಿಕ್ಷನರಿಗಳನ್ನು ಅಪ್ಡೇಟ್ ಮಾಡಲಾಗುತ್ತಿದೆ</string>
 <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_6_7003">ATR ಆಯ್ಕೆಗಳು</string>
 <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_3_7003">ಉಚ್ಚಾರ\nತೆಗೆದುಹಾಕು</string>
 <string name="kpt_UI_STRING_MENU_ITEM_DESC_14_300">ಡಿಕ್ಷನರಿಗಳು ಮತ್ತು ಥೀಮ್‌ಗಳನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ</string>
 <string name="kpt_UI_STRING_MENU_ITEM_2_300">ಸಲಹೆಗಳನ್ನು ಪ್ರದರ್ಶಿಸು</string>
 <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_220">ನೀವು ಗ್ರಾಹಕೀಕೃತ ಸನ್ನೆಯನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?</string>
-<string name="kpt_prior_tool_tip_1">ಪದಕೋಶದ ಆದ್ಯತೆಯನ್ನು ಬದಲಾಯಿಸಲು ಹ್ಯಾಂಡಲ್‌ ಅನ್ನು ಎಳೆದುಬಿಡಿ.</string>
 <string name="kpt_UI_STRING_MENU_ITEM_10_300">ಅಪ್ಲಿಕೇಶನ್-ಆಧಾರಿತ ಸಲಹೆಗಳು</string>
-<string name="kpt_prior_tool_tip_2">ಈ ವೈಶಿಷ್ಟ್ಯದ ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ತಿಳಿಯಲು ಇಲ್ಲಿ ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
 <string name="kpt_UI_STRING_DIALOG_MSG_3_7003">Adaptxt ಮತ್ತೆ ಪದಗಳನ್ನು ಮತ್ತು ಸನ್ನಿವೇಶಗಳನ್ನು ಕಲಿಯಲು ಪ್ರಾರಂಭಿಸುತ್ತದೆ.</string>
 <string name="kpt_accounts_manger_title">ಸೋಷಿಯಲ್ ಖಾತೆಗಳ ವ್ಯವಸ್ಥಾಪಕ</string>
 <string name="kpt_alert_dialog_cancel">ರದ್ದು ಮಾಡು</string>
 <string name="kpt_UI_STRING_ATR_COLUMNHEADER_2_7003">ವಿಸ್ತರಣೆ</string>
-<string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">ಸಾಮಾನ್ಯ ಸೆಟ್ಟಿಂಗ್ಸ್‌ಗಳಿಗೆ ಮರಳು</string>
 <string name="kpt_UI_STRING_POPUP_ITEM_1_300">ರದ್ದುಗೊಳಿಸುವ ಕೀಲಿಯನ್ನು ಬಚ್ಚಿಡು</string>
 <string name="kpt_UI_STRING_DIALOG_MESSAGE_4_300">ನೀವು ಡೀಫಾಲ್ಟ್ ಥೀಮ್‌ಗಳನ್ನು ಅಳಿಸಲಾಗುವುದಿಲ್ಲ</string>
 <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300">ಕೆಂಪು</string>
@@ -27,9 +23,7 @@
 <string name="kpt_UI_STRING_SETTINGS_SITEM_8A">ಅದು ಆನ್ ಆಗಿದ್ದಾಗ&gt; ಉಚ್ಚಾರಣೆಯ ಗುಳ್ಳೆಗಳು\nಪ್ರದರ್ಶಿಸಲ್ಪಡುತ್ತವೆ. ಅದು ಆಫ್ ಆಗಿದ್ದಾಗ &gt;\nಉಚ್ಚಾರಣೆಯ ಗುಳ್ಳೆಗಳು ಪ್ರದರ್ಶಿಸಲ್ಪಡುವುದಿಲ್ಲ</string>
 <string name="kpt_dialog_gesture_type_clipboard">ಕ್ರಿಯೆ:</string>
 <string name="kpt_dialog_gesture_type_website">ವೆಬ್‌ಸೈಟ್ ಯುಆರ್‌ಎಲ್:</string>
-<string name="kpt_UI_STRING_DIALOG_MESSAGE_2_300">ನೀವು ಈ ಥೀಮ್ ಅನ್ನು ಅಸ್ಥಾಪಿಸಲು ಬಯಸುವಿರಾ?</string>
 <string name="kpt_t101_UI_STRING_MENUITEMS_9">ಪದಗಳು:</string>
-<string name="kpt_UI_STRING_TOAST_2_110">ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಲಾಗಿದೆ</string>
 <string name="kpt_UI_STRING_AMGR_2_300">ನೂತನ</string>
 <string name="kpt_UI_STRING_AMGR_10">ಈ ಆಡ್-ಆನ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು ಅಥವಾ ಅಸ್ಥಾಪಿಸಲು ಬಯಸುವಿರಾ?</string>
 <string name="kpt_account_type_phone_summary">Adaptxt ನಿಮ್ಮ ವಿಳಾಸಪುಸ್ತಿಕೆಯಿಂದ ಕಲಿಯುತ್ತದೆ</string>
@@ -41,7 +35,6 @@
 <string name="kpt_UI_STRING_MENU_ITEM_DESC_5_300">ಕೀಪ್ರೆಸ್ ಮಾಡಿದಾಗ ದೀರ್ಘವಾದ ಒತ್ತುವಿಕೆಯ ಕಾಲಾವಧಿಯನ್ನು ಗ್ರಾಹಕೀಕೃತಗೊಳಿಸಿ</string>
 <string name="kpt_ime_language_selection_dialog_maint_mode">ನಮ್ಮ ಎಂಜಿನಿಗೆ ಇಂಧನವನ್ನು ತುಂಬಲಾಗುತ್ತಿದೆ!</string>
 <string name="kpt_license_dialog_title">ಗಮನಿಸಿ</string>
-<string name="kpt_UI_STRING_DIALOG_MSG_3_300">ನೂತನ Adaptxt ಲಕ್ಷಣಗಳನ್ನು ಅನುಭವಿಸಲು ನಿಮ್ಮ ಪದಕೋಶಗಳನ್ನು ಅಪ್ಡೇಟ್ ಮಾಡಿ</string>
 <string name="kpt_content_posted_failed">ವಿಷಯವನ್ನು ಪೋಸ್ಟ್ ಮಾಡುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ</string>
 <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220">ಬೆರಳನ್ನು ಎತ್ತದೇ ಪದಗಳನ್ನು ರಚಿಸಲು ಅಕ್ಷರಗಳ ಮೇಲೆ ಸ್ಲೈಡ್ ಮಾಡಿ.
 </string>
@@ -65,7 +58,6 @@
 <string name="kpt_UI_STRING_TOAST_2_220">ಅಪ್ಲಿಕೇಷನ್ ಅನ್ನು ಕಂಡುಹಿಡಿಯಲಾಗುತ್ತಿಲ್ಲ</string>
 <string name="kpt_UI_STRING_MENUITEM_DESC_2_7003">ಸ್ವಯಂಚಾಲಿತ ಪಠ್ಯ ಬದಲಿ</string>
 <string name="kpt_UI_STRING_INAPP_DIALOG_MESSAGE_1">ಒಮ್ಮೆಗೆ 5 ಆಡ್-ಆನ್‌ಗಳನ್ನು ಮಾತ್ರವೇ ಬಳಸಬಹುದು. ದಯವಿಟ್ಟು ಯಾವುದೇ ಅನುಸ್ಥಾಪಿತ ಆಡ್-ಆನ್‌ಗಳನ್ನು ಅಸ್ಥಾಪಿಸಿ ಹಾಗೂ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
-<string name="kpt_UI_STRING_QUICKSETTINGSITEM_1_110">ಕೀಲಿಮಣೆಯ\nಗ್ರಾಹಕೀಕರಣ</string>
 <string name="kpt_dialog_message_sdcard_absent">ಎಸ್‌ಡಿ ಕಾರ್ಡ್ ಕಂಡುಬಂದಿಲ್ಲ, ಬ್ಯಾಕ್ ಅಪ್ ವಿಫಲಗೊಂಡಿದೆ</string>
 <string name="kpt_UI_STRING_POPUP_ITEM_2_110">ಕೀಲಿಯನ್ನು ಒತ್ತಿದಾಗ ವಿಶ್ಯುವಲ್ ಫೀಡ್‌ಬ್ಯಾಕ್ ಅನ್ನು ಬದಲಾಯಿಸು</string>
 <string name="kpt_account_type_phone">ಸಂಪರ್ಕಗಳು</string>
@@ -76,7 +68,6 @@
 <string name="kpt_UI_STRING_APP_TITLE_2_300">Adaptxt</string>
 <string name="kpt_UI_STRING_DIALOG_MSG_5_7003">*ಈ ಶಾರ್ಟ್‌ಕಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ, ದಯವಿಟ್ಟು ಬೇರೆ ಶಾರ್ಟ್‌ಕಟ್ ಅನ್ನು ನಮೂದಿಸಿ.</string>
 <string name="kpt_send_mail">ಇಮೇಲ್ ಕಳುಹಿಸು...</string>
-<string name="kpt_UI_STRING_SETTINGS_ITEM_2_300">ಸಂಪೂರ್ಣ ಆವೃತ್ತಿಗೆ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ</string>
 <string name="kpt_UI_STRING_NOTIFICATION_3_200">Adaptxtನ ಹೊಸ ಆವೃತ್ತಿ ಲಭ್ಯವಿದೆ. ಅವನ್ನು ವೀಕ್ಷಿಸಿ, ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು ಇಲ್ಲಿ ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
 <string name="kpt_UI_STRING_AMGR_5">ವಿನ್ಯಾಸಗಳು</string>
 <string name="kpt_english_ime_name">Adaptxt</string>
@@ -110,10 +101,8 @@
 <string name="kpt_UI_STRING_SBAR_MESSAGE_3">ಪರವಾನಗಿಯ ಅವಧಿ ಮುಗಿದಿದೆ, ಅಪ್ಡೇಟ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
 <string name="kpt_account_type_sms">ಎಸ್‌ಎಂಎಸ್</string>
 <string name="kpt_UI_STRING_TOAST_MESSAGE_1_2001">ಈ ಟೆಕ್ಸ್‌ಟ್ ಸಂಪಾದಕದಲ್ಲಿ ಈ ಲಕ್ಷಣ ಲಭ್ಯವಿಲ್ಲ</string>
-<string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">ಥೀಮ್ ಬೋರ್ಡ್</string>
 <string name="kpt_UI_STRING_SETTINGS_SITEM_1">ನಿಮ್ಮ ನೂತನ ಪದಗಳು</string>
 <string name="kpt_disable_auto_update_all">ಎಲ್ಲದರ ಸ್ವಯಂ ಅಪ್ಡೇಟ್ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸು</string>
-<string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">ನಿರ್ಗಮಿಸು</string>
 <string name="kpt_UI_STRING_SETTINGS_SITEM_5">ಇನ್ನೂ ವೇಗವಾಗಿ ಟೈಪ್ ಮಾಡಲು ನಿಮ್ಮ ಸ್ವಂತ\nಶಾರ್ಟ್‌ಕಟ್‌ಗಳನ್ನು ಸೃಷ್ಟಿಸಿ</string>
 <string name="kpt_tap_disable">ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
 <string name="kpt_UI_STRING_SETTINGS_SITEM_4">ವಿವಿಧ ಭಾವಗಳು, ವಿವಿಧ ಥೀಮ್‌ಗಳು</string>
@@ -168,7 +157,6 @@
 <string name="kpt_UI_STRING_MENUITEM_1_300">ಇತರೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
 <string name="kpt_sound_on_keypress">ಕೀಪ್ರೆಸ್‌ಗೆ ಸದ್ದು ಮಾಡು</string>
 <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_220">ನೀವು ಎಲ್ಲಾ ಗ್ರಾಹಕೀಕೃತ ಸನ್ನೆಗಳನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?</string>
-<string name="kpt_UI_STRING_DIALOG_TITLE_1_300">ಕಸ್ಟಮ್ ಥೀಮ್</string>
 <string name="kpt_mydictionary">ನನ್ನ ಪದಕೋಶ</string>
 <string name="kpt_UI_STRING_MENUITEMS_1">Adaptxt ಸ್ಟೋರ್</string>
 <string name="kpt_dialog_gesture_type_app">ಅಪ್ಲಿಕೇಷನ್:</string>
@@ -188,7 +176,6 @@
 <string name="kpt_UI_STRING_TOAST_MESSAGE_8_300">ನಿಮ್ಮ ಡಿಕ್ಷನರಿಯ ಪದಗಳನ್ನು ಬ್ಯಾಕ್ ಅಪ್ ಮಾಡಲು ಫೋನ್ ಮೇಮೊರಿಯಲ್ಲಿ ಸಾಕಷ್ಟು ಸ್ಥಳಾವಕಾಶವಿಲ್ಲ</string>
 <string name="kpt_UI_STRING_THEME_ITEM1">ನೀಲಿ</string>
 <string name="kpt_UI_STRING_AMGR_4_ENABLE">ಸಕ್ರಿಯಗೊಳಿಸು/ನಿಷ್ಕ್ರಿಯಗೊಳಿಸು</string>
-<string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300">ಈಗ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ</string>
 <string name="kpt_t110_UI_STRING_ERROR_MESSAGE_2">ಈ ಫೀಲ್ಡ್ ಖಾಲಿಯಾಗಿರಬಾರದು</string>
 <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300">ಸ್ವಯಂ ತಿದ್ದುಪಡಿಯನ್ನು ರದ್ದುಗೊಳಿಸಲು ಅಥವಾ ವಜಾಗೊಳಿಸಲು ಕೀಲಿಗಳ ಪ್ರದರ್ಶನವನ್ನು ಗ್ರಾಹಕೀಕೃತಗೊಳಿಸಿ</string>
 <string name="kpt_UI_STRING_MENU_ITEM_DESC_6_300">ಇತ್ತೀಚಿನ ಟ್ರೆಂಡ್ ಆಧಾರದಲ್ಲಿನ ಹೊಸ ಪದಗಳಿಂದ ನಿಮ್ಮ ಪದಕೋಶಗಳನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಅಪ್‌ಡೇಟ್ ಮಾಡಿ</string>
@@ -208,17 +195,14 @@
 <string name="kpt_UI_STRING_SETTINGS_SITEM_11">ನಿಮಗೆ ಗೊತ್ತೇ?</string>
 <string name="kpt_UI_STRING_MYDICT_ITEM3">ಪುನಃಸ್ಥಾಪಿಸಲು ಬ್ಯಾಕ್ ಅಪ್ ಮಾಡಲಾದ ನಿಮ್ಮ ಯಾವುದೇ ಪದಗಳಿಲ್ಲ</string>
 <string name="kpt_UI_STRING_MYDICT_ITEM4">ನಿಮ್ಮ ವ್ಯಕ್ತಿಗತ ಪದಗಳನ್ನು ಪುನಃಸ್ಥಾಪಿಸುವುದು</string>
-<string name="kpt_UI_STRING_DIALOG_MSG_2_300">Adaptxt ಅನ್ನು ಉಪಯೋಗಿಸಿದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು.ನಿಮ್ಮ ಟ್ರೈಯಲ್ ಅವಧಿ ಮುಗಿದಿದೆ. Adaptxt ಅನ್ನು ಬಳಸುವುದನ್ನು ಮುಂದುವರೆಯಲು \"ಈಗ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡು\" ಅನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
 <string name="kpt_UI_STRING_MYDICT_ITEM1">ಪುನಃಸ್ಥಾಪಿಸು</string>
 <string name="kpt_UI_STRING_MYDICT_ITEM2">ನೀವು ಈ ಹಿಂದೆ ಬ್ಯಾಕ್ ಅಪ್ ಮಾಡಿದ\nಪದಗಳನ್ನು ಪುನಃಸ್ಥಾಪಿಸಿ</string>
-<string name="kpt_UI_STRING_TOAST_3_110">ಕೀಲಿಮಣೆಯ ಎತ್ತರವನ್ನು ಬದಲಾಯಿಸಲು ಸ್ಲೈಡರ್ ಅನ್ನು ಬಳಸಿರಿ.</string>
 <string name="kpt_UI_STRING_MENU_ITEM_3_300">ಕೀಪ್ರೆಸ್ ಸದ್ದಿನ ವಾಲ್ಯೂಮ್</string>
 <string name="kpt_no_network_connectivity">ಸಂಪರ್ಕ ದೋಷ, ದಯವಿಟ್ಟು ನಿಮ್ಮ ನೆಟ್‌ವರ್ಕ್ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ</string>
 <string name="kpt_learn_from_summary">ನಿಮ್ಮ ಸೋಶಿಯಲ್ ನೆಟ್‌ವರ್ಕ್ ಖಾತೆಗಳು, ಸಂಪರ್ಕಗಳು ಮತ್ತು ಸಂದೇಶಗಳಿಂದ ಕಲಿಯಿರಿ</string>
 <string name="kpt_account_type_sms_summary">Adaptxt ನಿಮ್ಮ ಎಸ್ಎಂಎಸ್‌ನಿಂದ ಕಲಿಯುತ್ತದೆ</string>
 <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003">ಪ್ರೈವೇಟ್\nಮೋಡ್ಆಫ್</string>
 <string name="kpt_choose_kbd_theme">ಕೀಲಿಮಣೆಯ ಥೀಮ್</string>
-<string name="kpt_UI_STRING_DIALOG_MESSAGE_2_110">ನಿರ್ಗಮಿಸುವ ಮುನ್ನ ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಬೇಕೆ?</string>
 <string name="kpt_autocorrect_misspelts_mode">ಸ್ವಯಂ ತಿದ್ದುಪಡಿ ಮೋಡ್</string>
 <string name="kpt_UI_STRING_MENU_ITEM_DESC_3_300">ಕೀಪ್ರೆಸ್ ಮಾಡಿದಾಗ ಸದ್ದಿನ ವಾಲ್ಯೂಮ್ ಅನ್ನು ಗ್ರಾಹಕೀಕೃತಗೊಳಿಸಿ</string>
 <string name="kpt_UI_STRING_SBAR_MESSAGE_3_300">ಟ್ರೈಯಲ್ ಅವಧಿ ಮುಗಿದಿದೆ, ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
@@ -227,7 +211,6 @@
 <string name="kpt_title_postman_dialog">ಇದಕ್ಕೆ ಪೋಸ್ಟ್ ಮಾಡು...</string>
 <string name="kpt_ticker_text">Adaptxt</string>
 <string name="kpt_UI_STRING_MENU_ITEM_1_300">ಆಟೋ ಸ್ಪೇಸಿಂಗ್</string>
-<string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300">ನಂತರ</string>
 <string name="kpt_toast_novoice">ಈ ಸಾಧನದಲ್ಲಿ ಸ್ಪೀಚ್ ರೆಕಗ್‌ನೈಜರ್ ಲಭ್ಯವಿಲ್ಲ</string>
 <string name="kpt_search_word">ಪದವನ್ನು ಹುಡುಕು</string>
 <string name="kpt_search_menu">ಹುಡುಕು</string>
@@ -242,11 +225,9 @@
 <string name="kpt_default_keyboard_txt">ಪ್ರಸ್ತುತ ಕೀಲಿಮಣೆಯ ಭಾಷೆ</string>
 <string name="kpt_incompatible_message">Adaptxt ಬೇಸ್ ಅನ್ನು ಅಪ್ಡೇಟ್ ಮಾಡಲು ದಯವಿಟ್ಟು ಇಲ್ಲಿ ಟ್ಯಾಪ್ ಮಾಡಿ</string>
 <string name="kpt_UI_STRING_INAPP_NOTIFICATION_MESSAGE_1">ಪ್ಲೇ ಸ್ಟೋರ್ ಆಡ್-ಆನ್‌ಗಳು ಇನ್ನು ಮುಂದೆ ಹೊಂದಾಣಿಕೆಯಾಗುವುದಿಲ್ಲ. ದಯವಿಟ್ಟು ಆಡ್-ಆನ್‌ಗಳನ್ನು ನಮ್ಮ ಸರ್ವರ್‌ನಿಂದ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿಕೊಳ್ಳಿ. Adaptxt ಸ್ಟೋರ್ ನೋಟಕ್ಕೆ ಹೋಗಲು ಈ ಸೂಚನೆಯ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡಿ.</string>
-<string name="kpt_UI_STRING_TOAST_1_110">ನೀವು ಕೀಲಿಮಣೆಯ ನಿಲುವನ್ನು ಬದಲಾಯಿಸುವ ಮುನ್ನ ಕೀಲಿಮಣೆಯ ಗ್ರಾಹಕೀಕರಣದಿಂದ ದಯವಿಟ್ಟು ನಿರ್ಗಮಿಸಿರಿ</string>
 <string name="kpt_package_install_success_toast">ಆಡ್-ಆನ್ ಅನುಸ್ಥಾಪನೆ ಮುಗಿದಿದೆ</string>
-<string name="kpt_potrait_default">ಸಾಮಾನ್ಯ ಪೋರ್ಟ್‌ರೇಟ್ ಲೇಔಟ್</string>
+<string name="kpt_potrait_default">ಆಯ್ಕೆ ಲೇಔಟ್</string>
 <string name="kpt_notofication_addon_downloading">ಇತ್ತೀಚಿನ ಆಡ್-ಆನ್ ಪಟ್ಟಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ ಮತ್ತು ಈ ಹಿಂದೆ ಅನುಸ್ಥಾಪಿಸಲಾದ ಆಡ್-ಆನ್‌ಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ. ಆಡ್-ಆನ್‌ಗಳ ಸಂಖ್ಯೆಯನ್ನು ಆಧರಿಸಿ ಇದು ಸ್ವಲ್ಪ ಸಮಯ ತೆಗೆದುಕೊಳ್ಳಬಹುದು</string>
-<string name="kpt_toast_hide_voice_dialog">ಸ್ಪೀಚ್ ರೆಕಗ್ನೈಜರ್‌ಗಳು ಪಾಸ್‌ವರ್ಡ್ ಕ್ಷೇತ್ರಗಳಿಗೆ ಲಭ್ಯವಿಲ್ಲ</string>
 <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_220">Glide ಇನ್ನು ಒಂದು ಬೀಟಾ ಲಕ್ಷಣವಾಗಿದೆ. ಇದನ್ನು ಉತ್ತಮಗೊಳಿಸುವಲ್ಲಿ ನಿಮ್ಮ ಫೀಡ್‌ಬ್ಯಾಕ್ ಮೂಲಕ ನೀವು ಭಾಗವಹಿಸಬೇಕೆಂದು ನಾವು ಬಯಸುತ್ತೇವೆ.</string>
 <string name="kpt_cycle">ಸ್ವಯಂ ಅಪ್ಡೇಟ್ ಚಕ್ರ</string>
 <string name="kpt_UI_STRING_HEADER_2_7002">ಥೀಮ್‌ಗಳು</string>
@@ -254,11 +235,9 @@
 <string name="kpt_UI_STRING_NO_NETWORK">ಅಂತರ್ಜಾಲದ ಸಂಪರ್ಕವಿಲ್ಲ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸಂಪರ್ಕವನ್ನು ಪರೀಕ್ಷಿಸಿ ಮತ್ತು ನಂತರ</string>
 <string name="kpt_auto_update_chkbox">ಸ್ವಯಂ ಅಪ್ಡೇಟ್</string>
 <string name="kpt_toast_kb_change">ಅನುಸ್ಥಾಪಿತ ಆಡ್-ಆನ್ ಅನ್ನು ಆಧರಿಸಿ ಕೀಲಿಮಣೆಯ ವಿನ್ಯಾಸವನ್ನು ಬದಲಾಯಿಸಲಾಗುವುದು</string>
-<string name="kpt_toast_hide_postman_dialog">ಬಳಕೆದಾರರ ಹೆಸರು ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ಪೋಸ್ಟ್ ಮಾಡಲಾಗುವುದಿಲ್ಲ.</string>
 <string name="kpt_UI_STRING_DIALOG_MSG_7_7003">*ವಿಸ್ತರಣೆಯ ಕ್ಷೇತ್ರ ಖಾಲಿ ಇರುವಂತಿಲ್ಲ.</string>
 <string name="kpt_toast_internet">ನಿಮ್ಮ ಅಂತರ್ಜಾಲ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ</string>
 <string name="kpt_change_keyboard_layout">ಕೀಲಿಮಣೆಯ ವಿನ್ಯಾಸ</string>
-<string name="kpt_UI_STRING_DIALOG_MESSAGE_1_300">ನೀವು ಈ ಗ್ರಾಹಕೀಕೃತ ಥೀಮ್ ಅನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?</string>
 <string name="kpt_theme_title">ಥೀಮ್‌ಗಳು</string>
 <string name="kpt_UI_STRING_HEADER_2_7003">Adaptxt ATR:ಶಾರ್ಟ್‌ಕಟ್ ಸೇರಿಸು</string>
 <string name="kpt_UI_STRING_MENUKEY_ITEMS_2_7003">ಎಲ್ಲವನ್ನು ಅಳಿಸು</string>
@@ -274,15 +253,12 @@
 <string name="kpt_UI_STRING_COMMON_5_ON">ಸ್ವಯಂ\nತಿದ್ದುಪಡಿ ಆನ್</string>
 <string name="kpt_social_fetch_finish">Adaptxt %s ನಿಂದ ಕಲಿತು ಮುಗಿಸಿದೆ</string>
 <string name="kpt_landscape_default">ಸಾಮಾನ್ಯ ಲ್ಯಾಂಡ್‌ಸ್ಕೇಪ್ ಲೇಔಟ್</string>
-<string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300">Adaptxt ಅನ್ನು ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಲು ಇಲ್ಲಿ ಟ್ಯಾಪ್ ಮಾಡಿ</string>
-<string name="kpt_UI_STRING_DIALOG_TITLE_2_110">ಕೀಲಿಮಣೆಯ ಗ್ರಾಹಕೀಕರಣದಿಂದ ದಯವಿಟ್ಟು ನಿರ್ಗಮಿಸಬೇಕೆ?</string>
 <string name="kpt_UI_STRING_POPUP_ITEMS_6_7003">ATR ಅನ್ನು ಅಳಿಸು</string>
 <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_200">ನಿಮ್ಮ ಖರೀದಿಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ದಯವಿಟ್ಟು aapstoreಗೆ ಲಾಗ್ ಇನ್ ಮಾಡಿ. ಇದನ್ನು ಈಗ ಮಾಡಲು ಬಯಸುವಿರಾ?</string>
 <string name="kpt_Help">ಸಹಾಯ</string>
 <string name="kpt_UI_STRING_MENU_ITEM_DESC_2_300">ಸಲಹಾ ಬಾರ್ ಅನ್ನು ಪ್ರದರ್ಶಿಸು</string>
 <string name="kpt_autocorrect_misspelts">ಸ್ವಯಂ ತಿದ್ದುಪಡಿ</string>
 <string name="kpt_UI_STRING_DIALOG_TITLE_1_7003">ಪ್ರೈವೇಟ್ ಮೋಡ್ ಬೇಕೇ?</string>
-<string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">ಉಳಿಸು</string>
 <string name="kpt_incompatible_dialog_message">ಅಪ್ಡೇಟ್‌ಗೊಳಿಸಲಾದ ಈ ಕೆಳಗಿನ ಆಡ್-ಆನ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲವಾದ್ದರಿಂದ ದಯವಿಟ್ಟು Adaptxt ಅನ್ನು ಅಪ್ಡೇಟ್ ಮಾಡಿ:</string>
 <string name="kpt_mydict_delete_all">ನೀವು ನನ್ನ ಪದಕೋಶದಲ್ಲಿನ ಎಲ್ಲಾ ಪದಗಳನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?</string>
 <string name="kpt_loading_data">ಲೋಡ್ ಆಗುತ್ತಿದೆ ...</string>
@@ -290,7 +266,6 @@
 <string name="kpt_mydict_toast_no_userdict">ನನ್ನ ಪದಕೋಶದಲ್ಲಿ ಯಾವುದೇ ಪದಗಳು ಇಲ್ಲ</string>
 <string name="kpt_layout_category_title">ಕೀಲಿಮಣೆಯ ವಿನ್ಯಾಸಗಳು</string>
 <string name="kpt_UI_STRING_NOTIFICATION_4_200">Adaptxtಗೆ ಹೊಸ ಥೀಂಗಳು ಲಭ್ಯವಿವೆ. ಅವನ್ನು ವೀಕ್ಷಿಸಿ, ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು ಇಲ್ಲಿ ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
-<string name="kpt_UI_STRING_DIALOG_TITLE_2_300">ಅನುಸ್ಥಾಪಿಸಲಾದ ಥೀಮ್</string>
 <string name="kpt_UI_STRING_INAPP_STATUS_2">ಅನುಸ್ಥಾಪಿಸಲಾಗುತ್ತಿದೆ...</string>
 <string name="kpt_UI_STRING_INAPP_STATUS_1">ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
 <string name="kpt_atx">ATX</string>

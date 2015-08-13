@@ -20,29 +20,29 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:keyWidth="25%p"
-    atx:horizontalGap="0dp"
-    atx:verticalGap="0dp"
-    atx:keyHeight="@dimen/kpt_key_height"
+    atx:kpt_keyWidth="25%p"
+    atx:kpt_horizontalGap="0dp"
+    atx:kpt_verticalGap="0dp"
+    atx:kpt_keyHeight="@dimen/kpt_key_height"
     >
 
-    <Row atx:rowEdgeFlags="top">
-        <Key atx:keyLabel="@string/kpt_popular_domain_1"
-            atx:keyOutputText="@string/kpt_popular_domain_1" atx:keyEdgeFlags="left" />
-        <Key atx:keyLabel="@string/kpt_popular_domain_2"
-            atx:keyOutputText="@string/kpt_popular_domain_2" atx:keyEdgeFlags="right" />
+    <Row atx:kpt_rowEdgeFlags="top">
+        <Key atx:kpt_keyLabel="@string/kpt_popular_domain_1"
+            atx:kpt_keyOutputText="@string/kpt_popular_domain_1" atx:kpt_keyEdgeFlags="left" />
+        <Key atx:kpt_keyLabel="@string/kpt_popular_domain_2"
+            atx:kpt_keyOutputText="@string/kpt_popular_domain_2" atx:kpt_keyEdgeFlags="right" />
     </Row>
     <Row>
-        <Key atx:keyLabel="@string/kpt_popular_domain_3"
-            atx:keyOutputText="@string/kpt_popular_domain_3" atx:keyEdgeFlags="left"/>
-        <Key atx:keyLabel="@string/kpt_popular_domain_4"
-            atx:keyOutputText="@string/kpt_popular_domain_4" atx:keyEdgeFlags="right" />
+        <Key atx:kpt_keyLabel="@string/kpt_popular_domain_3"
+            atx:kpt_keyOutputText="@string/kpt_popular_domain_3" atx:kpt_keyEdgeFlags="left"/>
+        <Key atx:kpt_keyLabel="@string/kpt_popular_domain_4"
+            atx:kpt_keyOutputText="@string/kpt_popular_domain_4" atx:kpt_keyEdgeFlags="right" />
     </Row>
-    <Row atx:rowEdgeFlags="bottom">
-        <Key atx:keyLabel="@string/kpt_popular_domain_6"
-            atx:keyOutputText="@string/kpt_popular_domain_6" atx:keyEdgeFlags="left"/>
-        <Key atx:keyLabel="@string/kpt_popular_domain_lang_0"
-            atx:keyOutputText="@string/kpt_popular_domain_lang_0" atx:keyEdgeFlags="right"/>
+    <Row atx:kpt_rowEdgeFlags="bottom">
+        <Key atx:kpt_keyLabel="@string/kpt_popular_domain_6"
+            atx:kpt_keyOutputText="@string/kpt_popular_domain_6" atx:kpt_keyEdgeFlags="left"/>
+        <Key atx:kpt_keyLabel="@string/kpt_popular_domain_lang_0"
+            atx:kpt_keyOutputText="@string/kpt_popular_domain_lang_0" atx:kpt_keyEdgeFlags="right"/>
     </Row>
 </Keyboard>
-<!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/popup_domains.xml -->
+<!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/popup_domains.xml -->

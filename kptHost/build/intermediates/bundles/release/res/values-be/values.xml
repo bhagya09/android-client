@@ -401,7 +401,7 @@
     <string name="kpt_popular_domain_sc_value">1103</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-be/strings.xml -->
     <eat-comment/>
-    <string name="kpt_potrait_default">Партрэтная раскладка</string>
+    <string name="kpt_potrait_default">Выберыце раскладку</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
     <string name="kpt_pref_latestVersion">Абноўленая версія</string>
     <string name="kpt_prior_header_1">Слоўнік</string>

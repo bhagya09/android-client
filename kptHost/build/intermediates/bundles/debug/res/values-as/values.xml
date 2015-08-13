@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-as/arrays.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-as/arrays.xml -->
     <eat-comment/>
     <string-array name="kpt_ac_misspelts_entires">
 		<item>High</item>
@@ -132,7 +132,7 @@
 		<item>1</item>
 		<item>2</item>
 	</string-array>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-as/strings_popups.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-as/strings_popups.xml -->
     <eat-comment/>
     <string name="kpt_MEANING_LOOKUP_URL">http://as.wikipedia.org/wiki/</string>
     <string name="kpt_accounts_extra_data">learn_extra</string>

@@ -13,624 +13,624 @@
 
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:horizontalGap="0dp"
+    atx:kpt_horizontalGap="0dp"
 	
-    atx:fontSizeApplicable="false"
-    atx:fontStyleApplicable="false"
-    atx:isGlideSupported = "true"
-    atx:keyType="@integer/kpt_key_type_normal"
-    atx:isRTL="false"
+    atx:kpt_fontSizeApplicable="false"
+    atx:kpt_fontStyleApplicable="false"
+    atx:kpt_isGlideSupported = "true"
+    atx:kpt_keyType="@integer/kpt_key_type_normal"
+    atx:kpt_isRTL="false"
     
-    atx:keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize"
-    atx:keyLabel2XPos="@dimen/kpt_keyLabel2XPos"
-    atx:keyLabel2YPos="@dimen/kpt_keyLabel2YPos"
+    atx:kpt_keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize"
+    atx:kpt_keyLabel2XPos="@dimen/kpt_keyLabel2XPos"
+    atx:kpt_keyLabel2YPos="@dimen/kpt_keyLabel2YPos"
 	
-    atx:keyLabelTextSize="@dimen/kpt_keyLabelTextSize"
-    atx:keyLabelXPos="@dimen/kpt_keyLabelXPos"
-    atx:keyLabelYPos="@dimen/kpt_keyLabelYPos"
+    atx:kpt_keyLabelTextSize="@dimen/kpt_keyLabelTextSize"
+    atx:kpt_keyLabelXPos="@dimen/kpt_keyLabelXPos"
+    atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelYPos"
 	
-    atx:keyWidth="10%p"
-    atx:keyHeight="@dimen/kpt_key_height_dk_fk"
-    atx:verticalGap="@dimen/kpt_vertical_gap" >
-    <Row atx:isNumberRow = "true" 
-        atx:keyLabelYPos="@dimen/kpt_keyLabelNumYPos"
-       atx:keyHeight="@dimen/kpt_number_row_key_height_dk_fk"
-       atx:keyWidth="10%p"
+    atx:kpt_keyWidth="10%p"
+    atx:kpt_keyHeight="@dimen/kpt_key_height_dk_fk"
+    atx:kpt_verticalGap="@dimen/kpt_vertical_gap" >
+    <Row atx:kpt_isNumberRow = "true" 
+        atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelNumYPos"
+       atx:kpt_keyHeight="@dimen/kpt_number_row_key_height_dk_fk"
+       atx:kpt_keyWidth="10%p"
         >
         <Key
-            atx:codes="49"
-            atx:keyEdgeFlags="left"
+            atx:kpt_codes="49"
+            atx:kpt_keyEdgeFlags="left"
            
-            atx:keyLabel="1"
+            atx:kpt_keyLabel="1"
              />
         <Key
-            atx:codes="50"
-            atx:keyLabel="2"
+            atx:kpt_codes="50"
+            atx:kpt_keyLabel="2"
              />
         <Key
-            atx:codes="51"
-            atx:keyLabel="3"
+            atx:kpt_codes="51"
+            atx:kpt_keyLabel="3"
            />
         <Key
-            atx:codes="52"
-            atx:keyLabel="4"
+            atx:kpt_codes="52"
+            atx:kpt_keyLabel="4"
             />
         <Key
-            atx:codes="53"
-            atx:keyLabel="5"
+            atx:kpt_codes="53"
+            atx:kpt_keyLabel="5"
           />
         <Key
-            atx:codes="54"
-            atx:keyLabel="6"       
+            atx:kpt_codes="54"
+            atx:kpt_keyLabel="6"       
             />
         <Key
-            atx:codes="55"
-            atx:keyLabel="7"
+            atx:kpt_codes="55"
+            atx:kpt_keyLabel="7"
           
             />
         <Key
-            atx:codes="56"
-            atx:keyLabel="8"
+            atx:kpt_codes="56"
+            atx:kpt_keyLabel="8"
          />
         <Key
-            atx:codes="57"
-            atx:keyLabel="9"
+            atx:kpt_codes="57"
+            atx:kpt_keyLabel="9"
          
          />
         <Key
-            atx:codes="48"
-            atx:keyEdgeFlags="right"
-            atx:keyLabel="0"
+            atx:kpt_codes="48"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyLabel="0"
           />
     </Row>
     <Row
-        atx:horizontalGap="0.31dp"
-        atx:keyWidth="9%p" >
+        atx:kpt_horizontalGap="0.31dp"
+        atx:kpt_keyWidth="9%p" >
         <Key
-            atx:codes="2508,2452"
-            atx:horizontalGap="0.75%p"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="ৌ"
-            atx:keyLabel2="ঔ" />
+            atx:kpt_codes="2508,2452"
+            atx:kpt_horizontalGap="0.75%p"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="ৌ"
+            atx:kpt_keyLabel2="ঔ" />
         <Key
-            atx:codes="2504,2448"
-            atx:keyLabel="ৈ"
-            atx:keyLabel2="ঐ" />
+            atx:kpt_codes="2504,2448"
+            atx:kpt_keyLabel="ৈ"
+            atx:kpt_keyLabel2="ঐ" />
         <Key
-            atx:codes="2494,2438"
-            atx:keyLabel="া"
-            atx:keyLabel2="আ" />
+            atx:kpt_codes="2494,2438"
+            atx:kpt_keyLabel="া"
+            atx:kpt_keyLabel2="আ" />
         <Key
-            atx:codes="2496,2440"
-            atx:keyLabel="ী"
-            atx:keyLabel2="ঈ" />
+            atx:kpt_codes="2496,2440"
+            atx:kpt_keyLabel="ী"
+            atx:kpt_keyLabel2="ঈ" />
         <Key
-            atx:codes="2498,2442"
-            atx:keyLabel="ূ"
-            atx:keyLabel2="ঊ" />
+            atx:kpt_codes="2498,2442"
+            atx:kpt_keyLabel="ূ"
+            atx:kpt_keyLabel2="ঊ" />
         <Key
-            atx:codes="2476,2477"
-            atx:keyLabel="ব"
-            atx:keyLabel2="ভ" />
+            atx:kpt_codes="2476,2477"
+            atx:kpt_keyLabel="ব"
+            atx:kpt_keyLabel2="ভ" />
         <Key
-            atx:codes="2489,2457"
-            atx:keyLabel="হ"
-            atx:keyLabel2="ঙ" />
+            atx:kpt_codes="2489,2457"
+            atx:kpt_keyLabel="হ"
+            atx:kpt_keyLabel2="ঙ" />
         <Key
-            atx:codes="2455,2456"
-            atx:keyLabel="গ"
-            atx:keyLabel2="ঘ" />
+            atx:kpt_codes="2455,2456"
+            atx:kpt_keyLabel="গ"
+            atx:kpt_keyLabel2="ঘ" />
         <Key
-            atx:codes="2470,2471"
-            atx:keyLabel="দ"
-            atx:keyLabel2="ধ" />
+            atx:kpt_codes="2470,2471"
+            atx:kpt_keyLabel="দ"
+            atx:kpt_keyLabel2="ধ" />
         <Key
-            atx:codes="2460,2461"
-            atx:keyLabel="জ"
-            atx:keyLabel2="ঝ" />
+            atx:kpt_codes="2460,2461"
+            atx:kpt_keyLabel="জ"
+            atx:kpt_keyLabel2="ঝ" />
         <Key
-            atx:codes="2465,2466"
-            atx:keyEdgeFlags="right"
-            atx:keyLabel="ড"
-            atx:keyLabel2="ঢ"
-            atx:popupKeyboard="@xml/popup_ligature_1" />
+            atx:kpt_codes="2465,2466"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyLabel="ড"
+            atx:kpt_keyLabel2="ঢ"
+            atx:kpt_popupKeyboard="@xml/popup_ligature_1" />
     </Row>
     <Row
-        atx:horizontalGap="0.31dp"
-        atx:keyWidth="9%p" >
+        atx:kpt_horizontalGap="0.31dp"
+        atx:kpt_keyWidth="9%p" >
         <Key
-            atx:codes="2507,2451"
-            atx:horizontalGap="0.75%p"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="ো"
-            atx:keyLabel2="ও" />
+            atx:kpt_codes="2507,2451"
+            atx:kpt_horizontalGap="0.75%p"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="ো"
+            atx:kpt_keyLabel2="ও" />
         <Key
-            atx:codes="2503,2447"
-            atx:keyLabel="ে"
-            atx:keyLabel2="এ" />
+            atx:kpt_codes="2503,2447"
+            atx:kpt_keyLabel="ে"
+            atx:kpt_keyLabel2="এ" />
         <Key
-            atx:codes="2509,2437"
-            atx:keyLabel="্"
-            atx:keyLabel2="অ" />
+            atx:kpt_codes="2509,2437"
+            atx:kpt_keyLabel="্"
+            atx:kpt_keyLabel2="অ" />
         <Key
-            atx:codes="2495,2439"
-            atx:keyLabel="ি"
-            atx:keyLabel2="ই" />
+            atx:kpt_codes="2495,2439"
+            atx:kpt_keyLabel="ি"
+            atx:kpt_keyLabel2="ই" />
         <Key
-            atx:codes="2497,2441"
-            atx:keyLabel="ু"
-            atx:keyLabel2="উ" />
+            atx:kpt_codes="2497,2441"
+            atx:kpt_keyLabel="ু"
+            atx:kpt_keyLabel2="উ" />
         <Key
-            atx:codes="2474,2475"
-            atx:keyLabel="প"
-            atx:keyLabel2="ফ" />
+            atx:kpt_codes="2474,2475"
+            atx:kpt_keyLabel="প"
+            atx:kpt_keyLabel2="ফ" />
         <Key
-            atx:codes="2544,-1073"
-            atx:keyLabel="ৰ"
-            atx:keyLabel2="ক্ষ"
-            atx:popupKeyboard="@xml/popup_ligature_2" />
+            atx:kpt_codes="2544,-1073"
+            atx:kpt_keyLabel="ৰ"
+            atx:kpt_keyLabel2="ক্ষ"
+            atx:kpt_popupKeyboard="@xml/popup_ligature_2" />
         <Key
-            atx:codes="2453,2454"
-            atx:keyLabel="ক"
-            atx:keyLabel2="খ" />
+            atx:kpt_codes="2453,2454"
+            atx:kpt_keyLabel="ক"
+            atx:kpt_keyLabel2="খ" />
         <Key
-            atx:codes="2468,2469"
-            atx:keyLabel="ত"
-            atx:keyLabel2="থ" />
+            atx:kpt_codes="2468,2469"
+            atx:kpt_keyLabel="ত"
+            atx:kpt_keyLabel2="থ" />
         <Key
-            atx:codes="2458,2459"
-            atx:keyLabel="চ"
-            atx:keyLabel2="ছ" />
+            atx:kpt_codes="2458,2459"
+            atx:kpt_keyLabel="চ"
+            atx:kpt_keyLabel2="ছ" />
         <Key
-            atx:codes="2463,2464"
-            atx:keyEdgeFlags="right"
-            atx:keyLabel="ট"
-            atx:keyLabel2="ঠ" />
+            atx:kpt_codes="2463,2464"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyLabel="ট"
+            atx:kpt_keyLabel2="ঠ" />
     </Row>
     <Row
-        atx:horizontalGap="0.31dp"
-        atx:keyWidth="8.8%p" >
+        atx:kpt_horizontalGap="0.31dp"
+        atx:kpt_keyWidth="8.8%p" >
         <Key
-            atx:codes="-19"
-            atx:keyType="@integer/kpt_functional_key_dont_send_to_core"
-            atx:iconText="@string/kpt_icontext_shift_off"
-            atx:isModifier="true"
-            atx:isSticky="true"
-            atx:keyEdgeFlags="left"
-            atx:keyLabelYPos="0.50"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="-19"
+            atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core"
+            atx:kpt_iconText="@string/kpt_icontext_shift_off"
+            atx:kpt_isModifier="true"
+            atx:kpt_isSticky="true"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="2434,2433"
-            atx:keyLabel="ং"
-            atx:keyLabel2="ঁ" />
+            atx:kpt_codes="2434,2433"
+            atx:kpt_keyLabel="ং"
+            atx:kpt_keyLabel2="ঁ" />
         <Key
-            atx:codes="2478,2467"
-            atx:keyLabel="ম"
-            atx:keyLabel2="ণ" />
+            atx:kpt_codes="2478,2467"
+            atx:kpt_keyLabel="ম"
+            atx:kpt_keyLabel2="ণ" />
         <Key
-            atx:codes="2472,2486"
-            atx:keyLabel="ন"
-            atx:keyLabel2="শ" />
+            atx:kpt_codes="2472,2486"
+            atx:kpt_keyLabel="ন"
+            atx:kpt_keyLabel2="শ" />
         <Key
-            atx:codes="2545,2510"
-            atx:keyLabel="ৱ"
-            atx:keyLabel2="ৎ" />
+            atx:kpt_codes="2545,2510"
+            atx:kpt_keyLabel="ৱ"
+            atx:kpt_keyLabel2="ৎ" />
         <Key
-            atx:codes="2482,2435"
-            atx:keyLabel="ল"
-            atx:keyLabel2="ঃ" />
+            atx:kpt_codes="2482,2435"
+            atx:kpt_keyLabel="ল"
+            atx:kpt_keyLabel2="ঃ" />
         <Key
-            atx:codes="2488,2487"
-            atx:keyLabel="স"
-            atx:keyLabel2="ষ" />
+            atx:kpt_codes="2488,2487"
+            atx:kpt_keyLabel="স"
+            atx:kpt_keyLabel2="ষ" />
         <Key
-            atx:codes="2479,2527"
-            atx:keyLabel="য"
-            atx:keyLabel2="য়" />
+            atx:kpt_codes="2479,2527"
+            atx:kpt_keyLabel="য"
+            atx:kpt_keyLabel2="য়" />
         <Key
-            atx:codes="2492,2462"
-            atx:keyLabel="়"
-            atx:keyLabel2="ঞ" />
+            atx:kpt_codes="2492,2462"
+            atx:kpt_keyLabel="়"
+            atx:kpt_keyLabel2="ঞ" />
         <Key
-            atx:codes="2499,2443"
-            atx:keyLabel="ৃ"
-            atx:keyLabel2="ঋ" />
+            atx:kpt_codes="2499,2443"
+            atx:kpt_keyLabel="ৃ"
+            atx:kpt_keyLabel2="ঋ" />
         <Key
-            atx:codes="-5"
-            atx:keyType="@integer/kpt_functional_key_dont_send_to_core"
-            atx:iconText="@string/kpt_icontext_delete"
-            atx:isRepeatable="true"
-            atx:keyEdgeFlags="right"
-            atx:keyLabelYPos="0.50"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="-5"
+            atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core"
+            atx:kpt_iconText="@string/kpt_icontext_delete"
+            atx:kpt_isRepeatable="true"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_normal"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_normal"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="44,-102"
-            atx:iconText="@string/kpt_icontext_comma_mic"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="44,-102"
+            atx:kpt_iconText="@string/kpt_icontext_comma_mic"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="44%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="44%p" />
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	    atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	    atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="1"
-            atx:iconText="@string/kpt_icontext_xi_key"
-            atx:keyLabelYPos="0.50"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="1"
+            atx:kpt_iconText="@string/kpt_icontext_xi_key"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_url"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_url"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:keyLabel="/"
-            atx:keyWidth="10%p" />
+            atx:kpt_keyLabel="/"
+            atx:kpt_keyWidth="10%p" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="40%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="40%p" />
 		- 
         <!--
-            Key atx:keyLabel="@string/kpt_popular_domain_0" atx:keyOutputText="@string/kpt_popular_domain_0" 
-			atx:popupKeyboard="@xml/popup_domains" atx:keyWidth="20%p"/
+            Key atx:kpt_keyLabel="@string/kpt_popular_domain_0" atx:kpt_keyOutputText="@string/kpt_popular_domain_0" 
+			atx:kpt_popupKeyboard="@xml/popup_domains" atx:kpt_keyWidth="20%p"/
         -->
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	    atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	    atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="8734"
-            atx:keyLabel="@string/kpt_popular_domain_2" 
-            atx:keyOutputText="@string/kpt_popular_domain_2" 
-            atx:popupKeyboard="@xml/popup_domains" 
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="8734"
+            atx:kpt_keyLabel="@string/kpt_popular_domain_2" 
+            atx:kpt_keyOutputText="@string/kpt_popular_domain_2" 
+            atx:kpt_popupKeyboard="@xml/popup_domains" 
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_email"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_email"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
-        <Key atx:keyLabel="\@" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
+        <Key atx:kpt_keyLabel="\@" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="44%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="44%p" />
         <!--
-             Key atx:keyLabel="@string/kpt_popular_domain_0" atx:keyOutputText="@string/kpt_popular_domain_0" 
-			atx:popupKeyboard="@xml/popup_domains" atx:keyWidth="20%p"/
+             Key atx:kpt_keyLabel="@string/kpt_popular_domain_0" atx:kpt_keyOutputText="@string/kpt_popular_domain_0" 
+			atx:kpt_popupKeyboard="@xml/popup_domains" atx:kpt_keyWidth="20%p"/
         -->
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	    atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	    atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="1"
-            atx:iconText="@string/kpt_icontext_xi_key"
-            atx:keyLabelYPos="0.50"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="1"
+            atx:kpt_iconText="@string/kpt_icontext_xi_key"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_im"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_im"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="44,-102"
-            atx:iconText="@string/kpt_icontext_comma_mic"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="44,-102"
+            atx:kpt_iconText="@string/kpt_icontext_comma_mic"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="44%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="44%p" />
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	     atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	     atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="1"
-            atx:iconText="@string/kpt_icontext_xi_key"
-            atx:keyLabelYPos="0.50"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="1"
+            atx:kpt_iconText="@string/kpt_icontext_xi_key"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_webentry"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_webentry"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="44,-102"
-            atx:iconText="@string/kpt_icontext_comma_mic"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="44,-102"
+            atx:kpt_iconText="@string/kpt_icontext_comma_mic"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="44%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="44%p" />
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	     atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	     atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="1"
-            atx:iconText="@string/kpt_icontext_xi_key"
-            atx:keyLabelYPos="0.50"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="1"
+            atx:kpt_iconText="@string/kpt_icontext_xi_key"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
 
      <Row
-        atx:keyboardMode="@+id/mode_password"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_password"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="44,-102"
-            atx:iconText="@string/kpt_icontext_comma_mic"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="44,-102"
+            atx:kpt_iconText="@string/kpt_icontext_comma_mic"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="45%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="45%p" />
         <Key
-            atx:codes="46"
-            atx:iconText="@string/kpt_icontext_dot_share"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="46"
+            atx:kpt_iconText="@string/kpt_icontext_dot_share"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="-23"
-            atx:keyLabel="@string/kpt_english_locale"
-            atx:keyLabelYPos="0.50"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="-23"
+            atx:kpt_keyLabel="@string/kpt_english_locale"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     
          <Row
-        atx:keyboardMode="@+id/mode_normal_hide_xi"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_normal_hide_xi"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="44,-102"
-            atx:iconText="@string/kpt_icontext_comma_mic"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="44,-102"
+            atx:kpt_iconText="@string/kpt_icontext_comma_mic"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="54%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="54%p" />
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	    atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	    atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_url_hide_xi"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_url_hide_xi"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:keyLabel="/"
-            atx:keyWidth="10%p" />
+            atx:kpt_keyLabel="/"
+            atx:kpt_keyWidth="10%p" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="40%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="40%p" />
 		- 
         <!--
-            Key atx:keyLabel="@string/kpt_popular_domain_0" atx:keyOutputText="@string/kpt_popular_domain_0" 
-			atx:popupKeyboard="@xml/popup_domains" atx:keyWidth="20%p"/
+            Key atx:kpt_keyLabel="@string/kpt_popular_domain_0" atx:kpt_keyOutputText="@string/kpt_popular_domain_0" 
+			atx:kpt_popupKeyboard="@xml/popup_domains" atx:kpt_keyWidth="20%p"/
         -->
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	    atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	    atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="8734"
-            atx:keyLabel="@string/kpt_popular_domain_2" 
-            atx:keyOutputText="@string/kpt_popular_domain_2" 
-            atx:popupKeyboard="@xml/popup_domains" 
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="8734"
+            atx:kpt_keyLabel="@string/kpt_popular_domain_2" 
+            atx:kpt_keyOutputText="@string/kpt_popular_domain_2" 
+            atx:kpt_popupKeyboard="@xml/popup_domains" 
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_email_hide_xi"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_email_hide_xi"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
-        <Key atx:keyLabel="\@" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
+        <Key atx:kpt_keyLabel="\@" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="54%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="54%p" />
         <!--
-             Key atx:keyLabel="@string/kpt_popular_domain_0" atx:keyOutputText="@string/kpt_popular_domain_0" 
-			atx:popupKeyboard="@xml/popup_domains" atx:keyWidth="20%p"/
+             Key atx:kpt_keyLabel="@string/kpt_popular_domain_0" atx:kpt_keyOutputText="@string/kpt_popular_domain_0" 
+			atx:kpt_popupKeyboard="@xml/popup_domains" atx:kpt_keyWidth="20%p"/
         -->
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	    atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	    atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_im_hide_xi"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_im_hide_xi"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="44,-102"
-            atx:iconText="@string/kpt_icontext_comma_mic"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="44,-102"
+            atx:kpt_iconText="@string/kpt_icontext_comma_mic"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="54%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="54%p" />
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	     atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	     atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     <Row
-        atx:keyboardMode="@+id/mode_webentry_hide_xi"
-        atx:rowEdgeFlags="bottom"
-        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        atx:kpt_keyboardMode="@+id/mode_webentry_hide_xi"
+        atx:kpt_rowEdgeFlags="bottom"
+        atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core" >
         <Key
-            atx:codes="-8,2"
-            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk"
-            atx:keyWidth="15%p" />
+            atx:kpt_codes="-8,2"
+            atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
+            atx:kpt_keyWidth="15%p" />
         <Key
-            atx:codes="44,-102"
-            atx:iconText="@string/kpt_icontext_comma_mic"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="44,-102"
+            atx:kpt_iconText="@string/kpt_icontext_comma_mic"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="32"
-            atx:keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:keyWidth="54%p" />
+            atx:kpt_codes="32"
+            atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
+            atx:kpt_keyWidth="54%p" />
         <Key
-            atx:codes="2404"
-            atx:iconText="@string/kpt_icontext_danda_share"
-	     atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="2404"
+            atx:kpt_iconText="@string/kpt_icontext_danda_share"
+	     atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
         <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyLabel2YPos="0.35"
-            atx:keyWidth="10%p"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
+            atx:kpt_keyLabel2YPos="0.35"
+            atx:kpt_keyWidth="10%p"
+            atx:kpt_useExternalFont="true" />
     </Row>
     
-</Keyboard><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml-as-rIN/kbd_qwerty_fk.xml -->
+</Keyboard><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml-as-rIN/kbd_qwerty_fk.xml -->

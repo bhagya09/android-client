@@ -7,6 +7,7 @@
     <dimen name="kpt_customization_gallery_width">64dip</dimen>
     <dimen name="kpt_draw_space_key_arrows">40px</dimen>
     <dimen name="kpt_glide_trace_width">6dip</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">12sp</dimen>
     <dimen name="kpt_max_textpreview_size">30sp</dimen>
     <dimen name="kpt_min_textpreview_size">10sp</dimen>
     <dimen name="kpt_preview_text_size">16sp</dimen>

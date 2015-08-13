@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/values-xxhdpi/dimens.xml -->
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-xxhdpi/dimens.xml -->
     <eat-comment/>
     <dimen name="kpt_draw_space_key_arrows">100px</dimen>
     <dimen name="kpt_glide_trace_width">6dip</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">12sp</dimen>
     <dimen name="kpt_keyLabelTextSize">20sp</dimen>
     <dimen name="kpt_max_textpreview_size">50sp</dimen>
     <dimen name="kpt_min_textpreview_size">10sp</dimen>

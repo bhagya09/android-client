@@ -244,7 +244,7 @@
 <string name="kpt_UI_STRING_INAPP_NOTIFICATION_MESSAGE_1">Дадатковыя слоўнікі, якія былі загружаны з Play Store, не сумяшчаюцца з дадзенай праграмай. Калі ласка, загрузіце слоўнікі з нашага сервера. Націсніце на гэтае паведамленне, каб адкрыць Краму Adaptxt.</string>
 <string name="kpt_UI_STRING_TOAST_1_110"> Калі ласка, пакіньце меню \”Наладка клавіятуры\” перад тым, як змяніць арыентацыю Вашай прылады</string>
 <string name="kpt_package_install_success_toast"> Усталяванне слоўніка скончана </string>
-<string name="kpt_potrait_default">Партрэтная раскладка</string>
+<string name="kpt_potrait_default">Выберыце раскладку</string>
 <string name="kpt_notofication_addon_downloading"> Ідзе абнаўленне спісу дадатковых слоўнікаў. Гэта можа заняць некаторы час у залежнасці ад колькасці слоўнікаў.</string>
 <string name="kpt_toast_hide_voice_dialog">Распазнаванне гаворкі не падтрымліваецца ў полі пароля</string>
 <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_220">Гэта бэта-версія Glide. Пакіньце свой водгук і дапамажыце нам палепшыць якасць праграмы.</string>

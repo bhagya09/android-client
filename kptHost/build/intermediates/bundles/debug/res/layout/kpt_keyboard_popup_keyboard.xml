@@ -30,18 +30,18 @@
             android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"            
-            atx:keyBackground="@drawable/kpt_btn_keyboard_key_popup"
-            atx:keyTextColor="@color/kpt_primary_key_color"            
-            atx:shadowRadius="0"
-            atx:keyTextSize="@dimen/kpt_keyLabelTextSize"            
-            atx:keyPreviewLayout="@layout/kpt_keyboard_key_preview"
-            atx:popupLayout="@layout/kpt_keyboard_popup_keyboard"            
-            atx:keyTextColor2="@color/kpt_secondary_key_color"
-	        atx:keyTextSize2="14sp"
-	        atx:keyTextSize3="16sp"  
-	        atx:labelTextSize="14sp"       
-	        atx:keyPreviewOffset="-12dip"
-	        atx:keyPreviewHeight="50dip"            	        
+            atx:kpt_keyBackground="@drawable/kpt_btn_keyboard_key_popup"
+            atx:kpt_keyTextColor="@color/kpt_primary_key_color"            
+            atx:kpt_shadowRadius="0"
+            atx:kpt_keyTextSize="@dimen/kpt_keyLabelTextSize"            
+            atx:kpt_keyPreviewLayout="@layout/kpt_keyboard_key_preview"
+            atx:kpt_popupLayout="@layout/kpt_keyboard_popup_keyboard"            
+            atx:kpt_keyTextColor2="@color/kpt_secondary_key_color"
+	        atx:kpt_keyTextSize2="14sp"
+	        atx:kpt_keyTextSize3="16sp"  
+	        atx:kpt_labelTextSize="14sp"       
+	        atx:kpt_keyPreviewOffset="-12dip"
+	        atx:kpt_keyPreviewHeight="50dip"            	        
             />
     
 <!--     <ImageButton android:id="@+id/closeButton"
@@ -54,4 +54,4 @@
         android:layout_marginRight="4dp"
         android:clickable="true"
         /> -->
-</LinearLayout><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_keyboard_popup_keyboard.xml -->
+</LinearLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_keyboard_popup_keyboard.xml -->

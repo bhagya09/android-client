@@ -32,4 +32,4 @@
         android:gravity="center_vertical"
         android:minHeight="?android:attr/listPreferredItemHeight" />
 
-</LinearLayout><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/layout/kpt_choose_account_row.xml -->
+</LinearLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_choose_account_row.xml -->

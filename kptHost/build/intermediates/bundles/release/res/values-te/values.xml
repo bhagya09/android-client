@@ -57,19 +57,11 @@
     <string name="kpt_UI_STRING_ATR_COLUMNHEADER_2_7003">విస్త్రుతి</string>
     <string name="kpt_UI_STRING_COMMON_5_OFF">స్వీయ\nగణన ఆఫ్</string>
     <string name="kpt_UI_STRING_COMMON_5_ON">స్వీయ\nగణన ఆన్</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_1_300">ఇప్పుడే నవీనీకరించు</string>
-    <string name="kpt_UI_STRING_DIALOG_BUTTON_LABEL_2_300">తరువాత</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_220">వినిమయ సంజ్ఞను తొలగించాలనుకుంటున్నావా?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_1_300">మీరు ఈ కస్టమ్ నేపథ్యం తొలగించాలనుకుంటున్నారా?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_110">వెళ్లేముందు మార్పులను సేవ్ చేయాలా?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_200">కొనడానికి ముందే దయచేసి appstore log in అవండి. మీరు ఇప్పుడే చేయాలనుకుంటున్నారా?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_220">మీరు అన్ని వినిమయ సంజ్ఞలను తొలగించాలనుకున్నారా?</string>
-    <string name="kpt_UI_STRING_DIALOG_MESSAGE_2_300">ఈ నేపథ్యాన్ని విస్థాపనం చేయాలనుకుంటున్నావా?</string>
     <string name="kpt_UI_STRING_DIALOG_MESSAGE_4_300">స్వయంసిద్ధ నేపథ్యాలను మీరు తొలగించలేరు</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_1_300">మీరు ఇప్పటికే Adaptxt యొక్క ముందస్తు అనువర్తన కొనుగోలు పూర్తి చేశారు, Adaptxt న నవీనీకరించండి - పూర్తి వెర్షన్ మరియు మీ డబ్బు తిరిగి ఇవ్వబడింది. మీ ట్రైల్ విచారణ %d రోజుల లో ముగుస్తుంది.</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_2_300">Adaptxt ఉపయోగించినందుకు ధన్యవాదాలు.మీ ట్రయల్ గడువు ముగిసింది \"ఇప్పుడు నవీనీకరించడానికి\"  టాప్ చేసి Adaptxt ఉపయోగించడం కొనసాగించండి.</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_2_7003">Adaptxt  కొత్త సందర్భాలను, పదాలను నేర్చుకోదు</string>
-    <string name="kpt_UI_STRING_DIALOG_MSG_3_300">కొత్త Adaptxt ఫీచర్స్ వాడడానికి మీ నిఘంటువులను అధునాతనీకరించండి</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_3_7003">Adaptxt పదాలు, సందర్భాన్ని నేర్చుకోవడం మొదలైంది</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_4_7003">విస్తృతిలో కనీసం 3 అక్షరాలను ప్రవేశపెట్టండి</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_5_7003">ఈ అడ్డదారి ఇప్పటికే ఉంది, దయచేసి మరొక అడ్డదారిని ఎన్నుకోండి</string>
@@ -77,11 +69,8 @@
     <string name="kpt_UI_STRING_DIALOG_MSG_7_7003">విస్తృతి క్షేత్రం ఖాళీగా ఉండకూడదు</string>
     <string name="kpt_UI_STRING_DIALOG_MSG_8_7003">మీరు కచ్చితంగా అన్ని అడ్డదారులను,వస్తృతులను తొలగించాలనుకుంటున్నారా</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_220">సంజ్ఞలు తొలగించాలా?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_1_300">వినిమయ నేపథ్యం</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_1_7003">ప్రైవేట్ మోడ్ సశక్తం</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_110">కీ బోర్డు వినియోగీకరణ నుండి బయటకి వస్తారా?</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_220">అన్నీ తొలగించాలా?</string>
-    <string name="kpt_UI_STRING_DIALOG_TITLE_2_300">ప్రస్థాపిత నేపథ్యం</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_2_7003">ప్రైవేట్ మోడ్ నిర్వీర్</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_4_200">Appstore ఖాతా</string>
     <string name="kpt_UI_STRING_DIALOG_TITLE_5">ప్రకార్యాలనుండి నేర్చుకో</string>
@@ -102,12 +91,8 @@
     <string name="kpt_UI_STRING_INAPP_TOAST_2">కేవలం ఒకేసారి 5 add-ons మాత్రమే ఉపయోగించొచ్చు.దయచేసి స్థాపించిన add-ons ను విస్థాపించి తిరిగి ప్రయత్నించండి.</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_3">అనుసంథాన దోషం, దయచేసి మీ జాల సంథానాన్ని పరిశీలించి తిరిగి ప్రయత్నించండి</string>
     <string name="kpt_UI_STRING_INAPP_TOAST_4">అనుసంథాన సమయం అయిపోయింది, దయచేసి తిరిగి ప్రయత్నించండి</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_1_110">పునః అమర్పు</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_2_110">సేవ్</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_BUTTON_3_110">బయటికి</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14">స్వయంసిద్ధం</string>
     <string name="kpt_UI_STRING_KBCUSTOM_ITEM_14_200">ఈ ఫీచర్ ని స్థాపించడానికి add-on నిఘంటువుని నిర్మించండి.</string>
-    <string name="kpt_UI_STRING_KBCUSTOM_ITEM_1_110">నేపథ్య బోర్డు</string>
     <string name="kpt_UI_STRING_MENUITEMS_1">Adaptxt స్టోరు</string>
     <string name="kpt_UI_STRING_MENUITEMS_1_7003">ATR</string>
     <string name="kpt_UI_STRING_MENUITEMS_2_7003">అడ్డదారులు, విస్తృతులూ</string>
@@ -157,7 +142,6 @@
     <string name="kpt_UI_STRING_POPUP_ITEM_2_300">పంపే కీ ని దాచు</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_1_220">Glide ఇంకా beta  ఫీచర్ ని కలిగి ఉంది. మీ ఫీడ్బ్యాక్ తో దానిని అభివృద్ధి పరచడానికి మిమ్మలను పాల్గొనమంటున్నాము</string>
     <string name="kpt_UI_STRING_PUSHNOTIFICATION_2_220">ఇవ్వ బడిన పాఠాన్ని తిరిగి రాయడానికి Adaptxt ఒక కొత్త దారిని పరిచయం చేస్తుంది. ఇంకా కనుగొనడానికి ఈ సందేశాన్ని ట్యాప్ చేయండి</string>
-    <string name="kpt_UI_STRING_QUICKSETTINGSITEM_1_110">కీ బోర్డు వినియోగీకరణ</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_1_7003">ఆకృతులు</string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_II_7003">ప్రైనేట్ మోడ్ \nఆఫ్ </string>
     <string name="kpt_UI_STRING_QUICKSETTINGS_ITEMS_2_I_7003">ప్రైవేట్ మోడ్\nఆన్ </string>
@@ -173,12 +157,10 @@
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_220">Glide</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_1_300">పూర్వస్థితి &amp; రద్దు మీటలు</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_2_220">వినిమయీకరణ సంజ్ఞలు</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_2_300">పూర్తి వెర్షన్ అధునాతనీకరించండి</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_3_220">Glide Beta చూడు</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_220">Glide, వినిమయ సంజ్ఞలను ప్రారంభించు/ముగించు </string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_1_300">ఆటో దిద్దుబాటు రద్దుచెయ్యి లేదా అవుట్ కీలను ప్రదర్శన అనుకూలీకరించు</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_220">వినిమయ అడ్డదారులను చూడు</string>
-    <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_2_300">Adaptxt నవీనీకరించడానికి ఇక్కడ ట్యాప్ చేయండి</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_3_220">వేలు తీయకుండానే అక్షరాలను స్లైడ్ చేయడం ద్వారా పదాలను రాయొచ్చు</string>
     <string name="kpt_UI_STRING_SETTINGS_ITEM_DESC_4_220">Glide ఇంకా beta ఫీచర్ని కలిగి ఉంది, మీ విలువైన ఫీడ్బ్యాక్ తో దానిని మమ్మలను అభివృద్ధి పరచనివ్వండి</string>
     <string name="kpt_UI_STRING_SETTINGS_SITEM_1">మీ కొత్త పదాలు</string>
@@ -198,14 +180,11 @@
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_11_300">ఎరుపు</string>
     <string name="kpt_UI_STRING_SETUPWIZARD_MENUITEM_12_300">ఆకుపచ్చ</string>
     <string name="kpt_UI_STRING_THEME_ITEM1">బ్లూ</string>
-    <string name="kpt_UI_STRING_TOAST_1_110"> కీ బోర్డు వినియోగీకరణ నుండి బయటకి వచ్చే ముందు దయచేసి దిశను మార్చండి </string>
     <string name="kpt_UI_STRING_TOAST_1_220">వినిమయ సంజ్ఞలు విజయవంతంగా సేవ్ చేయబడ్డాయి</string>
     <string name="kpt_UI_STRING_TOAST_1_7003">ఏ విధమైన పాఠం పాఠ్యక్షేత్రంలో ప్రవేశపెట్టబటలేదు</string>
-    <string name="kpt_UI_STRING_TOAST_2_110">మార్పులు సేవ్ చేయబడ్డాయి</string>
     <string name="kpt_UI_STRING_TOAST_2_200">ఈ ఫీచర్ లేదా add-on is కేవలం  Android v2.2 మరియు ఆ పైన డివైస్ లకే పనిచేస్తాయి.</string>
     <string name="kpt_UI_STRING_TOAST_2_220">ఈ ప్రకార్యం కనుగొనబడలేదు</string>
     <string name="kpt_UI_STRING_TOAST_2_7003">ఉఛ్చారణలు, ఒత్తులు పాఠం నుండి తొలగించబడ్డాయి</string>
-    <string name="kpt_UI_STRING_TOAST_3_110">కీ బోర్డు ఎత్తు తీవ్రతని తగ్గించడానికి స్లైడర్ ని ఉపయోగించండి</string>
     <string name="kpt_UI_STRING_TOAST_4_110">దయచేసి మీ డివైస్ సమయాన్ని పెంచే అమర్పులను అమర్చండి\"స్వయంసిద్ధ\" దానిలో \"తేదీ, కాలం\"మరియు \"సమయం జోన్\" మీ డివైస్ అమర్పులు.</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_1_2001">ఈ పాఠ్య కూర్పరికి ఈ ఫీచరు ఒప్పుకోదు</string>
     <string name="kpt_UI_STRING_TOAST_MESSAGE_8_300">మీ నిఘంటు పదాలను సేవ్ చేయడానికి ఫోన్లో తగినంత మెమరీ లేదు</string>
@@ -351,13 +330,11 @@
     <string name="kpt_popular_domain_sc_value">3116</string>
     <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-te/strings.xml -->
     <eat-comment/>
-    <string name="kpt_potrait_default">నిలువు ముద్రణ కోసం స్వీయాకృత</string>
+    <string name="kpt_potrait_default">లేఅవుట్ ఎంపిక చెయ్యండి</string>
     <string name="kpt_pref_kpt_summary">www.adaptxt.com</string>
     <string name="kpt_pref_latestVersion">నూతన విభాగం ఇక్కడ పొందండి</string>
     <string name="kpt_prior_header_1">Add-On</string>
     <string name="kpt_prior_header_2">ప్రాముఖ్యత</string>
-    <string name="kpt_prior_tool_tip_1">నిఘంటువు ప్రాముఖ్యతని మార్చడానికి లాగి, పడవేయడం ద్వారా చేయవచ్చు</string>
-    <string name="kpt_prior_tool_tip_2">ఈ లక్షణాన్ని గురించి ఎక్కువ తెలుసుకోవడానికి ఇక్కడ ట్యాప్ చేయండి</string>
     <string name="kpt_sdcard_required">ఎస్ డి కార్డు కావాలి</string>
     <string name="kpt_search_addon">add-ons ను పరిశోధించు</string>
     <string name="kpt_search_menu">వెతుకు</string>
@@ -387,8 +364,6 @@
     <string name="kpt_ticker_text">Adaptxt</string>
     <string name="kpt_title_postman_dialog">కి టపా</string>
     <string name="kpt_title_wait">దయచేసి వేచియుండండి</string>
-    <string name="kpt_toast_hide_postman_dialog">వినియోగదారుని పేరు, రహస్య సంకేతాలు ఇక్కడ పోస్టు చేయలేరు</string>
-    <string name="kpt_toast_hide_voice_dialog">సంభాషణ గుర్తింపు రహస్య సంకేతాల క్షేత్రములో అందుబాటులో లేదు</string>
     <string name="kpt_toast_internet">దయచేసి మీ అంతర్జాల అనుసందానాన్ని సరి చూసుకోండి</string>
     <string name="kpt_toast_kb_change">కీ బోర్డు ఆకృతి add-on  స్థాపనలకు వీలుగా మారాలి</string>
     <string name="kpt_toast_language_selection">భాష మారడానికి స్వయం కీ బోర్డు స్పేస్ పట్టీని ఉఫయెగించి లేదా  Add-Ons ట్యాబ్ ప్రాప్యం ద్వారా పొందవచ్చు</string>

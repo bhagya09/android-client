@@ -19,100 +19,113 @@
 -->
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atx="http://schemas.android.com/apk/res-auto"
-    atx:horizontalGap="5%p"
+    atx:kpt_horizontalGap="0%p"
     
-    atx:fontSizeApplicable="true"
-    atx:fontStyleApplicable="true"
-    atx:keyType="@integer/kpt_key_type_normal"
+    atx:kpt_fontSizeApplicable="true"
+    atx:kpt_fontStyleApplicable="true"
+    atx:kpt_keyType="@integer/kpt_key_type_normal"
     
-    atx:isRTL="false"
+    atx:kpt_isRTL="false"
     
-    atx:keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize_phone_sym"
-    atx:keyLabel2XPos="@dimen/kpt_keyLabel2XPos"
-    atx:keyLabel2YPos="@dimen/kpt_keyLabel2YPos"
+    atx:kpt_keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize_phone_sym"
+    atx:kpt_keyLabel2XPos="@dimen/kpt_keyLabel2XPos"
+    atx:kpt_keyLabel2YPos="@dimen/kpt_keyLabel2YPos"
     
-    atx:keyLabelTextSize="@dimen/kpt_keyLabelTextSize_phone_sym"
-    atx:keyLabelXPos="@dimen/kpt_keyLabelXPos"
-    atx:keyLabelYPos="@dimen/kpt_keyLabelYPos"
+    atx:kpt_keyLabelTextSize="@dimen/kpt_keyLabelTextSize_phone_sym"
+    atx:kpt_keyLabelXPos="@dimen/kpt_keyLabelXPos"
+    atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelYPos"
     
-    atx:isGlideSupported = "false"
+    atx:kpt_isGlideSupported = "false"
     
-    atx:keyWidth="21%p"
-    atx:keyHeight="@dimen/kpt_key_height_dk_fk"
-    atx:verticalGap="0dp" >
+    atx:kpt_keyWidth="32%p"
+    atx:kpt_keyHeight="@dimen/kpt_key_height_dk_fk"
+    atx:kpt_verticalGap="0%p" >
 
     <Row>
         <Key
-            atx:codes="49"
-            atx:horizontalGap="3.5%p"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="1" />
+            atx:kpt_codes="49"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="1" />
         <Key
-            atx:codes="50"
-            atx:keyLabel="2" />
+            atx:kpt_codes="50"
+            atx:kpt_keyLabel="2" />
         <Key
-            atx:codes="51"
-            atx:keyLabel="3" />
-        <Key
-            atx:keyEdgeFlags="right"
-            atx:keyLabel="-" />
+            atx:kpt_codes="51"
+            atx:kpt_keyLabel="3" 
+            atx:kpt_keyEdgeFlags="right" />
+        <!-- <Key
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_keyLabel="-" /> -->
     </Row>
     <Row>
         <Key
-            atx:codes="52"
-            atx:horizontalGap="3.5%p"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="4" />
+            atx:kpt_codes="52"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="4" />
         <Key
-            atx:codes="53"
-            atx:keyLabel="5" />
+            atx:kpt_codes="53"
+            atx:kpt_keyLabel="5" />
         <Key
-            atx:codes="54"
-            atx:keyLabel="6" />
-        <Key
-            atx:codes="46"
-            atx:keyLabel="."
-            atx:keyEdgeFlags="right" />
+            atx:kpt_codes="54"
+            atx:kpt_keyLabel="6"
+            atx:kpt_keyEdgeFlags="right" />
+        <!-- <Key
+            atx:kpt_codes="46"
+            atx:kpt_keyLabel="."
+            atx:kpt_keyEdgeFlags="right" /> -->
     </Row>
     <Row>
         <Key
-            atx:codes="55"
-            atx:horizontalGap="3.5%p"
-            atx:keyEdgeFlags="left"
-            atx:keyLabel="7" />
+            atx:kpt_codes="55"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_keyLabel="7" />
         <Key
-            atx:codes="56"
-            atx:keyLabel="8" />
+            atx:kpt_codes="56"
+            atx:kpt_keyLabel="8" />
         <Key
-            atx:codes="57"
-            atx:keyLabel="9" />
-        <Key
-            atx:codes="-5"
-            atx:keyType="@integer/kpt_functional_key_dont_send_to_core"
-            atx:iconText="@string/kpt_icontext_delete"
-            atx:isRepeatable="true"
-            atx:keyLabelYPos="0.50"
-            atx:keyEdgeFlags="right"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="57"
+            atx:kpt_keyLabel="9" 
+            atx:kpt_keyEdgeFlags="right" />
+        <!-- <Key
+            atx:kpt_codes="-5"
+            atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core"
+            atx:kpt_iconText="@string/kpt_icontext_delete"
+            atx:kpt_isRepeatable="true"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_useExternalFont="true" /> -->
     </Row>
-    <Row atx:rowEdgeFlags="bottom" >
+    <Row atx:kpt_rowEdgeFlags="bottom" >
+        <!-- <Key
+            atx:kpt_codes="-2"
+            atx:kpt_horizontalGap="3.5%p"
+            atx:kpt_keyLabel="\#*" /> -->
+         <Key
+            atx:kpt_codes="-5"
+            atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core"
+            atx:kpt_iconText="@string/kpt_icontext_delete"
+            atx:kpt_isRepeatable="true"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyEdgeFlags="left"
+            atx:kpt_useExternalFont="true" />    
         <Key
-            atx:codes="-2"
-            atx:horizontalGap="3.5%p"
-            atx:keyLabel="\#*" />
+            atx:kpt_codes="48"
+            atx:kpt_keyLabel="0"
+             />
+        <!-- <Key
+            atx:kpt_codes="48,43"
+            atx:kpt_keyLabel="0"
+            atx:kpt_keyLabel2="+" /> -->
+        <!-- <Key
+            atx:kpt_codes="32"
+            atx:kpt_iconText="@string/kpt_icontext_space"
+            atx:kpt_useExternalFont="true" /> -->
         <Key
-            atx:codes="48,43"
-            atx:keyLabel="0"
-            atx:keyLabel2="+" />
-        <Key
-            atx:codes="32"
-            atx:iconText="@string/kpt_icontext_space"
-            atx:useExternalFont="true" />
-        <Key
-            atx:codes="10"
-            atx:iconText="@string/kpt_icontext_enter_kbhide"
-            atx:keyEdgeFlags="right"
-            atx:useExternalFont="true" />
+            atx:kpt_codes="10"
+            atx:kpt_iconText="@string/kpt_icontext_enter_done"
+            atx:kpt_keyLabelYPos="0.50"
+            atx:kpt_keyEdgeFlags="right"
+            atx:kpt_useExternalFont="true" />
     </Row>
 
-</Keyboard><!-- From: file:/Users/gauraw/hike/Fork-Hike/android-client/kptHost/res/xml/kbd_normal_qwerty_phone_fk.xml -->
+</Keyboard><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/xml/kbd_normal_qwerty_phone_fk.xml -->
