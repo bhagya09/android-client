@@ -402,7 +402,6 @@
             android:name=".notifications.NotificationDismissedReceiver"
             android:exported="true" >
         </receiver>
-
         <activity
             android:name=".ui.DeleteAccount"
             android:label="@string/app_label"
@@ -445,8 +444,16 @@
         <receiver android:name=".chatHead.ChatHeadServiceManager" />
         <service android:name=".chatHead.ChatHeadService" 
             android:label="HikeStickeyService"/>
-
         <service android:name=".voip.VoIPService" />
+
+        <service
+            android:name=".service.HikeAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibilityservice" />
+        </service>
 
         <provider
             android:name="com.bsb.hike.providers.HikeProvider"
