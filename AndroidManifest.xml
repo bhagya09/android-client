@@ -6,7 +6,7 @@
     android:installLocation="auto"
 
     android:versionCode="1336"
-    android:versionName="3.9.8.82.39.4.cpr" >
+    android:versionName="3.9.9.1.cpr" >
     
     <uses-sdk
         android:minSdkVersion="14"
