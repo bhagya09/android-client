@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">अपने मित्रों को टहोकने के लिए कहीं भी दोहरा टैप करें</string>
     <string name="addedYouAsFavorite">%1$s को पसंदीदा में जोड़ा गया</string>
     <string name="addedYouFrindDescription"><![CDATA[
- You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#0f8fe1">Status Updates</font> with %1$s. Would you like to request him to do the same?
+ You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#1da8e8">Status Updates</font> with %1$s. Would you like to request him to do the same?
 	    
     ]]></string>
     <string name="contacts_upper_case">संपर्क</string>
