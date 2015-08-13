@@ -277,6 +277,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				menu.findItem(R.id.voip_call).setVisible(true);
 			}
+			showOfflineOverflowIndiactorIfRequired();
 			return super.onCreateOptionsMenu(menu);
 		}
 
@@ -399,7 +400,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			addAllUndeliverdMessages(messages);
 		}
-
+	
 	}
 
 	private void showTips()
@@ -1213,6 +1214,26 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		setLabel(getConvLabel());
 		
 		setLastSeenStuff(firstInflation);
+	}
+
+	private void showOfflineOverflowIndiactorIfRequired()
+	{
+		Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
+		if(!isClicked)
+		{
+			mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot,true);
+		}
+	}
+	
+	@Override
+	protected void showOverflowMenu()
+	{
+		Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
+		if(!isClicked)
+		{
+			sharedPreference.saveData(OfflineConstants.OFFLINE_INDICATOR_CLICKED, true);
+		}
+		super.showOverflowMenu();
 	}
 
 	protected void setLastSeenStuff(boolean firstInflation)
@@ -3247,7 +3268,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		Logger.d("OfflineManager", "disconnect Called " + errorCode);
+		
+		Logger.d("OfflineManager", "disconnect Called " + errorCode + " time- " + System.currentTimeMillis());
 		switch (errorCode)
 		{
 		case OUT_OF_RANGE:

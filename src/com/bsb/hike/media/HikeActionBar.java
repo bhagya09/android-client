@@ -315,11 +315,13 @@ public class HikeActionBar implements OverflowItemClickListener
 	 * 
 	 * Count indicator takes priority over image indicator.
 	 * 
+	 * By Default imageview has red background (@drawable/ic_top_bar_indicator) , setAsbackground is flag to set image as background instead
+	 * 
 	 * @return
 	 * 	true - if the indicator image is successfully displayed.
 	 * 	false - if the image can not be displayed. This will also happen if the counter is currently visible.
 	 */
-	public boolean updateOverflowMenuIndicatorImage(int imadeResId)
+	public boolean updateOverflowMenuIndicatorImage(int imadeResId,boolean setAsBackground)
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
@@ -330,7 +332,14 @@ public class HikeActionBar implements OverflowItemClickListener
 
 			if (imadeResId != 0 && topBarCounter.getVisibility() != View.VISIBLE)
 			{
-				topBarIndiImage.setImageResource(imadeResId);
+				if(setAsBackground)
+				{
+					topBarIndiImage.setBackgroundResource(imadeResId);
+				}
+				else
+				{
+					topBarIndiImage.setImageResource(imadeResId);
+				}
 				topBarIndiImage.setVisibility(View.VISIBLE);
 				topBarIndiImage.startAnimation(Utils.getNotificationIndicatorAnim());
 				overflowMenIndicatorInUse = true;
@@ -378,7 +387,7 @@ public class HikeActionBar implements OverflowItemClickListener
 				topBarCounter.setText(getUnreadCounterText(newCount));
 				topBarCounter.startAnimation(Utils.getNotificationIndicatorAnim());
 				overflowMenIndicatorInUse = true;
-				updateOverflowMenuIndicatorImage(0);
+				updateOverflowMenuIndicatorImage(0,false);
 			}
 		}
 	}

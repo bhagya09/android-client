@@ -712,22 +712,21 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		else
 		{
 			String msisdn = ((ContactInfo) tag).getMsisdn();
+			msisdn = Utils.normalizeNumber(msisdn,
+					getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 			if (type == Type.BLOCK)
 			{
+			
 				if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 				{
 					Logger.d("HikeListActivity","Disconnecting Offline Msg");
 					OfflineController.getInstance().shutDown();
 				}
 				HikeMessengerApp.getPubSub().publish(
-						HikePubSub.BLOCK_USER,
-						Utils.normalizeNumber(msisdn,
-								getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
+						HikePubSub.BLOCK_USER,msisdn);
 			}
 			else
 			{
-				msisdn = Utils.normalizeNumber(msisdn,
-						getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 				Logger.d(getClass().getSimpleName(), "Inviting " + msisdn);
 				Utils.sendInvite(msisdn, this);
 				Toast.makeText(this, R.string.invite_sent, Toast.LENGTH_SHORT).show();

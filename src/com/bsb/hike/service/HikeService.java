@@ -303,6 +303,9 @@ public class HikeService extends Service
 			Utils.executeAsyncTask(syncContactExtraInfo);
 		}
 		
+		/*  If user swiped his app while receiving files in OfflineMode we need to remove those files from the user's ui 
+		 *  and add an inline message for the same.
+		 */
 		if(!TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, "")))
 		{
 			HikeHandlerUtil.getInstance().postRunnableWithDelay(new CleanFileRunnable(),0);
