@@ -756,6 +756,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showAttchmentPicker();
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
 			return true;
+			
+		case android.R.id.home:
+			actionBarBackPressed();
+			return true;
 		}
 		return false;
 	}
