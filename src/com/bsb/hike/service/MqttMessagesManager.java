@@ -4298,6 +4298,7 @@ public class MqttMessagesManager
 		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 		JSONArray msisdnArray = data.optJSONArray(HikeConstants.CONTACTS);
 		int counter = data.optInt(HikeConstants.COUNT);
+		Logger.d("tl_ftue", "ftue packet received "+ msisdnArray +", count is "+ counter);
 		Set<String> msisdnSet = null;
 		if (msisdnArray != null)
 		{
@@ -4314,12 +4315,14 @@ public class MqttMessagesManager
 		{
 			//just replace these values
 			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case  init not show or on top "+ msisdnSet);
 		}
 		//case 2) exit card on top:-
 		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_ON_TOP, false))
 		{
 			//just replace these values
 			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case  exit card on top "+ msisdnSet);
 		}
 		
 		// case 3) fav card is on top or no cards on top
@@ -4348,6 +4351,7 @@ public class MqttMessagesManager
 			
 			//save new list
 			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case fav card is on top or no cards on top "+ msisdnSet);
 		}
 		
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, counter);
