@@ -431,9 +431,9 @@
     <color name="home_screen_list_divider">#14000000</color>
     <color name="conv_item_ts_color">#000000</color>
     <color name="conv_item_last_msg_color">#7A000000</color>
-    <color name="conv_item_contact_color">#B8000000</color>
+    <color name="conv_item_contact_color">#CC000000</color>
     <color name="conv_item_timestamp_color">#3D000000</color>
-    <color name="settings_text_header_color">#B8000000</color>
+    <color name="settings_text_header_color">#CC000000</color>
     <color name="settings_text_subheader_color">#7A000000</color>
     <color name="menu_text_color">#CC000000</color>
     <color name="bg_custom_dialog">#EEEEEE</color>
