@@ -33,9 +33,9 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	protected int firstTimeHeight;
 
 	protected int[] mEatTouchEventViewIds;
-
-	protected PopupListener mListener;
 	
+	protected PopupListener mListener;
+
 	/**
 	 * 
 	 * @param mainView
