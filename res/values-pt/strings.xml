@@ -1199,7 +1199,7 @@
     <string name="see_them">PRONTO</string>
     <string name="drag_tip_text">Toque e segure um pacote para reordenar os pacotes de adesivos</string>
     <string name="drag_tip_subtext">Toque e arraste para reorganizar os adesivos</string>
-    <string name="sticker_cancel">CANCELAR</string>
+    <string name="CANCEL">CANCELAR</string>
     <string name="sticker_confirm">CONFIRMAR</string>
     <string name="n_more">MAIS %1$d</string>
     <string name="n_stickers">%1$d adesivos</string>
@@ -1253,7 +1253,6 @@
     <string name="auth_state_connecting">Conectando...</string>
     <string name="auth_please_wait_connect">Aguarde enquanto conectamos você...</string>
     <string name="auth_done">PRONTO</string>
-    <string name="auth_cancel">Cancelar</string>
     <string name="auth_retry">Tentar novamente</string>
     <string name="auth_went_wrong">Ocorreu um problema.</string>
     <string name="install_text">INSTALAÇÃO GRATUITA</string>

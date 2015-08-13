@@ -277,7 +277,7 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 			alertDialog.setTitle(getString(R.string.are_you_sure));
 			alertDialog.setMessage(getString(R.string.confirm_disconnect_app));
 			alertDialog.setPositiveButton(getString(R.string.yes), dialogListener);
-			alertDialog.setNegativeButton(getString(R.string.cancel), dialogListener);
+			alertDialog.setNegativeButton(getString(R.string.CANCEL), dialogListener);
 			alertDialog.show();
 		}
 		catch (ClassCastException cce)

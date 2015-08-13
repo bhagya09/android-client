@@ -1134,7 +1134,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			dialogStrings[0] = getString(R.string.reset_complete_stealth_header);
 			dialogStrings[1] = getString(R.string.reset_stealth_confirmation);
 			dialogStrings[2] = getString(R.string.confirm);
-			dialogStrings[3] = getString(R.string.cancel);
+			dialogStrings[3] = getString(R.string.CANCEL);
 		
 			HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.RESET_STEALTH_DIALOG, new HikeDialogListener()
 			{

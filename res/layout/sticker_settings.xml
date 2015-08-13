@@ -199,7 +199,7 @@
                android:layout_width="match_parent"
                android:layout_height="match_parent"
                android:gravity="center"
-               android:text="@string/sticker_cancel"
+               android:text="@string/CANCEL"
                android:textColor="@color/white"
                android:background="@drawable/sticker_settings_btn_selector"
                android:textSize="14sp" />

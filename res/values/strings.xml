@@ -1193,7 +1193,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="see_them">DONE</string>
     <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
     <string name="drag_tip_subtext">Tap and drag to reorder your stickers</string>
-    <string name="sticker_cancel">CANCEL</string>
+    <string name="CANCEL">CANCEL</string>
     <string name="sticker_confirm">CONFIRM</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
@@ -1247,7 +1247,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="auth_state_connecting">Connecting...</string>
     <string name="auth_please_wait_connect">Please wait while we connect you...</string>
     <string name="auth_done">DONE</string>
-    <string name="auth_cancel">Cancel</string>
     <string name="auth_retry">Retry</string>
     <string name="auth_went_wrong">Something went wrong.</string>
     <string name="install_text">FREE INSTALL</string>

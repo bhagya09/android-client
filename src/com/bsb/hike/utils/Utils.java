@@ -2036,7 +2036,7 @@ public class Utils
 			dialog.setMessage(String.format(body, contactInfo.getFirstName()));
 			dialog.setCheckBox(R.string.not_show_call_alert_msg, null, false);
 			dialog.setPositiveButton(R.string.ok, dialogListener);
-			dialog.setNegativeButton(R.string.cancel, dialogListener);
+			dialog.setNegativeButton(R.string.CANCEL, dialogListener);
 
 			dialog.show();
 		}

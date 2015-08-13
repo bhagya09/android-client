@@ -1199,7 +1199,7 @@
     <string name="see_them">FERTIG</string>
     <string name="drag_tip_text">Tippe ein Paket an und halte es gedrückt, um deine Stickerpakete neu zu sortieren</string>
     <string name="drag_tip_subtext">Tippe und ziehe, um deine Sticker umzusortieren</string>
-    <string name="sticker_cancel">ABBRECHEN</string>
+    <string name="CANCEL">ABBRECHEN</string>
     <string name="sticker_confirm">BESTÄTIGEN</string>
     <string name="n_more">%1$d MEHR</string>
     <string name="n_stickers">%1$d Sticker</string>
@@ -1253,7 +1253,6 @@
     <string name="auth_state_connecting">Verbinden...</string>
     <string name="auth_please_wait_connect">Bitte warten. Wir verbinden dich...</string>
     <string name="auth_done">FERTIG</string>
-    <string name="auth_cancel">Abbrechen</string>
     <string name="auth_retry">Erneut versuchen</string>
     <string name="auth_went_wrong">Hier ist etwas schiefgelaufen.</string>
     <string name="install_text">GRATIS INSTALLIEREN</string>
