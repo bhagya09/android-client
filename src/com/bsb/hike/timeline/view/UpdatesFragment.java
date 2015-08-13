@@ -600,7 +600,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			list.add(finalContactLsit.get(i).getMsisdn());
 		}
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
-		settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, list);
+		settings.saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, list);
 	}
 
 	private IRequestListener actionUpdatesReqListener = new IRequestListener()

@@ -721,8 +721,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			break;
 
 		case FTUE_CARD_FAV:
-			//int counter = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TIMELINE_FTUE_CARD_SHOWN_COUNTER, UpdatesFragment.START_FTUE_WITH_INIT_CARD);
-			//ContactInfo contact = mFtueFriendList.get(counter - 1);
 			ContactInfo contact = mFtueFriendList.get(0);
 			viewHolder.name.setText(contact.getName());
 			((RoundedImageView)viewHolder.avatar).setOval(true);
