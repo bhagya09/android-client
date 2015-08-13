@@ -336,6 +336,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ ")";
 		db.execSQL(sql);
 
+		// This table has the data related to the card to card messaging. This table has the data shared among the microapps
+		sql = CREATE_TABLE + DBConstants.MESSAGE_EVENT_TABLE
+				+ " ("
+				+ DBConstants.EVENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ DBConstants.MESSAGE_HASH + " TEXT, "        //msisdn of bot
+				+ DBConstants.EVENT_METADATA + " TEXT, "      //the card to card messaging shared data
+				+ DBConstants.EVENT_STATUS + " INTEGER, "    //current status of the event... sent or received
+				+ DBConstants.EVENT_TYPE + " INTEGER, "      //whether shared message or an event
+				+ DBConstants.TIMESTAMP + " INTEGER, " // Event time stamp
+				+ DBConstants.MAPPED_EVENT_ID + " INTEGER, " // The message id of the message on the sender's side (Only applicable for received messages)
+				+ DBConstants.MSISDN + " TEXT, " // The conversation's msisdn. This will be the msisdn for one-to-one and the group id for groups
+				+ DBConstants.EVENT_HASH + " TEXT DEFAULT NULL, " // Used for duplication checks.
+				+ DBConstants.HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message'"  //namespace for uniqueness of content
+				+ ")";
+		db.execSQL(sql);
+
+		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH + " )";
+		db.execSQL(sql);
+
 	}
 	private void createIndexOverServerIdField(SQLiteDatabase db)
 	{
@@ -359,6 +378,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.FILE_THUMBNAIL_TABLE, null, null);
 		mDb.delete(DBConstants.CHAT_BG_TABLE, null, null);
 		mDb.delete(DBConstants.BOT_TABLE, null, null);
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
 	}
 
 	@Override
@@ -851,6 +871,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				db.execSQL(alter);
 			}
 		}
+
+		if (oldVersion < 43)
+		{
+			// This table has the data related to the card to card messaging. This table has the data shared among the microapps
+			String sql = CREATE_TABLE + DBConstants.MESSAGE_EVENT_TABLE
+					+ " ("
+					+ DBConstants.EVENT_ID + "INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ DBConstants.MESSAGE_HASH + " TEXT, "        //msisdn of bot
+					+ DBConstants.EVENT_METADATA + " TEXT, "      //the card to card messaging shared data
+					+ DBConstants.EVENT_STATUS + " INTEGER, "    //current status of the event... sent or received
+					+ DBConstants.EVENT_TYPE + " INTEGER, "      //whether shared message or an event
+					+ DBConstants.TIMESTAMP + " INTEGER, " // Event time stamp
+					+ DBConstants.MAPPED_EVENT_ID + " INTEGER, " // The message id of the message on the sender's side (Only applicable for received messages)
+					+ DBConstants.MSISDN + " TEXT, " // The conversation's msisdn. This will be the msisdn for one-to-one and the group id for groups
+					+ DBConstants.EVENT_HASH + " TEXT DEFAULT NULL, " // Used for duplication checks.
+					+ DBConstants.HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message'"  //namespace for uniqueness of content
+					+ ")";
+			db.execSQL(sql);
+
+			String sqlIndex =
+					"CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.EVENT_HASH_INDEX + " ON " + DBConstants.MESSAGE_EVENT_TABLE + " ( " + DBConstants.EVENT_HASH +
+							" )";
+			db.execSQL(sqlIndex);
+		}
+
 	}
 
 	public void reinitializeDB()
