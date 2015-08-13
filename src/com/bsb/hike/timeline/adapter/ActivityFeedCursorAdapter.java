@@ -124,7 +124,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 		profileImageLoader = new TimelineUpdatesImageLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size));
 		mIconImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
 		mIconImageLoader.setDefaultAvatarIfNoCustomIcon(true);
-		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mProtipIndex = -1;
 		mActivity = new WeakReference<Activity>(activity);
 		mUserMsisdn = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
