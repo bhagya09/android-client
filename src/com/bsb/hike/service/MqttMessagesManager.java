@@ -92,6 +92,7 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
@@ -3660,12 +3661,21 @@ public class MqttMessagesManager
 				{
 					FeedDataModel feedData = new FeedDataModel(jsonObj);
 
+					if (feedData.getObjType() == ActivityObjectTypes.STATUS_UPDATE)
+					{
+						StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(feedData.getObjID());
+						if(statusMessage == null)
+						{
+							return;
+						}
+					}
+
 					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
 
 					if (isSuccess)
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, feedData);
-						
+
 						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE_NOTIF, feedData);
 					}
 				}
