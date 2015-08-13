@@ -843,17 +843,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (oldVersion < 42)
 		{
-			String dropLoveTable = "DROP TABLE IF EXISTS " + LOVE_TABLE;
-			db.execSQL(dropLoveTable);
-			
-			String sql = getActionsTableCreateQuery();
-			db.execSQL(sql);
-			
-			sql = getFeedTableCreateQuery();
-			db.execSQL(sql);
-			
-			String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
-			db.execSQL(alterST);
 			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
 			{
 				String alter = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SEND_TIMESTAMP + " LONG DEFAULT -1";
@@ -869,6 +858,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String alter = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.TYPE + " INTEGER  DEFAULT 0";
 				db.execSQL(alter);
 			}
+		}
+		
+		if(oldVersion < 43)
+		{
+			String dropLoveTable = "DROP TABLE IF EXISTS " + LOVE_TABLE;
+			db.execSQL(dropLoveTable);
+			
+			String sql = getActionsTableCreateQuery();
+			db.execSQL(sql);
+			
+			sql = getFeedTableCreateQuery();
+			db.execSQL(sql);
+			
+			String alterST = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.FILE_KEY + " TEXT";
+			db.execSQL(alterST);
 		}
 	}
 
