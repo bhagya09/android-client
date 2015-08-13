@@ -268,6 +268,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
 			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
 			jsonObject.put(HikePlatformConstants.NAMESPACE, message.getNameSpace());
+			jsonObject.put(HikePlatformConstants.MESSAGE_HASH, HikeConversationsDatabase.getInstance().getMessageHashFromMessageId(message.getMsgID()));
 			Logger.d(tag, "init called with:" + jsonObject.toString());
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
