@@ -3088,7 +3088,13 @@ public class HikeConstants
 	
 	public static final String HISTORICAL_UPDATE = "hsu";
 	
-	public static final String TIMELINE_FTUE_CARD_SHOWN_COUNTER = "timeline_ftue_card_shown_counter";
+	public static final String INIT_CARD_SHOWN = "timeline_ftue_init_card_shown";
+	
+	public static final String INIT_CARD_ON_TOP = "init_card_on_top";
+	
+	public static final String EXIT_CARD_ON_TOP = "exit_card_on_top";
+	
+	public static final String EXIT_CARD_SHOWN = "timeline_ftue_exit_card_shown";
 	
 	public static final String TIMELINE_FTUE_CARD_TO_SHOW_COUNTER = "timeline_ftue_card_to_show_counter";
 	
