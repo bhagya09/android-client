@@ -291,6 +291,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							Pair<Set<String>, Integer> pair = (Pair<Set<String>, Integer>)object;
 							HashSet<String> msisdnSet = (HashSet<String>) pair.first;
 							int counter = pair.second;
+							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and count "+ counter);
 							Iterator<String> iterator = msisdnSet.iterator();
 							int i=0;
 							while(iterator.hasNext() && i < counter)
@@ -302,6 +303,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 									i++;
 								}
 							}
+							Logger.d("tl_ftue", "inside pubub, final list after check is " + mFtueFriendList);
 							addFTUEItem();
 							updateFTUEMsisdnsList(mFtueFriendList);
 							notifyVisibleItems();
@@ -546,6 +548,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			isFromSignUpList = true;
 			
 			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "====== List from Server Reco:- " + msisdnSet);
 		}
 		else
 		{
@@ -583,10 +586,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		if (finalContactLsit == null || finalContactLsit.isEmpty())
 		{
 			resetSharedPrefOnRemovingFTUE();
+			Logger.d("tl_ftue", "NO contacts, so showing no FTUE");
 		}
 		else
 		{
 			updateFTUEMsisdnsList(finalContactLsit);
+			Logger.d("tl_ftue", "final list after check "+ finalContactLsit);
 		}
 		return finalContactLsit;
 	}
