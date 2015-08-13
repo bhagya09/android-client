@@ -231,11 +231,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	
 	private void handleOfflineIntent(Intent intent)
 	{
-		if (intent.getBooleanExtra(OfflineConstants.START_CONNECT_FUNCTION,false))
+		if (intent.getBooleanExtra(OfflineConstants.START_CONNECT_FUNCTION,false) && !ContactManager.getInstance().isBlocked(msisdn))
 		{
-			Message msg=Message.obtain();
-			msg.obj=true;
-			msg.what=START_OFFLINE_CONNECTION;
+			Message msg = Message.obtain();
+			msg.obj = true;
+			msg.what = START_OFFLINE_CONNECTION;
 			uiHandler.sendMessage(msg);
 		}
 		
