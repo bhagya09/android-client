@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/actionbarsherlock library/actionbar-sherlock.iml" filepath="$PROJECT_DIR$/actionbarsherlock library/actionbar-sherlock.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-client.iml" filepath="$PROJECT_DIR$/android-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/facebook-android-sdk/facebook/facebook.iml" filepath="$PROJECT_DIR$/facebook-android-sdk/facebook/facebook.iml" />
+      <module fileurl="file://$PROJECT_DIR$/google-play-services_lib/google-play.iml" filepath="$PROJECT_DIR$/google-play-services_lib/google-play.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Android ViewPagerIndicator library/viewpager-indicator-library.iml" filepath="$PROJECT_DIR$/Android ViewPagerIndicator library/viewpager-indicator-library.iml" />
+    </modules>
+  </component>
+</project>
+
