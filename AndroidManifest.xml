@@ -5,9 +5,9 @@
     package="com.bsb.hike"
     android:installLocation="auto"
 
-    android:versionCode="1315"
-    android:versionName="3.9.8.82.25.1.hike_platform_internal" >
-    
+    android:versionCode="1333"
+    android:versionName="3.9.9.platform" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -283,10 +283,6 @@
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity android:name=".ui.CreateNewGroupOrBroadcastActivity" >
-        </activity>
-        <activity
-            android:name=".ui.FtueBroadcast"
-            android:configChanges="keyboardHidden|screenSize" >
         </activity>
         <activity
             android:name=".ui.PeopleActivity"

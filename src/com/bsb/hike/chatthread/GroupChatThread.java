@@ -6,8 +6,11 @@ import java.util.Map;
 
 import org.json.JSONException;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
@@ -40,7 +43,6 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -57,7 +59,6 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 
 /**
@@ -105,7 +106,8 @@ public class GroupChatThread extends OneToNChatThread
 		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat)
 		{
 			try {
-				if(oneToNConversation.getMetadata().amIAdmin()){
+				if(oneToNConversation!=null&&oneToNConversation.getMetadata()!=null && oneToNConversation.getMetadata().amIAdmin()){
+		            Utils.blockOrientationChange(activity);
 					showMultiAdminTip(activity);
 				}
 			} catch (JSONException e) {
@@ -115,10 +117,10 @@ public class GroupChatThread extends OneToNChatThread
     	}
 		
 	}
-	public static void showMultiAdminTip(final Context context)
+	public void showMultiAdminTip(final Context context)
 	{
 	
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
+		HikeDialog hikeDialog = HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
 		{
 
 			@Override
@@ -138,9 +140,18 @@ public class GroupChatThread extends OneToNChatThread
 			{
 				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+				
 			}
 
 		}, 0);
+         hikeDialog.setOnDismissListener(new OnDismissListener() {
+			
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				Utils.unblockOrientationChange(activity);
+				
+			}
+		});
 	}
 
 	@Override
@@ -221,7 +232,7 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private boolean shouldShowCallIcon()
 	{
-		return VoIPUtils.isConferencingEnabled(activity.getApplicationContext());
+		return VoIPUtils.isGroupCallEnabled(activity.getApplicationContext());
 	}
 
 	/**
@@ -455,7 +466,7 @@ public class GroupChatThread extends OneToNChatThread
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.PIN_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP }, sharedPreference);
 
 		mTips.showTip();
 	}
@@ -656,8 +667,6 @@ public class GroupChatThread extends OneToNChatThread
 		}
 
 		content.findViewById(R.id.emo_btn).setOnClickListener(this);
-
-		wasTipSetSeen(ChatThreadTips.PIN_TIP);
 	}
 	
 	private void playPinCreateViewAnim()
@@ -822,8 +831,6 @@ public class GroupChatThread extends OneToNChatThread
 		}
 
 		pinView = null;
-		// If the pin tip was previously being seen, and it wasn't closed, we need to show it again.
-		mTips.showHiddenTip(ChatThreadTips.PIN_TIP);
 	}
 	
 	private void showPinHistory(boolean viaMenu)
@@ -854,7 +861,6 @@ public class GroupChatThread extends OneToNChatThread
 			return;
 		}
 
-		mTips.hideTip(ChatThreadTips.PIN_TIP);
 		boolean wasPinViewInflated = false;
 		if (impMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.TEXT_PIN)
 		{

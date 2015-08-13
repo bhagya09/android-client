@@ -190,8 +190,6 @@ public class HikeConstants
 
 	public static final String SHOW_GAMES = "show_games";
 	
-	public static final String SHOW_BROADCAST = "show_broadcast";
-
 	public static final String GAMES = "games";
 
 	public static final String TALK_TIME = "tt";
@@ -474,6 +472,8 @@ public class HikeConstants
 
 	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
 	
+	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
+	
 	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
 	
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
@@ -620,8 +620,6 @@ public class HikeConstants
 	public static final String SHOW_RECENTLY_JOINED = "showRecentlyJoined";
 
 	public static final String SHOW_TIMELINE_RED_DOT = "showTimelineRedDot";
-	
-	public static final String SHOW_NEW_BROADCAST_RED_DOT = "showBroadcastRedDot";
 	
 	public static final String IS_OF_ICON_CLICKED = "isOfIconClicked";
 
@@ -1149,6 +1147,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_ENABLED = "aec";
 
 	public static final String VOIP_CONFERENCING_ENABLED = "conf";
+
+	public static final String VOIP_GROUP_CALL_ENABLED = "gccall";
 
 	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
@@ -2994,6 +2994,10 @@ public class HikeConstants
 
 	public static final String KEYBOARD_CONFIGURATION = "kc";
 
+	public static final int KEYBOARD_CONFIGURATION_OLD = 1;
+
+	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
+	
 	public static final String GET="get";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
