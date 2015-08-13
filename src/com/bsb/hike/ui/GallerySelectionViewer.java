@@ -187,6 +187,16 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				editedImages.add(null);
 			}
 		}
+		else
+		{
+			for(int i=editedImages.size()-1;i>=0;i--)
+			{
+				if(editedImages.get(i)!=null && !new File(editedImages.get(i)).exists())
+				{
+					editedImages.remove(i);
+				}
+			}
+		}
 	}
 
 	private void startAddMoreGalleryIntent()
