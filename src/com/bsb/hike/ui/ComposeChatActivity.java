@@ -317,8 +317,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				if(HikeFileType.fromString(getIntent().getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
 				{ 
-					String fileName = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
-					startActivityForResult(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false),HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
+					if(filePath != null)
+						startActivityForResult(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), filePath, true, null, false),HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 				}
 			} 
 			

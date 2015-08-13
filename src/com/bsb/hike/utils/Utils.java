@@ -1467,7 +1467,11 @@ public class Utils
 
 	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri)
 	{
-
+		if(uri == null)
+		{
+			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
+			return null;
+		}
 		String fileUriString = uri.toString();
 		String fileUriStart = "file:";
 
