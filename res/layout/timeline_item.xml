@@ -107,7 +107,7 @@
                 style="@style/ProtipBtn.YesBtn"
                 android:focusable="false"
                 android:onClick="onYesBtnClick"
-                android:text="@string/confirm" />
+                android:text="@string/CONFIRM" />
 
             <View
                 android:id="@+id/button_divider"

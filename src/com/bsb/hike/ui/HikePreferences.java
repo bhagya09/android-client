@@ -356,7 +356,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				IconListPreference changeStealthTimeout = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.CHANGE_STEALTH_TIMEOUT);
 				if (changeStealthTimeout != null)
 				{
-					changeStealthTimeout.setTitle(getString(R.string.change_stealth_timeout) + " : " + changeStealthTimeout.getEntry());
+					changeStealthTimeout.setTitle(getString(R.string.change_stealth_timeout) + ": " + changeStealthTimeout.getEntry());
 					changeStealthTimeout.setSummary(R.string.change_stealth_timeout_body);
 					changeStealthTimeout.setOnPreferenceChangeListener(this);
 				}
@@ -452,11 +452,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				{
 					if (PreferenceManager.getDefaultSharedPreferences(HikePreferences.this).getBoolean(HikeConstants.SEND_UNDELIVERED_AS_NATIVE_PREF, false))
 					{
-						titleString += " - " + getString(R.string.regular_sms);
+						titleString += ": " + getString(R.string.regular_sms);
 					}
 					else
 					{
-						titleString += " - " + getString(R.string.free_hike_sms);
+						titleString += ": " + getString(R.string.free_hike_sms);
 					}
 					summaryString = getString(R.string.undelivered_sms_setting_remember);
 				}
@@ -779,7 +779,7 @@ private void setupToolBar(int titleRes){
 			};
 
 			confirmDialog.setOkButton(R.string.unlink, dialogOkClickListener);
-			confirmDialog.setCancelButton(R.string.cancel);
+			confirmDialog.setCancelButton(R.string.CANCEL);
 			confirmDialog.show();
 
 		}*/
@@ -911,8 +911,8 @@ private void setupToolBar(int titleRes){
 				Object[] dialogStrings = new Object[4];
 				dialogStrings[0] = getString(R.string.initiate_reset_stealth_header);
 				dialogStrings[1] = getString(R.string.initiate_reset_stealth_body);
-				dialogStrings[2] = getString(R.string.confirm);
-				dialogStrings[3] = getString(R.string.cancel);
+				dialogStrings[2] = getString(R.string.CONFIRM);
+				dialogStrings[3] = getString(R.string.CANCEL);
 				
 				HikeDialogFactory.showDialog(this, HikeDialogFactory.RESET_STEALTH_DIALOG, new HikeDialogListener()
 				{
@@ -1378,7 +1378,7 @@ private void setupToolBar(int titleRes){
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_MY_CONTACTS_CLICKED);
 							break;
 					}
-					preference.setTitle(getString(R.string.last_seen_header) + " : " + selectedPrivacyValue);
+					preference.setTitle(getString(R.string.last_seen_header) + ": " + selectedPrivacyValue);
 					preference.setSummary(ls_summary);
 					PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.LAST_SEEN_PREF, isLSEnabled).commit();
 					sendNLSToServer(slectedPrivacyId, isLSEnabled);
@@ -1411,7 +1411,8 @@ private void setupToolBar(int titleRes){
 		}
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
 			lp.setTitleColor(R.color.unread_message_blue);
-		lp.setTitle(lp.getTitle() + " : " + lp.getEntry());
+		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+		lp.setNegativeButtonText(R.string.CANCEL);
 	}
 
 	private String getLSSummaryText()
@@ -1465,7 +1466,7 @@ private void setupToolBar(int titleRes){
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue)
 			{
-				preference.setTitle(getString(R.string.vibrate) + " - " + (newValue.toString()));
+				preference.setTitle(getString(R.string.vibrate) + ": " + (newValue.toString()));
 				try
 				{
 					Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -1490,7 +1491,8 @@ private void setupToolBar(int titleRes){
 				return true;
 			}
 		});
-		lp.setTitle(lp.getTitle() + " - " + lp.getValue());
+		lp.setTitle(lp.getTitle() + ": " + lp.getValue());
+		lp.setNegativeButtonText(R.string.CANCEL);
 		
 		ListPreference ledPref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.COLOR_LED_PREF);
 		ledPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
@@ -1507,7 +1509,7 @@ private void setupToolBar(int titleRes){
 					int index = preferenceLed.findIndexOfValue(newValue.toString());
 
 					if (index >= 0) {
-						preference.setTitle(getString(R.string.led_notification) + " - " + preferenceLed.getEntries()[index]);
+						preference.setTitle(getString(R.string.led_notification) + ": " + preferenceLed.getEntries()[index]);
 					}
 
 					if(getString(R.string.led_color_none_key).equals(newValue.toString()))
@@ -1590,7 +1592,8 @@ private void setupToolBar(int titleRes){
 
 		}
 
-		ledPref.setTitle(ledPref.getTitle() + " - " + ledPref.getEntry());
+		ledPref.setTitle(ledPref.getTitle() + ": " + ledPref.getEntry());
+		ledPref.setNegativeButtonText(R.string.CANCEL);
 	}
 
 	@Override
@@ -1641,7 +1644,7 @@ private void setupToolBar(int titleRes){
 				{
 					IconListPreference changeStealthTimeout = (IconListPreference)getPreferenceScreen().findPreference(HikeConstants.CHANGE_STEALTH_TIMEOUT);
 					CharSequence newTimeoutKey = changeStealthTimeout.getEntries()[changeStealthTimeout.findIndexOfValue(stealthBundle.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT))];
-					changeStealthTimeout.setTitle(getString(R.string.change_stealth_timeout) + " : " + newTimeoutKey);
+					changeStealthTimeout.setTitle(getString(R.string.change_stealth_timeout) + ": " + newTimeoutKey);
 					String newValue = stealthBundle.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT);
 					changeStealthTimeout.setValue(newValue);
 					metadata.put(HikeConstants.KEY, HikeConstants.CHANGE_STEALTH_TIMEOUT);
@@ -1838,11 +1841,11 @@ private void setupToolBar(int titleRes){
 			{
 				if (PreferenceManager.getDefaultSharedPreferences(HikePreferences.this).getBoolean(HikeConstants.SEND_UNDELIVERED_AS_NATIVE_PREF, false))
 				{
-					titleString += " - " + getString(R.string.regular_sms);
+					titleString += ": " + getString(R.string.regular_sms);
 				}
 				else
 				{
-					titleString += " - " + getString(R.string.free_hike_sms);
+					titleString += ": " + getString(R.string.free_hike_sms);
 				}
 				summaryString = getString(R.string.undelivered_sms_setting_remember);
 			}
