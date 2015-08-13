@@ -326,8 +326,8 @@ public class StickerSearchHostManager
 			StringBuilder searchText = new StringBuilder();
 			boolean suggestionFoundOnLastValidPhrase;
 			boolean suggestionFoundOnLastValidWord;
-			int currentStartBoundary;
-			int currentEndBoundary = 0;
+			int currentHighlightRangeStart;
+			int recentHighlighRangeEnd = 0;
 
 			for (int i = 0, significantWordIndex = 0; i < size; i++)
 			{
@@ -389,20 +389,22 @@ public class StickerSearchHostManager
 							{
 								list = phraseResultList;
 								Logger.v(TAG, "Filtering phrase stickers before saving in local cache: " + list);
-								currentStartBoundary = mCurrentWords.get(i).getStart();
+								currentHighlightRangeStart = mCurrentWords.get(i).getStart();
 
-								if ((currentEndBoundary < currentStartBoundary) || isMarkingToHighlightFirstWordOrPhrase(currentStartBoundary, currentEndBoundary))
+								if ((recentHighlighRangeEnd < currentHighlightRangeStart)
+										|| isMarkingToHighlightFirstWordOrPhrase(currentHighlightRangeStart, recentHighlighRangeEnd))
 								{
-									currentEndBoundary = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
-									tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-									Logger.v(TAG, "Highlighting phrase \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary + ")");
+									recentHighlighRangeEnd = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
+									tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+									Logger.v(TAG, "Highlighting phrase \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", " + recentHighlighRangeEnd + ")");
 								}
-								else if ((currentEndBoundary > currentStartBoundary) && (currentEndBoundary < mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getStart())
-										&& (tempResult.size() > 0))
+								else if ((recentHighlighRangeEnd > currentHighlightRangeStart)
+										&& (recentHighlighRangeEnd < mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getStart()) && (tempResult.size() > 0))
 								{
-									currentEndBoundary = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
-									tempResult.get(tempResult.size() - 1)[Word.BOUNDARY_INDEX_END] = currentEndBoundary;
-									Logger.v(TAG, "Highlighting remaining phrase \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary + ")");
+									recentHighlighRangeEnd = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
+									tempResult.get(tempResult.size() - 1)[Word.BOUNDARY_INDEX_END] = recentHighlighRangeEnd;
+									Logger.v(TAG, "Highlighting remaining phrase \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", " + recentHighlighRangeEnd
+											+ ")");
 								}
 
 								suggestionFoundOnLastValidPhrase = true;
@@ -541,28 +543,29 @@ public class StickerSearchHostManager
 
 									if (!Utils.isEmpty(savedStickers))
 									{
-										currentStartBoundary = mCurrentWords.get(i).getStart();
+										currentHighlightRangeStart = mCurrentWords.get(i).getStart();
 										int marker = savedStickers.indexOf(null);
 
 										if (marker != 0)
 										{
 											// word + phrase both searched successfully
-											if ((currentEndBoundary < currentStartBoundary) || isMarkingToHighlightFirstWordOrPhrase(currentStartBoundary, currentEndBoundary))
+											if ((recentHighlighRangeEnd < currentHighlightRangeStart)
+													|| isMarkingToHighlightFirstWordOrPhrase(currentHighlightRangeStart, recentHighlighRangeEnd))
 											{
-												currentEndBoundary = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
-												tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-												Logger.v(TAG, "Highlighting partial phrase \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary
-														+ ")");
+												recentHighlighRangeEnd = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
+												tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+												Logger.v(TAG, "Highlighting partial phrase \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", "
+														+ recentHighlighRangeEnd + ")");
 
 												break;
 											}
-											else if ((currentEndBoundary > currentStartBoundary)
-													&& (currentEndBoundary < mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getStart()) && (tempResult.size() > 0))
+											else if ((recentHighlighRangeEnd > currentHighlightRangeStart)
+													&& (recentHighlighRangeEnd < mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getStart()) && (tempResult.size() > 0))
 											{
-												currentEndBoundary = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
-												tempResult.get(tempResult.size() - 1)[Word.BOUNDARY_INDEX_END] = currentEndBoundary;
-												Logger.v(TAG, "Highlighting remaining partial phrase \'" + searchKey + "\' in range [" + currentStartBoundary + ", "
-														+ currentEndBoundary + ")");
+												recentHighlighRangeEnd = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
+												tempResult.get(tempResult.size() - 1)[Word.BOUNDARY_INDEX_END] = recentHighlighRangeEnd;
+												Logger.v(TAG, "Highlighting remaining partial phrase \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", "
+														+ recentHighlighRangeEnd + ")");
 
 												break;
 											}
@@ -570,12 +573,13 @@ public class StickerSearchHostManager
 										else
 										{
 											// Only word could be searched successfully
-											if ((currentEndBoundary < currentStartBoundary) || isMarkingToHighlightFirstWordOrPhrase(currentStartBoundary, currentEndBoundary))
+											if ((recentHighlighRangeEnd < currentHighlightRangeStart)
+													|| isMarkingToHighlightFirstWordOrPhrase(currentHighlightRangeStart, recentHighlighRangeEnd))
 											{
-												currentEndBoundary = mCurrentWords.get(i).getEnd();
-												tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-												Logger.v(TAG, "Highlighting individual word \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary
-														+ ")");
+												recentHighlighRangeEnd = mCurrentWords.get(i).getEnd();
+												tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+												Logger.v(TAG, "Highlighting individual word \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", "
+														+ recentHighlighRangeEnd + ")");
 
 												break;
 											}
@@ -587,13 +591,15 @@ public class StickerSearchHostManager
 							}
 
 							// Handle current word
-							currentStartBoundary = mCurrentWords.get(i).getStart();
-							if (!suggestionFoundOnLastValidPhrase && suggestionFoundOnLastValidWord
-									&& ((currentEndBoundary < currentStartBoundary) || isMarkingToHighlightFirstWordOrPhrase(currentStartBoundary, currentEndBoundary)))
+							currentHighlightRangeStart = mCurrentWords.get(i).getStart();
+							if (!suggestionFoundOnLastValidPhrase
+									&& suggestionFoundOnLastValidWord
+									&& ((recentHighlighRangeEnd < currentHighlightRangeStart) || isMarkingToHighlightFirstWordOrPhrase(currentHighlightRangeStart,
+											recentHighlighRangeEnd)))
 							{
-								currentEndBoundary = mCurrentWords.get(i).getEnd();
-								tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-								Logger.v(TAG, "Highlighting word \'" + partialSearchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary + ")");
+								recentHighlighRangeEnd = mCurrentWords.get(i).getEnd();
+								tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+								Logger.v(TAG, "Highlighting word \'" + partialSearchKey + "\' in range [" + currentHighlightRangeStart + ", " + recentHighlighRangeEnd + ")");
 							}
 						}
 					}
@@ -603,34 +609,37 @@ public class StickerSearchHostManager
 
 						if (!Utils.isEmpty(savedStickers))
 						{
-							currentStartBoundary = mCurrentWords.get(i).getStart();
+							currentHighlightRangeStart = mCurrentWords.get(i).getStart();
 							int marker = savedStickers.indexOf(null);
 
 							if ((marker != 0) && (lastWordIndexInPhraseStartedWithPivot > i))
 							{
 								// Both (word + phrase) could be searched successfully
-								if ((currentEndBoundary < currentStartBoundary) || isMarkingToHighlightFirstWordOrPhrase(currentStartBoundary, currentEndBoundary))
+								if ((recentHighlighRangeEnd < currentHighlightRangeStart)
+										|| isMarkingToHighlightFirstWordOrPhrase(currentHighlightRangeStart, recentHighlighRangeEnd))
 								{
-									currentEndBoundary = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
-									tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-									Logger.v(TAG, "Highlighting phrase \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary + ")");
+									recentHighlighRangeEnd = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
+									tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+									Logger.v(TAG, "Highlighting phrase \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", " + recentHighlighRangeEnd + ")");
 								}
-								else if ((currentEndBoundary > currentStartBoundary) && (currentEndBoundary < mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getStart())
-										&& (tempResult.size() > 0))
+								else if ((recentHighlighRangeEnd > currentHighlightRangeStart)
+										&& (recentHighlighRangeEnd < mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getStart()) && (tempResult.size() > 0))
 								{
-									currentEndBoundary = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
-									tempResult.get(tempResult.size() - 1)[Word.BOUNDARY_INDEX_END] = currentEndBoundary;
-									Logger.v(TAG, "Highlighting remaining partial phrase \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary + ")");
+									recentHighlighRangeEnd = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
+									tempResult.get(tempResult.size() - 1)[Word.BOUNDARY_INDEX_END] = recentHighlighRangeEnd;
+									Logger.v(TAG, "Highlighting remaining partial phrase \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", "
+											+ recentHighlighRangeEnd + ")");
 								}
 							}
 							else if ((searchKey.length() > 1) || (significantWordIndex == 0))
 							{
 								// Only word could be searched successfully
-								if ((currentEndBoundary < currentStartBoundary) || isMarkingToHighlightFirstWordOrPhrase(currentStartBoundary, currentEndBoundary))
+								if ((recentHighlighRangeEnd < currentHighlightRangeStart)
+										|| isMarkingToHighlightFirstWordOrPhrase(currentHighlightRangeStart, recentHighlighRangeEnd))
 								{
-									currentEndBoundary = mCurrentWords.get(i).getEnd();
-									tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-									Logger.v(TAG, "Highlighting word \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary + ")");
+									recentHighlighRangeEnd = mCurrentWords.get(i).getEnd();
+									tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+									Logger.v(TAG, "Highlighting word \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", " + recentHighlighRangeEnd + ")");
 								}
 							}
 						}
@@ -678,43 +687,44 @@ public class StickerSearchHostManager
 
 									if (!Utils.isEmpty(savedStickers))
 									{
-										currentStartBoundary = mCurrentWords.get(i).getStart();
+										currentHighlightRangeStart = mCurrentWords.get(i).getStart();
 
-										if ((currentEndBoundary < currentStartBoundary) || isMarkingToHighlightFirstWordOrPhrase(currentStartBoundary, currentEndBoundary))
+										if ((recentHighlighRangeEnd < currentHighlightRangeStart)
+												|| isMarkingToHighlightFirstWordOrPhrase(currentHighlightRangeStart, recentHighlighRangeEnd))
 										{
 											int marker = savedStickers.indexOf(null);
 
 											if (marker != 0)
 											{
 												// Both (word + phrase) could be searched successfully
-												currentEndBoundary = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
-												tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-												Logger.v(TAG, "Highlighting partial phrase \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary
-														+ ")");
+												recentHighlighRangeEnd = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
+												tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+												Logger.v(TAG, "Highlighting partial phrase \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", "
+														+ recentHighlighRangeEnd + ")");
 											}
 											else if (isNonEmptyWordEligibleForSearching(searchKey, significantWordIndex))
 											{
 												// Only word could be searched successfully
-												currentEndBoundary = mCurrentWords.get(i).getEnd();
-												tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-												Logger.v(TAG, "Highlighting individual word \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary
-														+ ")");
+												recentHighlighRangeEnd = mCurrentWords.get(i).getEnd();
+												tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+												Logger.v(TAG, "Highlighting individual word \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", "
+														+ recentHighlighRangeEnd + ")");
 											}
 
 											break;
 										}
-										else if ((currentEndBoundary > currentStartBoundary)
-												&& (currentEndBoundary < mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getStart()) && (tempResult.size() > 0))
+										else if ((recentHighlighRangeEnd > currentHighlightRangeStart)
+												&& (recentHighlighRangeEnd < mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getStart()) && (tempResult.size() > 0))
 										{
 											int marker = savedStickers.indexOf(null);
 
 											if (marker != 0)
 											{
 												// Both (word + phrase) could be searched successfully
-												currentEndBoundary = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
-												tempResult.get(tempResult.size() - 1)[Word.BOUNDARY_INDEX_END] = currentEndBoundary;
-												Logger.v(TAG, "Highlighting remaining partial phrase \'" + searchKey + "\' in range [" + currentStartBoundary + ", "
-														+ currentEndBoundary + ")");
+												recentHighlighRangeEnd = mCurrentWords.get(lastWordIndexInPhraseStartedWithPivot).getEnd();
+												tempResult.get(tempResult.size() - 1)[Word.BOUNDARY_INDEX_END] = recentHighlighRangeEnd;
+												Logger.v(TAG, "Highlighting remaining partial phrase \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", "
+														+ recentHighlighRangeEnd + ")");
 											}
 
 											break;
@@ -730,8 +740,8 @@ public class StickerSearchHostManager
 							}
 
 							// Handle current word
-							currentStartBoundary = mCurrentWords.get(i).getStart();
-							if (((currentEndBoundary < currentStartBoundary) || isMarkingToHighlightFirstWordOrPhrase(currentStartBoundary, currentEndBoundary))
+							currentHighlightRangeStart = mCurrentWords.get(i).getStart();
+							if (((recentHighlighRangeEnd < currentHighlightRangeStart) || isMarkingToHighlightFirstWordOrPhrase(currentHighlightRangeStart, recentHighlighRangeEnd))
 									&& isNonEmptyWordEligibleForSearching(value, significantWordIndex))
 							{
 								searchKey = value.toUpperCase(Locale.ENGLISH);
@@ -748,9 +758,9 @@ public class StickerSearchHostManager
 								if (!Utils.isEmpty(savedStickers))
 								{
 									// Only word could be searched successfully, It may be part of earlier searched phrase successfully
-									currentEndBoundary = mCurrentWords.get(i).getEnd();
-									tempResult.add(new int[] { currentStartBoundary, currentEndBoundary });
-									Logger.v(TAG, "Highlighting word \'" + searchKey + "\' in range [" + currentStartBoundary + ", " + currentEndBoundary + ")");
+									recentHighlighRangeEnd = mCurrentWords.get(i).getEnd();
+									tempResult.add(new int[] { currentHighlightRangeStart, recentHighlighRangeEnd });
+									Logger.v(TAG, "Highlighting word \'" + searchKey + "\' in range [" + currentHighlightRangeStart + ", " + recentHighlighRangeEnd + ")");
 								}
 							}
 						}
