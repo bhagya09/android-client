@@ -82,6 +82,8 @@ import com.nineoldandroids.animation.ObjectAnimator;
  */
 public class TimelineSummaryActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
+	private static final int LIKE_CONTACTS_DIALOG = 0;
+	
 	ImageView imageView;
 
 	private String mappedId;
@@ -145,8 +147,6 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 	private HikeImageDownloader mImageDownloader;
 
-	private ProgressDialog mDialog;
-	
 	private ContactInfo profileContactInfo;
 
 	public class ActivityState
@@ -158,6 +158,8 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		public ArrayList<String> msisdnsList;
 
 		public boolean isLikedByMe;
+		
+		public boolean dialogShown;
 	}
 
 	@Override
@@ -254,6 +256,12 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 		}
 
 		setupActionBar();
+		
+		if(mActivityState.dialogShown)
+		{
+			mActivityState.dialogShown = false;
+			showLikesContactsDialog();
+		}
 	}
 
 	private void notifyUI()
@@ -594,7 +602,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 	{
 		if (msisdns != null && !msisdns.isEmpty() && (isShowLikesEnabled || mStatusMessage.isMyStatusUpdate()))
 		{
-			final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, 11);
+			final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, LIKE_CONTACTS_DIALOG);
 			dialog.setContentView(R.layout.display_contacts_dialog);
 			dialog.setCancelable(true);
 
@@ -613,6 +621,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 					intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
+					mActivityState.dialogShown = false;
 				}
 			});
 			ImageButton cancelButton = (ImageButton) dialog.findViewById(R.id.btn_cancel);
@@ -622,9 +631,11 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				public void onClick(View arg0)
 				{
 					dialog.dismiss();
+					mActivityState.dialogShown = false;
 				}
 			});
 			dialog.show();
+			mActivityState.dialogShown = true;
 		}
 	}
 

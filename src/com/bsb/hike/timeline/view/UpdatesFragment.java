@@ -430,7 +430,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				statusMessages = new ArrayList<>();
 			}
-
+			
 			return statusMessages;
 		}
 		

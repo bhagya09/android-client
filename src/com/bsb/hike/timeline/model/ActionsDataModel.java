@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-import android.content.Context;
+import org.json.JSONArray;
+
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -143,23 +144,16 @@ public class ActionsDataModel
 		return contactInfoList;
 	}
 
-	public String getContactsMsisdnCSV()
+	public String getContactsMsisdnJSON()
 	{
-		StringBuilder sb = new StringBuilder();
+		JSONArray jsonArray = new JSONArray();
 
 		for (ContactInfo contact : contactInfoList)
 		{
-			if (sb.length() == 0)
-			{
-				sb.append(contact.getMsisdn());
-			}
-			else
-			{
-				sb.append(contact.getMsisdn() + ",");
-			}
+			jsonArray.put(contact.getMsisdn());
 		}
-		
-		return sb.toString();
+
+		return jsonArray.toString();
 	}
 	
 	public boolean addContacts(Collection<ContactInfo> argContactInfo)
