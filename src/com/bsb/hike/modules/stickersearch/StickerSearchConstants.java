@@ -27,7 +27,7 @@ public class StickerSearchConstants
 	// Generic constants for periodic tasks====================================================[[
 	public static final int REBALACING_DEFAULT_TIME = 4; // 4 a.m.
 
-	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L; // 7 days period in milliseconds
+	public static final long DEFAULT_STICKER_TAG_REFRESH_TIME = 14 * 24 * 60 * 60 * 1000L; // 7 days period in milliseconds
 
 	// ====================================================Generic constants for periodic tasks]]
 
@@ -101,7 +101,7 @@ public class StickerSearchConstants
 
 	public static final float MINIMUM_MATCH_SCORE_PHRASE_LIMITED = 0.10f;
 
-	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.99f; // marginal full score = 99.99% but not 100% (nothing is perfect till its perfect)
+	public static final float MARGINAL_FULL_SCORE_LATERAL = 0.80f; // marginal full score = 80.00% but not 100% (nothing is perfect till its perfect)
 
 	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
 
