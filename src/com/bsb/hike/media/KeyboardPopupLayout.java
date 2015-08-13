@@ -1,8 +1,12 @@
 package com.bsb.hike.media;
 
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_OPEN;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -14,22 +18,23 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
 {
-	private View mainView;
+	protected View mainView;
 
-	private int possibleKeyboardHeightLand, possibleKeyboardHeight, originalBottomPadding;
+	protected int possibleKeyboardHeightLand, possibleKeyboardHeight, originalBottomPadding;
 
-	private boolean isKeyboardOpen;
+	protected boolean isKeyboardOpen;
 
-	private int firstTimeHeight;
+	protected int firstTimeHeight;
 
-	private int[] mEatTouchEventViewIds;
-	
-	private PopupListener mListener;
+	protected int[] mEatTouchEventViewIds;
+
+	protected PopupListener mListener;
 	
 	/**
 	 * 
@@ -48,14 +53,14 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		this.mListener = listener;
 		registerOnGlobalLayoutListener();
 	}
-	
+
 	public KeyboardPopupLayout(View mainView, int firstTimeHeight, Context context, int[] eatTouchEventViewIds, PopupListener listener)
 	{
 		this(mainView, firstTimeHeight, context, listener);
 		this.mEatTouchEventViewIds = eatTouchEventViewIds;
 	}
 
-	private void registerOnGlobalLayoutListener()
+	protected void registerOnGlobalLayoutListener()
 	{
 		mainView.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener);
 	}
@@ -78,42 +83,40 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			{
 				errorMsg += " is WindowToken Null : " + (mainView.getWindowToken() == null);
 			}
-			
+
 			HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 			Logger.wtf("chatthread", "window token is null or view itself is null! Cannot show sticker/emoticons. Eating this exception");
 			return false;
 		}
-		
+
 		boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
 		
-		int maxHeight = context.getResources().getDisplayMetrics().heightPixels;
-        if (islandScape)
-        {
-        	if (height != maxHeight/2)
-        	{
-        		 // giving half height of screen in landscape mode
-                Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
-                height = (maxHeight) / 2;
-        	}
-        }
-        else
-        {
-        	if (height == 0)
-        	{
+		if (height == 0)
+		{
+			if (islandScape)
+			{
+				int maxHeight = mainView.getRootView().getHeight();
+				// giving half height of screen in landscape mode
+				Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
+				height = (maxHeight) / 2;
+			}
+
+			else
+			{
 				height = firstTimeHeight;
-        	}
-        }
-		
+			}
+		}
+
 		if (popup == null)
 		{
 			initPopUpWindow(LayoutParams.MATCH_PARENT, height, view, context, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 			// TODO
 			// fixLollipopHeadsUpNotifPopup(popup);
-			
+
 			// this is a strange bug in Android, if we set focusable true, GRAVITY BOTTOM IS NOT working
 			popup.setFocusable(false);
-			
+
 			/**
 			 * Conditionally setting the touch interceptor
 			 */
@@ -122,7 +125,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				popup.setTouchInterceptor(this);
 			}
 		}
-		
+
 		view.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
 		popup.setHeight(height);
 		setOnDismissListener(this);
@@ -150,7 +153,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			mListener.onPopupDismiss();
 		}
 	}
-	
+
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
 	{
@@ -199,8 +202,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	/**
 	 * Checks whether a touch event point lies within the ambit of a given view. The view is identified by its viewId.
 	 * 
-	 * We're checking the touch event along the Y-axis first. If it lies in the middle region containing the view,
-	 * we further check for their X-position, whether they lie over the view or elsewhere.
+	 * We're checking the touch event along the Y-axis first. If it lies in the middle region containing the view, we further check for their X-position, whether they lie over the
+	 * view or elsewhere.
 	 * 
 	 * @param eventX
 	 * @param viewId
@@ -251,10 +254,10 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			this.mainView = null;
 		}
 	}
-	
+
 	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener()
 	{
-		
+
 		@Override
 		public void onGlobalLayout()
 		{
@@ -284,7 +287,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				{
 					possibleKeyboardHeight = temp;
 				}
-				isKeyboardOpen = true;
+				if(isKeyboardOpen == false)
+				{
+					onKeyboardOpen(temp);
+				}
+				
 				if (isShowing())
 				{
 					updatePadding(0);
@@ -297,7 +304,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				// stabilize
 				if (islandScape)
 					possibleKeyboardHeightLand = 0;
-				isKeyboardOpen = false;
+				if(isKeyboardOpen == true)
+				{
+					onKeyboardClose();
+				}
+				
 			}
 		}
 	};
@@ -314,4 +325,39 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	{
 		this.mListener = listener;
 	}
+
+	public boolean onEditTextTouch(View v, MotionEvent event)
+	{
+		return false;
+	}
+
+	/**
+	 * 
+	 * @return true if previous task is running
+	 */
+	public boolean isBusyInOperations()
+	{
+		return false;
+	}
+
+	public void onBackPressed()
+	{
+
+	}
+	
+	protected void onKeyboardOpen(int keyBoardHeight)
+	{
+		isKeyboardOpen = true;
+		Intent intent = new Intent(ACTION_KEYBOARD_OPEN);
+		intent.putExtra(HikeConstants.KEYBOARD_HEIGHT, keyBoardHeight);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
+	}
+	
+	protected void onKeyboardClose()
+	{
+		isKeyboardOpen = false;
+		Intent intent = new Intent(ACTION_KEYBOARD_CLOSED);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
+	}
+
 }

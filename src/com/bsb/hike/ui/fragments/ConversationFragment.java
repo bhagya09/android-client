@@ -273,8 +273,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			@Override
 			public void run()
 			{
-				getListView().setPadding(0, 0, 0, footercontroller.getHeight());
-				
+				if(isAdded())
+				{
+					getListView().setPadding(0, 0, 0, footercontroller.getHeight());
+				}
 			}
 		});
 		Logger.d("footer","changeFooterState");
@@ -939,15 +941,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
 		super.onCreateOptionsMenu(menu, inflater);
-		resetSearchIcon();
-	}
-
-	private void resetSearchIcon()
-	{
-		if (!searchMode)
-		{
-			HomeActivity.setSearchOptionAccess(!isConversationsEmpty());
-		}
 	}
 
 	private boolean isConversationsEmpty()
@@ -1021,8 +1014,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 			else
 			{
-				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), "", "", getActivity());
-				startActivity(web);
+				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
+				if(web != null)
+				{
+					startActivity(web);
+				}
 				
 				resetNotificationCounter(convInfo);
 			}
@@ -1320,7 +1316,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
          */
 		else
 		{
-			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+			if (!(conv instanceof OneToNConvInfo || BotUtils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 			{
 				optionsList.add(getString(R.string.add_to_contacts));
 				optionsList.add(getString(R.string.add_to_contacts_existing));
@@ -1349,7 +1345,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 			}
 
-			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+			if (!(conv instanceof OneToNConvInfo || BotUtils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 			{
 				optionsList.add(ContactManager.getInstance().isBlocked(conv.getMsisdn()) ? getString(R.string.unblock_title) : getString(R.string.block_title));
 			}
@@ -1539,7 +1535,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.group_info).equals(option) || getString(R.string.broadcast_info).equals(option))
 				{
-					if (!((OneToNConvInfo) conv).isConversationAlive())
+					if(!ContactManager.getInstance().isGroupAlive(((OneToNConvInfo) conv).getMsisdn()))
 					{
 						return;
 					}
@@ -1668,7 +1664,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		mConversationsAdded = new HashSet<String>();
 
 		setupConversationLists();
-		resetSearchIcon();
 
 		if (mAdapter != null)
 		{
@@ -1822,7 +1817,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			mAdapter.addToLists(stealthConversations);
 		}
 		
-		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
 		notifyDataSetChanged();
 	}
@@ -2019,7 +2013,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					{
 						clearConversation(msisdn);
 						notifyDataSetChanged();
-						resetSearchIcon();
 					}
 					else
 					{
@@ -2081,7 +2074,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					mAdapter.sortLists(mConversationsComparator);
 					
 					notifyDataSetChanged();
-					resetSearchIcon();
 				}
 			});
 		}
@@ -2818,7 +2810,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					mAdapter.remove(delConv);
 					mConversationsByMSISDN.remove(msisdn);
 					mConversationsAdded.remove(msisdn);
-					resetSearchIcon();
 
 					StealthModeManager.getInstance().markStealthMsisdn(msisdn, false, false);
 					stealthConversations.remove(delConv);

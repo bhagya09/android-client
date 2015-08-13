@@ -9,10 +9,13 @@ import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -77,6 +80,109 @@ public class FTAnalyticEvents
 	public static final int DOWNLOAD_ATTACHEMENT = 5;
 
 	public static final int OTHER_ATTACHEMENT = 6;
+
+	private static final String FTR_PRODUCT_AREA = "ftr";
+
+	private static final String FTR_EXCEPTION_ANALYTICS = "ex";
+
+	private static final String FTR_ERROR_ANALYTICS = "ex";
+
+	private static final String RESPONSE_CODE = "resCode";
+
+	private static final String FTR_TASK_TYPE = "taskType";
+
+	private static final String FTR_OPERATION_TYPE = "opType";
+
+	public static final String DOWNLOAD_INIT_1_1 = "download_init_1_1";
+	public static final String DOWNLOAD_INIT_1_2 = "download_init_1_2";
+	public static final String DOWNLOAD_INIT_1_3 = "download_init_1_3";
+
+	public static final String DOWNLOAD_INIT_2_1 = "download_init_2_1";
+	public static final String DOWNLOAD_INIT_2_2 = "download_init_2_2";
+
+	public static final String DOWNLOAD_CONN_INIT_1 = "download_conn_init_1";
+
+	public static final String DOWNLOAD_CONN_INIT_2_1 = "download_conn_init_2_1";
+	public static final String DOWNLOAD_CONN_INIT_2_2 = "download_conn_init_2_2";
+
+	public static final String DOWNLOAD_MEM_CHECK = "download_mem_check";
+
+	public static final String DOWNLOAD_DATA_WRITE = "download_data_write";
+
+	public static final String DOWNLOAD_STATE_CHANGE = "download_state_change";
+
+	public static final String DOWNLOAD_RENAME_FILE = "download_rename_file";
+
+	public static final String DOWNLOAD_UNKNOWN_ERROR = "download_unknown_error";
+
+	public static final String DOWNLOAD_CLOSING_STREAM = "download_closing_streams";
+
+	public static final String UPLOAD_INIT_1_1 = "upload_init_1_1";
+	public static final String UPLOAD_INIT_1_2 = "upload_init_1_2";
+	public static final String UPLOAD_INIT_1_3 = "upload_init_1_3";
+	public static final String UPLOAD_INIT_1_4 = "upload_init_1_4";
+
+	public static final String UPLOAD_INIT_2_1 = "upload_init_2_1";
+	public static final String UPLOAD_INIT_2_2 = "upload_init_2_2";
+	public static final String UPLOAD_INIT_2_3 = "upload_init_2_3";
+	public static final String UPLOAD_INIT_2_4 = "upload_init_2_4";
+	public static final String UPLOAD_INIT_2_5 = "upload_init_2_5";
+	public static final String UPLOAD_INIT_2_6 = "upload_init_2_6";
+
+	public static final String UPLOAD_INIT_3 = "upload_init_3";
+
+	public static final String UPLOAD_INIT_4_1 = "upload_init_4_1";
+	public static final String UPLOAD_INIT_4_2 = "upload_init_4_2";
+
+	public static final String UPLOAD_INIT_5 = "upload_init_5";
+
+	public static final String UPLOAD_INIT_6 = "upload_init_6";
+
+	public static final String UPLOAD_INIT_7_1 = "upload_init_7_1";
+	public static final String UPLOAD_INIT_7_2 = "upload_init_7_2";
+
+	public static final String UPLOAD_FTR_INIT_1 = "upload_ftr_init_1";
+
+	public static final String UPLOAD_FTR_INIT_2_1 = "upload_ftr_init_2_1";
+	public static final String UPLOAD_FTR_INIT_2_2 = "upload_ftr_init_2_2";
+
+	public static final String UPLOAD_FTR_INIT_3_1 = "upload_ftr_init_3_1";
+	public static final String UPLOAD_FTR_INIT_3_2 = "upload_ftr_init_3_2";
+
+	public static final String UPLOAD_FTR_INIT_4 = "upload_ftr_init_4";
+
+	public static final String UPLOAD_FK_VALIDATION = "upload_fk_validation";
+
+	public static final String UPLOAD_FILE_OPERATION = "upload_file_operation";
+
+	public static final String UPLOAD_CALLBACK_AREA_1_1 = "upload_callback_area_1_1";
+	public static final String UPLOAD_CALLBACK_AREA_1_2 = "upload_callback_area_1_2";
+	public static final String UPLOAD_CALLBACK_AREA_1_3 = "upload_callback_area_1_3";
+	public static final String UPLOAD_CALLBACK_AREA_1_4 = "upload_callback_area_1_4";
+	public static final String UPLOAD_CALLBACK_AREA_1_5 = "upload_callback_area_1_5";
+	public static final String UPLOAD_CALLBACK_AREA_1_6 = "upload_callback_area_1_6";
+
+	public static final String UPLOAD_QUICK_AREA = "upload_quick_area";
+
+	public static final String UPLOAD_CALLBACK_AREA_2 = "upload_callback_area_2";
+
+	public static final String UPLOAD_FILE_READ = "upload_file_read";
+
+	public static final String UPLOAD_RETRY_COMPLETE = "upload_retry_complete";
+
+	public static final String UPLOAD_HTTP_OPERATION = "upload_http_operation";
+
+	public static final String UNABLE_TO_START_ACTIVITY = "unable_to_start_activity";
+
+	public static final String UNABLE_TO_CREATE_HIKE_TEMP_DIR = "unable_to_hike_temp_dir";
+
+	public static final String BAD_RESUME_LENGTH = "bad_resume_len";
+
+	public static final String JSON_PARSING_ISSUE = "json_parsing_issue";
+
+	public static final String HOST_FALLBACK = "host_fallback";
+
+	public static final String FT_STATE_READ_FAIL = "ft_state_read_fail";
 	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
@@ -231,6 +337,67 @@ public class FTAnalyticEvents
 			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, error);
 		} catch (JSONException e) {
 			e.printStackTrace();
+		}
+	}
+
+	/**
+	+	 * Logs the dev exception for every error/exception in FTR 
+	+	 * 
+	+	 * @param devArea
+	+	 * @param responseCode
+	+	 * @param taskType
+	+	 * @param operation
+	+	 * @param exception
+	+	 */
+	public static void logDevException(String devArea, int responseCode, String taskType, String operation, String errorMsg, Throwable exception) 
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
+			return;
+
+		JSONObject info = new JSONObject();
+		try {
+			info.put(RESPONSE_CODE, responseCode);
+			info.put(FTR_TASK_TYPE, taskType);
+			if (!TextUtils.isEmpty(operation)) {
+				info.put(FTR_OPERATION_TYPE, operation);
+			}
+			String stackTrace = Utils.getStackTrace(exception);
+			if (!TextUtils.isEmpty(stackTrace)) {
+				info.put(FTR_EXCEPTION_ANALYTICS, errorMsg + stackTrace);
+			}
+			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, devArea, info);
+		} catch (JSONException e) {
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging dev exception log : "+ e);
+		}
+	}
+
+	/**
+	+	 * Logs the dev exception for every error/exception in FTR 
+	+	 * 
+	+	 * @param devArea
+	+	 * @param responseCode
+	+	 * @param taskType
+	+	 * @param operation
+	+	 * @param errorMsg
+	+	 */
+	public static void logDevError(String devArea, int responseCode, String taskType, String operation, String errorMsg) 
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OTHER_EXCEPTION_LOGGING, false))
+			return;
+
+		JSONObject info = new JSONObject();
+		try {
+			info.put(RESPONSE_CODE, responseCode);
+			info.put(FTR_TASK_TYPE, taskType);
+			if (!TextUtils.isEmpty(operation)) {
+				info.put(FTR_OPERATION_TYPE, operation);
+			}
+			if (!TextUtils.isEmpty(errorMsg)) {
+				info.put(FTR_ERROR_ANALYTICS, errorMsg);
+			}
+			HAManager.getInstance().logDevEvent(FTR_PRODUCT_AREA, devArea, info);
+		} catch (JSONException e) {
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "FTR : Exception occurred while logging dev exception log : "+ e);
 		}
 	}
 

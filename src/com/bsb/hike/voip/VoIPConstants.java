@@ -3,10 +3,24 @@ package com.bsb.hike.voip;
 
 public class VoIPConstants {
 	public static final String TAG = "VoIP";
+
+	/**
+	 * <p>Current VoIP protocol version.</p>
+	 * <p>Added in <b>v2</b>: <br/>
+	 * - Voice packet numbers, so that FEC can be triggered
+	 * <p>Added in <b>v3</b>: <br/>
+	 * - Congestion control and conference
+	 * </p>
+	 */
+	public static final int VOIP_VERSION = 3;
 	
 	// Relay and ICE server 
-	public static final String ICEServerName = "relay.hike.in";
-	public static final int ICEServerPort = 9999;
+	public static final String ICEServerName = "relay.hike.in";	 // Staging: 54.179.137.97, Production: relay.hike.in 
+	public static final int ICEServerPort = 9998; 
+	final static String[] ICEServerIpAddresses = {"52.74.88.97", "52.74.113.80"};
+
+	public static final int AUDIO_SAMPLE_RATE = 48000; 
+	public static final int MAX_SAMPLES_BUFFER = 3;
 
 	/**
 	 * Time (ms) to wait before the client being called replies with its
@@ -19,20 +33,58 @@ public class VoIPConstants {
 	 */
 	public static final int TIMEOUT_PARTNER_ANSWER = 30000;
 
+	/**
+	 * Maximum size of a group to launch a conference call directly
+	 */
+	public static final int MAXIMUM_GROUP_CHAT_SIZE = 100;
+	
+	/**
+	 * If a client does not provide audio data continuously this many times, 
+	 * we assume they are not speaking. 
+	 */
+	public static final int PLC_LIMIT = 5;
+
+	/**
+	 * If packet loss increases beyond this threshold, congestion control
+	 * will be triggered. 
+	 */
+	public static final int ACCEPTABLE_PACKET_LOSS = 10;
+
+	/**
+	 * If the number of participants in a conference exceeds this threshold, 
+	 * clients will stop transmitting audio completely when they do not
+	 * detect a voice signal from their mic. 
+	 */
+	public static final int CONFERENCE_THRESHOLD = 10;
+
+	/**
+	 * Number of seconds to wait for before triggering congestion control again.
+	 */
+	public static final int CONGESTION_CONTROL_REPEAT_THRESHOLD = 3;
+
+	/**
+	 * Number of ms to wait before broadcasting the list of clients again. 
+	 */
+	public static final int CONFERENCE_CLIENTS_LIST_BROADCAST_REPEAT = 2000;
+	
+	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
+	
 	// Intent actions
 	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
 	public static final String PARTNER_INCOMPATIBLE = "pi";
 	public static final String PARTNER_IN_CALL = "incall";
 	public static final String PARTNER_HAS_BLOCKED_YOU = "blocked";
-	public static final String INCOMING_NATIVE_CALL_HOLD = "hold";
 	
 	// Default bitrates
 	public static final int BITRATE_2G = 12000;
 	public static final int BITRATE_3G = 16000;
-	public static final int BITRATE_WIFI = 48000;
+	public static final int BITRATE_WIFI = 24000;
+	public static final int BITRATE_CONFERENCE = 16000;
 
 	public static final String CALL_ID = "callId";
+	public static final String MSISDN = "msisdn";
 	public static final String IS_CALL_INITIATOR = "isCallInitiator";
+	public static final String IS_CONNECTED = "isConnected";
 	public static final String CALL_RATING = "rating";
 	public static final String CALL_NETWORK_TYPE = "network";
 	public static final String PARTNER_MSISDN = "pmsisdn";
@@ -58,6 +110,16 @@ public class VoIPConstants {
 	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 15;
+	public static final int MSG_VOIP_CLIENT_STOP = 16;
+	public static final int MSG_START_RECORDING_AND_PLAYBACK = 19;
+	public static final int MSG_START_RECONNECTION_BEEPS = 21;
+	public static final int MSG_STOP_RECONNECTION_BEEPS = 22;
+	public static final int MSG_CONNECTED = 23;
+	public static final int MSG_JOINED_CONFERENCE = 24;
+	public static final int MSG_UPDATE_CONTACT_DETAILS = 26;
+	public static final int MSG_UPDATE_SPEAKING = 27;
+	public static final int MSG_BLUETOOTH_SHOW = 28;
+	public static final int MSG_DOES_NOT_SUPPORT_CONFERENCE = 29;
 
 	public static final class Analytics
 	{
@@ -125,7 +187,11 @@ public class VoIPConstants {
 
 		public static final String MSISDN = "msisdn";
 
+		public static final String MSISDNS = "msisdns";		// Used for group calling
+
 		public static final String CALL_SOURCE = "call_source";
+
+		public static final String GROUP_CHAT_MSISDN = "groupChatMsisdn";
 
 		public static final String INTERNAL_IP = "internalIP";
 
@@ -146,6 +212,21 @@ public class VoIPConstants {
 		public static final String CALL_ID = "callId";
 
 		public static final String INCOMING_CALL = "incomingCall";
+		
+		public static final String VOIP_VERSION = "version";
+		
+		public static final String CONFERENCE = "conf";
+		
+		public static final String REMOVE_FAILED_FRAGMENT = "removeFailedFrag";
+		
+		public static final String STATUS = "st";
+		
+		public static final String SPEAKING = "sp";
+		
+		public static final String RINGING = "r";
+		
+		public static final String VOIP_CLIENTS = "cl";
+		
 	}
 
 	
@@ -161,9 +242,25 @@ public class VoIPConstants {
 		UNKNOWN
 	}
 
+	/**
+	 * Current status of a VoIP Client. 
+	 * <p>
+	 * <b>IMPORTANT: </b> Do not change the order of this enum. We use the ordinal values.
+	 * </p>
+	 *
+	 */
 	public static enum CallStatus
 	{
-		OUTGOING_CONNECTING, OUTGOING_RINGING, INCOMING_CALL, PARTNER_BUSY, RECONNECTING, ON_HOLD, ACTIVE, ENDED, UNINITIALIZED
+		OUTGOING_CONNECTING, 
+		OUTGOING_RINGING, 
+		INCOMING_CALL, 
+		PARTNER_BUSY, 
+		RECONNECTING, 
+		ON_HOLD, 
+		ACTIVE, 
+		ENDED, 
+		UNINITIALIZED,
+		HOSTING_CONFERENCE
 	}
 
 	/**

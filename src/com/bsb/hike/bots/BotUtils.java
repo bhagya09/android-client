@@ -3,28 +3,37 @@ package com.bsb.hike.bots;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.util.Base64;
+
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
+import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 /**
  * This class is for utility methods of bots
@@ -34,6 +43,19 @@ import com.bsb.hike.utils.Utils;
  */
 public class BotUtils
 {
+	
+	public static final int NO_ANIMATION = 0;
+	
+	public static final int BOT_SLIDE_IN_ANIMATION = 1;
+	
+	public static final int BOT_READ_SLIDE_OUT_ANIMATION = 2;
+	
+	public static final String UNREAD_COUNT_SHOW_TYPE = "unrdCntShw";
+	
+	public static final String SHOW_UNREAD_COUNT_ZERO = "0";
+
+	public static final String SHOW_UNREAD_COUNT_ACTUAL = "-1";
+
 	/**
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
 	 * https://docs.google.com/spreadsheets/d/1hTrC9GdGRXrpAt9gnFnZACiTz2Th8aUIzVB5hrlD_4Y/edit#gid=0
@@ -214,6 +236,36 @@ public class BotUtils
 		}
 		deleteBotConversation(msisdn , true);
 	}
+	/*
+	 * Uility method to delete the bot files from the file system
+	 * 
+	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
+	 */
+	public static void removeMicroApp(JSONObject jsonObj){
+		try
+		{
+			JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
+			for (int i = 0; i< appsToBeRemoved.length(); i++){
+				String appName =  appsToBeRemoved.get(i).toString();
+				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
+				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
+				if(PlatformUtils.deleteDirectory(makePath)){
+					String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+					JSONObject json = new JSONObject();
+					json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.REMOVE_MICRO_APP);
+					json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+					json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+				}
+			}
+		}
+		catch (JSONException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	}
 
 	/**
 	 * Utility method to create an entry of Bot in bot_table, conversations_table. Also create a conversation on the conversation fragment.
@@ -259,13 +311,22 @@ public class BotUtils
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
 			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn);
-			updateBotParamsInDb(botChatTheme, botInfo, false, notifType);
+			PlatformUtils.botCreationSuccessHandling(botInfo, false, botChatTheme, notifType);
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
-			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+			if (botMetadata.isMicroAppMode())
+			{
+				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
+			}
+			else if (botMetadata.isWebUrlMode())
+			{
+				PlatformUtils.botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
+			}
+
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
@@ -312,9 +373,8 @@ public class BotUtils
 
 		if (jsonObj.has(HikeConstants.METADATA))
 		{
-			JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
-			botInfo.setMetadata(botMetadata.toString());
+			String metadata = jsonObj.optString(HikeConstants.METADATA);
+			botInfo.setMetadata(metadata);
 		}
 
 		if (jsonObj.has(HikePlatformConstants.HELPER_DATA))
@@ -399,4 +459,75 @@ public class BotUtils
 			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT), NotificationType.OTHER);
 		}
 	}
+	
+	public static void updateBotConfiguration(BotInfo botInfo, String msisdn, int config)
+	{
+		HikeConversationsDatabase.getInstance().updateBotConfiguration(msisdn, config);
+		botInfo.setConfiguration(config);
+	}
+
+	public static int getBotAnimaionType(ConvInfo convInfo)
+	{
+		if (BotUtils.isBot(convInfo.getMsisdn()))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
+
+			if (botInfo.isMessagingBot())
+			{
+				return getMessagingBotAnimationType(convInfo);
+			}
+			else
+			{
+				return getNonMessagingBotAnimationType(convInfo);
+			}
+		}
+		return NO_ANIMATION;
+	}
+
+	private static int getNonMessagingBotAnimationType(ConvInfo convInfo)
+	{
+		if (HikeMessengerApp.currentState != CurrentState.BACKGROUNDED && HikeMessengerApp.currentState != CurrentState.CLOSED)
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
+
+			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(botInfo.getConfiguration());
+
+			if (convInfo.getLastConversationMsg() != null && configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+			{
+				configuration.setBit(NonMessagingBotConfiguration.SLIDE_IN, false);
+				updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+				return BOT_SLIDE_IN_ANIMATION;
+			}
+			else if (convInfo.getLastConversationMsg() != null && configuration.isReadSlideOutEnabled()
+					&& convInfo.getLastConversationMsg().getState() != ConvMessage.State.RECEIVED_UNREAD)
+			{
+				return BOT_READ_SLIDE_OUT_ANIMATION;
+			}
+		}
+		return NO_ANIMATION;
+	}
+
+	private static int getMessagingBotAnimationType(ConvInfo convInfo)
+	{
+		if (HikeMessengerApp.currentState != CurrentState.BACKGROUNDED && HikeMessengerApp.currentState != CurrentState.CLOSED)
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(convInfo.getMsisdn());
+			MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(botInfo.getMetadata());
+			MessagingBotConfiguration configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), messagingBotMetadata.isReceiveEnabled());
+
+			if (convInfo.getLastConversationMsg() != null && configuration.isSlideInEnabled() && convInfo.getLastConversationMsg().getState() == ConvMessage.State.RECEIVED_UNREAD)
+			{
+				configuration.setBit(MessagingBotConfiguration.SLIDE_IN, false);
+				updateBotConfiguration(botInfo, convInfo.getMsisdn(), configuration.getConfig());
+				return BOT_SLIDE_IN_ANIMATION;
+			}
+			else if (convInfo.getLastConversationMsg() != null && configuration.isReadSlideOutEnabled()
+					&& convInfo.getLastConversationMsg().getState() != ConvMessage.State.RECEIVED_UNREAD)
+			{
+				return BOT_READ_SLIDE_OUT_ANIMATION;
+			}
+		}
+		return NO_ANIMATION;
+	}
+
 }

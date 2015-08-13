@@ -77,7 +77,7 @@ public class HikePubSub implements Runnable
 	// public static final String WS_SEND = "ws_send";
 
 	public static final String NEW_CONVERSATION = "newconv";
-
+	
 	/*
 	 * Broadcast after we've received a message and written it to our DB. Status is RECEIVED_UNREAD
 	 */
@@ -131,7 +131,11 @@ public class HikePubSub implements Runnable
 	public static final String GROUP_END = "groupEnd";
 
 	public static final String ONETONCONV_NAME_CHANGED = "groupNameChanged";
-
+	
+	public static final String ONETONCONV_ADMIN_UPDATE = "groupAdminUpdate";
+	
+	public static final String ONETONCONV_SETTING_UPDATE = "groupSettingUpdate";
+	
 	public static final String PARTICIPANT_JOINED_ONETONCONV = "participantJoinedGroup";
 
 	public static final String PARTICIPANT_LEFT_ONETONCONV = "participantLeftGroup";
@@ -185,6 +189,8 @@ public class HikePubSub implements Runnable
 	public static final String PROFILE_IMAGE_NOT_DOWNLOADED = "profileImageNotDownloaded";
 
 	public static final String UPDATE_OF_MENU_NOTIFICATION = "updateOfMenuNotification";
+	
+	public static final String UPDATE_OF_PHOTOS_ICON = "updateOfPhotosIcon";
 
 	public static final String TALK_TIME_CHANGED = "talkTimeChanged";
 
@@ -394,9 +400,19 @@ public class HikePubSub implements Runnable
 	
 	public static final String UPDATE_LAST_MSG_STATE = "updateLastMsgState";
 	
+	public static final String STICKER_RECOMMEND_PREFERENCE_CHANGED = "stickerRecommendPreferenceChanged";
+
 	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
+
+	public static final String PORTS_CHANGED = "portsChanged";
+
+	public static final String GROUP_OWNER_CHANGE = "groupowner";
+	
+	public static final String ENTER_TO_SEND_SETTINGS_CHANGED = "enterToSendSettingsChanged";
+	
+	public static final String NUDGE_SETTINGS_CHANGED = "nudgeSettingsChanged";
 	
 	private final Thread mThread;
 

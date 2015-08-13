@@ -454,6 +454,28 @@ public class TransientCache extends ContactsCache
 			writeLock.unlock();
 		}
 	}
+	
+	void updateGroupParticipantDetail(String grpId, String msisdn)
+	{
+		writeLock.lock();
+		try
+		{
+			Map<String, PairModified<GroupParticipant, String>> groupParticipantMap = groupParticipants.get(grpId);
+			if (null != groupParticipantMap)
+			{
+				PairModified<GroupParticipant, String> grpParticipantPair = groupParticipantMap.get(msisdn);
+				if (null != grpParticipantPair)
+				{
+					GroupParticipant grpParticipant = grpParticipantPair.getFirst();
+					grpParticipant.setType(GroupParticipant.Participant_Type.ADMIN);
+				}
+			}
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+	}
 
 	/**
 	 * This function will load all the contacts from DB into transient storage. Contacts which are in persistence map will not be loaded into it.
@@ -553,11 +575,9 @@ public class TransientCache extends ContactsCache
 	List<ContactInfo> getNOTFRIENDScontacts(int onHike, String myMsisdn, boolean nativeSMSOn, boolean ignoreUnknownContacts)
 	{
 		List<ContactInfo> contacts = new ArrayList<ContactInfo>();
-
+		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = hDb.getBlockedMsisdnSet();
-
 			readLock.lock();
 			try
 			{
@@ -582,7 +602,7 @@ public class TransientCache extends ContactsCache
 		}
 		else
 		{
-			Map<String, ContactInfo> map = hDb.getNOTFRIENDScontactsFromDB(onHike, myMsisdn, nativeSMSOn, ignoreUnknownContacts);
+			Map<String, ContactInfo> map = hDb.getNOTFRIENDScontactsFromDB(blockSet, onHike, myMsisdn, nativeSMSOn, ignoreUnknownContacts);
 			if (map != null)
 			{
 				contacts.addAll(map.values());
@@ -604,9 +624,9 @@ public class TransientCache extends ContactsCache
 	List<ContactInfo> getContactsOfFavoriteType(FavoriteType[] favoriteType, int onHike, String myMsisdn, boolean nativeSMSOn, boolean ignoreUnknownContacts)
 	{
 		List<ContactInfo> contacts = new ArrayList<ContactInfo>();
+		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = hDb.getBlockedMsisdnSet();
 			boolean flag;
 
 			readLock.lock();
@@ -670,7 +690,7 @@ public class TransientCache extends ContactsCache
 		}
 		else
 		{
-			Map<String, ContactInfo> map = hDb.getContactsOfFavoriteTypeDB(favoriteType, onHike, myMsisdn, nativeSMSOn, ignoreUnknownContacts);
+			Map<String, ContactInfo> map = hDb.getContactsOfFavoriteTypeDB(favoriteType, blockSet, onHike, myMsisdn, nativeSMSOn, ignoreUnknownContacts);
 			if (map != null)
 			{
 				contacts.addAll(map.values());
@@ -732,10 +752,9 @@ public class TransientCache extends ContactsCache
 	List<Pair<AtomicBoolean, ContactInfo>> getNonHikeContacts()
 	{
 		List<Pair<AtomicBoolean, ContactInfo>> contacts = new ArrayList<Pair<AtomicBoolean, ContactInfo>>();
+		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = hDb.getBlockedMsisdnSet();
-
 			readLock.lock();
 			try
 			{
@@ -760,7 +779,7 @@ public class TransientCache extends ContactsCache
 		}
 		else
 		{
-			contacts = hDb.getNonHikeContacts();
+			contacts = hDb.getNonHikeContacts(blockSet);
 			writeLock.lock();
 			try
 			{
@@ -1098,7 +1117,7 @@ public class TransientCache extends ContactsCache
 		List<ContactInfo> contacts = getAllContacts(true);
 		List<Pair<AtomicBoolean, ContactInfo>> blockedUserList = new ArrayList<Pair<AtomicBoolean, ContactInfo>>();
 		List<Pair<AtomicBoolean, ContactInfo>> allUserList = new ArrayList<Pair<AtomicBoolean, ContactInfo>>();
-		Set<String> blockedMsisdns = hDb.getBlockedMsisdnSet();
+		Set<String> blockedMsisdns = ContactManager.getInstance().getBlockedMsisdnSet();
 		for (ContactInfo contact : contacts)
 		{
 			if ((blockedMsisdns.contains(contact.getMsisdn())))
@@ -1132,5 +1151,27 @@ public class TransientCache extends ContactsCache
 		hDb = null;
 		transientContacts = null;
 		groupParticipants = null;
+	}
+	
+	void updateContactDetailInAllGroups(String contact)
+	{
+		writeLock.lock();
+		try
+		{
+			for(Map<String, PairModified<GroupParticipant, String>> groupParticipantMap : groupParticipants.values())
+			{
+				if(groupParticipantMap.containsKey(contact))
+				{
+					PairModified<GroupParticipant, String> grpParticipant = groupParticipantMap.get(contact);
+					grpParticipant.getFirst().setType(GroupParticipant.Participant_Type.MEMBER);
+					
+				}
+			}
+			
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
 	}
 }

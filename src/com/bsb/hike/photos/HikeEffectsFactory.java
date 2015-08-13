@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ColorMatrix;
+import android.graphics.Bitmap.Config;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v8.renderscript.Allocation;
@@ -97,17 +98,17 @@ public final class HikeEffectsFactory
 		mInAllocation = Allocation.createFromBitmap(mRS, mBitmapIn);
 		if (isFinal)
 		{
-				finalBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+				finalBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true,Config.ARGB_8888);
+				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true,Config.ARGB_8888);
 				currentOut = finalBitmap;
 		}
 		else if (!isThumbnail)
 		{
 			if (currentOut == null || (finalBitmap == null && (currentOut.getHeight() != mBitmapIn.getHeight() || currentOut.getWidth() != mBitmapIn.getWidth())))
 			{
-				mBitmapOut1 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-				mBitmapOut2 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+				mBitmapOut1 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true,Config.ARGB_8888);
+				mBitmapOut2 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true,Config.ARGB_8888);
+				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true,Config.ARGB_8888);
 				currentOut = mBitmapOut1;
 			}
 			else if (currentOut != null && ((currentOut.getHeight() == mBitmapIn.getHeight() && currentOut.getWidth() == mBitmapIn.getWidth()) || finalBitmap != null))
@@ -353,7 +354,6 @@ public final class HikeEffectsFactory
 				filterColorMatrix = getInvertColorsColorMatrix();
 			}
 			break;
-
 		default:
 			filterColorMatrix = null;
 
@@ -494,7 +494,7 @@ public final class HikeEffectsFactory
 		return sepiaMatrix;
 	}
 
-	// UI thread Handler object to make changes to the UI from a seperate threat
+	// UI thread Handler object to make changes to the UI from a seperate thread
 	private static Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	/**
@@ -526,8 +526,7 @@ public final class HikeEffectsFactory
 			blurImage = isThumbnail;
 			if (blurImage)
 			{
-				inBitmapOut = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-				// inBitmapOut = Bitmap.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), Bitmap.Config.ARGB_8888);
+				inBitmapOut = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true,Config.RGB_565);
 				if (inBitmapOut != null)
 				{
 					mOutAllocations = Allocation.createFromBitmap(mRS, inBitmapOut);
@@ -593,18 +592,26 @@ public final class HikeEffectsFactory
 			int[] ro, ri, go, gi, bo, bi, ci, co;
 			Splines red, green, blue, composite;
 			Bitmap temp = null;
+			
+			if(mInAllocation == null || mOutAllocations == null)
+			{
+				return;
+			}
+			
 			if (!blurImage)
 			{
 				mScript.set_input1(mBlendAllocation);
 				mScript.set_isThumbnail(0);
+				mScript.set_imageHeight(currentOut.getHeight());
 				mScript.set_imageWidth(currentOut.getWidth());
 			}
 			else
 			{
 				mScript.set_isThumbnail(1);
+				mScript.set_imageHeight(inBitmapOut.getHeight());
 				mScript.set_imageWidth(inBitmapOut.getWidth());
 			}
-
+			
 			switch (effect)
 			{
 			case CLASSIC:
@@ -873,7 +880,7 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_chillum(mInAllocation, mOutAllocations);
 				break;
 			case HDR:
-				temp = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, true, false, false, true);
+				temp = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, true, false, false, true,Config.ARGB_8888);
 				if (temp != null)
 				{
 					mBlendAllocation = Allocation.createFromBitmap(mRS, temp);
@@ -912,7 +919,14 @@ public final class HikeEffectsFactory
 				mScript.set_bSpline(blue.getInterpolationMatrix());
 				mScript.forEach_filter_sunlitt(mInAllocation, mOutAllocations);
 				break;
-
+		
+			case TIRANGAA:
+				mScript.set_r(new int[] { 0xFF, 0xFF, 0x14 });
+				mScript.set_g(new int[] { 0x78, 0xFF, 0xC6 });
+				mScript.set_b(new int[] { 0x00, 0xFF, 0x3F });
+				mScript.forEach_filter_tirangaa(mInAllocation, mOutAllocations);
+				break;
+				
 			default:
 				mScript.forEach_filter_colorMatrix(mInAllocation, mOutAllocations);
 				break;

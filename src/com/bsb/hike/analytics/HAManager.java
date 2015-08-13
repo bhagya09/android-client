@@ -12,6 +12,7 @@ import java.util.Random;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -494,6 +495,8 @@ public class HAManager
 			
 			json.put(AnalyticsConstants.TYPE, AnalyticsConstants.ANALYTICS_EVENT);
 			json.put(AnalyticsConstants.DATA, data);
+			
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "analytics json : " + json.toString());
 		}
 		catch (JSONException e) 
 		{
@@ -637,6 +640,58 @@ public class HAManager
 		fgSessionInstance.setConvType(convType);
 	}
 	
+	
+	public void chatHeadshareAnalytics(String eventKey, String... strings)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.ChatHeadEvents.STICKER_WDGT);
+			if (strings.length >= 1)
+			{
+				metadata.put(HikeConstants.ChatHead.APP_NAME, strings[0]);
+			}
+			if (strings.length >= 2)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.CAT_ID, strings[1]);
+			}
+			if (strings.length >= 3)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.STICKER_ID, strings[2]);
+			}
+			if (strings.length >= 4)
+			{
+				metadata.put(AnalyticsConstants.ChatHeadEvents.SOURCE, strings[3]);
+			}
+			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+	
+	public void serviceEventAnalytics(String eventType, String serviceName)
+	{		
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.SERVICE);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.SERVICE, serviceName);
+			metadata.put(HikeConstants.TIMESTAMP, System.currentTimeMillis());
+			record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.SERVICE_STATS, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	
 	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
 	{
 		JSONObject metadata = new JSONObject();
@@ -766,8 +821,9 @@ public class HAManager
 					metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 					metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
 
-					HAManager.getInstance().record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
-						
+					record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
+					botOpenMqttAnalytics(metadata);
+
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :" + chatSession.getChatSessionTotalTime());
 				}
 			}
@@ -778,7 +834,27 @@ public class HAManager
 		}
 		
 	}
-	
+
+	private void botOpenMqttAnalytics(JSONObject metadata)
+	{
+
+		try
+		{
+			JSONObject mqttMetadata = new JSONObject(metadata.toString());
+			mqttMetadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN_MQTT);
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.CHAT_ANALYTICS);
+			data.put(HikeConstants.METADATA, mqttMetadata);
+
+			Utils.sendLogEvent(data, AnalyticsConstants.NON_UI_EVENT, null);
+		}
+		catch (JSONException e)
+		{
+			Logger.w("LE", "Invalid json");
+		}
+
+	}
+
 	/**
 	 * Sets StartingTime for Bot Chat Session to CurrentTime
 	 */
@@ -917,6 +993,30 @@ public class HAManager
 		}
 	}
 
+	
+	/**
+	 * Used for logging DevEvent related to error/invalid state of the app.
+	 */
+	public void logDevEvent(String productArea, String devArea, JSONObject info)
+	{
+		JSONObject metadata = new JSONObject();
+		try 
+		{
+			metadata.put(AnalyticsConstants.DEV_AREA, devArea);
+		
+			if(info !=null)
+			{
+				metadata.put(AnalyticsConstants.DEV_INFO, info);
+			}
+			
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, productArea, EventPriority.HIGH, metadata);
+		} 
+		catch (JSONException e) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",e);
+		}
+
+	}
 	/**
 	 * Used for logging UI click event
 	 * @param eventKey

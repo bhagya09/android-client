@@ -2,11 +2,9 @@ package com.bsb.hike.ui;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,6 +14,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,12 +31,16 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.jess.ui.TwoWayAbsListView;
 import com.jess.ui.TwoWayAbsListView.OnScrollListener;
@@ -81,7 +84,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private boolean multiSelectMode;
 
-	private Map<Long, GalleryItem> selectedGalleryItems;
+	private ArrayList<GalleryItem> selectedGalleryItems;
 
 	private TextView multiSelectTitle;
 
@@ -119,7 +122,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private final String TYPE_PNG = ".png";
 
 	private boolean enableCameraPick;
-
+	
+	private boolean editEnabled;
+	
+	private ArrayList<String> editedImages;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -127,8 +134,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.gallery);
 
-		selectedGalleryItems = new HashMap<Long, GalleryItem>();
+		selectedGalleryItems = new ArrayList<GalleryItem>();
 		galleryItemList = new ArrayList<GalleryItem>();
+		editEnabled = Utils.isPhotosEditEnabled();
 
 		Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 		String[] projection = { MediaStore.Images.Media._ID, MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.DATA };
@@ -151,6 +159,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		msisdn = data.getString(HikeConstants.Extras.MSISDN);
 		sendResult = data.getBoolean(START_FOR_RESULT);
 		disableMultiSelect = data.getBoolean(DISABLE_MULTI_SELECT_KEY);
+		
+		if(editEnabled && data.containsKey(GallerySelectionViewer.EDIT_IMAGES_LIST) && data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST)!=null)
+		{
+			editedImages = new ArrayList<String>(data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST));
+		}
 
 		if (data.containsKey(FOLDERS_REQUIRED_KEY))
 		{
@@ -188,10 +201,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			List<GalleryItem> prevSelectedItems = data.getParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS);
 			if (prevSelectedItems != null && !prevSelectedItems.isEmpty())
 			{
-				for (GalleryItem galleryItem : prevSelectedItems)
-				{
-					selectedGalleryItems.put(galleryItem.getId(), galleryItem);
-				}
+				selectedGalleryItems.addAll(prevSelectedItems);
 
 				if (!multiSelectMode && !disableMultiSelect)
 				{
@@ -270,16 +280,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				while (cursor.moveToNext())
 				{
 					int count = 0;
+					String filePath = cursor.getString(dataIdx);
+					if(!isValidFile(filePath))
+					{
+						continue;
+					}
+					
 					if (!isInsideAlbum)
 					{
-						String dirPath = cursor.getString(dataIdx);
-						if(dirPath==null)
-						{
-							continue;
-						}
-						dirPath = dirPath.substring(0, dirPath.lastIndexOf("/"));
-						count = getGalleryItemCount(dirPath);
+						count = getGalleryItemCount(new File(filePath).getParent());
 					}
+					
 					GalleryItem galleryItem = new GalleryItem(cursor.getLong(idIdx), cursor.getString(bucketIdIdx), cursor.getString(nameIdx), cursor.getString(dataIdx), count);
 					galleryItemList.add(galleryItem);
 					if (!isInsideAlbum)
@@ -318,6 +329,59 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			setupActionBar(albumTitle);
 		}
+	}
+	
+	//returns true if the filePath was edited in the current MultiEdit Flow
+	private boolean isImageEdited(String filePath)
+	{
+		if(editedImages == null || !filePath.contains(PictureEditer.getEditImageSaveDirectory(false)))
+		{
+			return false;
+		}
+		
+		String filename=(new File(filePath)).getName();
+		for(String editedImage:editedImages)
+		{
+			if(editedImage == null)
+			{
+				continue;
+			}
+			String editFilename=(new File(editedImage)).getName();
+			if(editFilename.equalsIgnoreCase(filename))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isValidFile(String filePath)
+	{
+		if (TextUtils.isEmpty(filePath))
+		{
+			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: empty " + filePath);
+			return false;
+		}
+		
+		File mediafile = new File(filePath);
+		if (!mediafile.exists())
+		{
+			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: does not exist " + filePath);
+			return false;
+		}
+		
+		String dirPath = mediafile.getParent();
+		if(dirPath == null)
+		{
+			return false;
+		}
+		
+		if(editEnabled && isImageEdited(filePath))
+		{
+			//Skipping this file since this is a temp file created by multi-edit 
+			return false;
+		}
+		return true;
 	}
 
 	private ArrayList<GalleryItem> reOrderList(List<GalleryItem> list)
@@ -418,8 +482,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putAll(getIntent().getExtras());
-		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, new ArrayList<GalleryItem>(selectedGalleryItems.values()));
-
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>)selectedGalleryItems);
+		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
+		{
+			outState.putStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
+		}
 		super.onSaveInstanceState(outState);
 	}
 
@@ -428,17 +495,48 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		if (multiSelectMode)
 		{
-			selectedGalleryItems.clear();
-			adapter.notifyDataSetChanged();
-
-			setupActionBar(albumTitle);
-			multiSelectMode = false;
+			if( editEnabled && editedImages != null)
+			{
+				HikeDialog confirmUndo = HikeDialogFactory.showDialog(this, HikeDialogFactory.UNDO_MULTI_EDIT_CHANGES_DIALOG, new HikeDialogListener() {
+					
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog) {
+						
+						Utils.deleteFiles(getApplicationContext(), editedImages, HikeFileType.IMAGE);
+						editedImages.clear();
+						editedImages = null;
+						hikeDialog.dismiss();
+						GalleryActivity.this.onBackPressed();
+					}
+					
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog) {
+					}
+					
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog) {
+						hikeDialog.dismiss();
+					}
+				}, null);
+			}
+			else
+			{
+				selectedGalleryItems.clear();
+				adapter.notifyDataSetChanged();
+				
+				setupActionBar(albumTitle);
+				multiSelectMode = false;
+			}
+			
 		}
 		else
 		{
+			deleteJunkTempFiles();
 			super.onBackPressed();
 		}
 	}
+	
+	
 
 	private void setupActionBar(String titleString)
 	{
@@ -477,6 +575,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		View closeBtn = actionBarView.findViewById(R.id.close_action_mode);
 		ViewGroup closeContainer = (ViewGroup) actionBarView.findViewById(R.id.close_container);
 
+		((TextView) actionBarView.findViewById(R.id.save)).setText(R.string.next_signup);
+		
 		multiSelectTitle = (TextView) actionBarView.findViewById(R.id.title);
 		multiSelectTitle.setText(getString(R.string.gallery_num_selected, 1));
 
@@ -485,8 +585,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			@Override
 			public void onClick(View v)
 			{
-				Intent intent = new Intent();
-				ArrayList<GalleryItem> temp = new ArrayList<GalleryItem>(selectedGalleryItems.values());
+				deleteJunkTempFiles();
+				
+				Intent intent = getIntent();
 				
 				Bundle bundle = new Bundle();
 				
@@ -496,23 +597,23 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
 				 */
 				bundle.setClassLoader(GalleryItem.class.getClassLoader());
-				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, temp.get(0).getFilePath());
+				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, selectedGalleryItems.get(0).getFilePath());
 				intent.putExtras(bundle);
 								
-				if(temp.size() == 1 && hasDelegateActivities())
+				if(selectedGalleryItems.size() == 1 && hasDelegateActivities())
 				{
 					launchNextDelegateActivity(bundle);
 				}
 				else if(!sendResult && isStartedForResult())
 				{
 					//since sendResult is active when we need to send result to selection viewer
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
 					setResult(RESULT_OK, intent);
 					finish();
 				}
 				else
 				{
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
 					sendGalleryIntent(intent);
 				}
 			}
@@ -544,10 +645,15 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 		intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 		intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, getIntent().getParcelableExtra(HikeConstants.Extras.SELECTED_BUCKET));
-
+		
 		if (sendResult)
 		{
 			intent.putExtra(START_FOR_RESULT, sendResult);
+			if(editEnabled && editedImages != null)
+			{
+				intent.putStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
+				editedImages=null;
+			}
 		}
 		
 		startActivity(intent);
@@ -576,7 +682,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			switch(requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
-				setResult(RESULT_OK, data);
+				setResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
 				finish();
 				break;
 			case HikeConstants.CAMERA_RESULT:
@@ -641,7 +747,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
 			if (selectedFile == null)
 			{
-				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.not_enough_memory, Toast.LENGTH_SHORT).show();
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
 				return;
 			}
 			startActivityForResult(IntentFactory.getNativeCameraAppIntent(true, selectedFile), HikeConstants.CAMERA_RESULT);
@@ -679,9 +785,15 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 			if (multiSelectMode)
 			{
-				if (selectedGalleryItems.containsKey(galleryItem.getId()))
+				int index = selectedGalleryItems.indexOf(galleryItem);
+				if (index >=0)
 				{
-					selectedGalleryItems.remove(galleryItem.getId());
+					selectedGalleryItems.remove(index);
+					if(editedImages !=null)
+					{
+						editedImages.remove(index);
+					}
+					
 					if (selectedGalleryItems.isEmpty())
 					{
 						setupActionBar(albumTitle);
@@ -699,13 +811,18 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 						Toast.makeText(this, getString(R.string.max_num_files_reached, FileTransferManager.getInstance(this).getTaskLimit()), Toast.LENGTH_SHORT).show();
 						return;
 					}
-					selectedGalleryItems.put(galleryItem.getId(), galleryItem);
+					selectedGalleryItems.add(galleryItem);
+					if(editedImages !=null)
+					{
+						editedImages.add(null);
+					}
 					setMultiSelectTitle();
 				}
 				adapter.notifyDataSetChanged();
 			}
 			else
 			{
+				deleteJunkTempFiles();
 				intent = new Intent();
 				Bundle bundle = new Bundle();
 				
@@ -764,7 +881,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		GalleryItem galleryItem = galleryItemList.get(position);
 
-		selectedGalleryItems.put(galleryItem.getId(), galleryItem);
+		selectedGalleryItems.add(galleryItem);
 
 		adapter.notifyDataSetChanged();
 
@@ -795,4 +912,25 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			e.printStackTrace();
 		}
 	}
+	
+	private void deleteJunkTempFiles()
+	{
+		if(!editEnabled || !getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST) || editedImages == null)
+		{
+			return;
+		}
+		
+		ArrayList<String> initialEditList = getIntent().getStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST);
+		
+		if(initialEditList == null)
+		{
+			return;
+		}
+		
+		initialEditList.removeAll(editedImages);
+		
+		Utils.deleteFiles(getApplicationContext(), initialEditList, HikeFileType.IMAGE);
+		
+	}
+	
 }

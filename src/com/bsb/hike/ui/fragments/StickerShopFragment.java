@@ -125,6 +125,10 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 		@Override
 		protected Pair<Cursor,Drawable> doInBackground(Void... arg0)
 		{
+			if(!isAdded()) // not attched to any activity
+			{
+				return null;
+			}
 			Cursor cursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
 			Bitmap bmp = HikeBitmapFactory.decodeResource(getResources(), R.drawable.art_banner);
 			Drawable dr = HikeBitmapFactory.getBitmapDrawable(getResources(), bmp);
@@ -141,8 +145,16 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 		@Override
 		protected void onPostExecute(Pair<Cursor,Drawable> pair)
 		{
+			if(pair == null || !isAdded())
+			{
+				return ;
+			}
 			super.onPostExecute(pair);
-			getView().findViewById(R.id.loading_data).setVisibility(View.GONE);
+			View parent = getView();
+			if (parent != null && parent.findViewById(R.id.loading_data) != null)
+			{
+				parent.findViewById(R.id.loading_data).setVisibility(View.GONE);
+			}
 			initAdapterAndList(pair.first, pair.second);
 			HikeMessengerApp.getPubSub().addListeners(StickerShopFragment.this, pubSubListeners);
 			registerListener();

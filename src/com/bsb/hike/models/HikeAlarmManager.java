@@ -15,8 +15,11 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatHead.ChatHeadService;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.platform.PlatformAlarmManager;
@@ -24,6 +27,7 @@ import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.PreloadNotificationSchedular;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -74,11 +78,18 @@ public class HikeAlarmManager
 	
 	public static final int REQUESTCODE_PRODUCT_POPUP=4571;
 	
+	public static final int REQUESTCODE_START_STICKER_SHARE_SERVICE = 4573;
+	
+	public static final int REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING = 4574;
+
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
+	
+	public static final String INTENT_EXTRA_DELETE_FROM_DATABASE = "intent_extra_delete_from_database";
 
 	public static final String TAG = "HikeAlarmManager";
+
 
 	/**
 	 * 
@@ -239,12 +250,13 @@ public class HikeAlarmManager
 		AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
 		Intent intent = new Intent(INTENT_ALARM);
+		intent.putExtra(HikeAlarmManager.INTENT_EXTRA, requestCode);
 
 		PendingIntent mPendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_NO_CREATE);
 
 		if (mPendingIntent != null)
 		{
-			HikeContentDatabase.getInstance().deleteFromAlarmManagerDB(requestCode);
+			deleteAlarmFromDatabase(intent);
 			mAlarmManager.cancel(mPendingIntent);
 		}
 	}
@@ -261,7 +273,8 @@ public class HikeAlarmManager
 	{
 		
 		int requestCode = intent.getIntExtra(HikeAlarmManager.INTENT_EXTRA, HikeAlarmManager.REQUESTCODE_DEFAULT);
-		HikeContentDatabase.getInstance().deleteFromAlarmManagerDB(requestCode);
+		deleteAlarmFromDatabase(intent);
+		
 		switch (requestCode)
 		{
 		case HikeAlarmManager.REQUESTCODE_NOTIFICATION_PRELOAD:
@@ -293,6 +306,13 @@ public class HikeAlarmManager
 			int triggerpoint = intent.getIntExtra(ProductPopupsConstants.TRIGGER_POINT, ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 			NotificationContentModel notificationContentModel = new NotificationContentModel(title, text, shouldPlaySound, triggerpoint);
 			ProductInfoManager.getInstance().notifyUser(notificationContentModel);
+			break;
+		case HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE:	
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			ChatHeadUtils.startOrStopService(false);
+			break;
+		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING:	
+			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
 			
 		default:
@@ -334,9 +354,8 @@ public class HikeAlarmManager
 	public static void processExpiredTask(Intent intent, Context context)
 	{
 		int requestCode = intent.getIntExtra(HikeAlarmManager.INTENT_EXTRA, HikeAlarmManager.REQUESTCODE_DEFAULT);
-
-		HikeContentDatabase.getInstance().deleteFromAlarmManagerDB(requestCode);
-
+		deleteAlarmFromDatabase(intent);
+		
 		switch (requestCode)
 		{
 		case HikeAlarmManager.REQUESTCODE_HIKE_ANALYTICS:
@@ -355,11 +374,35 @@ public class HikeAlarmManager
 			Logger.d("ProductPopup","Alarm recieved in Exired Tasks");
 			processTasks(intent, context);
 			break;
+		case HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE:	
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			ChatHeadUtils.startOrStopService(false);
+			break;
+		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING:	
+			StickerSearchManager.getInstance().startRebalancing(intent);
+			break;
+			
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
 		}
 
+	}
+	
+	/**
+	 * Delete alarm from database. 
+	 * If {@link #INTENT_EXTRA_DELETE_FROM_DATABASE} is false it will NOT delete from database 
+	 * @param intent
+	 */
+	public static void deleteAlarmFromDatabase(Intent intent)
+	{
+		int requestCode = intent.getIntExtra(HikeAlarmManager.INTENT_EXTRA, HikeAlarmManager.REQUESTCODE_DEFAULT);
+		boolean shouldDeleteFromDatabase = intent.getBooleanExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, true);
+		
+		if(shouldDeleteFromDatabase)
+		{
+			HikeContentDatabase.getInstance().deleteFromAlarmManagerDB(requestCode);
+		}
 	}
 
 }

@@ -286,7 +286,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 						{
 							return;
 						}
-						Intent intent = new Intent();
+						Intent intent = getIntent();
 						intent.putExtra(HikeConstants.Extras.FILE_PATH, file.getAbsolutePath());
 						intent.putExtra(HikeConstants.Extras.FILE_TYPE, item.getMimeType());
 						intent.putExtra(FTAnalyticEvents.FT_ATTACHEMENT_TYPE, FTAnalyticEvents.FILE_ATTACHEMENT);
@@ -297,7 +297,9 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 			}
 		});
 
-		listView.setOnItemLongClickListener(new OnItemLongClickListener()
+		if (!getIntent().hasExtra("allowLongPress"))
+		{
+			listView.setOnItemLongClickListener(new OnItemLongClickListener()
 		{
 
 			@Override
@@ -346,12 +348,14 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 			}
 
 		});
+		}
 
 		listRoots();
 		setupActionBar(getString(R.string.select_file));
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
 	}
+		
 
 	private void setMultiSelectTitle()
 	{
@@ -719,7 +723,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 				public void run()
 				{
 					String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn , false);
+					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn , false, false);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 

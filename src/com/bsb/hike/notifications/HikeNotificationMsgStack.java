@@ -326,14 +326,17 @@ public class HikeNotificationMsgStack implements Listener
 				
 				else
 				{
-					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
+					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
 				}
 
 				/*
 				 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to
 				 * the conversation we want to open. http://groups .google.com/group/android-developers/browse_thread/thread /e61ec1e8d88ea94d/1fe953564bd11609?#1fe953564bd11609
 				 */
-				mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
+				if(mNotificationIntent != null)
+				{
+					mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
+				}
 			}
 		}
 	}
@@ -349,12 +352,12 @@ public class HikeNotificationMsgStack implements Listener
 		
 		if (mBotInfo.isNonMessagingBot())
 		{
-			return IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, "", "", mContext);
+			return IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, mContext);
 		}
 
 		else
 		{
-			return IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
+			return IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
 		}
 	}
 
@@ -495,7 +498,7 @@ public class HikeNotificationMsgStack implements Listener
 		}
 		else
 		{
-			return String.format(mContext.getString(R.string.num_new_conversations), getNewConversations());
+			return String.format(mContext.getString(R.string.num_notification_sub_text_for_multi_msisdn), getNewMessages(), getNewConversations());
 		}
 	}
 
@@ -642,7 +645,7 @@ public class HikeNotificationMsgStack implements Listener
 			return HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
 		}
 
-		return String.format(mContext.getString(R.string.num_new_messages), getNewMessages());
+		return mContext.getString(R.string.app_name);
 	}
 
 	public boolean forceBlockNotificationSound()

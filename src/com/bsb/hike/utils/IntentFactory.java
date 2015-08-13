@@ -8,10 +8,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.provider.ContactsContract.Contacts;
@@ -23,6 +26,12 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -32,12 +41,13 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.CreditsActivity;
 import com.bsb.hike.ui.FileSelectActivity;
-import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
@@ -146,7 +156,7 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, boolean whatsapp)
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName, boolean isFromChatHead)
 	{
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType(mimeType);
@@ -154,10 +164,17 @@ public class IntentFactory
 		{
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		if (whatsapp)
+		if (isFromChatHead)
 		{
-			intent.setPackage(HikeConstants.Extras.WHATSAPP_PACKAGE);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		else
+		{
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		}
+		if (pkgName != null)
+		{
+			intent.setPackage(pkgName);
 		}
 		if (type != HikeConstants.Extras.ShareTypes.TEXT_SHARE)
 		{
@@ -181,12 +198,64 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
+	
+	public static void openStickerSettings(Context context)
+	{
+		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
+		if (Utils.isIceCreamOrHigher())
+		{
+			Intent intent = new Intent(context, StickerShareSettings.class);
+			context.startActivity(intent);
+		}
+	}
+	
 	public static void openSettingHelp(Context context)
+	{
+		Intent intent = null;
+		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN);
+			if (botInfo.isNonMessagingBot())
+			{
+				intent = getNonMessagingBotIntent(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN, context);
+			}
+			else
+			{
+				intent = getSettingHelpIntent(context);
+			}
+		}
+		else
+		{
+			intent = getSettingHelpIntent(context);
+		}
+
+		if (intent != null)
+		{
+			context.startActivity(intent);
+			helpOpenedAnalytics();
+		}
+	}
+
+	private static void helpOpenedAnalytics()
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.HELP_CLICKED);
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private static Intent getSettingHelpIntent(Context context)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.help_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.help);
-		context.startActivity(intent);
+		return intent;
 	}
 
 	public static void openSettingChat(Context context)
@@ -239,16 +308,8 @@ public class IntentFactory
 
 		if (!TextUtils.isEmpty(hikeExtrasUrl))
 		{
-			if (Utils.switchSSLOn(context))
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						AccountUtils.HTTPS_STRING + hikeExtrasUrl + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
-			else
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						AccountUtils.HTTP_STRING + hikeExtrasUrl + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
+			Uri gamesUri = Utils.getFormedUri(context, hikeExtrasUrl, prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, gamesUri.toString());
 		}
 
 		String hikeExtrasName = prefs.getString(HikeConstants.HIKE_EXTRAS_NAME, context.getString(R.string.hike_extras));
@@ -274,16 +335,8 @@ public class IntentFactory
 
 		if (!TextUtils.isEmpty(rewards_url))
 		{
-			if (Utils.switchSSLOn(context))
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						AccountUtils.HTTPS_STRING + rewards_url + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
-			else
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						AccountUtils.HTTP_STRING + rewards_url + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
+			Uri rewardsUri = Utils.getFormedUri(context, rewards_url, prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, rewardsUri.toString());
 		}
 
 		String rewards_name = prefs.getString(HikeConstants.REWARDS_NAME, context.getString(R.string.rewards));
@@ -296,6 +349,23 @@ public class IntentFactory
 
 		return intent;
 	}
+	
+	public static Intent getStickerShareWebViewActivityIntent(Context context)
+	{
+		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
+		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
+				HttpRequestConstants.getMorestickersUrl() + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+		intent.putExtra(HikeConstants.Extras.TITLE, context.getString(R.string.more_stickers));
+
+		return intent;
+	}
+
+	public static Intent getStickerShareSettingsIntent(Context context)
+	{
+		return new Intent(context, StickerShareSettings.class);
+	}
+	
 
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
@@ -316,12 +386,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent openComposeChatIntentForGroup(Context appContext, String convId, String convName)
+	public static Intent openComposeChatIntentForGroup(Context appContext, String convId, String convName, int setting)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
 		Bundle bundle = new Bundle();
 		bundle.putString(HikeConstants.Extras.ONETON_CONVERSATION_NAME, convName);
 		bundle.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
+		bundle.putInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS, setting);
 		bundle.putBoolean(HikeConstants.Extras.CREATE_GROUP, true);
 		intent.putExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE, bundle);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -350,16 +421,7 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void createBroadcastFtue(Context appContext)
-	{
-		Intent intent = new Intent(appContext.getApplicationContext(), FtueBroadcast.class);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
-		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		appContext.startActivity(intent);
-	}
-
-	public static void createBroadcastDefault(Context appContext)
+	public static void createBroadcastIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
@@ -483,7 +545,7 @@ public class IntentFactory
 		return callIntent;
 	}
 
-	public static Intent createChatThreadIntentFromMsisdn(Context context, String msisdnOrGroupId, boolean openKeyBoard)
+	public static Intent createChatThreadIntentFromMsisdn(Context context, String msisdnOrGroupId, boolean openKeyBoard, boolean newGroup)
 	{
 		Intent intent = new Intent();
 
@@ -491,17 +553,18 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.MSISDN, msisdnOrGroupId);
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(msisdnOrGroupId));
 		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, openKeyBoard);
+		intent.putExtra(HikeConstants.Extras.NEW_GROUP, newGroup);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		return intent;
 	}
 
-	public static Intent createChatThreadIntentFromContactInfo(Context context, ContactInfo contactInfo, boolean openKeyBoard)
+	public static Intent createChatThreadIntentFromContactInfo(Context context, ContactInfo contactInfo, boolean openKeyBoard, boolean newGroup)
 	{
 		// If the contact info was made using a group conversation, then the
 		// Group ID is in the contact ID
 		boolean isGroupConv = OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn());
-		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard);
+		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard, newGroup);
 	}
 
 	public static Intent createChatThreadIntentFromConversation(Context context, ConvInfo conversation)
@@ -510,6 +573,10 @@ public class IntentFactory
 		if (conversation.getConversationName() != null)
 		{
 			intent.putExtra(HikeConstants.Extras.NAME, conversation.getConversationName());
+		}
+		if (conversation.getLastConversationMsg() != null)
+		{
+			intent.putExtra(HikeConstants.Extras.LAST_MESSAGE_TIMESTAMP, conversation.getLastConversationMsg().getTimestamp());
 		}
 		intent.putExtra(HikeConstants.Extras.MSISDN, conversation.getMsisdn());
 		String whichChatThread = ChatThreadUtils.getChatThreadType(conversation.getMsisdn());
@@ -583,7 +650,7 @@ public class IntentFactory
 		
 		if(croppedOutputDestination != null)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true,80, false));
 		}
 		
 		if(destIntents.size()>0)
@@ -634,6 +701,15 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
+	/*
+	 * The returned intent will be similar to the one used by android for opening an activity from the Launcher icon
+	 */
+	public static Intent getHomeActivityIntentAsLauncher(Context context)
+	{
+		Intent homeIntent = Intent.makeMainActivity(new ComponentName(context, HomeActivity.class));
+		homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return homeIntent;
+	}
 
 	public static Intent openInviteFriends(Activity context)
 	{
@@ -670,14 +746,24 @@ public class IntentFactory
 		return intent;
 
 	}
-	
-	public static Intent getNonMessagingBotIntent(String msisdn, String url, String title, Context context)
+
+
+	public static Intent getNonMessagingBotIntent(String msisdn, Context context)
 	{
-		Intent intent = getWebViewActivityIntent(context, url, title);
-		intent.putExtra(WebViewActivity.WEBVIEW_MODE, WebViewActivity.MICRO_APP_MODE);
-		intent.putExtra(HikeConstants.MSISDN, msisdn);
-		
-		return intent;
+		if (BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if (botInfo.isNonMessagingBot())
+			{
+				Intent intent = getWebViewActivityIntent(context, "", "");
+				NonMessagingBotMetadata nonMessagingBotMetadata= new NonMessagingBotMetadata(botInfo.getMetadata());
+				intent.putExtra(WebViewActivity.WEBVIEW_MODE, nonMessagingBotMetadata.isWebUrlMode() ? WebViewActivity.WEB_URL_BOT_MODE : WebViewActivity.MICRO_APP_MODE);
+				intent.putExtra(HikeConstants.MSISDN, msisdn);
+				return intent;
+			}
+		}
+
+		return new Intent();
 	}
 
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata)
@@ -722,8 +808,7 @@ public class IntentFactory
 
 	public static Intent getStickerShopIntent(Context context)
 	{
-		Intent intent = new Intent(context, StickerShopActivity.class);
-		return intent;
+		return new Intent(context, StickerShopActivity.class);
 	}
 
 	public static Intent getStickerSettingIntent(Activity context)
@@ -741,12 +826,43 @@ public class IntentFactory
 		return intent;
 	}
 
+	/**
+	 * Retrieves an intent to make an outgoing voip call. 
+	 * @param context
+	 * @param msisdn
+	 * @param source
+	 * @return
+	 */
 	public static Intent getVoipCallIntent(Context context, String msisdn, VoIPUtils.CallSource source)
 	{
 		Intent intent = new Intent(context, VoIPService.class);
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putExtra(VoIPConstants.Extras.MSISDN, msisdn);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		return intent;
+	}
+
+	/**
+	 * Retrieves an intent to make an outgoing voip call to multiple recipients (conference) at once. 
+	 * @param context
+	 * @param msisdns
+	 * @param groupChatMsisdn
+	 * @param source
+	 * @return intent if network check is passed. NULL otherwise. 
+	 */
+	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, String groupChatMsisdn, VoIPUtils.CallSource source)
+	{
+		// Check if we are on a fast enough network to make a conference call 
+		if (!VoIPUtils.checkIfConferenceIsAllowed(HikeMessengerApp.getInstance(), msisdns.size()))
+			return null;
+		
+		Intent intent = new Intent(context, VoIPService.class);
+		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
+		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
+		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		if (!TextUtils.isEmpty(groupChatMsisdn))
+			intent.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, groupChatMsisdn);
+		
 		return intent;
 	}
 
@@ -845,4 +961,54 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		return intent;
 	}
+
+	public static Intent getEmailOpenIntent(Context context)
+	{
+		return getEmailOpenIntent(context, null, null, null);
+	}
+
+	/**
+	 * Call this function to send email
+	 * @param context
+	 * @param subject: the Subject of the email. If subject is empty, the fallback subject is "Feedback on hike for Android" in different languages.
+	 * @param body:    the body of the email. User can change the body on his own as well.
+	 * @param sendTo:  the sender email id. if email id is empty, the fallback email is sent to "support@hike.in"
+	 * @return
+	 */
+	public static Intent getEmailOpenIntent(Context context, String subject, String body, String sendTo)
+	{
+		Intent intent = new Intent(Intent.ACTION_SENDTO);
+		intent.setData(Uri.parse("mailto:" + (TextUtils.isEmpty(sendTo) ? HikeConstants.MAIL : sendTo)));
+
+		if (null == body)
+		{
+			body = "";
+		}
+		StringBuilder message = new StringBuilder(body);
+		message.append("\n\n");
+
+		try
+		{
+			message.append(context.getString(R.string.hike_version) + " " + context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName + "\n");
+		}
+		catch (PackageManager.NameNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		message.append(context.getString(R.string.device_name) + " " + Build.MANUFACTURER + " " + Build.MODEL + "\n");
+
+		message.append(context.getString(R.string.android_version) + " " + Build.VERSION.RELEASE + "\n");
+
+		String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, "");
+		message.append(context.getString(R.string.msisdn) + " " + msisdn);
+
+		intent.putExtra(Intent.EXTRA_TEXT, message.toString());
+		intent.putExtra(Intent.EXTRA_SUBJECT, TextUtils.isEmpty(subject) ? context.getString(R.string.feedback_on_hike) : subject);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+	}
+
+	
 }

@@ -62,6 +62,7 @@ import android.widget.ViewFlipper;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
@@ -70,23 +71,20 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.Birthday;
-import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.tasks.FinishableEvent;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -253,6 +251,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		super.onCreate(savedInstanceState);
 
+		Logger.d("Signup", "SingupActivity onCreate");
 		setContentView(R.layout.signup);
 
 		mHandler = new Handler();
@@ -496,6 +495,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				ed.putBoolean(HikeMessengerApp.SIGNUP_COMPLETE, true);
 				ed.commit();
 				
+				StickerManager.getInstance().doSignupTasks();
 				JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionStart();
 				Utils.sendSessionMQTTPacket(SignupActivity.this, HikeConstants.FOREGROUND, sessionDataObject);
 				Utils.appStateChanged(getApplicationContext(), false, false, false, true, false);
@@ -839,7 +839,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					@Override
 					public void onClick(View v)
 					{
-						selectNewProfilePicture(SignupActivity.this, false);
+						selectNewProfilePicture(SignupActivity.this, false, true);
 					}
 				});
 			}
@@ -878,7 +878,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				@Override
 				public void onClick(View v)
 				{
-					selectNewProfilePicture(SignupActivity.this, false);
+					selectNewProfilePicture(SignupActivity.this, false, true);
 				}
 			});
 		}
@@ -1774,10 +1774,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		errorDialog = null;
 		toggleActionBarElementsEnable(true);
 		viewFlipper.setVisibility(View.VISIBLE);
-		removeAnimation();
-		viewFlipper.setDisplayedChild(NUMBER);
-		prepareLayoutForFetchingNumber();
-		setAnimation();
 	}
 
 	private void restartTask()
@@ -2039,14 +2035,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			break;
 		case NAME:
-			if (TextUtils.isEmpty(value))
+			if (TextUtils.isEmpty(value) && viewFlipper.getDisplayedChild() != NAME)
 			{
 				viewFlipper.setDisplayedChild(NAME);
 				prepareLayoutForGettingName(null, true);
 			}
 			break;
 		case GENDER:
-			if (TextUtils.isEmpty(value))
+			if (TextUtils.isEmpty(value) && viewFlipper.getDisplayedChild() != GENDER)
 			{
 				viewFlipper.setDisplayedChild(GENDER);
 				prepareLayoutForGender(null);
@@ -2235,7 +2231,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	protected void onResume()
 	{
 		super.onResume();
-		Logger.d(getClass().getSimpleName(), "OnResume Called");
+		Logger.d("Signup", "SingupActivity onresume");
 		/*if (fbAuthing)
 		{
 			Session session = Session.getActiveSession();
@@ -2381,7 +2377,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	}
 	
 	@Override
-	protected String getNewProfileImagePath()
+	protected String getNewProfileImagePath(boolean toUseTimestamp)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		/*
@@ -2414,6 +2410,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
+			
+			if (mActivityState.destFilePath == null)
+			{
+				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			
 			setProfileImage();
 			break;
 		case HikeConstants.ResultCodes.SELECT_COUNTRY:	

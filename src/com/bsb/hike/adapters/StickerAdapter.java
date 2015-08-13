@@ -87,7 +87,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		this.mStickerPickerListener = listener;
 		instantiateStickerList();
 		stickerObjMap = Collections.synchronizedMap(new HashMap<String, StickerAdapter.StickerPageObjects>());
-		worker = new StickerLoader(mContext);
+		worker = new StickerLoader(mContext, true);
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
 		Logger.d(getClass().getSimpleName(), "Sticker Adapter instantiated ....");
@@ -459,6 +459,13 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 	public StickerCategory getCategoryForIndex(int index)
 	{
 		return stickerCategoryList.get(index);
+	}
+
+	@Override
+	public String getIconContentDescription(int index)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

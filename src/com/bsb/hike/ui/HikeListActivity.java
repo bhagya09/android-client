@@ -47,6 +47,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.HikeInviteAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -72,7 +74,11 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private EditText input;
 
+	// Set of msisdns of the already blocked/invited users
 	private Set<String> selectedContacts;
+
+	// Set of blocked contacts before the user opens the blocked list from privacy settings 
+	private Set<String> alreadyBlockedContacts;
 
 	private Type type;
 
@@ -374,6 +380,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			{
 			case BLOCK:
 				getBlockedContactsList(contactList, firstSectionList);
+				alreadyBlockedContacts = new HashSet<String>(selectedContacts);
 				selectAllContainer.setVisibility(View.GONE);
 				break;
 			case INVITE:
@@ -579,6 +586,12 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				String msisdn = toggleBlockEntry.getKey();
 				boolean blocked = toggleBlockEntry.getValue();
 
+				if (BotUtils.isBot(msisdn))
+				{
+					BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+					mBotInfo.setBlocked(blocked);
+				}
+				
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
 			finish();
@@ -587,13 +600,10 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void setupActionBarElements()
 	{
-		if (!selectedContacts.isEmpty())
+		if (!selectedContacts.isEmpty() && type != Type.BLOCK)
 		{
 			Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
-			if (type != Type.BLOCK)
-			{
-				postText.setText(getString(R.string.send_invite, selectedContacts.size()));
-			}
+			postText.setText(getString(R.string.send_invite, selectedContacts.size()));
 		}
 		else
 		{
@@ -656,6 +666,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			view.setTag(pair);
 			adapter.notifyDataSetChanged();
 			String msisdn = pair.second.getMsisdn();
+			
 			if (type != Type.BLOCK)
 			{
 				if (selectedContacts.contains(msisdn))
@@ -668,11 +679,26 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				}
 
 				setupActionBarElements();
-
 			}
 			else
 			{
-				Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
+				if(pair.first.get())
+				{
+					alreadyBlockedContacts.add(msisdn);
+				}
+				else
+				{
+					alreadyBlockedContacts.remove(msisdn);
+				}
+
+				if(alreadyBlockedContacts.equals(selectedContacts))
+				{
+					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);					
+				}
+				else
+				{
+					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
+				}
 				boolean blocked = pair.first.get();
 				toggleBlockMap.put(msisdn, blocked);
 			}
@@ -698,5 +724,4 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			finish();
 		}
 	}
-
 }
