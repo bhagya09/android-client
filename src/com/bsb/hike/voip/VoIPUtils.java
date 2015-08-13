@@ -16,6 +16,8 @@ import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +44,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.view.VoIPActivity;
 
@@ -60,7 +63,7 @@ public class VoIPUtils {
 
 	public static enum CallSource
 	{
-		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE
+		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG, ADD_TO_CONFERENCE, GROUP_CHAT
 	}
 	
     public static boolean isWifiConnected(Context context) {
@@ -182,21 +185,25 @@ public class VoIPUtils {
 
     /**
      * Put a missed call notification on the other client's chat thread. 
-     * @param client
+     * @param toMsisdn
+     * @param fromMsisdn Pass null to automatically use your own msisdn.
      */
-	public static void sendMissedCallNotificationToPartner(String msisdn) {
+	public static void sendMissedCallNotificationToPartner(String toMsisdn, String fromMsisdn) {
 
 		try {
-			JSONObject socketData = new JSONObject();
-			socketData.put("time", System.currentTimeMillis());
+			JSONObject metaData = new JSONObject();
+			metaData.put("time", System.currentTimeMillis());
+			
+			if (!TextUtils.isEmpty(fromMsisdn))
+				metaData.put(HikeConstants.MSISDN, fromMsisdn);
 			
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
 			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
-			data.put(HikeConstants.METADATA, socketData);
+			data.put(HikeConstants.METADATA, metaData);
 
 			JSONObject message = new JSONObject();
-			message.put(HikeConstants.TO, msisdn);
+			message.put(HikeConstants.TO, toMsisdn);
 			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING);
 			message.put(HikeConstants.DATA, data);
@@ -330,15 +337,22 @@ public class VoIPUtils {
 
 	public static NotificationCompat.Action[] getMissedCallNotifActions(Context context, String msisdn)
 	{
-		Intent callIntent = IntentFactory.getVoipCallIntent(context, msisdn, CallSource.MISSED_CALL_NOTIF);
-		PendingIntent callPendingIntent = PendingIntent.getService(context, 0, callIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true);
+		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
-		actions[0] = new NotificationCompat.Action(R.drawable.ic_action_call, context.getString(R.string.voip_missed_call_action), callPendingIntent);
-		actions[1] = new NotificationCompat.Action(R.drawable.ic_action_message, context.getString(R.string.voip_missed_call_message), messagePendingIntent);
+		NotificationCompat.Action actions[] = null;
+		
+		if (OneToNConversationUtils.isGroupConversation(msisdn)) {
+			actions = new NotificationCompat.Action[1];
+			actions[0] = new NotificationCompat.Action(R.drawable.ic_action_message, context.getString(R.string.voip_missed_call_message), messagePendingIntent);
+		} else {
+			Intent callIntent = IntentFactory.getVoipCallIntent(context, msisdn, CallSource.MISSED_CALL_NOTIF);
+			PendingIntent callPendingIntent = PendingIntent.getService(context, 0, callIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			
+			actions = new NotificationCompat.Action[2];
+			actions[0] = new NotificationCompat.Action(R.drawable.ic_action_call, context.getString(R.string.voip_missed_call_action), callPendingIntent);
+			actions[1] = new NotificationCompat.Action(R.drawable.ic_action_message, context.getString(R.string.voip_missed_call_message), messagePendingIntent);
+		}
 
 		return actions;
 	}
@@ -374,6 +388,12 @@ public class VoIPUtils {
 		return conferenceEnabled;
 	}
 	
+	public static boolean isGroupCallEnabled(Context context) 
+	{
+		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_GROUP_CALL_ENABLED, false);
+		return enabled;
+	}
+	
 	public static boolean isBluetoothEnabled(Context context) 
 	{
 		boolean bluetoothEnabled = false;
@@ -401,13 +421,6 @@ public class VoIPUtils {
 			return false;
 		}
 		
-		// Network check
-		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
-		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
-			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
-			return false;
-		}
-		
 		// Conference size check
 		if (newSize > VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE) {
 			Toast.makeText(context, context.getString(R.string.voip_group_too_large, VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE), Toast.LENGTH_LONG).show();
@@ -421,12 +434,18 @@ public class VoIPUtils {
 			return false;
 		}
 		
+		// Network check
+		ConnectionClass connectionClass = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance());
+		if (connectionClass == ConnectionClass.TwoG || connectionClass == ConnectionClass.ThreeG) {
+			Toast.makeText(context, context.getString(R.string.voip_conference_network_support), Toast.LENGTH_LONG).show();
+			return false;
+		}
 		
 		return true;
 	}
 	
 	/**
-	 * Used to communicate between two clients using the server
+	 * Used to communicate between two clients using the server. Delivery is not guaranteed.
 	 * @param recipient		Recipient's MSISDN
 	 * @param callMessage	One of the MQTT Message types ({@linkplain com.bsb.hike.HikeConstants.MqttMessageTypes})
 	 * @param callId		If there is an associated call ID, put it here
@@ -450,7 +469,7 @@ public class VoIPUtils {
 			message.put(HikeConstants.SUB_TYPE, callMessage);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
 			Logger.d(tag, "Sent call request message of type: " + callMessage + " to: " + recipient);
 
 		} catch (JSONException e) {
@@ -479,6 +498,7 @@ public class VoIPUtils {
 				
 				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
 				i.putExtra(VoIPConstants.Extras.ACTION, subType);
+				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
 				i.putExtra(VoIPConstants.Extras.CALL_ID, metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
 				context.startService(i);
 				return;
@@ -516,9 +536,7 @@ public class VoIPUtils {
 				/*
 				 * Call Initiation Messages
 				 * Added: 24 Mar, 2015 (AJ)
-				 * Prior to this addition, socket information messages served as call
-				 * initiation messages as well. We are now introducing a separate class
-				 * of messages for call initiation to speed up the process. 
+				 * These are being used purely for analytics.
 				 */
 				if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE) ||
@@ -550,7 +568,10 @@ public class VoIPUtils {
 					Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
 					i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.SET_PARTNER_INFO);
 					i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-					i.putExtra(VoIPConstants.Extras.INTERNAL_IP, metadataJSON.getString(VoIPConstants.Extras.INTERNAL_IP));
+					
+					if (metadataJSON.has(VoIPConstants.Extras.INTERNAL_IP))
+						i.putExtra(VoIPConstants.Extras.INTERNAL_IP, metadataJSON.getString(VoIPConstants.Extras.INTERNAL_IP));
+					
 					i.putExtra(VoIPConstants.Extras.INTERNAL_PORT, metadataJSON.getInt(VoIPConstants.Extras.INTERNAL_PORT));
 					i.putExtra(VoIPConstants.Extras.EXTERNAL_IP, metadataJSON.getString(VoIPConstants.Extras.EXTERNAL_IP));
 					i.putExtra(VoIPConstants.Extras.EXTERNAL_PORT, metadataJSON.getInt(VoIPConstants.Extras.EXTERNAL_PORT));
@@ -566,6 +587,9 @@ public class VoIPUtils {
 					if (metadataJSON.has(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
 						i.putExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN, metadataJSON.getString(VoIPConstants.Extras.GROUP_CHAT_MSISDN));
 					
+					if (metadataJSON.has(VoIPConstants.Extras.CONFERENCE))
+						i.putExtra(VoIPConstants.Extras.CONFERENCE, metadataJSON.getBoolean(VoIPConstants.Extras.CONFERENCE));
+					
 					context.startService(i);
 					return;
 				}
@@ -574,8 +598,15 @@ public class VoIPUtils {
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING)) 
 			{
 				Logger.d(tag, "Adding a missed call to our chat history.");
+				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+
 				VoIPClient clientPartner = new VoIPClient(context, null);
-				clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
+				
+				if (metadataJSON.has(HikeConstants.MSISDN))
+					clientPartner.setPhoneNumber(metadataJSON.getString(HikeConstants.MSISDN));
+				else
+					clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
+				
 				clientPartner.setInitiator(true);
 				VoIPUtils.addMessageToChatThread(context, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, jsonObj.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.TIMESTAMP), true);
 			}
@@ -611,6 +642,14 @@ public class VoIPUtils {
 				i.putExtra(VoIPConstants.Extras.MESSAGE, message);
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(i);
+			}
+			
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE)) 
+			{
+				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
+				i.putExtra(VoIPConstants.Extras.ACTION, subType);
+				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
+				context.startService(i);
 			}
 			
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) 
@@ -714,11 +753,7 @@ public class VoIPUtils {
 	 */
 	public static InetAddress getRelayIpFromHardcodedAddresses() {
 
-		Set<String> ipSet = null;
-		
-		if (Utils.isHoneycombOrHigher())
-			ipSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.VOIP_RELAY_IPS, null);
-		
+		Set<String> ipSet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.VOIP_RELAY_IPS, null);
 		Random random = new Random();
 		int index = 0;
 		InetAddress address = null;
@@ -750,6 +785,20 @@ public class VoIPUtils {
 		Logger.d(tag, "Retrieved IP address for relay server: " + address.getHostAddress());
 		return address;
 	}
-	
+
+	/**
+	 * Helper function to display total and available memory using Logger.
+	 * @param context
+	 */
+	public static void showMemoryUsage(Context context) {
+		
+		MemoryInfo mi = new MemoryInfo();
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		activityManager.getMemoryInfo(mi);
+		long availableMegs = mi.availMem / 1048576L;
+		long totalMemory = mi.totalMem / 1048576L;
+		
+		Logger.d(tag, "Memory total: " + totalMemory + " MB, available: " + availableMegs + " MB");
+	}
 	
 }

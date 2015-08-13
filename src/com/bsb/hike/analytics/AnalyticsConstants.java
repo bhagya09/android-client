@@ -316,6 +316,8 @@ public class AnalyticsConstants
 
 	public static final String MESSAGE_DATA = "msgData";
 
+	public static final String SERVICE_STATS = "srvStat";
+
 	public static final class MsgRelEventType
 	{
 		public static final String SEND_BUTTON_CLICKED = "1";
