@@ -780,6 +780,7 @@ public class IntentFactory
 				multiMsgFwdObject.put(HikeConstants.METADATA, metadata);
 			}
 			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());
+			multiMsgFwdObject.put(HikePlatformConstants.NAMESPACE, convMessage.getNameSpace());
 			multipleMsgArray.put(multiMsgFwdObject);
 		}
 		catch (JSONException e)

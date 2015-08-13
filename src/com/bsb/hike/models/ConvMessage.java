@@ -924,6 +924,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 					data.put(HikeConstants.LIST, msisdnArray);
 					object.put(HikeConstants.DATA, data);
 				}
+				JSONObject metadata;
 				// TODO : we should add all sub types here and set metadata accordingly
 				switch(messageType){
 				case MESSAGE_TYPE.CONTENT:
@@ -933,12 +934,18 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 
 				case MESSAGE_TYPE.WEB_CONTENT:
 					object.put(HikeConstants.SUB_TYPE, ConvMessagePacketKeys.WEB_CONTENT_TYPE);
-					data.put(HikeConstants.METADATA, webMetadata.getJSON());
+					data.put(HikeConstants.PLATFORM_PACKET, getPlatformData());
+					metadata = webMetadata.getJSON();
+					metadata.put(HikePlatformConstants.NAMESPACE, nameSpace);
+					data.put(HikeConstants.METADATA, metadata);
 					break;
 
 				case MESSAGE_TYPE.FORWARD_WEB_CONTENT:
 					object.put(HikeConstants.SUB_TYPE, ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE);
-					data.put(HikeConstants.METADATA, webMetadata.getJSON());
+					data.put(HikeConstants.PLATFORM_PACKET, getPlatformData());
+					metadata = webMetadata.getJSON();
+					metadata.put(HikePlatformConstants.NAMESPACE, nameSpace);
+					data.put(HikeConstants.METADATA, metadata);
 					break;
 
 				}
