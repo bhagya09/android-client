@@ -311,6 +311,7 @@ public class DbConversationListener implements Listener
 		{
 			String statusId = (String) object;
 			mConversationDb.deleteStatus(statusId);
+			mConversationDb.deleteActivityFeedForStatus(statusId);
 			/*
 			 * If the status also has an icon, we delete that as well.
 			 */
