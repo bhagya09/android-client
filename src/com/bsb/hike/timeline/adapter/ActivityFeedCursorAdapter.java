@@ -30,12 +30,15 @@ import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
+import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
 import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
@@ -153,7 +156,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 		StatusMessage statusMessage = new StatusMessage(cursor);
 
 		FeedDataModel feedDataModel = new FeedDataModel(cursor);
-
+		
 		int viewType = getItemViewType(cursor.getPosition());
 
 		switch (viewType)
@@ -260,12 +263,16 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 			if (mActivity.get() != null)
 			{
+				TimelineActions actionsData = TimelineActionsManager.getInstance().getActionsData();
+				statusMessage.setActionsData(actionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE));
+				
 				Intent intent = new Intent(mActivity.get(), TimelineSummaryActivity.class);
 				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
 
 				if (statusMessage.getActionsData() != null)
 				{
 					intent.putStringArrayListExtra(HikeConstants.MSISDNS, statusMessage.getActionsData().getAllMsisdn());
+					intent.putExtra(HikeConstants.Extras.LOVED_BY_SELF, statusMessage.getActionsData().isLikedBySelf());
 				}
 
 				startActivity(intent);

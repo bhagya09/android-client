@@ -553,6 +553,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 				}
 			}
 		}
+		
 	}
 
 	public void onCancelled()

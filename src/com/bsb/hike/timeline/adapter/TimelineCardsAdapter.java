@@ -67,13 +67,13 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
+import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
 import com.bsb.hike.timeline.view.UpdatesFragment;
@@ -112,8 +112,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public static final long EMPTY_STATUS_NO_STATUS_ID = -3;
 
 	public static final long EMPTY_STATUS_NO_STATUS_RECENTLY_ID = -5;
-
-	private TimelineActions mActionsData;
 
 	private ProfileImageLoader profileLoader;
 
@@ -407,7 +405,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		StatusMessage statusMessage = mStatusMessages.get(position);
 
-		ActionsDataModel likesData = mActionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
+		ActionsDataModel likesData = TimelineActionsManager.getInstance().getActionsData().getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
 		statusMessage.setActionsData(likesData);
 
@@ -454,6 +452,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.moodsContainer.setVisibility(View.GONE);
 
 			viewHolder.actionsLayout.setVisibility(View.GONE);
+			
+			//Due to view reusage
+			viewHolder.parent.setOnClickListener(null);
+			viewHolder.parent.setOnLongClickListener(null);
 
 			switch (statusMessage.getStatusMessageType())
 			{
@@ -1363,7 +1365,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
 										statusMessage.getMappedId());
 
-								mActionsData.updateByActivityFeed(newFeed);
+								TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(newFeed);
 
 								notifyDataSetChanged();
 							}
@@ -1418,8 +1420,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
 										statusMessage.getMappedId());
 
-								mActionsData.updateByActivityFeed(newFeed);
-
+								TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(newFeed);
+								
 								notifyDataSetChanged();
 							}
 						}
@@ -1472,11 +1474,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			mActivity.get().startActivity(argIntent);
 		}
-	}
-
-	public void setActionsData(TimelineActions actionsData)
-	{
-		mActionsData = actionsData;
 	}
 
 	public void removeAllFTUEItems()
@@ -1645,5 +1642,4 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.FAVORITE_TOGGLED);
 		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.DELETE_STATUS);
 	}
-
 }
