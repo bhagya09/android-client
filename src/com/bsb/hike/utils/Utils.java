@@ -2454,7 +2454,8 @@ public class Utils
 	{
 		return (picasaUriString.toString().startsWith(HikeConstants.OTHER_PICASA_URI_START) || picasaUriString.toString().startsWith(HikeConstants.JB_PICASA_URI_START)
 				|| picasaUriString.toString().startsWith("http") || picasaUriString.toString().startsWith(HikeConstants.GMAIL_PREFIX)
-				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_PLUS_PREFIX) || picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
+				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_PLUS_PREFIX) || picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX)
+				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_DRIVE_PREFIX));
 	}
 
 	public static Uri makePicasaUriIfRequired(Uri uri)
