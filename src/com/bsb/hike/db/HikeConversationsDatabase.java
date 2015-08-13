@@ -60,6 +60,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.ProfileItem.ProfileContactItem.contactType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.Conversation.BotConversation;
@@ -1531,39 +1532,59 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				ContentValues cv = new ContentValues();
 
-				StringBuilder actorsCSV = new StringBuilder(c.getString(cIdxActors));
+				String actorsJSON = c.getString(cIdxActors);
 
-				LinkedHashSet<String> existingActorsSet = new LinkedHashSet<String>();
-
-				if (!TextUtils.isEmpty(actorsCSV.toString()))
+				JSONArray existingArray = null;
+				try
 				{
-					String[] existingActors = actorsCSV.toString().split(",");
-					existingActorsSet.addAll(Arrays.asList(existingActors));
+					existingArray = new JSONArray(actorsJSON);
 				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+					return -1;
+				}
+				
+				Logger.d("changeActionCountForObjID", "Initial array: "+existingArray.toString());
 
 				if (toIncrement)
 				{
 					for (String msisdn : actors)
 					{
-						boolean added = existingActorsSet.add(msisdn);
-
-						if (added)
+						boolean isDuplicate = false;
+						for (int i = 0; i < existingArray.length(); i++)
 						{
-							if (actorsCSV.length() != 0)
+							try
 							{
-								actorsCSV.append(",");
+								if (existingArray.getString(i).equals(msisdn))
+								{
+									isDuplicate = true;
+									break;
+								}
 							}
+							catch (JSONException e)
+							{
+								e.printStackTrace();
+								continue;
+							}
+						}
 
-							actorsCSV.append(msisdn);
+						if (isDuplicate)
+						{
+							return -1;
+						}
+						else
+						{
+							existingArray.put(msisdn);
 						}
 					}
 
-					cv.put(DBConstants.ACTORS, actorsCSV.toString());
-					cv.put(DBConstants.ACTION_COUNT, existingActorsSet.size());
+					cv.put(DBConstants.ACTORS, existingArray.toString());
+					cv.put(DBConstants.ACTION_COUNT, existingArray.length());
 				}
 				else
 				{
-					if (existingActorsSet.isEmpty())
+					if (existingArray.length() == 0)
 					{
 						// Do nothing
 						return -1;
@@ -1572,25 +1593,30 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					{
 						for (String msisdn : actors)
 						{
-							existingActorsSet.remove(msisdn);
-						}
-
-						StringBuilder newActors = new StringBuilder();
-
-						for (String msisdn : existingActorsSet)
-						{
-							if (newActors.length() != 0)
+							for (int i = existingArray.length(); i >= 0; i--)
 							{
-								newActors.append(",");
+								try
+								{
+									if (existingArray.getString(i).equals(msisdn))
+									{
+										existingArray.remove(i);
+										break;
+									}
+								}
+								catch (JSONException e)
+								{
+									e.printStackTrace();
+									continue;
+								}
 							}
-
-							newActors.append(msisdn);
 						}
 
-						cv.put(DBConstants.ACTORS, newActors.toString());
-						cv.put(DBConstants.ACTION_COUNT, existingActorsSet.size());
+						cv.put(DBConstants.ACTORS, existingArray.toString());
+						cv.put(DBConstants.ACTION_COUNT, existingArray.length());
 					}
 				}
+				
+				Logger.d("changeActionCountForObjID", "final array: "+existingArray.toString());
 
 				return mDb.update(DBConstants.ACTIONS_TABLE, cv, whereQuery, whereArgs);
 			}
@@ -1824,7 +1850,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.ACTION_OBJECT_ID + " TEXT, " // object id (suid, card id)
 				+ DBConstants.ACTION_ID + " INTEGER, " // action id (love, comment,view)
 				+ DBConstants.ACTION_COUNT + " INTEGER DEFAULT 0, " // action count
-				+ DBConstants.ACTORS + " TEXT DEFAULT '{}', " // actor msisdns
+				+ DBConstants.ACTORS + " TEXT DEFAULT '[]', " // actor msisdns
 				+ DBConstants.ACTION_METADATA + " TEXT DEFAULT '{}', " // md
 				+ DBConstants.ACTION_LAST_UPDATE + " INTEGER DEFAULT 0, " // last updated
 				+ "PRIMARY KEY ("+DBConstants.ACTION_OBJECT_ID+", "+DBConstants.ACTION_ID+")" // composite primary key - (obj id + action id)
@@ -7896,20 +7922,38 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					String objectId = c.getString(cIdxObjId);
 					
-					String msisdnCSV = c.getString(cIdxActors);
+					String msisdnJSONArray = c.getString(cIdxActors);
 					
 					List<ContactInfo> cInfoList = new ArrayList<ContactInfo>();
 					
-					if (!TextUtils.isEmpty(msisdnCSV))
+					if (!TextUtils.isEmpty(msisdnJSONArray))
 					{
-						List<String> myList = new ArrayList<String>(Arrays.asList(msisdnCSV.split(",")));
-
-						for (String msisdn : myList)
+						JSONArray myList;
+						try
 						{
-							ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
-							if(contactInfo != null)
+							myList = new JSONArray(msisdnJSONArray);
+						}
+						catch (JSONException e)
+						{
+							e.printStackTrace();
+							continue;
+						}
+
+						for (int i = 0; i < myList.length(); i++)
+						{
+							ContactInfo contactInfo;
+							try
 							{
-								cInfoList.add(contactInfo);
+								contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(myList.getString(i));
+
+								if (contactInfo != null)
+								{
+									cInfoList.add(contactInfo);
+								}
+							}
+							catch (JSONException e)
+							{
+								e.printStackTrace();
 							}
 						}
 					}
@@ -7955,7 +7999,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					cv.put(ACTION_OBJECT_ID, uuidObjType.first);
 					cv.put(ACTION_ID, actionDM.getType().getKey());
 					cv.put(ACTION_COUNT, actionDM.getCount());
-					cv.put(ACTORS, actionDM.getContactsMsisdnCSV());
+					cv.put(ACTORS, actionDM.getContactsMsisdnJSON());
 					mDb.insertWithOnConflict(ACTIONS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 				}
 			}
