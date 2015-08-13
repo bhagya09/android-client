@@ -41,6 +41,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	protected PopupListener mListener;
 	
 	protected boolean isDrawSystemBarBgFlagEnabled = false;
+	
 
 	/**
 	 * 
@@ -109,6 +110,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 
 		boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
+		
 		if (height == 0)
 		{
 			if (islandScape)
@@ -354,7 +356,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			Rect r = new Rect();
 			mainView.getWindowVisibleDisplayFrame(r);
 			// this is height of view which is visible on screen
-			int rootViewHeight = mainView.getRootView().getHeight();
+			int rootViewHeight = context.getResources().getDisplayMetrics().heightPixels;
 			int temp = rootViewHeight - r.bottom;
 			Logger.i("chatthread", "possible keyboard  height " + temp);
 			boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
@@ -369,6 +371,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		{
 			dismiss();
 		}
+	}
+	
+	public void setPopupDismissListener(PopupListener listener)
+	{
+		this.mListener = listener;
 	}
 
 	public boolean onEditTextTouch(View v, MotionEvent event)
