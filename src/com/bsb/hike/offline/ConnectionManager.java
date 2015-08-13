@@ -168,6 +168,7 @@ public class ConnectionManager implements ChannelListener
 	
 	public void startWifi()
 	{
+		if(!isWifiEnabled())
 		wifiManager.setWifiEnabled(true);
 	}
  
@@ -514,6 +515,7 @@ public class ConnectionManager implements ChannelListener
 	 */
 	private void connectToWifi(String ssid)
 	{
+		
 		if(TextUtils.isEmpty(ssid))
 		{
 			return ;
@@ -525,32 +527,37 @@ public class ConnectionManager implements ChannelListener
 		}
 		
 		List<WifiConfiguration> list= wifiManager.getConfiguredNetworks();
+		
 		if (list != null)
 		{
-			for (WifiConfiguration wifiConfiguration : wifiManager.getConfiguredNetworks())
+			for (WifiConfiguration wifiConfiguration : list)
 			{
 				String currentSSID = "";
 				if (wifiConfiguration == null || TextUtils.isEmpty(wifiConfiguration.SSID))
 				{
 					continue;
 				}
+				
 				if (OfflineUtils.isSSIDWithQuotes(wifiConfiguration.SSID) && !OfflineUtils.isSSIDWithQuotes(ssid))
 					currentSSID = wifiConfiguration.SSID.substring(1, wifiConfiguration.SSID.length() - 1);
 				else
 					currentSSID=wifiConfiguration.SSID;
+				
 				if (currentSSID.equals(ssid))
 				{
-					Log.d("OfflineManager", "Disconnecting existing ssid");
+					
+					Logger.d("OfflineManager", "Disconnecting existing ssid");
 					wifiManager.disconnect();
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
-					Log.d("OfflineManager", "Enabled network" + status);
+					Logger.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
 					wifiManager.reconnect();
-					Log.d("OfflineManager", "trying to connect! to ");
+					Logger.d("OfflineManager", "trying to connect! to ");
 
 				}
 			}
 		}
+		
 	}
 	
 	public void tryConnectingToHotSpot(final String msisdn) 
@@ -597,21 +604,26 @@ public class ConnectionManager implements ChannelListener
 	
 	public void closeConnection(String deviceName) 
 	{
-		boolean isWifiHotspotRunning = isHotspotCreated();
+
+		boolean isWifiHotspotRunning = OfflineUtils.isHotSpotCreated(OfflineController.getInstance().getConnectingDevice());
 		if (isWifiHotspotRunning)
 		{
 			closeHikeHotspot(deviceName);
+			if(!TextUtils.isEmpty(currentnetId))
+			{
+				startWifi();
+			}
+			
 		}
 		else
 		{
 			if (wifiManager.isWifiEnabled())
 			{
 				forgetWifiNetwork();
-
+				connectToWifi(currentnetId);
 			}
 		}
-		//startWifi();
-		connectToWifi(currentnetId);
+		
 		clearAllVariables();
 	}
 
