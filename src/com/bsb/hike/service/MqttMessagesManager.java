@@ -3,10 +3,10 @@ package com.bsb.hike.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -4298,19 +4298,61 @@ public class MqttMessagesManager
 	{
 		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
 		JSONArray msisdnArray = data.optJSONArray(HikeConstants.CONTACTS);
-		String number = data.optString(HikeConstants.COUNT);
+		int counter = data.optInt(HikeConstants.COUNT);
 		Set<String> msisdnSet = null;
 		if (msisdnArray != null)
 		{
-			msisdnSet = new HashSet<String>();
+			msisdnSet = new LinkedHashSet<String>();
 			for (int i = 0; i < msisdnArray.length(); i++)
 			{
 				msisdnSet.add(msisdnArray.optString(i));
 			}
 		}
-		HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, Integer.parseInt(number));
+		
+		//case 1) if init not show or on top
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_SHOWN, true)
+				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
+		{
+			//just replace these values
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+		}
+		//case 2) exit card on top:-
+		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_ON_TOP, false))
+		{
+			//just replace these values
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+		}
+		
+		// case 3) fav card is on top or no cards on top
+		else
+		{
+			//fetch previous list
+			Set<String> list = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null);
+			
+			// list will be NON-EMPTY if any fav card is on top
+			if(list != null && !list.isEmpty())
+			{
+				//fetch current item from previous list
+				Iterator<String> iterator = list.iterator();
+				String currentMsisdn = null;
+				if(iterator.hasNext())
+				{
+					currentMsisdn = iterator.next();
+				}
+				
+				//add to new list
+				if(!TextUtils.isEmpty(currentMsisdn))
+				{
+					msisdnSet.add(currentMsisdn);
+				}
+			}
+			
+			//save new list
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+		}
+		
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, counter);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, new Pair<Set<String>, Integer>(msisdnSet, counter));
 	}
 }
