@@ -39,6 +39,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
@@ -50,6 +51,8 @@ import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
@@ -74,8 +77,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
@@ -141,6 +142,7 @@ import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -245,6 +247,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int INITIALIZE_MORE_MESSAGES = 36;
 	
 	protected static final int UPDATE_MESSAGE_LIST = 37;
+	
+	protected static final int REMOVE_CHAT_BACKGROUND = 0;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -654,9 +658,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			int[] mEatOuterTouchIds =null;
 			if (shouldKeyboardPopupShow)
 			{
-				 mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message , R.id.msg_compose, R.id.sticker_recommendation_parent};	
-			}else{
-				 mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.sticker_recommendation_parent};
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.msg_compose, R.id.sticker_recommendation_parent };
+			}
+			else
+			{
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.sticker_recommendation_parent };
 			}
 
 			initStickerPicker();
@@ -664,6 +670,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this, this);
+			if (Utils.isLollipopOrHigher())
+			{
+				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
+			}
 		}
 
 		else
@@ -726,7 +736,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mConversation != null)
 		{
 			// overflow is common between all, one to one and group
-			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
+			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
 			return true;
 		}
@@ -745,6 +755,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.id.attachment:
 			showAttchmentPicker();
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
+			return true;
+			
+		case android.R.id.home:
+			actionBarBackPressed();
 			return true;
 		}
 		return false;
@@ -993,9 +1007,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		}
 
-		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+		int width = Utils.getOverflowMenuWidth(activity.getApplicationContext());
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.attachment_anchor));
+		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
 
 	@Override
@@ -1033,10 +1047,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.id.scroll_bottom_indicator:
 			bottomScrollIndicatorClicked();
 			break;
-		case R.id.back:
-			actionBarBackPressed();
-			break;
-		case R.id.contact_info:
+		case R.id.contactinfocontainer:
 			openProfileScreen();
 			break;
 		case R.id.overlay_layout:
@@ -1055,11 +1066,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			onBlueOverLayClick((ConvMessage) v.getTag(), v);
 			break;
 		case R.id.next:
-			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 			searchMessage(true,false);
 			break;
 		case R.id.previous:
-			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 			searchMessage(false,false);
 			break;
 		case R.id.search_clear_btn:
@@ -1291,7 +1300,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		int width = (int) (Utils.scaledDensityMultiplier * 270);
 		int xOffset = -(int) (276 * Utils.scaledDensityMultiplier);
 		int yOffset = -(int) (0.5 * Utils.scaledDensityMultiplier);
-		attachmentPicker.show(width, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		attachmentPicker.show(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
 	}
 
 	/**
@@ -1304,7 +1313,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			attachmentPicker = new AttachmentPicker(msisdn, this, this, activity, true);
 			if (addContact)
 			{
-				attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
+				attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.contact_msg_sent), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
 			}
 		}
 	}
@@ -1343,32 +1352,44 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mAdapter.getChatTheme() == theme && theme == ChatTheme.DEFAULT)
 		{
 			activity.updateActionBarColor(theme.headerBgResId());
+			setChatBackground(R.color.chat_thread_default_bg);
+			setStatusBarColor(theme.statusBarColor());
+
 		}
-		
+
 		else if (mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
+			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
+				setChatBackground(REMOVE_CHAT_BACKGROUND);
+			else if (theme == ChatTheme.DEFAULT)
+				setChatBackground(R.color.chat_thread_default_bg);
 
 			setConversationTheme(theme);
+			setStatusBarColor(theme.statusBarColor());
 		}
 	}
-
+	protected void setChatBackground(int colorResID){
+		View chatlayout=activity.findViewById(R.id.chatContentlayout);
+		chatlayout.setBackgroundResource(colorResID);
+	}
 	protected void setBackground(ChatTheme theme)
 	{
 		ImageView backgroundImage = (ImageView) activity.findViewById(R.id.background);
 		if (theme == ChatTheme.DEFAULT)
 		{
 			backgroundImage.setImageResource(theme.bgResId());
+			setChatBackground(R.color.chat_thread_default_bg);
 		}
 		else
 		{
+			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
 			Drawable drawable = Utils.getChatTheme(theme, activity);
 			if(!theme.isTiled())
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
-			
 			backgroundImage.setImageDrawable(drawable);
 		}
 	}
@@ -1587,7 +1608,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setText(searchText);
 			mComposeView.setSelection(searchText.length());
 		}
-		Utils.blockOrientationChange(activity);
 	}
 	
 	private void setUpSearchViews()
@@ -1657,6 +1677,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void searchMessage(boolean searchNext, boolean loop)
 	{
+		mConversationsView.setOnScrollListener(null);
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
@@ -1696,6 +1718,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		setMessagesRead();
 		loadingMoreMessages = false;
+		mConversationsView.setOnScrollListener(this);
 	}
 
 	protected void destroySearchMode()
@@ -1726,7 +1749,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mAdapter.setSearchText(null);
 			searchText = null;
 		}
-		Utils.unblockOrientationChange(activity);
 	}
 
 	protected void showToast(int messageId)
@@ -1876,6 +1898,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mAdapter.setChatTheme(theme);
 		// action bar
 		activity.updateActionBarColor(theme.headerBgResId());
+		setStatusBarColor(theme.statusBarColor());
+		
 		// background image
 		setBackground(theme);
 	}
@@ -3908,6 +3932,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		if (shouldShowKeyboard())
 		{
+			tryToDismissAnyOpenPanels();
 			Utils.showSoftKeyboard(activity, mComposeView);
 		}
 		
@@ -4572,17 +4597,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		mActionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 
-		View backContainer = mActionBarView.findViewById(R.id.back);
-
-		View contactInfoContainer = mActionBarView.findViewById(R.id.contact_info);
-
-		/**
-		 * Adding click listeners
-		 */
-
+		View contactInfoContainer = mActionBarView.findViewById(R.id.contactinfocontainer);
 		contactInfoContainer.setOnClickListener(this);
-		backContainer.setOnClickListener(this);
-		
+
 		setAvatar();
 	}
 
@@ -5192,6 +5209,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
+			mShareablePopupLayout.onConfigurationChanged();
 		}
 		
 		if (stickerTagWatcher != null)
@@ -5205,6 +5223,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (getCurrentlTheme() != null && getCurrentlTheme() != ChatTheme.DEFAULT)
 		{
 			setBackground(getCurrentlTheme());
+			setStatusBarColor(getCurrentlTheme().statusBarColor());
 		}
 		
 		/**
@@ -5233,6 +5252,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (mShareablePopupLayout.isKeyboardOpen())
 			{
 				attachmentPicker.dismiss();
+			}
+			else
+			{
+				attachmentPicker.onOrientationChange(newConfig.orientation);
 			}
 		}
 	}
@@ -5298,7 +5321,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			else if (actionId == EditorInfo.IME_ACTION_SEARCH||(view.getId() ==R.id.search_text))
 			{
-				Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 				searchMessage(false,true);
 				return true;
 			}
@@ -5675,7 +5697,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		Utils.hideSoftKeyboard(activity, mComposeView);
 		setUpThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
+		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
 	
 	public void saveCurrentActionMode()
@@ -5697,6 +5719,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
 	}
 	
+	public void setStatusBarColor(int resIdcolor)
+	{
+		StatusBarColorChanger.setStatusBarColor(activity, resIdcolor);
+		activity.statusBarColorID=resIdcolor;
+	}
+	
 	public void clearComposeText()
 	{
 		if(mComposeView != null)
@@ -5708,5 +5736,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void selectAllComposeText()
 	{
 			
+	}
+	
+	private void tryToDismissAnyOpenPanels()
+	{
+		hideOverflowMenu();
+		hideThemePicker();
 	}
 }

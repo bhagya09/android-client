@@ -4,10 +4,10 @@
     android:layout_height="match_parent"
     android:background="@color/white" >
 
-    <com.bsb.hike.adapters.PinnedHeaderListView
+    <com.bsb.hike.view.PinnedSectionListView
         android:headerDividersEnabled="false"
         android:id="@+id/addfriend_listview"
-        style="@style/HomeList" />
+        style="@style/ComposeList" />
 
     <include
         layout="@layout/spinner_center_screen"

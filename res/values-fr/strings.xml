@@ -639,7 +639,7 @@
     <string name="protip_games">jeux</string>
     <string name="ftue_grid_string">Start a conversation with one\nof your friends.</string>
     <string name="remind">Rappeler</string>
-    <string name="ok">OK</string>
+    <string name="OK">OK</string>
     <string name="not_show_call_alert_msg">Ne plus afficher</string>
     <string name="view_profile">Afficher profil</string>
     <string name="normal_update_head">Mise à jour importante disponible</string>
@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">Touche deux fois n\'importe où pour hiker tes amis</string>
     <string name="addedYouAsFavorite">Added %1$s to Favorites</string>
     <string name="addedYouFrindDescription"><![CDATA[
- You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#0f8fe1">Status Updates</font> with %1$s. Would you like to request him to do the same?
+ You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#1da8e8">Status Updates</font> with %1$s. Would you like to request him to do the same?
 	    
     ]]></string>
     <string name="contacts_upper_case">CONTACTS</string>
@@ -1199,8 +1199,8 @@
     <string name="see_them">TERMINÉ</string>
     <string name="drag_tip_text">Touche longuement un pack pour réorganiser tes packs de stickers</string>
     <string name="drag_tip_subtext">Touche et fais glisser pour réorganiser tes stickers</string>
-    <string name="sticker_cancel">ANNULER</string>
-    <string name="sticker_confirm">CONFIRMER</string>
+    <string name="CANCEL">ANNULER</string>
+    <string name="CONFIRM">CONFIRMER</string>
     <string name="n_more">%1$d DE PLUS</string>
     <string name="n_stickers">%1$d stickers</string>
     <string name="last_backup">Dernière sauvegarde</string>
@@ -1253,7 +1253,6 @@
     <string name="auth_state_connecting">Connexion en cours...</string>
     <string name="auth_please_wait_connect">Attends pendant qu\'on te connecte...</string>
     <string name="auth_done">TERMINÉ</string>
-    <string name="auth_cancel">Annuler</string>
     <string name="auth_retry">Réessayer</string>
     <string name="auth_went_wrong">Il y a eu un problème.</string>
     <string name="install_text">INSTALLATION GRATUITE</string>

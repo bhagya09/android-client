@@ -2,11 +2,8 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:left="@dimen/contact_list_divider_padding"
-        android:right="@dimen/contact_list_divider_padding">
-        <shape android:shape="rectangle" >
-            <solid android:color="@color/list_divider" />
-        </shape>
-    </item>
+        android:drawable="@color/home_screen_list_divider"
+        android:left="@dimen/home_sreen_divider_left_padding"
+        android:right="@dimen/home_sreen_divider_right_padding"/>
 
 </layer-list>

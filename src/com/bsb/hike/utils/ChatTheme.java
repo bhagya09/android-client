@@ -10,7 +10,7 @@ public enum ChatTheme
 		@Override
 		public int bgResId()
 		{
-			return R.color.chat_thread_default_bg;
+			return R.color.blue_hike;
 		}
 
 		@Override
@@ -34,7 +34,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header;
+			return R.drawable.bg_header_transparent;
 		}
 
 		@Override
@@ -96,6 +96,13 @@ public enum ChatTheme
 		{
 			return R.color.list_item_subtext;
 		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike_status_bar_m;
+		}
 		
 	},
 
@@ -111,7 +118,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -192,6 +199,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.red_color_span;
+		}
+
 	},
 
 	INDEPENDENCE
@@ -206,7 +220,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent_3x;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -285,6 +299,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.red_color_span;
 		}
 
 	},
@@ -382,6 +403,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.love_2_theme_status_bar_color;
+		}
+
 	},
 
 	NATURE
@@ -396,7 +424,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -475,6 +503,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.nature_theme_status_bar_color;
 		}
 		
 	},
@@ -572,6 +607,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.rain2_theme_status_bar_color;
+		}
+
 	},
 	
 	IPL
@@ -586,7 +628,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -667,6 +709,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.ipl_theme_status_bar_color;
+		}
+
 	},
 	
 	GEOMETRIC_1
@@ -681,7 +730,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -762,6 +811,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.geometric_1_theme_status_bar_color;
+		}
+
 	},
 	
 	BLURRED_LIGHT
@@ -776,7 +832,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -857,6 +913,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blurred_light_theme_status_bar_color;
+		}
+
 	},
 	
 	VALENTINES_2
@@ -871,7 +934,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -951,6 +1014,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	FRIENDS
@@ -965,7 +1035,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1046,6 +1116,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.friends_theme_status_bar_color;
+		}
+
 	},
 	
 	BEACH_2
@@ -1060,7 +1137,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1141,6 +1218,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	NIGHT
@@ -1155,7 +1239,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1236,6 +1320,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.night_theme_status_bar_color;
+		}
+
 	},
 
 	SPRING
@@ -1250,7 +1341,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1331,6 +1422,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.spring_theme_status_bar_color;
+		}
+
 	},
 	
 	NIGHT_PATTERN
@@ -1345,7 +1443,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1424,6 +1522,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -1521,6 +1626,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.music_theme_status_bar_color;
+		}
+
 	},
 
 	STARRY
@@ -1535,7 +1647,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1616,6 +1728,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.starry_theme_status_bar_color;
+		}
+
 	},
 
 	OWL
@@ -1630,7 +1749,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1711,6 +1830,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.owl_theme_status_bar_color;
+		}
+
 	},
 	
 	BEACH
@@ -1725,7 +1851,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1806,6 +1932,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 	
 	FOREST
@@ -1820,7 +1953,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -1899,6 +2032,13 @@ public enum ChatTheme
 		public int offlineMsgTextColor()
 		{
 			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
 		}
 
 	},
@@ -1996,6 +2136,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.hikin_couple_theme_status_bar_color;
+		}
+
 	},
 
 	MOUNTAINS
@@ -2010,7 +2157,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2091,6 +2238,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.mountains_theme_status_bar_color;
+		}
+
 	},
 
 	LOVE
@@ -2105,7 +2259,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2186,6 +2340,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	GIRLY
@@ -2200,7 +2361,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2281,6 +2442,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.girly_theme_status_bar_color;
+		}
+
 	},
 
 	MR_RIGHT
@@ -2295,7 +2463,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2376,6 +2544,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.mr_right_theme_status_bar_color;
+		}
+
 	},
 
 	SMILEY
@@ -2390,7 +2565,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2471,6 +2646,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 	
 	CHATTY
@@ -2485,7 +2667,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2566,6 +2748,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	CREEPY
@@ -2580,7 +2769,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2661,6 +2850,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.creepy_theme_status_bar_color;
+		}
+
 	},
 	
 	VALENTINES
@@ -2675,7 +2871,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2755,6 +2951,13 @@ public enum ChatTheme
 		{
 			return R.color.white;
 		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.valentines_theme_status_bar_color;
+		}
 	},
 
 	KISSES
@@ -2769,7 +2972,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2850,6 +3053,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	STUDY
@@ -2864,7 +3074,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -2945,6 +3155,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.study_theme_status_bar_color;
+		}
+
 	},
 
 	TECHY
@@ -2959,7 +3176,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -3040,6 +3257,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.blue_hike;
+		}
+
 	},
 
 	CELEBRATION
@@ -3054,7 +3278,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -3135,6 +3359,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.celebration_theme_status_bar_color;
+		}
+
 	},
 
 	FLORAL
@@ -3149,7 +3380,7 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
@@ -3230,6 +3461,13 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.floral_theme_status_bar_color;
+		}
+
 	};
 
 	
@@ -3260,6 +3498,7 @@ public enum ChatTheme
 	public abstract int smsToggleBgRes();
 	
 	public abstract int multiSelectBubbleColor();
+	public abstract int statusBarColor();
 	
 	public abstract int offlineMsgTextColor();
 

@@ -20,8 +20,9 @@ import android.os.Bundle;
 import android.support.v4.view.WindowCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
@@ -30,15 +31,15 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -65,6 +66,7 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -74,7 +76,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
-public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
+public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, TagOnClickListener, OverflowItemClickListener,
 		OnDismissListener, OverflowViewListener, HikePubSub.Listener, IBridgeCallback
 {
 	
@@ -123,7 +125,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		super.onCreate(savedInstanceState);
+
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */
@@ -154,6 +156,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				return;
 			}
 		}
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
@@ -329,15 +332,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				layoutParams = new LayoutParams((int) getResources().getDimension(R.dimen.one_dp), 0);
 			}
-
+			layoutParams.height = 0;
 			if (botConfig.shouldOverlayActionBar())
 			{
-				layoutParams.height = (int) getResources().getDimension(R.dimen.st__action_bar_default_height);
-			}
-
-			else
-			{
-				layoutParams.height = 0;
+				//To remove the gap since action bar should overlay the view now 
+				RelativeLayout rl=(RelativeLayout)findViewById(R.id.webview_layout);
+				FrameLayout.LayoutParams fp=(FrameLayout.LayoutParams)rl.getLayoutParams();
+				fp.setMargins(0, 0, 0, 0);
+				rl.setLayoutParams(fp);
 			}
 
 			view.setLayoutParams(layoutParams);
@@ -552,7 +554,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				menu.findItem(R.id.overflow_menu).setVisible(true);
 			}
-			
+			StatusBarColorChanger.setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_TRANSPARENT);
+		
 			this.mMenu = menu;
 			
 			return true;
@@ -569,6 +572,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			showOverflowMenu();
 			return true;
 		}
+		
+		else if (item.getItemId() == android.R.id.home)
+		{
+			this.finish();
+			return true;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -578,6 +587,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
+		
 	}
 
 	private void overflowMenuClickedAnalytics()
@@ -618,23 +628,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		actionBarView = mActionBar.setCustomActionBarView(R.layout.compose_action_bar);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(titleString);
-		backContainer.setOnClickListener(this);
 	}
 
 	private void inflateMicroAppActionBar(String titleString)
 	{
-		actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
-		View backContainer = actionBarView.findViewById(R.id.back);
+		actionBarView = mActionBar.setCustomActionBarView(R.layout.webview_microapp_action_bar);
 		TextView title = (TextView) actionBarView.findViewById(R.id.contact_name);
 		title.setText(titleString);
 
 		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 
-		backContainer.setOnClickListener(this);
 	}
 
 	private void setAvatar()
@@ -673,7 +678,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupWebURLWithBridgeActionBar(String title, int color)
 	{
 		setupActionBar(title);
-		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.bg_header));
+		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.color.blue_hike));
 	}
 	
 
@@ -754,16 +759,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	}
 
-	@Override
-	public void onClick(View arg0)
-	{
-		switch (arg0.getId())
-		{
-		case R.id.back:
-			finish();
-			break;
-		}
-	}
 
 	@Override
 	public void onTagClicked(Tag tag)
@@ -797,7 +792,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				
 				if (parameter.drawableId != 0)
 				{
-					parameter.drawableId = parameter.drawableId == R.drawable.tick ? R.drawable.untick : R.drawable.tick;
+					parameter.drawableId = parameter.drawableId == R.drawable.control_check_on ? R.drawable.control_check_off : R.drawable.control_check_on;
 					mActionBar.refreshOverflowMenuItem(parameter);
 				}
 				

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,8 +32,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -323,7 +324,8 @@ public class GroupChatThread extends OneToNChatThread
 			onLatestPinDeleted(object);
 			break;
 		case HikePubSub.GROUP_END:
-			uiHandler.sendEmptyMessage(GROUP_END);
+			if (msisdn.equals(((JSONObject) object).optString(HikeConstants.TO)))
+				uiHandler.sendEmptyMessage(GROUP_END);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToNChatThread. Calling super class' onEventReceived");
@@ -628,6 +630,10 @@ public class GroupChatThread extends OneToNChatThread
 
 	private void showPinCreateView(String pinText)
 	{
+		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
+		{
+			return;
+		}
 		mActionMode.showActionMode(PIN_CREATE_ACTION_MODE, getString(R.string.create_pin), getString(R.string.pin), HikeActionMode.DEFAULT_LAYOUT_RESID);
 		// TODO : dismissPopupWindow was here : gaurav
 

@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="125dp"
-    android:layout_height="0dp"
-    android:background="@drawable/bg_attachments"
-    android:orientation="vertical" >
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_attachment_theme"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingBottom="26dp"
+    android:paddingLeft="26dp"
+    android:paddingRight="26dp"
+    android:paddingTop="12dp" >
 
     <GridView
         android:id="@+id/attachment_grid"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="12dp"
+        android:paddingTop="12dp"
         android:gravity="center"
+        android:stretchMode="none"
+        android:columnWidth="@dimen/attachment_column_width"
         android:numColumns="3"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingTop="5dp"
-        android:stretchMode="columnWidth" />
-    
-      <TextView
+        android:verticalSpacing="12dp" />
+
+    <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/group_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:drawableLeft="@drawable/ic_chat_theme_info"
-        android:drawablePadding="4dp"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingBottom="10dp"
-        android:singleLine="true"
-        android:textColor="#bdbebe"
+        android:layout_marginBottom="4dp"
+        android:gravity="left"
+        android:text="@string/file_attachment_info"
+        android:textColor="#5c000000"
         android:textSize="12sp"
-        android:text="@string/file_attachment_info"/>
- 
+        android:textStyle="bold|italic" />
+
 </LinearLayout>

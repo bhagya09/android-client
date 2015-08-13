@@ -7,23 +7,16 @@
     android:background="@color/home_bg"
     android:orientation="vertical" >
 
-	<ImageView
-        android:id="@+id/action_bar_img"
-        android:layout_width= "match_parent"
-        android:layout_height="48dp"
-        android:visibility="gone"
-        android:scaleType="fitXY"
-        android:src="@drawable/action_bar_img" />
-    <View
+     <View
         android:id="@+id/overflow_anchor"
-        android:layout_below="@id/action_bar_img"
-        android:layout_width="190dp"
+        android:layout_width="1dp"
         android:layout_height="0dp"
-        android:layout_alignParentRight="true" />
-    
+        android:layout_marginTop="-52dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
+
     <FrameLayout
         android:id="@+id/home_screen"
-        android:layout_below="@id/action_bar_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
      
