@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -292,14 +293,18 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 						if (object != null && object instanceof Set)
 						{
 							mFtueFriendList = new ArrayList<ContactInfo>(); 
-							HashSet<String> msisdnSet = (HashSet<String>) object;
+							Pair<Set<String>, Integer> pair = (Pair<Set<String>, Integer>)object;
+							HashSet<String> msisdnSet = (HashSet<String>) pair.first;
+							int counter = pair.second;
 							Iterator<String> iterator = msisdnSet.iterator();
-							while(iterator.hasNext())
+							int i=0;
+							while(iterator.hasNext() && i < counter)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
 								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
 								{
 									mFtueFriendList.add(info);
+									i++;
 								}
 							}
 							addFTUEItem();
