@@ -16,7 +16,7 @@ android {
         useNewCruncher true
     }
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
         targetSdkVersion 17

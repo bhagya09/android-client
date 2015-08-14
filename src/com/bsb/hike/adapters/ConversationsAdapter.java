@@ -953,10 +953,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 			imgStatus.setImageResource(imageId);
 			imgStatus.setVisibility(View.VISIBLE);
-			
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
-			lp.setMargins((int) (5 * Utils.densityMultiplier), lp.topMargin, lp.rightMargin, lp.bottomMargin);
-			messageView.setLayoutParams(lp);
+		
 		}
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
