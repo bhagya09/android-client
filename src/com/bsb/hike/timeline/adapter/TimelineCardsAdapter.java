@@ -77,6 +77,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
+import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.EmoticonConstants;
@@ -290,14 +291,24 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	@Override
 	public int getItemCount()
 	{
+		int size = 0;
 		if (mShowUserProfile)
 		{
-			return (1 + mStatusMessages.size());
+			size = (1 + mStatusMessages.size());
 		}
 		else
 		{
-			return mStatusMessages.size();
+			size = mStatusMessages.size();
 		}
+		
+		if(size == 0)
+		{
+			Message emptyMessage = Message.obtain();
+			emptyMessage.arg1 = UpdatesFragment.EMPTY_STATE;
+			this.handleUIMessage(emptyMessage);
+		}
+		
+		return size;
 	}
 
 	@Override
