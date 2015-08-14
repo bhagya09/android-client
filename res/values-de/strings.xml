@@ -922,7 +922,6 @@
     <string name="unlink_confirmation">Willst du dein Konto wirklich zurücksetzen?</string>
     <string name="unlinking_account">Konto wird zurückgesetzt...</string>
     <string name="delete_confirm_msg_1">Damit werden all deine Nachrichten, Frei-SMS und jegliche hike-Belohnungen gelöscht.</string>
-    <string name="delete_confirm_msg_2">Willst du wirklich fortfahren? Diesen Schritt kannst du nicht mehr rückgängig machen.</string>
     <string name="shortcut">Shortcut für Unterhaltung hinzufügen</string>
     <string name="add_to_contacts">Zu Kontakten hinzufügen.</string>
     <string name="delete_leave">Gruppe löschen und verlassen</string>
