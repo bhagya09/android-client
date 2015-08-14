@@ -17,11 +17,13 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -103,10 +105,16 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private boolean mShowProfileHeader;
 
 	private ArrayList<String> mMsisdnArray = new ArrayList<String>();
-	
+
+	private View emptyLayout;
+
+	private FetchUpdates fetchUpdates;
+
 	public static final int START_FTUE_WITH_INIT_CARD = 0;
-	
+
 	public static final int START_FTUE_WITH_FAV_CARD = 1;
+
+	public static final int EMPTY_STATE = -10;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -114,18 +122,26 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		View parent = inflater.inflate(R.layout.updates, null);
 		mUpdatesList = (RecyclerView) parent.findViewById(R.id.updatesRecycleView);
 		actionsView = parent.findViewById(R.id.new_update_tab);
+		emptyLayout = parent.findViewById(R.id.timeline_no_item);
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mUpdatesList.setLayoutManager(mLayoutManager);
 		// TODO
 		// mUpdatesList.setEmptyView(parent.findViewById(android.R.id.empty));
 		return parent;
 	}
+	
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		checkIfTimelineEmpty();
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
 		super.onViewCreated(view, savedInstanceState);
-		
+
 		prefs = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
 		GsonBuilder gsonBuilder = new GsonBuilder();
@@ -143,15 +159,28 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			mShowProfileHeader = getArguments().getBoolean(SHOW_PROFILE_HEADER, false);
 
 			String[] msisdnArray = getArguments().getStringArray(HikeConstants.MSISDNS);
-			
+
 			for (String msisdn : msisdnArray)
 			{
 				mMsisdnArray.add(msisdn);
 			}
 		}
-
-		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager(), mShowProfileHeader,mMsisdnArray);
 		
+		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager(),
+				mShowProfileHeader, mMsisdnArray)
+		{
+			@Override
+			public void handleUIMessage(Message msg)
+			{
+				super.handleUIMessage(msg);
+				if (msg.arg1 == UpdatesFragment.EMPTY_STATE)
+				{
+					checkIfTimelineEmpty();
+					msg.recycle();
+				}
+			}
+		};
+
 		mUpdatesList.setAdapter(timelineCardsAdapter);
 
 		if (!mShowProfileHeader)
@@ -170,11 +199,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			actionsView.setVisibility(View.GONE);
 		}
 
-		FetchUpdates fetchUpdates = new FetchUpdates();
+		fetchUpdates = new FetchUpdates();
 
 		if (Utils.isHoneycombOrHigher())
 		{
-			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
+			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
 		}
 		else
 		{
@@ -424,7 +453,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			if (friendMsisdns.length > 0)
 			{
-				statusMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, friendMsisdns);
+				statusMessages = HikeConversationsDatabase.getInstance().getStatusMessages(mShowProfileHeader?false:true, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, friendMsisdns);
 			}
 			else
 			{
@@ -522,6 +551,18 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
 		}
 
+	}
+	
+	private void checkIfTimelineEmpty()
+	{
+		if (statusMessages.isEmpty() && fetchUpdates.getStatus() == AsyncTask.Status.FINISHED && !mShowProfileHeader)
+		{
+			emptyLayout.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			emptyLayout.setVisibility(View.GONE);
+		}
 	}
 
 	/**

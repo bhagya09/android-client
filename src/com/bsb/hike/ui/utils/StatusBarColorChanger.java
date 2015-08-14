@@ -20,6 +20,10 @@ public class StatusBarColorChanger
 		if (activity != null)
 			setStatusBarColor(activity.getWindow(), color);
 	}
+	/**
+	 * @param activity  
+	 * @param resIdcolor  unresolved color id  which will be resolved e.g R.color.mycolor
+	 */
 	public static void setStatusBarColor(Activity activity, int resIdcolor)
 	{
 		if (activity != null)
@@ -48,7 +52,7 @@ public class StatusBarColorChanger
 
 	}
 
-	public static void setStatusBarColor(Window window, int color)
+	private static void setStatusBarColor(Window window, int color)
 	{
 		if (Utils.isLollipopOrHigher() && window != null)
 		{

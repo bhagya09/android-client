@@ -678,7 +678,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupWebURLWithBridgeActionBar(String title, int color)
 	{
 		setupActionBar(title);
-		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.bg_header));
+		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.color.blue_hike));
 	}
 	
 

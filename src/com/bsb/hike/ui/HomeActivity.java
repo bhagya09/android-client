@@ -1120,7 +1120,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		updateAlert.setPositiveButton(R.string.update_app, dialogListener);
 		if (updateType != HikeConstants.CRITICAL_UPDATE)
 		{
-			updateAlert.setNegativeButton(R.string.cancel, dialogListener);
+			updateAlert.setNegativeButton(R.string.CANCEL, dialogListener);
 		}
 
 		updateAlert.setOnCancelListener(new OnCancelListener()

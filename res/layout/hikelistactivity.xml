@@ -54,7 +54,7 @@
             android:background="@drawable/ic_thread_divider_profile"
             android:visibility="gone" />
 
-        <com.bsb.hike.adapters.PinnedHeaderListView
+        <com.bsb.hike.view.PinnedSectionListView
             android:id="@+id/contact_list"
             style="@style/ComposeList"
             android:layout_width="match_parent"
