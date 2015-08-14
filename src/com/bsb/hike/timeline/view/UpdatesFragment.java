@@ -10,6 +10,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
@@ -693,8 +695,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		case R.id.new_photo_tab:
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-			
+
 			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, getNewImagePostFilePath());
+			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, TIMELINE_POST_IMAGE_REQ);
 			break;
 
@@ -745,6 +748,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		switch (requestCode)
 		{
 		case TIMELINE_POST_IMAGE_REQ:
+			String destFilePath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
+			if(!TextUtils.isEmpty(destFilePath))
+			{
+				startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), destFilePath));
+			}
+			
 			ImageParser.parseResult(getActivity(), resultCode, data, new ImageParserListener()
 			{
 				@Override
