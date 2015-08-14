@@ -74,8 +74,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private static final String TAG = "statusupdate";
 	
-	private SharedPreferences preferences;
-
 	private ProgressDialog progressDialog;
 
 	private String[] pubsubListeners = { HikePubSub.SOCIAL_AUTH_COMPLETED, HikePubSub.SOCIAL_AUTH_FAILED, HikePubSub.STATUS_POST_REQUEST_DONE };
@@ -371,7 +369,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (mActivityTask.emojiShowing)
 		{
 			mActivityTask.emojiShowing = false;
-			mEmoticonPicker.dismiss();
+			hideEmojiOrMoodLayout();
 			setEmoticonButtonSelected(false);
 		}
 		else
@@ -383,6 +381,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	public void showEmoticonPicker()
 	{
 		wasEmojiPreviouslyVisible = false;
+		hideEmojiOrMoodLayout();
+		addMoodLayout.setVisibility(View.GONE);
 		if (mEmoticonPicker.showEmoticonPicker(getResources().getConfiguration().orientation))
 		{
 			Utils.hideSoftKeyboard(this, statusTxt);
@@ -429,7 +429,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (mEmoticonPicker!= null && mEmoticonPicker.isShowing())
 		{
 			mActivityTask.emojiShowing = false;
-			mEmoticonPicker.dismiss();
+			hideEmojiOrMoodLayout();
 		}
 		showMoodSelector();
 		setTitle();
@@ -729,7 +729,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (mEmoticonPicker != null)
 		{	
 			mEmoticonPicker.releaseReources();
-			mEmoticonPicker.dismiss();
 		}
 	}
 
@@ -761,7 +760,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			if (mEmoticonPicker.isShowing())
 			{
 				int currentEmoticonPage = mEmoticonPicker.getCurrentItem();
-				mEmoticonPicker.dismiss();
+				hideEmojiOrMoodLayout();
 				initEmoticonPicker();
 				mEmoticonPicker.setCurrentItem(currentEmoticonPage);
 				mEmoticonPicker.onOrientationChange(newConfig.orientation);
@@ -774,7 +773,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			}
 			else
 			{
-				mEmoticonPicker.dismiss();
+				hideEmojiOrMoodLayout();
 				initEmoticonPicker();
 			}
 		}
