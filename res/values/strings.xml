@@ -1514,7 +1514,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
-	<string name="edit_photos">New Photo</string>
 	<string name ="apps">APPS</string>
 	<string name ="connect_offline">Connect</string>
 	<string name="edit_photos">New photo</string>
