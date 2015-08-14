@@ -771,7 +771,7 @@ public class StickerSearchUtility
 		}
 		else
 		{
-			throw new IllegalArgumentException("Invalid argument (count)");
+			throw new IllegalArgumentException("Invalid argument (count).");
 		}
 
 		return sb.toString();
@@ -793,7 +793,7 @@ public class StickerSearchUtility
 		}
 		else
 		{
-			throw new IllegalArgumentException((ids == null) ? "Invalid argument (ids)" : "Empty argument (ids)");
+			throw new IllegalArgumentException((ids == null) ? "Invalid argument (ids)." : "Empty argument (ids).");
 		}
 
 		return sb.toString();
@@ -802,7 +802,7 @@ public class StickerSearchUtility
 	/* Get the code w.r.t. moment of time i.e. morning, evening, night etc. */
 	public static TIME_CODE getMomentCode()
 	{
-		TIME_CODE momentCode = HikeStickerSearchBaseConstants.TIME_CODE.UNKNOWN;
+		TIME_CODE momentCode = TIME_CODE.UNKNOWN;
 
 		Calendar calendar = Calendar.getInstance();
 		int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
@@ -814,28 +814,28 @@ public class StickerSearchUtility
 		// HH = Hour of the day
 		// mm = Minute of the hour
 		// ss = Second of the minute
-		// mmm = milliSecond of the minute
+		// SSS = milliSecond of the minute
 		float time = hourOfDay + (((float) minuteOfHour) / 1E+2f) + (((float) secondOfMinute) / 1E+4f) + (((float) milliSecondOfMinute) / 1E+7f);
 
 		if (time >= 4.3000000f && time < 12.0000000f)
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.MORNING;
+			momentCode = TIME_CODE.MORNING;
 		}
 		else if (time >= 12.0000000f && time < 12.3000000f)
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NOON;
+			momentCode = TIME_CODE.NOON;
 		}
 		else if (time >= 12.3000000f && time < 16.3000000f)
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.AFTER_NOON;
+			momentCode = TIME_CODE.AFTER_NOON;
 		}
 		else if (time >= 16.3000000f && time < 20.0000000f)
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.EVENING;
+			momentCode = TIME_CODE.EVENING;
 		}
 		else if ((time >= 20.0000000f && time < 24.0000000f) || (time >= 0.0000000f && time < 4.3000000f))
 		{
-			momentCode = HikeStickerSearchBaseConstants.TIME_CODE.NIGHT;
+			momentCode = TIME_CODE.NIGHT;
 		}
 
 		return momentCode;
@@ -897,11 +897,9 @@ public class StickerSearchUtility
 				// Construct result
 				if (limit == 0)
 				{
-					int i = matchList.size() - 1;
-
-					while ((i > -1) && matchList.get(i).equals(StickerSearchConstants.STRING_EMPTY))
+					for (int i = (matchList.size() - 1); (i > -1) && (matchList.get(i).length() == 0); i--)
 					{
-						matchList.remove(i--);
+						matchList.remove(i);
 					}
 				}
 			}
