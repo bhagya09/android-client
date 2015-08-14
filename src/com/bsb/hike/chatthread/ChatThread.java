@@ -3603,6 +3603,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 				else
 				{
+					dismissStickerRecommendationPopup();
 					releaseStickerSearchResources();
 				}
 			}
