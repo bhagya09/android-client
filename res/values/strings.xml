@@ -1643,4 +1643,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="YES">YES</string>
     <string name="NO">NO</string>
     <string name="DELETE">DELETE</string>
+    <string name="timeline_tab_photo">Photo</string>
+    <string name="timeline_tab_status">Status</string>
+    
 </resources>

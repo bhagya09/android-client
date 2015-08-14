@@ -25,31 +25,6 @@
             android:orientation="horizontal" >
 
             <LinearLayout
-                android:id="@+id/new_status_tab"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/timeline_tab_selector"
-                android:gravity="center"
-                android:orientation="horizontal" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableLeft="@drawable/ic_newstatus"
-                    android:drawablePadding="15dp"
-                    android:gravity="center"
-                    android:text="Status" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="2px"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="13dp"
-                android:layout_marginTop="13dp"
-                android:background="#11000000" />
-
-            <LinearLayout
                 android:id="@+id/new_photo_tab"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -64,7 +39,32 @@
                     android:drawableLeft="@drawable/ic_camera"
                     android:drawablePadding="15dp"
                     android:gravity="center"
-                    android:text="Photo" />
+                    android:text="@string/timeline_tab_photo" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="2px"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="13dp"
+                android:layout_marginTop="13dp"
+                android:background="#11000000" />
+
+            <LinearLayout
+                android:id="@+id/new_status_tab"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/timeline_tab_selector"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_newstatus"
+                    android:drawablePadding="15dp"
+                    android:gravity="center"
+                    android:text="@string/timeline_tab_status" />
             </LinearLayout>
         </LinearLayout>
 
