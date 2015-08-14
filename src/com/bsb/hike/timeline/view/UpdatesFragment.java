@@ -553,6 +553,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		else
 		{
 			isFromPacketList = true;
+			Logger.d("tl_ftue", "====== Going to check fron list received from server packet" + msisdnSet);
 		}
 		if (msisdnSet != null)
 		{
@@ -565,6 +566,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
 				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
 				{
+					Logger.d("tl_ftue", id + " is not a frnd so adding for ftue list");
 					finalContactLsit.add(c);
 					counter++;
 				}
