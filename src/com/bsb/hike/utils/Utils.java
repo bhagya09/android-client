@@ -2063,8 +2063,8 @@ public class Utils
 			dialog.setTitle(header);
 			dialog.setMessage(String.format(body, contactInfo.getFirstName()));
 			dialog.setCheckBox(R.string.not_show_call_alert_msg, null, false);
-			dialog.setPositiveButton(R.string.ok, dialogListener);
-			dialog.setNegativeButton(R.string.cancel, dialogListener);
+			dialog.setPositiveButton(R.string.OK, dialogListener);
+			dialog.setNegativeButton(R.string.CANCEL, dialogListener);
 
 			dialog.show();
 		}
@@ -5268,7 +5268,7 @@ public class Utils
 	{
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setMessage(R.string.no_internet_try_again);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener()
+		builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener()
 		{
 			public void onClick(DialogInterface dialog, int which)
 			{

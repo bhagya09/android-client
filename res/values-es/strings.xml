@@ -639,7 +639,7 @@
     <string name="protip_games">Juegos</string>
     <string name="ftue_grid_string">Start a conversation with one\nof your friends.</string>
     <string name="remind">Recordar</string>
-    <string name="ok">Aceptar</string>
+    <string name="OK">Aceptar</string>
     <string name="not_show_call_alert_msg">No volver a mostrar</string>
     <string name="view_profile">Ver perfil</string>
     <string name="normal_update_head">Actualización importante disponible</string>
@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">Toca dos veces en cualquier sitio para darles un toque a tus amigos.</string>
     <string name="addedYouAsFavorite">Added %1$s to Favorites</string>
     <string name="addedYouFrindDescription"><![CDATA[
- You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#0f8fe1">Status Updates</font> with %1$s. Would you like to request him to do the same?
+ You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#1da8e8">Status Updates</font> with %1$s. Would you like to request him to do the same?
 	    
     ]]></string>
     <string name="contacts_upper_case">CONTACTOS</string>
@@ -1199,8 +1199,8 @@
     <string name="see_them">LISTO</string>
     <string name="drag_tip_text">Toca y mantén pulsado un paquete para cambiar el orden en el que aparece.</string>
     <string name="drag_tip_subtext">Toca y arrastra para reordenar tus pegatinas</string>
-    <string name="sticker_cancel">CANCELAR</string>
-    <string name="sticker_confirm">CONFIRMAR</string>
+    <string name="CANCEL">CANCELAR</string>
+    <string name="CONFIRM">CONFIRMAR</string>
     <string name="n_more">%1$d MÁS</string>
     <string name="n_stickers">%1$d pegatinas</string>
     <string name="last_backup">Última copia de seguridad</string>
@@ -1253,7 +1253,6 @@
     <string name="auth_state_connecting">Conectando...</string>
     <string name="auth_please_wait_connect">Espera mientras te conectamos...</string>
     <string name="auth_done">LISTO</string>
-    <string name="auth_cancel">Cancelar</string>
     <string name="auth_retry">Reintentar</string>
     <string name="auth_went_wrong">Ha habido un error.</string>
     <string name="install_text">INSTALACIÓN GRATUITA</string>

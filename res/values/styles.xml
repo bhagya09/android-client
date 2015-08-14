@@ -655,7 +655,7 @@
 	    <item name="android:layout_height">wrap_content</item>
 	    <item name="android:background">@drawable/bg_country_picker_selector</item>
 	    <item name="android:drawablePadding">16dp</item>
-	    <item name="android:drawableLeft">@drawable/ic_name_common</item>
+	    <item name="android:drawableLeft">@drawable/ic_account_settings</item>
 	    <item name="android:hint">@string/name</item>
 	    <item name="android:imeOptions">actionDone</item>
 	    <item name="android:inputType">textCapWords</item>
@@ -829,7 +829,7 @@
 	    <item name="android:layout_marginLeft">16dp</item>
 	    <item name="android:layout_marginRight">16dp</item>
 	    <item name="android:layout_marginTop">30dp</item>
-	    <item name="android:layout_marginBottom">8dp</item>
+	    <item name="android:layout_marginBottom">12dp</item>
 	</style>
 	
 	<style name="ListSectionTextView" parent="BaseStyleTextView">
