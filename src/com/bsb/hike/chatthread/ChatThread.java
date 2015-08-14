@@ -355,7 +355,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				// In keyboard21 when we click on sticker icon , if keyboard is open at that time it is first closed and then pallte comes.
 				// So adding check so that recommendation popup is not closed when shareablepop is showing
 				
-				if(!mShareablePopupLayout.isShowing())
+				if(mShareablePopupLayout != null && !mShareablePopupLayout.isShowing())
 				{
 					dismissStickerRecommendationPopup();
 				}
