@@ -638,7 +638,6 @@ public class VoIPService extends Service {
 					
 					client = new VoIPClient(getApplicationContext(), handler);
 					client.setPhoneNumber(phoneNumber);
-					client.isInAHostedConference = true;
 					if (intent.hasExtra(VoIPConstants.Extras.GROUP_CHAT_MSISDN))
 						client.groupChatMsisdn = groupChatMsisdn;
 					
