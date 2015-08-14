@@ -249,12 +249,6 @@
     <color name="blue_color_span">#1DA8E8</color>
     <color name="red_color_span">#ef554e</color>
     <color name="light_transparent_black">#7B000000</color>
-    <color name="blue_avatar">#70d6f8</color>
-    <color name="green_avatar">#8dde87</color>
-    <color name="orange_avatar">#ffaf5a</color>
-    <color name="pink_avatar">#ff92a5</color>
-    <color name="violet_avatar">#c1a0e1</color>
-    <color name="gray_avatar">#404b4e55</color>
     <color name="broadcast_ftue_bg">#acdd77</color>
     <color name="rec_progress">#ef554e</color>
     <color name="bubble_blue">#d4feff</color>
@@ -473,6 +467,11 @@
     <color name="valentines_2_theme_status_bar_color">#421308</color>
     <color name="independence_theme_status_bar_color">#621908</color>
     <color name="diwali_theme_status_bar_color">#927307</color>
+    <color name="avatar_color_bubblegum">#ff77b8</color>
+    <color name="avatar_color_apricot">#ffa96f</color>
+    <color name="avatar_color_carnation">#ff7687</color>
+    <color name="avatar_color_light_gold">#ffd663</color>
+    <color name="avatar_color_sky_blue">#78a9ff</color>
   
     
 </resources>
