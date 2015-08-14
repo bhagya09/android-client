@@ -29,11 +29,11 @@
 
         <ImageView
             android:id="@+id/add_participant"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="11dp"
-            android:src="@drawable/ic_invite_to_hike"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:scaleType="centerInside"
+            android:paddingLeft="1.5dp"
+            android:src="@drawable/ic_invite_to_hike_profile"
             android:visibility="gone" />
     </LinearLayout>
     
