@@ -492,7 +492,7 @@ public class StickerSearchUtility
 		{
 			if (charSeparators.get(i).equals(StickerSearchConstants.STRING_HEX_CHAR_OR))
 			{
-				chars.add('|');
+				chars.add(StickerSearchConstants.CHAR_OR);
 			}
 			else
 			{
