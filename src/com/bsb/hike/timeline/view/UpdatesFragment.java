@@ -422,7 +422,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			if (friendMsisdns.length > 0)
 			{
-				statusMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, friendMsisdns);
+				statusMessages = HikeConversationsDatabase.getInstance().getStatusMessages(mShowProfileHeader?false:true, HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY, -1, friendMsisdns);
 			}
 			else
 			{
