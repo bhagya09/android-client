@@ -14,12 +14,13 @@
         android:id="@+id/attachment_grid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:columnWidth="@dimen/attachment_column_width"
+        android:gravity="center"
+        android:listSelector="@drawable/grid_item"
+        android:numColumns="3"
         android:paddingBottom="12dp"
         android:paddingTop="12dp"
-        android:gravity="center"
         android:stretchMode="none"
-        android:columnWidth="@dimen/attachment_column_width"
-        android:numColumns="3"
         android:verticalSpacing="12dp" />
 
     <com.bsb.hike.view.CustomFontTextView
