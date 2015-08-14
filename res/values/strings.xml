@@ -1602,7 +1602,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="offline_animation_third_message">It is taking longer than usual. \n Please ask <![CDATA[%1$s]]> to \n tap on hike direct as well</string>
     <string name="connect">Connect</string>
 	<string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
-    <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
     <string name="cancel_connection">Cancel connection attempt with <![CDATA[<font color=#FF0000>%1$s</font>]]> ?</string>
     <string name="cancel_offline_connection">Cancel Connection</string>
     <string name="connection_cancelled">Connection cancelled</string>
@@ -1617,7 +1616,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="download_from_shop">For better suggestions download more stickers</string>
     <string name="more">More</string>
 	<string name="task_already_running">Task already running</string>
-    <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
     <string name="invite_friends_earn_rewards">Invite friends to hike and earn rewards</string>
     <string name="your_referral_code">Your <b>referral</b> code</string>
