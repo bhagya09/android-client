@@ -1133,8 +1133,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			Object[] dialogStrings = new Object[4];
 			dialogStrings[0] = getString(R.string.reset_complete_stealth_header);
 			dialogStrings[1] = getString(R.string.reset_stealth_confirmation);
-			dialogStrings[2] = getString(R.string.confirm);
-			dialogStrings[3] = getString(R.string.cancel);
+			dialogStrings[2] = getString(R.string.CONFIRM);
+			dialogStrings[3] = getString(R.string.CANCEL);
 		
 			HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.RESET_STEALTH_DIALOG, new HikeDialogListener()
 			{
@@ -1267,7 +1267,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						optionsList.add(getString(R.string.delete_block));
 
 					if (botConfig.isDeleteEnabled())
-						optionsList.add(getString(R.string.delete));
+						optionsList.add(getString(R.string.DELETE));
         		}
         		
         	}
@@ -1563,7 +1563,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					onAddShortcutClicked(conv);
 				}
 				
-				else if (getString(R.string.delete).equals(option))
+				else if (getString(R.string.DELETE).equals(option))
 				{
 					onDeleteBotClicked(conv, false);
 				}

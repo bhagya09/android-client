@@ -359,7 +359,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				// In keyboard21 when we click on sticker icon , if keyboard is open at that time it is first closed and then pallte comes.
 				// So adding check so that recommendation popup is not closed when shareablepop is showing
 				
-				if(!mShareablePopupLayout.isShowing())
+				if(mShareablePopupLayout != null && !mShareablePopupLayout.isShowing())
 				{
 					dismissStickerRecommendationPopup();
 				}
@@ -756,6 +756,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showAttchmentPicker();
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
 			return true;
+			
+		case android.R.id.home:
+			actionBarBackPressed();
+			return true;
 		}
 		return false;
 	}
@@ -1043,10 +1047,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.id.scroll_bottom_indicator:
 			bottomScrollIndicatorClicked();
 			break;
-		case R.id.back:
-			actionBarBackPressed();
-			break;
-		case R.id.contact_info:
+		case R.id.contactinfocontainer:
 			openProfileScreen();
 			break;
 		case R.id.overlay_layout:
@@ -4596,17 +4597,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		mActionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 
-		View backContainer = mActionBarView.findViewById(R.id.back);
-
-		View contactInfoContainer = mActionBarView.findViewById(R.id.contact_info);
-
-		/**
-		 * Adding click listeners
-		 */
-
+		View contactInfoContainer = mActionBarView.findViewById(R.id.contactinfocontainer);
 		contactInfoContainer.setOnClickListener(this);
-		backContainer.setOnClickListener(this);
-		
+
 		setAvatar();
 	}
 

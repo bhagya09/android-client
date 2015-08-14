@@ -23,7 +23,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
@@ -77,7 +76,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
-public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
+public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, TagOnClickListener, OverflowItemClickListener,
 		OnDismissListener, OverflowViewListener, HikePubSub.Listener, IBridgeCallback
 {
 	
@@ -573,6 +572,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			showOverflowMenu();
 			return true;
 		}
+		
+		else if (item.getItemId() == android.R.id.home)
+		{
+			this.finish();
+			return true;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -623,23 +628,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		actionBarView = mActionBar.setCustomActionBarView(R.layout.compose_action_bar);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(titleString);
-		backContainer.setOnClickListener(this);
 	}
 
 	private void inflateMicroAppActionBar(String titleString)
 	{
-		actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
-		View backContainer = actionBarView.findViewById(R.id.back);
+		actionBarView = mActionBar.setCustomActionBarView(R.layout.webview_microapp_action_bar);
 		TextView title = (TextView) actionBarView.findViewById(R.id.contact_name);
 		title.setText(titleString);
 
 		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 
-		backContainer.setOnClickListener(this);
 	}
 
 	private void setAvatar()
@@ -678,7 +678,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupWebURLWithBridgeActionBar(String title, int color)
 	{
 		setupActionBar(title);
-		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.bg_header));
+		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.color.blue_hike));
 	}
 	
 
@@ -759,16 +759,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	}
 
-	@Override
-	public void onClick(View arg0)
-	{
-		switch (arg0.getId())
-		{
-		case R.id.back:
-			finish();
-			break;
-		}
-	}
 
 	@Override
 	public void onTagClicked(Tag tag)

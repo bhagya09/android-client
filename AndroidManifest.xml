@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1333"
-    android:versionName="3.9.9.16.material" >
+    android:versionCode="1335"
+    android:versionName="3.9.9.18.material" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -252,6 +252,7 @@
         </activity>
         <activity
             android:name=".ui.StatusUpdate"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity

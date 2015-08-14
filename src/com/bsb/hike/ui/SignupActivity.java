@@ -754,7 +754,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
 					builder.setTitle(R.string.number_confirm_title);
 					builder.setMessage(getString(R.string.number_confirmation_string, number));
-					builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener()
+					builder.setPositiveButton(R.string.CONFIRM, new DialogInterface.OnClickListener()
 					{
 
 						@Override
