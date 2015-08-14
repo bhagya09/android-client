@@ -1591,16 +1591,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 					else
 					{
+						JSONArray newArray = new JSONArray();
+						
 						for (String msisdn : actors)
 						{
 							for (int i = existingArray.length(); i >= 0; i--)
 							{
 								try
 								{
-									if (existingArray.getString(i).equals(msisdn))
+									if (!existingArray.getString(i).equals(msisdn))
 									{
-										existingArray.remove(i);
-										break;
+										newArray.put(existingArray.getString(i));
 									}
 								}
 								catch (JSONException e)
@@ -1611,8 +1612,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 							}
 						}
 
-						cv.put(DBConstants.ACTORS, existingArray.toString());
-						cv.put(DBConstants.ACTION_COUNT, existingArray.length());
+						cv.put(DBConstants.ACTORS, newArray.toString());
+						cv.put(DBConstants.ACTION_COUNT, newArray.length());
 					}
 				}
 				
