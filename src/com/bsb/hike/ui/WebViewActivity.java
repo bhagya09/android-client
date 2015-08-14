@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
-import android.view.WindowManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
@@ -1027,6 +1026,26 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			view.loadUrl(url);
 			return true;
+		}
+	}
+
+	@Override
+	public void changeStatusBarColor(String color)
+	{
+		if (!Utils.isLollipopOrHigher())
+		{
+			return;
+		}
+		
+		try
+		{
+			int sbColor = Color.parseColor(color);
+			StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
+		}
+
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(tag, "Seems like you passed the wrong color");
 		}
 	}
 
