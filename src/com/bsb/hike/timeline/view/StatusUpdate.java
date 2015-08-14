@@ -559,8 +559,15 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		moodParent.setClickable(true);
 		GridView moodPager = (GridView) findViewById(R.id.mood_pager);
 
-		moodParent.setVisibility(View.VISIBLE);
-
+		parentLayout.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				moodParent.setVisibility(View.VISIBLE);				
+			}
+		});
+		
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 		int columns = portrait ? 4 : 6;
 
