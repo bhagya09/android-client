@@ -8,6 +8,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
@@ -194,9 +195,8 @@ public class PinnedSectionListView extends ListView
 		{
 			if (mShadowDrawable == null)
 			{
-				mShadowDrawable = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[] { Color.parseColor("#ffa0a0a0"), Color.parseColor("#50a0a0a0"),
-						Color.parseColor("#00a0a0a0") });
-				mShadowHeight = (int) (4 * getResources().getDisplayMetrics().density);
+				mShadowDrawable = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[] { Color.parseColor("#29000000"), Color.parseColor("#00000000") });
+				mShadowHeight = (int) (3* getResources().getDisplayMetrics().density);
 			}
 		}
 		else
@@ -222,6 +222,8 @@ public class PinnedSectionListView extends ListView
 			pinnedShadow = new PinnedSection();
 		// request new view using recycled view, if such
 		View pinnedView = getAdapter().getView(position, pinnedShadow.view, PinnedSectionListView.this);
+		
+		ViewCompat.setAlpha(pinnedView, 0.96f);
 
 		// read layout parameters
 		LayoutParams layoutParams = (LayoutParams) pinnedView.getLayoutParams();
