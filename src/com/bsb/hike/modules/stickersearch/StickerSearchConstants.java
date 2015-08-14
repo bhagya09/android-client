@@ -120,7 +120,7 @@ public class StickerSearchConstants
 	// ====================================================Constants used for calculating score]]
 
 	// Regular expressions=====================================================================[[
-	public static final String REGEX_OR = "\\|\\\\|\\|";
+	public static final String REGEX_OR = "\\|\\\\|\\|"; // Regular expression for '|' or '\\|'
 
 	public static final String REGEX_SEPARATORS = " |\n|\t|,|\\.|\\?";
 

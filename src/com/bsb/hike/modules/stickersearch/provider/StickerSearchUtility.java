@@ -470,6 +470,7 @@ public class StickerSearchUtility
 
 			for (int i = 0; i < separatorsCount; i++)
 			{
+				// Check if each separator is represented by single character or its '|' itself
 				if (!((charSeparators.get(i).length() == 1) || charSeparators.get(i).equals(StickerSearchConstants.STRING_HEX_CHAR_OR)))
 				{
 					isValidSeparators = false;
