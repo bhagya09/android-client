@@ -392,6 +392,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			else
 			{
+				viewHolder.extraInfo.setText(headerMsisdn);
 				viewHolder.changeProfile.setOnClickListener(new View.OnClickListener()
 				{
 					@Override
