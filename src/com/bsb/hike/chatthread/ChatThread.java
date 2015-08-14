@@ -2105,8 +2105,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		setupDefaultActionBar(true); // Setup the action bar
 		initMessageSenderLayout();
 
-		setMessagesRead(); // Setting messages as read if there are any unread ones
-
 		setEditTextListeners();
 		
 		activity.supportInvalidateOptionsMenu(); // Calling the onCreate menu here
