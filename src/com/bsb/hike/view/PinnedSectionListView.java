@@ -8,6 +8,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
@@ -221,6 +222,8 @@ public class PinnedSectionListView extends ListView
 			pinnedShadow = new PinnedSection();
 		// request new view using recycled view, if such
 		View pinnedView = getAdapter().getView(position, pinnedShadow.view, PinnedSectionListView.this);
+		
+		ViewCompat.setAlpha(pinnedView, 0.96f);
 
 		// read layout parameters
 		LayoutParams layoutParams = (LayoutParams) pinnedView.getLayoutParams();
