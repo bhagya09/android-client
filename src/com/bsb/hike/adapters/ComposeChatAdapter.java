@@ -185,9 +185,23 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			TextView count = (TextView) convertView.findViewById(R.id.count);
 			count.setText(contactInfo.getMsisdn());
 			// set section heading
-			if (contactInfo.getPhoneNum() != null && contactInfo.getPhoneNum().equals(FRIEND_PHONE_NUM))
+			if (!TextUtils.isEmpty(contactInfo.getPhoneNum()))
 			{
-				tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_favorites_star), null, null, null);
+				switch (contactInfo.getPhoneNum())
+				{
+				case FRIEND_PHONE_NUM:
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_favorite), null, null, null);
+					break;
+
+				case CONTACT_PHONE_NUM:
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_people_on_hike), null, null, null);
+					break;
+
+				case CONTACT_SMS_NUM:
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
+					break;
+				}
+
 				tv.setCompoundDrawablePadding((int) context.getResources().getDimension(R.dimen.favorites_star_icon_drawable_padding));
 			}
 			else
@@ -516,7 +530,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		if (showSMSContacts)
 		{
 			ContactInfo smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts),
-					CONTACT_PHONE_NUM);
+					CONTACT_SMS_NUM);
 			updateSMSContacts(smsContactsSection);
 		}
 		if (newContactsList != null)
