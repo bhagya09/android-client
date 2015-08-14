@@ -724,7 +724,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		case FTUE_CARD_FAV:
 			ContactInfo contact = mFtueFriendList.get(0);
-			viewHolder.name.setText(TextUtils.isEmpty(contact.getName()) ? contact.getMsisdn() : contact.getName());
+			viewHolder.name.setText(contact.getNameOrMsisdn());
 			((RoundedImageView)viewHolder.avatar).setOval(true);
 			setAvatar(contact.getMsisdn(), viewHolder.avatar);
 			viewHolder.ftueShow.setTag(viewType);
