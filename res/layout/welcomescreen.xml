@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="@string/welcome_to"
-            android:textColor="@color/welcome_blue"
+            android:textColor="@color/blue_hike"
             android:textSize="14sp" />
 
         <ImageView
@@ -82,7 +82,7 @@
 	            android:layout_width="180dp"
 	            android:layout_height="48dp"
 	            android:layout_centerHorizontal="true"
-	            android:background="@drawable/signup_btn_loading"
+	            android:background="@color/blue_hike_status_bar_m"
 	            android:gravity="center"
 	            android:orientation="horizontal"
 	            android:visibility="invisible" >
