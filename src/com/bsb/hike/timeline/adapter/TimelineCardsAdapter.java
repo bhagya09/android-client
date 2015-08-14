@@ -735,7 +735,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		case FTUE_CARD_FAV:
 			ContactInfo contact = mFtueFriendList.get(0);
-			viewHolder.name.setText(contact.getName());
+			viewHolder.name.setText(contact.getNameOrMsisdn());
 			((RoundedImageView)viewHolder.avatar).setOval(true);
 			setAvatar(contact.getMsisdn(), viewHolder.avatar);
 			viewHolder.ftueShow.setTag(viewType);
@@ -1530,6 +1530,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			ContactInfo contact = mFtueFriendList.get(0);
 			if (addFav && (contact.getFavoriteType() != FavoriteType.FRIEND))
 			{
+				Logger.d("tl_ftue", "Adding " + contact.getMsisdn() +" as friend");
 				Utils.toggleFavorite(mContext, contact, true);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ANY_TIMELINE_FTUE_FAV_CLICKED, true);
 			}
@@ -1537,7 +1538,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			Set<String> list = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null);
 			list.remove(mFtueFriendList.get(0).getMsisdn());
-			HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, list);
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, list);
 
 			mFtueFriendList.remove(0);
 			
@@ -1549,6 +1550,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			else
 			{
+				Logger.d("tl_ftue", "List is empty after clicking fav card, checking to show EXIT card or not");
 				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ANY_TIMELINE_FTUE_FAV_CLICKED, false)
 						&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_SHOWN, false))
 				{

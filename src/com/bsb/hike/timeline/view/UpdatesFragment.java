@@ -363,7 +363,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private void addFTUEItem()
 	{
 		// If no msisdn to show, then no need to show FTUE
-		if (mFtueFriendList.isEmpty())
+		if (mFtueFriendList.isEmpty() && !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_ON_TOP, false))
 		{
 			resetSharedPrefOnRemovingFTUE();
 			timelineCardsAdapter.removeAllFTUEItems();
@@ -533,7 +533,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			if (shouldAddFTUEItem())
 			{
 				mFtueFriendList = getFtueFriendList();
-				if (mFtueFriendList != null && !mFtueFriendList.isEmpty())
+				if (mFtueFriendList != null)
 				{
 					timelineCardsAdapter.setFTUEFriendList(mFtueFriendList);
 					addFTUEItem();
@@ -607,34 +607,45 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
 				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
 				{
-					Logger.d("tl_ftue", id + " is not a frnd so adding for ftue list");
+					Logger.d("tl_ftue", id + " is not a frnd so adding for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
 					finalContactLsit.add(c);
 					counter++;
 				}
+				else
+				{
+					Logger.d("tl_ftue", id + " a frnd so NOT ADDING.... for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
+				}
+				
 				if (isFromSignUpList && counter == MAX_CONTCATS_ALLOWED_TO_SHOW_INITIALLY)
 				{
 					break;
 				}
 				else if (isFromPacketList && counter == finalCount)
 				{
+					Logger.d("tl_ftue", "Max count reached got from server packet " + counter + " so leaving next contacts");
 					break;
 				}
 			}
 		}
-		else
-		{
-			Logger.d(UpdatesFragment.class.getName(), "Both list are empty, so no FTUE");
-		}
 
 		if (finalContactLsit == null || finalContactLsit.isEmpty())
 		{
-			resetSharedPrefOnRemovingFTUE();
-			Logger.d("tl_ftue", "NO contacts, so showing no FTUE");
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_ON_TOP, false))
+			{
+				Logger.d("tl_ftue", "NO contacts to show, but previous EXIT CARD TO SHOW, so showing it");
+				return finalContactLsit;
+			}
+			else
+			{
+				resetSharedPrefOnRemovingFTUE();
+				Logger.d("tl_ftue", "NO contacts, and no exit card to show ===> so showing no FTUE");
+			}
 		}
 		else
 		{
 			updateFTUEMsisdnsList(finalContactLsit);
-			Logger.d("tl_ftue", "final list after check "+ finalContactLsit);
+			Logger.d("tl_ftue", "final list after check "+ settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null));
+			Logger.d("tl_ftue", "their names are "+ finalContactLsit);
 		}
 		return finalContactLsit;
 	}
