@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/contentLayout"
         android:layout_alignTop="@+id/contentLayout"
-        android:background="@color/black_10" />
+        android:background="#0D000000" />
 
     <RelativeLayout
         android:id="@+id/contentLayout"
@@ -53,17 +53,17 @@
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/button_divider"
             android:orientation="vertical"
-            android:paddingBottom="16dp"
+            android:paddingBottom="14dp"
             android:paddingLeft="16dp"
-            android:paddingTop="8dp" >
+            android:paddingTop="10dp" >
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
                 android:ellipsize="end"
                 android:singleLine="true"
+                android:includeFontPadding="false"
                 android:text="Sheldon Cooper"
                 android:textColor="@color/white"
                 android:textSize="24sp" />
@@ -75,6 +75,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:singleLine="true"
                 android:text="@string/profile_header_subtext"
                 android:textColor="@color/white_80"

@@ -62,6 +62,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
@@ -611,16 +612,25 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 			listContacts.setAdapter(contactsAdapter);
 			listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
 			{
-
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
 				{
-					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-							.getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false, false);
-					// Add anything else to the intent
-					intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
+					if (Utils.isSelfMsisdn(msisdns.get(position)))
+					{
+						Intent intent2 = new Intent(TimelineSummaryActivity.this, ProfileActivity.class);
+						intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+						startActivity(intent2);
+					}
+					else
+					{
+
+						Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
+								.getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false, false);
+						// Add anything else to the intent
+						intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(intent);
+					}
 					mActivityState.dialogShown = false;
 				}
 			});
