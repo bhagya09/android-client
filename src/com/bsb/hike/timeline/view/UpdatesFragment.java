@@ -23,7 +23,6 @@ import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -711,8 +710,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		case R.id.new_photo_tab:
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-			
+
 			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, getNewImagePostFilePath());
+			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, TIMELINE_POST_IMAGE_REQ);
 			break;
 
@@ -763,26 +763,34 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		switch (requestCode)
 		{
 		case TIMELINE_POST_IMAGE_REQ:
-			ImageParser.parseResult(getActivity(), resultCode, data, new ImageParserListener()
+			String destFilePath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
+			if (!TextUtils.isEmpty(destFilePath))
 			{
-				@Override
-				public void imageParsed(String imagePath)
+				startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), destFilePath));
+			}
+			else
+			{
+				ImageParser.parseResult(getActivity(), resultCode, data, new ImageParserListener()
 				{
-					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), imagePath));
-				}
+					@Override
+					public void imageParsed(String imagePath)
+					{
+						startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), imagePath));
+					}
 
-				@Override
-				public void imageParsed(Uri uri)
-				{
-					//Do nothing
-				}
+					@Override
+					public void imageParsed(Uri uri)
+					{
+						// Do nothing
+					}
 
-				@Override
-				public void imageParseFailed()
-				{
-					//Do nothing
-				}
-			}, false);
+					@Override
+					public void imageParseFailed()
+					{
+						// Do nothing
+					}
+				}, false);
+			}
 			break;
 
 		default:

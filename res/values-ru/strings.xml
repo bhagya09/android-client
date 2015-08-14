@@ -924,7 +924,6 @@
     <string name="unlink_confirmation">Действительно сбросить настройки вашей учетной записи?</string>
     <string name="unlinking_account">Выполняется сброс… </string>
     <string name="delete_confirm_msg_1">При этом будут удалены все ваши сообщения и призы hike, а также обнулен баланс бесплатных SMS.</string>
-    <string name="delete_confirm_msg_2">Продолжить? (Это действие необратимо.)</string>
     <string name="shortcut">Добавить ярлык разговора</string>
     <string name="add_to_contacts">Добавить в контакты</string>
     <string name="delete_leave">Удалить и выйти из группы</string>

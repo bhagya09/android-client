@@ -39,6 +39,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.Window;
 import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -181,6 +182,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected static final int SHOW_OVERFLOW_INDICATOR = -102;
 
 	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
+	
+	private View hiButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -331,8 +334,23 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		actionBar.setHomeAsUpIndicator(R.drawable.home_screen_top_bar_logo);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(true);
+		setupHikeButton();
 	}
-	
+
+	private void setupHikeButton()
+	{
+		CharSequence homeButtonDescription = "hikeIcon";
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setHomeActionContentDescription(homeButtonDescription);
+		final ArrayList<View> outViews = new ArrayList<View>();
+		if (getWindow().getDecorView() != null)
+		{
+			getWindow().getDecorView().findViewsWithText(outViews, homeButtonDescription, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
+			if (outViews.size() > 0)
+				hiButton = outViews.get(0);
+		}
+	}
+
 	private void flashStealthIndicatorView()
 	{
 		final View stealthIndicatorView;
@@ -1444,7 +1462,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void run()
 				{
-					View hiButton = findViewById(android.R.id.home);
 					if(hiButton != null)
 					{
 						hiButton.startAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));

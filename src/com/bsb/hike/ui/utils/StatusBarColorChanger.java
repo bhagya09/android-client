@@ -1,19 +1,17 @@
 package com.bsb.hike.ui.utils;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-
 import android.app.Activity;
 import android.graphics.Color;
-import android.os.Build;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.Utils;
 
 public class StatusBarColorChanger
 {
 
+	public static final String DEFAULT_STATUS_BAR_COLOR = "black";
 	
 	public static void setStatusBarColor(Activity activity, String color)
 	{
@@ -52,7 +50,7 @@ public class StatusBarColorChanger
 
 	}
 
-	private static void setStatusBarColor(Window window, int color)
+	public static void setStatusBarColor(Window window, int color)
 	{
 		if (Utils.isLollipopOrHigher() && window != null)
 		{
