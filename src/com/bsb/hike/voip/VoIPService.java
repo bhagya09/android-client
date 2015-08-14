@@ -94,6 +94,7 @@ public class VoIPService extends Service {
 	// Conference related
 	private boolean conferencingEnabled = false;
 	private boolean hostingConference = false;
+	private boolean forceMute = false, hostForceMute = false;
 	
 	// Task executors
 	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
@@ -216,7 +217,7 @@ public class VoIPService extends Service {
 		public void handleMessage(Message msg) {
 			Bundle bundle = msg.getData();
 			String msisdn = bundle.getString(VoIPConstants.MSISDN);
-			VoIPClient client = clients.get(msisdn);
+			final VoIPClient client = clients.get(msisdn);
 			
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
@@ -244,6 +245,19 @@ public class VoIPService extends Service {
 					if (hostingConference())
 						sendClientsListToAllClients();
 				}
+				
+				// If conference is on force mute, then let the new client know
+				if (hostingConference() && hostForceMute) {
+					new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							VoIPDataPacket dp = new VoIPDataPacket(PacketType.FORCE_MUTE_ON);
+							client.sendPacket(dp, true);
+						}
+					}).start();
+				}
+					
 				sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 				break;
 
@@ -297,6 +311,15 @@ public class VoIPService extends Service {
 					return;
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
 				break;
+				
+			case VoIPConstants.MSG_FORCE_MUTE_UPDATED:
+				if (client == null) return;
+				forceMute = client.forceMute;
+				Logger.d(tag, "Force mute: " + forceMute);
+				if (forceMute == true) {
+					setMute(forceMute);
+					sendHandlerMessage(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
+				}
 				
 			default:
 				// Pass message to activity through its handler
@@ -1152,14 +1175,24 @@ public class VoIPService extends Service {
 		stopSelf();
 	}
 	
-	public void setMute(boolean mute)
+	/**
+	 * Change your mute status. 
+	 * @param mute
+	 * @return true, if mute was successfully changed. 
+	 */
+	public boolean setMute(boolean mute)
 	{
+		if (forceMute == true && mute == false) {
+			Logger.w(tag, "Cannot unmute since we have been forced muted.");
+			return false;
+		}
+		
 		this.mute = mute;
 		
 		// Send mute status to the other party
 		final VoIPClient client = getClient();
 		if (client == null || hostingConference())
-			return;
+			return true;
 		
 		new Thread(new Runnable() {
 			
@@ -1174,11 +1207,33 @@ public class VoIPService extends Service {
 			}
 		}).start();
 		
+		return true;
+	}
+	
+	public void setHostForceMute(final boolean mute) {
+		hostForceMute = mute;
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				PacketType type = mute ? PacketType.FORCE_MUTE_ON : PacketType.FORCE_MUTE_OFF;
+				VoIPDataPacket dp = new VoIPDataPacket(type);
+				synchronized (clients) {
+					for (VoIPClient client : clients.values()) {
+						client.sendPacket(dp, true);
+					}
+				}
+			}
+		}).start();
 	}
 
 	public boolean getMute()
 	{
 		return mute;
+	}
+	
+	public boolean getHostForceMute() {
+		return hostForceMute;
 	}
 	
 	private void sendHandlerMessage(int message) {
@@ -1858,7 +1913,7 @@ public class VoIPService extends Service {
 		}
 
 		client.setCallStatus(!hold && !client.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
-		sendHandlerMessage(VoIPConstants.MSG_UPDATE_HOLD_BUTTON);
+		sendHandlerMessage(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
 		
 		// Send hold status to partner
 		sendHoldStatus();

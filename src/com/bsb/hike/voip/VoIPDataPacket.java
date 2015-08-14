@@ -54,7 +54,7 @@ public class VoIPDataPacket implements Cloneable {
 		ENCRYPTION_SET_OFF(14),						// Unused
 		ACK (11),
 		RECORDING_SAMPLE_RATE (12),					// Unused
-		RELAY_INIT (15),							// This is hard coded in server code 
+		RELAY_INIT (15),							// Hard coded in server code 
 		RELAY (16),									// Unused
 		CURRENT_BITRATE (17),
 		REQUEST_BITRATE (18),						// Unused
@@ -78,7 +78,9 @@ public class VoIPDataPacket implements Cloneable {
 		MUTE_ON (36),
 		MUTE_OFF (37),
 		CLIENTS_LIST_JSON (38),
-		REQUEST_RECONNECT (39)
+		REQUEST_RECONNECT (39), 
+		FORCE_MUTE_ON (40), 
+		FORCE_MUTE_OFF (41)
 		;
 		
 		private final int value;
@@ -173,6 +175,10 @@ public class VoIPDataPacket implements Cloneable {
 				return CLIENTS_LIST_JSON;
 			case 39:
 				return REQUEST_RECONNECT;
+			case 40:
+				return FORCE_MUTE_ON;
+			case 41:
+				return FORCE_MUTE_OFF;
 			default:
 				return UPDATE;
 			}

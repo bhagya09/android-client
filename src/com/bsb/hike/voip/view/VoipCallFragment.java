@@ -73,7 +73,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private CallActionsView callActionsView;
 	private Chronometer callDuration;
 
-	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
+	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton, muteAllButton;
 	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 
@@ -111,6 +111,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		speakerButton = (ImageButton) view.findViewById(R.id.speaker_btn);
 		addButton = (ImageButton) view.findViewById(R.id.add_btn);
 		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
+		muteAllButton = (ImageButton) view.findViewById(R.id.mute_all_btn);
 		
 		if (VoIPUtils.isConferencingEnabled(getSherlockActivity())) 
 			addButton.setVisibility(View.VISIBLE);
@@ -174,9 +175,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
 				break;
-			case VoIPConstants.MSG_UPDATE_HOLD_BUTTON:
-				boolean hold = voipService.getHold();
-				holdButton.setSelected(hold);
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
 				updateCallStatus();
 				break;
@@ -210,6 +208,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
 					updateCallStatus();
 				}
+				break;
+			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
+				showActiveCallButtons();
 				break;
 			default:
 				super.handleMessage(msg);
@@ -587,6 +588,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		speakerButton.startAnimation(anim);
 		addButton.startAnimation(anim);
 		bluetoothButton.startAnimation(anim);
+		muteAllButton.startAnimation(anim);
 		hangupButton.startAnimation(anim);
 	}
 
@@ -624,9 +626,13 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				if(isCallActive)
 				{
 					boolean newMute = !voipService.getMute();
-					muteButton.setSelected(newMute);
-					voipService.setMute(newMute);
-					voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_MUTE, newMute ? 1 : 0);
+					boolean success = voipService.setMute(newMute);
+					if (success) {
+						muteButton.setSelected(newMute);
+						voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_MUTE, newMute ? 1 : 0);
+					} else {
+						showMessage(getString(R.string.voip_error_force_mute));
+					}
 				}
 			}
 		});
@@ -681,6 +687,17 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			public void onClick(View v) {
 				bluetoothButton.setSelected(!bluetoothButton.isSelected());
 				voipService.toggleBluetoothFromActivity(bluetoothButton.isSelected());
+			}
+		});
+		
+		muteAllButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				boolean newMute = !voipService.getHostForceMute();
+				Logger.w(tag, "Setting force mute to: " + newMute);
+				voipService.setHostForceMute(newMute);
+				muteAllButton.setSelected(newMute);
 			}
 		});
 		
@@ -860,8 +877,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
 			if (clientPartner.isHostingConference) {
 				addButton.setVisibility(View.GONE);
-			} else
+				muteAllButton.setVisibility(View.GONE);
+			} else {
 				addButton.setVisibility(View.VISIBLE);
+				if (voipService.hostingConference())
+					muteAllButton.setVisibility(View.VISIBLE);
+			}
 		}
 		
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)

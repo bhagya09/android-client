@@ -115,11 +115,12 @@ public class VoIPClient  {
 	public boolean isDummy = false, isHost = false;		
 	private String selfMsisdn;
 
-	// List of client MSISDNs (for conference)
+	// Conference related
 	public ArrayList<VoIPClient> clientMsisdns = new ArrayList<>();
 	public boolean isHostingConference;
 	public boolean isInAHostedConference;
 	public String groupChatMsisdn;
+	public boolean forceMute;
 	
 	// Audio quality
 	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
@@ -1481,6 +1482,16 @@ public class VoIPClient  {
 					case REQUEST_RECONNECT:
 						Logger.w(tag, "Reconnection requested.");
 						reconnect();
+						break;
+						
+					case FORCE_MUTE_ON:
+						forceMute = true;
+						sendHandlerMessage(VoIPConstants.MSG_FORCE_MUTE_UPDATED);
+						break;
+						
+					case FORCE_MUTE_OFF:
+						forceMute = false;
+						sendHandlerMessage(VoIPConstants.MSG_FORCE_MUTE_UPDATED);
 						break;
 						
 					default:

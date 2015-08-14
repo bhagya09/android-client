@@ -125,7 +125,6 @@ public class VoIPConstants {
 	public static final int MSG_RECONNECTED = 9;
 	public static final int MSG_UPDATE_QUALITY = 10;
 	public static final int MSG_NETWORK_SUCKS = 11;
-	public static final int MSG_UPDATE_HOLD_BUTTON = 12;
 	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 15;
@@ -140,6 +139,8 @@ public class VoIPConstants {
 	public static final int MSG_BLUETOOTH_SHOW = 28;
 	public static final int MSG_DOES_NOT_SUPPORT_CONFERENCE = 29;
 	public static final int MSG_PARTNER_BUSY = 30;
+	public static final int MSG_FORCE_MUTE_UPDATED = 31;
+	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 
 	public static final class Analytics
 	{
