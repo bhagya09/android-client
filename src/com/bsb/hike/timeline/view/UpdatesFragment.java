@@ -10,7 +10,6 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -19,13 +18,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -749,31 +746,33 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 		case TIMELINE_POST_IMAGE_REQ:
 			String destFilePath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
-			if(!TextUtils.isEmpty(destFilePath))
+			if (!TextUtils.isEmpty(destFilePath))
 			{
 				startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), destFilePath));
 			}
-			
-			ImageParser.parseResult(getActivity(), resultCode, data, new ImageParserListener()
+			else
 			{
-				@Override
-				public void imageParsed(String imagePath)
+				ImageParser.parseResult(getActivity(), resultCode, data, new ImageParserListener()
 				{
-					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), imagePath));
-				}
+					@Override
+					public void imageParsed(String imagePath)
+					{
+						startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), imagePath));
+					}
 
-				@Override
-				public void imageParsed(Uri uri)
-				{
-					//Do nothing
-				}
+					@Override
+					public void imageParsed(Uri uri)
+					{
+						// Do nothing
+					}
 
-				@Override
-				public void imageParseFailed()
-				{
-					//Do nothing
-				}
-			}, false);
+					@Override
+					public void imageParseFailed()
+					{
+						// Do nothing
+					}
+				}, false);
+			}
 			break;
 
 		default:
