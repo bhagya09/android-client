@@ -357,7 +357,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 						.getDimensionPixelSize(R.dimen.timeine_profile_picture_size), false, true);
 				profileImageLoader.loadProfileImage(loaderManager);
 
-				ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(headerMsisdn));
+				ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, headerMsisdn, false, !ContactManager.getInstance().hasIcon(headerMsisdn));
 				viewHolder.largeProfilePic.setTag(imageViewerInf);
 
 				viewHolder.largeProfilePic.setOnClickListener(new View.OnClickListener()
@@ -1022,6 +1022,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		arguments.putString(HikeConstants.Extras.MAPPED_ID, mappedId);
 		arguments.putString(HikeConstants.Extras.URL, url);
 		arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, imageViewerInfo.isStatusMessage);
+		
+		if(!imageViewerInfo.isStatusMessage && Utils.isSelfMsisdn(imageViewerInfo.url))
+		{
+			arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
+		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
 	}

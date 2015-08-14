@@ -451,8 +451,8 @@ public class HikeDialogFactory
 
 		final CustomAlertDialog confirmDialog = new CustomAlertDialog(context, dialogId);
 		confirmDialog.setMessage(text);
-		confirmDialog.setPositiveButton(R.string.yes, listener);
-		confirmDialog.setNegativeButton(R.string.no, listener);
+		confirmDialog.setPositiveButton(R.string.YES, listener);
+		confirmDialog.setNegativeButton(R.string.NO, listener);
 		confirmDialog.show();
 		
 		return confirmDialog;
@@ -516,7 +516,7 @@ public class HikeDialogFactory
 		}
 		else
 		{
-			hikeDialog.setNegativeButton(R.string.cancel, listener);
+			hikeDialog.setNegativeButton(R.string.CANCEL, listener);
 			hikeDialog.setPositiveButton(R.string.allow, listener);
 		}
 
@@ -670,8 +670,8 @@ public class HikeDialogFactory
 		
 		dialog.setTitle(R.string.clear_conversation);
 		dialog.setMessage(R.string.confirm_clear_conversation);
-		dialog.setPositiveButton(R.string.ok, listener);
-		dialog.setNegativeButton(R.string.cancel, listener);
+		dialog.setPositiveButton(R.string.OK, listener);
+		dialog.setNegativeButton(R.string.CANCEL, listener);
 
 		dialog.show();
 		return dialog;
@@ -683,7 +683,7 @@ public class HikeDialogFactory
 
 		correctMSISDNConfirmDialog.setTitle(R.string.incorrect_msisdn_warning);
 		correctMSISDNConfirmDialog.setMessage(R.string.incorrect_msisdn_msg);
-		correctMSISDNConfirmDialog.setPositiveButton(R.string.ok, listener);
+		correctMSISDNConfirmDialog.setPositiveButton(R.string.OK, listener);
 		correctMSISDNConfirmDialog.show();
 
 		return correctMSISDNConfirmDialog;
@@ -694,8 +694,8 @@ public class HikeDialogFactory
 		final CustomAlertDialog firstConfirmDialog = new CustomAlertDialog(context, dialogId);
 		firstConfirmDialog.setTitle(R.string.are_you_sure);
 		firstConfirmDialog.setMessage(R.string.delete_confirm_msg_1);
-		firstConfirmDialog.setPositiveButton(R.string.confirm, listener);
-		firstConfirmDialog.setNegativeButton(R.string.cancel, listener);
+		firstConfirmDialog.setPositiveButton(R.string.CONFIRM, listener);
+		firstConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 		firstConfirmDialog.show();
 		return firstConfirmDialog;
 	}
@@ -716,8 +716,8 @@ public class HikeDialogFactory
 			forwardConfirmDialog.setTitle(R.string.forward);
 			forwardConfirmDialog.setMessage(DialogUtils.getForwardConfirmationText(context, arrayList, true));
 		}
-		forwardConfirmDialog.setPositiveButton(R.string.ok, listener);
-		forwardConfirmDialog.setNegativeButton(R.string.cancel, listener);
+		forwardConfirmDialog.setPositiveButton(R.string.OK, listener);
+		forwardConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 		forwardConfirmDialog.show();
 		
 		return forwardConfirmDialog;
@@ -738,8 +738,8 @@ public class HikeDialogFactory
 			confirmDialog.setTitle(R.string.select_all_confirmation_header);
 			confirmDialog.setMessage(context.getResources().getString(R.string.select_all_confirmation_msg, selectedContactsSize));
 		}
-		confirmDialog.setPositiveButton(R.string.yes, listener);
-		confirmDialog.setNegativeButton(R.string.no, listener);
+		confirmDialog.setPositiveButton(R.string.YES, listener);
+		confirmDialog.setNegativeButton(R.string.NO, listener);
 		confirmDialog.show();
 		
 		return confirmDialog;
@@ -755,21 +755,21 @@ public class HikeDialogFactory
 			confirmDialog.setTitle(R.string.unlink_account);
 			confirmDialog.setMessage(R.string.unlink_confirmation);
 			confirmDialog.setPositiveButton(R.string.unlink_account, listener);
-			confirmDialog.setNegativeButton(R.string.cancel,listener);
+			confirmDialog.setNegativeButton(R.string.CANCEL,listener);
 			break;
 			
 		case UNLINK_FB_DIALOG:
 			confirmDialog.setTitle(R.string.unlink_facebook);
 			confirmDialog.setMessage(R.string.unlink_facebook_confirmation);
 			confirmDialog.setPositiveButton(R.string.unlink, listener);
-			confirmDialog.setNegativeButton(R.string.cancel, listener);
+			confirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case UNLINK_TWITTER_DIALOG:
 			confirmDialog.setTitle(R.string.unlink_twitter);
 			confirmDialog.setMessage(R.string.unlink_twitter_confirmation);
 			confirmDialog.setPositiveButton(R.string.unlink, listener);
-			confirmDialog.setNegativeButton(R.string.cancel, listener);
+			confirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 		}
 		
@@ -788,22 +788,22 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setMessage(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));
 			deleteConfirmDialog.setTitle(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg_header) : context.getString(R.string.confirm_delete_msgs_header, (int) data[0]));
 			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, null, true);
-			deleteConfirmDialog.setPositiveButton(R.string.delete, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.DELETE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case DELETE_PINS_DIALOG:
 			deleteConfirmDialog.setMessage(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin) : context.getString(R.string.confirm_delete_pins, (int) data[0]));
 			deleteConfirmDialog.setTitle(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin_header) : context.getString(R.string.confirm_delete_pins_header, (int) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.delete, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.DELETE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case DELETE_STATUS_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.delete_status);
 			deleteConfirmDialog.setMessage(R.string.delete_status_confirmation);
-			deleteConfirmDialog.setPositiveButton(R.string.ok, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.NO, listener);
 			break;
 			
 		case DELETE_STATUS_TIMELINE_DIALOG:
@@ -823,45 +823,45 @@ public class HikeDialogFactory
 		case DELETE_FROM_GROUP:
 			deleteConfirmDialog.setTitle(R.string.remove_from_group);
 			deleteConfirmDialog.setMessage(context.getString(R.string.remove_confirm, (String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.NO, listener);
 			break;
 		
 		case DELETE_FROM_BROADCAST:
 			deleteConfirmDialog.setTitle(R.string.remove_from_broadcast);
 			deleteConfirmDialog.setMessage(context.getString(R.string.remove_confirm_broadcast, (String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.NO, listener);
 			break;
 			
 		case DELETE_CHAT_DIALOG:
 		case DELETE_NON_MESSAGING_BOT:
-			deleteConfirmDialog.setTitle(R.string.delete);
+			deleteConfirmDialog.setTitle(R.string.DELETE);
 			deleteConfirmDialog.setMessage(context.getString(dialogId == DELETE_CHAT_DIALOG ? R.string.confirm_delete_chat_msg : R.string.confirm_delete_non_messaging,
 					(String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.NO, listener);
 			break;
 			
 		case DELETE_GROUP_DIALOG:
-			deleteConfirmDialog.setTitle(R.string.delete);
+			deleteConfirmDialog.setTitle(R.string.DELETE);
 			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_group_msg, (String) data[0]));
 			deleteConfirmDialog.setPositiveButton(android.R.string.ok, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case DELETE_BROADCAST_DIALOG:
-			deleteConfirmDialog.setTitle(R.string.delete);
+			deleteConfirmDialog.setTitle(R.string.DELETE);
 			deleteConfirmDialog.setMessage(context.getString(R.string.delete_broadcast_confirm));
 			deleteConfirmDialog.setPositiveButton(android.R.string.ok, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case DELETE_ALL_CONVERSATIONS:
 			deleteConfirmDialog.setTitle(R.string.deleteconversations);
 			deleteConfirmDialog.setMessage(R.string.delete_all_question);
-			deleteConfirmDialog.setPositiveButton(R.string.delete, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.DELETE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case DELETE_MESSAGES_DIALOG:
@@ -871,22 +871,22 @@ public class HikeDialogFactory
 			{
 				deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, null, true);
 			}
-			deleteConfirmDialog.setPositiveButton(R.string.delete, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.DELETE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case DELETE_BLOCK:
 			deleteConfirmDialog.setTitle(R.string.delete_block);
 			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_block_msg,(String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.no, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.NO, listener);
 			break;
 			
 		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.multi_edit_undo_warning_header);
 			deleteConfirmDialog.setMessage(context.getString(R.string.multi_edit_undo_warning));
-			deleteConfirmDialog.setPositiveButton(R.string.ok, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		}
@@ -901,7 +901,7 @@ public class HikeDialogFactory
 		alert.setTitle(R.string.location);
 		alert.setMessage((int) data[0]);
 		alert.setPositiveButton(android.R.string.ok, listener);
-		alert.setNegativeButton(R.string.cancel, listener);
+		alert.setNegativeButton(R.string.CANCEL, listener);
 		alert.show();
 		
 		return alert;
@@ -969,8 +969,8 @@ public class HikeDialogFactory
 
 		dialog.setTitle(R.string.import_sms);
 		dialog.setMessage(R.string.import_sms_info);
-		dialog.setPositiveButton(R.string.yes, listener);
-		dialog.setNegativeButton(R.string.no, listener);
+		dialog.setPositiveButton(R.string.YES, listener);
+		dialog.setNegativeButton(R.string.NO, listener);
 
 		DialogUtils.setupSyncDialogLayout(syncConfirmation, dialog);
 

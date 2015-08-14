@@ -251,7 +251,8 @@
         </activity>
         <activity
             android:name="com.bsb.hike.timeline.view.StatusUpdate"
-            android:windowSoftInputMode="adjustPan|stateHidden" >
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.GalleryActivity"
@@ -290,6 +291,7 @@
         <activity
             android:name="com.bsb.hike.timeline.view.TimelineActivity"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
@@ -311,6 +313,7 @@
          <activity
             android:name="com.bsb.hike.timeline.view.TimelineSummaryActivity"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Transparent">
         </activity>
         <activity
