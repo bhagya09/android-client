@@ -5,7 +5,7 @@
     android:background="@drawable/bg_attachment_theme"
     android:gravity="center"
     android:orientation="vertical"
-    android:paddingBottom="26dp"
+    android:paddingBottom="22dp"
     android:paddingLeft="26dp"
     android:paddingRight="26dp"
     android:paddingTop="12dp" >
@@ -14,20 +14,27 @@
         android:id="@+id/attachment_grid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="12dp"
-        android:paddingTop="12dp"
-        android:gravity="center"
-        android:stretchMode="none"
         android:columnWidth="@dimen/attachment_column_width"
+        android:gravity="center"
+        android:listSelector="@drawable/grid_item"
         android:numColumns="3"
+        android:paddingBottom="8dp"
+        android:paddingTop="12dp"
+        android:stretchMode="none"
         android:verticalSpacing="12dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/home_screen_list_divider" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/group_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
         android:gravity="left"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
         android:text="@string/file_attachment_info"
         android:textColor="#5c000000"
         android:textSize="12sp"
