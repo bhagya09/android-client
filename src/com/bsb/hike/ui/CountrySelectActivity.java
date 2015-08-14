@@ -34,6 +34,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.SectionedBaseAdapter;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.view.PinnedSectionListView;
+import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
 
 public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity 
 {
@@ -200,7 +201,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 		title.setText(R.string.select_country);
 	}
 
-	private class SearchAdapter extends BaseAdapter
+	private class SearchAdapter extends BaseAdapter implements PinnedSectionListAdapter
 	{
 		private Context mContext;
 
@@ -285,13 +286,20 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 		@Override
 		public int getViewTypeCount()
 		{
-			return 1;
+			return 2;
 		}
 
 		@Override
 		public boolean isEmpty()
 		{
 			return searchResult == null || searchResult.size() == 0;
+		}
+
+		@Override
+		public boolean isItemViewTypePinned(int viewType)
+		{
+			// TODO Auto-generated method stub
+			return false;
 		}
 	}
 
