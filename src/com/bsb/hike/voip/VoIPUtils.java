@@ -46,6 +46,8 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPDataPacket.PacketType;
+import com.bsb.hike.voip.protobuf.VoIPSerializer;
 import com.bsb.hike.voip.view.VoIPActivity;
 
 public class VoIPUtils {
@@ -799,5 +801,47 @@ public class VoIPUtils {
 		
 		Logger.d(tag, "Memory total: " + totalMemory + " MB, available: " + availableMegs + " MB");
 	}
+
+	public static byte[] getUDPDataFromPacket(VoIPDataPacket dp) {
+		
+		// Serialize everything except for P2P voice data packets
+		byte[] packetData = null;
+		byte prefix;
+		
+		// Force everything to PB
+		packetData = VoIPSerializer.serialize(dp);
+		prefix = VoIPConstants.PP_PROTOCOL_BUFFER;
+
+		if (packetData == null)
+			return null;
+		
+		byte[] finalData = new byte[packetData.length + 1];	
+		finalData[0] = prefix;
+		System.arraycopy(packetData, 0, finalData, 1, packetData.length);
+		packetData = finalData;
+
+		return packetData;
+	}
+
+	public static VoIPDataPacket getPacketFromUDPData(byte[] data) {
+		VoIPDataPacket dp = null;
+		byte prefix = data[0];
+		byte[] packetData = new byte[data.length - 1];
+		System.arraycopy(data, 1, packetData, 0, packetData.length);
+
+		if (prefix == VoIPConstants.PP_PROTOCOL_BUFFER) {
+			dp = (VoIPDataPacket) VoIPSerializer.deserialize(packetData);
+		} else {
+			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+			dp.setData(packetData);
+			if (prefix == VoIPConstants.PP_ENCRYPTED_VOICE_PACKET)
+				dp.setEncrypted(true);
+			else
+				dp.setEncrypted(false);
+		}
+		
+		return dp;
+	}
+	
 	
 }

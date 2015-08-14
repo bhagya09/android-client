@@ -22,6 +22,11 @@ public class VoIPConstants {
 	public static final int AUDIO_SAMPLE_RATE = 48000; 
 	public static final int MAX_SAMPLES_BUFFER = 3;
 
+	// Packet prefixes
+	public static final byte PP_RAW_VOICE_PACKET = 0x01;
+	public static final byte PP_ENCRYPTED_VOICE_PACKET = 0x02;
+	public static final byte PP_PROTOCOL_BUFFER = 0x03;
+
 	/**
 	 * Time (ms) to wait before the client being called replies with its
 	 * own socket information.

@@ -47,15 +47,8 @@ import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
-import com.bsb.hike.voip.protobuf.VoIPSerializer;
 
 public class VoIPClient  {		
-	
-	// Packet prefixes
-	@SuppressWarnings("unused")
-	private static final byte PP_RAW_VOICE_PACKET = 0x01;
-	private static final byte PP_ENCRYPTED_VOICE_PACKET = 0x02;
-	private static final byte PP_PROTOCOL_BUFFER = 0x03;
 	
 	private final int PACKET_TRACKING_SIZE = 128;
 	private final int HEARTBEAT_INTERVAL = 1000;
@@ -1062,7 +1055,7 @@ public class VoIPClient  {
 		}
 		
 		// Serialize everything except for P2P voice data packets
-		byte[] packetData = getUDPDataFromPacket(dp);
+		byte[] packetData = VoIPUtils.getUDPDataFromPacket(dp);
 		
 		if (packetData == null)
 			return;
@@ -1090,62 +1083,6 @@ public class VoIPClient  {
 			Logger.w(tag, "sendPacket() IOException: " + e.toString());
 		}
 		
-	}
-	
-	private byte[] getUDPDataFromPacket(VoIPDataPacket dp) {
-		
-		// Serialize everything except for P2P voice data packets
-		byte[] packetData = null;
-		byte prefix;
-		
-		/*
-		if (dp.getType() == PacketType.VOICE_PACKET && getPreferredConnectionMethod() != ConnectionMethods.RELAY) {
-			packetData = dp.getData();
-			if (dp.isEncrypted()) {
-				prefix = PP_ENCRYPTED_VOICE_PACKET;
-			} else {
-				prefix = PP_RAW_VOICE_PACKET;
-			}
-		} else {
-			packetData = VoIPSerializer.serialize(dp);
-			prefix = PP_PROTOCOL_BUFFER;
-		}
-		*/
-		
-		// Force everything to PB
-		packetData = VoIPSerializer.serialize(dp);
-		prefix = PP_PROTOCOL_BUFFER;
-
-		if (packetData == null)
-			return null;
-		
-		byte[] finalData = new byte[packetData.length + 1];	
-		finalData[0] = prefix;
-		System.arraycopy(packetData, 0, finalData, 1, packetData.length);
-		packetData = finalData;
-
-		return packetData;
-	}
-	
-	private VoIPDataPacket getPacketFromUDPData(byte[] data) {
-		VoIPDataPacket dp = null;
-		byte prefix = data[0];
-		byte[] packetData = new byte[data.length - 1];
-		System.arraycopy(data, 1, packetData, 0, packetData.length);
-
-//		Logger.w(logTag, "Prefix: " + prefix);
-		if (prefix == PP_PROTOCOL_BUFFER) {
-			dp = (VoIPDataPacket) VoIPSerializer.deserialize(packetData);
-		} else {
-			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
-			dp.setData(packetData);
-			if (prefix == PP_ENCRYPTED_VOICE_PACKET)
-				dp.setEncrypted(true);
-			else
-				dp.setEncrypted(false);
-		}
-		
-		return dp;
 	}
 	
 	private void addPacketToAckWaitQueue(VoIPDataPacket dp) {
@@ -1227,7 +1164,7 @@ public class VoIPClient  {
 					
 					byte[] realData = new byte[packet.getLength()];
 					System.arraycopy(packet.getData(), 0, realData, 0, packet.getLength());
-					VoIPDataPacket dataPacket = getPacketFromUDPData(realData);
+					VoIPDataPacket dataPacket = VoIPUtils.getPacketFromUDPData(realData);
 					
 					if (dataPacket == null)
 						continue;
@@ -2076,10 +2013,6 @@ public class VoIPClient  {
 	
 	public void addSampleToEncode(VoIPDataPacket dp) {
 		samplesToEncodeQueue.add(dp);
-	}
-	
-	public void addToSendingQueue(VoIPDataPacket dp) throws InterruptedException {
-		buffersToSendQueue.put(dp);
 	}
 	
 	private void updateClientsList(String json) {

@@ -2,6 +2,9 @@ package com.bsb.hike.voip;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -153,6 +156,7 @@ public class VoIPService extends Service {
 	// Support for conference calls
 	private Chronometer chronometer = null;
 	private String groupChatMsisdn; 
+	private DatagramSocket broadcastSocket = null;
 
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
@@ -1160,6 +1164,9 @@ public class VoIPService extends Service {
 			solicallAec.destroy();
 			solicallAec = null;
 		}
+		
+		if (broadcastSocket != null)
+			broadcastSocket.close();
 
 		// Empty the queues
 		conferenceBroadcastPackets.clear();
@@ -1815,13 +1822,14 @@ public class VoIPService extends Service {
 
 					opusWrapper = new OpusWrapper();
 					opusWrapper.getEncoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1, VoIPConstants.BITRATE_CONFERENCE);
+					broadcastSocket = new DatagramSocket();
+					InetAddress relayAddress = InetAddress.getByName(getClient().getRelayAddress());
+					int relayPort = getClient().getRelayPort();
 
 					byte[] compressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 10];
 					int compressedDataLength = 0;
-					VoIPClient broadcastClient = null;
 
 					while (keepRunning) {
-						broadcastClient = null;
 						
 						// If it's an audio packet, then compress it
 						if (broadcastPacket.getType() == PacketType.AUDIO_PACKET) {
@@ -1841,9 +1849,6 @@ public class VoIPService extends Service {
 						synchronized (clients) {
 							for (VoIPClient client : clients.values()) {
 								
-								if (client.connected && client.getPreferredConnectionMethod() == ConnectionMethods.RELAY)
-									broadcastClient = client;
-								
 								if (!client.connected)
 									continue;
 								
@@ -1858,11 +1863,10 @@ public class VoIPService extends Service {
 						}
 						
 						// Send the packet
-						if (broadcastClient != null && broadcastPacket.getBroadcastList() != null) {
-							if (broadcastClient != null) {
-								broadcastClient.addToSendingQueue(broadcastPacket);								
-							}
-						}
+						byte[] packetData = VoIPUtils.getUDPDataFromPacket(broadcastPacket);
+						DatagramPacket packet = new DatagramPacket(packetData, packetData.length, 
+								relayAddress, relayPort);
+						broadcastSocket.send(packet);
 						
 						// Wait for next packet
 						broadcastPacket = conferenceBroadcastPackets.take();
