@@ -1589,7 +1589,7 @@ public class HikeNotification
 		}
 		else
 		{
-			notifyStringMessage(activityFeed.getActor(), message, true, notificationType);
+			notifyStringMessage(activityFeed.getActor(), message, false, notificationType);
 			return;
 		}
 
