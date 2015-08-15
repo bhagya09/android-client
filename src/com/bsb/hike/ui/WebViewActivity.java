@@ -680,7 +680,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		
-		int sbColor = -1;
+		int sbColor = botConfig.getStatusBarColor();
 		sbColor = (sbColor == -1 ) ? Color.parseColor(StatusBarColorChanger.DEFAULT_STATUS_BAR_COLOR) : sbColor;
 		StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
 		

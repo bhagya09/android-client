@@ -149,7 +149,7 @@
                 android:drawableLeft="@drawable/ic_moods"
                 android:drawablePadding="12dp"
                 android:text="@string/add_mood"
-                android:textColor="#222222"
+                android:textColor="#333333"
                 android:textSize="14sp"
                 android:textStyle="normal" />
         </LinearLayout>
