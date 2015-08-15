@@ -9,14 +9,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -24,13 +26,6 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.UpdatesFragment;
@@ -100,8 +95,10 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.timeline);
+		
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
-		backContainer.setOnClickListener(new View.OnClickListener()
+		/*backContainer.setOnClickListener(new View.OnClickListener()
 		{
 
 			@Override
@@ -109,9 +106,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			{
 				onBackPressed();
 			}
-		});
+		});*/
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void setupMainFragment(Bundle savedInstanceState)
@@ -130,9 +129,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		getSupportMenuInflater().inflate(R.menu.updates_menu, menu);
+		getMenuInflater().inflate(R.menu.updates_menu, menu);
 
-		View show_people_view = menu.findItem(R.id.show_people).getActionView();
+		View show_people_view = MenuItemCompat.getActionView(menu.findItem(R.id.show_people));
 		show_people_view.findViewById(R.id.overflow_icon_image).setContentDescription("Favorites in timeline");
 		friendsTopBarIndicator = (TextView) show_people_view.findViewById(R.id.top_bar_indicator_text);
 		((ImageView) show_people_view.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_show_people);

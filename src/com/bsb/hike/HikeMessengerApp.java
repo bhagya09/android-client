@@ -561,6 +561,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	RegisterToGCMTrigger mmRegisterToGCMTrigger = null;
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
+	
+	public static int bottomNavBarHeightPortrait = 0;
+	
+	public static int bottomNavBarWidthLandscape = 0;
 
 	static
 	{
@@ -862,10 +866,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		{
 			fetchPlatformIDIfNotPresent();
 		}
-
+		
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
 		StickerSearchManager.getInstance().removeDeletedStickerTags();
+		
+		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
+		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)

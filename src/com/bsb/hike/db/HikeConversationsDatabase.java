@@ -835,17 +835,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (oldVersion < 42)
 		{
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGES_TABLE, DBConstants.SEND_TIMESTAMP))
 			{
 				String alter = "ALTER TABLE " + DBConstants.MESSAGES_TABLE + " ADD COLUMN " + DBConstants.SEND_TIMESTAMP + " LONG DEFAULT -1";
 				db.execSQL(alter);
 			}
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_CREATOR))
 			{
 				String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE + " ADD COLUMN " + DBConstants.GROUP_CREATOR + " TEXT DEFAULT NULL";
 				db.execSQL(alter);
 			}
-			if (!Utils.ifColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.TYPE))
 			{
 				String alter = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.TYPE + " INTEGER  DEFAULT 0";
 				db.execSQL(alter);

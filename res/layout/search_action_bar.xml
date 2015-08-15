@@ -10,8 +10,7 @@
         android:layout_alignParentRight="true"
         android:background="?attr/selectableItemBackground"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_search_next"
-        android:theme="@style/Theme.Sherlock" />
+        android:src="@drawable/ic_search_next" />
 
     <ImageView
         android:id="@+id/previous"
@@ -20,8 +19,7 @@
         android:layout_toLeftOf="@id/next"
         android:background="?attr/selectableItemBackground"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_search_prev"
-        android:theme="@style/Theme.Sherlock" />
+        android:src="@drawable/ic_search_prev" />
 
     <LinearLayout
         android:id="@+id/search_plate"
@@ -30,7 +28,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="4dp"
         android:layout_toLeftOf="@id/previous"
-        android:background="@drawable/bg_top_bar_search_box"
         android:gravity="center_vertical"
         android:orientation="horizontal" >
 
@@ -58,7 +55,6 @@
             android:padding="8dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_top_bar_search_close"
-            android:theme="@style/Theme.Sherlock"
             android:visibility="gone" />
 
     </LinearLayout>
