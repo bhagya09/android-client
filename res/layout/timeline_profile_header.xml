@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/contentLayout"
         android:layout_alignTop="@+id/contentLayout"
-        android:background="#0D000000" />
+        android:background="@color/black_10" />
 
     <RelativeLayout
         android:id="@+id/contentLayout"
