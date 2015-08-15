@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1336"
-    android:versionName="3.9.9.19.material" >
-    
+    android:versionCode="1343"
+    android:versionName="3.9.9.81.20" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>

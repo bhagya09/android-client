@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.MailTo;
@@ -92,6 +93,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	public static final String FULL_SCREEN_AB_COLOR = "abColor";
 	
+	public static final String FULL_SCREEN_SB_COLOR = "sbColor";
+	
 	public static final String JS_TO_INJECT = "jsToInject";
 
 	public static final String WEBVIEW_MODE = "webviewMode";
@@ -156,6 +159,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				return;
 			}
 		}
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
 		initView();	
@@ -295,8 +299,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		String url = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		int color = getIntent().getIntExtra(FULL_SCREEN_AB_COLOR, R.color.blue_hike);
+		int sbColor = getIntent().getIntExtra(FULL_SCREEN_SB_COLOR, Color.parseColor(StatusBarColorChanger.DEFAULT_STATUS_BAR_COLOR));
+		
+		sbColor = (sbColor == -1) ? Color.parseColor(StatusBarColorChanger.DEFAULT_STATUS_BAR_COLOR) : sbColor;
+		
 		final String js = getIntent().getStringExtra(JS_TO_INJECT);
-		setupWebURLWithBridgeActionBar(title, color);
+		setupWebURLWithBridgeActionBar(title, color, sbColor);
 		
 		
 		WebViewClient mClient = new HikeWebViewClient()
@@ -554,7 +562,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				menu.findItem(R.id.overflow_menu).setVisible(true);
 			}
-			StatusBarColorChanger.setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_TRANSPARENT);
 		
 			this.mMenu = menu;
 			
@@ -672,13 +679,20 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		
 		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
+		
+		int sbColor = botConfig.getStatusBarColor();
+		sbColor = (sbColor == -1 ) ? Color.parseColor(StatusBarColorChanger.DEFAULT_STATUS_BAR_COLOR) : sbColor;
+		StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
+		
 		setAvatar();
 	}
 	
-	private void setupWebURLWithBridgeActionBar(String title, int color)
+	private void setupWebURLWithBridgeActionBar(String title, int color, int statusBarColor)
 	{
 		setupActionBar(title);
 		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.color.blue_hike));
+		
+		StatusBarColorChanger.setStatusBarColor(getWindow(), statusBarColor);
 	}
 	
 
@@ -878,6 +892,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(WEBVIEW_MODE, SERVER_CONTROLLED_WEB_URL_MODE);
 		int color = botConfig.getFullScreenActionBarColor();
 		intent.putExtra(FULL_SCREEN_AB_COLOR, color == -1 ? botConfig.getActionBarColor() : color);
+		int sb_color = botConfig.getSecondaryStatusBarColor();
+		intent.putExtra(FULL_SCREEN_SB_COLOR, sb_color == -1 ? botConfig.getStatusBarColor() : sb_color);
+		
 		if (botConfig.isJSInjectorEnabled())
 		{
 			intent.putExtra(JS_TO_INJECT, botConfig.getJSToInject());
@@ -1009,6 +1026,26 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			view.loadUrl(url);
 			return true;
+		}
+	}
+
+	@Override
+	public void changeStatusBarColor(String color)
+	{
+		if (!Utils.isLollipopOrHigher())
+		{
+			return;
+		}
+		
+		try
+		{
+			int sbColor = Color.parseColor(color);
+			StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
+		}
+
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(tag, "Seems like you passed the wrong color");
 		}
 	}
 
