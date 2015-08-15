@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
         android:id="@+id/new_update"
         android:icon="@drawable/ic_new_status"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/post_new_update"/>
     <item
         android:id="@+id/show_people"
-        android:actionLayout="@layout/overflow_icon_view"
-        android:showAsAction="always"
+        app:actionLayout="@layout/overflow_icon_view"
+        app:showAsAction="always"
         android:title="@string/favorites"/>
     <item
         android:id="@+id/overflow_menu"
-        android:actionLayout="@layout/overflow_icon_view"
-        android:showAsAction="always"
+        app:actionLayout="@layout/overflow_icon_view"
+        app:showAsAction="always"
         android:visible="false"
         android:menuCategory="secondary" >
     </item>

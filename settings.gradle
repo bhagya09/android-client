@@ -15,9 +15,9 @@ include 'shared'
 include 'api'
 include 'services:webservice'
 */
-include ':android-client',':google-play',':cwac-camera',':actionbar-sherlock',':facebook',':viewpager-indicator-library'
+include ':android-client',':google-play',':cwac-camera',':appcompatv7',':facebook',':viewpager-indicator-library'
 project(':google-play').projectDir = new File('./google-play-services_lib')
 project(':facebook').projectDir = new File('./facebook-android-sdk/facebook')
-project(':actionbar-sherlock').projectDir = new File('./actionbarsherlock library')
+project(':appcompatv7').projectDir = new File('./appcompat')
 project(':viewpager-indicator-library').projectDir = new File('./Android ViewPagerIndicator library')
 rootProject.name = 'android-client'

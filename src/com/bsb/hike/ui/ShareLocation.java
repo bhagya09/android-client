@@ -38,7 +38,9 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -135,7 +137,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private TextView title;
 
-	private ImageView backIcon;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -301,8 +302,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private void init()
 	{
-		backIcon.setImageResource(R.drawable.ic_back);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
+		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 	}
 
 	private void setupActionBar()
@@ -314,7 +314,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
-		backIcon = (ImageView) actionBarView.findViewById(R.id.abs__up);
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.share_location);
 
@@ -345,6 +344,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		init();
 	}

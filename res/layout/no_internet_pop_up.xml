@@ -44,7 +44,7 @@
             android:layout_gravity="center_horizontal"
             android:background="@drawable/list_item"
             android:text="@string/try_again_signup"
-            android:textColor="#0f8fe1"
+            android:textColor="#1da8e8"
             android:textSize="16dp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -54,6 +54,6 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_above="@id/button_container"
-        android:background="#0f8fe1" />
+        android:background="#1da8e8" />
 
 </RelativeLayout>

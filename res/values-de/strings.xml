@@ -639,7 +639,7 @@
     <string name="protip_games">Spiele</string>
     <string name="ftue_grid_string">Beginne eine Konversation mit einem\ndeiner Freunde.</string>
     <string name="remind">Erinnern</string>
-    <string name="ok">OK</string>
+    <string name="OK">OK</string>
     <string name="not_show_call_alert_msg">Nicht noch einmal anzeigen</string>
     <string name="view_profile">Profil ansehen</string>
     <string name="normal_update_head">Wichtige Aktualisierung verfügbar</string>
@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">Einfach irgendwo doppeltippen, um deine Freunde anzustupsen</string>
     <string name="addedYouAsFavorite">Es wurden %1$s zu Favoriten hinzugefügt</string>
     <string name="addedYouFrindDescription"><![CDATA[
- Du teilst gerade deine Angabe zu <font color="#ef554e">Zuletzt online</font> und deine <font color="#0f8fe1">Statusmeldungen</font> mit %1$s. Möchtest du, dass er/sie diese Informationen auch mitteilt?
+ Du teilst gerade deine Angabe zu <font color="#ef554e">Zuletzt online</font> und deine <font color="#1da8e8">Statusmeldungen</font> mit %1$s. Möchtest du, dass er/sie diese Informationen auch mitteilt?
 	    
     ]]></string>
     <string name="contacts_upper_case">KONTAKTE</string>
@@ -922,7 +922,6 @@
     <string name="unlink_confirmation">Willst du dein Konto wirklich zurücksetzen?</string>
     <string name="unlinking_account">Konto wird zurückgesetzt...</string>
     <string name="delete_confirm_msg_1">Damit werden all deine Nachrichten, Frei-SMS und jegliche hike-Belohnungen gelöscht.</string>
-    <string name="delete_confirm_msg_2">Willst du wirklich fortfahren? Diesen Schritt kannst du nicht mehr rückgängig machen.</string>
     <string name="shortcut">Shortcut für Unterhaltung hinzufügen</string>
     <string name="add_to_contacts">Zu Kontakten hinzufügen.</string>
     <string name="delete_leave">Gruppe löschen und verlassen</string>
@@ -1199,8 +1198,8 @@
     <string name="see_them">FERTIG</string>
     <string name="drag_tip_text">Tippe ein Paket an und halte es gedrückt, um deine Stickerpakete neu zu sortieren</string>
     <string name="drag_tip_subtext">Tippe und ziehe, um deine Sticker umzusortieren</string>
-    <string name="sticker_cancel">ABBRECHEN</string>
-    <string name="sticker_confirm">BESTÄTIGEN</string>
+    <string name="CANCEL">ABBRECHEN</string>
+    <string name="CONFIRM">BESTÄTIGEN</string>
     <string name="n_more">%1$d MEHR</string>
     <string name="n_stickers">%1$d Sticker</string>
     <string name="last_backup">Letzte Datensicherung</string>
@@ -1253,7 +1252,6 @@
     <string name="auth_state_connecting">Verbinden...</string>
     <string name="auth_please_wait_connect">Bitte warten. Wir verbinden dich...</string>
     <string name="auth_done">FERTIG</string>
-    <string name="auth_cancel">Abbrechen</string>
     <string name="auth_retry">Erneut versuchen</string>
     <string name="auth_went_wrong">Hier ist etwas schiefgelaufen.</string>
     <string name="install_text">GRATIS INSTALLIEREN</string>
