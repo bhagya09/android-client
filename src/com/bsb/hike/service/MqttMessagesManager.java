@@ -2568,7 +2568,7 @@ public class MqttMessagesManager
 			}
 		}
 
-		statusMessage.setName(TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName());
+		statusMessage.setName(contactInfo.getNameOrMsisdn());
 
 		if (favoriteType == FavoriteType.FRIEND)
 		{
@@ -2587,6 +2587,11 @@ public class MqttMessagesManager
 				}
 			}
 		}
+		else if(statusMessage.isHistoricalUpdate())
+		{
+			Logger.d(getClass().getSimpleName(), "(HSU but NOT FRIEND),... add fav after su, so not sent to pubsub");
+		}
+		
 		pubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
 		
 		/**
