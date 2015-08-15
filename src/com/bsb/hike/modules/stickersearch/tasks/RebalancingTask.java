@@ -30,10 +30,10 @@ public class RebalancingTask implements Runnable
 		if(result)
 		{
 			HikeAlarmManager.deleteAlarmFromDatabase(intent);
-			StickerSearchManager.getInstance().setAlarm();
+			StickerSearchManager.getInstance().setRebalancingAlarm();
 		}
 		
-		Logger.d(TAG, "rebalancing completed with result : " + result);
+		Logger.d(TAG, "Rebalancing completed with result: " + result);
 	}
 
 }
