@@ -1,5 +1,6 @@
 package com.bsb.hike.timeline.view;
 
+import java.io.File;
 import java.io.IOException;
 
 import android.app.ProgressDialog;
@@ -672,6 +673,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
+		
+		if(isFinishing())
+		{
+			Utils.deleteFile(new File(mImagePath));
+		}
+		
 	}
 
 	@Override

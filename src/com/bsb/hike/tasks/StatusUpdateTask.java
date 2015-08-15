@@ -192,11 +192,10 @@ public class StatusUpdateTask implements IHikeHTTPTask
 			{
 				Logger.e(getClass().getSimpleName(), " post status request failed : " + httpException.getMessage());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
-				Utils.deleteFile(new File(imageFilePath));
 			}
 		};
 	}
-
+	
 	private int getTimeOfDay()
 	{
 		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
