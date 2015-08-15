@@ -1312,6 +1312,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		@Override
 		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)
 		{
+			buttonView.setEnabled(false);
+			buttonView.setClickable(false);
+			
 			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
 
 			JSONObject json = new JSONObject();
@@ -1417,8 +1420,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					}
 				});
 				token.execute();
-				buttonView.setEnabled(false);
-				buttonView.setClickable(false);
 			}
 			else
 			{
@@ -1472,8 +1473,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					}
 				});
 				token.execute();
-				buttonView.setEnabled(false);
-				buttonView.setClickable(false);
 			}
 		}
 	};
