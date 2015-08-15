@@ -2975,6 +2975,8 @@ public class HikeConstants
 		public static final int OTHER = 11;
 		
 		public static final int ACTIVITYUPDATE = 12;
+		
+		public static final int IMAGE_POST = 13;
 	}
 	public static  class GROUPS_TYPE
 	{

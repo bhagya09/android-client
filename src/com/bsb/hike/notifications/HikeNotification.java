@@ -907,7 +907,23 @@ public class HikeNotification
 
 		final int notificationId = HIKE_SUMMARY_NOTIFICATION_ID;
 		final String key = TextUtils.isEmpty(name) ? msisdn : name;
-		final String message = context.getString(R.string.status_profile_pic_notification);
+
+		String message = null;
+
+		if (notificationType == NotificationType.DPUPDATE)
+		{
+			message = context.getString(R.string.status_profile_pic_notification);
+		}
+		else if (notificationType == NotificationType.IMAGE_POST)
+		{
+			message = context.getString(R.string.posted_photo);
+		}
+		else
+		{
+			// Type not covered
+			return;
+		}
+
 		final String text = key + " " + message;
 
 		final int icon = returnSmallIcon();
@@ -934,7 +950,7 @@ public class HikeNotification
 				}
 			}
 		}
-		
+
 		// if notification message stack is empty, add to it and proceed with single notification display
 		// else add to stack and notify clubbed messages
 		if (hikeNotifMsgStack.isEmpty())

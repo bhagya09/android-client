@@ -2583,7 +2583,7 @@ public class MqttMessagesManager
 				if (!isBulkMessage) // do not autodownload in case of bulkmessage
 				{
 					Logger.d(DP_DOWNLOAD_TAG, "Received SU Packet, going to download");
-					autoDownloadProfileImage(statusMessage, true);
+					autoDownloadProfileImage(statusMessage,true);
 				}
 			}
 		}
