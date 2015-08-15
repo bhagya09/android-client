@@ -27,7 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import android.support.v4.app.Fragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub.Listener;
@@ -45,7 +45,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-public class StickerSettingsFragment extends SherlockFragment implements Listener, DragScrollProfile, OnItemClickListener
+public class StickerSettingsFragment extends Fragment implements Listener, DragScrollProfile, OnItemClickListener
 {
 	private String[] pubSubListeners = {};
 
@@ -176,7 +176,7 @@ public class StickerSettingsFragment extends SherlockFragment implements Listene
 				isUpdateAllTapped = false;
 				for(StickerCategory category : visibleAndUpdateStickerSet)
 				{
-					StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.SETTINGS, getSherlockActivity());
+					StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.SETTINGS, getActivity());
 				}
 				
 				try
@@ -509,7 +509,7 @@ public class StickerSettingsFragment extends SherlockFragment implements Listene
 	
 	public void unregisterListeners()
 	{
-		LocalBroadcastManager.getInstance(getSherlockActivity()).unregisterReceiver(mMessageReceiver);
+		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
 	}
 
 	public boolean getIsUpdateAllTapped()

@@ -3173,7 +3173,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			});
 
 			AlertDialog alertDialog = builder.show();
-			alertDialog.getListView().setDivider(context.getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+			alertDialog.getListView().setDivider(null);
+			alertDialog.getListView().setPadding(0, context.getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, context.getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
 			// chatThread.showContactDetails(items, name, null, true);
 		}
 	};

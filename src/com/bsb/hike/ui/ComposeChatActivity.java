@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -25,16 +26,23 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Data;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -51,9 +59,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.chatthread.OnlineChannel;
@@ -108,6 +113,7 @@ import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.PinnedSectionListView;
 import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
@@ -212,6 +218,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	int type = HikeConstants.Extras.NOT_SHAREABLE;
 	
 	private Menu mainMenu;
+	
+	private MenuItem searchMenuItem;
 
 	private int gcSettings = -1;
 	 
@@ -438,19 +446,30 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		type = getIntent().getIntExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.NOT_SHAREABLE);
 
 		if (!showingMultiSelectActionBar)
-			getSupportMenuInflater().inflate(R.menu.compose_chat_menu, menu);
+		{
+			getMenuInflater().inflate(R.menu.compose_chat_menu, menu);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
+		else
+		{	
+			getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+		}
+		
+		if (composeMode == START_CHAT_MODE)
+		{
+			initSearchMenu(menu);
+		}
 		
 		if (type != HikeConstants.Extras.NOT_SHAREABLE && Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
 		{
 			if (menu.hasVisibleItems())
 			{
-
 				menu.findItem(R.id.whatsapp_share).setVisible(true);
 			}
 
 		}
 
-		return super.onCreateOptionsMenu(menu);
+		return true;
 	}
 
 	@Override
@@ -607,7 +626,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		originalAdapterLength = adapter.getCount();
 
-		initTagEditText();
+		if (this.composeMode != START_CHAT_MODE)
+		{
+			initTagEditText();
+			tagEditText.setVisibility(View.VISIBLE);
+		}
+		
+		else
+		{
+			tagEditText = (TagEditText) findViewById(R.id.composeChatNewGroupTagET);
+			tagEditText.setVisibility(View.GONE);
+		}
 
 		if (existingGroupOrBroadcastId != null)
 		{
@@ -1164,6 +1193,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		actionBar.setCustomView(groupChatActionBar);
+		Toolbar parent=(Toolbar)groupChatActionBar.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		showingMultiSelectActionBar = false;
 	}
@@ -1301,6 +1332,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			showProgressBarContactsSync(View.VISIBLE);
 		}
 		actionBar.setCustomView(multiSelectActionBar);
+		Toolbar parent=(Toolbar)multiSelectActionBar.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -2572,4 +2605,34 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		return super.onKeyUp(keyCode, event);
 	}
+	
+	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
+	{
+		@Override
+		public boolean onQueryTextSubmit(String query)
+		{
+			Utils.hideSoftKeyboard(getApplicationContext(), searchMenuItem.getActionView());
+			return false;
+		}
+		
+		@Override
+		public boolean onQueryTextChange(String newText)
+		{
+			adapter.onQueryChanged(newText);
+			
+			return true;
+		}
+	};
+	
+	private void initSearchMenu(Menu menu)
+	{
+		searchMenuItem = menu.findItem(R.id.search);
+		if (searchMenuItem != null)
+		{
+			searchMenuItem.setVisible(true);
+			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			searchView.setOnQueryTextListener(onQueryTextListener);
+		}
+	}
+	
 }

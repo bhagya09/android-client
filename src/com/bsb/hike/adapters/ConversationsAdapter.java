@@ -33,6 +33,7 @@ import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -48,9 +49,9 @@ import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.TypingNotification;
@@ -744,10 +745,12 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{
 				contactView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_group, 0, 0, 0);
+				contactView.setCompoundDrawablePadding(context.getResources().getDimensionPixelOffset(R.dimen.home_list_header_drawable_padding));
 		}
 		else
 		{
 			contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+			contactView.setCompoundDrawablePadding(0);
 		}
 	}
 
@@ -943,16 +946,17 @@ public class ConversationsAdapter extends BaseAdapter
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
 					unreadIndicator.setVisibility(View.VISIBLE);
-					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-					unreadIndicator.setText(convInfo.getUnreadCountString());
+					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
+					String unreadCountString = convInfo.getUnreadCountString();
+					LayoutParams lp = (LayoutParams) unreadIndicator.getLayoutParams();
+					lp.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
+					unreadIndicator.setLayoutParams(lp);
+					unreadIndicator.setText(unreadCountString);
 			}
 
 			imgStatus.setImageResource(imageId);
 			imgStatus.setVisibility(View.VISIBLE);
-			
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
-			lp.setMargins((int) (5 * Utils.densityMultiplier), lp.topMargin, lp.rightMargin, lp.bottomMargin);
-			messageView.setLayoutParams(lp);
+		
 		}
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
@@ -968,13 +972,13 @@ public class ConversationsAdapter extends BaseAdapter
 
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
-				
 					unreadIndicator.setVisibility(View.VISIBLE);
-
-					unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-
-					unreadIndicator.setText(convInfo.getUnreadCountString());
-				
+					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
+					String unreadCountString = convInfo.getUnreadCountString();
+					LayoutParams lp2 = (LayoutParams) unreadIndicator.getLayoutParams();
+					lp2.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
+					unreadIndicator.setLayoutParams(lp2);
+					unreadIndicator.setText(unreadCountString);
 			}
 			// Using this to differentiate the normal chat and Offline Chat
 			//TODO:set Offline asset here
@@ -1005,7 +1009,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else
 		{
-			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
+			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
 		}
 		
 		if(OfflineUtils.isConnectedToSameMsisdn(convInfo.getMsisdn()))

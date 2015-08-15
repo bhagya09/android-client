@@ -8,9 +8,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -60,6 +62,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 
 	private String msisdn;
 	
+	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
+
 	/**
 	 * 
 	 * @param overflowItems
@@ -90,20 +94,21 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	{
 		this(msisdn, null, listener, onDismissListener, activity.getApplicationContext(), startRespectiveActivities);
 		this.activity = activity;
+		this.currentConfig = activity.getResources().getConfiguration().orientation;
 		initDefaultAttachmentList();
 	}
 
 	private void initDefaultAttachmentList()
 	{
 		List<OverFlowMenuItem> items = new ArrayList<OverFlowMenuItem>(7);
-		items.add(new OverFlowMenuItem(getString(R.string.camera_upper_case), 0, R.drawable.ic_attach_camera, CAMERA));
-		items.add(new OverFlowMenuItem(getString(R.string.photo), 0, R.drawable.ic_attach_pic, GALLERY));
-		items.add(new OverFlowMenuItem(getString(R.string.audio), 0, R.drawable.ic_attach_music, AUDIO));
-		items.add(new OverFlowMenuItem(getString(R.string.video), 0, R.drawable.ic_attach_video, VIDEO));
-		items.add(new OverFlowMenuItem(getString(R.string.file), 0, R.drawable.ic_attach_file, FILE));
+		items.add(new OverFlowMenuItem(getString(R.string.camera), 0, R.drawable.ic_attach_camera, CAMERA));
+		items.add(new OverFlowMenuItem(getString(R.string.gallery), 0, R.drawable.ic_attach_gallery, GALLERY));
+		items.add(new OverFlowMenuItem(getString(R.string.audio_msg_sent), 0, R.drawable.ic_attach_audio, AUDIO));
+		items.add(new OverFlowMenuItem(getString(R.string.video_msg_sent), 0, R.drawable.ic_attach_video, VIDEO));
+		items.add(new OverFlowMenuItem(getString(R.string.file_msg_sent), 0, R.drawable.ic_attach_file, FILE));
 		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION))
 		{
-			items.add(new OverFlowMenuItem(getString(R.string.location_option), 0, R.drawable.ic_attach_location, LOCATOIN));
+			items.add(new OverFlowMenuItem(getString(R.string.location_msg_sent), 0, R.drawable.ic_attach_location, LOCATOIN));
 		}
 		this.overflowItems = items;
 	}
@@ -120,12 +125,14 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		// we lazily inflate and
 		if (viewToShow != null)
 		{
+			setOrientation(activity.getResources().getConfiguration().orientation);
 			return viewToShow;
 		}
 
 		View parentView = viewToShow = LayoutInflater.from(context).inflate(R.layout.attachments, null);
 
 		GridView attachmentsGridView = (GridView) parentView.findViewById(R.id.attachment_grid);
+		refreshGridView(attachmentsGridView);
 		attachmentsGridView.setAdapter(new ArrayAdapter<OverFlowMenuItem>(context, R.layout.attachment_item, R.id.text, overflowItems)
 		{
 
@@ -219,7 +226,42 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		});
 		return viewToShow;
 	}
+	
+	/**
+	 * This function should be called when orientation of screen is changed, it will update its view based on orientation
+	 * If picker is being shown, it will first dismiss current picker and then show it again using post on view
+	 * 
+	 * NOTE : It will not give dismiss callback to listener as this is not explicit dismiss
+	 * @param orientation
+	 */
+	public void onOrientationChange(int orientation)
+	{
+		setOrientation(orientation);
+	}
 
+	public void setOrientation(int orientation)
+	{
+		if(orientation != currentConfig)
+		{
+			this.currentConfig = orientation;
+			refreshGridView((GridView) viewToShow.findViewById(R.id.attachment_grid));
+		}
+	}
+
+	public void refreshGridView(GridView grid)
+	{
+		int numCol = getNumColumnsAttachments();
+		grid.setNumColumns(numCol);
+		LayoutParams lp = grid.getLayoutParams();
+		lp.width = numCol * context.getResources().getDimensionPixelSize(R.dimen.attachment_column_width);
+		grid.setLayoutParams(lp);
+	}
+	
+	private int getNumColumnsAttachments()
+	{
+		return currentConfig == Configuration.ORIENTATION_LANDSCAPE ? 4 : 3;
+	}
+	
 	private String getString(int id)
 	{
 		return context.getString(id);

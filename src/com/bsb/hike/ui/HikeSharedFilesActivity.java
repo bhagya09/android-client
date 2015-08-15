@@ -25,9 +25,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -109,8 +111,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.gallery);
 
 		selectedSharedFileItems = new HashSet<Long>();
@@ -197,6 +199,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 		actionBarView.setBackgroundResource(android.R.color.transparent);
@@ -222,6 +225,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void setupMultiSelectActionBar()
@@ -245,6 +250,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			}
 		});
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -286,7 +293,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		if (multiSelectMode)
 		{
-			getSupportMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
+			getMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
 		}
 		return true;
 	}

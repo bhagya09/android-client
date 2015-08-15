@@ -8,33 +8,22 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.TranslateAnimation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.ViewGroup;
-import android.webkit.WebView.FindListener;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
+import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.offline.OfflineConstants;
-import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
 
-public class OfflineDisconnectFragment extends SherlockFragment
+public class OfflineDisconnectFragment extends Fragment
 {
 	
 	private static final String CONNECTINGMSISDN = "connecting_msisdn";
@@ -233,7 +222,7 @@ public class OfflineDisconnectFragment extends SherlockFragment
 	
 	private Animation slideOutContainer(View view)
 	{
-		Animation anim = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.call_failed_frag_slide_out);
+		Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.call_failed_frag_slide_out);
 		anim.setDuration(300);
 		return anim;
 	}
