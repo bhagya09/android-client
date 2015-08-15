@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
