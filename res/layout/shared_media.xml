@@ -5,58 +5,64 @@
     android:background="@color/white"
     android:orientation="vertical" >
 
-    <LinearLayout 
+    <LinearLayout
         android:id="@+id/shared_media"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
         android:orientation="vertical" >
-    
-    
-    <include
-        android:id="@+id/shared_media_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/friends_group_view" >
-    </include>
 
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/sm_emptystate"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:gravity="center_vertical"
-                android:text="@string/no_media"
-                android:textColor="@color/mid_gray"
-                android:textSize="16sp"
-                android:layout_marginLeft="24dp"
+        <include
+            android:id="@+id/shared_media_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/friends_group_view" >
+        </include>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/sm_emptystate"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="24dp"
+            style="@style/BaseStyleTextView"
+            android:gravity="center_vertical"
+            android:text="@string/no_media"
+            android:textColor="@color/mid_gray"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/media_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="@dimen/sm_leftmargin"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:visibility="gone" >
+
+            <LinearLayout
+                android:id="@+id/shared_media_items"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone" >
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/arrow_icon"
+                android:layout_width="53dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_fav"
+                android:scaleType="center"
+                android:src="@drawable/ic_arrow"
                 android:visibility="gone" />
-    
-     <LinearLayout 
-         android:id="@+id/media_layout"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:layout_marginLeft="@dimen/sm_leftmargin"
-         android:layout_marginTop="12dp"
-         android:layout_marginBottom="14dp"
-		 android:orientation="horizontal"
-		 android:visibility="gone" >
-                     
-    <LinearLayout
-        android:id="@+id/shared_media_items"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" 
-        android:visibility="gone">
         </LinearLayout>
-        
-       <ImageView 
-           android:id="@+id/arrow_icon"
-           android:layout_width="53dp"
-           android:layout_height="match_parent"
-           android:src="@drawable/ic_arrow"
-           android:background="@drawable/bg_fav"
-           android:scaleType="center"
-           android:visibility="gone"/>
     </LinearLayout>
-</LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="6dp"
+        android:background="@color/home_screen_list_divider" />
+
 </LinearLayout>

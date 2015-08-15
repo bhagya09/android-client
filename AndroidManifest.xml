@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1334"
-    android:versionName="3.9.9.1.voip" >
-    
+    android:versionCode="1342"
+    android:versionName="3.9.9.81.2" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -175,7 +175,7 @@
             android:hardwareAccelerated="true"
             android:label="@string/app_label"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme"
+            android:theme="@style/AppTheme.ChatThread"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
@@ -188,7 +188,7 @@
         </activity>
         <activity
             android:name=".ui.HikePreferences"
-            android:label="@string/preferences" >
+            android:label="@string/preferences">
         </activity>
         <activity
             android:name=".ui.HikeListActivity"
@@ -198,7 +198,8 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/AppTheme.Overlay" >
             <intent-filter android:label="@string/set_profile_pic" >
                 <action android:name="android.intent.action.ATTACH_DATA" />
 
@@ -210,13 +211,13 @@
         <activity
             android:name=".cropimage.CropImage"
             android:configChanges="orientation|screenSize|screenLayout"
-            android:theme="@style/AppTheme.Home.Photos" />
-        <activity android:name=".ui.CreditsActivity" >
-        </activity>
+            android:theme="@style/AppTheme.Home.PhotoEditor" />
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:exported="true" >
+            android:exported="true" 
+            android:theme="@style/AppTheme.Overlay" 
+            >
         </activity>
         <activity
             android:name=".ui.ShareLocation"
@@ -251,14 +252,15 @@
         </activity>
         <activity
             android:name=".ui.StatusUpdate"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
             android:name=".ui.GalleryActivity"
-            android:theme="@style/AppTheme.Home.Photos" >
+            android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
         <activity android:name=".ui.HikeSharedFilesActivity"
-            android:theme="@style/AppTheme.Home.Photos" >
+            android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
         <activity android:name=".ui.GallerySelectionViewer"
             android:screenOrientation="portrait">
@@ -312,7 +314,7 @@
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Home.Photos" >
+            android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
         <activity
             android:name=".chatHead.StickerShareSettings"
@@ -321,7 +323,8 @@
         
 		<activity
             android:name=".ui.PinHistoryActivity"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@style/AppTheme.ChatThread" >
         </activity>
         <activity
             android:name=".voip.view.CallRateActivity"

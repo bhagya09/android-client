@@ -24,7 +24,8 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="@dimen/compose_chat_content_margin"
         android:layout_marginRight="@dimen/compose_chat_content_margin"
-        android:background="@drawable/bg_country_search_bar"
+        android:layout_marginTop="0dp"
+        android:background="@drawable/bg_country_picker_selector"
         android:imeOptions="flagNoExtractUi"
         android:gravity="center_vertical"
         android:hint="@string/new_chat_compose_hint"
@@ -39,7 +40,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:id="@+id/list"
-        style="@style/HomeList" >
+        style="@style/ComposeList" >
     </com.bsb.hike.view.PinnedSectionListView>
     <include
         android:id="@android:id/empty"
