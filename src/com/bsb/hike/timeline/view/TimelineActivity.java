@@ -423,9 +423,10 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public void onBackPressed()
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
-		if (count == 1)
+		if (count <= 1)
 		{
 			IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			getSupportFragmentManager().popBackStack();
 			super.onBackPressed();
 		}
 		else 
