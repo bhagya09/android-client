@@ -24,6 +24,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
@@ -176,6 +177,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		protected Void doInBackground(Void... params)
 		{
 			HikeConversationsDatabase.getInstance().updateActivityFeedReadStatus();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 			return null;
 		}
 
