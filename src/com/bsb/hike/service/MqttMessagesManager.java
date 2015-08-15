@@ -3773,8 +3773,9 @@ public class MqttMessagesManager
 		}
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
+		boolean isProfilePicChangeSU = statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC ? true : false;
 		HikeImageDownloader downLoaderFragment = HikeImageDownloader.newInstance(statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true,true);
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), null, true,true, isProfilePicChangeSU);
 		downLoaderFragment.startLoadingTask();
 	}
 
