@@ -1081,7 +1081,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
-						Toast.makeText(mContext, R.string.delete_status_error, Toast.LENGTH_LONG);
+						Toast.makeText(mContext, R.string.delete_status_error, Toast.LENGTH_LONG).show();
 						if (hikeDialog != null && hikeDialog.isShowing())
 						{
 							hikeDialog.dismiss();
