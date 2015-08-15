@@ -48,8 +48,15 @@ public class HikeImageDownloader extends HikeImageWorker
 	
 	private static final String TAG = "dp_download";
 	
+	private boolean isDPChanged;
+	
 	public static HikeImageDownloader newInstance(String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
 			String url, boolean isProfilePicDownloaded,boolean forceNewRequest) {
+		
+		return HikeImageDownloader.newInstance(key, fileName, hasCustomIcon, statusImage, msisdn, name, url, isProfilePicDownloaded, forceNewRequest, statusImage);
+	}
+	public static HikeImageDownloader newInstance(String key, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
+			String url, boolean isProfilePicDownloaded,boolean forceNewRequest, boolean isDPChanged) {
 		
 		HikeImageDownloader mHeadLessImageDownloaderFragment = new HikeImageDownloader();
 		mHeadLessImageDownloaderFragment.id = key;
@@ -61,6 +68,7 @@ public class HikeImageDownloader extends HikeImageWorker
 		mHeadLessImageDownloaderFragment.fileName = fileName;
 		mHeadLessImageDownloaderFragment.name = name;
 		mHeadLessImageDownloaderFragment.forceNewRequest = forceNewRequest;
+		mHeadLessImageDownloaderFragment.isDPChanged = isDPChanged;
         return mHeadLessImageDownloaderFragment;
     }
 
@@ -167,7 +175,7 @@ public class HikeImageDownloader extends HikeImageWorker
 			this.name = this.msisdn; // show the msisdn if its an unsaved contact
 		}
 		
-		if (statusImage && !TextUtils.isEmpty(this.fileName) && !TextUtils.isEmpty(this.msisdn))
+		if (statusImage && !TextUtils.isEmpty(this.fileName) && !TextUtils.isEmpty(this.msisdn) && isDPChanged)
 		{
 			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 			this.fileName = directory + File.separator + Utils.getProfileImageFileName(msisdn);
