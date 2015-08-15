@@ -3359,8 +3359,18 @@ public class Utils
 				jObject = null;
 			}
 		};
-		RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
-		token.execute();
+		
+		if (TextUtils.isEmpty(url))
+		{
+			jObject = null;
+			return jObject;
+		}
+		
+		else
+		{
+			RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
+			token.execute();
+		}
 		return jObject;
 	}
 
