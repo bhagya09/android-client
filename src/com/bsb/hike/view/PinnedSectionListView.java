@@ -230,7 +230,7 @@ public class PinnedSectionListView extends ListView
 		ViewGroup.LayoutParams layoutParams = (ViewGroup.LayoutParams) pinnedView.getLayoutParams();
 		if (layoutParams == null)
 		{
-			layoutParams = (LayoutParams) generateDefaultLayoutParams();
+			layoutParams = (ViewGroup.LayoutParams) generateDefaultLayoutParams(); //Was getting a class cast on AbsListView.LayoutParams
 			pinnedView.setLayoutParams(layoutParams);
 		}
 
