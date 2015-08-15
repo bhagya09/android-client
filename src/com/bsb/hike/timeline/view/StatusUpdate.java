@@ -298,6 +298,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 		}
+		
+		if(isFinishing())
+		{
+			Utils.deleteFile(new File(mImagePath));
+		}
 	}
 
 	private void setupActionBar()
@@ -672,11 +677,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			progressDialog.dismiss();
 			progressDialog = null;
-		}
-		
-		if(isFinishing())
-		{
-			Utils.deleteFile(new File(mImagePath));
 		}
 		
 	}
