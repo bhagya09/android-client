@@ -63,6 +63,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
@@ -81,7 +82,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
  * @author Atul M
  * 
  */
-public class TimelineSummaryActivity extends AppCompatActivity implements OnClickListener, Listener, IHandlerCallback, HikeImageWorker.TaskCallbacks
+public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, Listener, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
 	private static final int LIKE_CONTACTS_DIALOG = 0;
 	
