@@ -654,11 +654,13 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken createLoveLink(JSONObject json, IRequestListener requestListener)
+	public static RequestToken createLoveLink(JSONObject json, IRequestListener requestListener,String id)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(updateLoveLinkUrl())
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setId(id)
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
 				.post(body)
@@ -666,11 +668,13 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken removeLoveLink(JSONObject json, IRequestListener requestListener)
+	public static RequestToken removeLoveLink(JSONObject json, IRequestListener requestListener,String id)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(updateUnLoveLinkUrl())
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setId(id)
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
 				.post(body)
