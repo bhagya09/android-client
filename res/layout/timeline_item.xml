@@ -60,7 +60,7 @@
                         android:ellipsize="end"
                         android:singleLine="true"
                         android:text="Atul M"
-                        android:textColor="#3d475b"
+                        android:textColor="#CC000000"
                         android:textSize="12sp"
                         android:textStyle="bold|italic" />
 
@@ -88,9 +88,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:paddingBottom="12dp"
+                    android:paddingBottom="10dp"
                     android:ellipsize="end"
-                    android:paddingTop="11dp"
+                    android:paddingTop="13dp"
                     android:includeFontPadding="false"
                     android:maxLines="20"
                     android:text="Added you as a friend"
@@ -198,7 +198,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="Like"
-                    android:textColor="@color/black_16"
+                    android:textColor="#3D000000"
                     android:textSize="14sp"
                     android:textStyle="italic" />
             </LinearLayout>
