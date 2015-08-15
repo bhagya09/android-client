@@ -35,12 +35,14 @@ public class MqttConstants
 
 	public static final int FALLBACK_BROKER_PORT_NUMBER_SSL = 443;
 	
+	public static final int[] PRODUCTION_MQTT_CONNECT_PORTS = {FALLBACK_BROKER_PORT_5222, PRODUCTION_BROKER_PORT_NUMBER};
+
 	// this represents number of msgs published whose callback is not yet arrived
 	public static final short MAX_INFLIGHT_MESSAGES_ALLOWED = 100;
 
 	public static final short KEEP_ALIVE_SECONDS = HikeConstants.KEEP_ALIVE; // this is the time for which conn will remain open w/o messages
 
-	public static final short[] CONNECTION_TIMEOUT_SECONDS = {8, 15, 30, 60};
+	public static final short[] CONNECTION_TIMEOUT_SECONDS = {8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60};
 
 	/* Time after which a reconnect on mqtt thread is reattempted (Time in 'ms') */
 	public static final short MQTT_WAIT_BEFORE_RECONNECT_TIME = 10;
@@ -97,4 +99,10 @@ public class MqttConstants
 	public static final int TIMER_PING_SENDER_CONSTANT = 0;
 	
 	public static final String ALARM_PING_WAKELOCK_TIMEOUT = "alarmPingWakeLockTimeout";
+
+	public static final String LAST_MQTT_CONNECT_PORT = "lastMqttConnectPort";
+
+	public static final String TIME_TAKEN_IN_LAST_SOCKET_CONNECT = "timeTakenInLastSocketConnect";
+
+	public static final String MQTT_PORTS = "mqttPorts";
 }
