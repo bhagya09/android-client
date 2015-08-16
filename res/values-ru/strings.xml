@@ -1196,7 +1196,7 @@
     <string name="sticker_shop">Магазин стикеров</string>
     <string name="my_stickers">Мои стикеры</string>
     <string name="update_all">ОБНОВИТЬ ВСЕ</string>
-    <string name="retry_sticker">ПОВТОРИТЬ</string>
+    <string name="RETRY">ПОВТОРИТЬ</string>
     <string name="see_them">ГОТОВО</string>
     <string name="drag_tip_text">Коснитесь и удержите, чтобы перегруппировать свои наборы стикеров</string>
     <string name="drag_tip_subtext">Коснитесь и перетащите, чтобы поменять стикеры местами</string>

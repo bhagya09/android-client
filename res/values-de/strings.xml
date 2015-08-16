@@ -1194,7 +1194,7 @@
     <string name="sticker_shop">Sticker Shop</string>
     <string name="my_stickers">Meine Sticker</string>
     <string name="update_all">ALLE AKTUALISIEREN</string>
-    <string name="retry_sticker">ERNEUT VERSUCHEN</string>
+    <string name="RETRY">ERNEUT VERSUCHEN</string>
     <string name="see_them">FERTIG</string>
     <string name="drag_tip_text">Tippe ein Paket an und halte es gedrückt, um deine Stickerpakete neu zu sortieren</string>
     <string name="drag_tip_subtext">Tippe und ziehe, um deine Sticker umzusortieren</string>

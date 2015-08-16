@@ -1194,7 +1194,7 @@
     <string name="sticker_shop">Tienda de pegatinas</string>
     <string name="my_stickers">Mis pegatinas</string>
     <string name="update_all">ACTUALIZAR TODO</string>
-    <string name="retry_sticker">REINTENTAR</string>
+    <string name="RETRY">REINTENTAR</string>
     <string name="see_them">LISTO</string>
     <string name="drag_tip_text">Toca y mantén pulsado un paquete para cambiar el orden en el que aparece.</string>
     <string name="drag_tip_subtext">Toca y arrastra para reordenar tus pegatinas</string>

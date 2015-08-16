@@ -1194,7 +1194,7 @@
     <string name="sticker_shop">Boutique de stickers</string>
     <string name="my_stickers">Mes stickers</string>
     <string name="update_all">METTRE À JOUR TOUT</string>
-    <string name="retry_sticker">RÉESSAYER</string>
+    <string name="RETRY">RÉESSAYER</string>
     <string name="see_them">TERMINÉ</string>
     <string name="drag_tip_text">Touche longuement un pack pour réorganiser tes packs de stickers</string>
     <string name="drag_tip_subtext">Touche et fais glisser pour réorganiser tes stickers</string>

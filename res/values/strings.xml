@@ -1188,7 +1188,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="sticker_shop">Sticker Shop</string>
     <string name="my_stickers">My Stickers</string>
     <string name="update_all">UPDATE ALL</string>
-    <string name="retry_sticker">RETRY</string>
+    <string name="RETRY">RETRY</string>
     <string name="see_them">DONE</string>
     <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
     <string name="drag_tip_subtext">Tap and drag to reorder your stickers</string>

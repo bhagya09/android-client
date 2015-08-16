@@ -1200,7 +1200,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     	if (mBtnOkCmd == ButtonOkCommand.CONTINUE) 
     	{
     		mIsRetryBtnVisible = true;
-    		mBtnCancel.setText(R.string.retry);
+    		mBtnCancel.setText(R.string.RETRY);
     		mBtnCancel.setOnClickListener(mBtnRetryOnClickListener);
     	}
     }
@@ -1210,7 +1210,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     	if (mBtnOkCmd == ButtonOkCommand.CONTINUE) 
     	{
     		mIsRetryBtnVisible = false;
-    		mBtnCancel.setText(android.R.string.cancel);
+    		mBtnCancel.setText(R.string.CANCEL);
     		mBtnCancel.setOnClickListener(mBtnCancelOnClickListener);
     	}
     }
