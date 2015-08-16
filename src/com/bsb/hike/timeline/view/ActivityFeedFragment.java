@@ -137,6 +137,8 @@ public class ActivityFeedFragment extends Fragment implements Listener
 				@Override
 				public void run()
 				{
+					Logger.d("tl_", "The no of feeds are " + result.getCount());
+					
 					if(result != null && result.getCount() > 0)
 					{
 						if (activityFeedCardAdapter == null)

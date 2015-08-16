@@ -667,6 +667,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			final JSONObject response = (JSONObject) result.getBody().getContent();
 
+			Logger.d("tl_", "responce from http call "+ response);
+			
 			if (Utils.isResponseValid(response))
 			{
 				TimelineActions actionsData = gson.fromJson(response.toString(), TimelineActions.class);
@@ -689,6 +691,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		public void onRequestFailure(HttpException httpException)
 		{
 			// Do nothing
+			Logger.d("tl_", "responce from http call failed "+ httpException.toString());
 		}
 	};
 

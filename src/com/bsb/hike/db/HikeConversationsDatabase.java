@@ -1464,10 +1464,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if (feedData.getActionType() == ActionTypes.LIKE)
 		{
 			isUpdated = addActivityLike(feedData);
+			Logger.d("tl_", "Adding Like into DB " + feedData);
 		}
 		else if (feedData.getActionType() == ActionTypes.UNLIKE)
 		{
 			isUpdated = deleteActivityLike(feedData);
+			Logger.d("tl_", "removing Like from DB " + feedData);
 		}
 		else if (feedData.getActionType() == ActionTypes.VIEW)
 		{
@@ -1768,6 +1770,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String where = DBConstants.READ + " = 0 ";
 		long rowID = mDb.update(DBConstants.FEED_TABLE, conVal, where, null);
 
+		Logger.d("tl_", "The no of feeds marked as read " + rowID);
+		
 		if (rowID == -1L)
 		{
 			isComplete = false;
