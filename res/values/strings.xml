@@ -843,10 +843,9 @@
     <string name="last_seen_proper_casing">Last Seen</string>
     <string name="status_updates_proper_casing">Status Updates</string>
     <string name="bigger_better_attachments">Bigger, better attachments</string>
-    <string name="alp_42447968_cmd_confirm">Confirm</string>
-    <string name="alp_42447968_cmd_continue">Continue</string>
+    <string name="CONFIRM">CONFIRM</string>
+    <string name="CONTINUE">CONTINUE</string>
     <string name="alp_42447968_cmd_forgot_pattern">Forgot pattern?</string>
-    <string name="alp_42447968_cmd_retry">Retry</string>
     <string name="alp_42447968_loading">Loading…</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Cell added</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Pattern cleared</string>
@@ -1188,7 +1187,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="sticker_shop">Sticker Shop</string>
     <string name="my_stickers">My Stickers</string>
     <string name="update_all">UPDATE ALL</string>
-    <string name="retry_sticker">RETRY</string>
+    <string name="RETRY">RETRY</string>
     <string name="see_them">DONE</string>
     <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
     <string name="drag_tip_subtext">Tap and drag to reorder your stickers</string>
@@ -1602,4 +1601,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="YES">YES</string>
     <string name="NO">NO</string>
     <string name="DELETE">DELETE</string>
+    <string name="HIDDEN_MODE">HIDDEN MODE</string>
+    <string name="EDIT">EDIT</string>
+    <string name="ALLOW">ALLOW</string>
 </resources>

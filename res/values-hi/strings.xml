@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">अंतिम बार दिखे</string>
     <string name="status_updates_proper_casing">स्थिति अपडेट</string>
     <string name="bigger_better_attachments">बड़े, बेहतर संलग्नक</string>
-    <string name="alp_42447968_cmd_confirm">पुष्टि करे</string>
-    <string name="alp_42447968_cmd_continue">जारी रखें</string>
+    <string name="CONFIRM">पुष्टि करे</string>
+    <string name="CONTINUE">जारी रखें</string>
     <string name="alp_42447968_cmd_forgot_pattern">पैटर्न भूल गए?</string>
-    <string name="alp_42447968_cmd_retry">फिर से कोशिश करें</string>
     <string name="alp_42447968_loading">लोड हो रहा है…</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">सेल जोड़ा गया</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">पैटर्न साफ़ किया गया</string>
@@ -1194,7 +1193,7 @@
     <string name="sticker_shop">स्टिकर की दुकान</string>
     <string name="my_stickers">मेरे स्टिकर</string>
     <string name="update_all">सभी अद्यतन करें</string>
-    <string name="retry_sticker">पुनः प्रयास करें</string>
+    <string name="RETRY">पुनः प्रयास करें</string>
     <string name="see_them">संपन्न</string>
     <string name="drag_tip_text">अपने स्टिकर पैक को पुनः व्यवस्थित करने के लिए पैक पर टैप करके होल्ड करें</string>
     <string name="drag_tip_subtext">अपने स्टिकर पुनः व्यवस्थित करने के लिए टैप करें और खींचें</string>
