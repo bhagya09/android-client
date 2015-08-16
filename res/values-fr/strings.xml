@@ -848,7 +848,6 @@
     <string name="CONFIRM">CONFIRMER</string>
     <string name="CONTINUE">CONTINUER</string>
     <string name="alp_42447968_cmd_forgot_pattern">Schéma oublié ?</string>
-    <string name="alp_42447968_cmd_retry">Réessayer</string>
     <string name="alp_42447968_loading">Chargement...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Téléphone ajouté</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Schéma annulé</string>

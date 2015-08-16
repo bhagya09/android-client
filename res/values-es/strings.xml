@@ -848,7 +848,6 @@
     <string name="CONFIRM">CONFIRMAR</string>
     <string name="CONTINUE">CONTINUAR</string>
     <string name="alp_42447968_cmd_forgot_pattern">¿Has olvidado el patrón?</string>
-    <string name="alp_42447968_cmd_retry">Reintentar</string>
     <string name="alp_42447968_loading">Cargando...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Número de teléfono añadido</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Patrón borrado</string>

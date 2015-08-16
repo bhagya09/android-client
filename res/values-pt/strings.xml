@@ -848,7 +848,6 @@
     <string name="CONFIRM">CONFIRMAR</string>
     <string name="CONTINUE">CONTINUAR</string>
     <string name="alp_42447968_cmd_forgot_pattern">Esqueceu o padrão?</string>
-    <string name="alp_42447968_cmd_retry">Tentar novamente</string>
     <string name="alp_42447968_loading">Carregando...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Celular adicionado</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Padrão removido</string>

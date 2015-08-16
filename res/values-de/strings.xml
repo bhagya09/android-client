@@ -848,7 +848,6 @@
     <string name="CONFIRM">BESTÄTIGEN</string>
     <string name="CONTINUE">WEITER</string>
     <string name="alp_42447968_cmd_forgot_pattern">Muster vergessen?</string>
-    <string name="alp_42447968_cmd_retry">Erneut versuchen</string>
     <string name="alp_42447968_loading">Lädt...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Handy hinzugefügt</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Muster gelöscht</string>

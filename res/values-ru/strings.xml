@@ -848,7 +848,6 @@
     <string name="CONFIRM">ПОДТВ.</string>
     <string name="CONTINUE">ПРОДОЛЖИТЬ</string>
     <string name="alp_42447968_cmd_forgot_pattern">Забыли рисунок?</string>
-    <string name="alp_42447968_cmd_retry">Повторить</string>
     <string name="alp_42447968_loading">Загрузка...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Сотовый добавлен</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Рисунок стерт</string>
