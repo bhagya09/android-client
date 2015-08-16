@@ -23,4 +23,6 @@ public interface IStickerSearchListener
 	public void clearSearchText();
 	
 	public void selectSearchText();
+
+	public boolean isStickerRecommendationPopupShowing();
 }
