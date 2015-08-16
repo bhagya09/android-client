@@ -743,7 +743,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                 mBtnConfirm.setText(R.string.CONTINUE);
                 break;
             case DONE:
-                mBtnConfirm.setText(R.string.alp_42447968_cmd_confirm);
+                mBtnConfirm.setText(R.string.CONFIRM);
                 break;
             default:
                 /*
@@ -1241,7 +1241,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     } else {
                     	mTextInfo.setText(R.string.stealth_msg_redraw_pattern_to_confirm);
                     }
-                    mBtnConfirm.setText(R.string.alp_42447968_cmd_confirm);
+                    mBtnConfirm.setText(R.string.CONFIRM);
                     mBtnConfirm.setEnabled(false);
                     mIsRetryBtnVisible = null;
                 } else {

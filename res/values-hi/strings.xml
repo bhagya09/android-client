@@ -845,7 +845,7 @@
     <string name="last_seen_proper_casing">अंतिम बार दिखे</string>
     <string name="status_updates_proper_casing">स्थिति अपडेट</string>
     <string name="bigger_better_attachments">बड़े, बेहतर संलग्नक</string>
-    <string name="alp_42447968_cmd_confirm">पुष्टि करे</string>
+    <string name="CONFIRM">पुष्टि करे</string>
     <string name="CONTINUE">जारी रखें</string>
     <string name="alp_42447968_cmd_forgot_pattern">पैटर्न भूल गए?</string>
     <string name="alp_42447968_cmd_retry">फिर से कोशिश करें</string>
