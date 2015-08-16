@@ -81,7 +81,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private ViewGroup moodParent;
 
-	private ImageView avatar;
+	private RoundedImageView avatar;
 
 	private CustomFontEditText statusTxt;
 
@@ -243,7 +243,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		});
 
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
-
+		
+		statusTxt.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View arg0)
+			{
+				setEmoticonButtonSelected(false);
+			}
+		});
+		
 		initEmoticonPicker();
 		
 		if (mActivityTask.emojiShowing)
@@ -285,7 +294,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		emojiParent = (ViewGroup) findViewById(R.id.emoji_container);
 		moodParent = (ViewGroup) findViewById(R.id.mood_parent_status);
-		avatar = (ImageView) findViewById(R.id.avatar);
+		avatar = (RoundedImageView) findViewById(R.id.avatar);
 		statusTxt = (CustomFontEditText) findViewById(R.id.status_txt);
 		parentLayout = (CustomLinearLayout) findViewById(R.id.parent_layout);
 		statusImage = (ImageView) findViewById(R.id.status_image);
@@ -399,7 +408,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			Utils.hideSoftKeyboard(this, statusTxt);
 			mActivityTask.emojiShowing = true;
 			showCancelButton(false);
-			setEmoticonButtonSelected(false);
+			setEmoticonButtonSelected(true);
 		}
 		else
 		{
@@ -507,6 +516,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mActivityTask.emojiShowing = false;
 			mEmoticonPicker.dismiss();
+			setEmoticonButtonSelected(false);
 		}
 		toggleEnablePostButton();
 
@@ -592,6 +602,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mActivityTask.moodIndex = moodIndex;
 
 		avatar.setImageResource(EmoticonConstants.moodMapping.get(moodId));
+		avatar.setOval(false);
 
 		String[] moodsArray = getResources().getStringArray(R.array.mood_headings);
 		statusTxt.setHint(moodsArray[moodIndex]);
