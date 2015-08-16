@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -35,10 +34,12 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.MoodAdapter;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
@@ -81,7 +82,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private ViewGroup moodParent;
 
-	private ImageView avatar;
+	private RoundedImageView avatar;
 
 	private CustomFontEditText statusTxt;
 
@@ -196,6 +197,17 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		avatar.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(selfMsisdn, false));
 
 		mIconImageLoader.loadImage(selfMsisdn, avatar, false, true, false);
+		mIconImageLoader.setSuccessfulImageLoadingListener(new SuccessfulImageLoadingListener()
+		{
+			@Override
+			public void onSuccessfulImageLoaded(ImageView imageView)
+			{
+				if (imageView.getDrawable() != null)
+				{
+					ChatThreadUtils.applyMatrixTransformationToImageView(imageView.getDrawable(), imageView);
+				}
+			}
+		});
 
 		parentLayout.setOnSoftKeyboardListener(this);
 
@@ -232,22 +244,31 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		});
 
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
-
+		
+		statusTxt.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View arg0)
+			{
+				setEmoticonButtonSelected(false);
+			}
+		});
+		
 		initEmoticonPicker();
 		
 		if (mActivityTask.emojiShowing)
 		{
 			sendUIMessage(SHOW_EMOJI_PALETTE, null);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 		else if (mActivityTask.moodShowing)
 		{
 			showMoodSelector();
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 		else if (TextUtils.isEmpty(mImagePath) || mActivityTask.keyboardShowing)
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 
 		toggleEnablePostButton();
@@ -274,7 +295,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		emojiParent = (ViewGroup) findViewById(R.id.emoji_container);
 		moodParent = (ViewGroup) findViewById(R.id.mood_parent_status);
-		avatar = (ImageView) findViewById(R.id.avatar);
+		avatar = (RoundedImageView) findViewById(R.id.avatar);
 		statusTxt = (CustomFontEditText) findViewById(R.id.status_txt);
 		parentLayout = (CustomLinearLayout) findViewById(R.id.parent_layout);
 		statusImage = (ImageView) findViewById(R.id.status_image);
@@ -291,12 +312,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (mActivityTask.moodShowing || mActivityTask.emojiShowing)
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 
 		else
 		{
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 		
 		if(!TextUtils.isEmpty(mImagePath) && isFinishing())
@@ -395,7 +416,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			Utils.hideSoftKeyboard(this, statusTxt);
 			mActivityTask.emojiShowing = true;
 			showCancelButton(false);
-			setEmoticonButtonSelected(false);
+			setEmoticonButtonSelected(true);
 		}
 		else
 		{
@@ -451,11 +472,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mActivityTask.imageDeleted = true;
 		mImagePath = null;
 		toggleEnablePostButton();
-		if (shouldShowMoodsButton())
-		{
-			addMoodLayout.setVisibility(View.VISIBLE);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-		}
 	}
 
 	@Override
@@ -508,6 +524,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mActivityTask.emojiShowing = false;
 			mEmoticonPicker.dismiss();
+			setEmoticonButtonSelected(false);
 		}
 		toggleEnablePostButton();
 
@@ -593,6 +610,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mActivityTask.moodIndex = moodIndex;
 
 		avatar.setImageResource(EmoticonConstants.moodMapping.get(moodId));
+		avatar.setOval(false);
 
 		String[] moodsArray = getResources().getStringArray(R.array.mood_headings);
 		statusTxt.setHint(moodsArray[moodIndex]);
