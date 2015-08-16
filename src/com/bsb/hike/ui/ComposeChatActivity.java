@@ -1856,7 +1856,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								startActivity(intent);
 					      		finish();
 							}
-						}, contact, getString(R.string.send), false);
+						}, contact, getString(R.string.send_uppercase), false);
 					}
 
 				}
