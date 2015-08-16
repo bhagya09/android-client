@@ -2333,8 +2333,11 @@ public class MqttMessagesManager
 		
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
 		{
-			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+			if(Utils.isHoneycombOrHigher())
+			{
+				boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+			}
 		}
 		
 		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME))
