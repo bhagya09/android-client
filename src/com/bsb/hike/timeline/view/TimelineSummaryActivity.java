@@ -372,7 +372,7 @@ public class TimelineSummaryActivity extends AppCompatActivity implements OnClic
 
 		if (isTextStatusMessage)
 		{
-			imageInfoDivider.setVisibility(View.GONE);
+			imageInfoDivider.setBackgroundColor(0x14000000);
 			textViewCaption.setVisibility(View.GONE);
 		}
 		else
