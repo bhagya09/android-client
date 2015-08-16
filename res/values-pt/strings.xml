@@ -846,7 +846,7 @@
     <string name="status_updates_proper_casing">Atualiz. de status</string>
     <string name="bigger_better_attachments">Anexos maiores e melhores</string>
     <string name="alp_42447968_cmd_confirm">Confirmar</string>
-    <string name="alp_42447968_cmd_continue">Continuar</string>
+    <string name="CONTINUE">CONTINUAR</string>
     <string name="alp_42447968_cmd_forgot_pattern">Esqueceu o padrão?</string>
     <string name="alp_42447968_cmd_retry">Tentar novamente</string>
     <string name="alp_42447968_loading">Carregando...</string>

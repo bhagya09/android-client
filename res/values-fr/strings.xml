@@ -846,7 +846,7 @@
     <string name="status_updates_proper_casing">Mises à j. du statut</string>
     <string name="bigger_better_attachments">Pièces jointes plus volumineuses à la prise en charge améliorée</string>
     <string name="alp_42447968_cmd_confirm">Confirmer</string>
-    <string name="alp_42447968_cmd_continue">Continuer</string>
+    <string name="CONTINUE">CONTINUER</string>
     <string name="alp_42447968_cmd_forgot_pattern">Schéma oublié ?</string>
     <string name="alp_42447968_cmd_retry">Réessayer</string>
     <string name="alp_42447968_loading">Chargement...</string>
