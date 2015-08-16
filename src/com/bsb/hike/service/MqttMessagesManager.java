@@ -2345,7 +2345,6 @@ public class MqttMessagesManager
 			// Turn on auto-suggestion of stickers
 			if (autoRecommendationTurningOn)
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED, true);
 				// Remove previous observations for turning off, if any
 				StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
 
@@ -2378,7 +2377,6 @@ public class MqttMessagesManager
 				// Turn off auto-suggestion of stickers, if no pattern is recognized in packet or rejection count is zero (no-tolerance)
 				else
 				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED, false);
 					// Remove previous observations for turning off, if any
 					StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
 
