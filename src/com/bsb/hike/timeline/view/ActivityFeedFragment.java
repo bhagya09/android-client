@@ -136,7 +136,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 				@Override
 				public void run()
 				{
-					if(result.getCount() > 0)
+					if(result != null && result.getCount() > 0)
 					{
 						if (activityFeedCardAdapter == null)
 						{
