@@ -238,6 +238,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				{
 					statusMessages.add(startIndex, statusMessage);
 					timelineCardsAdapter.notifyDataSetChanged();
+					Logger.d("tl_", "list of SUs after pubsub TIMELINE_UPDATE_RECIEVED " + statusMessage);
 				}
 			});
 			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
@@ -431,6 +432,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
 
+				Logger.d("tl_", "list of friends from CM before filter" + friendsList);
+				
 				ArrayList<String> msisdnList = new ArrayList<String>();
 
 				for (ContactInfo contactInfo : friendsList)
@@ -446,6 +449,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 				friendMsisdns = new String[msisdnList.size()];
 				msisdnList.toArray(friendMsisdns);
+				Logger.d("tl_", "list of friends after filter whose SU we are fetching " + friendMsisdns);
 			}
 
 			List<StatusMessage> statusMessages = null;
@@ -471,6 +475,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				return;
 			}
 
+			Logger.d("tl_", "list of SUs to show on Timeline " + result);
 			final ArrayList<String> suIDList = new ArrayList<String>();
 
 			for (StatusMessage suMessage : result)
@@ -527,6 +532,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			}
 
 			statusMessages.addAll(result);
+			
+			Logger.d("tl_"+getClass().getSimpleName(), "list of SUs after protip on Timeline " + statusMessages);
+			
 			Logger.d(getClass().getSimpleName(), "Updating...");
 
 			if (shouldAddFTUEItem())
