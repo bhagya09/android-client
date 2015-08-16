@@ -136,33 +136,41 @@ public class ActivityFeedFragment extends Fragment implements Listener
 				@Override
 				public void run()
 				{
-					if (activityFeedCardAdapter == null)
+					if(result != null && result.getCount() > 0)
 					{
-						activityFeedCardAdapter = new ActivityFeedCursorAdapter(getActivity(), result, 0);
-						mActivityFeedRecyclerView.setAdapter(activityFeedCardAdapter);
-						HikeMessengerApp.getPubSub().addListeners(ActivityFeedFragment.this, pubSubListeners);
-					}
-					else
-					{
-						activityFeedCardAdapter.swapCursor(result);
-					}
-
-					/**
-					 * Added this check as to ensure that this call for updating read status only when screen is shown to user i.e in post execute, fragment is Added and visible
-					 */
-					if (isAdded() && isVisible())
-					{
-						UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
-
-						if (Utils.isHoneycombOrHigher())
+						if (activityFeedCardAdapter == null)
 						{
-							updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+							activityFeedCardAdapter = new ActivityFeedCursorAdapter(getActivity(), result, 0);
+							mActivityFeedRecyclerView.setAdapter(activityFeedCardAdapter);
+							HikeMessengerApp.getPubSub().addListeners(ActivityFeedFragment.this, pubSubListeners);
 						}
 						else
 						{
-							updateActivityFeedTask.execute();
+							activityFeedCardAdapter.swapCursor(result);
+						}
+
+						/**
+						 * Added this check as to ensure that this call for updating read status only when screen is shown to user i.e in post execute, fragment is Added and visible
+						 */
+						if (isAdded() && isVisible())
+						{
+							UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
+
+							if (Utils.isHoneycombOrHigher())
+							{
+								updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+							}
+							else
+							{
+								updateActivityFeedTask.execute();
+							}
 						}
 					}
+					else
+					{
+						getActivity().onBackPressed();
+					}
+					
 				}
 			});
 		}
