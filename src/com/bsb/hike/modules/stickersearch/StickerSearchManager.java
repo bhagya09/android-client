@@ -343,6 +343,10 @@ public class StickerSearchManager
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
 		if (!onTouch && !showAutopopupSettingOn)
 		{
+			if (listener != null)
+			{
+				listener.dismissStickerSearchPopup();
+			}
 			return;
 		}
 
