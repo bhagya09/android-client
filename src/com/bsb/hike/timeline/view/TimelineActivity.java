@@ -457,6 +457,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		Utils.resetUnseenStatusCount(this);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		super.onResume();
 	}
 
