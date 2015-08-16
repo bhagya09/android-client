@@ -1118,7 +1118,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="add_recipients">ADD RECIPIENTS</string>
     <string name="stealth_info_tip_header">Hidden Mode</string>
     <string name="file_missing_caps">FILE MISSING</string>
-    <string name="status_profile_pic_notification">changed profile picture</string>
+    <string name="status_profile_pic_notification">Changed profile picture</string>
     <string name="group_admin">Admin</string>
     <string name="favorite_request_pending">Added as favorite</string>
     <string name="delete_media_from_sdcard">Delete media from phone</string>

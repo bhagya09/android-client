@@ -2583,7 +2583,7 @@ public class MqttMessagesManager
 				if (!isBulkMessage) // do not autodownload in case of bulkmessage
 				{
 					Logger.d(DP_DOWNLOAD_TAG, "Received SU Packet, going to download");
-					autoDownloadProfileImage(statusMessage, true);
+					autoDownloadProfileImage(statusMessage,true);
 				}
 			}
 		}
@@ -3678,6 +3678,20 @@ public class MqttMessagesManager
 					}
 
 					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
+					
+					//Saving count to file to display the counter at home screen
+					HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+							if(count != -1)
+							{
+								HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
+							}
+						}
+					});
 
 					if (isSuccess)
 					{

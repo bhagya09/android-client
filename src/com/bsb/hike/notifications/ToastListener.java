@@ -193,13 +193,31 @@ public class ToastListener implements Listener
 			{
 				return;
 			}
+	
 			/*
 			 * this object contains a Bundle containing 3 strings among which one is imagepath of downloaded avtar. and other two are msisdn and name from which notification has
 			 * come.
 			 */
 			Bundle notifyBundle = (Bundle) object;
-			toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.IMAGE_PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
-					notifyBundle.getString(HikeConstants.Extras.NAME), NotificationType.DPUPDATE);
+			
+			String statusId = notifyBundle.getString(HikeConstants.STATUS_ID,null);
+			
+			if(!TextUtils.isEmpty(statusId))
+			{
+				StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(statusId);
+				if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+				{
+					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.IMAGE_PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
+							notifyBundle.getString(HikeConstants.Extras.NAME), NotificationType.IMAGE_POST);
+				}
+				else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+				{
+					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.IMAGE_PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
+							notifyBundle.getString(HikeConstants.Extras.NAME), NotificationType.DPUPDATE);
+				}
+			}
+			
+			
 		}
 		else if (HikePubSub.PUSH_FILE_DOWNLOADED.equals(type) || HikePubSub.PUSH_STICKER_DOWNLOADED.equals(type))
 		{

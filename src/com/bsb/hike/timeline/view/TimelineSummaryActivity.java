@@ -150,6 +150,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	private HikeImageDownloader mImageDownloader;
 
 	private ContactInfo profileContactInfo;
+	
+	private boolean isStopped = false;
 
 	public class ActivityState
 	{
@@ -742,6 +744,9 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		@Override
 		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)
 		{
+			buttonView.setEnabled(false);
+			buttonView.setClickable(false);
+
 			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
 
 			JSONObject json = new JSONObject();
@@ -755,9 +760,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				e.printStackTrace();
 			}
 
-			ContactInfo userInfo = Utils.getUserContactInfo(false);
 			profileContactInfo = ContactManager.getInstance().getContact(statusMessage.getMsisdn(), true, true);
-			
+
 			// First check if user is friends with msisdn
 			if (profileContactInfo.getFavoriteType() != FavoriteType.FRIEND && !Utils.isSelfMsisdn(profileContactInfo.getMsisdn()))
 			{
@@ -791,7 +795,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 				}, profileContactInfo.getNameOrMsisdn());
 				return;
 			}
-			
+
 			if (isChecked)
 			{
 				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
@@ -816,8 +820,11 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 								isLikedByMe = true;
 
 								msisdns.add(selfMsisdn);
-
-								notifyUI();
+								// UI work
+								if (!isStopped)
+								{
+									notifyUI();
+								}
 
 								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
 										statusMessage.getMappedId());
@@ -827,8 +834,12 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 						}
 						finally
 						{
-							buttonView.setEnabled(true);
-							buttonView.setClickable(true);
+							// UI work
+							if (!isStopped)
+							{
+								buttonView.setEnabled(true);
+								buttonView.setClickable(true);
+							}
 						}
 					}
 
@@ -842,14 +853,18 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
-						buttonView.setEnabled(true);
-						buttonView.setClickable(true);
-						toggleCompButtonState(buttonView, onLoveToggleListener);
+
+						// UI work
+						if (!isStopped)
+						{
+							buttonView.setEnabled(true);
+							buttonView.setClickable(true);
+							toggleCompButtonState(buttonView, onLoveToggleListener);
+						}
 					}
-				});
+				}, statusMessage.getMappedId());
 				token.execute();
-				buttonView.setEnabled(false);
-				buttonView.setClickable(false);
+
 			}
 			else
 			{
@@ -876,18 +891,26 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 								msisdns.remove(selfMsisdn);
 
-								notifyUI();
-
 								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
 										statusMessage.getMappedId());
 
 								HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, newFeed);
+
+								// UI work
+								if (!isStopped)
+								{
+									notifyUI();
+								}
 							}
 						}
 						finally
 						{
-							buttonView.setEnabled(true);
-							buttonView.setClickable(true);		
+							// UI work
+							if (!isStopped)
+							{
+								buttonView.setEnabled(true);
+								buttonView.setClickable(true);
+							}
 						}
 					}
 
@@ -901,14 +924,18 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
-						buttonView.setEnabled(true);
-						buttonView.setClickable(true);
-						toggleCompButtonState(buttonView, onLoveToggleListener);
+
+						// UI work
+						if (!isStopped)
+						{
+							buttonView.setEnabled(true);
+							buttonView.setClickable(true);
+							toggleCompButtonState(buttonView, onLoveToggleListener);
+						}
 					}
-				});
+				}, statusMessage.getMappedId());
 				token.execute();
-				buttonView.setEnabled(false);
-				buttonView.setClickable(false);
+
 			}
 		}
 	};
@@ -919,6 +946,13 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		argButton.setOnCheckedChangeListener(null);
 		argButton.toggle();
 		argButton.setOnCheckedChangeListener(argListener);
+	}
+
+	@Override
+	protected void onStop()
+	{
+		isStopped  = true;
+		super.onStop();
 	}
 	
 	@Override

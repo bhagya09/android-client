@@ -8,11 +8,14 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -176,6 +179,8 @@ public class HikeImageDownloader extends HikeImageWorker
 			bundle.putString(HikeConstants.Extras.IMAGE_PATH, this.fileName);
 			bundle.putString(HikeConstants.Extras.MSISDN, this.msisdn);
 			bundle.putString(HikeConstants.Extras.NAME, this.name);
+			bundle.putString(HikeConstants.STATUS_ID, this.id);
+
 			HikeMessengerApp.getPubSub().publish(HikePubSub.PUSH_AVATAR_DOWNLOADED, bundle);
 		}
 		

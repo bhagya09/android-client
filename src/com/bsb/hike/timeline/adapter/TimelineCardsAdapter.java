@@ -258,6 +258,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private HikeImageDownloader mImageDownloader;
 
 	private ContactInfo profileContactInfo;
+	
+	private boolean isDestroyed = false;
 
 	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn, List<ContactInfo> ftueFriendList, LoaderManager loadManager,
 			FragmentManager fragManager, boolean showUserProfile, ArrayList<String> filterMsisdns)
@@ -1079,7 +1081,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
-						Toast.makeText(mContext, R.string.delete_status_error, Toast.LENGTH_LONG);
+						Toast.makeText(mContext, R.string.delete_status_error, Toast.LENGTH_LONG).show();
 						if (hikeDialog != null && hikeDialog.isShowing())
 						{
 							hikeDialog.dismiss();
@@ -1314,7 +1316,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			buttonView.setEnabled(false);
 			buttonView.setClickable(false);
-			
+
 			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
 
 			JSONObject json = new JSONObject();
@@ -1367,7 +1369,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					return;
 				}
 			}
-			
+
 			if (isChecked)
 			{
 				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
@@ -1394,13 +1396,21 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 								TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(newFeed);
 
-								notifyDataSetChanged();
+								// UI actions
+								if (!isDestroyed)
+								{
+									notifyDataSetChanged();
+								}
 							}
 						}
 						finally
 						{
-							buttonView.setEnabled(true);
-							buttonView.setClickable(true);
+							// UI actions
+							if (!isDestroyed)
+							{
+								buttonView.setEnabled(true);
+								buttonView.setClickable(true);
+							}
 						}
 					}
 
@@ -1414,11 +1424,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
-						buttonView.setEnabled(true);
-						buttonView.setClickable(true);
-						toggleCompButtonState(buttonView, onLoveToggleListener);
+
+						// UI actions
+						if (!isDestroyed)
+						{
+							buttonView.setEnabled(true);
+							buttonView.setClickable(true);
+							toggleCompButtonState(buttonView, onLoveToggleListener);
+						}
 					}
-				});
+				},statusMessage.getMappedId());
 				token.execute();
 			}
 			else
@@ -1446,14 +1461,22 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 										statusMessage.getMappedId());
 
 								TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(newFeed);
-								
-								notifyDataSetChanged();
+
+								// UI actions
+								if (!isDestroyed)
+								{
+									notifyDataSetChanged();
+								}
 							}
 						}
 						finally
 						{
-							buttonView.setEnabled(true);
-							buttonView.setClickable(true);
+							// UI actions
+							if (!isDestroyed)
+							{
+								buttonView.setEnabled(true);
+								buttonView.setClickable(true);
+							}
 						}
 					}
 
@@ -1467,17 +1490,21 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					public void onRequestFailure(HttpException httpException)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
-						buttonView.setEnabled(true);
-						buttonView.setClickable(true);
-						toggleCompButtonState(buttonView, onLoveToggleListener);
+
+						// UI actions
+						if (!isDestroyed)
+						{
+							buttonView.setEnabled(true);
+							buttonView.setClickable(true);
+							toggleCompButtonState(buttonView, onLoveToggleListener);
+						}
 					}
-				});
+				},statusMessage.getMappedId());
 				token.execute();
 			}
 		}
 	};
 
-	
 	private void toggleCompButtonState(CompoundButton argButton,OnCheckedChangeListener argListener)
 	{
 		//unlink-relink onchange listener
@@ -1657,5 +1684,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.FAVORITE_TOGGLED);
 		HikeMessengerApp.getPubSub().removeListeners(this, HikePubSub.DELETE_STATUS);
+		
+		// For any async tasks which completes after user goes away from this adapter
+		isDestroyed = true;
 	}
 }

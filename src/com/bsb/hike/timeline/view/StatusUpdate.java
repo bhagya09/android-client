@@ -345,7 +345,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			@Override
 			public void onClick(View v)
 			{
-				releaseEmoticon();
 				postStatus();
 			}
 		});
@@ -484,7 +483,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			}
 			else
 			{
-				releaseEmoticon();
 				super.onBackPressed();
 			}
 		}
