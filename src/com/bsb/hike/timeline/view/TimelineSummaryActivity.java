@@ -373,7 +373,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		if (isTextStatusMessage)
 		{
-			imageInfoDivider.setVisibility(View.GONE);
+			imageInfoDivider.setBackgroundColor(0x14000000);
 			textViewCaption.setVisibility(View.GONE);
 		}
 		else
