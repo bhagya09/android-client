@@ -9,7 +9,7 @@
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="#FFFFFFFF"
         card_view:cardCornerRadius="2dp"
         card_view:cardElevation="1dp"
         card_view:cardUseCompatPadding="true" >
