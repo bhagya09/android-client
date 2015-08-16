@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:padding="20dp"
-        android:layout_marginRight="10dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:background="@drawable/timeline_tab_selector"
