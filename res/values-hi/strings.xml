@@ -1198,7 +1198,6 @@
     <string name="drag_tip_text">अपने स्टिकर पैक को पुनः व्यवस्थित करने के लिए पैक पर टैप करके होल्ड करें</string>
     <string name="drag_tip_subtext">अपने स्टिकर पुनः व्यवस्थित करने के लिए टैप करें और खींचें</string>
     <string name="CANCEL">रद्द करें</string>
-    <string name="CONFIRM">पुष्टि करें</string>
     <string name="n_more">%1$d अधिक</string>
     <string name="n_stickers">%1$d स्टिकर</string>
     <string name="last_backup">पिछला बैकअप</string>

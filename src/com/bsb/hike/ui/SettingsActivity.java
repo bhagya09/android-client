@@ -38,7 +38,6 @@ import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -239,6 +238,17 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 				}
 				return convertView;
+			}
+			
+			@Override
+			public boolean isEnabled(int position)
+			{
+				if (getItemViewType(position) == ViewType.VERSION.ordinal())
+				{
+					return false;
+				}
+				
+				return super.isEnabled(position);
 			}
 
 		};

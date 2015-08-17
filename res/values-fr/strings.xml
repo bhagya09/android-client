@@ -1198,7 +1198,6 @@
     <string name="drag_tip_text">Touche longuement un pack pour réorganiser tes packs de stickers</string>
     <string name="drag_tip_subtext">Touche et fais glisser pour réorganiser tes stickers</string>
     <string name="CANCEL">ANNULER</string>
-    <string name="CONFIRM">CONFIRMER</string>
     <string name="n_more">%1$d DE PLUS</string>
     <string name="n_stickers">%1$d stickers</string>
     <string name="last_backup">Dernière sauvegarde</string>
