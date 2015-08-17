@@ -2351,7 +2351,7 @@ public class MqttMessagesManager
 
 				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
 				{
-					StickerSearchUtility.saveSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+					StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
 
 					StickerSearchManager.getInstance().setShowAutoPopupSettingOn(true);
 				}
@@ -2373,7 +2373,6 @@ public class MqttMessagesManager
 							autoRecommendationRejectionPatternCount);
 
 					StickerSearchManager.getInstance().setShowAutoPopupTurnOffPattern(autoRecommendationContinuousRejectionCount, autoRecommendationRejectionPatternCount);
-
 				}
 				// Turn off auto-suggestion of stickers, if no pattern is recognized in packet or rejection count is zero (no-tolerance)
 				else
@@ -2383,7 +2382,7 @@ public class MqttMessagesManager
 
 					if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
 					{
-						StickerSearchUtility.saveSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+						StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
 
 						StickerSearchManager.getInstance().setShowAutoPopupSettingOn(false);
 					}
