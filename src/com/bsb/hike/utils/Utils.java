@@ -1492,7 +1492,11 @@ public class Utils
 
 	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri)
 	{
-
+		if(uri == null)
+		{
+			Toast.makeText(mContext, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			return null;
+		}
 		String fileUriString = uri.toString();
 		String fileUriStart = "file:";
 
@@ -3387,8 +3391,18 @@ public class Utils
 				jObject = null;
 			}
 		};
-		RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
-		token.execute();
+		
+		if (TextUtils.isEmpty(url))
+		{
+			jObject = null;
+			return jObject;
+		}
+		
+		else
+		{
+			RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
+			token.execute();
+		}
 		return jObject;
 	}
 

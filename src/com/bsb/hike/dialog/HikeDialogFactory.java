@@ -517,7 +517,7 @@ public class HikeDialogFactory
 		else
 		{
 			hikeDialog.setNegativeButton(R.string.CANCEL, listener);
-			hikeDialog.setPositiveButton(R.string.allow, listener);
+			hikeDialog.setPositiveButton(R.string.ALLOW, listener);
 		}
 
 		hikeDialog.setOnCancelListener(new OnCancelListener()
@@ -900,7 +900,7 @@ public class HikeDialogFactory
 		final CustomAlertDialog alert = new CustomAlertDialog(context, dialogId);
 		alert.setTitle(R.string.location);
 		alert.setMessage((int) data[0]);
-		alert.setPositiveButton(android.R.string.ok, listener);
+		alert.setPositiveButton(R.string.OK, listener);
 		alert.setNegativeButton(R.string.CANCEL, listener);
 		alert.show();
 		

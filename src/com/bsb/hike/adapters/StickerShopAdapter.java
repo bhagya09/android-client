@@ -164,7 +164,7 @@ public class StickerShopAdapter extends CursorAdapter
 			case StickerCategory.RETRY:
 				viewholder.downloadState.setImageLevel(RETRY);
 				viewholder.categoryPrice.setVisibility(View.VISIBLE);
-				viewholder.categoryPrice.setText(context.getResources().getString(R.string.retry_sticker));
+				viewholder.categoryPrice.setText(context.getResources().getString(R.string.RETRY));
 				viewholder.categoryPrice.setTextColor(context.getResources().getColor(R.color.tab_pressed));
 				break;
 			case StickerCategory.DOWNLOADING:

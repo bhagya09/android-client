@@ -3,13 +3,11 @@
     android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
     android:orientation="vertical" >
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
         android:background="@color/white" >
 
         <RelativeLayout
@@ -120,9 +118,15 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/mood_pallete"
             android:layout_alignParentBottom="true"
+            android:orientation="vertical"
             android:animateLayoutChanges="true"
             android:visibility="gone" >
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/black_16" />
+            
             <include layout="@layout/mood_selector_layout" />
         </LinearLayout>
 
@@ -131,7 +135,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:animateLayoutChanges="true"
             android:background="@drawable/timeline_tab_selector"
             android:gravity="center"
             android:onClick="onMoodClick"

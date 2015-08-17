@@ -381,7 +381,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			foregroundScreen.setVisibility(View.VISIBLE);
 			if (mStatusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
 			{
-				textViewCaption.setText(R.string.posted_photo);
+//				textViewCaption.setText(R.string.posted_photo);
+				textViewCaption.setVisibility(View.GONE);
 			}
 			else
 			{

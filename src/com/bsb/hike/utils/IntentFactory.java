@@ -306,6 +306,11 @@ public class IntentFactory
 	public static Intent getGamingIntent(Context context)
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String extraBotMsisdn = prefs.getString(HikeConstants.EXTRAS_BOT_MSISDN, null);
+		if (!TextUtils.isEmpty(extraBotMsisdn) && BotUtils.isBot(extraBotMsisdn) && (BotUtils.getBotInfoForBotMsisdn(extraBotMsisdn)).isNonMessagingBot())
+		{
+			return getNonMessagingBotIntent(extraBotMsisdn, context);
+		}
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
 		String hikeExtrasUrl = prefs.getString(HikeConstants.HIKE_EXTRAS_URL, AccountUtils.gamesUrl);
 
@@ -333,6 +338,11 @@ public class IntentFactory
 	public static Intent getRewardsIntent(Context context)
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String rewardsBotMsisdn = prefs.getString(HikeConstants.REWARDS_BOT_MSISDN, null);
+		if (!TextUtils.isEmpty(rewardsBotMsisdn) && BotUtils.isBot(rewardsBotMsisdn) && (BotUtils.getBotInfoForBotMsisdn(rewardsBotMsisdn)).isNonMessagingBot())
+		{
+			return getNonMessagingBotIntent(rewardsBotMsisdn, context);
+		}
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
 		String rewards_url = prefs.getString(HikeConstants.REWARDS_URL, AccountUtils.rewardsUrl);
 

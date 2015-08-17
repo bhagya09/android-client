@@ -673,7 +673,7 @@ public class HikeNotification
 			showInboxStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 					hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
-					avatarDrawable, hikeNotifMsgStack.getBigTextList(), shouldNotPlaySound, retryCount,isSilentNotification(convMessage));
+					avatarDrawable, hikeNotifMsgStack.getBigTextList(), shouldNotPlaySound, retryCount, (convMessage == null) ? true : isSilentNotification(convMessage));
 		}
 
 		// serializeObject();
@@ -1040,7 +1040,7 @@ public class HikeNotification
 
 		NotificationCompat.Builder mBuilder;
 		mBuilder = null;
-		mBuilder = getNotificationBuilder(key, subMessage, text.toString(), argAvatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
+		mBuilder = getNotificationBuilder(key, TextUtils.isEmpty(subMessage) ? message : subMessage, text.toString(), argAvatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
 		NotificationCompat.InboxStyle inBoxStyle = new NotificationCompat.InboxStyle();
 		inBoxStyle.setBigContentTitle(key);
 		inBoxStyle.setSummaryText(subMessage);

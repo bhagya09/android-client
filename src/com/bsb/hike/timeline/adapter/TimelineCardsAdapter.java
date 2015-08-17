@@ -670,7 +670,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			{
 				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 				{
-					viewHolder.mainInfo.setText(R.string.posted_photo);
+//					viewHolder.mainInfo.setText(R.string.posted_photo);
+					viewHolder.mainInfo.setVisibility(View.GONE);
 				}
 				else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 				{
