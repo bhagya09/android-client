@@ -1198,7 +1198,6 @@
     <string name="drag_tip_text">Tippe ein Paket an und halte es gedrückt, um deine Stickerpakete neu zu sortieren</string>
     <string name="drag_tip_subtext">Tippe und ziehe, um deine Sticker umzusortieren</string>
     <string name="CANCEL">ABBRECHEN</string>
-    <string name="CONFIRM">BESTÄTIGEN</string>
     <string name="n_more">%1$d MEHR</string>
     <string name="n_stickers">%1$d Sticker</string>
     <string name="last_backup">Letzte Datensicherung</string>
