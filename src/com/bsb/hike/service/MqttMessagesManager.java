@@ -80,6 +80,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -2350,7 +2351,7 @@ public class MqttMessagesManager
 
 				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
 				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+					StickerSearchUtility.saveSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
 
 					StickerSearchManager.getInstance().setShowAutoPopupSettingOn(true);
 				}
@@ -2382,7 +2383,7 @@ public class MqttMessagesManager
 
 					if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
 					{
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+						StickerSearchUtility.saveSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
 
 						StickerSearchManager.getInstance().setShowAutoPopupSettingOn(false);
 					}

@@ -1224,8 +1224,6 @@ private void setupToolBar(int titleRes){
 		}
 		else if (HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey()))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, isChecked);
-
 			StickerSearchManager.getInstance().setShowAutoPopupSettingOn(isChecked);
 			StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
 

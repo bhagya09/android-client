@@ -15,6 +15,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
@@ -472,7 +473,7 @@ public class StickerSearchManager
 
 	private void setShowAutoPopupConfiguration()
 	{
-		this.showAutoPopupSettingOn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+		this.showAutoPopupSettingOn = StickerSearchUtility.getSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
 
 		if (this.showAutoPopupSettingOn)
 		{
@@ -544,7 +545,7 @@ public class StickerSearchManager
 				this.autoPopupTurningOffTrailRunning = false;
 				setShowAutoPopupSettingOn(false);
 
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+				StickerSearchUtility.saveSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
 				saveOrDeleteAutoPopupTrialState(true);
 				
 				if(listener != null)

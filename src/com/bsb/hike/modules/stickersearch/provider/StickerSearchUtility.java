@@ -13,11 +13,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
+import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.utils.Utils;
 
+import android.content.SharedPreferences.Editor;
+import android.gesture.Prediction;
+import android.preference.PreferenceManager;
 import android.util.Pair;
 
 public class StickerSearchUtility
@@ -526,5 +531,19 @@ public class StickerSearchUtility
 		{
 			sPatternContainer.clear();
 		}
+	}
+	
+	public static void saveSettingsValue(String key, boolean value)
+	{
+		Editor editor = PreferenceManager.getDefaultSharedPreferences(
+				HikeMessengerApp.getInstance()).edit();
+		editor.putBoolean(key, value);
+		editor.commit();
+	}
+	
+	public static boolean getSettingsValue(String key, boolean defaultvalue)
+	{
+		return PreferenceManager.getDefaultSharedPreferences(
+				HikeMessengerApp.getInstance()).getBoolean(key, defaultvalue);
 	}
 }
