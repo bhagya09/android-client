@@ -625,7 +625,7 @@ public class HikeDialogFactory
 	{
 		final CustomAlertDialog firstConfirmDialog = new CustomAlertDialog(context, dialogId);
 		firstConfirmDialog.setTitle(R.string.are_you_sure);
-		firstConfirmDialog.setMessage(R.string.delete_confirm_msg_1);
+		firstConfirmDialog.setMessage(R.string.delete_account_description);
 		firstConfirmDialog.setPositiveButton(R.string.CONFIRM, listener);
 		firstConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 		firstConfirmDialog.show();
