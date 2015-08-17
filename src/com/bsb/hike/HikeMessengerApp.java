@@ -254,6 +254,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String UNSEEN_STATUS_COUNT = "unseenStatusCount";
 
 	public static final String UNSEEN_USER_STATUS_COUNT = "unseenUserStatusCount";
+	
+	public static final String USER_TIMELINE_ACTIVITY_COUNT = "usertimelineactivitycount";
 
 	public static final String BATCH_STATUS_NOTIFICATION_VALUES = "batchStatusNotificationValues";
 

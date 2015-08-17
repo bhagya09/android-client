@@ -85,6 +85,7 @@
             android:layout_marginRight="25dp"
             android:layout_marginTop="25dp"
             android:background="@drawable/signup_button"
+            android:stateListAnimator="@null" 
             android:contentDescription="Delete Account Button"
             android:onClick="deleteAccountClicked"
             android:text="@string/delete_my_account"
