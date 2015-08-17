@@ -56,7 +56,6 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_neutral"
             style="@style/ButtonCustomDialog"
-            android:padding="0dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="NEUTRAL_BTN"
@@ -71,7 +70,6 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_negative"
             style="@style/ButtonCustomDialog"
-            android:padding="0dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="NEG_BTN"
@@ -80,7 +78,6 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_positive"
             style="@style/ButtonCustomDialog"
-            android:padding="0dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="POS_BTN"

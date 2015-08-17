@@ -6,7 +6,7 @@
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="AppThemeParent">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
