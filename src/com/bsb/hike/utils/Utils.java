@@ -1466,7 +1466,7 @@ public class Utils
 	{
 		if(uri == null)
 		{
-			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
 			return null;
 		}
 		String fileUriString = uri.toString();
