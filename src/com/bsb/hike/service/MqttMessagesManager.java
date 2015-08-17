@@ -4362,7 +4362,7 @@ public class MqttMessagesManager
 		
 		//case 1) if init not show or on top
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_SHOWN, true)
-				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
 		{
 			//just replace these values
 			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
@@ -4391,6 +4391,7 @@ public class MqttMessagesManager
 				if(iterator.hasNext())
 				{
 					currentMsisdn = iterator.next();
+					Logger.d("tl_ftue", "ftue packet, card on top is from SP "+ currentMsisdn);
 				}
 				
 				//add to new list
