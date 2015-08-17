@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -48,6 +50,7 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -114,7 +117,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.gallery);
-
+		statusBarColorID=R.color.black;
 		selectedSharedFileItems = new HashSet<Long>();
 		sharedFilesList = null;
 
@@ -707,5 +710,11 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			setupActionBar();
 		}
 		return isRemoved;
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color)
+	{
+		// TODO Auto-generated method stub
+		return;
 	}
 }

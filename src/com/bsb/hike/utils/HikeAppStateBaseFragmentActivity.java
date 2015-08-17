@@ -39,7 +39,6 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	
 	protected HikeUiHandler uiHandler = new HikeUiHandler (this);
 	
-	
 	/**
 	 * 
 	 * @param msg
@@ -199,13 +198,13 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 				@Override
 				public void run()
 				{
-					openImageViewerFragment(object);
+					openImageViewer(object);
 				}
 			});
 		}
 	}
 	
-	protected void openImageViewerFragment(Object object)
+	protected void openImageViewer(Object object)
 	{
 		return;
 	}

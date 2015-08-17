@@ -487,7 +487,7 @@ public class ChatThreadUtils
 	 * @param drawable
 	 * @param imageView
 	 */
-	protected static void applyMatrixTransformationToImageView(Drawable drawable, ImageView imageView)
+	public static void applyMatrixTransformationToImageView(Drawable drawable, ImageView imageView)
 	{
 		/**
 		 * Drawable width and height
