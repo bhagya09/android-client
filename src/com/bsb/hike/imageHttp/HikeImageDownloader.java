@@ -69,7 +69,11 @@ public class HikeImageDownloader extends HikeImageWorker
 
 	public void startLoadingTask()
 	{
-		String fileName = Utils.getProfileImageFileName(id);
+		//The commented refactoring to be done in next release
+		//if(TextUtils.isEmpty(fileName))
+		//{
+		String fileName= Utils.getProfileImageFileName(id);
+		//}
 		
 		Logger.d(TAG, "executing DownloadProfileImageTask");
 		pathOfTempFile = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + File.separator + Utils.getTempProfileImageFileName(id, true);
@@ -81,8 +85,6 @@ public class HikeImageDownloader extends HikeImageWorker
 		}
 		else
 		{
-			//TODO on UI
-			//Toast.makeText(mContext, mContext.getResources().getString(R.string.task_already_running), Toast.LENGTH_SHORT).show();
 	    	Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
 		}
 	}
@@ -94,7 +96,9 @@ public class HikeImageDownloader extends HikeImageWorker
 		{
 			Logger.d(TAG, "inside API onRequestSuccess inside HEADLESSIMAGEDOWNLOADFRAGMENT");
 			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+			
 			String filePath = directory + "/" +  Utils.getProfileImageFileName(id);
+			//String filePath = directory + "/" +  fileName;
 			
 			if(!doAtomicFileRenaming(filePath, pathOfTempFile))
 			{
@@ -126,6 +130,7 @@ public class HikeImageDownloader extends HikeImageWorker
 			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 			{
 				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), pathOfTempFile);
+				//doAtomicMultiFileDel(fileName, pathOfTempFile);
 				
 				if(taskCallbacks != null)
 				{
@@ -135,6 +140,7 @@ public class HikeImageDownloader extends HikeImageWorker
 			else
 			{
 				doAtomicMultiFileDel(Utils.getProfileImageFileName(id), pathOfTempFile);
+				//doAtomicMultiFileDel(fileName, pathOfTempFile);
 				
 				if(taskCallbacks != null)
 				{
