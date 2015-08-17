@@ -1151,14 +1151,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return;
 		}
+
 		StickerSearchManager.getInstance().sentMessage(message, null, null, null);
-		
-		if(stickerTagWatcher!= null)
+
+		if (stickerTagWatcher != null)
 		{
-			stickerTagWatcher.sendIgnoreAnalytics();
+			stickerTagWatcher.markStickerRecommendationIgnoreAndSendAnalytics();
 		}
 	}
-	
+
 	protected void audioRecordClicked()
 	{
 		showAudioRecordView();
@@ -1560,13 +1561,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void setupStickerSearch()
 	{
-		if(!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
+		if (!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+				|| (Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
 			return;
-		}	
-		
-		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
-		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
+		}
+
+		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
+				R.color.sticker_recommend_highlight_text)));
+
+		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
+				activity.getLastMessageTimeStamp());
+
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
 	
@@ -1577,7 +1583,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return false;
 		}
 
-		if(stickerTagWatcher.isStickerRecommnedPoupShowing())
+		if(stickerTagWatcher.isStickerRecommendationPopupShowing())
 		{
 			stickerTagWatcher.dismissStickerSearchPopup();;
 			return true;

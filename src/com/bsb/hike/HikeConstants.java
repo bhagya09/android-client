@@ -473,7 +473,9 @@ public class HikeConstants
 	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
 	
 	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
-	
+
+	public static final String STICKER_AUTO_RECOMMEND_SETTING_OFF_TOAST = "sarsofft";
+
 	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
 	
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
@@ -3112,6 +3114,16 @@ public class HikeConstants
 	public static final String STICKER_RECOMMENDATION_ENABLED = "sre";
 	
 	public static final String STICKER_TAG_REFRESH_TIME = "strt";
+
+	public static final String STICKER_AUTO_RECOMMENDATION_ENABLED = "sare"; // boolean
+
+	public static final String STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF = "sarcrc"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF = "sarrpc"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW = "sarcrct"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW = "sarrpct"; // integer
 
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 

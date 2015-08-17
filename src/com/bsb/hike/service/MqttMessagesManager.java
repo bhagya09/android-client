@@ -78,6 +78,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -2336,7 +2337,59 @@ public class MqttMessagesManager
 			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
 		}
-		
+
+		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
+		{
+			boolean autoRecommendationTurningOn = data.getBoolean(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED);
+
+			// Turn on auto-suggestion of stickers
+			if (autoRecommendationTurningOn)
+			{
+				// Remove previous observations for turning off, if any
+				StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+
+					StickerSearchManager.getInstance().setShowAutoPopupSettingOn(true);
+				}
+			}
+			// Trigger to turn off auto-suggestion of stickers depending upon pattern found in packet
+			else
+			{
+				int autoRecommendationContinuousRejectionCount = data.optInt(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF, 0);
+
+				// Set turning-off pattern auto-suggestion of stickers, if they are getting rejected
+				if (autoRecommendationContinuousRejectionCount > 0)
+				{
+					int autoRecommendationRejectionPatternCount = data.optInt(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+							StickerSearchConstants.MINIMUM_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT);
+
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF,
+							autoRecommendationContinuousRejectionCount);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+							autoRecommendationRejectionPatternCount);
+
+					StickerSearchManager.getInstance().setShowAutoPopupTurnOffPattern(autoRecommendationContinuousRejectionCount, autoRecommendationRejectionPatternCount);
+
+				}
+				// Turn off auto-suggestion of stickers, if no pattern is recognized in packet or rejection count is zero (no-tolerance)
+				else
+				{
+					// Remove previous observations for turning off, if any
+					StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+					if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+
+						StickerSearchManager.getInstance().setShowAutoPopupSettingOn(false);
+					}
+				}
+			}
+		}
+
 		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME))
 		{
 			long tagRefreshTime = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME);
