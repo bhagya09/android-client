@@ -21,6 +21,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -432,7 +433,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		if (chatthread.isKeyboardOpen())
 		{
 			Logger.d(TAG, "set recommend ftue tip seen");
-			chatthread.setStickerRecommendFtueTipSeen();
+			chatthread.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
 	}
 
@@ -440,7 +441,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void dismissStickerRecommendFtueTip()
 	{
 		Logger.d(TAG, "dismiss recommend ftue tip");
-		chatthread.dismissStickerRecommendTip();
+		chatthread.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 	}
 
 	@Override

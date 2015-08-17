@@ -512,6 +512,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STICKER_SET = "stickerSet";
 
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
+	
+	public static final String SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP = "shownStickerRecommendAutoPopupOffTip";
 
 	public static final String STICKER_RECOMMEND_SCROLL_FTUE_COUNT = "stickerRecommendScrollFtueCount";
 

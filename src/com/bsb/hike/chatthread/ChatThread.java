@@ -1097,7 +1097,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			sendMessageForStickerRecommendLearning();
 			sendMessage();
 			dismissStickerRecommendationPopup();
-			dismissStickerRecommendTip();
+			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
 	}
 
@@ -1206,20 +1206,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mTips.showStickerRecommendFtueTip();
 	}
 	
-	public void dismissStickerRecommendTip()
+	public void showStickerRecommendAutopopupOffTip()
 	{
-		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		mTips.showStickerRecommendAutopopupOffTip();
+	}
+	
+	public void dismissTip(int whichTip)
+	{
+		if (mTips.isGivenTipShowing(whichTip))
 		{
-			mTips.hideTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+			mTips.hideTip(whichTip);
 		}
 	}
 	
-	public void setStickerRecommendFtueTipSeen()
+	public void setTipSeen(int whichTip)
 	{
-		if (mTips!=null&&mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		if (mTips!=null&&mTips.isGivenTipVisible(whichTip))
 		{
 			Logger.d(TAG, "set sticker recommend tip seen : " + true);
-			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
+			mTips.setTipSeen(whichTip);
 		}
 	}
 
@@ -3822,7 +3827,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
-		setStickerRecommendFtueTipSeen();
+		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		
 		hideActionMode();
 

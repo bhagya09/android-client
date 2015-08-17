@@ -1602,4 +1602,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="YES">YES</string>
     <string name="NO">NO</string>
     <string name="DELETE">DELETE</string>
+    <string name="sticker_recommend_auto_off_tip_text">Sticker Recommend Auto Settings is off</string>
 </resources>
