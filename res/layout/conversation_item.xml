@@ -73,13 +73,12 @@
               
                     <com.bsb.hike.view.CustomFontTextView
                         android:id="@+id/unread_indicator"
-                        android:layout_width="24dp"
-                        android:layout_height="15dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/ic_messagecounter"
-                        android:gravity="center"
                         android:layout_marginLeft="4dp"
                         android:text="99"
-                        android:paddingLeft="4.5dp"
+                        android:gravity="center"
                         android:textColor="@color/white"
                         android:textSize="11sp"
                         android:textStyle="normal"

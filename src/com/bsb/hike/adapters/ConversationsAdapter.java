@@ -33,7 +33,6 @@ import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -938,9 +937,6 @@ public class ConversationsAdapter extends BaseAdapter
 					unreadIndicator.setVisibility(View.VISIBLE);
 					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
 					String unreadCountString = convInfo.getUnreadCountString();
-					LayoutParams lp = (LayoutParams) unreadIndicator.getLayoutParams();
-					lp.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
-					unreadIndicator.setLayoutParams(lp);
 					unreadIndicator.setText(unreadCountString);
 			}
 
@@ -965,9 +961,6 @@ public class ConversationsAdapter extends BaseAdapter
 					unreadIndicator.setVisibility(View.VISIBLE);
 					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
 					String unreadCountString = convInfo.getUnreadCountString();
-					LayoutParams lp2 = (LayoutParams) unreadIndicator.getLayoutParams();
-					lp2.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
-					unreadIndicator.setLayoutParams(lp2);
 					unreadIndicator.setText(unreadCountString);
 			}
 			
