@@ -51,6 +51,7 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -352,7 +353,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	public class TimelineOverflowAdapter extends ArrayAdapter<OverFlowMenuItem>
 	{
-
 		public TimelineOverflowAdapter(Context context, int resource, int textViewResourceId, List<OverFlowMenuItem> objects)
 		{
 			super(context, resource, textViewResourceId, objects);
@@ -371,6 +371,24 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			TextView itemTextView = (TextView) convertView.findViewById(R.id.item_title);
 			itemTextView.setText(item.text);
 
+			TextView newGamesIndicator = (TextView) convertView.findViewById(R.id.new_games_indicator);
+			newGamesIndicator.setVisibility(View.GONE);
+			
+			int count = 0;
+			if (item.id == R.string.favourites)
+			{
+				count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
+				if (count > 9)
+				{
+					newGamesIndicator.setText("9+");
+					newGamesIndicator.setVisibility(View.VISIBLE);
+				}
+				else if (count > 0)
+				{
+					newGamesIndicator.setText(String.valueOf(count));
+					newGamesIndicator.setVisibility(View.VISIBLE);
+				}
+			}
 			return convertView;
 		}
 	}
