@@ -3668,7 +3668,7 @@ public class MqttMessagesManager
 
 	private void saveActivityUpdate(final JSONObject jsonObj)
 	{
-		Logger.d("tl_"+ getClass().getSimpleName(), "ac_up packet received " + jsonObj);
+		Logger.d(HikeConstants.TIMELINE_LOGS, "ac_up packet received " + jsonObj);
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 		{
 			@Override
@@ -3683,7 +3683,7 @@ public class MqttMessagesManager
 						StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(feedData.getObjID());
 						if(statusMessage == null)
 						{
-							Logger.d("tl_"+ getClass().getSimpleName(), "Status Msg is null so returning  for MappedOd " + feedData.getObjID());
+							Logger.d(HikeConstants.TIMELINE_LOGS, "Status Msg is null so returning  for MappedOd " + feedData.getObjID());
 							return;
 						}
 					}
