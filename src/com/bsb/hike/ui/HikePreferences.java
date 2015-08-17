@@ -75,7 +75,6 @@ import com.bsb.hike.view.SwitchPreferenceCompat;
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
 {
-
 	private enum BlockingTaskType
 	{
 		NONE, DELETING_ACCOUNT, UNLINKING_ACCOUNT, /*UNLINKING_TWITTER,*/ BACKUP_ACCOUNT, FETCH_RINGTONE
@@ -1838,7 +1837,7 @@ private void setupToolBar(int titleRes){
 		{
 			Utils.setSendUndeliveredAlwaysAsSmsSetting(this, false);
 		}
-		
+
 		Preference pref = getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.KEY_HIKE_OFFLINE);
 		
 		if (pref != null)
@@ -1862,7 +1861,5 @@ private void setupToolBar(int titleRes){
 			pref.setTitle(titleString);
 			pref.setSummary(summaryString);
 		}
-		
 	}
-
 }
