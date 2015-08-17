@@ -19,10 +19,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -316,7 +316,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							return;
 						}
 
-						if (object != null && object instanceof Set)
+						if (object != null)
 						{
 							mFtueFriendList = new ArrayList<ContactInfo>(); 
 							Pair<Set<String>, Integer> pair = (Pair<Set<String>, Integer>)object;
@@ -325,19 +325,34 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and count "+ counter);
 							Iterator<String> iterator = msisdnSet.iterator();
 							int i=0;
-							while(iterator.hasNext() && i < counter)
+							while(iterator.hasNext() && i < counter + 1)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
 								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
 								{
 									mFtueFriendList.add(info);
 									i++;
+									Logger.d("tl_ftue", " adding "+ info.getMsisdn()+" as htis is NON-FRIEND");
+								}
+								else
+								{
+									Logger.d("tl_ftue", " not adding "+ info.getMsisdn()+" as status is "+ info.getMsisdnType());
 								}
 							}
 							Logger.d("tl_ftue", "inside pubub, final list after check is " + mFtueFriendList);
-							addFTUEItem();
-							updateFTUEMsisdnsList(mFtueFriendList);
-							notifyVisibleItems();
+							if(statusMessages.isEmpty() 
+									|| !(statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_EXIT
+									|| statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_INIT
+									|| statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_FAV))
+							{
+								updateFTUEMsisdnsList(mFtueFriendList, false);
+								addFTUEItem();
+								notifyVisibleItems();
+							}
+							else
+							{
+								updateFTUEMsisdnsList(mFtueFriendList, true);
+							}
 						}
 					}
 
@@ -658,14 +673,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		else
 		{
-			updateFTUEMsisdnsList(finalContactLsit);
+			updateFTUEMsisdnsList(finalContactLsit, false);
 			Logger.d("tl_ftue", "final list after check "+ settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null));
 			Logger.d("tl_ftue", "their names are "+ finalContactLsit);
 		}
 		return finalContactLsit;
 	}
 
-	private void updateFTUEMsisdnsList(List<ContactInfo> finalContactLsit)
+	private void updateFTUEMsisdnsList(List<ContactInfo> finalContactLsit, boolean rearrangeList)
 	{
 		Set<String> list = new HashSet<String>();
 		for(int i = 0; i< finalContactLsit.size(); i++)
@@ -674,6 +689,16 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		settings.saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, list);
+		
+		//set current FTUE is as first element of list
+		if(rearrangeList)
+		{
+			String currentMsisdn = statusMessages.get(0).getMsisdn();
+			ContactInfo currentFTUE = ContactManager.getInstance().getContact(currentMsisdn, true, true);
+			finalContactLsit.remove(currentFTUE);
+			finalContactLsit.add(0, currentFTUE);
+		}
+		timelineCardsAdapter.setFTUEFriendList(finalContactLsit);
 	}
 
 	private IRequestListener actionUpdatesReqListener = new IRequestListener()
