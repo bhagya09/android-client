@@ -339,8 +339,17 @@
         <item name="android:textColor">@android:color/primary_text_dark</item>
         <item name="android:textSize">10sp</item>
     </style>
+    
+    <style name="AppThemeParent" parent = "Theme.AppCompat.Light.DarkActionBar">
+        <!-- Inactive thumb color -->
+        <item name="colorSwitchThumbNormal">#f1f1f1</item>
+        <!-- Active thumb color & Active track color(30% transparency) -->
+        <item name="colorControlActivated">#1da8e8</item>
+        <!-- Inactive track color(30% transparency) -->
+        <item name="android:colorForeground">#000000</item>
+    </style>
 
- <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+ <style name="AppTheme" parent="AppThemeParent">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
