@@ -2380,6 +2380,13 @@ public class MqttMessagesManager
 				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE));
 			}
 		}
+		
+		if(data.has(HikeConstants.DOWNLOAD_TAGS))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
+			StickerManager.getInstance().downloadDefaultTags(false);
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

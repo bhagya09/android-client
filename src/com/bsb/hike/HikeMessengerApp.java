@@ -585,6 +585,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = "stickerSearchDatabaseSizeShrinkCoefficient"; // float
 
+	public static final String LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME = "lastSuccessfulTagsDownloadTime";
+	
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;

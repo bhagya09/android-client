@@ -1822,7 +1822,7 @@ public class StickerManager
 		}
 	}
 	
-	private void downloadDefaultTags(boolean isSignUp)
+	public void downloadDefaultTags(boolean isSignUp)
 	{
 		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false))
 		{

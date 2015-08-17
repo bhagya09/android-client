@@ -3118,5 +3118,7 @@ public class HikeConstants
 	public static final String CALLBACK_ID ="callbackid";
 
 	public static final String DEVICE_DETAILS = "dd";
+	
+	public static final String DOWNLOAD_TAGS = "srdt";
 
 }
