@@ -303,4 +303,12 @@ public class ActionsDataModel
 		}
 		return getAllMsisdn().contains(selfMsisdn);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "ActionsDataModel [count=" + count + ", contactInfoList=" + contactInfoList + ", type=" + type + "]";
+	}
+	
+	
 }

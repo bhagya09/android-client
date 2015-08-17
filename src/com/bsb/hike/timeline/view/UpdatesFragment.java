@@ -19,10 +19,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -238,9 +238,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void run()
 				{
+					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index "+ startIndex);
 					statusMessages.add(startIndex, statusMessage);
 					timelineCardsAdapter.notifyDataSetChanged();
-					Logger.d("tl_", "list of SUs after pubsub TIMELINE_UPDATE_RECIEVED " + statusMessage);
 				}
 			});
 			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
@@ -285,6 +285,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			if (object != null && object instanceof FeedDataModel)
 			{
 				FeedDataModel feedData = (FeedDataModel) object;
+				Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
 				TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
 				notifyVisibleItems();
 			}
@@ -316,7 +317,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							return;
 						}
 
-						if (object != null && object instanceof Set)
+						if (object != null)
 						{
 							mFtueFriendList = new ArrayList<ContactInfo>(); 
 							Pair<Set<String>, Integer> pair = (Pair<Set<String>, Integer>)object;
@@ -325,19 +326,34 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and count "+ counter);
 							Iterator<String> iterator = msisdnSet.iterator();
 							int i=0;
-							while(iterator.hasNext() && i < counter)
+							while(iterator.hasNext() && i < counter + 1)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
 								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
 								{
 									mFtueFriendList.add(info);
 									i++;
+									Logger.d("tl_ftue", " adding "+ info.getMsisdn()+" as htis is NON-FRIEND");
+								}
+								else
+								{
+									Logger.d("tl_ftue", " not adding "+ info.getMsisdn()+" as status is "+ info.getMsisdnType());
 								}
 							}
 							Logger.d("tl_ftue", "inside pubub, final list after check is " + mFtueFriendList);
-							addFTUEItem();
-							updateFTUEMsisdnsList(mFtueFriendList);
-							notifyVisibleItems();
+							if(statusMessages.isEmpty() 
+									|| !(statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_EXIT
+									|| statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_INIT
+									|| statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_FAV))
+							{
+								updateFTUEMsisdnsList(mFtueFriendList, false);
+								addFTUEItem();
+								notifyVisibleItems();
+							}
+							else
+							{
+								updateFTUEMsisdnsList(mFtueFriendList, true);
+							}
 						}
 					}
 
@@ -434,7 +450,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
 
-				Logger.d("tl_", "list of friends from CM before filter" + friendsList);
+				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends from CM before filter" + friendsList);
 				
 				ArrayList<String> msisdnList = new ArrayList<String>();
 
@@ -451,7 +467,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 				friendMsisdns = new String[msisdnList.size()];
 				msisdnList.toArray(friendMsisdns);
-				Logger.d("tl_", "list of friends after filter whose SU we are fetching " + friendMsisdns);
+				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends after filter whose SU we are fetching " + friendMsisdns);
 			}
 
 			List<StatusMessage> statusMessages = null;
@@ -477,7 +493,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				return;
 			}
 
-			Logger.d("tl_", "list of SUs to show on Timeline " + result);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "list of SUs to show on Timeline " + result);
+			
 			final ArrayList<String> suIDList = new ArrayList<String>();
 
 			for (StatusMessage suMessage : result)
@@ -495,6 +512,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				JSONObject suUpdateJSON = new JSONObject();
 				try
 				{
+					Logger.d(HikeConstants.TIMELINE_LOGS, "list of suIDArray, fetching HTTP calls " + suIDArray);
 					suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
 					RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
 					requestToken.execute();
@@ -535,7 +553,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			statusMessages.addAll(result);
 			
-			Logger.d("tl_"+getClass().getSimpleName(), "list of SUs after protip on Timeline " + statusMessages);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "list of SUs after protip on Timeline " + statusMessages);
 			
 			Logger.d(getClass().getSimpleName(), "Updating...");
 
@@ -565,6 +583,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				{
 					statusMessages.add(cJoinedSM);
 				}
+				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
 			}
 
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
@@ -662,14 +681,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		else
 		{
-			updateFTUEMsisdnsList(finalContactLsit);
+			updateFTUEMsisdnsList(finalContactLsit, false);
 			Logger.d("tl_ftue", "final list after check "+ settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null));
 			Logger.d("tl_ftue", "their names are "+ finalContactLsit);
 		}
 		return finalContactLsit;
 	}
 
-	private void updateFTUEMsisdnsList(List<ContactInfo> finalContactLsit)
+	private void updateFTUEMsisdnsList(List<ContactInfo> finalContactLsit, boolean rearrangeList)
 	{
 		Set<String> list = new HashSet<String>();
 		for(int i = 0; i< finalContactLsit.size(); i++)
@@ -678,6 +697,16 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		settings.saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, list);
+		
+		//set current FTUE is as first element of list
+		if(rearrangeList)
+		{
+			String currentMsisdn = statusMessages.get(0).getMsisdn();
+			ContactInfo currentFTUE = ContactManager.getInstance().getContact(currentMsisdn, true, true);
+			finalContactLsit.remove(currentFTUE);
+			finalContactLsit.add(0, currentFTUE);
+		}
+		timelineCardsAdapter.setFTUEFriendList(finalContactLsit);
 	}
 
 	private IRequestListener actionUpdatesReqListener = new IRequestListener()
@@ -687,7 +716,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			final JSONObject response = (JSONObject) result.getBody().getContent();
 
-			Logger.d("tl_", "responce from http call "+ response);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call "+ response);
 			
 			if (Utils.isResponseValid(response))
 			{
@@ -711,7 +740,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		public void onRequestFailure(HttpException httpException)
 		{
 			// Do nothing
-			Logger.d("tl_", "responce from http call failed "+ httpException.toString());
+			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call failed "+ httpException.toString());
 		}
 	};
 

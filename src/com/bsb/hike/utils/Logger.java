@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import android.util.Log;
 
 import com.bsb.hike.AppConfig;
+import com.bsb.hike.HikeConstants;
 
 public class Logger
 {
@@ -52,7 +53,14 @@ public class Logger
 	{
 		if (AppConfig.SHOW_LOGS)
 		{
-			Log.d(tag, msg);
+			if(HikeConstants.TIMELINE_LOGS.equals(tag))
+			{
+				//Write to file
+			}
+			else
+			{
+				Log.d(tag, msg);
+			}
 		}
 	}
 
