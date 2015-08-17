@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
 		android:id="@+id/search"
 		android:icon="@drawable/ic_top_bar_search"
-		android:showAsAction="always"
-		android:title="@string/search" >
+		app:showAsAction="always|collapseActionView"
+		android:title="@string/search"
+		app:actionLayout="@layout/search_layout"
+		 >
     </item>
      <item
 		android:id="@+id/take_pic"
-		android:actionLayout="@layout/overflow_icon_view"
-		android:showAsAction="always"
+		app:actionLayout="@layout/overflow_icon_view"
+		app:showAsAction="always"
 		android:title="@string/edit_photos" >
     </item>
     <item
         android:id="@+id/new_conversation"
-        android:actionLayout="@layout/overflow_icon_view"
-        android:showAsAction="always"
+        app:actionLayout="@layout/overflow_icon_view"
+        app:showAsAction="always"
         android:title="@string/start_new_chat"/>
     <item
         android:id="@+id/overflow_menu"
-        android:actionLayout="@layout/overflow_icon_view"
-        android:showAsAction="always"
+        app:actionLayout="@layout/overflow_icon_view"
+        app:showAsAction="always"
         android:menuCategory="secondary" >
     </item>
 

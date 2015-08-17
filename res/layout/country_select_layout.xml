@@ -6,34 +6,17 @@
     android:paddingLeft="8dp"
     android:paddingRight="8dp" >
 
-    <com.bsb.hike.view.CustomFontEditText
-        android:id="@+id/search_text"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_gravity="center_vertical"
-        android:background="@drawable/bg_country_search_bar"
-        android:drawableLeft="@drawable/ic_search_dark_grey"
-        android:drawablePadding="9dp"
-        android:gravity="center_vertical"
-        android:hint="@string/search"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="8dp"
-        android:singleLine="true" />
-
-    <com.bsb.hike.adapters.PinnedHeaderListView
+    <com.bsb.hike.view.PinnedSectionListView
         android:id="@+id/listView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:layout_marginTop="8dp"
         android:clipToPadding="false"
-        android:divider="@null"
-        android:dividerHeight="0dp"
         android:fadingEdge="none"
         android:fadingEdgeLength="0dp"
-        android:fastScrollAlwaysVisible="true"
-        android:fastScrollEnabled="true"
+        android:fastScrollAlwaysVisible="false"
+        android:fastScrollEnabled="false"
         android:paddingBottom="16dp"
         android:scrollbarStyle="outsideOverlay" />
 

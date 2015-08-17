@@ -46,7 +46,6 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
-import com.bsb.hike.ui.CreditsActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
@@ -187,7 +186,10 @@ public class IntentFactory
 
 	public static void openSettingSMS(Context context)
 	{
-		context.startActivity(new Intent(context, CreditsActivity.class));
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.sms_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.free_sms_txt);
+		context.startActivity(intent);
 	}
 
 	public static void openSettingAccount(Context context)
@@ -962,6 +964,13 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static Intent getInviteViaSMSIntent(Context context)
+	{
+		Intent intent = new Intent(context, HikeListActivity.class);
+		intent.putExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, true);
+		return intent;
+	}
+		
 	public static Intent getEmailOpenIntent(Context context)
 	{
 		return getEmailOpenIntent(context, null, null, null);

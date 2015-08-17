@@ -299,7 +299,7 @@ public class CentralTimelineAdapter extends BaseAdapter
 				viewHolder.noBtn.setVisibility(View.VISIBLE);
 
 				viewHolder.extraInfo.setText(context.getString(R.string.added_as_hike_friend_info, Utils.getFirstName(statusMessage.getNotNullName())));
-				viewHolder.yesBtn.setText(R.string.confirm);
+				viewHolder.yesBtn.setText(R.string.CONFIRM);
 				viewHolder.noBtn.setText(R.string.no_thanks);
 				break;
 			case TEXT:
