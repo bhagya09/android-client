@@ -36,6 +36,9 @@ public class NotificationRetryCountModel
 	int h2o;
 	
 	@Expose
+	int ac_up = 3;
+	
+	@Expose
 	int other;
 
 	/**
@@ -124,6 +127,15 @@ public class NotificationRetryCountModel
 	public int getOther()
 	{
 		return other;
+	}
+	
+	/**
+	 * Activity updates
+	 * @return
+	 */
+	public int getAcUp()
+	{
+		return ac_up;
 	}
 	
 	
