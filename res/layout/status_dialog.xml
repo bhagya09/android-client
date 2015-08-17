@@ -118,9 +118,15 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/mood_pallete"
             android:layout_alignParentBottom="true"
+            android:orientation="vertical"
             android:animateLayoutChanges="true"
             android:visibility="gone" >
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/black_16" />
+            
             <include layout="@layout/mood_selector_layout" />
         </LinearLayout>
 
