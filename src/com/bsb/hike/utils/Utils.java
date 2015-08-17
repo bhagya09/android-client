@@ -6790,21 +6790,5 @@ public class Utils
 		return cloneJson;
 	}
 	
-	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
-	{
-		switch (unreadCount.length())
-		{
-		case 1:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
-		case 2:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_double_width);
-		case 3:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_triple_width);
-		case 4:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_quad_width);
-		default:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
-		}
-	}
 }
 
