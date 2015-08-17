@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1369"
-    android:versionName="4.0.1.40.photos_timeline" >
+    android:versionCode="1343"
+    android:versionName="3.9.9.81.20" >
 
     <uses-sdk
         android:minSdkVersion="14"
