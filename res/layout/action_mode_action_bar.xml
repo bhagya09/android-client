@@ -24,7 +24,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_close_chat_bg_palette" />
+                android:src="@drawable/ic_close_action_mode" />
         </LinearLayout>
 
         <View
