@@ -319,12 +319,6 @@ public class ConnectionManager implements ChannelListener
 		myConfig.preSharedKey  = pass ;
 		myConfig.status =   WifiConfiguration.Status.ENABLED;
 		myConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-		myConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-		myConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP); 
-		myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP); 
-		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP); 
-		myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
 		
 		if (isHTC)
 			setHTCSSID(myConfig);
