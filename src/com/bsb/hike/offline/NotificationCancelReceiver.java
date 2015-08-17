@@ -24,6 +24,7 @@ public class NotificationCancelReceiver extends BroadcastReceiver
 		String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
 		OfflineUtils.sendOfflineRequestCancelPacket(msisdn);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		OfflineAnalytics.pushNotificationClicked(0);
 
 	}
 }

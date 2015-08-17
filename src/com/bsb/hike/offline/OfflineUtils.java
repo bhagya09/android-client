@@ -716,7 +716,7 @@ public class OfflineUtils
 		    data.put(HikeConstants.SUB_TYPE, HikeConstants.OFFLINE_MESSAGE_REQUEST);
 			data.put(HikeConstants.TIMESTAMP,System.currentTimeMillis() / 1000);
 			message.put(HikeConstants.TO, targetMsisdn);
-			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO);
 			message.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
 		}
@@ -801,7 +801,7 @@ public class OfflineUtils
 			data.put(HikeConstants.SUB_TYPE, HikeConstants.OFFLINE_MESSAGE_REQUEST_CANCEL);
 			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000);
 			message.put(HikeConstants.TO, targetMsisdn);
-			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO);
 			message.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ZERO);
 		}
