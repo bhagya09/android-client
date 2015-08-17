@@ -320,7 +320,6 @@
     <string name="start_typing_new">Start typing a name or number...</string>
     <string name="gck_help">Tap and hold a participant to remove them from the group</string>
     <string name="change_group_image">%1$s changed the group image.</string>
-    <string name="contact">CONTACT</string>
     <string name="faq">FAQs</string>
     <string name="feeling_lazy">Feeling lazy? We\'ll do it for you</string>
     <string name="connect_fb">Connect with Facebook</string>
@@ -1512,7 +1511,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
-	<string name ="apps">APPS</string>
+	<string name ="apps">Apps</string>
 	<string name ="connect_offline">Connect</string>
 	<string name="edit_photos">New photo</string>
 	<string name="gif_not_working">Invalid GIF</string>
