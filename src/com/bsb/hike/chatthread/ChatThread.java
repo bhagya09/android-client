@@ -1933,7 +1933,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void stickerSelectedRecommedationPopup(Sticker sticker, String sourceOfSticker, boolean clearText)
 	{
-		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
+		Logger.i(TAG, "stickerSelectedRecommedationPopup(" + sticker + ", " + sourceOfSticker + ", " + clearText + ")");
+
 		if(clearText)
 		{
 			StickerSearchManager.getInstance().sentMessage(mComposeView.getText().toString(), sticker, null, null);
@@ -1942,6 +1943,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		}
+
 		sendSticker(sticker, sourceOfSticker);
 	}
 

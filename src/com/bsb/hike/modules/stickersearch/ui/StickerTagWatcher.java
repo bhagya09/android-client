@@ -365,6 +365,11 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 		sendSticker(sticker, source, dismissAndClear);
 
+		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && StickerSearchManager.getInstance().isFromAutoRecommendation())
+		{
+			StickerSearchManager.getInstance().resetOrStartFreshTrialForAutoPopupTurnOff(false);
+		}
+
 		if (dismissAndClear)
 		{
 			/*
@@ -388,11 +393,6 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			}
 		}
 
-		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && StickerSearchManager.getInstance().isFromAutoRecommendation())
-		{
-			StickerSearchManager.getInstance().resetOrStartFreshTrialForAutoPopupTurnOff(false);
-		}
-
 		// Send analytics
 		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), size,
 				StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
@@ -404,7 +404,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		dismissStickerSearchPopup();
 
 		// Send analytics
-		if (ftue && fragmentFtue != null)
+		if (ftue && (fragmentFtue != null))
 		{
 			StickerRecommendationFtueFragment stickerRecommendationFtueFragment = (StickerRecommendationFtueFragment) fragmentFtue;
 			StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), StickerManager.REJECT_FROM_CROSS, word,

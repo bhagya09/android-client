@@ -52,7 +52,7 @@ public class StickerSearchManager
 
 	private int numStickersVisibleAtOneTime;
 
-	private boolean showAutopopupSettingOn;
+	private boolean showAutoPopupSettingOn;
 
 	private boolean autoPopupTurningOffTrailRunning;
 
@@ -258,6 +258,8 @@ public class StickerSearchManager
 
 		if ((firstTagHighlightLength > 0) && Utils.isBlank(preString) && Utils.isBlank(postString))
 		{
+			isFirstPhraseOrWord = true;
+
 			if (firstTagHighlightLength == 1)
 			{
 				listener.dismissStickerSearchPopup();
@@ -273,7 +275,6 @@ public class StickerSearchManager
 				onClickToShowRecommendedStickers(highlightArray[0][0], false);
 			}
 
-			isFirstPhraseOrWord = true;
 			return;
 		}
 		// Update local reference to avoid exceptions, if values might change while executing following instructions
@@ -342,7 +343,7 @@ public class StickerSearchManager
 		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + ")");
 
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
-		if (!onTouch && !showAutopopupSettingOn)
+		if (!onTouch && !showAutoPopupSettingOn)
 		{
 			if (listener != null)
 			{
@@ -471,9 +472,9 @@ public class StickerSearchManager
 
 	private void setShowAutoPopupConfiguration()
 	{
-		this.showAutopopupSettingOn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+		this.showAutoPopupSettingOn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
 
-		if (this.showAutopopupSettingOn)
+		if (this.showAutoPopupSettingOn)
 		{
 			if ((HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF))
 					&& (HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF)))
@@ -481,7 +482,7 @@ public class StickerSearchManager
 				this.autoPopupTurningOffTrailRunning = true;
 				this.rejectionCountPerTrial = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF,
 						Integer.MAX_VALUE);
-				this.rejectionCountPerTrial = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+				this.trialCountForAutoPopupTurnOff = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
 						Integer.MAX_VALUE);
 
 				this.rejectionCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW, 0);
@@ -500,16 +501,17 @@ public class StickerSearchManager
 
 	public void setShowAutoPopupSettingOn(boolean showAutopopupSettingOn)
 	{
-		this.showAutopopupSettingOn = showAutopopupSettingOn;
+		this.showAutoPopupSettingOn = showAutopopupSettingOn;
 	}
 
 	public void setShowAutoPopupTurnOffPattern(int rejectCountPerTrial, int trailCount)
 	{
-		if (this.showAutopopupSettingOn)
+		if (this.showAutoPopupSettingOn)
 		{
 			this.autoPopupTurningOffTrailRunning = true;
 			this.rejectionCountPerTrial = rejectCountPerTrial;
 			this.trialCountForAutoPopupTurnOff = trailCount;
+
 			resetOrStartFreshTrialForAutoPopupTurnOff(true);
 		}
 		else
@@ -530,17 +532,18 @@ public class StickerSearchManager
 
 	public void checkToTakeActionOnAutoPopupTurnOff()
 	{
-		rejectionCount++;
-		if (rejectionCount >= rejectionCountPerTrial)
+		this.rejectionCount++;
+
+		if (this.rejectionCount >= this.rejectionCountPerTrial)
 		{
-			rejectionPatternCount++;
+			this.rejectionPatternCount++;
 
 			// Turn off auto pop-up
-			if (rejectionPatternCount >= trialCountForAutoPopupTurnOff)
+			if (this.rejectionPatternCount >= this.trialCountForAutoPopupTurnOff)
 			{
 				this.autoPopupTurningOffTrailRunning = false;
 				setShowAutoPopupSettingOn(false);
-				// //////////////////////////////////////////
+
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
 				saveOrDeleteAutoPopupTrialState(true);
 				
@@ -556,6 +559,8 @@ public class StickerSearchManager
 				resetOrStartFreshTrialForAutoPopupTurnOff(false);
 			}
 		}
+
+		Logger.d(StickerTagWatcher.TAG, "checkToTakeActionOnAutoPopupTurnOff(), r = " + this.rejectionCount + ", p = " + this.rejectionPatternCount);
 	}
 
 	public void saveOrDeleteAutoPopupTrialState(boolean isClearing)
