@@ -292,6 +292,7 @@
             android:name="com.bsb.hike.timeline.view.TimelineActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
