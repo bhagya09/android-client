@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">Última conexión</string>
     <string name="status_updates_proper_casing">Estados</string>
     <string name="bigger_better_attachments">Adjuntos más grandes y mejores</string>
-    <string name="alp_42447968_cmd_confirm">Confirmar</string>
-    <string name="alp_42447968_cmd_continue">Continuar</string>
+    <string name="CONFIRM">CONFIRMAR</string>
+    <string name="CONTINUE">CONTINUAR</string>
     <string name="alp_42447968_cmd_forgot_pattern">¿Has olvidado el patrón?</string>
-    <string name="alp_42447968_cmd_retry">Reintentar</string>
     <string name="alp_42447968_loading">Cargando...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Número de teléfono añadido</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Patrón borrado</string>
@@ -1199,7 +1198,6 @@
     <string name="drag_tip_text">Toca y mantén pulsado un paquete para cambiar el orden en el que aparece.</string>
     <string name="drag_tip_subtext">Toca y arrastra para reordenar tus pegatinas</string>
     <string name="CANCEL">CANCELAR</string>
-    <string name="CONFIRM">CONFIRMAR</string>
     <string name="n_more">%1$d MÁS</string>
     <string name="n_stickers">%1$d pegatinas</string>
     <string name="last_backup">Última copia de seguridad</string>

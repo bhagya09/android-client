@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">Visto últ. vez</string>
     <string name="status_updates_proper_casing">Atualiz. de status</string>
     <string name="bigger_better_attachments">Anexos maiores e melhores</string>
-    <string name="alp_42447968_cmd_confirm">Confirmar</string>
-    <string name="alp_42447968_cmd_continue">Continuar</string>
+    <string name="CONFIRM">CONFIRMAR</string>
+    <string name="CONTINUE">CONTINUAR</string>
     <string name="alp_42447968_cmd_forgot_pattern">Esqueceu o padrão?</string>
-    <string name="alp_42447968_cmd_retry">Tentar novamente</string>
     <string name="alp_42447968_loading">Carregando...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Celular adicionado</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Padrão removido</string>
@@ -1199,7 +1198,6 @@
     <string name="drag_tip_text">Toque e segure um pacote para reordenar os pacotes de adesivos</string>
     <string name="drag_tip_subtext">Toque e arraste para reorganizar os adesivos</string>
     <string name="CANCEL">CANCELAR</string>
-    <string name="CONFIRM">CONFIRMAR</string>
     <string name="n_more">MAIS %1$d</string>
     <string name="n_stickers">%1$d adesivos</string>
     <string name="last_backup">Último backup</string>

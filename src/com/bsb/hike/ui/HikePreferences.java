@@ -540,7 +540,7 @@ private void setupToolBar(int titleRes){
 	_toolBar=(Toolbar)findViewById(R.id.abp__toolbar);
 	_toolBar.setClickable(true);
 	View backContainer = findViewById(R.id.back);
-	TextView title = (TextView) backContainer.findViewById(R.id.title);
+	TextView title = (TextView) findViewById(R.id.title);
 	title.setText(titleRes);
 	backContainer.setOnClickListener(new View.OnClickListener()
 	{
