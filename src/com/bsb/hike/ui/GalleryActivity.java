@@ -14,18 +14,22 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -130,8 +134,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.gallery);
 
 		selectedGalleryItems = new ArrayList<GalleryItem>();
@@ -562,11 +566,16 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
+		
 	}
 
 	private void setupMultiSelectActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(false);
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.chat_theme_action_bar, null);
@@ -630,6 +639,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -911,6 +922,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			e.printStackTrace();
 		}
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color) {
+		// TODO Auto-generated method stub
+		return;
+	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// TODO Auto-generated method stub
+		return true ;
 	}
 	
 	private void deleteJunkTempFiles()

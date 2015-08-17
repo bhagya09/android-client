@@ -1109,6 +1109,8 @@ public class HikeConstants
 	public static final String ADD_MEMBERS = "addMembers";
 	
 	public static final String PIN_DISPLAYED = "displayed";
+	public static final String STATUS_BAR_BLUE = "blue";
+	public static final String STATUS_BAR_TRANSPARENT = "transparent";
 
 	public static final int MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY = 51;
 
@@ -2896,9 +2898,9 @@ public class HikeConstants
 	
 	public static TypedArray DEFAULT_AVATAR_BG_COLOR_ARRAY = null;
 
-	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_01, R.drawable.avatar_02, R.drawable.avatar_03, R.drawable.avatar_04, R.drawable.avatar_05};
+	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_bubblegum, R.drawable.avatar_apricot, R.drawable.avatar_carnation, R.drawable.avatar_light_gold, R.drawable.avatar_sky_blue};
 
-	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
+	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_buggle_gum","avatar_apricot", "avatar_carnation", "avatar_light_gold", "avatar_sky_blue"};
 	
 	public static String IS_GROUP = "isGroup";
 	public static final String CAM_IMG_PREFIX = "CAM_";
@@ -3051,6 +3053,23 @@ public class HikeConstants
 	public static final String IMAGE_PATHS = "image-paths";
 
 	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	
+	public static final class SMS_SETTINGS
+	{
+		public static final String KEY_HIKE_OFFLINE = "hikeOffline";
+
+		public static final String KEY_RECEIVE_SMS_PREF = "receiveSmsPref";
+
+		public static final String FREE_SMS_PREF = "freeSmsPref";
+
+		public static final String KEY_EARN_FREE_SMS = "earnFreeSms";
+		
+		public static final String KEY_INVITE_VIA_SMS = "inviteViaSms";
+		
+		public static final String HIKE_HIKE = "hike_hike";
+		
+		public static final String FREE_HIKE_TO_SMS_INDIA = "freeHike2SMSIndia";
+	}
 	
 	public static final String  MODULE_STICKER_SEARCH = "stickersearch";
 	
