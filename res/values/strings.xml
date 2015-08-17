@@ -1192,7 +1192,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
     <string name="drag_tip_subtext">Tap and drag to reorder your stickers</string>
     <string name="CANCEL">CANCEL</string>
-    <string name="CONFIRM">CONFIRM</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
     <string name="last_backup">Last backup</string>
@@ -1426,9 +1425,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="stealth_mode_title_body">Hidden Mode Settings</string>
     <string name="change_stealth_timeout">Ask for Password</string>
     <string name="change_stealth_timeout_body">Ask for password again only after a specific time</string>
-    <string name="stealth_password_settings">Password Settings</string>
-    <string name="stealth_notification_settings">Notification Settings</string>
-    <string name="stealth_reset_settings">Extra Settings</string>
+    <string name="stealth_password_settings">PASSWORD SETTINGS</string>
+    <string name="stealth_notification_settings">NOTIFICATION SETTINGS</string>
+    <string name="stealth_reset_settings">EXTRA SETTINGS</string>
     <string name="enable_stealth_indicator">Indicator</string>
     <string name="enable_stealth_indicator_body">Bounce \'hi\' logo on home screen for unread messages</string>
     <string name="enable_stealth_notification_body">Notify on receiving a message in a hidden chat</string>
@@ -1604,4 +1603,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="HIDDEN_MODE">HIDDEN MODE</string>
     <string name="EDIT">EDIT</string>
     <string name="ALLOW">ALLOW</string>
+    <string name="pref_message_settings">MESSAGE SETTINGS</string>
+    <string name="pref_sticker_settings">STICKER SETTINGS</string>
 </resources>
