@@ -1921,7 +1921,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void stickerSelectedRecommedationPopup(Sticker sticker, String sourceOfSticker, boolean clearText)
 	{
-		Logger.i(TAG, "stickerSelectedRecommedationPopup(" + sourceOfSticker + ", " + sourceOfSticker + ", " + clearText + ")");
+		Logger.i(TAG, "stickerSelectedRecommedationPopup(" + sticker + ", " + sourceOfSticker + ", " + clearText + ")");
 
 		if(clearText)
 		{
