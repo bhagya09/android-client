@@ -74,7 +74,7 @@
             android:layout_marginRight="25dp"
             layout="@layout/country_phone_del_account" />
 
-        <Button
+        <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_delete_account"
             android:layout_width="235dp"
             android:layout_height="40dp"
