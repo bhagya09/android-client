@@ -31,9 +31,8 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -216,15 +215,8 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			if (!isSearchModeOn)
 			{
-				if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
-				{
-					animation = getSlideOutAnimation(convInfo);
-					startSlideOutAnimation(animation, v);
-				}
-				else
-				{
-					removeConversation(convInfo);
-				}
+				animation = getSlideOutAnimation(convInfo);
+				startSlideOutAnimation(animation, v);
 				removeBotMsisdn = null;
 			}
 			else
@@ -945,9 +937,6 @@ public class ConversationsAdapter extends BaseAdapter
 					unreadIndicator.setVisibility(View.VISIBLE);
 					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
 					String unreadCountString = convInfo.getUnreadCountString();
-					LayoutParams lp = (LayoutParams) unreadIndicator.getLayoutParams();
-					lp.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
-					unreadIndicator.setLayoutParams(lp);
 					unreadIndicator.setText(unreadCountString);
 			}
 
@@ -972,9 +961,6 @@ public class ConversationsAdapter extends BaseAdapter
 					unreadIndicator.setVisibility(View.VISIBLE);
 					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
 					String unreadCountString = convInfo.getUnreadCountString();
-					LayoutParams lp2 = (LayoutParams) unreadIndicator.getLayoutParams();
-					lp2.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
-					unreadIndicator.setLayoutParams(lp2);
 					unreadIndicator.setText(unreadCountString);
 			}
 			
@@ -985,7 +971,7 @@ public class ConversationsAdapter extends BaseAdapter
 				messageView.setText(NUXManager.getInstance().getNuxChatRewardPojo().getChatWaitingText());	
 			}
 			
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
+			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) messageView.getLayoutParams();
 			lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
 			messageView.setLayoutParams(lp);
 		}

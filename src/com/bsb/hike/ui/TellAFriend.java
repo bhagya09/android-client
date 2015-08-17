@@ -117,7 +117,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		}
 		//itemIcons.add(R.drawable.ic_invite_fb);
 		//itemIcons.add(R.drawable.ic_invite_twitter);
-		itemIcons.add(R.drawable.ic_invite_email);
+		itemIcons.add(R.drawable.ic_email);
 		itemIcons.add(R.drawable.ic_invite_other);
 
 		// we could do with objects as well , that would be best but big change

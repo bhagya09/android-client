@@ -258,7 +258,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			{
 				try
 				{
-					String searchString = ((EditText) findViewById(R.id.search)).getText().toString();
+					String searchString = ((EditText) findViewById(R.id.search)).getText().toString().trim();
 					if (!searchString.equals(""))
 					{
 						searchString = URLEncoder.encode(searchString, "UTF-8");
@@ -657,6 +657,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 					adapter.notifyDataSetChanged();
 				}
 			}
+			if(totalPlaces == 0)
+				Toast.makeText(ShareLocation.this, getString(R.string.no_places_found), Toast.LENGTH_SHORT).show();
 			findViewById(R.id.progress_dialog).setVisibility(View.GONE);
 		}
 	}
