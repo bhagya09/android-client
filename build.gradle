@@ -16,7 +16,7 @@ android {
         useNewCruncher true
     }
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
         targetSdkVersion 17
@@ -31,7 +31,7 @@ android {
         jumboMode = true
     }
     dependencies {
-        compile(project(':actionbar-sherlock')) {
+        compile(project(':appcompatv7')) {
             exclude module: 'support-v4'
         }
         compile(project(':google-play')) {

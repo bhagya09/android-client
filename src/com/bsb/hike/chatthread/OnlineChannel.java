@@ -118,7 +118,7 @@ public class OnlineChannel implements IChannelSelector{
 			AttachmentPicker attachmentPicker, boolean addContact) {
 		if (addContact)
 		{
-			attachmentPicker.appendItem(new OverFlowMenuItem(activity.getResources().getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
+			attachmentPicker.appendItem(new OverFlowMenuItem(activity.getString(R.string.contact_msg_sent), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
 		}
 	}
 

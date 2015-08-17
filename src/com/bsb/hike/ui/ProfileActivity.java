@@ -25,12 +25,18 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewConfiguration;
@@ -55,9 +61,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -74,7 +77,6 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -106,7 +108,6 @@ import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.IntentFactory;
@@ -306,8 +307,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		if (Utils.requireAuth(this))
 		{
@@ -359,7 +360,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			setContentView(R.layout.profile);
 			View parent = findViewById(R.id.parent_layout);
-			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background)); 
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background));
+			ListView list = (ListView) parent.findViewById(R.id.profile_content);
+			list.setDivider(null); //Removing the default dividers since they are not needed in the timeline
 			this.profileType = ProfileType.CONTACT_INFO_TIMELINE;
 			setupContactTimelineScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
@@ -388,8 +392,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				setContentView(R.layout.profile);
 				View parent = findViewById(R.id.parent_layout);
+				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 				parent.setBackgroundColor(getResources().getColor(R.color.standerd_background)); //Changing background color form white for self profile
 				this.profileType = ProfileType.USER_PROFILE;
+				ListView list = (ListView) parent.findViewById(R.id.profile_content);
+				list.setDivider(null); //Removing the default dividers since they are not needed in the timeline
 				setupProfileScreen(savedInstanceState);
 				HikeMessengerApp.getPubSub().addListeners(this, profilePubSubListeners);
 				triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.PROFILE_PHOTO.ordinal();
@@ -431,7 +438,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		actionBar.setDisplayHomeAsUpEnabled(true);
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
 		View backContainer = actionBarView.findViewById(R.id.back);
@@ -470,8 +477,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		});
 		
-		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
+		actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 		invalidateOptionsMenu();
 	}
 	
@@ -522,6 +531,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		});
 		actionBar.setCustomView(editGroupNameView);
+		Toolbar parent=(Toolbar)editGroupNameView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 		invalidateOptionsMenu();
 	}
 
@@ -572,14 +583,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			else
 			{
-				getSupportMenuInflater().inflate(R.menu.contact_profile_menu, menu);
+				getMenuInflater().inflate(R.menu.contact_profile_menu, menu);
 				mMenu = menu;
 				return true;
 			}
 		case GROUP_INFO:
 			if (!showingGroupEdit)
 			{
-				getSupportMenuInflater().inflate(R.menu.group_profile_menu, menu);
+				getMenuInflater().inflate(R.menu.group_profile_menu, menu);
 				shouldDisplayAddParticipantOption(menu);
 			}
 			mMenu = menu;
@@ -587,12 +598,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case BROADCAST_INFO:
 			if (!showingGroupEdit)
 			{
-				getSupportMenuInflater().inflate(R.menu.broadcast_profile_menu, menu);
+				getMenuInflater().inflate(R.menu.broadcast_profile_menu, menu);
 			}
 			mMenu = menu;
 			return true;
 		case USER_PROFILE:
-			getSupportMenuInflater().inflate(R.menu.my_profile_menu, menu);
+			getMenuInflater().inflate(R.menu.my_profile_menu, menu);
 			mMenu = menu;
 			return true;
 		}
@@ -1808,7 +1819,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			
 			builder = new AlertDialog.Builder(this);
 			builder.setMessage(isBroadcast ? R.string.delete_broadcast_confirm : R.string.leave_group_confirm);
-			builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
+			builder.setPositiveButton(R.string.YES, new DialogInterface.OnClickListener()
 			{
 
 				@Override
@@ -1825,7 +1836,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					finish();
 				}
 			});
-			builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener()
+			builder.setNegativeButton(R.string.NO, new DialogInterface.OnClickListener()
 			{
 
 				@Override
@@ -2192,7 +2203,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else if (HikePubSub.GROUP_END.equals(type))
 		{
-			mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO));
+			JSONObject obj = (JSONObject) object;
+			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
 			{
 				runOnUiThread(new Runnable()
 				{
@@ -2712,7 +2724,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			});
 
 			AlertDialog alertDialog = builder.show();
-			alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+			alertDialog.getListView().setDivider(null);
+			alertDialog.getListView().setPadding(0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
 			return true;
 		}
 		return false;
@@ -2806,7 +2819,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		});
 
 		AlertDialog alertDialog = builder.show();
-		alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+		alertDialog.getListView().setDivider(null);
+		alertDialog.getListView().setPadding(0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
 		return true;
 	}
 

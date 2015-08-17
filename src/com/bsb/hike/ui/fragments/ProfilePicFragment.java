@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,13 +22,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.actionbarsherlock.internal.nineoldandroids.animation.FloatEvaluator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ValueAnimator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -49,8 +43,14 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorListenerAdapter;
+import com.nineoldandroids.animation.FloatEvaluator;
+import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.animation.ValueAnimator;
+import com.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
 
-public class ProfilePicFragment extends SherlockFragment implements FinishableEvent, IHandlerCallback, HikeImageWorker.TaskCallbacks
+public class ProfilePicFragment extends Fragment implements FinishableEvent, IHandlerCallback, HikeImageWorker.TaskCallbacks
 {
 	private View mFragmentView;
 
@@ -474,6 +474,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		{
 			HikeHandlerUtil.getInstance().removeRunnable(null);
 			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.profile_pic_upload_in_background, Toast.LENGTH_SHORT).show();
+
 		}
 	}
 	
@@ -561,11 +562,14 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	}
 
 	@Override
-	public void onTaskAlreadyRunning() {
-		hikeUiHandler.post(new Runnable() {
-			
+	public void onTaskAlreadyRunning()
+	{
+		hikeUiHandler.post(new Runnable()
+		{
+
 			@Override
-			public void run() {
+			public void run()
+			{
 				showStaleState(getString(R.string.task_already_running));
 			}
 		});

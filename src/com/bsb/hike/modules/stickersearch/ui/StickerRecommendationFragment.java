@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,7 +14,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -25,7 +25,7 @@ import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentLis
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
-public class StickerRecommendationFragment extends SherlockFragment implements Listener
+public class StickerRecommendationFragment extends Fragment implements Listener
 {
 	private String[] pubSubListeners = {HikePubSub.STICKER_DOWNLOADED};
 	
@@ -194,7 +194,8 @@ public class StickerRecommendationFragment extends SherlockFragment implements L
 		{
 			return;
 		}
-		getSherlockActivity().runOnUiThread(new Runnable()
+		
+		getActivity().runOnUiThread(new Runnable()
 		{
 
 			@Override

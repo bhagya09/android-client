@@ -25,7 +25,7 @@
             android:gravity="center"
             android:text="@string/nux_remind"
             android:textAllCaps="true"
-            android:textColor="#0f8fe1"
+            android:textColor="#1da8e8"
             android:textSize="13sp" />
 
         <View
@@ -45,7 +45,7 @@
             android:gravity="center"
             android:text="@string/nux_invite_more"
             android:textAllCaps="true"
-            android:textColor="#0f8fe1"
+            android:textColor="#1da8e8"
             android:textSize="13sp" />
     </LinearLayout>
 
