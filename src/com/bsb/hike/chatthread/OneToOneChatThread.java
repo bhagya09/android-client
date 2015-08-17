@@ -315,7 +315,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		
 		if(offlineParameters.isOfflineEnabled())
-		list.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
+			list.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
 
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
@@ -848,6 +848,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		setLastSeen(message);
 		showNetworkError(ChatThreadUtils.checkNetworkError());
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		activity.invalidateOptionsMenu();
 	}
 
@@ -856,6 +857,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		hideLastSeenText();
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		activity.updateActionBarColor(getCurrentlTheme().headerBgResId());
 		showCallIcon();
 		activity.invalidateOptionsMenu();
