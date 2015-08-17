@@ -53,9 +53,9 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import android.view.Menu;
 import android.view.MenuItem;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -87,6 +87,7 @@ import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineParameters;
@@ -233,6 +234,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		if (intent.getBooleanExtra(OfflineConstants.START_CONNECT_FUNCTION,false) && !ContactManager.getInstance().isBlocked(msisdn))
 		{
+			OfflineAnalytics.pushNotificationClicked(1);
 			Message msg = Message.obtain();
 			msg.obj = true;
 			msg.what = START_OFFLINE_CONNECTION;
@@ -2576,6 +2578,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 		});
 		activity.findViewById(R.id.network_error_card).startAnimation(slideOut);
+		OfflineAnalytics.noInternetTipClicked();
 	}
 
 	public void startAnotherFreeHikeConnection(Boolean startAnimation)

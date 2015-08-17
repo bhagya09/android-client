@@ -2474,7 +2474,7 @@ public class HikeConstants
 		
 		public static final String SESSION = "sess";
 		
-		public static final String GENERAL_EVENT_PACKET = "ge";
+		public static final String GENERAL_EVENT_PACKET_ZERO = "ge0";
 	}
 
 	public static final class GeneralEventMessagesTypes
@@ -3134,5 +3134,7 @@ public class HikeConstants
 	public static final String CALLBACK_ID ="callbackid";
 
 	public static final String DEVICE_DETAILS = "dd";
+
+	public static final String TAG = "Tag";
 
 }

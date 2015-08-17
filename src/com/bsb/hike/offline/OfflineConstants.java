@@ -169,5 +169,15 @@ public class OfflineConstants
 
 	public static final String OFFLINE_INDICATOR_CLICKED = "offline_indicator_clicked";
 	
+	public static final class AnalyticsConstants
+	{
+		public static final String EVENT_TYPE_OFFLINE = "hdir";
+
+		public static final String EVENT_KEY_PUSH = "hdstrt";
+
+		public static final String TAG_NO_INTERNET_CLICKED = "noti";
+
+	}
+	
 	
 }
