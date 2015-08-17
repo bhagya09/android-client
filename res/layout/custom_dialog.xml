@@ -1,6 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/BackgroundCustomDialog"
-    android:layout_width="match_parent"
+    android:layout_width="282dp"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
@@ -57,6 +57,7 @@
             android:layout_marginRight="@dimen/custom_dialog_preferred_paddding"
             android:layout_marginTop="8dp"
             android:button="@drawable/hike_list_item_checkbox"
+            android:paddingLeft="16dp"
             android:text="checkbox"
             android:visibility="gone" />
     </LinearLayout>
