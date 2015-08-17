@@ -748,11 +748,15 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private void releaseEmoticon()
 	{
+		if (mEmoticonPicker.isShowing())
+		{
+			hideEmojiOrMoodLayout();
+		}
 		/**
 		 * It is important that along with releasing resources for Emoticons, we also close its window to prevent any BadWindow Exceptions later on.
 		 */
 		if (mEmoticonPicker != null)
-		{	
+		{
 			mEmoticonPicker.releaseReources();
 		}
 	}
