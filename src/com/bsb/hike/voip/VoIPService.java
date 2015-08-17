@@ -90,7 +90,6 @@ public class VoIPService extends Service {
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0, recordingSampleRate = 0;
-	private boolean voiceSignalAbsent = false;
 	private boolean inCellularCall = false;
 	public boolean recordingAndPlaybackRunning = false;
 	
@@ -98,6 +97,7 @@ public class VoIPService extends Service {
 	private boolean conferencingEnabled = false;
 	private boolean hostingConference = false;
 	private boolean forceMute = false, hostForceMute = false;
+	private boolean speechDetected = true;
 	
 	// Task executors
 	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
@@ -1301,18 +1301,18 @@ public class VoIPService extends Service {
 			@Override
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+				VoIPClient client = getClient();
+				if (client == null) {
+					Logger.e(tag, "Could not find client.");
+					return;
+				}
+				
 				while (keepRunning) {
 					VoIPDataPacket dp;
 					try {
 						// We will only get a buffer to send if a conference is not active. 
 						dp = buffersToSend.take();
-						for (VoIPClient client : clients.values()) {
-							// client.encodedBuffersQueue.put(dp);
-							// Not sure if cloning is required. Test later. 
-							// VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();
-							// client.samplesToEncodeQueue.put(dp.getData());
-							client.addSampleToEncode(dp); 
-						}
+						client.addSampleToEncode(dp); 
 					} catch (InterruptedException e1) {
 						break;
 					}
@@ -1530,22 +1530,10 @@ public class VoIPService extends Service {
 						int ret = solicallAec.processMic(dpencode.getData());
 
 						if (useVADToReduceData) {
-
-							if (ret == 0) {
-								// There is no voice signal, bitrate should be lowered
-								if (!voiceSignalAbsent) {
-									voiceSignalAbsent = true;
-//									Logger.w(tag, "We stopped speaking.");
-									if (!hostingConference())
-										client.setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
-								}
-							} else if (voiceSignalAbsent) {
-								// Mic signal is reverting to voice
-//								Logger.w(tag, "We started speaking.");
-								voiceSignalAbsent = false;
-								if (!hostingConference())
-									client.setEncoderBitrate(client.getBitrate());
-							}
+							if (ret == 0) 
+								speechDetected = false;
+							else 
+								speechDetected = true;
 						}
 					} else
 						aecMicSignal = true;
@@ -1562,7 +1550,7 @@ public class VoIPService extends Service {
 						recordBuffer.read(pcmData);
 						VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 						dp.setData(pcmData);
-						dp.setVoice(!voiceSignalAbsent);
+						dp.setVoice(speechDetected);
 						
 						// If we are hosting a conference, then the recorded sample must be
 						// mixed with all the other incoming audio
@@ -1571,8 +1559,6 @@ public class VoIPService extends Service {
 							if (processedRecordedSamples.size() < 2)
 								processedRecordedSamples.add(dp);
 						} else {
-							if (voiceSignalAbsent && client.isHostingConference && client.clientMsisdns.size() > VoIPConstants.CONFERENCE_THRESHOLD)
-								continue;
 							buffersToSend.add(dp);
 						}
 					}
@@ -2282,7 +2268,7 @@ public class VoIPService extends Service {
 								JSONObject clientJson = new JSONObject();
 								clientJson.put(VoIPConstants.Extras.MSISDN, Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE)).getMsisdn());
 								clientJson.put(VoIPConstants.Extras.STATUS, CallStatus.HOSTING_CONFERENCE.ordinal());
-								clientJson.put(VoIPConstants.Extras.SPEAKING, !voiceSignalAbsent && !mute);
+								clientJson.put(VoIPConstants.Extras.SPEAKING, speechDetected && !mute);
 								clientsJson.put(clientJson);
 
 								// Encapsulate the array in another JSON object

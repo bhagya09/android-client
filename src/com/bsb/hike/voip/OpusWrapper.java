@@ -14,6 +14,7 @@ public class OpusWrapper {
 	
 	private long encoder = 0;
 	private long decoder = 0;
+	private int currentBitrate = 0;
 	
 	/**
 	 * The frame size of samples expected by the Opus codec. 
@@ -82,8 +83,12 @@ public class OpusWrapper {
 		if (encoder == 0)
 			return;
 		
-//		Logger.d(VoIPConstants.TAG, "Encoder bitrate changed to: " + bitrate);
+		if (bitrate == currentBitrate)
+			return;
+		
+		Logger.d(VoIPConstants.TAG, "Encoder bitrate: " + bitrate);
 		opus_set_bitrate(encoder, bitrate);
+		currentBitrate = bitrate;
 	}
 	
 	public void setEncoderComplexity(int complexity) {
