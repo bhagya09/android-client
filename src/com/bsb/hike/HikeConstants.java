@@ -474,7 +474,7 @@ public class HikeConstants
 	
 	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
 
-	public static final String STICKER_AUTO_RECOMMEND_SETTING_OFF_TOAST = "sarsofft";
+	public static final String STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP = "sarsofft";
 
 	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
 	

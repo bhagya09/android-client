@@ -239,7 +239,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 					fm.executePendingTransactions();
 				}
 
-				dismissStickerRecommendFtueTip();
+				dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+				dismissTip(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 
 				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
@@ -437,22 +438,32 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			chatthread.showStickerRecommendTip();
 		}
 	}
-
+	
 	@Override
-	public void setStickerRecommendFtueSeen()
+	public void showStickerRecommendAutoPopupOffTip()
 	{
 		if (chatthread.isKeyboardOpen())
 		{
-			Logger.d(TAG, "set recommend ftue tip seen");
-			chatthread.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
+			Logger.d(TAG, "show recommend ftue tip");
+			chatthread.showStickerRecommendAutopopupOffTip();
 		}
 	}
 
 	@Override
-	public void dismissStickerRecommendFtueTip()
+	public void setTipSeen(int whichTip, boolean dismissIfVisible)
+	{
+		if (chatthread.isKeyboardOpen())
+		{
+			Logger.d(TAG, "set recommend ftue tip seen");
+			chatthread.setTipSeen(whichTip, dismissIfVisible);
+		}
+	}
+
+	@Override
+	public void dismissTip(int whichTip)
 	{
 		Logger.d(TAG, "dismiss recommend ftue tip");
-		chatthread.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		chatthread.dismissTip(whichTip);
 	}
 
 	@Override

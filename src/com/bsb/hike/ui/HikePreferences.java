@@ -1233,7 +1233,7 @@ private void setupToolBar(int titleRes){
 			// Auto-suggestion setting is turned on by user, remove disable toast pref which was set automatically due to rejection pattern
 			if (isChecked)
 			{
-				HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TOAST);
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP);
 			}
 
 			StickerManager.getInstance().sendRecommendationAutopopupSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);

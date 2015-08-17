@@ -1398,9 +1398,9 @@ public class StickerManager
 		boolean stickerRecommendPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true);
 		boolean stickerRecommendAutoPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
 		boolean stickerRecommendTurnOnToastPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_SETTING_OFF_TOAST, false);
-		boolean stickerAutoRecommendTurnOnToastPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TOAST, false);
+		boolean stickerAutoRecommendTurnOnTipPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP, false);
 
-		if (!stickerRecommendTurnOnToastPref && (!stickerRecommendPref || (!stickerRecommendAutoPref && !stickerAutoRecommendTurnOnToastPref)))
+		if (!stickerRecommendTurnOnToastPref && (!stickerRecommendPref || (!stickerRecommendAutoPref && !stickerAutoRecommendTurnOnTipPref)))
 		{
 			Toast.makeText(HikeMessengerApp.getInstance(), HikeMessengerApp.getInstance().getResources().getString(R.string.sticker_recommend_settings_toast), Toast.LENGTH_LONG)
 					.show();
@@ -1408,15 +1408,6 @@ public class StickerManager
 		}
 	}
 
-	public void showAutoStickerRecommendTurnOnToast()
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
-		{
-			Toast.makeText(HikeMessengerApp.getInstance(), HikeMessengerApp.getInstance().getResources().getString(R.string.sticker_auto_recommend_settings_toast),
-					Toast.LENGTH_LONG).show();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TOAST, true);
-		}
-	}
 
 	public void updateStickerCategoriesMetadata(JSONArray jsonArray)
 	{

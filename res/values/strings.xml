@@ -1599,10 +1599,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
     <string name="invite_free_sms">Free SMS Invite</string>
     <string name="sticker_recommend_settings_toast">You can enable Sticker suggestions from Settings > Chat settings anytime</string>
-    <string name="sticker_auto_recommend_settings_toast">Auto Sticker suggestions is turned off. You can enable it again from Settings > Chat settings anytime</string>
     <string name="YES">YES</string>
     <string name="NO">NO</string>
     <string name="DELETE">DELETE</string>
-    <string name="sticker_recommend_auto_off_tip_text">Sticker Recommend Auto Settings is off</string>
+    <string name="sticker_recommend_auto_off_tip_text">Auto Sticker suggestions is turned off. You can enable it again from Settings > Chat settings anytime</string>
     <string name="no_places_found">No places found</string>
 </resources>

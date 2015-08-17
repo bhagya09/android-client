@@ -1220,9 +1220,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
-	public void setTipSeen(int whichTip)
+	public void setTipSeen(int whichTip, boolean dismissIfVisible)
 	{
-		if (mTips!=null&&mTips.isGivenTipVisible(whichTip))
+		if(mTips == null )
+		{
+			return ;
+		}
+		
+		boolean shouldDismiss = dismissIfVisible ? mTips.isGivenTipVisible(whichTip) : true;
+				
+		if (shouldDismiss)
 		{
 			Logger.d(TAG, "set sticker recommend tip seen : " + true);
 			mTips.setTipSeen(whichTip);
@@ -3833,7 +3840,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
-		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
+		
+		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 		
 		hideActionMode();
 
