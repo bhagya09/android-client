@@ -1398,7 +1398,7 @@ private void setupToolBar(int titleRes){
 				{
 					PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, false).commit();
 					if(preference instanceof IconListPreference)
-						((IconListPreference)preference).setTitleColor(R.color.list_item_header);
+						((IconListPreference)preference).setTitleColor(R.color.settings_text_header_color);
 				}
 				HAManager.logClickEvent(HikeConstants.LogEvent.LS_SETTING_CLICKED);
 				return false;
@@ -1410,8 +1410,8 @@ private void setupToolBar(int titleRes){
 			lp.setSummary(ls_summary);
 		}
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
-			lp.setTitleColor(R.color.unread_message_blue);
-		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+			lp.setTitleColor(R.color.blue_hike);
+		lp.setTitle(lp.getTitle() + " : " + lp.getEntry());
 		lp.setNegativeButtonText(R.string.CANCEL);
 	}
 
