@@ -16,12 +16,19 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -31,12 +38,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -51,16 +52,16 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class PhotoViewerFragment extends SherlockFragment implements OnPageChangeListener,OnClickListener,SuccessfulImageLoadingListener
+public class PhotoViewerFragment extends Fragment implements OnPageChangeListener
 {
 	private View mParent;
 	
@@ -120,10 +121,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private Menu menu;
 	
-	private  SharedFileImageLoader sharedMediaLoader;
-	
-	private Handler mHandler;
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -132,19 +129,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		initializeViews(mParent);
 		
 		readArguments();
-		int screenWidth = getResources().getDisplayMetrics().widthPixels;
-		int screenHeight = getResources().getDisplayMetrics().heightPixels;
-		int sizeOfImage = screenWidth < screenHeight ? screenWidth : screenHeight;
-		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
-		int actualSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
-
-		mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
-		
-		sharedMediaLoader = new SharedFileImageLoader(getActivity(), actualSize,false);
-		sharedMediaLoader.setDefaultDrawable(getActivity().getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
-		sharedMediaLoader.setCachingEnabled(false);
-		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
-
 		
 		if(savedInstanceState != null)
 		{
@@ -184,11 +168,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		}
 	}
 	
-	public SharedFileImageLoader getImageLoader()
-	{
-		return this.sharedMediaLoader;
-	}
-	
 	private void intialiazeViewPager()
 	{
 		int screenWidth = getResources().getDisplayMetrics().widthPixels;
@@ -203,7 +182,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(getArguments().containsKey(HikeConstants.FROM_CHAT_THREAD))
 			fromChatThread = getArguments().getBoolean(HikeConstants.FROM_CHAT_THREAD);
 		
-		smAdapter = new SharedMediaAdapter(getChildFragmentManager(), getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
+		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
 		selectedPager.setAdapter(smAdapter);
 		selectedPager.setOnPageChangeListener(this);
 		
@@ -265,7 +244,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			@Override
 			public void onClick(View v)
 			{
-				startActivity(HikeSharedFilesActivity.getHikeSharedFilesActivityIntent(getSherlockActivity(), isGroup, conversationName, msisdnArray, nameArray, msisdn));
+				startActivity(HikeSharedFilesActivity.getHikeSharedFilesActivityIntent(getActivity(), isGroup, conversationName, msisdnArray, nameArray, msisdn));
 			}
 		});
 		
@@ -281,7 +260,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		super.onPause();
 		if(smAdapter != null)
 		{
-			getImageLoader().setExitTasksEarly(true);
+			smAdapter.getSharedFileImageLoader().setExitTasksEarly(true);
 		}
 	}
 
@@ -308,14 +287,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if (!reachedEndRight && !loadingMoreItems && position == (getCount() - PAGER_LIMIT))
 		{
 			loadingMoreItems = true;
-			Logger.d(TAG,"loading items from right : " + maxMsgId);
+			//Logger.d(TAG,"loading items from right : " + maxMsgId);
 			loadItems(reachedEndRight, maxMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, true);
 		}
 
 		if (!reachedEndLeft && !loadingMoreItems && position == PAGER_LIMIT)
 		{
 			loadingMoreItems = true;
-			Logger.d(TAG, "loading items from left : " + minMsgId);
+			//Logger.d(TAG, "loading items from left : " + minMsgId);
 			loadItems(reachedEndLeft, minMsgId, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, false, true, position);
 
 		}
@@ -339,8 +318,8 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	{
 		senderName.setText(getSenderName(position));
 		long timeStamp = sharedMediaItems.get(position).getTimeStamp();
-		String date = Utils.getFormattedDate(getSherlockActivity(), timeStamp);
-		String time = Utils.getFormattedTime(false, getSherlockActivity(), timeStamp);
+		String date = Utils.getFormattedDate(getActivity(), timeStamp);
+		String time = Utils.getFormattedTime(false, getActivity(), timeStamp);
 		itemTimeStamp.setText(date+", "+time);
 	}
 
@@ -368,17 +347,18 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	
 	public void setupActionBar()
 	{
-		if (getSherlockActivity() == null)
+		if (getActivity() == null)
 		{
 			return;
 		}
 		/*
 		 * else part
 		 * */
-		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+		StatusBarColorChanger.setStatusBarColor(getActivity(), HikeConstants.STATUS_BAR_TRANSPARENT);
+		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();//check if getSupportA
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
-		View actionBarView = getSherlockActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		View actionBarView = getActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
 		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header_photo_viewer));
 
 		View backContainer = actionBarView.findViewById(R.id.back);
@@ -402,14 +382,15 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 	
 	private void finish()
 	{
-		SherlockFragmentActivity fragment = getSherlockActivity();
-		if (fragment != null)
+		if (getActivity() != null)
 		{
-			getSherlockActivity().onBackPressed();
+			getActivity().onBackPressed();
 		}
 	}
 
@@ -503,7 +484,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		@Override
 		protected void onPostExecute(List<HikeSharedFile> result)
 		{
-			if(getSherlockActivity() == null)
+			if(getActivity() == null)
 			{
 				return ;
 			}
@@ -589,7 +570,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 		//deletes current selected item from viewpager 
 		case R.id.delete_msgs:
-			HikeDialogFactory.showDialog(getSherlockActivity(), HikeDialogFactory.DELETE_FILES_DIALOG, new HikeDialogListener()
+			HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_FILES_DIALOG, new HikeDialogListener()
 			{
 				
 				@Override
@@ -632,13 +613,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			
 			return true;
 		case R.id.forward_msgs:
+			
 			File selFile = getCurrentSelectedItem().getFile();
 			if(selFile == null || !selFile.exists())
 			{
 				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.file_expire, Toast.LENGTH_SHORT).show();
 				return false;
 			}
-			Intent intent = new Intent(getSherlockActivity(), ComposeChatActivity.class);
+			Intent intent = new Intent(getActivity(), ComposeChatActivity.class);
 			intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
 			JSONArray multipleMsgArray = new JSONArray();
 			try
@@ -657,7 +639,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			return true;
 		case R.id.share_msgs:
 			
-			getCurrentSelectedItem().shareFile(getSherlockActivity());
+			getCurrentSelectedItem().shareFile(getActivity());
 			return true;
 		case R.id.edit_pic:
 			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null,false);
@@ -679,14 +661,33 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onResume()
 	{
-		if(!getSherlockActivity().getSupportActionBar().isShowing())
+		if(!((AppCompatActivity) getActivity()).getSupportActionBar().isShowing())
 		{
 			toggleViewsVisibility();
 		}
-		if(smAdapter != null && getImageLoader().getIsExitTasksEarly())
+		if(smAdapter != null && smAdapter.getSharedFileImageLoader().getIsExitTasksEarly())
 		{
-			getImageLoader().setExitTasksEarly(false);
+			smAdapter.getSharedFileImageLoader().setExitTasksEarly(false);
 			
+			/**
+				In onActivityCreated ---> intializeViewPager ----> smAdapter is already created
+				Which in turns call getView of Adaptor which does following 3 tasks
+				1) loads current image
+				2) loads all images to the left of current image ---> gives to adaptor---> notify
+				3) loads all images to the right of current image ---> gives to adaptor---> notify
+				Now here in resume, when notifDataSetChanged is called, then it is again loaded
+			
+				Earlier caching was there so could not find it, now here no caching, so can see it
+				this gives double loading for images on some device eg Samsung DUOS3
+			
+				after removing this, problem was solved with that device
+			 */
+			smAdapter.notifyDataSetChanged();
+			
+			/**
+			 * Instead refresh current visible view only
+			 */
+//			smAdapter.bindView(mParent, selectedPager.getCurrentItem());
 		}
 		
 		super.onResume();
@@ -694,25 +695,24 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	public void toggleViewsVisibility()
 	{
-		if (getSherlockActivity() != null)
+		if (getActivity() != null)
 		{
-			ActionBar actionbar = getSherlockActivity().getSupportActionBar();
+			ActionBar actionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 			Animation animation;
 			if (!actionbar.isShowing())
 			{
 				actionbar.show();
-				animation = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_in_animation);
+				animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_animation);
 			}
 			else
 			{
 				actionbar.hide();
-				animation = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_out_animation);
+				animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out_animation);
 			}
 			animation.setDuration(300);
 			animation.setFillAfter(true);
 			mParent.findViewById(R.id.info_group).startAnimation(animation);
 			mParent.findViewById(R.id.gradient).startAnimation(animation);
-			gallaryButton.setVisibility((gallaryButton.getVisibility() == View.VISIBLE)?View.GONE:View.VISIBLE);
 		}
 	}
 	
@@ -740,78 +740,15 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onDestroy()
 	{
+		// TODO Auto-generated method stub
+		
 		//To remove any callbacks, if present inside handler in adaptor
-		if(mHandler!=null)
+		if(smAdapter != null)
 		{
-			mHandler.removeCallbacksAndMessages(null);
+			smAdapter.onDestroy();
 		}
 		
+		StatusBarColorChanger.setStatusBarColor(getActivity(),((HikeBaseActivity)getActivity()).statusBarColorID);
 		super.onDestroy();
-	}
-
-	public static class RemoveLoaderRunnable implements Runnable
-	{
-		private ImageView imageView;
-		
-		public RemoveLoaderRunnable(ImageView imageView)
-		{
-			this.imageView = imageView;
-		}
-		
-		@Override
-		public void run()
-		{
-			if(imageView == null)
-			{
-				return;
-			}
-			
-			View parent = imageView.getRootView();
-			
-			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
-			{
-				parent.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-			}
-		}
-		
-	}
-	
-	/**
-	 * This is done via post runnable so that this "removing loader"
-	 * gets queued into loop and is performed after image is shown in view pager
-	 * 
-	 * Note:- Doing directly without post via Runnable, first loader is removed and
-	 * then image is shown to user, so there is no loader seen or there is black screen shown
-	 */
-	@Override
-	public void onSuccessfulImageLoaded(final ImageView imageView)
-	{
-		if(isAdded())
-		{
-			RemoveLoaderRunnable removeLoaderRunnable = new RemoveLoaderRunnable(imageView);
-			mHandler.post(removeLoaderRunnable);
-		}
-		
-	}
-
-	
-	@Override
-	public void onClick(View v) {
-		
-		if(getActivity() != null)
-		{
-			HikeSharedFile sharedMediaItem = (HikeSharedFile) v.getTag();
-			switch (sharedMediaItem.getHikeFileType())
-			{
-			case IMAGE:
-				toggleViewsVisibility();
-				break;
-			case VIDEO:
-					HikeSharedFile.openFile(sharedMediaItem, getActivity());
-				break;
-			default:
-				break;
-			}
-		}
 	}
 }

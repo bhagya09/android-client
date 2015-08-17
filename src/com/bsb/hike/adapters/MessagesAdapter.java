@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import com.bsb.hike.models.Conversation.BotConversation;
-import com.bsb.hike.view.CustomFontButton;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,11 +67,9 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -98,6 +93,7 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -117,10 +113,10 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontButton;
 import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
-import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.voip.VoIPUtils;
 
 
@@ -1123,6 +1119,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						videoHolder = (VideoViewHolder) v.getTag();
 						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						videoHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						videoHolder.circularProgress.resetProgress();
 					}
 					else
 					{
@@ -1157,6 +1154,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						videoHolder = (VideoViewHolder) v.getTag();
 						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						videoHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						videoHolder.circularProgress.resetProgress();
 					}
 					else
 					{
@@ -1292,6 +1290,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder = (ImageViewHolder) v.getTag();
 						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						imageHolder.circularProgress.resetProgress();
 					}
 					else
 					{
@@ -1324,6 +1323,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder = (ImageViewHolder) v.getTag();
 						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						imageHolder.circularProgress.resetProgress();
 					}
 					else
 					{
@@ -1466,6 +1466,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder = (ImageViewHolder) v.getTag();
 						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						imageHolder.circularProgress.resetProgress();
 					}
 				}
 				else if (viewType == ViewType.LOCATION_RECEIVE)
@@ -1503,6 +1504,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder = (ImageViewHolder) v.getTag();
 						imageHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						imageHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						imageHolder.circularProgress.resetProgress();
 					}
 				}
 				dayHolder = imageHolder;
@@ -1589,6 +1591,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder = (FileViewHolder) v.getTag();
 						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						fileHolder.circularProgress.resetProgress();
 					}
 				}
 				else if (viewType == ViewType.CONTACT_RECEIVE)
@@ -1626,6 +1629,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder = (FileViewHolder) v.getTag();
 						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						fileHolder.circularProgress.resetProgress();
 					}
 				}
 				dayHolder = fileHolder;
@@ -1705,6 +1709,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder = (FileViewHolder) v.getTag();
 						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						fileHolder.circularProgress.resetProgress();
 					}
 					else
 					{
@@ -1738,6 +1743,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder = (FileViewHolder) v.getTag();
 						fileHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
 						fileHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
+						fileHolder.circularProgress.resetProgress();
 					}
 					else
 					{
@@ -1898,7 +1904,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 
-			String text;
+			CharSequence msgText = null;
 			if (!messageTextMap.containsKey(convMessage.getMsgID()))
 			{
 				CharSequence markedUp = convMessage.getMessage();
@@ -1907,10 +1913,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				textHolder.text.setText(markedUp);
 				Linkify.addLinks(textHolder.text, Linkify.ALL);
 				Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
-				messageTextMap.put(convMessage.getMsgID(), textHolder.text.getText());
+				msgText = textHolder.text.getText();
+				if (convMessage.getMsgID() > 0)
+					messageTextMap.put(convMessage.getMsgID(), msgText);
 			}
-			CharSequence markedUp = getSpannableSearchString(messageTextMap.get(convMessage.getMsgID()));
-			textHolder.text.setText(markedUp);
+			if (msgText == null)
+			{
+				msgText = getSpannableSearchString(messageTextMap.get(convMessage.getMsgID()));
+				textHolder.text.setText(msgText);
+			}
 
 			displayBroadcastIndicator(convMessage, textHolder.broadcastIndicator, true);
 			setTimeNStatus(position, textHolder, false, textHolder.messageContainer);
@@ -2847,12 +2858,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		int chunkSize = FileTransferManager.getInstance(context).getChunkSize(msgId);
 		int fakeProgress = FileTransferManager.getInstance(context).getAnimatedProgress(msgId);
 		if(fakeProgress == 0)
-			fakeProgress = progress;
+		{
+			fakeProgress = fss.getAnimatedProgress();
+			if(fakeProgress == 0)
+				fakeProgress = progress;
+		}
 		if (fss.getTotalSize() <= 0 && isSent && fss.getFTState() != FTState.ERROR)
 		{
 			showTransferInitialization(holder, hikeFile);
 		}
-		else if (fss.getFTState() == FTState.IN_PROGRESS && fss.getTransferredSize() == 0)
+		else if (fss.getFTState() == FTState.IN_PROGRESS && fakeProgress == 0)
 		{
 			float animatedProgress = 5 * 0.01f;
 			if (fss.getTotalSize() > 0 && chunkSize > 0)
@@ -3024,7 +3039,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			});
 
 			AlertDialog alertDialog = builder.show();
-			alertDialog.getListView().setDivider(context.getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+			alertDialog.getListView().setDivider(null);
+			alertDialog.getListView().setPadding(0, context.getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, context.getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
 			// chatThread.showContactDetails(items, name, null, true);
 		}
 	};

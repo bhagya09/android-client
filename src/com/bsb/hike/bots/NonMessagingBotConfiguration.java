@@ -175,7 +175,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			if (jsonObject.has(HikePlatformConstants.IS_CHECKED))
 			{
 				boolean isChecked = jsonObject.optBoolean(HikePlatformConstants.IS_CHECKED, true);
-				return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.tick : com.bsb.hike.R.drawable.untick, id, enabled);
+				return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.control_check_on : com.bsb.hike.R.drawable.control_check_off, id, enabled);
 			}
 			
 			else
@@ -455,6 +455,59 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public boolean isReadSlideOutEnabled()
 	{
 		return isBitSet(READ_SLIDE_OUT);
+	}
+	
+	/**
+	 * Utility method to get status bar color from config data
+	 * 
+	 * @return
+	 */
+	public int getStatusBarColor()
+	{
+		if (configData != null)
+		{
+			String color = configData.optString(HikePlatformConstants.STATUS_BAR_COLOR, null);
+			try
+			{
+				return color != null ? Color.parseColor(color) : -1;
+			}
+
+			catch (IllegalArgumentException e)
+			{
+				Logger.e(TAG, "Seems like you sent a wrong color");
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Utility method to get action bar color from fullScreenJson. The JSON will look like :
+	 * 
+	 * { "cd": { "full_screen_config": { "color": "#0f8fe1", "secondary_title": "Hike News 2.0", "sb_color": "0f8fe1" }}}
+	 * 
+	 * @return
+	 */
+	public int getSecondaryStatusBarColor()
+	{
+		if (configData != null)
+		{
+			JSONObject fullScreenJSON = configData.optJSONObject(HikePlatformConstants.FULL_SCREEN_CONFIG);
+
+			if (fullScreenJSON != null)
+			{
+				String color = fullScreenJSON.optString(HikePlatformConstants.STATUS_BAR_COLOR, null);
+				try
+				{
+					return color != null ? Color.parseColor(color) : -1;
+				}
+
+				catch (IllegalArgumentException e)
+				{
+					Logger.e(TAG, "Seems like you sent a wrong color");
+				}
+			}
+		}
+		return -1;
 	}
 	
 }

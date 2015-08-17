@@ -19,6 +19,7 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
+import android.support.v4.app.Fragment;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -40,7 +41,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -58,7 +58,7 @@ import com.bsb.hike.voip.VoIPService.LocalBinder;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.adapters.ConferenceParticipantsAdapter;
 
-public class VoipCallFragment extends SherlockFragment implements CallActions
+public class VoipCallFragment extends Fragment implements CallActions
 {
 	static final int PROXIMITY_SCREEN_OFF_WAKELOCK = 32;
 	private final String tag = VoIPConstants.TAG + " VoipCallFragment";
@@ -111,7 +111,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		addButton = (ImageButton) view.findViewById(R.id.add_btn);
 		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
 		
-		if (VoIPUtils.isConferencingEnabled(getSherlockActivity())) 
+		if (VoIPUtils.isConferencingEnabled(getActivity())) 
 			addButton.setVisibility(View.VISIBLE);
 
 		return view;
@@ -230,9 +230,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	{
 		Logger.d(tag, "VoipCallFragment onResume, Binding to service..");
 		// Calling start service as well so an activity unbind doesn't cause the service to stop
-		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
-		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
-		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+		getActivity().startService(new Intent(getActivity(), VoIPService.class));
+		Intent intent = new Intent(getActivity(), VoIPService.class);
+		getActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
 		initProximityWakelock();
 		updateCallStatus();
 		super.onResume();
@@ -264,7 +264,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if (isBound) 
 			{
-				getSherlockActivity().unbindService(myConnection);
+				getActivity().unbindService(myConnection);
 			}
 		}
 		catch (IllegalArgumentException e) 
@@ -304,7 +304,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			if (!activity.isShowingCallFailedFragment()) {
 				// Bugfix AND-1315
 				Logger.d(tag, "Finishing activity.");
-				getSherlockActivity().finish();	// Bugfix AND-354
+				getActivity().finish();	// Bugfix AND-354
 			}
 			return;
 		}
@@ -326,6 +326,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			setupCallerLayout();
 		}
 	}
+
 
 	void handleIntent(Intent intent) 
 	{
@@ -406,7 +407,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if (isBound) 
 			{
-				getSherlockActivity().unbindService(myConnection);
+				getActivity().unbindService(myConnection);
 			}
 		}
 		catch (IllegalArgumentException e) {
@@ -446,28 +447,29 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private void showMessage(final String message) 
 	{
 		Logger.d(tag, "Toast: " + message);
-		getSherlockActivity().runOnUiThread(new Runnable() {
+		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
 				if (toast != null)
 					toast.cancel();
-				toast = Toast.makeText(getSherlockActivity(), message, Toast.LENGTH_LONG);
+				toast = Toast.makeText(getActivity(), message, Toast.LENGTH_LONG);
 				toast.show();
 			}
 		});
 	}
 
-	private void initProximityWakelock() 
-	{
-		if(activity.isShowingCallFailedFragment() || proximityWakeLock != null)
-			return;
 
-		// Set proximity sensor
-		proximityWakeLock = ((PowerManager)getSherlockActivity().getSystemService(Context.POWER_SERVICE)).newWakeLock(PROXIMITY_SCREEN_OFF_WAKELOCK, "ProximityLock");
-		proximityWakeLock.setReferenceCounted(false);
-		proximityWakeLock.acquire();
-	}
+		private void initProximityWakelock() 
+		{
+			if(activity.isShowingCallFailedFragment() || proximityWakeLock != null)
+				return;
+
+			// Set proximity sensor
+			proximityWakeLock = ((PowerManager)getActivity().getSystemService(Context.POWER_SERVICE)).newWakeLock(PROXIMITY_SCREEN_OFF_WAKELOCK, "ProximityLock");
+			proximityWakeLock.setReferenceCounted(false);
+			proximityWakeLock.acquire();
+		}
 
 	private void releaseProximityWakelock()
 	{
@@ -837,11 +839,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				updateConferenceList();
 		}
 
-		if (clientPartner.isHostingConference) {
-			addButton.setVisibility(View.GONE);
-		} else
-			addButton.setVisibility(View.VISIBLE);
-			
+		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
+			if (clientPartner.isHostingConference) {
+				addButton.setVisibility(View.GONE);
+			} else
+				addButton.setVisibility(View.VISIBLE);
+		}
 		
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
 		{
@@ -855,7 +858,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	
 		ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
 		List<VoIPClient> clients = new ArrayList<>(voipService.getConferenceClients());
-		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getSherlockActivity(), 0, 0, clients);
+		ConferenceParticipantsAdapter adapter = new ConferenceParticipantsAdapter(getActivity(), 0, 0, clients);
 		conferenceList.setAdapter(adapter);
 		conferenceList.setVisibility(View.VISIBLE);
 		conferenceList.setFocusable(false);
@@ -928,14 +931,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if(bundle!=null && VoIPUtils.shouldShowCallRatePopupNow())
 			{
-				Intent intent = IntentFactory.getVoipCallRateActivityIntent(getSherlockActivity());
+				Intent intent = IntentFactory.getVoipCallRateActivityIntent(getActivity());
 				intent.putExtra(VoIPConstants.CALL_RATE_BUNDLE, bundle);
 				startActivity(intent);
 			}
 			VoIPUtils.setupCallRatePopupNextTime();
 		}
 		isCallActive = false;
-		getSherlockActivity().finish();
+		getActivity().finish();
 	}
 
 	public void showCallFailedFragment(int callFailCode)
@@ -1018,3 +1021,4 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			bluetoothButton.setVisibility(View.GONE);
 	}
 }
+	

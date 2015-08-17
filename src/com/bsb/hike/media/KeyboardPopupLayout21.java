@@ -3,8 +3,6 @@ package com.bsb.hike.media;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Rect;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +14,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -59,10 +56,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
  */
 public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 {
-	private static final int KEYBOARD_CONFIGURATION_OLD = 1;
-
-	private static final int KEYBOARD_CONFIGURATION_NEW = 2;
-
 	private static final int STATE_NONE = 0;// not keyboard and sticker present
 
 	private static final int STATE_STICKER = 2;// only sticker or emoji pad
@@ -197,7 +190,9 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			updatePadding(popup.getHeight());
 			setState(STATE_STICKER);
 		}
-		popup.showAtLocation(mainView, Gravity.BOTTOM, 0, 0);
+		
+		showPopup(height);
+		
 		if (isKeyboardOpen)
 		{
 			setOnPreDrawTaskFlagOn();
@@ -334,44 +329,22 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 				Logger.wtf("chatthread", "Getting null view inside global layout listener");
 				return;
 			}
-			Log.i("chatthread", "global layout listener rootHeight " + mainView.getRootView().getHeight() + " new height " + mainView.getHeight());
+			Logger.i("chatthread", "global layout listener rootHeight " + mainView.getRootView().getHeight() + " new height " + mainView.getHeight());
 			Rect r = new Rect();
 			mainView.getWindowVisibleDisplayFrame(r);
 			// this is height of view which is visible on screen
 			int rootViewHeight = mainView.getRootView().getHeight();
-
+			
 			int temp = rootViewHeight - r.bottom;
-			Logger.i("chatthread", "keyboard  height " + temp);
-			if (temp > 0)
-			{
-				if(isKeyboardOpen == false)
-				{
-					onKeyboardOpen(temp);
-				}
-				if (isShowing())
-				{
-					updatePadding(popup.getHeight());
-				}
-			}
-			else
-			{
-				if(isKeyboardOpen == true)
-				{
-					onKeyboardClose();
-				}
-			}
+			Logger.i("chatthread", "possible keyboard height " + temp);
+			
+			interpretHeightOfKeyboard(temp);
 		}
 	};
 
 	private void setOnSoftKeyboardListener(OnSoftKeyboardListener onSoftKeyboardListener)
 	{
 		this.onSoftKeyboardListener = onSoftKeyboardListener;
-	}
-
-	public static boolean shouldShow(Context context)
-	{// server side switch
-		int kc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KEYBOARD_CONFIGURATION, KEYBOARD_CONFIGURATION_OLD);
-		return kc == KEYBOARD_CONFIGURATION_NEW;
 	}
 
 	public boolean onEditTextTouch(View v, MotionEvent event)
@@ -461,6 +434,20 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		int temp = rootViewHeight - r.bottom;
 		Logger.i("chatthread", "calculateKeyboardHeight :keyboard  height " + temp);
 
+		int bottomNavBarThreshold = 0;
+		
+		/**
+		 * For devices which are Lollipop or Higher, we have to take into consideration the window flag : WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS Due to this flag
+		 * we were drawing the popup on the system's nav bar tray as well instead of above it. this method excludes the navbar height from the keyboard height
+		 */
+		
+		if (shouldApplyNavBarOffset())
+		{
+			bottomNavBarThreshold = HikeMessengerApp.bottomNavBarHeightPortrait;
+		}
+		
+		temp -= bottomNavBarThreshold;
+		
 		if (temp > 0)
 		{
 			if (rootViewHeight * 0.9 < temp || rootViewHeight * 0.1 > temp)
@@ -522,6 +509,55 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 			}
 		}
 		return height;
+	}
+	
+	protected void interpretHeightOfKeyboard(int temp)
+	{
+		if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+		{
+			interpretHeightInPortraitMode(temp);
+		}
+
+		else
+		{
+			interpretHeightInLandscape(temp);
+		}
+	}
+
+	@Override
+	protected void interpretHeightInLandscape(int temp)
+	{
+		if (temp > 0)
+		{
+			isKeyboardOpen = true;
+			if (isShowing())
+			{
+				updatePadding(popup.getHeight());
+			}
+		}
+		else
+		{
+			isKeyboardOpen = false;
+		}
+	}
+
+	@Override
+	protected void interpretHeightInPortraitMode(int temp)
+	{
+		int bottomNavBArThreshold = shouldApplyNavBarOffset() ? HikeMessengerApp.bottomNavBarHeightPortrait : 0;
+		
+		if (temp > bottomNavBArThreshold)
+		{
+			isKeyboardOpen = true;
+			if (isShowing())
+			{
+				updatePadding(popup.getHeight());
+			}
+		}
+		else
+		{
+			isKeyboardOpen = false;
+		}
 	}
 
 }

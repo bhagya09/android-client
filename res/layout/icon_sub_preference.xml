@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Layout for a Preference in a PreferenceActivity. The Preference is able 
+to place a specific widget for its particular type in the "widget_frame" 
+layout.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_item"
+    android:gravity="center"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingRight="5dp"
+        android:paddingLeft="32dp" >
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="12dp"/>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+android:id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/icon"
+            android:text="Title"
+            android:textColor="@color/list_item_header"
+            android:textStyle="bold|italic"
+            android:textSize="16sp" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+android:id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@android:id/title"
+            android:layout_below="@android:id/title"
+            android:maxLines="4"
+            android:text="Summary"
+            android:textColor="@color/description_lightgrey"
+            android:textSize="12sp"
+            android:textStyle="bold|italic" />
+    </RelativeLayout>
+
+    <!-- Preference should place its actual preference widget here. -->
+
+    <LinearLayout
+        android:id="@+android:id/widget_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical" />
+
+</LinearLayout>

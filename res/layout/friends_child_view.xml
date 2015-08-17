@@ -1,48 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
 
     <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="69.5dp"
+        android:layout_height="@dimen/compose_item_height"
         android:background="@drawable/list_item"
-        android:orientation="horizontal"
-        android:paddingLeft="@dimen/contact_list_item_padding"
-        android:paddingRight="@dimen/contact_list_item_padding" >
+        android:paddingLeft="@dimen/conv_item_padding"
+        android:paddingRight="@dimen/conv_item_padding" >
         
+        <com.bsb.hike.view.RoundedImageView
+             android:id="@+id/avatar"
+             android:layout_width="@dimen/compose_avatar_dimen"
+             android:layout_height="@dimen/compose_avatar_dimen"
+             style="@style/RoundedStyle"
+             android:layout_alignParentLeft="true"
+             android:layout_centerVertical="true" />
+        
+        <RelativeLayout android:id="@+id/action_container"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:gravity="right"
+            android:layout_height="@dimen/compose_item_height" >
+            
         <CheckBox
 	        android:id="@+id/checkbox"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_centerVertical="true"
-	        android:layout_alignParentRight="true"
 	        android:button="@drawable/hike_list_item_checkbox"
+	        android:background="@android:color/transparent"
 	        android:clickable="false"
 	        android:focusable="false"
 	        android:visibility="gone" />
-
-        <FrameLayout
-            android:id="@+id/avatar_container"
-            android:layout_width="@dimen/hike_list_item_avtar"
-            android:layout_height="@dimen/hike_list_item_avtar"
-            android:layout_centerVertical="true" >
-
-            <com.bsb.hike.view.RoundedImageView
-                android:id="@+id/avatar"
-                style="@style/AvatarStyle.Padding" />
-
-        </FrameLayout>
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/invite_btn"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp"
-            android:layout_toLeftOf="@id/checkbox"
             android:background="@drawable/bg_green_btn_selector"
             android:gravity="center"
             android:maxWidth="80dp"
@@ -60,36 +57,31 @@
             android:id="@+id/online_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/invite_btn"
+            android:scaleType="centerInside"
+            android:visibility="gone"
             android:src="@drawable/ic_online_green_dot" />
+        
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp"
-            android:layout_toLeftOf="@id/online_indicator"
-            android:layout_toRightOf="@id/avatar_container"
+            android:layout_toLeftOf="@id/action_container"
+            android:layout_toRightOf="@id/avatar"
+            style="@style/compose_name_container_margins"
             android:orientation="vertical" >
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center_vertical"
-                android:singleLine="true"
-                android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
-                android:textColor="@color/list_item_header"
-                android:textSize="16sp"
-                android:textStyle="bold|italic" />
-
+                android:text="ABCDEFGH"
+                style="@style/ListItemHeaderTextView" />
+                
             <LinearLayout
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
-            	android:orientation="horizontal" >
+            	android:orientation="horizontal"
+            	android:layout_marginTop="4dp" >
             	
             	<ImageView
             	    android:id="@+id/status_mood"
@@ -101,20 +93,10 @@
             	
             	<com.bsb.hike.view.CustomFontTextView
                 	android:id="@+id/last_seen"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentLeft="true"
-	                android:layout_centerVertical="true"
-	                android:ellipsize="end"
-	                android:singleLine="true"
 	                android:text="what&apos;s up dude?  I really like cookies.  They taste so good and fresh.  I like pie as well.  I&apos;m so fat"
-	                android:textColor="@color/list_item_subtext"
-	                android:textSize="15dp"
-	                android:textStyle="italic"
+	                style="@style/ListItemSubHeaderTextView"
 	                android:visibility="visible" />
         	</LinearLayout>
             	
         </LinearLayout>
     </RelativeLayout>
-
-</LinearLayout>

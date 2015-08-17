@@ -3,31 +3,23 @@ package com.bsb.hike.utils;
 import java.io.File;
 import java.util.ArrayList;
 
-import android.content.pm.PackageManager;
-import android.os.Build;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.platform.HikePlatformConstants;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.bool;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.webkit.URLUtil;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -36,6 +28,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -47,12 +42,11 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
-import com.bsb.hike.ui.CreditsActivity;
 import com.bsb.hike.ui.FileSelectActivity;
-import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
@@ -192,7 +186,10 @@ public class IntentFactory
 
 	public static void openSettingSMS(Context context)
 	{
-		context.startActivity(new Intent(context, CreditsActivity.class));
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.sms_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.free_sms_txt);
+		context.startActivity(intent);
 	}
 
 	public static void openSettingAccount(Context context)
@@ -426,16 +423,7 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void createBroadcastFtue(Context appContext)
-	{
-		Intent intent = new Intent(appContext.getApplicationContext(), FtueBroadcast.class);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
-		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		appContext.startActivity(intent);
-	}
-
-	public static void createBroadcastDefault(Context appContext)
+	public static void createBroadcastIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
@@ -976,6 +964,13 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static Intent getInviteViaSMSIntent(Context context)
+	{
+		Intent intent = new Intent(context, HikeListActivity.class);
+		intent.putExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, true);
+		return intent;
+	}
+		
 	public static Intent getEmailOpenIntent(Context context)
 	{
 		return getEmailOpenIntent(context, null, null, null);

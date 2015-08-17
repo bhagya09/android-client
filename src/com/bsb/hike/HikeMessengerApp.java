@@ -31,7 +31,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.Pair;
 
 import com.bsb.hike.bots.BotInfo;
@@ -283,8 +282,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String SHOWN_EMOTICON_TIP = "shownEmoticonTip1";
 
-	public static final String SHOWN_PIN_TIP = "shownPinTip";
-
 	public static final String SHOWN_MOODS_TIP = "shownMoodsTip1";
 
 	public static final String SHOWN_WALKIE_TALKIE_TIP = "shownWalkieTalkieTip";
@@ -493,8 +490,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String UPGRADE_FOR_DEFAULT_BOT_ENTRY = "upgradeForBotEntry";
 
-	public static final String SHOW_BROADCAST_FTUE_SCREEN = "showBroadcastFtueScreen";
-
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
@@ -627,6 +622,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	RegisterToGCMTrigger mmRegisterToGCMTrigger = null;
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
+	
+	public static int bottomNavBarHeightPortrait = 0;
+	
+	public static int bottomNavBarWidthLandscape = 0;
 
 	static
 	{
@@ -928,10 +927,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		{
 			fetchPlatformIDIfNotPresent();
 		}
-
+		
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
 		StickerSearchManager.getInstance().removeDeletedStickerTags();
+		
+		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
+		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1144,4 +1146,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		}
 	};
 
+	public static boolean keyboardApproach(Context context)
+	{// server side switch
+		int kc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KEYBOARD_CONFIGURATION, HikeConstants.KEYBOARD_CONFIGURATION_NEW);
+		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
+	}
 }

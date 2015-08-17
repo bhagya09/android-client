@@ -14,15 +14,6 @@
         android:layout_weight="1"
         android:paddingRight="5dp" >
 
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="12dp"
-            android:src="@drawable/ic_credits" />
-
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
