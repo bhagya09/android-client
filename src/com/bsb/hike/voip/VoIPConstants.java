@@ -60,7 +60,7 @@ public class VoIPConstants {
 	 * clients will stop transmitting audio completely when they do not
 	 * detect a voice signal from their mic. 
 	 */
-	public static final int CONFERENCE_THRESHOLD = 10;
+	public static final int CONFERENCE_THRESHOLD = 3;
 
 	/**
 	 * Number of seconds to wait for before triggering congestion control again.

@@ -1644,6 +1644,12 @@ public class VoIPClient  {
 						VoIPDataPacket packetToEncode = samplesToEncodeQueue.take();
 						byte[] pcmData = packetToEncode.getData();
 						
+						// Set encoding bitrate depending on whether audio has voice
+						if (packetToEncode.isVoice())
+							opusWrapper.setEncoderBitrate(getVoiceBitrate());
+						else
+							opusWrapper.setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
+							
 						// Get compressed data from the encoder
 						if ((compressedDataLength = opusWrapper.encode(pcmData, compressedData)) > 0) {
 							byte[] trimmedCompressedData = new byte[compressedDataLength];
@@ -1805,8 +1811,6 @@ public class VoIPClient  {
 		
 		Logger.d(tag, "Detected ideal bitrate: " + localBitrate);
 		
-		if (opusWrapper != null)
-			opusWrapper.setEncoderBitrate(localBitrate);
 	}
 	
 	private void sendLocalBitrate() {
@@ -1869,11 +1873,6 @@ public class VoIPClient  {
 	private void interruptResponseTimeoutThread() {
 		if (responseTimeoutThread != null)
 			responseTimeoutThread.interrupt();
-	}
-	
-	public void setEncoderBitrate(int bitrate) {
-		if (opusWrapper != null)
-			opusWrapper.setEncoderBitrate(bitrate);
 	}
 	
 	public VoIPDataPacket getDecodedBuffer() {
@@ -1969,9 +1968,9 @@ public class VoIPClient  {
 		if (remotePacketLoss < VoIPConstants.ACCEPTABLE_PACKET_LOSS)
 			bitrateAdjustment += VoIPConstants.BITRATE_STEP_UP;
 		else
-			bitrateAdjustment -= remotePacketLoss * getBitrate() / 100;
+			bitrateAdjustment -= remotePacketLoss * getVoiceBitrate() / 100;
 		
-		if (getBitrate() < OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE) {
+		if (getVoiceBitrate() < OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE) {
 			bitrateAdjustment = OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE - localBitrate;
 			if (version >= 3 && audioFramesPerUDPPacket < VoIPConstants.MAXIMUM_FRAMES_PER_PACKET) {
 				audioFramesPerUDPPacket++;	
@@ -1980,10 +1979,9 @@ public class VoIPClient  {
 		}
 		
 		Logger.d(tag, "Remote loss: " + remotePacketLoss + 
-				", bitrate: " + getBitrate() +
+				", bitrate: " + getVoiceBitrate() +
 				", frames/packet: " + audioFramesPerUDPPacket);
 		
-		opusWrapper.setEncoderBitrate(getBitrate());
 		sendPacket(new VoIPDataPacket(PacketType.RESET_PACKET_LOSS), false);
 		lastCongestionControlTimestamp = System.currentTimeMillis();
 	}
@@ -2012,6 +2010,11 @@ public class VoIPClient  {
 	}
 	
 	public void addSampleToEncode(VoIPDataPacket dp) {
+		
+		// If we are in a large conference, then don't send non-voice audio
+		if (!dp.isVoice() && clientMsisdns.size() > VoIPConstants.CONFERENCE_THRESHOLD)
+			return;
+		
 		samplesToEncodeQueue.add(dp);
 	}
 	
@@ -2058,7 +2061,7 @@ public class VoIPClient  {
 		sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
 	}
 	
-	public int getBitrate() {
+	public int getVoiceBitrate() {
 		return localBitrate + bitrateAdjustment;
 	}
 	
