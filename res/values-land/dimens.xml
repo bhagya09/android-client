@@ -34,8 +34,8 @@
 	<dimen name="fs_moving_ribbon1_height">246dp</dimen>
 	<dimen name="gift_card_width">208dp</dimen>
 	<dimen name="gift_card_height">216dp</dimen>
-	<dimen name="signup_gender_padding_top">7dp</dimen>
-	<dimen name="signup_gender_drawable_padding">7dp</dimen>
+	<dimen name="signup_gender_padding_top">6dp</dimen>
+	<dimen name="signup_gender_drawable_padding">6dp</dimen>
 	<dimen name="signup_header_height">70dp</dimen>
 	<dimen name="addfriend_popup_content_height">128dp</dimen>
 	<dimen name="ftue_card_text_header_font">32dp</dimen>
