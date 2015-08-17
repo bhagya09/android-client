@@ -869,7 +869,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			else if (contactInfo.isOnhike()) 
 				{
-					setStatusText(getJoinedHikeStatus(contactInfo), subText, text);
+					setStatusText(StatusMessage.getJoinedHikeStatus(contactInfo), subText, text);
 					if ((contactInfo.getFavoriteType() == FavoriteType.NOT_FRIEND  || contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED))
 					{
 						if (contactInfo.isUnknownContact())
@@ -1007,7 +1007,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			return;
 		}
 		
-		status = getJoinedHikeStatus(contactInfo);
+		status = StatusMessage.getJoinedHikeStatus(contactInfo);
 		setStatusText(status, subText, name);
 	}
 	
@@ -1064,7 +1064,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(contactInfo.isOnhike() && contactInfo.getHikeJoinTime() > 0)
 		{
-			profileItems.add(new ProfileItem.ProfileStatusItem(getJoinedHikeStatus(contactInfo)));
+			profileItems.add(new ProfileItem.ProfileStatusItem(StatusMessage.getJoinedHikeStatus(contactInfo)));
 		}
 	}
 
@@ -1420,7 +1420,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							(int) statusMessage.getId(), mLocalMSISDN);
 					if (!olderMessages.isEmpty() && isLastMessageJoinedHike)
 					{
-						olderMessages.add(getJoinedHikeStatus(contactInfo));
+						olderMessages.add(StatusMessage.getJoinedHikeStatus(contactInfo));
 					}
 					return olderMessages;
 				}
@@ -2655,12 +2655,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 			});
 		}
-	}
-
-	private StatusMessage getJoinedHikeStatus(ContactInfo contactInfo)
-	{
-		return new StatusMessage(HikeConstants.JOINED_HIKE_STATUS_ID, null, contactInfo.getMsisdn(), contactInfo.getName(),
-				getString(R.string.joined_hike_update), StatusMessageType.JOINED_HIKE, contactInfo.getHikeJoinTime());
 	}
 
 	@Override

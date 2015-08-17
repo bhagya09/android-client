@@ -13,7 +13,9 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -316,5 +318,9 @@ public class StatusMessage
 		this.actionsData = actionsData;
 	}
 	
-	
+	public static StatusMessage getJoinedHikeStatus(ContactInfo contactInfo)
+	{
+		return new StatusMessage(HikeConstants.JOINED_HIKE_STATUS_ID, null, contactInfo.getMsisdn(), contactInfo.getName(), HikeMessengerApp.getInstance().getString(
+				R.string.joined_hike_update), StatusMessageType.JOINED_HIKE, contactInfo.getHikeJoinTime());
+	}
 }

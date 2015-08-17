@@ -628,6 +628,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.mainInfo.setMovementMethod(null);
 				break;
 			case JOINED_HIKE:
+				viewHolder.yesBtn.setVisibility(View.GONE);
+				viewHolder.noBtn.setVisibility(View.GONE);
+				viewHolder.extraInfo.setVisibility(View.GONE);
+				viewHolder.mainInfo.setText(statusMessage.getText());
 				break;
 			default:
 				break;

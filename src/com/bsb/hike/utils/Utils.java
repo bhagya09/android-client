@@ -6859,5 +6859,6 @@ public class Utils
 	{
 		return getUserContactInfo(false).getMsisdn().equals(argMsisdn);
 	}
+
 }
 
