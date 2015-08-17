@@ -952,8 +952,10 @@ public class ConversationsAdapter extends BaseAdapter
 
 			if (message.isSent())
 			{
-				imgStatus.setImageResource(message.getImageState());
+				int drawableResId = message.getImageState();
+				imgStatus.setImageResource(drawableResId);
 				imgStatus.setVisibility(View.VISIBLE);
+				setImgStatusPadding(imgStatus, drawableResId);
 			}
 
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
@@ -985,6 +987,12 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
 		}
+	}
+
+	private void setImgStatusPadding(ImageView imgStatus, int drawableResId)
+	{
+		// we have separate padding from bottom for clock and other assets
+		imgStatus.setPadding(0, 0, 0, drawableResId == R.drawable.ic_retry_sending ? context.getResources().getDimensionPixelSize(R.dimen.clock_padding_bottom) : context.getResources().getDimensionPixelSize(R.dimen.tick_padding_bottom));
 	}
 
 	private CharSequence getConversationText(ConvInfo convInfo, ConvMessage message)
