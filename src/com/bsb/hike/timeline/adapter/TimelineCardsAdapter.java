@@ -309,6 +309,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			emptyMessage.arg1 = UpdatesFragment.EMPTY_STATE;
 			this.handleUIMessage(emptyMessage);
 		}
+		else // Need to send a message in-case if list is not empty to remove empty state
+		{
+			Message emptyMessage = Message.obtain();
+			emptyMessage.arg1 = UpdatesFragment.FILL_STATE;
+			this.handleUIMessage(emptyMessage);
+		}
 		
 		return size;
 	}
@@ -622,6 +628,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.mainInfo.setMovementMethod(null);
 				break;
 			case JOINED_HIKE:
+				viewHolder.yesBtn.setVisibility(View.GONE);
+				viewHolder.noBtn.setVisibility(View.GONE);
+				viewHolder.extraInfo.setVisibility(View.GONE);
+				viewHolder.mainInfo.setText(statusMessage.getText());
 				break;
 			default:
 				break;

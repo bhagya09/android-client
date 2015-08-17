@@ -18,7 +18,7 @@ public class PhotoActionsFragment extends Fragment
 
 	private String[] mTitles;
 
-	private int itemIcons[] = { R.drawable.ic_camera, R.drawable.ic_profile_picture, R.drawable.ic_send_friend };
+	private int itemIcons[] = { R.drawable.ic_profile_picture, R.drawable.ic_send_friend, R.drawable.ic_camera };
 
 	private ActionListener mListener;
 

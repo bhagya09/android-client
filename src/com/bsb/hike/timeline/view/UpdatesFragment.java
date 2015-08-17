@@ -115,6 +115,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	public static final int EMPTY_STATE = -10;
 
+	public static final int FILL_STATE = -11;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -172,7 +174,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			public void handleUIMessage(Message msg)
 			{
 				super.handleUIMessage(msg);
-				if (msg.arg1 == UpdatesFragment.EMPTY_STATE)
+				if (msg.arg1 == UpdatesFragment.EMPTY_STATE || msg.arg1 == UpdatesFragment.FILL_STATE)
 				{
 					checkIfTimelineEmpty();
 					msg.recycle();
@@ -553,6 +555,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 						}
 					});
 				}
+			}
+			
+			//User joined status message
+			if(mShowProfileHeader)
+			{
+				statusMessages.add(StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0))));
 			}
 
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
