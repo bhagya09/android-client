@@ -1198,7 +1198,6 @@
     <string name="drag_tip_text">Toca y mantén pulsado un paquete para cambiar el orden en el que aparece.</string>
     <string name="drag_tip_subtext">Toca y arrastra para reordenar tus pegatinas</string>
     <string name="CANCEL">CANCELAR</string>
-    <string name="CONFIRM">CONFIRMAR</string>
     <string name="n_more">%1$d MÁS</string>
     <string name="n_stickers">%1$d pegatinas</string>
     <string name="last_backup">Última copia de seguridad</string>
