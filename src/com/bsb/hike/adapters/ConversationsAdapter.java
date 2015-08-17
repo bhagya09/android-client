@@ -31,8 +31,8 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -971,7 +971,7 @@ public class ConversationsAdapter extends BaseAdapter
 				messageView.setText(NUXManager.getInstance().getNuxChatRewardPojo().getChatWaitingText());	
 			}
 			
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
+			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) messageView.getLayoutParams();
 			lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
 			messageView.setLayoutParams(lp);
 		}
