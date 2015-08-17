@@ -320,12 +320,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 		
-		if(!TextUtils.isEmpty(mImagePath) && isFinishing())
-		{
-			File file = new File(mImagePath);
-			if(file.exists())
-				Utils.deleteFile(new File(mImagePath));
-		}
 	}
 
 	private void setupActionBar()
