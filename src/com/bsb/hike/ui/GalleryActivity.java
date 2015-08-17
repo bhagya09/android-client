@@ -64,6 +64,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
 	
+	public static final int GALLERY_CROP_IMAGE = 64;
+	
 	public static final int GALLERY_ALLOW_MULTISELECT = 32;
 	
 	public static final int GALLERY_CATEGORIZE_BY_FOLDERS = 16;
@@ -130,6 +132,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private boolean editEnabled;
 	
 	private ArrayList<String> editedImages;
+	
+	public static final String GALLERY_RESULT_ACTION = "gal_res_act";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -617,7 +621,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				{
 					//since sendResult is active when we need to send result to selection viewer
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else
@@ -683,7 +687,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			previousEventTime = currTime;
 		}
 	}
-
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -693,7 +697,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			switch(requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
-				setResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
+				setGalleryResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
 				finish();
 				break;
 			case HikeConstants.CAMERA_RESULT:
@@ -726,7 +730,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				else if(isStartedForResult())
 				{
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else
@@ -745,6 +749,16 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
+	public void setGalleryResult(int resultCode,Intent data)
+	{
+		//setting gallery result action if action is not already set for the data
+		if(data.getAction() == null)
+		{
+			data.setAction(GALLERY_RESULT_ACTION);
+		}
+		setResult(resultCode,data);
+	}
+	
 	@Override
 	public void onItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
@@ -863,7 +877,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				else if (isStartedForResult())
 				{
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else

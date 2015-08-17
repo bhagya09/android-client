@@ -1,62 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
-    <RelativeLayout
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view"
         style="@style/CardContainerWithdoutPadding"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp" >
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
+        card_view:cardCornerRadius="4dp" >
 
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:text="Pankaj Verma"
-            android:textColor="@color/standard_black"
-            android:textSize="@dimen/ftue_contact_card_text_size"
-            android:textStyle="italic"
-            android:paddingRight="17dp"
-            android:paddingLeft="22dp" />
-
-        <LinearLayout
-            android:id="@+id/details_content"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/name"
-            android:layout_marginRight="5dp"
-            android:paddingLeft="22dp"
-            android:paddingRight="10dp"
-            android:orientation="vertical" >
+            android:paddingTop="20dp" >
 
-            <com.bsb.hike.view.LinkedTextView
-                android:id="@+id/main_info"
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="Added you as a friend"
+                android:layout_alignParentLeft="true"
+                android:paddingLeft="22dp"
+                android:paddingRight="17dp"
+                android:text="Pankaj Verma"
                 android:textColor="@color/standard_black"
-                android:textSize="15sp"
+                android:textSize="@dimen/ftue_contact_card_text_size"
                 android:textStyle="italic" />
-        </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/contacts_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/details_content"
-            android:layout_marginTop="16dp"
-            android:orientation="vertical" />
-        
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/see_all"
-            android:text="@string/see_all_upper_caps"
-            style="@style/FtueCardActionButton"
-            android:layout_below="@id/contacts_container" />
-        
-    </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/details_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/name"
+                android:layout_marginRight="5dp"
+                android:orientation="vertical"
+                android:paddingLeft="22dp"
+                android:paddingRight="10dp" >
+
+                <com.bsb.hike.view.LinkedTextView
+                    android:id="@+id/main_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Added you as a friend"
+                    android:textColor="@color/standard_black"
+                    android:textSize="15sp"
+                    android:textStyle="italic" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contacts_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/details_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/see_all"
+                style="@style/FtueCardActionButton"
+                android:layout_below="@id/contacts_container"
+                android:text="@string/see_all_upper_caps" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
 </RelativeLayout>
