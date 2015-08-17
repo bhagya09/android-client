@@ -199,7 +199,7 @@ public class ActionsDataModel
 			Logger.d("ActionsDataModel", "adding "+(isAdded?"issuccess":"failed"));
 			if (isAdded)
 			{
-				setCount(getCount() + 1);
+				setCount(contactInfoList.size());
 			}
 
 			return isAdded;
@@ -235,7 +235,7 @@ public class ActionsDataModel
 		
 		if (isRemoved)
 		{
-			setCount(getCount() - 1);
+			setCount(contactInfoList.size());
 		}
 		return isRemoved;
 	}
