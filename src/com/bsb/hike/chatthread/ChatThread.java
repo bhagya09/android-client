@@ -329,7 +329,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
-	private boolean ctSearchIndicatorShown, consumedForwardedData;
+	private boolean consumedForwardedData;
 	
 	protected HikeDialog dialog;
 	
@@ -601,7 +601,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionBar = new HikeActionBar(activity);
 		mConversationDb = HikeConversationsDatabase.getInstance();
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
-		ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 	}
 
@@ -1825,7 +1824,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		PhonebookContact contact = PickContactParser.onContactResult(resultCode, data, activity.getApplicationContext());
 		if (contact != null)
 		{
-			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CONTACT_SEND_DIALOG, this, contact, getString(R.string.send), false);
+			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CONTACT_SEND_DIALOG, this, contact, getString(R.string.send_uppercase), false);
 		}
 	}
 
@@ -1834,7 +1833,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		PhonebookContact contact = PickContactParser.getContactData(contactId, activity);
 		if (contact != null)
 		{
-			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CONTACT_SEND_DIALOG, this, contact, getString(R.string.send), false);
+			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CONTACT_SEND_DIALOG, this, contact, getString(R.string.send_uppercase), false);
 		}
 	}
 
@@ -3220,7 +3219,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 		}
 
-		showOverflowIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
+		showOverflowIndicatorsIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
 
 		View unreadMessageIndicator = activity.findViewById(R.id.new_message_indicator);
 
@@ -3265,7 +3264,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 	
-	private void showOverflowIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
+	private void showOverflowIndicatorsIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
 		showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
 	}
@@ -3281,6 +3280,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 *  - Messages not are being loaded.
 		 *  Note: This is to be shown only once
 		 */
+		boolean ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
 		if (!ctSearchIndicatorShown && !mActionBar.isOverflowMenuIndicatorInUse()
 				&& (firstVisibleItem + visibleItemCount + 1) < totalItemCount && !loadingMoreMessages)
 		{
@@ -3288,13 +3288,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			// Just mark it already shown and move on.
 			if (sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 			{
-				ctSearchIndicatorShown = true;
 				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
 			}
 			// If the indicator is successfully displayed the setting is saved, so that its not shown again.
 			else if (mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_top_bar_indicator_search))
 			{
-				ctSearchIndicatorShown = true;
 				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
 			}
 		}
