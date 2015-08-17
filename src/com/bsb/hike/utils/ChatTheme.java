@@ -112,7 +112,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "43";
+			return "42";
 		}
 
 		@Override
@@ -418,7 +418,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "44";
+			return "41";
 		}
 
 		@Override
@@ -622,7 +622,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "45";
+			return "36";
 		}
 
 		@Override
@@ -723,7 +723,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "46";
+			return "37";
 		}
 
 		@Override
@@ -826,7 +826,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "48";
+			return "38";
 		}
 
 		@Override
@@ -1537,7 +1537,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "49";
+			return "30";
 		}
 
 		@Override
@@ -2149,7 +2149,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "50";
+			return "25";
 		}
 
 		@Override
