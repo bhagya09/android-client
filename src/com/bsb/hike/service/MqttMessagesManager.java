@@ -4347,7 +4347,16 @@ public class MqttMessagesManager
 			msisdnSet = new LinkedHashSet<String>();
 			for (int i = 0; i < msisdnArray.length(); i++)
 			{
-				msisdnSet.add(msisdnArray.optString(i));
+				String msisdn = msisdnArray.optString(i);
+				if(!TextUtils.isEmpty(msisdn))
+				{
+					msisdnSet.add(msisdn);
+					if(!new File(Utils.getProfileImageFileName(msisdn)).exists())
+					{
+						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().getContact(msisdn, true, true).hasCustomPhoto(), false, null, null, null, false,false).startLoadingTask();
+					}
+				}
+				
 			}
 		}
 		
