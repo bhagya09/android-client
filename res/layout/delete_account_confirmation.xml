@@ -67,6 +67,7 @@
             android:layout_marginTop="30dp"
             android:background="@drawable/signup_button"
             android:onClick="deleteAccountClicked"
+            android:stateListAnimator="@null" 
             android:text="@string/delete_my_account"
             android:textColor="@color/white"
             android:textSize="14sp" />
