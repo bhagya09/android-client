@@ -1192,7 +1192,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
     <string name="drag_tip_subtext">Tap and drag to reorder your stickers</string>
     <string name="CANCEL">CANCEL</string>
-    <string name="CONFIRM">CONFIRM</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
     <string name="last_backup">Last backup</string>
