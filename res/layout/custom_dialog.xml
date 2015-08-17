@@ -57,6 +57,7 @@
             android:layout_marginRight="@dimen/custom_dialog_preferred_paddding"
             android:layout_marginTop="8dp"
             android:button="@drawable/hike_list_item_checkbox"
+            android:paddingLeft="16dp"
             android:text="checkbox"
             android:visibility="gone" />
     </LinearLayout>
