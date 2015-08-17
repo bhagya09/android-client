@@ -3119,4 +3119,8 @@ public class HikeConstants
 
 	public static final String DEVICE_DETAILS = "dd";
 
+	public static final String EXTRAS_BOT_MSISDN = "extras_bot_msisdn";
+
+	public static final String REWARDS_BOT_MSISDN = "rewards_bot_msisdn";
+
 }

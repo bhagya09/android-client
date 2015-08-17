@@ -1605,4 +1605,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="ALLOW">ALLOW</string>
     <string name="pref_message_settings">MESSAGE SETTINGS</string>
     <string name="pref_sticker_settings">STICKER SETTINGS</string>
+    <string name="no_places_found">No places found</string>
+    
 </resources>
