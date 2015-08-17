@@ -212,8 +212,8 @@
     <string name="free_sms_msg">Turn on to send free SMS to India</string>
     <string name="auto_download_media">Auto download media</string>
     <string name="auto_download_media_hinttext">Download settings for photos, videos, audio</string>
-    <string name="md_auto_download_media">Auto Download Media : Mobile</string>
-    <string name="wf_auto_download_media">Auto Download Media : Wi-Fi</string>
+    <string name="md_auto_download_media">AUTO DOWNLOAD MEDIA : MOBILE</string>
+    <string name="wf_auto_download_media">AUTO DOWNLOAD MEDIA : WI-FI</string>
     <string name="auto_download_image_title">Images</string>
     <string name="auto_download_video_title">Video</string>
     <string name="auto_download_audio_title">Audio</string>
@@ -366,7 +366,6 @@
     <string name="on_dnd">on DND</string>
     <string name="blocked_list">Blocked List</string>
     <string name="accepted_friend_request">Confirmed as a friend</string>
-    <string name="invite_free_sms">Invite via free SMS</string>
     <string name="leave">Leave</string>
     <string name="mute_group">Mute Group</string>
     <string name="unmute_group">Unmute Group</string>
@@ -638,7 +637,7 @@
     <string name="protip_games">games</string>
     <string name="ftue_grid_string">Start a conversation with one\nof your friends.</string>
     <string name="remind">Remind</string>
-    <string name="ok">OK</string>
+    <string name="OK">OK</string>
     <string name="not_show_call_alert_msg">Do not show again</string>
     <string name="view_profile">View Profile</string>
     <string name="normal_update_head">Important Update available</string>
@@ -819,7 +818,7 @@
     <string name="chatThreadNudgeTutorialText_group">Double tap anywhere to nudge your friends</string>
     <string name="addedYouAsFavorite">Added %1$s to Favorites</string>
     <string name="addedYouFrindDescription">
-<![CDATA[ You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#0f8fe1">Status Updates</font> with %1$s. Would you like to request him to do the same?
+<![CDATA[ You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#1da8e8">Status Updates</font> with %1$s. Would you like to request him to do the same?
 	    ]]>
     </string>
     <string name="contacts_upper_case">CONTACTS</string>
@@ -921,7 +920,6 @@
     <string name="unlink_confirmation">Are you sure you want to reset your account?</string>
     <string name="unlinking_account">Resetting...</string>
     <string name="delete_confirm_msg_1">This will delete all your messages, SMS balance and any hike rewards.</string>
-    <string name="delete_confirm_msg_2">Are you sure want to continue? This action is irreversible.</string>
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Add to contacts</string>
     <string name="delete_leave">Delete and exit group</string>
@@ -1194,8 +1192,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="see_them">DONE</string>
     <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
     <string name="drag_tip_subtext">Tap and drag to reorder your stickers</string>
-    <string name="sticker_cancel">CANCEL</string>
-    <string name="sticker_confirm">CONFIRM</string>
+    <string name="CANCEL">CANCEL</string>
+    <string name="CONFIRM">CONFIRM</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
     <string name="last_backup">Last backup</string>
@@ -1248,7 +1246,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="auth_state_connecting">Connecting...</string>
     <string name="auth_please_wait_connect">Please wait while we connect you...</string>
     <string name="auth_done">DONE</string>
-    <string name="auth_cancel">Cancel</string>
     <string name="auth_retry">Retry</string>
     <string name="auth_went_wrong">Something went wrong.</string>
     <string name="install_text">FREE INSTALL</string>
@@ -1498,6 +1495,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_round_group_image_chatthread_actionbar">Group image (rounded) chat-thread actionbar</string>
     <string name="content_des_typing_notification_chatting">Typing information to user while chatting</string>
     <string name="content_des_typing_notification_received">Typing notification received to user</string>
+    <string name="content_des_settings_menu_preference_back_button">Typing notification received to user</string>
     <string name="stealth_timeout_always_key">Always</string>
     <string name="stealth_timeout_never_key">Never</string>
     <string name="stealth_timeout_immediate_key">30 seconds</string>
@@ -1583,6 +1581,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="task_already_running">Task already running</string>
     <string name="sticker_share_popup_activate_toast">Stickey has now been activated!</string>
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
+    <string name="send_logs">Send logs</string>
+    <string name="sms_with_settings">SMS Settings</string>
+    <string name="sms_credits_with_settings">FREE SMS: %1$d</string>
+    <string name="free_hike_2_sms_india">Free only to India</string>
     <string name="invite_friends_earn_rewards">Invite friends to hike and earn rewards</string>
     <string name="your_referral_code">Your <b>referral</b> code</string>
     <string name="share_referral_code">Share your referral code anywhere and earn rewards for every friend who joins through your invite</string>
@@ -1595,5 +1597,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="goto_timeline">Go to Timeline.</string>
     <string name="contacts_sync_error">Contact sync failed. Please try again</string>
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
+    <string name="invite_free_sms">Free SMS Invite</string>
     <string name="sticker_recommend_settings_toast">You can enable Sticker suggestions from Settings > Chat settings anytime</string>
+    <string name="YES">YES</string>
+    <string name="NO">NO</string>
+    <string name="DELETE">DELETE</string>
 </resources>
