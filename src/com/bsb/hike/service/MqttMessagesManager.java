@@ -3,9 +3,11 @@ package com.bsb.hike.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +61,10 @@ import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
@@ -92,6 +93,10 @@ import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
+import com.bsb.hike.timeline.model.FeedDataModel;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
@@ -215,22 +220,6 @@ public class MqttMessagesManager
 			}
 		}
 	}
-
-	/**
-	 * Used to save user icon to db
-	 * @param iconData 
-	 * @param msisdn of the user
-	 * @throws JSONException
-	 */
-	private void saveUserIcon(JSONObject iconData, String msisdn) throws JSONException
-	{
-		String iconBase64 = iconData.getString(HikeConstants.DATA);
-		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
-
-		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
-	}
-	
 
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
 	{
@@ -1582,10 +1571,10 @@ public class MqttMessagesManager
 		FavoriteType currentType = contactInfo.getFavoriteType();
 		FavoriteType favoriteType = (currentType == FavoriteType.NOT_FRIEND || currentType == FavoriteType.REQUEST_RECEIVED_REJECTED || currentType == FavoriteType.REQUEST_RECEIVED) ? FavoriteType.REQUEST_RECEIVED
 				: FavoriteType.FRIEND;
-
+		
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(contactInfo, favoriteType);
 		this.pubSub.publish(favoriteType == FavoriteType.REQUEST_RECEIVED ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.FRIEND_REQUEST_ACCEPTED, favoriteToggle);
-
+		
 		if(favoriteType == favoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
@@ -1598,6 +1587,8 @@ public class MqttMessagesManager
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
 			}
 		}
+		
+		contactInfo.setFavoriteType(favoriteType);
 
 		if (favoriteType == FavoriteType.FRIEND)
 		{
@@ -2050,6 +2041,16 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_SEND_LOGS, enableSendLogs);
 			AppConfig.refresh();
 		}
+		if(data.has(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS))
+		{
+			boolean showCount = data.optBoolean(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS);
+			
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, showCount);
+			
+			boolean showLikes = data.optBoolean(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES,false);
+			
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, showLikes);
+		}
 		if(data.has(HikeConstants.URL_WHITELIST))
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
@@ -2293,12 +2294,21 @@ public class MqttMessagesManager
 			boolean msgingLogging = data.getBoolean(HikeConstants.MESSAGING_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, msgingLogging);
 		}
-		if(data.has(HikeConstants.NOTIFICATIONS_PRIORITY))
+		if (data.has(HikeConstants.SPECIAL_DAY_TRIGGER))
+		{
+			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
+		}
+		if (data.has(HikeConstants.ENABLE_TIMELINE_FTUE))
+		{
+			boolean enableTimelineFTUE = data.getBoolean(HikeConstants.ENABLE_TIMELINE_FTUE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, enableTimelineFTUE);
+		}
+		if (data.has(HikeConstants.NOTIFICATIONS_PRIORITY))
 		{
 			int priority = data.getInt(HikeConstants.NOTIFICATIONS_PRIORITY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);			
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);
 		}
-		
 		if (data.has(MqttConstants.MQTT_PING_SENDER))
 		{
 			int pingSender = data.getInt(MqttConstants.MQTT_PING_SENDER);
@@ -2554,7 +2564,10 @@ public class MqttMessagesManager
 	private void saveStatusUpdate(JSONObject jsonObj) throws JSONException
 	{
 		StatusMessage statusMessage = new StatusMessage(jsonObj);
+		
 		ContactManager conMgr = ContactManager.getInstance();
+		
+		JSONObject jsonData = jsonObj.getJSONObject(HikeConstants.DATA);
 		/*
 		 * This would be true for unsupported status message types. We should not be doing anything if we get one.
 		 * 
@@ -2593,13 +2606,9 @@ public class MqttMessagesManager
 
 		if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
-			String iconBase64 = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.THUMBNAIL);
+			String iconBase64 = (String) jsonData.remove(HikeConstants.THUMBNAIL);
 			conMgr.setIcon(statusMessage.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
-			/*
-			 * Removing the thumbnail string from the JSON, since we've already saved it.
-			 */
-			jsonObj.getJSONObject(HikeConstants.DATA).remove(HikeConstants.THUMBNAIL);
-
+			
 			/**
 			 * Problem: on DP upload, Two MQTT packets come IC + SU
 			 * SO if SU comes first then in notification popped old DP was shown
@@ -2611,14 +2620,31 @@ public class MqttMessagesManager
 			 */
 			conMgr.setIcon(statusMessage.getMsisdn(), Base64.decode(iconBase64, Base64.DEFAULT), false);
 		}
+		//Check if status message has image other than dp updates
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		{
+			final String iconBase64 = jsonData.optString(HikeConstants.THUMBNAIL);
+			final String fileKey = jsonData.optString(HikeConstants.SU_IMAGE_KEY);
 
-		statusMessage.setName(TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName());
+			if (!TextUtils.isEmpty(fileKey) && !TextUtils.isEmpty(iconBase64))
+			{
+				// Add to fileThumbnail table viz. fk - thumb
+				HikeConversationsDatabase.getInstance().addFileThumbnail(fileKey, Base64.decode(iconBase64, Base64.DEFAULT));
+			}
+			else
+			{
+				throw new JSONException("saveStatusUpdate() : Image SU doesnt contain fileKey or Thumbnail");
+			}
+		}
+
+		statusMessage.setName(contactInfo.getNameOrMsisdn());
 
 		if (favoriteType == FavoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
 			pubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE
+					|| statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 			{
 				/*
 				 * Start auto download of the profile image.
@@ -2626,20 +2652,33 @@ public class MqttMessagesManager
 				if (!isBulkMessage) // do not autodownload in case of bulkmessage
 				{
 					Logger.d(DP_DOWNLOAD_TAG, "Received SU Packet, going to download");
-					autoDownloadProfileImage(statusMessage, true);
+					autoDownloadProfileImage(statusMessage,true);
 				}
 			}
 		}
-		pubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-		String msisdn = jsonObj.getString(HikeConstants.FROM);
-		ConvMessage convMessage = saveStatusMsg(jsonObj, msisdn);
-
-		if (convMessage == null)
+		else if(statusMessage.isHistoricalUpdate())
 		{
-			return;
+			Logger.d(getClass().getSimpleName(), "(HSU but NOT FRIEND),... add fav after su, so not sent to pubsub");
 		}
+		
+		pubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+		
+		/**
+		 * Add to Conv DB only if non historical update
+		 * as they are not to be shown inside CT
+		 */
+		if(!statusMessage.isHistoricalUpdate())
+		{
+			String msisdn = jsonObj.getString(HikeConstants.FROM);
+			ConvMessage convMessage = saveStatusMsg(jsonObj, msisdn);
 
-		convDb.setMessageIdForStatus(statusMessage.getMappedId(), convMessage.getMsgID());
+			if (convMessage == null)
+			{
+				return;
+			}
+
+			convDb.setMessageIdForStatus(statusMessage.getMappedId(), convMessage.getMsgID());
+		}
 	}
 
 	private void saveDeleteStatus(JSONObject jsonObj) throws JSONException
@@ -3419,7 +3458,6 @@ public class MqttMessagesManager
 
 	public void saveMqttMessage(JSONObject jsonObj) throws JSONException
 	{
-
 		Logger.d("Gcm test", jsonObj.toString());
 		String type = jsonObj.optString(HikeConstants.TYPE);
 		Logger.d(VoIPConstants.TAG, "Received message of type: " + type);  // TODO: Remove me!
@@ -3678,6 +3716,67 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
+		else if (HikeConstants.MqttMessageTypes.ACTIVITY_UPDATE.equals(type))
+		{
+			saveActivityUpdate(jsonObj);
+		}
+		else if (HikeConstants.MqttMessageTypes.TIMELINE_PREFFERED_CONTACTS.equals(type))
+		{
+			saveTimelineFTUEPrefferedContacts(jsonObj);
+		}
+	}
+
+	private void saveActivityUpdate(final JSONObject jsonObj)
+	{
+		Logger.d("tl_"+ getClass().getSimpleName(), "ac_up packet received " + jsonObj);
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					FeedDataModel feedData = new FeedDataModel(jsonObj);
+
+					if (feedData.getObjType() == ActivityObjectTypes.STATUS_UPDATE)
+					{
+						StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(feedData.getObjID());
+						if(statusMessage == null)
+						{
+							Logger.d("tl_"+ getClass().getSimpleName(), "Status Msg is null so returning  for MappedOd " + feedData.getObjID());
+							return;
+						}
+					}
+
+					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
+					
+					//Saving count to file to display the counter at home screen
+					HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+							if(count != -1)
+							{
+								HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
+							}
+						}
+					});
+
+					if (isSuccess)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, feedData);
+
+						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE_NOTIF, feedData);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}, 0);
 	}
 
 	private void uploadGroupProfileImage(final String groupId)
@@ -4296,4 +4395,79 @@ public class MqttMessagesManager
 		}
 	}
 
+	private void saveTimelineFTUEPrefferedContacts(JSONObject jsonObj)
+	{
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		JSONArray msisdnArray = data.optJSONArray(HikeConstants.CONTACTS);
+		int counter = data.optInt(HikeConstants.COUNT);
+		Logger.d("tl_ftue", "ftue packet received "+ msisdnArray +", count is "+ counter);
+		Set<String> msisdnSet = null;
+		if (msisdnArray != null)
+		{
+			msisdnSet = new LinkedHashSet<String>();
+			for (int i = 0; i < msisdnArray.length(); i++)
+			{
+				String msisdn = msisdnArray.optString(i);
+				if(!TextUtils.isEmpty(msisdn))
+				{
+					msisdnSet.add(msisdn);
+					if(!new File(Utils.getProfileImageFileName(msisdn)).exists())
+					{
+						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().getContact(msisdn, true, true).hasCustomPhoto(), false, null, null, null, false,false).startLoadingTask();
+					}
+				}
+				
+			}
+		}
+		
+		//case 1) if init not show or on top
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_SHOWN, true)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
+		{
+			//just replace these values
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case  init not show or on top "+ msisdnSet);
+		}
+		//case 2) exit card on top:-
+		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_ON_TOP, false))
+		{
+			//just replace these values
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case  exit card on top "+ msisdnSet);
+		}
+		
+		// case 3) fav card is on top or no cards on top
+		else
+		{
+			//fetch previous list
+			Set<String> list = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null);
+			
+			// list will be NON-EMPTY if any fav card is on top
+			if(list != null && !list.isEmpty())
+			{
+				//fetch current item from previous list
+				Iterator<String> iterator = list.iterator();
+				String currentMsisdn = null;
+				if(iterator.hasNext())
+				{
+					currentMsisdn = iterator.next();
+					Logger.d("tl_ftue", "ftue packet, card on top is from SP "+ currentMsisdn);
+				}
+				
+				//add to new list
+				if(!TextUtils.isEmpty(currentMsisdn))
+				{
+					msisdnSet.add(currentMsisdn);
+				}
+			}
+			
+			//save new list
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case fav card is on top or no cards on top "+ msisdnSet);
+		}
+		
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, counter);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, new Pair<Set<String>, Integer>(msisdnSet, counter));
+	}
 }
