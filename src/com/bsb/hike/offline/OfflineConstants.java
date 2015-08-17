@@ -174,8 +174,14 @@ public class OfflineConstants
 		public static final String EVENT_TYPE_OFFLINE = "hdir";
 
 		public static final String EVENT_KEY_PUSH = "hdstrt";
-
+		
 		public static final String TAG_NO_INTERNET_CLICKED = "noti";
+		
+		public static final String EVENY_KEY_CONN_TIME = "est";
+
+		public static final String EVENY_KEY_DISCONN_REA = "hddis";
+
+		public static final String TIP_KEY = "tipkey";
 
 	}
 	

@@ -68,6 +68,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	private Config transporterConfig;
 	
 	private List<Topic> topics;
+	
+	private long timeTakenToEstablishConnection = 0l;
 
 	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -281,7 +283,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 					}
 					else
 					{
-						HikeMessengerApp.getInstance().showToast("Sorry something fucked up..!! Didn't get AP's IP");
 						OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.AP_IP_NOT_AVAILABLE));
 					}
 				}
@@ -387,7 +388,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 			HikeMessengerApp.getInstance().showToast("We are already connected.Kindly disconnect first and then reconnect");
 			return;
 		}
-		
+		timeTakenToEstablishConnection=System.currentTimeMillis();
 		connectinMsisdn = msisdn;
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTING);
 		String myMsisdn = OfflineUtils.getMyMsisdn();
@@ -530,6 +531,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void clearAllVariables()
 	{
+		timeTakenToEstablishConnection = 0l;
 		connectedDevice = null;
 		connectinMsisdn = null;
 		removeAllMessages();
@@ -547,6 +549,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	@Override
 	public void onConnect() 
 	{
+		timeTakenToEstablishConnection = System.currentTimeMillis() - timeTakenToEstablishConnection;
+		
+		OfflineAnalytics.recordTimeForConnection(timeTakenToEstablishConnection);
+		
 		OfflineController.getInstance().onConnect();
 	}
 

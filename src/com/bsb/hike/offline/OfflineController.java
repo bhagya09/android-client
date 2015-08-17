@@ -482,6 +482,7 @@ public class OfflineController
 	{
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
+			OfflineAnalytics.recordDisconnectionAnalytics(exception.getReasonCode());
 			// this function uses offline state == connected.
 			// so changing OfflineState after calling this.
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
