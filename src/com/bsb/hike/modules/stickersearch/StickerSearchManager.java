@@ -10,10 +10,12 @@ import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
@@ -172,7 +174,7 @@ public class StickerSearchManager
 			/* No need to call checkToTakeActionOnAutoPopupTurnOff(), as this case is just an error handling */
 
 			listener.dismissStickerSearchPopup();
-			listener.dismissStickerRecommendFtueTip();
+			listener.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 
 			if (this.currentLength > 0)
 			{
@@ -194,7 +196,7 @@ public class StickerSearchManager
 				checkToTakeActionOnAutoPopupTurnOff();
 			}
 			listener.dismissStickerSearchPopup();
-			listener.dismissStickerRecommendFtueTip();
+			listener.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 
 			if (this.currentLength > 0)
 			{
@@ -215,7 +217,7 @@ public class StickerSearchManager
 				checkToTakeActionOnAutoPopupTurnOff();
 			}
 			listener.dismissStickerSearchPopup();
-			listener.dismissStickerRecommendFtueTip();
+			listener.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 
 			if (this.currentLength > 0)
 			{
@@ -238,7 +240,7 @@ public class StickerSearchManager
 				checkToTakeActionOnAutoPopupTurnOff();
 			}
 			listener.dismissStickerSearchPopup();
-			listener.dismissStickerRecommendFtueTip();
+			listener.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 
 			if (currentTextLength > 0)
 			{
@@ -360,7 +362,8 @@ public class StickerSearchManager
 			{
 				if (onTouch)
 				{
-					listener.setStickerRecommendFtueSeen();
+					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
+					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 				}
 
 				listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
@@ -470,7 +473,7 @@ public class StickerSearchManager
 
 	private void setShowAutoPopupConfiguration()
 	{
-		this.showAutoPopupSettingOn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+		this.showAutoPopupSettingOn = StickerSearchUtility.getSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
 
 		if (this.showAutoPopupSettingOn)
 		{
@@ -542,9 +545,14 @@ public class StickerSearchManager
 				this.autoPopupTurningOffTrailRunning = false;
 				setShowAutoPopupSettingOn(false);
 
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+				StickerSearchUtility.saveSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
 				saveOrDeleteAutoPopupTrialState(true);
-				StickerManager.getInstance().showAutoStickerRecommendTurnOnToast();
+				
+				if(listener != null)
+				{
+					listener.showStickerRecommendAutoPopupOffTip();
+				}
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP, true);
 			}
 			// Reset count and start next trial
 			else

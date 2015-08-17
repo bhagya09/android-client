@@ -21,6 +21,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -238,7 +239,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 					fm.executePendingTransactions();
 				}
 
-				dismissStickerRecommendFtueTip();
+				dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+				dismissTip(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 
 				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
@@ -436,22 +438,32 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			chatthread.showStickerRecommendTip();
 		}
 	}
-
+	
 	@Override
-	public void setStickerRecommendFtueSeen()
+	public void showStickerRecommendAutoPopupOffTip()
 	{
 		if (chatthread.isKeyboardOpen())
 		{
-			Logger.d(TAG, "set recommend ftue tip seen");
-			chatthread.setStickerRecommendFtueTipSeen();
+			Logger.d(TAG, "show recommend ftue tip");
+			chatthread.showStickerRecommendAutopopupOffTip();
 		}
 	}
 
 	@Override
-	public void dismissStickerRecommendFtueTip()
+	public void setTipSeen(int whichTip, boolean dismissIfVisible)
+	{
+		if (chatthread.isKeyboardOpen())
+		{
+			Logger.d(TAG, "set recommend ftue tip seen");
+			chatthread.setTipSeen(whichTip, dismissIfVisible);
+		}
+	}
+
+	@Override
+	public void dismissTip(int whichTip)
 	{
 		Logger.d(TAG, "dismiss recommend ftue tip");
-		chatthread.dismissStickerRecommendTip();
+		chatthread.dismissTip(whichTip);
 	}
 
 	@Override

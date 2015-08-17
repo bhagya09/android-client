@@ -474,7 +474,7 @@ public class HikeConstants
 	
 	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
 
-	public static final String STICKER_AUTO_RECOMMEND_SETTING_OFF_TOAST = "sarsofft";
+	public static final String STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP = "sarsofft";
 
 	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
 	
@@ -3130,6 +3130,8 @@ public class HikeConstants
 	public static final String CALLBACK_ID ="callbackid";
 
 	public static final String DEVICE_DETAILS = "dd";
+	
+	public static final String DOWNLOAD_TAGS = "srdt";
 
 	public static final String EXTRAS_BOT_MSISDN = "extras_bot_msisdn";
 
