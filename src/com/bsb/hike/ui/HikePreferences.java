@@ -1212,21 +1212,30 @@ private void setupToolBar(int titleRes){
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
 						AnalyticsConstants.CLICK_EVENT, metadata);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			HikeMessengerApp.getPubSub().publish(HikePubSub.NUDGE_SETTINGS_CHANGED, isChecked);
 		}
-		else if(HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
+		else if (HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
+
 			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 		}
-		else if(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey()))
+		else if (HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey()))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, isChecked);
-			StickerSearchManager.getInstance().setShowAutopopupSettingOn(isChecked);
+
+			StickerSearchManager.getInstance().setShowAutoPopupSettingOn(isChecked);
+			StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+			// Auto-suggestion setting is turned on by user, remove disable toast pref which was set automatically due to rejection pattern
+			if (isChecked)
+			{
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TOAST);
+			}
+
 			StickerManager.getInstance().sendRecommendationAutopopupSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
