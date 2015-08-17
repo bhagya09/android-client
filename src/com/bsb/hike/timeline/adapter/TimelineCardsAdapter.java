@@ -1251,6 +1251,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				// remove FTUE INIT Card
 				removeFTUEItemIfExists(FTUE_CARD_INIT);
 				
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INIT_CARD_SHOWN, true);
+				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INIT_CARD_ON_TOP, false);
 				
 				ContactInfo contact = mFtueFriendList.get(0);
