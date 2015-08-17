@@ -1397,11 +1397,11 @@ public class StickerManager
 	public void showStickerRecommendTurnOnToast()
 	{
 		boolean stickerRecommendPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true);
-		boolean stickerRecommendAutoPref = StickerSearchUtility.getSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+		boolean stickerRecommendAutoPref = StickerSearchUtility.getStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
 		boolean stickerRecommendTurnOnToastPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_SETTING_OFF_TOAST, false);
-		boolean stickerAutoRecommendTurnOnTipPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP, false);
+		boolean stickerAutoRecommendTurnOffTipPref = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP, false);
 
-		if (!stickerRecommendTurnOnToastPref && (!stickerRecommendPref || (!stickerRecommendAutoPref && !stickerAutoRecommendTurnOnTipPref)))
+		if (!stickerRecommendTurnOnToastPref && (!stickerRecommendPref || (!stickerRecommendAutoPref && !stickerAutoRecommendTurnOffTipPref)))
 		{
 			Toast.makeText(HikeMessengerApp.getInstance(), HikeMessengerApp.getInstance().getResources().getString(R.string.sticker_recommend_settings_toast), Toast.LENGTH_LONG)
 					.show();
