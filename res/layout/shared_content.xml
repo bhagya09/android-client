@@ -18,41 +18,42 @@
             android:layout_marginTop="0dp"
             layout="@layout/friends_group_view" />
 
-
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/sm_emptystate"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:gravity="center_vertical"
-                android:text="@string/no_file"
-                android:textColor="@color/mid_gray"
-                android:textSize="16sp"
-                android:layout_marginLeft="24dp"
-            	android:contentDescription="Empty State"
-            	android:visibility="gone" />
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/sm_emptystate"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="24dp"
+            android:contentDescription="Empty State"
+            android:gravity="center_vertical"
+            style="@style/BaseStyleTextView"
+            android:text="@string/no_file"
+            android:textColor="@color/mid_gray"
+            android:textSize="16sp"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/shared_content_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone" >
 
             <RelativeLayout
                 android:id="@+id/shared_files_rl"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="56dp"
                 android:background="@drawable/list_item"
                 android:contentDescription="Shared Files"
                 android:onClick="onSharedFilesClick" >
 
                 <ImageView
                     android:id="@+id/shared_files_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="25dp"
-                    android:layout_marginRight="23dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:scaleType="centerInside"
                     android:contentDescription="Shared File icon"
                     android:src="@drawable/ic_file" />
 
@@ -62,7 +63,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="12dp"
+                    android:layout_marginRight="16dp"
+                    style="@style/BaseStyleTextView"
                     android:contentDescription="Shared Files"
                     android:text="0"
                     android:textColor="@color/mid_gray"
@@ -76,36 +78,38 @@
                     android:layout_marginRight="5dp"
                     android:layout_toRightOf="@id/shared_files_icon"
                     android:text="@string/shared_files"
+                    style="@style/BaseStyleTextView"
                     android:textColor="@color/chat_color"
                     android:textSize="16sp"
                     android:textStyle="bold|italic" />
 
                 <View
                     android:id="@+id/shared_content_seprator"
-                    android:layout_width="fill_parent"
-                    android:layout_height="1dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginLeft="@dimen/contact_list_divider_padding"
-                    android:layout_marginRight="@dimen/contact_list_divider_padding"
-                    android:background="#f1f2f3"
+                    android:layout_marginLeft="64dp"
+                    android:layout_marginRight="16dp"
+                    android:background="@color/home_screen_list_divider"
                     android:visibility="gone" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/shared_pins_rl"
                 android:layout_width="match_parent"
-                android:layout_height="53dp"
+                android:layout_height="56dp"
                 android:background="@drawable/list_item"
                 android:contentDescription="Shared Pins"
                 android:onClick="openPinHistory" >
 
                 <ImageView
                     android:id="@+id/shared_pin_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginRight="22dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:scaleType="centerInside"
                     android:contentDescription="Shared Pins"
                     android:src="@drawable/ic_pin_2" />
 
@@ -115,18 +119,20 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="12dp"
+                    android:layout_marginRight="16dp"
+                    style="@style/BaseStyleTextView"
                     android:contentDescription="shared pin count"
                     android:text="23"
                     android:textColor="@color/mid_gray"
                     android:textSize="14sp" />
-                
+
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/count_pin_unread"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
+                    style="@style/BaseStyleTextView"
                     android:layout_marginRight="10dp"
                     android:background="@drawable/ic_top_bar_indicator"
                     android:contentDescription="shared unread pin count"
@@ -135,8 +141,8 @@
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:visibility="gone" />
-                
-				<com.bsb.hike.view.CustomFontTextView
+
+                <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/shared_pins"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -144,10 +150,18 @@
                     android:layout_marginRight="5dp"
                     android:layout_toRightOf="@id/shared_pin_icon"
                     android:contentDescription="Shared Pins"
+                    style="@style/BaseStyleTextView"
                     android:textColor="@color/chat_color"
                     android:textSize="16sp"
                     android:textStyle="bold|italic" />
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="6dp"
+        android:background="@color/home_screen_list_divider" />
+
 </LinearLayout>

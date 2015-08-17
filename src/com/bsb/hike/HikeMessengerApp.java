@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -622,6 +623,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	RegisterToGCMTrigger mmRegisterToGCMTrigger = null;
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
+	
+	public static int bottomNavBarHeightPortrait = 0;
+	
+	public static int bottomNavBarWidthLandscape = 0;
 
 	static
 	{
@@ -923,10 +928,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		{
 			fetchPlatformIDIfNotPresent();
 		}
-
+		
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
 		StickerSearchManager.getInstance().removeDeletedStickerTags();
+		
+		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
+		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1079,6 +1087,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		folder = new File(root + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
+
+		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		Utils.makeNoMediaFile(folder, true);
+
 	}
 
 	public static HikePubSub getPubSub()

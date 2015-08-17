@@ -639,7 +639,7 @@
     <string name="protip_games">jogos</string>
     <string name="ftue_grid_string">Start a conversation with one\nof your friends.</string>
     <string name="remind">Lembrar</string>
-    <string name="ok">OK</string>
+    <string name="OK">OK</string>
     <string name="not_show_call_alert_msg">Não mostrar mais</string>
     <string name="view_profile">View Profile</string>
     <string name="normal_update_head">Atualização importante disponível</string>
@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">Dê um toque duplo em qualquer lugar para cutucar seus amigos</string>
     <string name="addedYouAsFavorite">Added %1$s to Favorites</string>
     <string name="addedYouFrindDescription"><![CDATA[
- You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#0f8fe1">Status Updates</font> with %1$s. Would you like to request him to do the same?
+ You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#1da8e8">Status Updates</font> with %1$s. Would you like to request him to do the same?
 	    
     ]]></string>
     <string name="contacts_upper_case">CONTATOS</string>
@@ -922,7 +922,6 @@
     <string name="unlink_confirmation">Are you sure you want to reset your account?</string>
     <string name="unlinking_account">Resetting...</string>
     <string name="delete_confirm_msg_1">This will delete all your messages, SMS balance and any hike rewards.</string>
-    <string name="delete_confirm_msg_2">Are you sure want to continue? This action is irreversible.</string>
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Add to contacts</string>
     <string name="delete_leave">Excluir e sair do grupo</string>
@@ -1199,8 +1198,8 @@
     <string name="see_them">PRONTO</string>
     <string name="drag_tip_text">Toque e segure um pacote para reordenar os pacotes de adesivos</string>
     <string name="drag_tip_subtext">Toque e arraste para reorganizar os adesivos</string>
-    <string name="sticker_cancel">CANCELAR</string>
-    <string name="sticker_confirm">CONFIRMAR</string>
+    <string name="CANCEL">CANCELAR</string>
+    <string name="CONFIRM">CONFIRMAR</string>
     <string name="n_more">MAIS %1$d</string>
     <string name="n_stickers">%1$d adesivos</string>
     <string name="last_backup">Último backup</string>
@@ -1253,7 +1252,6 @@
     <string name="auth_state_connecting">Conectando...</string>
     <string name="auth_please_wait_connect">Aguarde enquanto conectamos você...</string>
     <string name="auth_done">PRONTO</string>
-    <string name="auth_cancel">Cancelar</string>
     <string name="auth_retry">Tentar novamente</string>
     <string name="auth_went_wrong">Ocorreu um problema.</string>
     <string name="install_text">INSTALAÇÃO GRATUITA</string>
