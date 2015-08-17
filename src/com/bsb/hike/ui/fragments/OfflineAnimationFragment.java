@@ -239,10 +239,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				{
 					timer.start();
 				}
-				else if(message.equals(getResources().getString(R.string.connection_deestablished)))
-				{
-					showRetryButton();
-				}
 			}
 		});
 		
@@ -404,16 +400,18 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	protected void startRotateAnimation()
 	{
-		ImageView progressBead = (ImageView)fragmentView.findViewById(R.id.bead);
-		progressBead.setVisibility(View.VISIBLE);
-		rotateAnimation = ObjectAnimator.ofFloat(progressBead,View.ROTATION,0, 359.9f);   
-		//,Animation.RELATIVE_TO_SELF,0.38f,Animation.RELATIVE_TO_SELF,2.9f);
-		progressBead.setPivotX(11);
-		progressBead.setPivotY(frame.getHeight()/2);
-		rotateAnimation.setDuration(1000);
-		rotateAnimation.setRepeatCount(Animation.INFINITE);
-		rotateAnimation.setInterpolator(new LinearInterpolator());
-		rotateAnimation.start();
+		
+			ImageView progressBead = (ImageView)fragmentView.findViewById(R.id.bead);
+			progressBead.setVisibility(View.VISIBLE);
+			rotateAnimation = ObjectAnimator.ofFloat(progressBead,View.ROTATION,0, 359.9f);   
+			//,Animation.RELATIVE_TO_SELF,0.38f,Animation.RELATIVE_TO_SELF,2.9f);
+			progressBead.setPivotX(11);
+			progressBead.setPivotY(frame.getHeight()/2);
+			rotateAnimation.setDuration(1000);
+			rotateAnimation.setRepeatCount(Animation.INFINITE);
+			rotateAnimation.setInterpolator(new LinearInterpolator());
+			rotateAnimation.start();
+		
 	}
 
 	private void setupView()
