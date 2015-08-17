@@ -49,7 +49,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 
 	public static final int CONTACT = 318;
 
-	public static final int LOCATOIN = 319;
+	public static final int LOCATION = 319;
 	
 	public static final int EDITOR = 320;
 
@@ -79,7 +79,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	}
 
 	/**
-	 * By default we show {@link #CAMERA} {@link #GALLARY} {@link #AUDIO} {@link #VIDEO} {@link #FILE} {@link #CONTACT} {@link #LOCATOIN}
+	 * By default we show {@link #CAMERA} {@link #GALLARY} {@link #AUDIO} {@link #VIDEO} {@link #FILE} {@link #CONTACT} {@link #LOCATION}
 	 * 
 	 * @param listener
 	 * @param context
@@ -105,7 +105,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		items.add(new OverFlowMenuItem(getString(R.string.file_msg_sent), 0, R.drawable.ic_attach_file, FILE));
 		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION))
 		{
-			items.add(new OverFlowMenuItem(getString(R.string.location_msg_sent), 0, R.drawable.ic_attach_location, LOCATOIN));
+			items.add(new OverFlowMenuItem(getString(R.string.location_option), 0, R.drawable.ic_attach_location, LOCATION));
 		}
 		this.overflowItems = items;
 	}
@@ -190,8 +190,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 					requestCode = AUDIO;
 					pickIntent = IntentFactory.getAudioShareIntent(context);
 					break;
-				case LOCATOIN:
-					requestCode = LOCATOIN;
+				case LOCATION:
+					requestCode = LOCATION;
 					pickIntent = IntentFactory.getLocationPickerIntent(context);
 					break;
 				case CONTACT:

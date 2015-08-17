@@ -33,10 +33,10 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
@@ -558,7 +558,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	}	
 	
 	@Override
-	protected void openImageViewerFragment(Object object)
+	protected void openImageViewer(Object object)
 	{
 		/*
 		 * Making sure we don't add the fragment if the activity is finishing.

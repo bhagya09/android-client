@@ -829,7 +829,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.CAMERA:
 			if(!Utils.isPhotosEditEnabled())
 			{
-				ImageParser.parseResult(activity, resultCode, data, this);
+				ImageParser.parseResult(activity, resultCode, data, this,true);
 			}
 			else
 			{
@@ -848,7 +848,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.VIDEO:
 			PickFileParser.onAudioOrVideoResult(requestCode, resultCode, data, this, activity);
 			break;
-		case AttachmentPicker.LOCATOIN:
+		case AttachmentPicker.LOCATION:
 			onShareLocation(data);
 			break;
 		case AttachmentPicker.FILE:
@@ -867,7 +867,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.EDITOR:
 			if(resultCode == Activity.RESULT_OK)
 			{
-				ImageParser.parseResult(activity, resultCode, data, this);
+				ImageParser.parseResult(activity, resultCode, data, this,true);
 			}
 			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
 			{
@@ -1478,11 +1478,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void startHikeGallery(boolean onHike)
 	{
 		boolean editPic = Utils.isPhotosEditEnabled();
-		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
-		if(editPic)
-		{
-			galleryFlags = galleryFlags|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
-		}
+		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
 		Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(),galleryFlags,null);
 		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		imageIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
