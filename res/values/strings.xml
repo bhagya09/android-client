@@ -1426,9 +1426,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="stealth_mode_title_body">Hidden Mode Settings</string>
     <string name="change_stealth_timeout">Ask for Password</string>
     <string name="change_stealth_timeout_body">Ask for password again only after a specific time</string>
-    <string name="stealth_password_settings">Password Settings</string>
-    <string name="stealth_notification_settings">Notification Settings</string>
-    <string name="stealth_reset_settings">Extra Settings</string>
+    <string name="stealth_password_settings">PASSWORD SETTINGS</string>
+    <string name="stealth_notification_settings">NOTIFICATION SETTINGS</string>
+    <string name="stealth_reset_settings">EXTRA SETTINGS</string>
     <string name="enable_stealth_indicator">Indicator</string>
     <string name="enable_stealth_indicator_body">Bounce \'hi\' logo on home screen for unread messages</string>
     <string name="enable_stealth_notification_body">Notify on receiving a message in a hidden chat</string>

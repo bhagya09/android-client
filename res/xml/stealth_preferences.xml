@@ -46,7 +46,8 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:selectable="false"
-        android:title="@string/stealth_reset_settings" >
+        android:title="@string/stealth_reset_settings"
+         >
         <com.bsb.hike.view.IconPreference
              icon="@drawable/blankspace"
             android:key="resetStealthPref"
