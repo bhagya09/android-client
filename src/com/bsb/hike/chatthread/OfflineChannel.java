@@ -132,7 +132,7 @@ public class OfflineChannel implements IChannelSelector{
 		{
 			attachmentPicker.appendItem(new OverFlowMenuItem(activity.getResources().getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
 		}
-		attachmentPicker.removeItem(AttachmentPicker.LOCATOIN);
+		attachmentPicker.removeItem(AttachmentPicker.LOCATION);
 		attachmentPicker.appendItem(new OverFlowMenuItem(activity.getResources().getString(R.string.apps), 0, R.drawable.ic_attach_apk, AttachmentPicker.APPS));
 		//Changing text for file info in offline mode
 		((TextView)attachmentPicker.getView().findViewById(R.id.group_info)).setText(activity.getResources().getString(R.string.file_attachment_info_offline));

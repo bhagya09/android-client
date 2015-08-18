@@ -1268,7 +1268,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						optionsList.add(getString(R.string.delete_block));
 
 					if (botConfig.isDeleteEnabled())
-						optionsList.add(getString(R.string.DELETE));
+						optionsList.add(getString(R.string.delete));
         		}
         		
         	}
@@ -1565,7 +1565,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					onAddShortcutClicked(conv);
 				}
 				
-				else if (getString(R.string.DELETE).equals(option))
+				else if (getString(R.string.delete).equals(option))
 				{
 					onDeleteBotClicked(conv, false);
 				}

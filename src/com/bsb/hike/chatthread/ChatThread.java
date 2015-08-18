@@ -341,7 +341,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
-	private boolean ctSearchIndicatorShown, consumedForwardedData;
+	private boolean consumedForwardedData;
 	
 	protected HikeDialog dialog;
 	
@@ -616,7 +616,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionBar = new HikeActionBar(activity);
 		mConversationDb = HikeConversationsDatabase.getInstance();
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
-		ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 	}
@@ -878,7 +877,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.CAMERA:
 			if(!Utils.isPhotosEditEnabled())
 			{
-				ImageParser.parseResult(activity, resultCode, data, this);
+				ImageParser.parseResult(activity, resultCode, data, this,true);
 			}
 			else
 			{
@@ -897,7 +896,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.VIDEO:
 			PickFileParser.onAudioOrVideoResult(requestCode, resultCode, data, this, activity);
 			break;
-		case AttachmentPicker.LOCATOIN:
+		case AttachmentPicker.LOCATION:
 			onShareLocation(data);
 			break;
 		case AttachmentPicker.FILE:
@@ -916,7 +915,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.EDITOR:
 			if(resultCode == Activity.RESULT_OK)
 			{
-				ImageParser.parseResult(activity, resultCode, data, this);
+				ImageParser.parseResult(activity, resultCode, data, this,true);
 			}
 			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
 			{
@@ -1159,7 +1158,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			sendMessageForStickerRecommendLearning();
 			sendMessage();
 			dismissStickerRecommendationPopup();
-			dismissStickerRecommendTip();
+			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
 	}
 
@@ -1215,14 +1214,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return;
 		}
+
 		StickerSearchManager.getInstance().sentMessage(message, null, null, null);
-		
-		if(stickerTagWatcher!= null)
+
+		if (stickerTagWatcher != null)
 		{
-			stickerTagWatcher.sendIgnoreAnalytics();
+			stickerTagWatcher.markStickerRecommendationIgnoreAndSendAnalytics();
 		}
 	}
-	
+
 	protected void audioRecordClicked()
 	{
 		showAudioRecordView();
@@ -1270,20 +1270,32 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mTips.showStickerRecommendFtueTip();
 	}
 	
-	public void dismissStickerRecommendTip()
+	public void showStickerRecommendAutopopupOffTip()
 	{
-		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		mTips.showStickerRecommendAutopopupOffTip();
+	}
+	
+	public void dismissTip(int whichTip)
+	{
+		if (mTips.isGivenTipShowing(whichTip))
 		{
-			mTips.hideTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+			mTips.hideTip(whichTip);
 		}
 	}
 	
-	public void setStickerRecommendFtueTipSeen()
+	public void setTipSeen(int whichTip, boolean dismissIfVisible)
 	{
-		if (mTips!=null&&mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		if(mTips == null )
+		{
+			return ;
+		}
+		
+		boolean shouldDismiss = dismissIfVisible ? mTips.isGivenTipVisible(whichTip) : true;
+				
+		if (shouldDismiss)
 		{
 			Logger.d(TAG, "set sticker recommend tip seen : " + true);
-			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
+			mTips.setTipSeen(whichTip);
 		}
 	}
 
@@ -1541,11 +1553,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void startHikeGallery(boolean onHike)
 	{
 		boolean editPic = Utils.isPhotosEditEnabled();
-		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
-		if(editPic)
-		{
-			galleryFlags = galleryFlags|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
-		}
+		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
 		Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(),galleryFlags,null);
 		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		imageIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
@@ -1622,13 +1630,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void setupStickerSearch()
 	{
-		if(!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
+		if (!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+				|| (Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
 			return;
-		}	
-		
-		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
-		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
+		}
+
+		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
+				R.color.sticker_recommend_highlight_text)));
+
+		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
+				activity.getLastMessageTimeStamp());
+
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
 	
@@ -1639,7 +1652,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return false;
 		}
 
-		if(stickerTagWatcher.isStickerRecommnedPoupShowing())
+		if(stickerTagWatcher.isStickerRecommendationPopupShowing())
 		{
 			stickerTagWatcher.dismissStickerSearchPopup();;
 			return true;
@@ -1890,7 +1903,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		PhonebookContact contact = PickContactParser.onContactResult(resultCode, data, activity.getApplicationContext());
 		if (contact != null)
 		{
-			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CONTACT_SEND_DIALOG, this, contact, getString(R.string.send), false);
+			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CONTACT_SEND_DIALOG, this, contact, getString(R.string.send_uppercase), false);
 		}
 	}
 
@@ -1899,7 +1912,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		PhonebookContact contact = PickContactParser.getContactData(contactId, activity);
 		if (contact != null)
 		{
-			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CONTACT_SEND_DIALOG, this, contact, getString(R.string.send), false);
+			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CONTACT_SEND_DIALOG, this, contact, getString(R.string.send_uppercase), false);
 		}
 	}
 
@@ -1990,7 +2003,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void stickerSelectedRecommedationPopup(Sticker sticker, String sourceOfSticker, boolean clearText)
 	{
-		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
+		Logger.i(TAG, "stickerSelectedRecommedationPopup(" + sticker + ", " + sourceOfSticker + ", " + clearText + ")");
+
 		if(clearText)
 		{
 			StickerSearchManager.getInstance().sentMessage(mComposeView.getText().toString(), sticker, null, null);
@@ -1999,6 +2013,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		}
+
 		sendSticker(sticker, sourceOfSticker);
 	}
 
@@ -2202,8 +2217,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		updateUIAsPerTheme(currentTheme);// it has to be done after setting adapter
 		setupDefaultActionBar(true); // Setup the action bar
 		initMessageSenderLayout();
-
-		setMessagesRead(); // Setting messages as read if there are any unread ones
 
 		setEditTextListeners();
 		
@@ -3299,7 +3312,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 		}
 
-		showOverflowIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
+		showOverflowIndicatorsIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
 
 		View unreadMessageIndicator = activity.findViewById(R.id.new_message_indicator);
 
@@ -3344,7 +3357,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 	
-	private void showOverflowIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
+	private void showOverflowIndicatorsIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
 		showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
 	}
@@ -3360,6 +3373,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 *  - Messages not are being loaded.
 		 *  Note: This is to be shown only once
 		 */
+		boolean ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
 		if (!ctSearchIndicatorShown && !mActionBar.isOverflowMenuIndicatorInUse()
 				&& (firstVisibleItem + visibleItemCount + 1) < totalItemCount && !loadingMoreMessages)
 		{
@@ -3367,13 +3381,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			// Just mark it already shown and move on.
 			if (sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 			{
-				ctSearchIndicatorShown = true;
 				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
 			}
 			// If the indicator is successfully displayed the setting is saved, so that its not shown again.
 			else if (mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_top_bar_indicator_search,false))
 			{
-				ctSearchIndicatorShown = true;
 				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
 			}
 		}
@@ -3911,7 +3923,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
-		setStickerRecommendFtueTipSeen();
+		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
+		
+		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 		
 		hideActionMode();
 
@@ -4829,28 +4843,57 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	/**
 	 * Mark unread messages. This is called from {@link #onResume()}
+	 *
+	 * In this method we use messages list to get unread messages and check if mesaages list contain any read message exists
+	 * (this is done to make a db call optimization where we don't fetch messages from db instead directly pass the conv message object list which we have to mark as read)
+	 * 
+	 * So if messages list contains 50 msgs then we check if it contains any read msg 
+	 * if true then we pass {@link ConvMessage} list and mark msgs read in db for only these convMessages
+	 * if no read msg is found then we don't know how many msgs should be marked as read , in this case we have to fetch messages from db and then update the same
 	 */
 	private void setMessagesRead()
 	{
-		/**
-		 * Proceeding only if we have an unread message to be marked
-		 */
-		if (isLastMessageReceivedAndUnread())
+		List<ConvMessage> unreadConvMessages = new ArrayList<>();
+		boolean readMessageExists = false;
+
+		// fetching unread messages list and if messages contains any read msg or not
+		for (int i = messages.size() - 1; i >= 0; i--)
 		{
-			if (PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
+			ConvMessage msg = messages.get(i);
+
+			/**
+			 * Do nothing if it's a typing notification
+			 */
+			if (msg.getTypingNotification() != null || msg.isSent())
 			{
-					setSMSReadInNative();
+				continue;
 			}
 
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
-			ChatThreadUtils.sendMR(msisdn,channelSelector);
+			if (msg.getState() == ConvMessage.State.RECEIVED_UNREAD)
+			{
+				unreadConvMessages.add(msg);
+			}
+			else if (msg.getState() == ConvMessage.State.RECEIVED_READ)
+			{
+				readMessageExists = true;
+			}
 		}
-
+		
+		
+		if (unreadConvMessages != null && !unreadConvMessages.isEmpty())
+		{	
+			// unreadConvMessages list is not empty that means we have to mark some msgs as read
+			
+			if (PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
+			{
+				// below method marks sms msgs as read
+				setSMSReadInNative();
+			}
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
+			ChatThreadUtils.sendMR(msisdn, unreadConvMessages, readMessageExists,channelSelector);
+		}
 	}
 	
-	
-	
-
 	/**
 	 * Returns true if and only if the last message was received but unread
 	 * 

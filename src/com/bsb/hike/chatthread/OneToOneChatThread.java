@@ -17,7 +17,6 @@ import org.json.JSONObject;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -38,14 +37,14 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -53,8 +52,6 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -84,12 +81,11 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
+import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -106,7 +102,6 @@ import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
-import com.google.android.gms.internal.co;
 import com.google.gson.Gson;
 
 /**
@@ -294,7 +289,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 //		Not allowing user to access actionbar items on a blocked user's chatThread
 		if (mConversation.isBlocked())
 		{
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
+			if (item.getItemId() != android.R.id.home)
+				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 			return false;
 		}
 		
@@ -408,7 +404,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP, ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP }, sharedPreference);
 		mTips.showTip();
 	}
 
@@ -1807,6 +1803,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		else
 		{
 			resetLastSeenScheduler();
+		}
+		
+		if (isH20TipShowing())
+		{
+			hikeToOfflineTipView.setVisibility(View.GONE);
+			hikeToOfflineTipView = null;
 		}
 	}
 
@@ -3337,4 +3339,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		    activity.getSupportFragmentManager().beginTransaction().remove(fragment).commit();	
 	}
 	
+	/**
+	 * It could be possible that we have a stray h20 tip showing.
+	 */
+	public void onPreNewIntent()
+	{
+		if (isH20TipShowing())
+		{
+			hikeToOfflineTipView.setVisibility(View.GONE);
+			hikeToOfflineTipView = null;
+		}
+		
+		super.onPreNewIntent();
+	}
 }
