@@ -570,6 +570,7 @@ public final class HikeEffectsFactory
 			catch (RSRuntimeException e)
 			{
 				e.printStackTrace();
+				error = true;
 				Logger.e("Dimension Mismatch", "occured while applying : " + effect.toString());
 			}
 
@@ -595,6 +596,7 @@ public final class HikeEffectsFactory
 			
 			if(mInAllocation == null || mOutAllocations == null)
 			{
+				error = true;
 				return;
 			}
 			
