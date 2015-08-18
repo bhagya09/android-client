@@ -213,8 +213,48 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								return;
 							}
 
+							final ArrayList<String> suIDList = new ArrayList<String>();
+
 							if (!olderMessages.isEmpty())
 							{
+								for (StatusMessage suMessage : olderMessages)
+								{
+									if (!TextUtils.isEmpty(suMessage.getMappedId()))
+									{
+										suIDList.add(suMessage.getMappedId());
+									}
+								}
+								
+								if (!suIDList.isEmpty())
+								{
+									// Get actions for SU from HTTP
+									JSONArray suIDArray = new JSONArray(suIDList);
+									JSONObject suUpdateJSON = new JSONObject();
+									try
+									{
+										Logger.d(HikeConstants.TIMELINE_LOGS, "list of suIDArray, fetching HTTP calls " + suIDArray);
+										suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
+										RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
+										requestToken.execute();
+									}
+									catch (JSONException e)
+									{
+										e.printStackTrace();
+									}
+
+									// Get actions for SU from DB
+									HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+									{
+										@Override
+										public void run()
+										{
+											HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDList,
+													TimelineActionsManager.getInstance().getActionsData());
+											notifyVisibleItems();
+										}
+									}, 0);
+								}
+								
 								statusMessages.addAll(statusMessages.size(), olderMessages);
 								timelineCardsAdapter.notifyDataSetChanged();
 							}
