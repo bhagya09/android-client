@@ -10,6 +10,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,7 +48,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private static ArrayList<ListViewItem> mListViewItems;
 
-	private static CheckBox selectAllCheckbox;
+	private static SwitchCompat selectAllCheckbox;
 	
 	private static ChatHeadSettingsArrayAdapter listAdapter;
 	
@@ -65,7 +66,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	{
 		creatingArrayList();
 		listAdapter = new ChatHeadSettingsArrayAdapter(this, R.layout.settings_sticker_share_item, mListViewItems);
-		selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
+		selectAllCheckbox = (SwitchCompat) findViewById(R.id.select_all_checkbox);
 		settingOnClickEvent();
 		settingSelectAllText();
 		ListView listView = (ListView) findViewById(R.id.list_items);
