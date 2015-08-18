@@ -20,7 +20,7 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="@dimen/chat_bubble_edge_spacing"
         android:layout_marginRight="@dimen/chat_bubble_edge_spacing"
-        android:background="@drawable/participant_info_bg"
+        android:background="@drawable/bg_system_message_dark"
         android:gravity="center_vertical"
         android:minHeight="33dp"
         android:orientation="horizontal"
