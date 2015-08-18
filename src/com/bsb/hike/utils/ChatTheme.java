@@ -3514,7 +3514,7 @@ public enum ChatTheme
 		}
 		throw new IllegalArgumentException();
 	}
-
+	
 	public static ChatTheme[] FTUE_THEMES = { STARRY, BEACH, FOREST };
 	
 	/*This stores the order of themes in which they will they will be displayed. Whenever another theme is added update this as well.
@@ -3523,4 +3523,17 @@ public enum ChatTheme
 	public static ChatTheme[] THEME_PICKER = { DEFAULT, FRIENDS, NIGHT_PATTERN, OWL, VALENTINES_2, LOVE_2, HIKIN_COUPLE, 
 	NIGHT, RAIN2, BEACH_2, CREEPY, COFFEEBEAN, NOWHERE, SWIVEL, PEACOCKGLORY, SLEEPINGDOG, LOVE, INDEPENDENCE, GUITAR, 
 	TRACK, SPRING, KISSES, MR_RIGHT, VALENTINES, STUDY, FLORAL, CHATTY, STARRY, CELEBRATION, TECHY, BEACH, FOREST, SMILEY, GIRLY };
+	
+	/*
+	 * This method returns the position of given theme in THEME_PICKER array
+	 */
+	public static int getPositionForTheme(ChatTheme theme)
+	{
+		int position = 0;
+		for (int i = 0; i < THEME_PICKER.length; i++)
+			if (theme == THEME_PICKER[i])
+				position = i;
+
+		return position;
+	}
 };
