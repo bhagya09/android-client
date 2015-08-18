@@ -4413,7 +4413,7 @@ public class MqttMessagesManager
 					msisdnSet.add(msisdn);
 					if(!new File(Utils.getProfileImageFileName(msisdn)).exists())
 					{
-						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().getContact(msisdn, true, true).hasCustomPhoto(), false, null, null, null, false,false).startLoadingTask();
+						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().hasIcon(msisdn), false, null, null, null, false,false).startLoadingTask();
 					}
 				}
 				
