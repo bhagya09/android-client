@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1370"
-    android:versionName="4.0.0.20" >
-
+    android:versionCode="1372"
+    android:versionName="4.0.0.22" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>

@@ -49,6 +49,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.timeline.ActionsDeserializer;
+import com.bsb.hike.timeline.EndlessRecyclerScrollListener;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
@@ -116,6 +117,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public static final int EMPTY_STATE = -10;
 
 	public static final int FILL_STATE = -11;
+	
+	private boolean reachedEnd;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -183,14 +186,68 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		};
 
 		mUpdatesList.setAdapter(timelineCardsAdapter);
+		
+		mUpdatesList.addOnScrollListener(new EndlessRecyclerScrollListener(mLayoutManager)
+		{
+			@Override
+			public void onLoadMore(int current_page)
+			{
+				if (!reachedEnd)
+				{
+					AsyncTask<Void, Void, List<StatusMessage>> asyncTask = new AsyncTask<Void, Void, List<StatusMessage>>()
+					{
+
+						@Override
+						protected List<StatusMessage> doInBackground(Void... params)
+						{
+							List<StatusMessage> olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME,
+									(int) statusMessages.get(statusMessages.size() - 1).getId(), friendMsisdns);
+							return olderMessages;
+						}
+
+						@Override
+						protected void onPostExecute(List<StatusMessage> olderMessages)
+						{
+							if (!isAdded())
+							{
+								return;
+							}
+
+							if (!olderMessages.isEmpty())
+							{
+								statusMessages.addAll(statusMessages.size(), olderMessages);
+								timelineCardsAdapter.notifyDataSetChanged();
+							}
+							else
+							{
+								/*
+								 * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
+								 */
+								reachedEnd = true;
+							}
+
+						}
+
+					};
+					if (Utils.isHoneycombOrHigher())
+					{
+						asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					}
+					else
+					{
+						asyncTask.execute();
+					}
+				}
+			}
+		});
 
 		if (!mShowProfileHeader)
 		{
 			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
 					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
 
-			mUpdatesList.setOnScrollListener(scrollListener);
-
+			mUpdatesList.addOnScrollListener(scrollListener);
+			
 			actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
 
 			actionsView.findViewById(R.id.new_status_tab).setOnClickListener(this);
@@ -449,7 +506,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				for (String msisdn : params)
 				{
 					// TODO Improve for multiple msisdns
-					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn, true, true)))
 					{
 						friendMsisdns = params;
 						break;
@@ -588,7 +645,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0)));
+				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true));
 				if (cJoinedSM != null)
 				{
 					statusMessages.add(cJoinedSM);

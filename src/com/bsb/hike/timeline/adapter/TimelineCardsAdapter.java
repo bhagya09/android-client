@@ -571,6 +571,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				int infoMainResId = friendRequestAccepted ? R.string.accepted_your_favorite_request_details : R.string.you_accepted_favorite_request_details;
 				String infoSubText = mContext.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
 				viewHolder.mainInfo.setText(mContext.getString(infoMainResId, Utils.getFirstName(statusMessage.getNotNullName()), infoSubText));
+				viewHolder.parent.setTag(statusMessage);
+				viewHolder.parent.setOnClickListener(onProfileInfoClickListener);
 				break;
 			case PROTIP:
 				Protip protip = statusMessage.getProtip();
