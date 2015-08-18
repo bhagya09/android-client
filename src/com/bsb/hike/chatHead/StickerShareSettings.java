@@ -9,12 +9,15 @@ import org.json.JSONObject;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -54,6 +57,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	
 	private static final String TAG = "StickerShareSettings";  
 	
+	static boolean isSelectAllTouched = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -85,12 +90,25 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 				onSelectAllCheckboxClick();
 			}
 		});
-		selectAllCheckbox.setOnClickListener(new View.OnClickListener()
+		selectAllCheckbox.setOnTouchListener(new View.OnTouchListener()
 		{
 			@Override
-			public void onClick(View v)
+			public boolean onTouch(View v, MotionEvent event)
 			{
-				onSelectAllCheckboxClick();
+				isSelectAllTouched = true;
+				return false;
+			}
+		});
+		selectAllCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+		{
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+			{
+				if(isSelectAllTouched)
+				{
+					isSelectAllTouched = false;
+					onSelectAllCheckboxClick();
+				}
 			}
 		});
 	}
