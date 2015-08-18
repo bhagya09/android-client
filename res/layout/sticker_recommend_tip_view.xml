@@ -9,6 +9,7 @@
     android:paddingRight="16dp" >
     
     <com.bsb.hike.view.CustomFontTextView 
+        android:id="@+id/sticker_recommend_ftue_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="17sp"

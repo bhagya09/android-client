@@ -42,6 +42,8 @@ public class StickerSearchConstants
 
 	public static final int MAXIMUM_PHRASE_PERMUTATION_SIZE = 4;
 
+	public static final int MINIMUM_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT = 1;
+
 	// ====================================================Generic constants for searching text]]
 
 	// Constants used in summary calculation===================================================[[
