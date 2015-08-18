@@ -134,6 +134,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 */
 		if (getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE) == MICRO_APP_MODE && Utils.requireAuth(this))
 		{
+			super.onCreate(savedInstanceState);
 			return;
 		}
 
@@ -155,6 +156,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			
 			else
 			{
+				super.onCreate(savedInstanceState);
 				closeWebViewActivity();
 				return;
 			}
