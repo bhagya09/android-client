@@ -9,6 +9,7 @@ import org.json.JSONArray;
 
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -173,7 +174,7 @@ public class ActionsDataModel
 	
 	public boolean addContact(String msisdn)
 	{
-		Logger.d("ActionsDataModel", "adding: "+msisdn);
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding: "+msisdn);
 		
 		if (TextUtils.isEmpty(msisdn))
 		{
@@ -194,12 +195,12 @@ public class ActionsDataModel
 		
 		if (contactInfo != null)
 		{
-			Logger.d("ActionsDataModel", "adding coninfo name: "+contactInfo.getName());
+			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding coninfo name: "+contactInfo.getName());
 			boolean isAdded = contactInfoList.add(contactInfo);
-			Logger.d("ActionsDataModel", "adding "+(isAdded?"issuccess":"failed"));
+			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding "+(isAdded?"issuccess":"failed"));
 			if (isAdded)
 			{
-				setCount(getCount() + 1);
+				setCount(contactInfoList.size());
 			}
 
 			return isAdded;
@@ -209,7 +210,7 @@ public class ActionsDataModel
 
 	public boolean removeContact(String msisdn)
 	{
-		Logger.d("ActionsDataModel", "removing: " + msisdn);
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "removing: " + msisdn);
 		if (TextUtils.isEmpty(msisdn))
 		{
 			throw new IllegalArgumentException("removeContact(argContactInfo) : input msisdn cannot be null");
@@ -231,11 +232,11 @@ public class ActionsDataModel
 			}
 		}
 
-		Logger.d("ActionsDataModel", "isRemoved: " + isRemoved);
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "isRemoved: " + isRemoved);
 		
 		if (isRemoved)
 		{
-			setCount(getCount() - 1);
+			setCount(contactInfoList.size());
 		}
 		return isRemoved;
 	}
@@ -303,4 +304,12 @@ public class ActionsDataModel
 		}
 		return getAllMsisdn().contains(selfMsisdn);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "ActionsDataModel [count=" + count + ", contactInfoList=" + contactInfoList + ", type=" + type + "]";
+	}
+	
+	
 }

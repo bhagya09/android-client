@@ -158,4 +158,13 @@ public class FeedDataModel
 	{
 		this.readStatus = readStatus;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "FeedDataModel [mAction=" + mAction + ", mObjID=" + mObjID + ", mActor=" + mActor + ", mActionType=" + mActionType + ", mObjType=" + mObjType + ", readStatus="
+				+ readStatus + "]";
+	}
+	
+	
 }
