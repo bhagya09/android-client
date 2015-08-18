@@ -106,6 +106,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
+			Logger.d(HikeConstants.TIMELINE_LOGS, "inside AFF, revc pubsub ACTIVITY_UPDATE");
 			executeActivityFeedFetchTask();
 		}
 	}

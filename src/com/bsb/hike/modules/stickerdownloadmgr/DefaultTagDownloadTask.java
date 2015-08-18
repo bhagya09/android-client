@@ -37,7 +37,8 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	@Override
 	public void execute()
 	{
-		requestToken = defaultTagsRequest(getRequestId(), isSignUp, getResponseListener());
+		long lastSuccessfulTagDownloadTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, 0L);
+		requestToken = defaultTagsRequest(getRequestId(), isSignUp, lastSuccessfulTagDownloadTime, getResponseListener());
 
 		if (requestToken.isRequestRunning())
 		{
@@ -111,6 +112,7 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		JSONObject response = (JSONObject) result;
 		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, System.currentTimeMillis());
 	}
 
 	@Override
