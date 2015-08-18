@@ -1651,4 +1651,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="delete_account_heading">DELETING YOUR ACCOUNT</string>
     <string name="delete_account_description">This will delete all your messages, backup, free SMS and any hike rewards</string>
     <string name="no_places_found">No places found</string>
+    <string name="SAVE">SAVE</string>
 </resources>

@@ -3569,7 +3569,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				hikeDialog.dismiss();
 			}
-		}, contact, context.getString(R.string.save), true);
+		}, contact, context.getString(R.string.SAVE), true);
 	}
 
 	/*
