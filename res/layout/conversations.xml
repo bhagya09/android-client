@@ -23,7 +23,7 @@
 
         <ListView
             android:id="@id/android:list"
-            style="@style/HomeList" />
+            style="@style/HomeListParent" />
     </RelativeLayout>
 
     <ViewStub
