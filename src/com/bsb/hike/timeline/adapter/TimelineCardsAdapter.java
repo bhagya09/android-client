@@ -364,6 +364,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void onBindViewHolder(ViewHolder viewHolder, int position)
 	{
 		int viewType = getItemViewType(position);//viewHolder.getItemViewType();
+		Logger.d(HikeConstants.TIMELINE_LOGS, "view type is " + viewType + ", itemID " + viewHolder.getItemId());
 
 		if (viewType == USER_PROFILE_HEADER)
 		{
@@ -1021,6 +1022,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (statusId.equals(statusMessage.getMappedId()))
 			{
 				mStatusMessages.remove(statusMessage);
+				Logger.d(HikeConstants.TIMELINE_LOGS, "SU list after deleting post "+ mStatusMessages);
 				break;
 			}
 		}
