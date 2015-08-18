@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike">
+
+    <style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog">
+        <item name="android:maxWidth">@dimen/custom_dialog_width</item>
+    </style>
+
+</resources>

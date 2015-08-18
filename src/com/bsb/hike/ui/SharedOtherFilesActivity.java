@@ -14,7 +14,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -117,6 +119,8 @@ public class SharedOtherFilesActivity extends HikeAppStateBaseFragmentActivity i
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void setTitle(String titleString)
