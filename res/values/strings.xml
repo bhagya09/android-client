@@ -894,7 +894,6 @@
     <string name="vib_default_key">Default</string>
     <string name="vib_short_key">Short</string>
     <string name="vib_long_key">Long</string>
-    <string name="delete_account_heading">DELETING YOUR ACCOUNT WILL</string>
     <string name="chat_unmarked_stealth_first">You’ve marked a chat visible. It’ll now be visible to anyone who opens hike.</string>
     <string name="tickSoundTitle">Conversation tones</string>
     <string name="tickSoundSummary">Play sound for incoming and outgoing messages</string>
@@ -917,7 +916,6 @@
     <string name="delete_account_msg">Delete your Hike account.</string>
     <string name="unlink_confirmation">Are you sure you want to reset your account?</string>
     <string name="unlinking_account">Resetting...</string>
-    <string name="delete_confirm_msg_1">This will delete all your messages, SMS balance and any hike rewards.</string>
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Add to contacts</string>
     <string name="delete_leave">Delete and exit group</string>
@@ -1238,7 +1236,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="action_settings">Settings</string>
     <string name="creating_backup_message">Creating a backup of your account. Daily backups occur at 3:00 AM</string>
     <string name="restore">Restore</string>
-    <string name="delete_account_description">delete all your messages, backup, free SMS and hike rewards</string>
     <string name="auth_connected_to_hike">%1$s connected to hike!</string>
     <string name="auth_state_connecting">Connecting...</string>
     <string name="auth_please_wait_connect">Please wait while we connect you...</string>
@@ -1640,7 +1637,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="YES">YES</string>
     <string name="NO">NO</string>
     <string name="DELETE">DELETE</string>
-    <string name="sticker_recommend_auto_off_tip_text">Auto Sticker suggestions is turned off. You can enable it again from Settings > Chat settings anytime</string>
+    <string name="sticker_recommend_auto_off_tip_text">Sticker Suggestions turned off! Get them back from Settings > Chat Settings</string>
     <string name="timeline_tab_photo">Photo</string>
     <string name="timeline_tab_status">Status</string>
     <string name="timeline_empty_desc1">Timeline Updates</string>
@@ -1651,5 +1648,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="ALLOW">ALLOW</string>
     <string name="pref_message_settings">MESSAGE SETTINGS</string>
     <string name="pref_sticker_settings">STICKER SETTINGS</string>
+    <string name="delete_account_heading">DELETING YOUR ACCOUNT</string>
+    <string name="delete_account_description">This will delete all your messages, backup, free SMS and any hike rewards</string>
     <string name="no_places_found">No places found</string>
 </resources>

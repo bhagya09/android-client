@@ -238,9 +238,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void run()
 				{
+					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index "+ startIndex);
 					statusMessages.add(startIndex, statusMessage);
 					timelineCardsAdapter.notifyDataSetChanged();
-					Logger.d("tl_", "list of SUs after pubsub TIMELINE_UPDATE_RECIEVED " + statusMessage);
 				}
 			});
 			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
@@ -285,6 +285,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			if (object != null && object instanceof FeedDataModel)
 			{
 				FeedDataModel feedData = (FeedDataModel) object;
+				Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
 				TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
 				notifyVisibleItems();
 			}
@@ -449,7 +450,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
 
-				Logger.d("tl_", "list of friends from CM before filter" + friendsList);
+				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends from CM before filter" + friendsList);
 				
 				ArrayList<String> msisdnList = new ArrayList<String>();
 
@@ -466,7 +467,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 				friendMsisdns = new String[msisdnList.size()];
 				msisdnList.toArray(friendMsisdns);
-				Logger.d("tl_", "list of friends after filter whose SU we are fetching " + friendMsisdns);
+				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends after filter whose SU we are fetching " + friendMsisdns);
 			}
 
 			List<StatusMessage> statusMessages = null;
@@ -492,7 +493,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				return;
 			}
 
-			Logger.d("tl_", "list of SUs to show on Timeline " + result);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "list of SUs to show on Timeline " + result);
+			
 			final ArrayList<String> suIDList = new ArrayList<String>();
 
 			for (StatusMessage suMessage : result)
@@ -510,6 +512,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				JSONObject suUpdateJSON = new JSONObject();
 				try
 				{
+					Logger.d(HikeConstants.TIMELINE_LOGS, "list of suIDArray, fetching HTTP calls " + suIDArray);
 					suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
 					RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
 					requestToken.execute();
@@ -550,7 +553,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			statusMessages.addAll(result);
 			
-			Logger.d("tl_"+getClass().getSimpleName(), "list of SUs after protip on Timeline " + statusMessages);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "list of SUs after protip on Timeline " + statusMessages);
 			
 			Logger.d(getClass().getSimpleName(), "Updating...");
 
@@ -575,7 +578,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				statusMessages.add(StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0))));
+				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0)));
+				if (cJoinedSM != null)
+				{
+					statusMessages.add(cJoinedSM);
+				}
+				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
 			}
 
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
@@ -708,7 +716,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			final JSONObject response = (JSONObject) result.getBody().getContent();
 
-			Logger.d("tl_", "responce from http call "+ response);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call "+ response);
 			
 			if (Utils.isResponseValid(response))
 			{
@@ -732,7 +740,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		public void onRequestFailure(HttpException httpException)
 		{
 			// Do nothing
-			Logger.d("tl_", "responce from http call failed "+ httpException.toString());
+			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call failed "+ httpException.toString());
 		}
 	};
 

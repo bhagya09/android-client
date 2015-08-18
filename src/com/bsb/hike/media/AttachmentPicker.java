@@ -105,7 +105,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		items.add(new OverFlowMenuItem(getString(R.string.file_msg_sent), 0, R.drawable.ic_attach_file, FILE));
 		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION))
 		{
-			items.add(new OverFlowMenuItem(getString(R.string.location_option), 0, R.drawable.ic_attach_location, LOCATION));
+			items.add(new OverFlowMenuItem(getString(R.string.location_msg_sent), 0, R.drawable.ic_attach_location, LOCATION));
 		}
 		this.overflowItems = items;
 	}
