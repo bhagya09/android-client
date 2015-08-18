@@ -836,7 +836,7 @@ public class HikeDialogFactory
 			
 		case DELETE_CHAT_DIALOG:
 		case DELETE_NON_MESSAGING_BOT:
-			deleteConfirmDialog.setTitle(R.string.DELETE);
+			deleteConfirmDialog.setTitle(R.string.delete);
 			deleteConfirmDialog.setMessage(context.getString(dialogId == DELETE_CHAT_DIALOG ? R.string.confirm_delete_chat_msg : R.string.confirm_delete_non_messaging,
 					(String) data[0]));
 			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
@@ -844,14 +844,14 @@ public class HikeDialogFactory
 			break;
 			
 		case DELETE_GROUP_DIALOG:
-			deleteConfirmDialog.setTitle(R.string.DELETE);
+			deleteConfirmDialog.setTitle(R.string.delete);
 			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_group_msg, (String) data[0]));
 			deleteConfirmDialog.setPositiveButton(android.R.string.ok, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case DELETE_BROADCAST_DIALOG:
-			deleteConfirmDialog.setTitle(R.string.DELETE);
+			deleteConfirmDialog.setTitle(R.string.delete);
 			deleteConfirmDialog.setMessage(context.getString(R.string.delete_broadcast_confirm));
 			deleteConfirmDialog.setPositiveButton(android.R.string.ok, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);

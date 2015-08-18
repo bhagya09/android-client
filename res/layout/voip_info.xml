@@ -18,10 +18,16 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/day_container"
         android:layout_centerVertical="true"
-        android:layout_margin="10dp"
+        android:layout_marginLeft="@dimen/chat_bubble_edge_spacing"
+        android:layout_marginRight="@dimen/chat_bubble_edge_spacing"
         android:background="@drawable/participant_info_bg"
         android:gravity="center_vertical"
-        android:orientation="horizontal" >
+        android:minHeight="33dp"
+        android:orientation="horizontal"
+        android:paddingBottom="3dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="3dp" >
 
         <ImageView
             android:id="@+id/voip_image"

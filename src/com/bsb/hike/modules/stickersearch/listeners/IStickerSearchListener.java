@@ -16,11 +16,15 @@ public interface IStickerSearchListener
 	
 	public void showStickerRecommendFtueTip();
 	
-	public void dismissStickerRecommendFtueTip();
+	public void showStickerRecommendAutoPopupOffTip();
 	
-	public void setStickerRecommendFtueSeen();
+	public void dismissTip(int whichTip);
+	
+	public void setTipSeen(int whichTip, boolean dismissIfVisible);
 	
 	public void clearSearchText();
 	
 	public void selectSearchText();
+
+	public boolean isStickerRecommendationPopupShowing();
 }

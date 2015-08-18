@@ -49,6 +49,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.timeline.ActionsDeserializer;
+import com.bsb.hike.timeline.EndlessRecyclerScrollListener;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
@@ -116,6 +117,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public static final int EMPTY_STATE = -10;
 
 	public static final int FILL_STATE = -11;
+	
+	private boolean reachedEnd;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -183,14 +186,130 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		};
 
 		mUpdatesList.setAdapter(timelineCardsAdapter);
+		
+		mUpdatesList.addOnScrollListener(new EndlessRecyclerScrollListener(mLayoutManager)
+		{
+			@Override
+			public void onLoadMore(int current_page)
+			{
+				if (!reachedEnd && !statusMessages.isEmpty() && statusMessages.size() > HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME)
+				{
+					AsyncTask<String, Void, List<StatusMessage>> asyncTask = new AsyncTask<String, Void, List<StatusMessage>>()
+					{
+
+						@Override
+						protected List<StatusMessage> doInBackground(String... params)
+						{
+							if (params != null && params.length > 0)
+							{
+								for (String msisdn : params)
+								{
+									// TODO Improve for multiple msisdns
+									if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+									{
+										friendMsisdns = params;
+										break;
+									}
+								}
+							}
+
+							List<StatusMessage> olderMessages = null;
+
+							if (friendMsisdns.length > 0)
+							{
+								olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(mShowProfileHeader ? false : true,
+										HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME, (int) statusMessages.get(statusMessages.size() - 1).getId(), friendMsisdns);
+							}
+							else
+							{
+								olderMessages = new ArrayList<>();
+							}
+							return olderMessages;
+						}
+
+						@Override
+						protected void onPostExecute(List<StatusMessage> olderMessages)
+						{
+							if (!isAdded())
+							{
+								return;
+							}
+
+							final ArrayList<String> suIDList = new ArrayList<String>();
+
+							if (!olderMessages.isEmpty())
+							{
+								for (StatusMessage suMessage : olderMessages)
+								{
+									if (!TextUtils.isEmpty(suMessage.getMappedId()))
+									{
+										suIDList.add(suMessage.getMappedId());
+									}
+								}
+								
+								if (!suIDList.isEmpty())
+								{
+									// Get actions for SU from HTTP
+									JSONArray suIDArray = new JSONArray(suIDList);
+									JSONObject suUpdateJSON = new JSONObject();
+									try
+									{
+										Logger.d(HikeConstants.TIMELINE_LOGS, "list of suIDArray, fetching HTTP calls " + suIDArray);
+										suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
+										RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
+										requestToken.execute();
+									}
+									catch (JSONException e)
+									{
+										e.printStackTrace();
+									}
+
+									// Get actions for SU from DB
+									HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+									{
+										@Override
+										public void run()
+										{
+											HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDList,
+													TimelineActionsManager.getInstance().getActionsData());
+											notifyVisibleItems();
+										}
+									}, 0);
+								}
+								
+								statusMessages.addAll(statusMessages.size(), olderMessages);
+								timelineCardsAdapter.notifyDataSetChanged();
+							}
+							else
+							{
+								/*
+								 * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
+								 */
+								reachedEnd = true;
+							}
+
+						}
+
+					};
+					if (Utils.isHoneycombOrHigher())
+					{
+						asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
+					}
+					else
+					{
+						asyncTask.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
+					}
+				}
+			}
+		});
 
 		if (!mShowProfileHeader)
 		{
 			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
 					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
 
-			mUpdatesList.setOnScrollListener(scrollListener);
-
+			mUpdatesList.addOnScrollListener(scrollListener);
+			
 			actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
 
 			actionsView.findViewById(R.id.new_status_tab).setOnClickListener(this);
@@ -282,13 +401,23 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
-			if (object != null && object instanceof FeedDataModel)
+			getActivity().runOnUiThread(new Runnable()
 			{
-				FeedDataModel feedData = (FeedDataModel) object;
-				Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
-				TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
-				notifyVisibleItems();
-			}
+				@Override
+				public void run()
+				{
+					if (object != null && object instanceof FeedDataModel)
+					{
+						FeedDataModel feedData = (FeedDataModel) object;
+						Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
+						TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
+						notifyVisibleItems();
+					}
+				}
+			});
+
+			
+			
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
 		{
@@ -439,7 +568,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				for (String msisdn : params)
 				{
 					// TODO Improve for multiple msisdns
-					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn, true, true)))
 					{
 						friendMsisdns = params;
 						break;
@@ -578,7 +707,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0)));
+				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true));
 				if (cJoinedSM != null)
 				{
 					statusMessages.add(cJoinedSM);

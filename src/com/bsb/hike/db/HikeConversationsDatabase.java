@@ -1663,7 +1663,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			actorList.add(feedData.getActor());
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
 		
-			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
 			if(!isAnyFeedEntryPresent())
 			{
 				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
@@ -1753,7 +1752,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if (isComplete)
 		{
-			fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+			if(!isAnyFeedEntryPresent())
+			{
+				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
+			}
+			else
+			{
+				fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+			}
 		}
 
 		return isComplete;
@@ -3926,6 +3932,63 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return null;
 	}
 
+	public List<Pair<Long, JSONObject>> updateStatusAndSendDeliveryReport(List<ConvMessage> convMessages)
+	{
+		if (convMessages == null || convMessages.isEmpty())
+		{
+			return null;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+
+		List<Pair<Long, JSONObject>> ids = new ArrayList<Pair<Long, JSONObject>>();
+		for (int j = 0; j < convMessages.size(); j++)
+		{
+			ConvMessage msg = convMessages.get(j);
+
+			long msgId = msg.getMsgID();
+			long mappedMsgId = msg.getMappedMsgID();
+			if (mappedMsgId > 0)
+			{
+				try
+				{
+					JSONObject dataObject = new JSONObject();
+					dataObject.put(HikeConstants.METADATA, msg.getMetadata());
+					dataObject.put(HikeConstants.PRIVATE_DATA, msg.getPrivateData());
+					Pair<Long, JSONObject> pair = new Pair<Long, JSONObject>(mappedMsgId, dataObject);
+					ids.add(pair);
+				}
+				catch (JSONException ex)
+				{
+					Logger.e("unread", "exception for msg id : " + msg.getMsgID() + " exception : ", ex);
+				}
+			}
+			sb.append(msgId);
+			if (j < convMessages.size() - 1)
+			{
+				sb.append(",");
+			}
+		}
+
+		sb.append(")");
+
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.MSG_STATUS, ConvMessage.State.RECEIVED_READ.ordinal());
+		int rowsAffected = mDb.update(DBConstants.MESSAGES_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
+
+		// Resetting the unread count as well
+		values.put(DBConstants.UNREAD_COUNT, 0);
+		mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
+
+		Logger.d("HIKE CONVERSATION DB ", "Rows Updated : " + rowsAffected);
+		if (ids.size() == 0)
+		{
+			return null;
+		}
+		return ids;
+	}
+	
 	/**
 	 * deletes multiple messages corresponding to give msgId
 	 *
