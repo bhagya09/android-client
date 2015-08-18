@@ -1096,7 +1096,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			sendMessageForStickerRecommendLearning();
 			sendMessage();
 			dismissStickerRecommendationPopup();
-			dismissStickerRecommendTip();
+			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
 	}
 
@@ -1150,14 +1150,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return;
 		}
+
 		StickerSearchManager.getInstance().sentMessage(message, null, null, null);
-		
-		if(stickerTagWatcher!= null)
+
+		if (stickerTagWatcher != null)
 		{
-			stickerTagWatcher.sendIgnoreAnalytics();
+			stickerTagWatcher.markStickerRecommendationIgnoreAndSendAnalytics();
 		}
 	}
-	
+
 	protected void audioRecordClicked()
 	{
 		showAudioRecordView();
@@ -1205,20 +1206,32 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mTips.showStickerRecommendFtueTip();
 	}
 	
-	public void dismissStickerRecommendTip()
+	public void showStickerRecommendAutopopupOffTip()
 	{
-		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		mTips.showStickerRecommendAutopopupOffTip();
+	}
+	
+	public void dismissTip(int whichTip)
+	{
+		if (mTips.isGivenTipShowing(whichTip))
 		{
-			mTips.hideTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+			mTips.hideTip(whichTip);
 		}
 	}
 	
-	public void setStickerRecommendFtueTipSeen()
+	public void setTipSeen(int whichTip, boolean dismissIfVisible)
 	{
-		if (mTips!=null&&mTips.isGivenTipVisible(ChatThreadTips.STICKER_RECOMMEND_TIP))
+		if(mTips == null )
+		{
+			return ;
+		}
+		
+		boolean shouldDismiss = dismissIfVisible ? mTips.isGivenTipVisible(whichTip) : true;
+				
+		if (shouldDismiss)
 		{
 			Logger.d(TAG, "set sticker recommend tip seen : " + true);
-			mTips.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP);
+			mTips.setTipSeen(whichTip);
 		}
 	}
 
@@ -1555,13 +1568,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void setupStickerSearch()
 	{
-		if(!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) || (Utils.getExternalStorageState() == ExternalStorageState.NONE))
+		if (!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+				|| (Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
 			return;
-		}	
-		
-		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
-		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD), activity.getLastMessageTimeStamp());
+		}
+
+		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
+				R.color.sticker_recommend_highlight_text)));
+
+		StickerSearchHostManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
+				activity.getLastMessageTimeStamp());
+
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
 	
@@ -1572,7 +1590,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return false;
 		}
 
-		if(stickerTagWatcher.isStickerRecommnedPoupShowing())
+		if(stickerTagWatcher.isStickerRecommendationPopupShowing())
 		{
 			stickerTagWatcher.dismissStickerSearchPopup();;
 			return true;
@@ -1910,7 +1928,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void stickerSelectedRecommedationPopup(Sticker sticker, String sourceOfSticker, boolean clearText)
 	{
-		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
+		Logger.i(TAG, "stickerSelectedRecommedationPopup(" + sticker + ", " + sourceOfSticker + ", " + clearText + ")");
+
 		if(clearText)
 		{
 			StickerSearchManager.getInstance().sentMessage(mComposeView.getText().toString(), sticker, null, null);
@@ -1919,6 +1938,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		}
+
 		sendSticker(sticker, sourceOfSticker);
 	}
 
@@ -3814,7 +3834,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
-		setStickerRecommendFtueTipSeen();
+		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
+		
+		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 		
 		hideActionMode();
 

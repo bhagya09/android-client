@@ -514,6 +514,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STICKER_SET = "stickerSet";
 
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
+	
+	public static final String SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP = "shownStickerRecommendAutoPopupOffTip";
 
 	public static final String STICKER_RECOMMEND_SCROLL_FTUE_COUNT = "stickerRecommendScrollFtueCount";
 
@@ -587,6 +589,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = "stickerSearchDatabaseSizeShrinkCoefficient"; // float
 
+	public static final String LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME = "lastSuccessfulTagsDownloadTime";
+	
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
