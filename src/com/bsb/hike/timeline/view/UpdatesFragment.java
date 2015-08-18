@@ -401,13 +401,23 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
-			if (object != null && object instanceof FeedDataModel)
+			getActivity().runOnUiThread(new Runnable()
 			{
-				FeedDataModel feedData = (FeedDataModel) object;
-				Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
-				TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
-				notifyVisibleItems();
-			}
+				@Override
+				public void run()
+				{
+					if (object != null && object instanceof FeedDataModel)
+					{
+						FeedDataModel feedData = (FeedDataModel) object;
+						Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
+						TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
+						notifyVisibleItems();
+					}
+				}
+			});
+
+			
+			
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
 		{
@@ -579,7 +589,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				for (String msisdn : params)
 				{
 					// TODO Improve for multiple msisdns
-					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn, true, true)))
 					{
 						friendMsisdns = params;
 						break;

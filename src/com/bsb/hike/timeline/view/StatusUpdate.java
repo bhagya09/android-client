@@ -1,6 +1,5 @@
 package com.bsb.hike.timeline.view;
 
-import java.io.File;
 import java.io.IOException;
 
 import android.app.ProgressDialog;
@@ -553,9 +552,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			e.printStackTrace();
 			return;
 		}
-		mActivityTask.task.execute();
+		
+		if(mActivityTask.task != null)
+		{
+			mActivityTask.task.execute();
 
-		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+		}
+		
 	}
 
 	public void hideEmoticonSelector()

@@ -27,9 +27,6 @@
                 android:src="@drawable/ic_close_action_mode" />
         </LinearLayout>
 
-        <View
-            style="@style/ActionBarDivider"
-            android:background="@color/transparent_white_ab" />
         
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/title"
