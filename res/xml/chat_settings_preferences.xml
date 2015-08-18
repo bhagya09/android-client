@@ -28,6 +28,7 @@
     
     <PreferenceCategory
         android:selectable="false"
+        android:key="stickerSettings"
         android:layout="@layout/settings_section_header"
         android:title="@string/pref_sticker_settings" >
     
