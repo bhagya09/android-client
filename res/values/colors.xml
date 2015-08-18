@@ -481,5 +481,8 @@
     <color name="avatar_color_carnation">#ff7687</color>
     <color name="avatar_color_light_gold">#ffd663</color>
     <color name="avatar_color_sky_blue">#78a9ff</color>
+    <color name="delete_account_button">#ff3636</color>
+    <color name="delete_account_button_pressed">#eb1d1d</color>
+    
 </resources>
 	

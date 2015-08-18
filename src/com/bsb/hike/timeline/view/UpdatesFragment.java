@@ -83,8 +83,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
-			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE };
-
+			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED };
+	
 	private String[] friendMsisdns = new String[]{};
 
 	private RecyclerView mUpdatesList;
@@ -192,7 +192,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			@Override
 			public void onLoadMore(int current_page)
 			{
-				if (!reachedEnd)
+				if (!reachedEnd && !statusMessages.isEmpty() && statusMessages.size() > HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME)
 				{
 					AsyncTask<String, Void, List<StatusMessage>> asyncTask = new AsyncTask<String, Void, List<StatusMessage>>()
 					{
@@ -489,6 +489,27 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				});
 			}
 		}
+		else if (HikePubSub.HIKE_JOIN_TIME_OBTAINED.equals(type) || HikePubSub.USER_JOIN_TIME_OBTAINED.equals(type))
+		{
+			if (!mShowProfileHeader || mMsisdnArray == null || mMsisdnArray.isEmpty())
+			{
+				return;
+			}
+
+			Pair<String, Long> msisdnHikeJoinTimePair = (Pair<String, Long>) object;
+
+			String msisdn = msisdnHikeJoinTimePair.first;
+			long hikeJoinTime = msisdnHikeJoinTimePair.second;
+
+			if (!msisdn.equals(mMsisdnArray.get(0)))
+			{
+				return;
+			}
+
+			ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true, false).setHikeJoinTime(hikeJoinTime);
+
+			notifyVisibleItems();
+		}
 	}
 
 	private int getStartIndex()
@@ -707,11 +728,20 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true));
+				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0));
+				
+				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
+				
 				if (cJoinedSM != null)
 				{
 					statusMessages.add(cJoinedSM);
 				}
+				
+				if(cJoinedSM.getTimeStamp() == 0)
+				{
+					joinConInfo.httpGetHikeJoinTime();
+				}
+				
 				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
 			}
 

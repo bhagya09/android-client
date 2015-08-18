@@ -343,7 +343,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		try
 		{
-			TextView tv = (TextView) LayoutInflater.from(this).inflate(chatTheme.systemMessageLayoutId(), null, false);
+			TextView tv = (TextView) LayoutInflater.from(this).inflate(chatTheme.systemMessageTextViewLayoutId(), null, false);
 			tv.setText(R.string.pinHistoryTutorialText);
 			if (chatTheme == ChatTheme.DEFAULT)
 			{

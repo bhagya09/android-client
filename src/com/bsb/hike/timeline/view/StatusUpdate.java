@@ -1,6 +1,5 @@
 package com.bsb.hike.timeline.view;
 
-import java.io.File;
 import java.io.IOException;
 
 import android.app.ProgressDialog;
@@ -615,10 +614,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		statusTxt.setHint(moodsArray[moodIndex]);
 
 		toggleEnablePostButton();
-		if (isEmojiOrMoodLayoutVisible())
-		{
-			onBackPressed();
-		}
 	}
 
 	private void showCancelButton(boolean moodLayout)
