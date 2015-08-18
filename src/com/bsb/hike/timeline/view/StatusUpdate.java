@@ -16,6 +16,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -329,8 +330,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		doneBtn = actionBarView.findViewById(R.id.done_container);
 		arrow = (ImageView) actionBarView.findViewById(R.id.arrow);
@@ -343,16 +342,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);
 
 		setTitle();
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
-				actionBarBackPressed();
-			}
-		});
 
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
@@ -811,6 +800,18 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	public String toString()
 	{
 		return "StatusUpdate [statusTxt=" + statusTxt + ", title=" + title + ", mImagePath=" + mImagePath + ", statusImage=" + statusImage + "]";
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		// TODO Auto-generated method stub
+		if(item.getItemId()==android.R.id.home)
+		{
+			Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
+			actionBarBackPressed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 	
 	
