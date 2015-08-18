@@ -73,7 +73,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private CallActionsView callActionsView;
 	private Chronometer callDuration;
 
-	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton, muteAllButton;
+	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
+	private TextView muteAllTextView;
 	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 
@@ -111,7 +112,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		speakerButton = (ImageButton) view.findViewById(R.id.speaker_btn);
 		addButton = (ImageButton) view.findViewById(R.id.add_btn);
 		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
-		muteAllButton = (ImageButton) view.findViewById(R.id.mute_all_btn);
+		muteAllTextView = (TextView) view.findViewById(R.id.mute_all_textview);
 		
 		if (VoIPUtils.isConferencingEnabled(getActivity())) 
 			addButton.setVisibility(View.VISIBLE);
@@ -590,7 +591,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		speakerButton.startAnimation(anim);
 		addButton.startAnimation(anim);
 		bluetoothButton.startAnimation(anim);
-		muteAllButton.startAnimation(anim);
 		hangupButton.startAnimation(anim);
 	}
 
@@ -692,14 +692,23 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		});
 		
-		muteAllButton.setOnClickListener(new OnClickListener() {
+		muteAllTextView.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				boolean newMute = !voipService.getHostForceMute();
 				Logger.w(tag, "Setting force mute to: " + newMute);
 				voipService.setHostForceMute(newMute);
-				muteAllButton.setSelected(newMute);
+				if (newMute == true) {
+					muteAllTextView.setText(getString(R.string.voip_conf_mute_all_on));
+					muteAllTextView.setBackgroundColor(getResources().getColor(R.color.voip_mute_all_on));
+				} else {
+					muteAllTextView.setText(getString(R.string.voip_conf_mute_all_off));
+					muteAllTextView.setBackgroundColor(getResources().getColor(R.color.voip_mute_all_off));
+				}
+				AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+				anim.setDuration(500);
+				muteAllTextView.startAnimation(anim);
 			}
 		});
 		
@@ -879,12 +888,14 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
 			if (clientPartner.isHostingConference) {
 				addButton.setVisibility(View.GONE);
-				muteAllButton.setVisibility(View.GONE);
+				muteAllTextView.setVisibility(View.GONE);
 			} else {
 				addButton.setVisibility(View.VISIBLE);
-				if (voipService.hostingConference())
-					muteAllButton.setVisibility(View.VISIBLE);
 			}
+		}
+
+		if (voipService.hostingConference()) {
+			muteAllTextView.setVisibility(View.VISIBLE);
 		}
 		
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)

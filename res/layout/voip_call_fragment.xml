@@ -74,14 +74,27 @@
 	        android:layout_centerHorizontal="true"
 	        android:scaleType="centerCrop" />
 
+	    <com.bsb.hike.view.CustomFontTextView 
+            android:id="@+id/mute_all_textview"
+	        android:layout_below="@id/voip_header"
+	        android:text="@string/voip_conf_mute_all_off"
+	        android:gravity="center"
+	        android:layout_width="match_parent"
+	        android:layout_height="55dp"
+	        android:textSize="16dp"
+	        android:background="@color/voip_mute_all_off"
+	        android:textColor="@color/white"
+	        android:visibility="gone"
+	        />
+	    
 		<ListView
             android:id="@+id/conference_list"
             style="@style/HomeList"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="20dp"
             android:dividerHeight="1px"
             android:divider="@drawable/voip_conference_list_divider"
-	        android:layout_below="@id/voip_header"
+	        android:layout_below="@id/mute_all_textview"
 	        android:layout_above="@+id/hang_up_btn"
             android:visibility="visible" />
 	    	    	    
@@ -159,18 +172,6 @@
 			        android:src="@drawable/ic_mute_disabled">
 			    </ImageButton>
 
-	    		<ImageButton
-			        android:id="@+id/mute_all_btn"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:scaleType="centerInside"
-			        android:padding="7dp"
-			        android:background="@null"
-			        android:layout_weight="1"
-			        android:visibility="gone"
-			        android:src="@drawable/voip_mute_btn_selector">
-			    </ImageButton>
-	    					    
 			     <ImageButton
 			        android:id="@+id/hold_btn"
 			        android:layout_width="wrap_content"
