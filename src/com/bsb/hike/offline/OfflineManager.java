@@ -553,12 +553,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 		
 		OfflineAnalytics.recordTimeForConnection(timeTakenToEstablishConnection);
 		
+		OfflineSessionTracking.getInstance().startTracking();
+		
 		OfflineController.getInstance().onConnect();
 	}
 
-	protected void sendInfoPacket()
+	protected void sendInfoPacket(long connectId)
 	{
-		SenderConsignment senderConsignment = new SenderConsignment.Builder(OfflineUtils.createInfoPkt().toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false)
+		SenderConsignment senderConsignment = new SenderConsignment.Builder(OfflineUtils.createInfoPkt(connectId).toString(), OfflineConstants.TEXT_TOPIC).ackRequired(false)
 				.persistance(false).build();
 		sendConsignment(senderConsignment);
 	}
