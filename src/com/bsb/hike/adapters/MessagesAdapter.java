@@ -1977,15 +1977,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.timestampcolor));
-				((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.participant_info_bg);
 			}
 			else
 			{
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.white));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
-				((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.participant_info_custom_bg);
 			}
-			
+			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(chatTheme.systemMessageBackgroundId());
 			int duration = metadata.getDuration();
 			boolean initiator = metadata.isVoipInitiator();
 
@@ -2094,7 +2092,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			int right = 0;
 			int bottom = positiveMargin;
 
-			int layoutRes = chatTheme.systemMessageLayoutId();
+			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
 			
 			if (infoState == ParticipantInfoState.PARTICIPANT_JOINED)
 			{
@@ -2400,7 +2398,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				participantInfoHolder = (ParticipantInfoHolder) v.getTag();
 			}
 			dayHolder = participantInfoHolder;
-			int layoutRes = chatTheme.systemMessageLayoutId();
+			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
 			TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 			if (convMessage.getUnreadCount() == 1)
 			{
