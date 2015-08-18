@@ -183,7 +183,7 @@ public class HttpRequests
 	
 	public static RequestToken postStatusRequest(String argStatusMessage, int argMood, IRequestListener requestListener, String imageFilePath) throws IOException
 	{
-		if(argMood <= 0 && TextUtils.isEmpty(argStatusMessage) && TextUtils.isEmpty(imageFilePath) && !new File(imageFilePath).exists())
+		if(argMood <= -1 && TextUtils.isEmpty(argStatusMessage) && TextUtils.isEmpty(imageFilePath))
 		{
 			return null;
 		}
