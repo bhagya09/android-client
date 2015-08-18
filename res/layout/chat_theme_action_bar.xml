@@ -33,6 +33,7 @@
         android:layout_marginRight="5dp"
         android:layout_toRightOf="@id/close_container"
         android:layout_toLeftOf="@+id/done_container"
+        android:clickable="false"
         android:ellipsize="end"
         android:text="@string/chat_theme" />
 
