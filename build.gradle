@@ -37,9 +37,6 @@ android {
         compile(project(':google-play')) {
             exclude module: 'support-v4'
         }
-        compile(project(':facebook')) {
-            exclude module: 'support-v4'
-        }
         compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
