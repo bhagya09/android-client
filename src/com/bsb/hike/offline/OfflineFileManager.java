@@ -23,8 +23,11 @@ import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.google.android.gms.internal.gi;
 
 public class OfflineFileManager
 {
@@ -251,6 +254,7 @@ public class OfflineFileManager
 				if (tempSticker != null && tempSticker.exists())
 					tempSticker.delete();
 			}
+			
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		} 
 		else 
@@ -258,10 +262,15 @@ public class OfflineFileManager
 			File tempFile = file;
 			tempFile.renameTo(new File(OfflineUtils.getFilePathFromJSON(messageJSON)));
 			FileTransferModel fileTransferModel = currentReceivingFiles.get(message.getMsgID());
-			
+
 			removeFromCurrentReceivingFile(message.getMsgID());
 			OfflineUtils.showSpinnerProgress(fileTransferModel);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_FILE_COMPLETED, message);
+		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_FILE_COMPLETED, message);
+		SessionTracFilePOJO pojo = OfflineSessionTracking.getInstance().getFileSession(message.getMsgID());
+		if (pojo != null)
+		{
+			pojo.recordEndTime();
 		}
 	}
 
@@ -291,6 +300,12 @@ public class OfflineFileManager
 		
 		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, totalChunks), convMessage);
 		addToCurrentReceivingFile(convMessage.getMsgID(), fileTransferModel);
+		
+		String fileType = HikeFileType.toString(hikeFile.getHikeFileType());
+		long fileSize = hikeFile.getFileSize();
+		SessionTracFilePOJO pojo = new SessionTracFilePOJO(fileType, fileSize, MessageType.RECEIVED.ordinal());
+		OfflineSessionTracking.getInstance().addToListOfFiles(convMessage.getMsgID(), pojo);
+		
 	}
 	
 	private int getTotalChunks(int fileSize)
