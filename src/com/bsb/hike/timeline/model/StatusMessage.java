@@ -267,6 +267,12 @@ public class StatusMessage
 
 	public String getTimestampFormatted(boolean pretty, Context context)
 	{
+		
+		if(getTimeStamp() == 0)
+		{
+			return "";
+		}
+		
 		if (pretty)
 		{
 			return Utils.getFormattedTime(pretty, context, timeStamp);

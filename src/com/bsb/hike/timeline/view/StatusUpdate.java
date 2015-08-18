@@ -614,10 +614,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		statusTxt.setHint(moodsArray[moodIndex]);
 
 		toggleEnablePostButton();
-		if (isEmojiOrMoodLayoutVisible())
-		{
-			onBackPressed();
-		}
 	}
 
 	private void showCancelButton(boolean moodLayout)
