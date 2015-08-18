@@ -44,6 +44,8 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	public static final int STICKER_TIP = 5;
 	
 	public static final int STICKER_RECOMMEND_TIP = 6;
+	
+	public static final int STICKER_RECOMMEND_AUTO_OFF_TIP = 7;
 
 	/**
 	 * Class members
@@ -169,6 +171,21 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			setupStickerRecommendFTUETip();
 		}
 	}
+	
+	/**
+	 * Utility method to show sticker recommend auto off tip
+	 */
+	public void showStickerRecommendAutopopupOffTip()
+	{
+		/**
+		 * Proceed only if the calling class had passed in the StickerTip in the list
+		 */
+		if (filterTips(STICKER_RECOMMEND_AUTO_OFF_TIP))
+		{
+			tipId = STICKER_RECOMMEND_AUTO_OFF_TIP;
+			setupStickerRecommendAutoPopupOffTip();
+		}
+	}
 
 	/**
 	 * Used to set up pulsating dot views
@@ -260,6 +277,50 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 		});
 	}
 	
+	/**
+	 * Used to set up sticker recommendation ftue views
+	 */
+	private void setupStickerRecommendAutoPopupOffTip()
+	{
+		ViewStub stickerRecommendAutoOff = (ViewStub) mainView.findViewById(R.id.sticker_recommendation_auto_off_tip);
+		
+		if(stickerRecommendAutoOff != null)
+		{
+			stickerRecommendAutoOff.setOnInflateListener(new ViewStub.OnInflateListener()
+			{
+
+				@Override
+				public void onInflate(ViewStub stub, View inflated)
+				{
+					tipView = inflated;
+					bindStickerRecommendAutoPopupOffTip();
+				}
+			});
+			
+			stickerRecommendAutoOff.inflate();
+		}
+		else
+		{
+			showHiddenTip();
+		}
+	}
+	
+	private void bindStickerRecommendAutoPopupOffTip()
+	{
+		ImageView close  = (RecyclingImageView) mainView.findViewById(R.id.sticker_recommend_ftue_close);
+		TextView tipTxt = (TextView) mainView.findViewById(R.id.sticker_recommend_ftue_text);
+		tipTxt.setText(mContext.getResources().getString(R.string.sticker_recommend_auto_off_tip_text));
+		close.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				setTipSeen(STICKER_RECOMMEND_AUTO_OFF_TIP);
+			}
+		});
+	}
+	
 	private boolean filterTips(int whichTip)
 	{
 		return isPresentInArray(whichTip) && !(seenTip(whichTip));
@@ -279,6 +340,8 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			return mPrefs.getData(HikeMessengerApp.SHOWN_EMOTICON_TIP, false);
 		case STICKER_RECOMMEND_TIP:
 			return mPrefs.getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
+		case STICKER_RECOMMEND_AUTO_OFF_TIP:
+			return mPrefs.getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP, false);
 		default:
 			return false;
 		}
@@ -418,6 +481,15 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			if (mainView.findViewById(R.id.sticker_recommendation_tip) != null)  // Safety null check.
 			{
 				mainView.findViewById(R.id.sticker_recommendation_tip).setVisibility(View.GONE);
+			}
+			break;
+			
+		case STICKER_RECOMMEND_AUTO_OFF_TIP:
+			mPrefs.saveData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP, true);
+			closeTip();
+			if (mainView.findViewById(R.id.sticker_recommendation_auto_off_tip) != null)  // Safety null check.
+			{
+				mainView.findViewById(R.id.sticker_recommendation_auto_off_tip).setVisibility(View.GONE);
 			}
 			break;
 

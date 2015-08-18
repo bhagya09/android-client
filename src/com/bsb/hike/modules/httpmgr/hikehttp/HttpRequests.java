@@ -433,11 +433,11 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, IRequestListener requestListener)
+	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, long lastSuccessfulTagDownloadTime, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 					.setId(requestId)
-					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp)
+					.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime)
 					.setRequestListener(requestListener)
 					.setRequestType(REQUEST_TYPE_SHORT)
 					.setPriority(PRIORITY_HIGH)
