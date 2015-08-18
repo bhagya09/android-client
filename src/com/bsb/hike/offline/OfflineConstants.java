@@ -185,5 +185,11 @@ public class OfflineConstants
 
 	}
 	
-	
+	public static final String CONNECTION_ID = "conn_id";
+
+	public static enum MessageType
+	{
+		SENT, RECEIVED
+	}
+
 }
