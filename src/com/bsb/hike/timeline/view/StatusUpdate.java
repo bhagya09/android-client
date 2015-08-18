@@ -553,9 +553,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			e.printStackTrace();
 			return;
 		}
-		mActivityTask.task.execute();
+		
+		if(mActivityTask.task != null)
+		{
+			mActivityTask.task.execute();
 
-		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+		}
+		
 	}
 
 	public void hideEmoticonSelector()

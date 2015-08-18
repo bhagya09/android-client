@@ -496,7 +496,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				for (String msisdn : params)
 				{
 					// TODO Improve for multiple msisdns
-					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn, true, true)))
 					{
 						friendMsisdns = params;
 						break;
@@ -635,7 +635,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0)));
+				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true));
 				if (cJoinedSM != null)
 				{
 					statusMessages.add(cJoinedSM);
