@@ -21,4 +21,5 @@ project(':facebook').projectDir = new File('./facebook-android-sdk/facebook')
 project(':appcompatv7').projectDir = new File('./appcompat')
 project(':viewpager-indicator-library').projectDir = new File('./Android ViewPagerIndicator library')
 project(':cardview').projectDir = new File('./cardview')
+project(':recyclerview').projectDir = new File('./recyclerview')
 rootProject.name = 'android-client'
