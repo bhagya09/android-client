@@ -129,51 +129,42 @@ public class ActivityFeedFragment extends Fragment implements Listener
 				return;
 			}
 
-			new Handler().post(new Runnable()
+			Logger.d(HikeConstants.TIMELINE_LOGS, "onPost Execute, The no of feeds are " + result.getCount());
+			
+			if(result != null && result.getCount() > 0)
 			{
-
-				@Override
-				public void run()
+				if (activityFeedCardAdapter == null)
 				{
-					Logger.d(HikeConstants.TIMELINE_LOGS, "onPost Execute, The no of feeds are " + result.getCount());
-					
-					if(result != null && result.getCount() > 0)
+					activityFeedCardAdapter = new ActivityFeedCursorAdapter(getActivity(), result, 0);
+					mActivityFeedRecyclerView.setAdapter(activityFeedCardAdapter);
+					HikeMessengerApp.getPubSub().addListeners(ActivityFeedFragment.this, pubSubListeners);
+				}
+				else
+				{
+					activityFeedCardAdapter.swapCursor(result);
+				}
+
+				/**
+				 * Added this check as to ensure that this call for updating read status only when screen is shown to user i.e in post execute, fragment is Added and visible
+				 */
+				if (isVisible())
+				{
+					UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
+
+					if (Utils.isHoneycombOrHigher())
 					{
-						if (activityFeedCardAdapter == null)
-						{
-							activityFeedCardAdapter = new ActivityFeedCursorAdapter(getActivity(), result, 0);
-							mActivityFeedRecyclerView.setAdapter(activityFeedCardAdapter);
-							HikeMessengerApp.getPubSub().addListeners(ActivityFeedFragment.this, pubSubListeners);
-						}
-						else
-						{
-							activityFeedCardAdapter.swapCursor(result);
-						}
-
-						/**
-						 * Added this check as to ensure that this call for updating read status only when screen is shown to user i.e in post execute, fragment is Added and visible
-						 */
-						if (isAdded() && isVisible())
-						{
-							UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
-
-							if (Utils.isHoneycombOrHigher())
-							{
-								updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-							}
-							else
-							{
-								updateActivityFeedTask.execute();
-							}
-						}
+						updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					}
 					else
 					{
-						getActivity().onBackPressed();
+						updateActivityFeedTask.execute();
 					}
-					
 				}
-			});
+			}
+			else
+			{
+				getActivity().onBackPressed();
+			}
 		}
 
 	}
