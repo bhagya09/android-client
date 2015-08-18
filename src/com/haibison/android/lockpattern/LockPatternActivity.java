@@ -650,9 +650,19 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 						mLockPatternView.clearPattern();
 			        	mLockPinView.requestFocus();
 			        	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+			        	//Somehow for lollipop, the view was not shifting upwards and hence we needed to add padding manually
+						if (Utils.isLollipopOrHigher())
+						{
+							findViewById(R.id.parentView).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.bottom_padding_pin_view));
+						}
 			        	mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
 					} else 
 					{
+						//Somehow for lollipop, the view was not shifting downwards and hence we needed to add padding manually
+						if(Utils.isLollipopOrHigher())
+						{
+							findViewById(R.id.parentView).setPadding(0, 0, 0, 0);
+						}
 						mLockPatternView.setVisibility(View.VISIBLE);
 						mLockPinView.setVisibility(View.GONE);
 						mLockPatternView.requestFocus();
