@@ -320,6 +320,11 @@ public class StatusMessage
 	
 	public static StatusMessage getJoinedHikeStatus(ContactInfo contactInfo)
 	{
+		if(contactInfo == null)
+		{
+			return null;
+		}
+		
 		return new StatusMessage(HikeConstants.JOINED_HIKE_STATUS_ID, null, contactInfo.getMsisdn(), contactInfo.getName(), HikeMessengerApp.getInstance().getString(
 				R.string.joined_hike_update), StatusMessageType.JOINED_HIKE, contactInfo.getHikeJoinTime());
 	}

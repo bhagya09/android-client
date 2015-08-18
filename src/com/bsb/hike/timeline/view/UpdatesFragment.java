@@ -578,9 +578,12 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				StatusMessage statusMessage = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0)));
-				statusMessages.add(statusMessage);
-				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + statusMessage);
+				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0)));
+				if (cJoinedSM != null)
+				{
+					statusMessages.add(cJoinedSM);
+				}
+				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
 			}
 
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
