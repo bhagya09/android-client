@@ -692,7 +692,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			v = mChatThreadCardRenderer.getView(v, convMessage, parent);
 			DetailViewHolder holder = (DetailViewHolder) v.getTag();
 			dayHolder = holder;
-			setSenderDetails(convMessage, position, holder, false);
+			setSenderDetails(convMessage, position, holder, true);
 			setTimeNStatus(position, holder, true, holder.messageContainer);
 			setSelection(convMessage, holder.selectedStateOverlay);
 		}
@@ -709,7 +709,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			WebViewCardRenderer.WebViewHolder holder = (WebViewCardRenderer.WebViewHolder) v.getTag();
 			dayHolder = holder;
 			setSelection(convMessage, holder.selectedStateOverlay);
-			setSenderDetails(convMessage, position, holder, false);
+			setSenderDetails(convMessage, position, holder, true);
 			setTimeNStatus(position, holder, true, holder.messageContainer);
 		}
 		else
@@ -2631,13 +2631,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
-	private void setSenderDetails(ConvMessage convMessage, int position, DetailViewHolder detailHolder, boolean ext)
+	private void setSenderDetails(ConvMessage convMessage, int position, DetailViewHolder detailHolder, boolean isNameExternal)
 	{
 		boolean firstMessageFromParticipant = ifFirstMessageFromRecepient(convMessage, position);
 		if (firstMessageFromParticipant)
 		{
 			setGroupParticipantName(convMessage, detailHolder.senderDetails, detailHolder.senderName, detailHolder.senderNameUnsaved, firstMessageFromParticipant);
-			if (ext)
+			if (isNameExternal)
 			{
 				if (detailHolder.senderName != null)
 				{
