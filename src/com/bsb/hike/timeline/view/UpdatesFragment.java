@@ -192,7 +192,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			@Override
 			public void onLoadMore(int current_page)
 			{
-				if (!reachedEnd)
+				if (!reachedEnd && !statusMessages.isEmpty() && statusMessages.size() > HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME)
 				{
 					AsyncTask<String, Void, List<StatusMessage>> asyncTask = new AsyncTask<String, Void, List<StatusMessage>>()
 					{
