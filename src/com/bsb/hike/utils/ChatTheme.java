@@ -10,7 +10,7 @@ public enum ChatTheme
 		@Override
 		public int bgResId()
 		{
-			return R.color.blue_hike;
+			return R.color.chat_thread_default_bg;
 		}
 
 		@Override
