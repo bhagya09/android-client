@@ -132,6 +132,7 @@
     <style name="Base.Theme.CustomDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
     </style>
 
     <style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog" />
