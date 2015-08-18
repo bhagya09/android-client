@@ -221,6 +221,14 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 		}
+
+		@Override
+		public String toString()
+		{
+			return "ViewHolder [name=" + name.getText() + ", mainInfo=" + mainInfo.getText() +"]";
+		}
+		
+		
 	}
 
 	private Context mContext;
@@ -364,7 +372,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void onBindViewHolder(ViewHolder viewHolder, int position)
 	{
 		int viewType = getItemViewType(position);//viewHolder.getItemViewType();
-		Logger.d(HikeConstants.TIMELINE_LOGS, "view type is " + viewType + ", itemID " + viewHolder.getItemViewType());
+		Logger.d(HikeConstants.TIMELINE_LOGS, "view type is " + viewType + ", itemID " + viewHolder.getItemViewType() + ", position "+ position);
 
 		if (viewType == USER_PROFILE_HEADER)
 		{
@@ -830,6 +838,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			viewHolder.parent.setPadding(0, 0, 0, 0);
 		}
+		
+		Logger.d(HikeConstants.TIMELINE_LOGS, "exit BindView " + viewHolder);
 	}
 
 	private DecelerateInterpolator cardInterp = new DecelerateInterpolator();
