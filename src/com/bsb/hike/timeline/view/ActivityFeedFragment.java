@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,18 +16,16 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
-import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
 
 public class ActivityFeedFragment extends Fragment implements Listener
 {
@@ -137,7 +134,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 				@Override
 				public void run()
 				{
-					Logger.d("tl_", "The no of feeds are " + result.getCount());
+					Logger.d(HikeConstants.TIMELINE_LOGS, "onPost Execute, The no of feeds are " + result.getCount());
 					
 					if(result != null && result.getCount() > 0)
 					{
