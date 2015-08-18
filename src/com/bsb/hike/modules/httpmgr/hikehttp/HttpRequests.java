@@ -183,26 +183,27 @@ public class HttpRequests
 	
 	public static RequestToken postStatusRequest(String argStatusMessage, int argMood, IRequestListener requestListener, String imageFilePath) throws IOException
 	{
-		if(argMood <= -1 && TextUtils.isEmpty(argStatusMessage) && TextUtils.isEmpty(imageFilePath))
-		{
-			return null;
-		}
-		
 		final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
 
 		final MediaType MEDIA_TYPE_TEXTPLAIN = MediaType.parse("text/plain; charset=UTF-8");
 
+		boolean isAnyHeaderPresent = false;
+		
+		RequestToken requestToken = null;
+		
 		MultipartBuilder multipartBuilder = new MultipartBuilder()
 				.type(MultipartBuilder.FORM);
 		
 		if(!TextUtils.isEmpty(argStatusMessage))
 		{
 			multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"status-message\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, argStatusMessage));
+			isAnyHeaderPresent = true;
 		}
 		
 		if(argMood != -1)
 		{
 			multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"mood\""), RequestBody.create(MEDIA_TYPE_TEXTPLAIN, String.valueOf(argMood+1)));
+			isAnyHeaderPresent = true;
 		}
 
 		if(!TextUtils.isEmpty(imageFilePath))
@@ -212,16 +213,20 @@ public class HttpRequests
 			{
 				multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"" + imageFile.getName() + "\""),
 						RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath)));
+				isAnyHeaderPresent = true;
 			}
 		}
 		
-		final RequestBody requestBody = multipartBuilder.build();
+		if(isAnyHeaderPresent)
+		{
+			final RequestBody requestBody = multipartBuilder.build();
 
-		MultipartRequestBody body = new MultipartRequestBody(requestBody);
+			MultipartRequestBody body = new MultipartRequestBody(requestBody);
 
-		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(getPostImageSUUrl()).setRequestListener(requestListener).post(body).build();
-		
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+			requestToken = new JSONObjectRequest.Builder().setUrl(getPostImageSUUrl()).setRequestListener(requestListener).post(body).build();
+			
+			requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		}
 
 		return requestToken;
 	}
