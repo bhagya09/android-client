@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.ui.HikePreferences;
@@ -16,6 +17,8 @@ public class IconPreference extends Preference
 {
 
 	private Drawable mIcon;
+	
+	private String disabledSummary =  "";
 
 	public IconPreference(Context context, AttributeSet attrs)
 	{
@@ -42,6 +45,18 @@ public class IconPreference extends Preference
 		
 		ViewCompat.setAlpha(view, isEnabled() ? HikePreferences.PREF_ENABLED_ALPHA : HikePreferences.PREF_DISABLED_ALPHA);
 		
+		TextView subText = (TextView) view.findViewById(android.R.id.summary);
+		
+		if (isEnabled())
+		{
+			subText.setText(getSummary());
+		}
+		
+		else
+		{
+			subText.setText(TextUtils.isEmpty(getDisabledSummaryText()) ? getSummary() : getDisabledSummaryText());
+		}
+		
 		final ImageView imageView = (ImageView) view.findViewById(R.id.icon);
 		if ((imageView != null) && (this.mIcon != null))
 		{
@@ -53,5 +68,17 @@ public class IconPreference extends Preference
 			imageView.setVisibility(View.GONE);
 		}
 	}
+	
+	private CharSequence getDisabledSummaryText()
+	{
+		return this.disabledSummary;
+	}
+
+	public void setDisabledSummaryText(String disabledText)
+	{
+		this.disabledSummary = disabledText;
+	}
+	
+	
 
 }

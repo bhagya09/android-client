@@ -111,6 +111,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="30dp"
             android:background="@drawable/signup_button"
+            android:stateListAnimator="@null"
             android:text="@string/restore"
             android:textColor="@drawable/signup_btn_text"
             android:textSize="15sp"

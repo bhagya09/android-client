@@ -4,7 +4,7 @@ import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Environment;
 
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 
 public class HikeConstants
 {
@@ -45,6 +45,10 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String SU_ID = "su_id";
+	
+	public static final String SU_ID_LIST = "su_ids";
 	
 	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 	
@@ -333,6 +337,8 @@ public class HikeConstants
 	public static final String PROTIP_TEXT = "t";
 
 	public static final String PROTIP_IMAGE_URL = "img";
+	
+	public static final String SU_IMAGE_KEY = "img";
 
 	public static final String PROTIP_WAIT_TIME = "wt";
 
@@ -1226,6 +1232,8 @@ public class HikeConstants
 		public static final String NAME = "name";
 
 		public static final String PREV_MSISDN = "prevMsisdn";
+		
+		public static final String LOVED_BY_SELF = "selfLove";
 
 		public static final String PREV_NAME = "prevName";
 		
@@ -1428,7 +1436,7 @@ public class HikeConstants
 		public static final String CONTACT_METADATA = "contactMetadata";
 
 		public static final String FROM_CENTRAL_TIMELINE = "fromCentralTimeline";
-
+		
 		public static final String BLOCKED_LIST = "blockedList";
 
 		public static final String NUX1_NUMBERS = "nux1Numbers";
@@ -1548,6 +1556,8 @@ public class HikeConstants
 		public static final String SELECTED_SHARABLE_MSGS_MIME_TYPE = "selectedCancelableMsgsMimeType";
 
 		public static final String FROM_NOTIFICATION = "fromNotification";
+		
+		public static final String OPEN_ACTIVITY_FEED = "openAcFeed";
 
 		public static final String LAST_STEALTH_POPUP_ID = "lastStealthPopupId";
 
@@ -1664,6 +1674,10 @@ public class HikeConstants
 		public static final String OKHTTP_WRITE_TIMEOUT = "okwto";
 
 		public static final String ENABLE_PHOTOS = "ph_en";
+		
+		public static final String STATUS_UPDATE_SHOW_COUNTS = "su_sc";
+		
+		public static final String STATUS_UPDATE_SHOW_LIKES = "su_sl";
 
 		public static final String FT_UPLOAD_SO_TIMEOUT = "ftsto";
 		
@@ -2266,6 +2280,17 @@ public class HikeConstants
 		public static final String SEND_DEVICE_DETAILS = "sendDeviceDetails";
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
+		
+		/**
+		 * Activity Feed 
+		 */
+		public static final String ACTIVITY_FEED_ACTIONBAR_CLICK = "tL_actf";
+		
+		public static final String ACTIVITY_FEED_ITEM_CLICKED = "tL_fdlst";
+		
+		public static final String FTUE_SHOW_ME_CLICKED = "tL_FTsM";
+		
+		public static final String FTUE_GOT_IT_CLICKED = "tL_GiT";
 
 		public static final String DPI = "dpi";
 
@@ -2473,6 +2498,10 @@ public class HikeConstants
 		public static final String PRODUCT_POPUP="productpopup";
 		
 		public static final String SESSION = "sess";
+		
+		public static final String ACTIVITY_UPDATE = "ac_up";
+		
+		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 	}
 
 	public static final class SMSNative
@@ -2879,7 +2908,7 @@ public class HikeConstants
 		
 		public static final int MAX_IMAGE_DIMEN = 1240;
 		
-		public static final String FROM_DP_UPLOAD = "from_dp_upload";
+		public static final String HOME_ON_BACK_PRESS = "from_dp_upload";
 		
 		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 80;
 	}
@@ -2944,7 +2973,10 @@ public class HikeConstants
 		public static final int H2O = 10;
 
 		public static final int OTHER = 11;
-
+		
+		public static final int ACTIVITYUPDATE = 12;
+		
+		public static final int IMAGE_POST = 13;
 	}
 	public static  class GROUPS_TYPE
 	{
@@ -3050,10 +3082,28 @@ public class HikeConstants
 	
 	public static final String TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT = "headlessimage_up_fragment";
 
+	public static final String SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	
 	public static final String IMAGE_PATHS = "image-paths";
 
-	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	public static final String ENABLE_TIMELINE_FTUE = "tl_ftue";
 	
+	public static final String HISTORICAL_UPDATE = "hsu";
+	
+	public static final String INIT_CARD_SHOWN = "timeline_ftue_init_card_shown";
+	
+	public static final String INIT_CARD_ON_TOP = "init_card_on_top";
+	
+	public static final String EXIT_CARD_ON_TOP = "exit_card_on_top";
+	
+	public static final String EXIT_CARD_SHOWN = "timeline_ftue_exit_card_shown";
+	
+	public static final String TIMELINE_FTUE_CARD_TO_SHOW_COUNTER = "timeline_ftue_card_to_show_counter";
+	
+	public static final String ANY_TIMELINE_FTUE_FAV_CLICKED = "any_tl_ftue_clicked";
+	
+	public static final String TIMELINE_FTUE_MSISDN_LIST = "tl_ftue_msdn_list";
+
 	public static final class SMS_SETTINGS
 	{
 		public static final String KEY_HIKE_OFFLINE = "hikeOffline";
@@ -3122,5 +3172,9 @@ public class HikeConstants
 	public static final String EXTRAS_BOT_MSISDN = "extras_bot_msisdn";
 
 	public static final String REWARDS_BOT_MSISDN = "rewards_bot_msisdn";
+	
+	public static final String TIMELINE_LOGS = "tl_logs";
+	
+	public static final String TIMELINE_COUNT_LOGS = "tlc_logs";
 
 }

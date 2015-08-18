@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +49,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 
 	public static final int CONTACT = 318;
 
-	public static final int LOCATOIN = 319;
+	public static final int LOCATION = 319;
 	
 	public static final int EDITOR = 320;
 
@@ -78,7 +79,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	}
 
 	/**
-	 * By default we show {@link #CAMERA} {@link #GALLARY} {@link #AUDIO} {@link #VIDEO} {@link #FILE} {@link #CONTACT} {@link #LOCATOIN}
+	 * By default we show {@link #CAMERA} {@link #GALLARY} {@link #AUDIO} {@link #VIDEO} {@link #FILE} {@link #CONTACT} {@link #LOCATION}
 	 * 
 	 * @param listener
 	 * @param context
@@ -104,7 +105,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		items.add(new OverFlowMenuItem(getString(R.string.file_msg_sent), 0, R.drawable.ic_attach_file, FILE));
 		if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION))
 		{
-			items.add(new OverFlowMenuItem(getString(R.string.location_msg_sent), 0, R.drawable.ic_attach_location, LOCATOIN));
+			items.add(new OverFlowMenuItem(getString(R.string.location_msg_sent), 0, R.drawable.ic_attach_location, LOCATION));
 		}
 		this.overflowItems = items;
 	}
@@ -189,8 +190,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 					requestCode = AUDIO;
 					pickIntent = IntentFactory.getAudioShareIntent(context);
 					break;
-				case LOCATOIN:
-					requestCode = LOCATOIN;
+				case LOCATION:
+					requestCode = LOCATION;
 					pickIntent = IntentFactory.getLocationPickerIntent(context);
 					break;
 				case CONTACT:
@@ -241,10 +242,15 @@ public class AttachmentPicker extends OverFlowMenuLayout
 
 	public void refreshGridView(GridView grid)
 	{
+		Resources resources = context.getResources();
 		int numCol = getNumColumnsAttachments();
 		grid.setNumColumns(numCol);
 		LayoutParams lp = grid.getLayoutParams();
-		lp.width = numCol * context.getResources().getDimensionPixelSize(R.dimen.attachment_column_width);
+		lp.width = numCol * resources.getDimensionPixelSize(R.dimen.attachment_column_width);
+		int displayHeight = resources.getDisplayMetrics().heightPixels;
+		int margin = resources.getDimensionPixelSize(R.dimen.attachment_grid_vertical_margin);
+		int gridHeight = getGridHeight();
+		lp.height = Math.min(gridHeight, displayHeight - margin);
 		grid.setLayoutParams(lp);
 	}
 	
@@ -252,7 +258,14 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	{
 		return currentConfig == Configuration.ORIENTATION_LANDSCAPE ? 4 : 3;
 	}
-	
+
+	private int getGridHeight()
+	{
+		return currentConfig == Configuration.ORIENTATION_LANDSCAPE ?
+				context.getResources().getDimensionPixelSize(R.dimen.attachment_grid_landscape_height) : 
+					context.getResources().getDimensionPixelSize(R.dimen.attachment_grid_portrait_height);
+	}
+
 	private String getString(int id)
 	{
 		return context.getString(id);
