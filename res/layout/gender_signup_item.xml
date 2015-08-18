@@ -40,6 +40,7 @@
             android:id="@+id/seprator_bar"
             android:layout_width="1dp"
             android:layout_height="match_parent"
+            android:layout_marginBottom="72dp"
             android:background="#d9dbdc" />
         
         <com.bsb.hike.view.CustomFontTextView
