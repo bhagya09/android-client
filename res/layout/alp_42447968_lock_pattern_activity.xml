@@ -152,7 +152,7 @@
                     android:gravity="center"
                     android:text="@string/CANCEL"
                     android:textColor="@drawable/popup_button_text_color_selector"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:visibility="gone" />
 
                 <View
@@ -170,7 +170,7 @@
                     android:gravity="center"
                     android:text="@string/continue_txt"
                     android:textColor="@drawable/popup_button_text_color_selector"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
         
