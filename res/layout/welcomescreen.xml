@@ -36,7 +36,7 @@
             android:layout_below="@id/welcome_text"
             android:layout_centerHorizontal="true"
             android:orientation="horizontal"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="12dp"
             android:src="@drawable/lbl_hike_messenger" />
     </LinearLayout>
     
