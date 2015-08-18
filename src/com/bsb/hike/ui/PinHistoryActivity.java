@@ -47,6 +47,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
@@ -122,6 +123,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		mPinListView.setOnItemLongClickListener(this);
 		
 		mPinListView.setAdapter(pinAdapter);
+		StatusBarColorChanger.setStatusBarColor(this, chatTheme.statusBarColor());
 		
 		if (chatTheme != ChatTheme.DEFAULT)
 		{
