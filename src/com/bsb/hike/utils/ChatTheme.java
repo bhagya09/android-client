@@ -199,6 +199,17 @@ public enum ChatTheme
 			return R.color.coffeebean_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 
 	INDEPENDENCE
@@ -774,6 +785,17 @@ public enum ChatTheme
 			return R.color.peacockglory_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 
 	
@@ -871,6 +893,17 @@ public enum ChatTheme
 			return R.color.nowhere_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 	VALENTINES_2
 	{
@@ -966,6 +999,17 @@ public enum ChatTheme
 			return R.color.valentines_2_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 
 	FRIENDS
@@ -1062,6 +1106,17 @@ public enum ChatTheme
 			return R.color.friends_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 	
 	BEACH_2
@@ -1158,6 +1213,17 @@ public enum ChatTheme
 			return R.color.beach_2_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 
 	NIGHT
@@ -1254,6 +1320,17 @@ public enum ChatTheme
 			return R.color.night_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 
 	SPRING
@@ -1446,6 +1523,17 @@ public enum ChatTheme
 			return R.color.night_pattern_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 	GUITAR
 	{
@@ -1541,6 +1629,17 @@ public enum ChatTheme
 			return R.color.guitar_theme_status_bar_color;
 		}
 
+		@Override
+		public int systemMessageTextViewLayoutId()
+		{
+			return R.layout.system_message_light;
+		}
+
+		@Override
+		public int systemMessageBackgroundId()
+		{
+			return R.drawable.bg_system_message_light;
+		}
 	},
 
 	STARRY
