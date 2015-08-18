@@ -183,6 +183,11 @@ public class HttpRequests
 	
 	public static RequestToken postStatusRequest(String argStatusMessage, int argMood, IRequestListener requestListener, String imageFilePath) throws IOException
 	{
+		if(argMood <= -1 && TextUtils.isEmpty(argStatusMessage) && TextUtils.isEmpty(imageFilePath))
+		{
+			return null;
+		}
+		
 		final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
 
 		final MediaType MEDIA_TYPE_TEXTPLAIN = MediaType.parse("text/plain; charset=UTF-8");
