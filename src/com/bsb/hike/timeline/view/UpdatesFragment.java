@@ -735,11 +735,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				if (cJoinedSM != null)
 				{
 					statusMessages.add(cJoinedSM);
-				}
-				
-				if(cJoinedSM.getTimeStamp() == 0)
-				{
-					joinConInfo.httpGetHikeJoinTime();
+					if(cJoinedSM.getTimeStamp() == 0)
+					{
+						joinConInfo.httpGetHikeJoinTime();
+					}
 				}
 				
 				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
