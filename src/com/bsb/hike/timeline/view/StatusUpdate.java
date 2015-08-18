@@ -801,4 +801,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		}
 	}
+
+	@Override
+	public String toString()
+	{
+		return "StatusUpdate [statusTxt=" + statusTxt + ", title=" + title + ", mImagePath=" + mImagePath + ", statusImage=" + statusImage + "]";
+	}
+	
+	
 }

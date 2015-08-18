@@ -121,7 +121,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		attachmentsGridView.setNumColumns(getNumColumnsChatThemes());
 
-		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(sherlockFragmentActivity.getApplicationContext(), -1, ChatTheme.values())
+		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(sherlockFragmentActivity.getApplicationContext(), -1, ChatTheme.THEME_PICKER)
 		{
 
 			@Override
@@ -156,7 +156,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 			{
-				ChatTheme selected = ChatTheme.values()[position];
+				ChatTheme selected = ChatTheme.THEME_PICKER[position];
 				gridAdapter.notifyDataSetChanged();
 				if (selected != userSelection)
 				{

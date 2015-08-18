@@ -2124,8 +2124,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		setupDefaultActionBar(true); // Setup the action bar
 		initMessageSenderLayout();
 
-		setMessagesRead(); // Setting messages as read if there are any unread ones
-
 		setEditTextListeners();
 		
 		activity.supportInvalidateOptionsMenu(); // Calling the onCreate menu here
@@ -4722,25 +4720,57 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	/**
 	 * Mark unread messages. This is called from {@link #onResume()}
+	 *
+	 * In this method we use messages list to get unread messages and check if mesaages list contain any read message exists
+	 * (this is done to make a db call optimization where we don't fetch messages from db instead directly pass the conv message object list which we have to mark as read)
+	 * 
+	 * So if messages list contains 50 msgs then we check if it contains any read msg 
+	 * if true then we pass {@link ConvMessage} list and mark msgs read in db for only these convMessages
+	 * if no read msg is found then we don't know how many msgs should be marked as read , in this case we have to fetch messages from db and then update the same
 	 */
 	private void setMessagesRead()
 	{
-		/**
-		 * Proceeding only if we have an unread message to be marked
-		 */
-		if (isLastMessageReceivedAndUnread())
+		List<ConvMessage> unreadConvMessages = new ArrayList<>();
+		boolean readMessageExists = false;
+
+		// fetching unread messages list and if messages contains any read msg or not
+		for (int i = messages.size() - 1; i >= 0; i--)
 		{
-			if (PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
+			ConvMessage msg = messages.get(i);
+
+			/**
+			 * Do nothing if it's a typing notification
+			 */
+			if (msg.getTypingNotification() != null || msg.isSent())
 			{
-					setSMSReadInNative();
+				continue;
 			}
 
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
-			ChatThreadUtils.sendMR(msisdn);
+			if (msg.getState() == ConvMessage.State.RECEIVED_UNREAD)
+			{
+				unreadConvMessages.add(msg);
+			}
+			else if (msg.getState() == ConvMessage.State.RECEIVED_READ)
+			{
+				readMessageExists = true;
+			}
 		}
-
+		
+		
+		if (unreadConvMessages != null && !unreadConvMessages.isEmpty())
+		{	
+			// unreadConvMessages list is not empty that means we have to mark some msgs as read
+			
+			if (PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
+			{
+				// below method marks sms msgs as read
+				setSMSReadInNative();
+			}
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
+			ChatThreadUtils.sendMR(msisdn, unreadConvMessages, readMessageExists);
+		}
 	}
-
+	
 	/**
 	 * Returns true if and only if the last message was received but unread
 	 * 
