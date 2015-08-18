@@ -500,6 +500,8 @@ public class OfflineController
 			offlineManager.releaseResources();
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			
+			OfflineSessionTracking.getInstance().stopTracking();
 		}
 	}
 	
@@ -547,6 +549,10 @@ public class OfflineController
 		Logger.d(TAG, "In onConnect");
 		
 		offlineManager.setConnectingDeviceAsConnected();
+		
+		OfflineSessionTracking.getInstance().setToUser(getConnectedDevice());
+		OfflineSessionTracking.getInstance().setfUser(OfflineUtils.getMyMsisdn());
+		
 		Logger.d(TAG,"Connected Device is "+ offlineManager.getConnectedDevice());
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, offlineManager.getConnectedDevice());
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
@@ -558,7 +564,9 @@ public class OfflineController
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		offlineManager.sendConnectedCallback();
-		offlineManager.sendInfoPacket();
+		long connectionId=System.currentTimeMillis();
+		OfflineSessionTracking.getInstance().setConnectionId(connectionId);;
+		offlineManager.sendInfoPacket(connectionId);
 		
 	}
 
