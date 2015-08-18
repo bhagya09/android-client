@@ -63,6 +63,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
@@ -255,6 +256,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 		else
 		{
+			StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 			showImage();
 			fullTextView.setVisibility(View.GONE);
 		}
