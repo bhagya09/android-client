@@ -58,7 +58,7 @@
                     android:layout_toRightOf="@id/stealth_passcode_img"
                     android:text="Your patterns don’t match. Try again. jla aldfa ld faldf alsdf a"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textIsSelectable="true"
+                    android:textIsSelectable="false"
                     android:textSize="14dp" />
             </RelativeLayout>
         </LinearLayout>
