@@ -3,7 +3,8 @@
 
     <item
         android:drawable="@drawable/hike_logo_top_bar"
-        android:right="@dimen/app_logo_home_screen_right">
+        android:right="@dimen/app_logo_home_screen_right"
+        android:left="@dimen/app_logo_home_screen_margin_left">
         
     </item>
 

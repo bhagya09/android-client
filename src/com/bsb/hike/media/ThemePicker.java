@@ -2,6 +2,7 @@ package com.bsb.hike.media;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.view.ActionMode.Callback;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,10 +16,12 @@ import android.widget.ImageView;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.BackPressListener;
 import com.bsb.hike.utils.ChatTheme;
@@ -38,7 +41,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		public void themeCancelled();
 	}
 
-	private SherlockFragmentActivity sherlockFragmentActivity;
+	private AppCompatActivity sherlockFragmentActivity;
 
 	private View viewToDisplay;
 
@@ -54,7 +57,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
 	
-	public ThemePicker(SherlockFragmentActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
+	public ThemePicker(AppCompatActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
 	{
 		this.userSelection = currentTheme;
 		this.sherlockFragmentActivity = sherlockFragmentActivity;
@@ -83,7 +86,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		Logger.i(TAG, "show theme picker");
 		this.userSelection = currentTheme;
-		sherlockFragmentActivity.startActionMode(actionmodeCallback);
+		sherlockFragmentActivity.startSupportActionMode(actionmodeCallback);
 		initView(footerTextResId, orientation);
 		popUpLayout.showPopUpWindowNoDismiss(xoffset, yoffset, anchor, getView());
 		popUpLayout.setOnDismissListener(this);
@@ -118,7 +121,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		attachmentsGridView.setNumColumns(getNumColumnsChatThemes());
 
-		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(sherlockFragmentActivity.getApplicationContext(), -1, ChatTheme.values())
+		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(sherlockFragmentActivity.getApplicationContext(), -1, ChatTheme.THEME_PICKER)
 		{
 
 			@Override
@@ -153,7 +156,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 			{
-				ChatTheme selected = ChatTheme.values()[position];
+				ChatTheme selected = ChatTheme.THEME_PICKER[position];
 				gridAdapter.notifyDataSetChanged();
 				if (selected != userSelection)
 				{
@@ -269,7 +272,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				@Override
 				public void run()
 				{
-					sherlockFragmentActivity.startActionMode(actionmodeCallback);
+					sherlockFragmentActivity.startSupportActionMode((ActionMode.Callback) actionmodeCallback);
 				}
 			});
 		}
@@ -283,9 +286,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		int chatThemePaletteMargin = 2 * resources.getDimensionPixelSize(R.dimen.chat_theme_palette_margin);
 
-		int chatThemeGridMargin = 2 * resources.getDimensionPixelSize(R.dimen.chat_theme_grid_margin);
+		int chatThemePalettePadding = 2 * resources.getDimensionPixelSize(R.dimen.chat_theme_palette_padding);
 
-		int chatThemeGridWidth = width - chatThemeGridMargin - chatThemePaletteMargin;
+		int chatThemeGridWidth = width - chatThemePalettePadding - chatThemePaletteMargin;
 
 		int chatThemeItemWidth = resources.getDimensionPixelSize(R.dimen.chat_bg_item_width);
 

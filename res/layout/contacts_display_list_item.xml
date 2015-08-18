@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="15dp"
+    android:orientation="vertical" >
+
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_launcher" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:paddingLeft="20dp"
+        android:layout_toRightOf="@+id/avatar"
+        android:orientation="vertical" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/contact_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Your contact"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"
+            android:textStyle="bold|italic" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/contact_status"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Liked this photo"
+            android:textColor="@color/dark_grey_drop_shadow"
+            android:textSize="14dp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+</RelativeLayout>

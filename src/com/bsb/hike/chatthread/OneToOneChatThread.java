@@ -36,8 +36,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -193,7 +193,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 //		Not allowing user to access actionbar items on a blocked user's chatThread
 		if (mConversation.isBlocked())
 		{
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
+			if (item.getItemId() != android.R.id.home)
+				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 			return false;
 		}
 		
@@ -565,7 +566,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			if (mConversation.isOnHike())
 			{
 				ConvMessage msg = findMessageById(msgId);
-				if (!msg.isSMS() && (!msg.isBroadcastMessage())) // Since ConvMessage is not sent as SMS, hence add it to undeliveredMap
+				if (msg != null && !msg.isSMS() && !msg.isBroadcastMessage()) // Since ConvMessage is not sent as SMS, hence add it to undeliveredMap
 				{
 					sendUIMessage(ADD_UNDELIVERED_MESSAGE, msg);
 				}

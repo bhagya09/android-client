@@ -11,6 +11,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -36,7 +37,7 @@ public class ImageParser
 	 * @param listener
 	 *            - listener to which give callback
 	 */
-	public static void parseResult(Context context, int resultCode, Intent data, ImageParserListener listener)
+	public static void parseResult(Context context, int resultCode, Intent data, ImageParserListener listener, boolean showSMO)
 	{
 		Logger.d(TAG, "onactivity result");
 
@@ -51,19 +52,30 @@ public class ImageParser
 			{
 				capturedFilepath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
 			}
+			else if (data != null && data.getAction() == GalleryActivity.GALLERY_RESULT_ACTION)
+			{
+				capturedFilepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
+			}
 			else
 			{
 				// After checking for custom action codes, we try to fetch result from camera
 				capturedFilepath = Utils.getCameraResultFile();
 			}
-
+			
 			if (capturedFilepath != null)
 			{
-				File imageFile = new File(capturedFilepath);
+				final File imageFile = new File(capturedFilepath);
 
 				if (imageFile != null && imageFile.exists())
 				{
-					showSMODialog(context, imageFile, listener);
+					if (showSMO)
+					{
+						showSMODialog(context, imageFile, listener);
+					}
+					else
+					{
+						listener.imageParsed(imageFile.getAbsolutePath());
+					}
 				}
 
 			}

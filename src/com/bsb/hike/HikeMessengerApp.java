@@ -255,6 +255,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String UNSEEN_STATUS_COUNT = "unseenStatusCount";
 
 	public static final String UNSEEN_USER_STATUS_COUNT = "unseenUserStatusCount";
+	
+	public static final String USER_TIMELINE_ACTIVITY_COUNT = "usertimelineactivitycount";
 
 	public static final String BATCH_STATUS_NOTIFICATION_VALUES = "batchStatusNotificationValues";
 
@@ -622,6 +624,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	RegisterToGCMTrigger mmRegisterToGCMTrigger = null;
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
+	
+	public static int bottomNavBarHeightPortrait = 0;
+	
+	public static int bottomNavBarWidthLandscape = 0;
 
 	static
 	{
@@ -923,10 +929,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		{
 			fetchPlatformIDIfNotPresent();
 		}
-
+		
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
 		StickerSearchManager.getInstance().removeDeletedStickerTags();
+		
+		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
+		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
