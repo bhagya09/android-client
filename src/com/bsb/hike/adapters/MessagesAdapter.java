@@ -90,8 +90,6 @@ import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MessageMetadata.NudgeAnimationType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -102,6 +100,8 @@ import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChatTheme;
@@ -1188,7 +1188,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = videoHolder;
-				setSenderDetails(convMessage, position, videoHolder, false);
+				setSenderDetails(convMessage, position, videoHolder, true);
 
 				videoHolder.fileThumb.setBackgroundResource(0);
 				videoHolder.fileThumb.setImageResource(0);
@@ -1355,7 +1355,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = imageHolder;
-				setSenderDetails(convMessage, position, imageHolder, false);
+				setSenderDetails(convMessage, position, imageHolder, true);
 
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
@@ -1508,7 +1508,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = imageHolder;
-				setSenderDetails(convMessage, position, imageHolder, false);
+				setSenderDetails(convMessage, position, imageHolder, true);
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
 
@@ -4026,23 +4026,25 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private void fillStatusMessageData(StatusViewHolder statusHolder, ConvMessage convMessage, View v)
 	{
 		StatusMessage statusMessage = convMessage.getMetadata().getStatusMessage();
-
+		
 		statusHolder.dayTextView.setText(context.getString(R.string.xyz_posted_update, Utils.getFirstName(conversation.getLabel())));
 
 		statusHolder.messageInfo.setText(statusMessage.getTimestampFormatted(true, context));
 
-		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 		{
 			SmileyParser smileyParser = SmileyParser.getInstance();
-			
 			statusHolder.messageTextView.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
 			checkIfContainsSearchText(statusHolder.messageTextView);
 			Linkify.addLinks(statusHolder.messageTextView, Linkify.ALL);
-
 		}
 		else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
 			statusHolder.messageTextView.setText(R.string.changed_profile);
+		}
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+		{
+			statusHolder.messageTextView.setText(R.string.posted_photo);
 		}
 
 		if (statusMessage.hasMood())

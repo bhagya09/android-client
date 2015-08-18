@@ -112,7 +112,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "43";
+			return "42";
 		}
 
 		@Override
@@ -418,7 +418,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "44";
+			return "41";
 		}
 
 		@Override
@@ -622,7 +622,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "45";
+			return "36";
 		}
 
 		@Override
@@ -723,7 +723,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "46";
+			return "37";
 		}
 
 		@Override
@@ -826,7 +826,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "48";
+			return "38";
 		}
 
 		@Override
@@ -1537,7 +1537,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "49";
+			return "30";
 		}
 
 		@Override
@@ -2149,7 +2149,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "50";
+			return "25";
 		}
 
 		@Override
@@ -3516,4 +3516,11 @@ public enum ChatTheme
 	}
 
 	public static ChatTheme[] FTUE_THEMES = { STARRY, BEACH, FOREST };
+	
+	/*This stores the order of themes in which they will they will be displayed. Whenever another theme is added update this as well.
+	 The current order followed is [0,28,21,23,20,40,32,22,29,26,8,42,38,25,37,36,1,39,30,41,24,14,31,18,17,10,2,4,9,13,15,11,7,3]
+	*/
+	public static ChatTheme[] THEME_PICKER = { DEFAULT, FRIENDS, NIGHT_PATTERN, OWL, VALENTINES_2, LOVE_2, HIKIN_COUPLE, 
+	NIGHT, RAIN2, BEACH_2, CREEPY, COFFEEBEAN, NOWHERE, SWIVEL, PEACOCKGLORY, SLEEPINGDOG, LOVE, INDEPENDENCE, GUITAR, 
+	TRACK, SPRING, KISSES, MR_RIGHT, VALENTINES, STUDY, FLORAL, CHATTY, STARRY, CELEBRATION, TECHY, BEACH, FOREST, SMILEY, GIRLY };
 };

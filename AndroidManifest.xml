@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1344"
-    android:versionName="3.9.9.81.20.1.voip" >
+    android:versionCode="1371"
+    android:versionName="4.0.0.21" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -251,9 +251,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.StatusUpdate"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
-            android:windowSoftInputMode="adjustResize" >
+            android:name="com.bsb.hike.timeline.view.StatusUpdate"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.GalleryActivity"
@@ -290,7 +289,10 @@
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
-            android:name=".ui.TimelineActivity"
+            android:name="com.bsb.hike.timeline.view.TimelineActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
@@ -308,6 +310,12 @@
             android:name="com.bsb.hike.ui.NuxSendCustomMessageActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" >
+        </activity>
+         <activity
+            android:name="com.bsb.hike.timeline.view.TimelineSummaryActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Transparent">
         </activity>
         <activity
             android:name="com.bsb.hike.ui.PictureEditer"

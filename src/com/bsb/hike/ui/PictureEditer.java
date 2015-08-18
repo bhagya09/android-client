@@ -629,6 +629,42 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						{
 							setupProfilePicUpload();
 						}
+						else if (actionCode == PhotoActionsFragment.ACTION_POST)
+						{
+							beginProgress();
+
+							editView.saveImage(HikeFileType.IMAGE, filename, new HikePhotosListener()
+							{
+
+								@Override
+								public void onFailure()
+								{
+									finishProgress();
+								}
+
+								@Override
+								public void onComplete(Bitmap bmp)
+								{
+									// Do nothing
+								}
+
+								@Override
+								public void onComplete(File f)
+								{
+									finishProgress();
+
+									if (f.exists())
+									{
+										startActivity(IntentFactory.getPostStatusUpdateIntent(PictureEditer.this, f.getAbsolutePath()));
+									}
+									else
+									{
+										Toast.makeText(getApplicationContext(), R.string.photos_oom_save, Toast.LENGTH_SHORT).show();
+									}
+								}
+							});
+
+						}
 					}
 				});
 			}
