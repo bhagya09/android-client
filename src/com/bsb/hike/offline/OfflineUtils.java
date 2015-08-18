@@ -630,7 +630,7 @@ public class OfflineUtils
 			return "An unknown error occured";
 	}
 
-	public static JSONObject createInfoPkt()
+	public static JSONObject createInfoPkt(long connectID)
 	{
 		JSONObject object = new JSONObject();
 		try
@@ -638,6 +638,7 @@ public class OfflineUtils
 			object.put(HikeConstants.TYPE, OfflineConstants.INFO_PKT);
 			object.put(HikeConstants.VERSION, Utils.getAppVersion());
 			object.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+			object.put(OfflineConstants.CONNECTION_ID, connectID);
 		}
 		catch (JSONException e)
 		{
