@@ -473,7 +473,7 @@ public class StickerSearchManager
 
 	private void setShowAutoPopupConfiguration()
 	{
-		this.showAutoPopupSettingOn = StickerSearchUtility.getSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+		this.showAutoPopupSettingOn = StickerSearchUtility.getStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
 
 		if (this.showAutoPopupSettingOn)
 		{
@@ -545,13 +545,14 @@ public class StickerSearchManager
 				this.autoPopupTurningOffTrailRunning = false;
 				setShowAutoPopupSettingOn(false);
 
-				StickerSearchUtility.saveSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+				StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
 				saveOrDeleteAutoPopupTrialState(true);
 				
 				if(listener != null)
 				{
 					listener.showStickerRecommendAutoPopupOffTip();
 				}
+
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP, true);
 			}
 			// Reset count and start next trial
