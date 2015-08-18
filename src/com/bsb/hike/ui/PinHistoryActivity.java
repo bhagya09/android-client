@@ -203,8 +203,9 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			menu.findItem(R.id.forward_msgs).setVisible(false);
 			
 			menu.findItem(R.id.copy_msgs).setVisible(true);
-		}
-		return super.onCreateOptionsMenu(menu);
+		}else
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		return true;
 	}
 
 	@Override
@@ -375,7 +376,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		actionBar.setDisplayHomeAsUpEnabled(false);
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.action_mode_action_bar, null);
 
 		View closeBtn = actionBarView.findViewById(R.id.close_action_mode);
