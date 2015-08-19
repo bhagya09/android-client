@@ -427,6 +427,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					statusMessages.clear();
 					resetSharedPrefOnRemovingFTUE();
 					timelineCardsAdapter.notifyDataSetChanged();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 				}
 			});
 		}
