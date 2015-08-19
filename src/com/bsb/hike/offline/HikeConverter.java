@@ -295,13 +295,12 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				
 				if (OfflineUtils.isChatThemeMessage(messageJSON))
 				{
-					ConvMessage convMessage = new ConvMessage(messageJSON, context);
 					if (messagesManager == null)
 					{
 						messagesManager = new OfflineMessagesManager();
 					}
 					messagesManager.handleChatThemeMessage(messageJSON);
-					OfflineSessionTracking.getInstance().incrementMsgSend(convMessage.getMetadata().isPokeMessage());
+					OfflineSessionTracking.getInstance().incrementMsgSend(false);
 					return;
 				}
 				else if (OfflineUtils.isDisconnectPkt(messageJSON))

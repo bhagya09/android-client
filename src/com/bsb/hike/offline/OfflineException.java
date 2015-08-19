@@ -30,6 +30,8 @@ public class OfflineException extends TException
 	
 	public static byte WIFI_COULD_NOT_START = 27;
 	
+	public static byte APP_SWIPE = 28;
+	
 	public OfflineException(byte reasonCode) {
 		super(reasonCode);
 	}

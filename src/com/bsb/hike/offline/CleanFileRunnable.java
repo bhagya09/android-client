@@ -26,11 +26,13 @@ public class CleanFileRunnable implements Runnable
 			msgArrayList.add(msgId);
 
 			OfflineController.getInstance().deleteRemainingFiles(msgArrayList, HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, ""));
-		}
+			}
 		OfflineController.getInstance().sendDisconnectInlineMsg(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_MSISDN, ""));
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.OFFLINE_MSISDN);
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.CURRENT_RECIEVING_MSG_ID);
+		OfflineAnalytics.recordDisconnectionAnalytics(OfflineException.APP_SWIPE);
+		
 	}
 
 }
