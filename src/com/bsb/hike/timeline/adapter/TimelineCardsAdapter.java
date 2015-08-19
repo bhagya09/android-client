@@ -398,6 +398,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			{
 				viewHolder.profileBtnDivider.setVisibility(View.GONE);
 				viewHolder.changeProfile.setVisibility(View.GONE);
+				viewHolder.extraInfo.setText(headerMsisdn);
 			}
 			else
 			{
