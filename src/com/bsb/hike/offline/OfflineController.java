@@ -480,11 +480,11 @@ public class OfflineController
 	
 	public synchronized void shutdownProcess(TException exception)
 	{
-		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
+		if (getOfflineState() != OFFLINE_STATE.DISCONNECTING)
 		{
 			// this function uses offline state == connected.
 			// so changing OfflineState after calling this.
-			setOfflineState(OFFLINE_STATE.DISCONNECTED);
+			setOfflineState(OFFLINE_STATE.DISCONNECTING);
 			Transporter.getInstance().shutDown();
 			fileManager.shutDown();
 			
@@ -499,6 +499,7 @@ public class OfflineController
 			offlineManager.releaseResources();
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			setOfflineState(OFFLINE_STATE.DISCONNECTED);
 		}
 	}
 	

@@ -148,13 +148,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		switch(msg.what)
 		{
 			case UPDATE_ANIMATION_MESSAGE:
-				updateAnimationText(connectionInfo,(String)(msg.obj));
+				updateAnimationText(connectionInfo,(String)(msg.obj),false);
 				break;
 			case UPDATE_ANIMATION_SECOND_MESSAGE:
-				updateAnimationText(secondMessage,(String)msg.obj);
+				updateAnimationText(secondMessage,(String)msg.obj,false);
 				break;
 			case START_TIMER:
-				updateAnimationText(connectionInfo,"" +timerDuration/1000);
+				updateAnimationText(connectionInfo,"" +timerDuration/1000,true);
 				startTimer();
 				break;	
 		}
@@ -177,14 +177,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			public void onFinish()
 			{
 				hideTimer();
-				
+				updateAnimationText(connectionInfo, getResources().getString(R.string.disconnecting_offline),false);
 			}
 		};
 				
 	}
 
 
-	private void updateAnimationText(final TextView source,final String message)
+	private void updateAnimationText(final TextView source,final String message,final boolean startTimer)
 	{
 		
 		AlphaAnimation  disappearAnimation = new AlphaAnimation(1.0f, 0.0f);
@@ -235,7 +235,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationEnd(Animation animation)
 			{
-				if(message.equals("" + timerDuration/1000))
+				if(startTimer)
 				{
 					timer.start();
 				}
@@ -437,7 +437,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onClick(View v)
 			{
-
 				if(OfflineController.getInstance().getOfflineState()== OFFLINE_STATE.CONNECTING)
 				{
 					showPreviouslyConnectingFragment();
@@ -665,9 +664,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				{
 					return;
 				}
-				 updateAnimationText(connectionInfo,getResources().getString(R.string.connection_established));
-				 
-				 if(rotateAnimation!=null)
+				
+				frame.setVisibility(View.INVISIBLE);
+				secondMessage.setVisibility(View.INVISIBLE);
+				if(rotateAnimation!=null)
 				 {
 					 rotateAnimation.cancel();
 				 }
@@ -680,12 +680,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				 if(timer!=null)
 				 {
 					 timer.cancel();
-					 secondMessage.setVisibility(View.GONE);
 				 }
 				 
-				 frame.setVisibility(View.INVISIBLE);
-				 secondMessage.setVisibility(View.INVISIBLE);
-		
+				 updateAnimationText(connectionInfo,getResources().getString(R.string.connection_established),false);
+				
 				 //Scale up 
 				 ObjectAnimator scaleXUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleX", 3.5f);
 				 ObjectAnimator scaleYUp = ObjectAnimator.ofFloat(imageViewLayout, "scaleY", 3.5f);

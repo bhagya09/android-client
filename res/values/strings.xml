@@ -1635,4 +1635,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="YES">YES</string>
     <string name="NO">NO</string>
     <string name="DELETE">DELETE</string>
+    <string name= "disconnecting_offline">Please wait . We are disconnecting previous connection</string>
 </resources>

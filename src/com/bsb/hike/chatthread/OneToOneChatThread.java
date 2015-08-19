@@ -819,7 +819,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			showCallIcon();
 			break;
 		case OFFLINE_DISCONNECTED:
-			onOfflineDisconnection((String)msg.obj);
+			onOfflineDisconnection();
 			break;
 		case OFFLINE_CONNECTED:
 			onOfflineConnection((String)msg.obj);
@@ -854,7 +854,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		activity.invalidateOptionsMenu();
 	}
 
-	private void onOfflineDisconnection(String message)
+	private void onOfflineDisconnection()
 	{
 		hideLastSeenText();
 		fetchLastSeen();
@@ -1591,6 +1591,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				Toast.makeText(activity, getResources().getString(R.string.connecting_previously,
 						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
 			}
+			break;
+		case DISCONNECTING:
+			Toast.makeText(activity, getResources().getString(R.string.disconnecting_offline),Toast.LENGTH_SHORT).show();
 			break;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
@@ -3280,7 +3283,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case OUT_OF_RANGE:
 			break;
 		case TIMEOUT:
-			sendUIMessage(OFFLINE_DISCONNECTED, getString(R.string.connection_failed));
 			break;
 		case DISCONNECTING:
 			break;
@@ -3290,7 +3292,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			Logger.d("OfflineManager", "Request Canceled received");
 			break;
 		case SHUTDOWN:
-			sendUIMessage(OFFLINE_DISCONNECTED, getString(R.string.connection_deestablished));
+			sendUIMessage(OFFLINE_DISCONNECTED,null);
 			if (offlineAnimationFragment != null)
 			{
 				offlineAnimationFragment.onDisconnect(errorCode);
