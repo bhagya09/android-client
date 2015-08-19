@@ -7,6 +7,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.offline.OfflineConstants.AnalyticsConstants;
+import com.bsb.hike.utils.Logger;
 //import com.bsb.hike.offline.OfflineConstants.AnalyticsEvents;
 
 /**
@@ -15,6 +16,8 @@ import com.bsb.hike.offline.OfflineConstants.AnalyticsConstants;
  */
 public class OfflineAnalytics
 {
+
+	private static final String TAG = OfflineAnalytics.class.getName();
 
 	public static void pushNotificationClicked(int argument)
 	{
@@ -61,4 +64,62 @@ public class OfflineAnalytics
 		}
 		HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, EventPriority.HIGH, metaData);
 	}
+
+	public static void retryButtonClicked()
+	{
+		JSONObject object = new JSONObject();
+		try
+		{
+			object.put(HikeConstants.EVENT_TYPE,AnalyticsConstants.EVENT_TYPE_OFFLINE);
+			object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_PUSH);
+			object.put(HikeConstants.TAG, AnalyticsConstants.RETRY_BUTTON_CLICKED);
+			recordAnalytics(object);
+		}
+		catch(JSONException e)
+		{
+			Logger.e(TAG,"Exception while recording offline retry button Analytics");
+		}
+	}
+
+	public static void closeAnimationCrossClicked()
+	{
+		JSONObject object = new JSONObject();
+		try
+		{
+			object.put(HikeConstants.EVENT_TYPE,AnalyticsConstants.EVENT_TYPE_OFFLINE);
+			object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_CANCEL);
+			recordAnalytics(object);
+		}
+		catch(JSONException e)
+		{
+			Logger.e(TAG,"Exception while recording cross click offline Analytics");
+		}
+	}
+
+	//type 0  is popup-1(Connecting case)
+	//type 1 is popup-2(Connected case) 
+	public static void disconnectPopupClicked(int type,int itemClicked)
+	{
+		JSONObject object = new JSONObject();
+		try
+		{
+			object.put(HikeConstants.EVENT_TYPE,AnalyticsConstants.EVENT_TYPE_OFFLINE);
+			if(type==1)
+			{
+				object.put(HikeConstants.EVENT_KEY,AnalyticsConstants.EVENT_KEY_CONNECTING_POP_UP_CLICK);
+			}
+			else
+			{
+				object.put(HikeConstants.EVENT_KEY,AnalyticsConstants.EVENT_KEY_CONNECTED_POP_UP_CLICK);
+			}
+			object.put(HikeConstants.TAG,itemClicked);
+			recordAnalytics(object);
+		}
+		catch(JSONException e)
+		{
+			Logger.e(TAG,"Exception while recording offline disconnection popup analytics");
+		}
+		
+	}
+	
 }

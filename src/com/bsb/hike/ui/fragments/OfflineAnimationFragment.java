@@ -1,6 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
+
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.animation.Animator;
@@ -45,6 +46,7 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
+import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
@@ -445,6 +447,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				{
 					closeFragment();
 				}
+				OfflineAnalytics.closeAnimationCrossClicked();
 			}
 		});
 		int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 95, getActivity().getResources().getDisplayMetrics());
@@ -641,6 +644,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				startRotateAnimation();
 				sendUiMessages();
 				listener.onConnectionRequest(false);
+				OfflineAnalytics.retryButtonClicked();
 			}
 
 		});

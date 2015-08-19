@@ -22,6 +22,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineAnalytics;
 
 public class OfflineDisconnectFragment extends Fragment
 {
@@ -148,7 +149,8 @@ public class OfflineDisconnectFragment extends Fragment
 			@Override
 			public void onClick(View v)
 			{
-				
+			
+				OfflineAnalytics.disconnectPopupClicked(type,0);
 				Animation anim = slideOutContainer(fragmentView);
 				anim.setAnimationListener(new AnimationListener()
 				{
@@ -183,7 +185,7 @@ public class OfflineDisconnectFragment extends Fragment
 			public void onClick(View v)
 			{
 				
-				
+				OfflineAnalytics.disconnectPopupClicked(type,1);
 				Animation anim = slideOutContainer(fragmentView);
 				anim.setAnimationListener(new AnimationListener()
 				{
