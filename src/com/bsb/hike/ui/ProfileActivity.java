@@ -75,6 +75,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -1817,43 +1818,43 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onProfileLargeBtnClick(View v)
 	{
-		AlertDialog.Builder builder;
-		AlertDialog alertDialog;
 		switch (profileType)
 		{
 		case BROADCAST_INFO:
 		case GROUP_INFO:
 			final boolean isBroadcast = profileType == ProfileType.BROADCAST_INFO;
-			
-			builder = new AlertDialog.Builder(this);
-			builder.setMessage(isBroadcast ? R.string.delete_broadcast_confirm : R.string.leave_group_confirm);
-			builder.setPositiveButton(R.string.YES, new DialogInterface.OnClickListener()
+			CustomAlertDialog alertDialog = new CustomAlertDialog(this, -1);
+			alertDialog.setMessage(isBroadcast ? R.string.delete_broadcast_confirm : R.string.leave_group_confirm);
+			HikeDialogListener listener = new HikeDialogListener()
 			{
 
 				@Override
-				public void onClick(DialogInterface dialog, int which)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					HikePubSub hikePubSub = HikeMessengerApp.getPubSub();
 					HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
 					hikePubSub.publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
-					
 					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
 					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
+					hikeDialog.dismiss();
 				}
-			});
-			builder.setNegativeButton(R.string.NO, new DialogInterface.OnClickListener()
-			{
 
 				@Override
-				public void onClick(DialogInterface dialog, int which)
+				public void neutralClicked(HikeDialog hikeDialog)
 				{
 				}
-			});
-			builder.setCancelable(true);
-			alertDialog = builder.create();
+
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					hikeDialog.dismiss();
+				}
+			};
+			alertDialog.setPositiveButton(R.string.YES, listener);
+			alertDialog.setNegativeButton(R.string.NO, listener);
 			alertDialog.show();
 			break;
 		case CONTACT_INFO:
