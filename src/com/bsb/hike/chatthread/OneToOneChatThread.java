@@ -1378,6 +1378,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			resetLastSeenScheduler();
 		}
+		
+		if (isH20TipShowing())
+		{
+			hikeToOfflineTipView.setVisibility(View.GONE);
+			hikeToOfflineTipView = null;
+		}
 	}
 
 	private void onBulkMessageReceived(Object object)
@@ -2704,5 +2710,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 		scheduleLastSeen();
+	}
+	
+	/**
+	 * It could be possible that we have a stray h20 tip showing.
+	 */
+	public void onPreNewIntent()
+	{
+		if (isH20TipShowing())
+		{
+			hikeToOfflineTipView.setVisibility(View.GONE);
+			hikeToOfflineTipView = null;
+		}
+		
+		super.onPreNewIntent();
 	}
 }

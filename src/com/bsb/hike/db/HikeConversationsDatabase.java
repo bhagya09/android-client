@@ -1663,7 +1663,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			actorList.add(feedData.getActor());
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
 		
-			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
 			if(!isAnyFeedEntryPresent())
 			{
 				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
@@ -1753,7 +1752,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if (isComplete)
 		{
-			fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+			if(!isAnyFeedEntryPresent())
+			{
+				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
+			}
+			else
+			{
+				fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+			}
 		}
 
 		return isComplete;
@@ -8012,7 +8018,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 							ContactInfo contactInfo;
 							try
 							{
-								contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(myList.getString(i));
+								contactInfo = ContactManager.getInstance().getContact(myList.getString(i), true, true);
 
 								if (contactInfo != null)
 								{

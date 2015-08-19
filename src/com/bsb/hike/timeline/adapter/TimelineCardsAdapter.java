@@ -283,7 +283,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		if (mShowUserProfile)
 		{
-			profileContactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(filterMsisdns.get(0));
+			profileContactInfo = ContactManager.getInstance().getContact(filterMsisdns.get(0),true,true);
 		}
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.FAVORITE_TOGGLED, this);
@@ -364,6 +364,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	public void onBindViewHolder(ViewHolder viewHolder, int position)
 	{
 		int viewType = getItemViewType(position);//viewHolder.getItemViewType();
+		Logger.d(HikeConstants.TIMELINE_LOGS, "view type is " + viewType + ", itemID " + viewHolder.getItemViewType() + ", position "+ position);
 
 		if (viewType == USER_PROFILE_HEADER)
 		{
@@ -397,6 +398,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			{
 				viewHolder.profileBtnDivider.setVisibility(View.GONE);
 				viewHolder.changeProfile.setVisibility(View.GONE);
+				viewHolder.extraInfo.setText(headerMsisdn);
 			}
 			else
 			{
@@ -829,6 +831,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			viewHolder.parent.setPadding(0, 0, 0, 0);
 		}
+		
 	}
 
 	private DecelerateInterpolator cardInterp = new DecelerateInterpolator();
@@ -841,6 +844,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	@Override
 	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 	{
+		Logger.d(HikeConstants.TIMELINE_LOGS, "onCreateViewHolder " + viewType);
 		View convertView = null;
 
 		switch (viewType)
@@ -1002,7 +1006,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				if (mActivity.get() != null)
 				{
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
-							ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(mStatusMessage.getMsisdn()), false, false);
+							ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(),true,true), false, false);
 					startActivity(intent);
 				}
 			}
@@ -1021,6 +1025,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (statusId.equals(statusMessage.getMappedId()))
 			{
 				mStatusMessages.remove(statusMessage);
+				Logger.d(HikeConstants.TIMELINE_LOGS, "SU list after deleting post "+ mStatusMessages);
 				break;
 			}
 		}
@@ -1106,7 +1111,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusMessage.getMappedId());
 				hikeDialog.dismiss();
 			}
 

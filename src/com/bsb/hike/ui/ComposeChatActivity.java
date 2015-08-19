@@ -1163,22 +1163,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			return;
 		}
 
-		View backContainer = groupChatActionBar.findViewById(R.id.back);
 
 		title = (TextView) groupChatActionBar.findViewById(R.id.title);
 		groupChatActionBar.findViewById(R.id.seprator).setVisibility(View.GONE);
-		
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-
-				onBackPressed();
-			}
-		});
-		
+	
 		if(!nuxIncentiveMode)
 			setTitle();
 		

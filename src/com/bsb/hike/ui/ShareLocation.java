@@ -312,8 +312,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.share_location);
 
@@ -323,15 +321,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
 		postText.setText(R.string.send);
 
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
 
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
@@ -935,5 +924,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 		return address;
 	}
-
+	@Override
+	public void onBackPressed()
+	{
+		// TODO Auto-generated method stub
+		finish();
+	}
 }

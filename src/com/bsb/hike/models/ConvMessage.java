@@ -1248,7 +1248,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		// Search on status messages.
 		else if (getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE)
 		{
-			if (getMetadata().getStatusMessage().getText().toLowerCase().contains(s))
+			if (getMetadata().getStatusMessage().getText()!=null && getMetadata().getStatusMessage().getText().toLowerCase().contains(s))
 			{
 				return true;
 			}
