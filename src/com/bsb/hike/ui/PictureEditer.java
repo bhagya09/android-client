@@ -323,15 +323,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
-		mActionBarBackButton = actionBarView.findViewById(R.id.back);
-		mActionBarBackButton.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
 
 		mActionBarDoneContainer = actionBarView.findViewById(R.id.done_container);
 

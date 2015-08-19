@@ -206,7 +206,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				getPreferenceScreen().removePreference(stickerRecommendPreference);
+				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
+				stickerPreferenceCategory.removePreference(stickerRecommendPreference);
 			}
 		}
 		
@@ -221,7 +222,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				getPreferenceScreen().removePreference(stickerRecommendAutopopupPreference);
+				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
+				stickerPreferenceCategory.removePreference(stickerRecommendAutopopupPreference);
 			}
 			
 		}

@@ -132,6 +132,7 @@
     <style name="Base.Theme.CustomDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
     </style>
 
     <style name="Theme.CustomDialog" parent="Base.Theme.CustomDialog" />
@@ -364,7 +365,8 @@
         <item name="colorAccent">@color/blue_hike</item>
        <item name="android:actionButtonStyle">@style/HikeActionButtonStyle</item>
        <item name="actionButtonStyle">@style/HikeActionButtonStyle</item>
-        
+        <item name="actionBarItemBackground">@drawable/actionbarselectable</item>
+    <item name="selectableItemBackground">@drawable/actionbarselectable</item>
 
         
     </style>
@@ -433,6 +435,7 @@
 <style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
 
     <item name="android:colorControlActivated">@color/white</item>
+    <item name="colorControlActivated">@color/white</item>
 </style>
 
     <style name="Widget.Styled.PhotosActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
@@ -479,12 +482,12 @@
         <item name="android:paddingBottom">1dp</item>
     </style>
 
-    <style name="ActionBarText">
+    <style name="ActionBarText" parent = "BaseStyleTextView">
         <item name="android:ellipsize">end</item>
         <item name="android:scrollHorizontally">true</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/actionbar_text</item>
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold|italic</item>
     </style>
 

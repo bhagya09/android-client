@@ -3190,5 +3190,7 @@ public class HikeConstants
 	public static final String TIMELINE_LOGS = "tl_logs";
 	
 	public static final String TIMELINE_COUNT_LOGS = "tlc_logs";
+	
+	public static final String STICKER_SETTINGS = "stickerSettings";
 
 }

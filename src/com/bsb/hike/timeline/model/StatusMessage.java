@@ -267,6 +267,12 @@ public class StatusMessage
 
 	public String getTimestampFormatted(boolean pretty, Context context)
 	{
+		
+		if(getTimeStamp() == 0)
+		{
+			return "";
+		}
+		
 		if (pretty)
 		{
 			return Utils.getFormattedTime(pretty, context, timeStamp);
@@ -328,4 +334,13 @@ public class StatusMessage
 		return new StatusMessage(HikeConstants.JOINED_HIKE_STATUS_ID, null, contactInfo.getMsisdn(), contactInfo.getName(), HikeMessengerApp.getInstance().getString(
 				R.string.joined_hike_update), StatusMessageType.JOINED_HIKE, contactInfo.getHikeJoinTime());
 	}
+
+	@Override
+	public String toString()
+	{
+		return "StatusMessage [mappedId=" + mappedId + ", msisdn=" + msisdn + ", name=" + name + ", text=" + text + ", statusMessageType=" + statusMessageType
+				+ ", isHistoricalUpdate=" + isHistoricalUpdate + ", actionsData=" + actionsData + "]";
+	}
+	
+	
 }

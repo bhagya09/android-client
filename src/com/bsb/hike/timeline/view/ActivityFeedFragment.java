@@ -3,7 +3,6 @@ package com.bsb.hike.timeline.view;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -106,6 +104,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
+			Logger.d(HikeConstants.TIMELINE_LOGS, "inside AFF, revc pubsub ACTIVITY_UPDATE");
 			executeActivityFeedFetchTask();
 		}
 	}
@@ -128,51 +127,42 @@ public class ActivityFeedFragment extends Fragment implements Listener
 				return;
 			}
 
-			new Handler().post(new Runnable()
+			Logger.d(HikeConstants.TIMELINE_LOGS, "onPost Execute, The no of feeds are " + result.getCount());
+			
+			if(result != null && result.getCount() > 0)
 			{
-
-				@Override
-				public void run()
+				if (activityFeedCardAdapter == null)
 				{
-					Logger.d(HikeConstants.TIMELINE_LOGS, "onPost Execute, The no of feeds are " + result.getCount());
-					
-					if(result != null && result.getCount() > 0)
+					activityFeedCardAdapter = new ActivityFeedCursorAdapter(getActivity(), result, 0);
+					mActivityFeedRecyclerView.setAdapter(activityFeedCardAdapter);
+					HikeMessengerApp.getPubSub().addListeners(ActivityFeedFragment.this, pubSubListeners);
+				}
+				else
+				{
+					activityFeedCardAdapter.swapCursor(result);
+				}
+
+				/**
+				 * Added this check as to ensure that this call for updating read status only when screen is shown to user i.e in post execute, fragment is Added and visible
+				 */
+				if (isVisible())
+				{
+					UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
+
+					if (Utils.isHoneycombOrHigher())
 					{
-						if (activityFeedCardAdapter == null)
-						{
-							activityFeedCardAdapter = new ActivityFeedCursorAdapter(getActivity(), result, 0);
-							mActivityFeedRecyclerView.setAdapter(activityFeedCardAdapter);
-							HikeMessengerApp.getPubSub().addListeners(ActivityFeedFragment.this, pubSubListeners);
-						}
-						else
-						{
-							activityFeedCardAdapter.swapCursor(result);
-						}
-
-						/**
-						 * Added this check as to ensure that this call for updating read status only when screen is shown to user i.e in post execute, fragment is Added and visible
-						 */
-						if (isAdded() && isVisible())
-						{
-							UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
-
-							if (Utils.isHoneycombOrHigher())
-							{
-								updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-							}
-							else
-							{
-								updateActivityFeedTask.execute();
-							}
-						}
+						updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					}
 					else
 					{
-						getActivity().onBackPressed();
+						updateActivityFeedTask.execute();
 					}
-					
 				}
-			});
+			}
+			else
+			{
+				getActivity().onBackPressed();
+			}
 		}
 
 	}
@@ -198,8 +188,6 @@ public class ActivityFeedFragment extends Fragment implements Listener
 
 		View actionBarView = getActivity().getLayoutInflater().inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(getResources().getString(R.string.activity_feed_actionbar_title));
 
@@ -207,19 +195,6 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		subText.setVisibility(View.GONE);
 
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				if (isAdded() && isVisible())
-				{
-					getActivity().onBackPressed();
-				}
-			}
-		});
 
 		actionBar.setCustomView(actionBarView);
 	}
