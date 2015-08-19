@@ -412,7 +412,24 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		if (HikePubSub.TIMELINE_UPDATE_RECIEVED.equals(type))
 		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
+			
 			final StatusMessage statusMessage = (StatusMessage) object;
+
+			// If not showing profile, lets add new message
+			if (mShowProfileHeader)
+			{
+				// If showing profile, check if msisdn is same or not
+				if (mMsisdnArray != null && statusMessage.getMsisdn().equals(mMsisdnArray.get(0)))
+				{
+					//Do nothing, add message
+				}
+				else
+				{
+					return;
+				}
+			}
+
 			final int startIndex = getStartIndex();
 
 			getActivity().runOnUiThread(new Runnable()
@@ -420,12 +437,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void run()
 				{
-					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index "+ startIndex);
+					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index " + startIndex);
 					statusMessages.add(startIndex, statusMessage);
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
-			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
 		}
 		else if (HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED.equals(type))
 		{
