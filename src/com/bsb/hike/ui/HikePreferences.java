@@ -1746,8 +1746,8 @@ private void setupToolBar(int titleRes){
 		dialog.setCancelable(true);
 		
 		dialog.setTitle(R.string.choose_setting);
-		dialog.setPositiveButton(R.string.always, null);
-		dialog.setNegativeButton(R.string.just_once, null);
+		dialog.setPositiveButton(R.string.ALWAYS, null);
+		dialog.setNegativeButton(R.string.JUST_ONCE, null);
 		
 		dialog.buttonPositive.setOnClickListener(new OnClickListener()
 		{

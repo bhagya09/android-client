@@ -1649,4 +1649,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="no_places_found">No places found</string>
     <string name="SAVE">SAVE</string>
     <string name="add_member_menu">Add a member</string>
+    <string name="JUST_ONCE">JUST ONCE</string>
+    <string name="ALWAYS">ALWAYS</string>
+    <string name="UNLINK_ACCOUNT">RESET ACCOUNT</string>
+    <string name="UNLINK">UNLINK</string>
+    <string name="UPDATE_APP">UPDATE</string>
 </resources>
