@@ -415,8 +415,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					}
 				}
 			});
-
-			
 			
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
