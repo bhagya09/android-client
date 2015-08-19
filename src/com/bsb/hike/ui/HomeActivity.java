@@ -39,7 +39,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -1823,20 +1822,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		overFlowWindow.setFocusable(true);
 		overFlowWindow.setWidth(Utils.getOverflowMenuWidth(getApplicationContext()));
 		overFlowWindow.setHeight(LayoutParams.WRAP_CONTENT);
-		/*
-		 * In some devices Activity crashes and a BadTokenException is thrown by showAsDropDown method. Still need to find out exact repro of the bug.
-		 */
-		try
+		
+		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+		final int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
+
+		final View anchor = findViewById(R.id.overflow_anchor);
+		anchor.post(new Runnable()
 		{
-			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
-			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-			
-			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
-		}
-		catch (BadTokenException e)
-		{
-			Logger.e(getClass().getSimpleName(), "Excepetion in HomeActivity Overflow popup", e);
-		}
+
+			@Override
+			public void run()
+			{
+				overFlowWindow.showAsDropDown(anchor, -rightMargin, 0);
+			}
+
+		});
+
 		overFlowWindow.getContentView().setFocusableInTouchMode(true);
 		overFlowWindow.getContentView().setOnKeyListener(new View.OnKeyListener()
 		{
