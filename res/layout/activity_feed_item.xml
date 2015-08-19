@@ -46,12 +46,12 @@
         android:layout_height="36dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/info_container"
         android:scaleType="centerCrop" />
 
     <LinearLayout
         android:id="@+id/content"
-        android:layout_width="wrap_content"
+        android:layout_toLeftOf="@+id/profile_pic"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/avatar_container"
@@ -76,6 +76,7 @@
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
             android:text="Added you as a friend"
+            android:maxLines="3"
             android:layout_marginBottom="3.5dp"
             android:textColor="@color/black_45"
             android:textSize="12sp"

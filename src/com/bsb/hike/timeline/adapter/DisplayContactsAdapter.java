@@ -86,7 +86,7 @@ public class DisplayContactsAdapter extends BaseAdapter
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(getItem(position));
+		ContactInfo contactInfo = ContactManager.getInstance().getContact((getItem(position)), true,  false);
 
 		if (contactInfo == null)
 		{
@@ -111,7 +111,7 @@ public class DisplayContactsAdapter extends BaseAdapter
 		}
 
 		// TODO Make this generic
-		holder.contactStatus.setText(R.string.photo_like_text);
+		holder.contactStatus.setText(R.string.status_update_like_text);
 
 		holder.avatar.setOval(true);
 		mAvatarLoader.loadImage(contactInfo.getMsisdn(), holder.avatar);

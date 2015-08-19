@@ -11,11 +11,13 @@ import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.tasks.LoadChatProfileTask;
@@ -49,9 +51,21 @@ public class StickerSearchManager
 
 	private boolean isFirstPhraseOrWord;
 
+	private boolean isTappedOnHighLightedWord;
+
 	private int numStickersVisibleAtOneTime;
 
-	private boolean showAutopopupSettingOn;
+	private boolean showAutoPopupSettingOn;
+
+	private boolean autoPopupTurningOffTrailRunning;
+
+	private int rejectionCount;
+
+	private int rejectionPatternCount;
+
+	private int rejectionCountPerTrial;
+
+	private int trialCountForAutoPopupTurnOff;
 
 	private StickerSearchManager()
 	{
@@ -59,13 +73,16 @@ public class StickerSearchManager
 				StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
 
 		searchEngine = new StickerSearchEngine();
-		showAutopopupSettingOn = isShowAutopopupSettingOn();
-		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
-		setRebalancingAlarmFirstTime();
-
+		isFirstPhraseOrWord = false;
+		isTappedOnHighLightedWord = false;
 		currentString = null;
 		currentLength = 0;
-		isFirstPhraseOrWord = false;
+
+		setShowAutoPopupConfiguration();
+
+		setNumStickersVisibleAtOneTime(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()));
+
+		setRebalancingAlarmFirstTime();
 	}
 
 	public static StickerSearchManager getInstance()
@@ -118,10 +135,13 @@ public class StickerSearchManager
 	{
 		Logger.i(StickerTagWatcher.TAG, "calling to search and get stickers for string: " + s);
 
+		boolean isLastShownPopupWasAutoSuggestion = isFromAutoRecommendation();
+
 		isFirstPhraseOrWord = false;
+		isTappedOnHighLightedWord = false;
 		Pair<CharSequence, int[][]> result = StickerSearchHostManager.getInstance().onTextChange(s, start, before, count);
 
-		HighlightAndShowStickerPopupTask highlightAndShowtask = new HighlightAndShowStickerPopupTask(result);
+		HighlightAndShowStickerPopupTask highlightAndShowtask = new HighlightAndShowStickerPopupTask(result, isLastShownPopupWasAutoSuggestion);
 		searchEngine.runOnUiThread(highlightAndShowtask, 0);
 	}
 
@@ -137,11 +157,11 @@ public class StickerSearchManager
 		if (returnedString.equals(this.currentString))
 		{
 			listener.highlightText(highlightArray[0][0], this.currentLength);
-			onClickToSendSticker(highlightArray[0][0], false);
+			onClickToShowRecommendedStickers(highlightArray[0][0], false);
 		}
 	}
 
-	public void highlightAndShowStickerPopup(Pair<CharSequence, int[][]> result)
+	public void highlightAndShowStickerPopup(Pair<CharSequence, int[][]> result, boolean isLastShownPopupWasAutoSuggestion)
 	{
 		if (listener == null)
 		{
@@ -154,8 +174,10 @@ public class StickerSearchManager
 		{
 			Logger.e(StickerTagWatcher.TAG, "Unable to find recommendation result, currentTextLength = " + this.currentLength);
 
+			/* No need to call checkToTakeActionOnAutoPopupTurnOff(), as this case is just an error handling */
+
 			listener.dismissStickerSearchPopup();
-			listener.dismissStickerRecommendFtueTip();
+			listener.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 
 			if (this.currentLength > 0)
 			{
@@ -172,8 +194,12 @@ public class StickerSearchManager
 		{
 			Logger.i(StickerTagWatcher.TAG, "No recommendation result, current text length = " + this.currentLength);
 
+			if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && listener.isStickerRecommendationPopupShowing() && isLastShownPopupWasAutoSuggestion)
+			{
+				checkToTakeActionOnAutoPopupTurnOff();
+			}
 			listener.dismissStickerSearchPopup();
-			listener.dismissStickerRecommendFtueTip();
+			listener.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 
 			if (this.currentLength > 0)
 			{
@@ -189,8 +215,12 @@ public class StickerSearchManager
 		{
 			Logger.w(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Rapid change in text.");
 
+			if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && listener.isStickerRecommendationPopupShowing() && isLastShownPopupWasAutoSuggestion)
+			{
+				checkToTakeActionOnAutoPopupTurnOff();
+			}
 			listener.dismissStickerSearchPopup();
-			listener.dismissStickerRecommendFtueTip();
+			listener.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 
 			if (this.currentLength > 0)
 			{
@@ -208,8 +238,12 @@ public class StickerSearchManager
 		{
 			Logger.w(StickerTagWatcher.TAG, "highlightAndShowStickerPopup(), Exceptional rapid change in text.");
 
+			if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && listener.isStickerRecommendationPopupShowing() && isLastShownPopupWasAutoSuggestion)
+			{
+				checkToTakeActionOnAutoPopupTurnOff();
+			}
 			listener.dismissStickerSearchPopup();
-			listener.dismissStickerRecommendFtueTip();
+			listener.dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 
 			if (currentTextLength > 0)
 			{
@@ -228,9 +262,13 @@ public class StickerSearchManager
 
 		if ((firstTagHighlightLength > 0) && Utils.isBlank(preString) && Utils.isBlank(postString))
 		{
+			isFirstPhraseOrWord = true;
+
 			if (firstTagHighlightLength == 1)
 			{
 				listener.dismissStickerSearchPopup();
+
+				/* No need to call checkToTakeActionOnAutoPopupTurnOff(), as auto pop-up will be re-shown here */
 
 				SingleCharacterHighlightTask singleCharacterHighlightTask = new SingleCharacterHighlightTask(s, highlightArray);
 				searchEngine.runOnUiThread(singleCharacterHighlightTask, WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
@@ -238,10 +276,9 @@ public class StickerSearchManager
 			else
 			{
 				listener.highlightText(highlightArray[0][0], currentTextLength);
-				onClickToSendSticker(highlightArray[0][0], false);
+				onClickToShowRecommendedStickers(highlightArray[0][0], false);
 			}
 
-			isFirstPhraseOrWord = true;
 			return;
 		}
 		// Update local reference to avoid exceptions, if values might change while executing following instructions
@@ -251,7 +288,11 @@ public class StickerSearchManager
 			currentTextLength = currentTextString.length();
 		}
 
-		// More than one word may be possibly found to be searched
+		// More than one word may be possibly found to be searched successfully
+		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && listener.isStickerRecommendationPopupShowing() && isLastShownPopupWasAutoSuggestion)
+		{
+			checkToTakeActionOnAutoPopupTurnOff();
+		}
 		listener.dismissStickerSearchPopup();
 
 		if (highlightArray[0][0] > 0)
@@ -301,17 +342,22 @@ public class StickerSearchManager
 		}
 	}
 
-	public void onClickToSendSticker(int clickPosition, boolean onTouch)
+	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTouch)
 	{
-		Logger.i(StickerTagWatcher.TAG, "onClickToSendSticker(" + clickPosition + ")");
+		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + ")");
 
-		if (!onTouch && !showAutopopupSettingOn)
+		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
+		if (!onTouch && !showAutoPopupSettingOn)
 		{
-			// if its not because of touch and auto pop-up setting is off then return
+			if (listener != null)
+			{
+				listener.dismissStickerSearchPopup();
+			}
 			return;
 		}
 
-		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToSendSticker(clickPosition);
+		isTappedOnHighLightedWord = onTouch;
+		Pair<Pair<String, String>, ArrayList<Sticker>> results = StickerSearchHostManager.getInstance().onClickToShowRecommendedStickers(clickPosition);
 
 		if (listener != null)
 		{
@@ -319,7 +365,8 @@ public class StickerSearchManager
 			{
 				if (onTouch)
 				{
-					listener.setStickerRecommendFtueSeen();
+					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
+					listener.setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 				}
 
 				listener.showStickerSearchPopup(results.first.first, results.first.second, results.second);
@@ -369,7 +416,17 @@ public class StickerSearchManager
 
 	public boolean getFirstContinuousMatchFound()
 	{
-		return isFirstPhraseOrWord;
+		return this.isFirstPhraseOrWord;
+	}
+
+	public boolean isFromAutoRecommendation()
+	{
+		return (this.isFirstPhraseOrWord && !this.isTappedOnHighLightedWord);
+	}
+
+	public boolean isAutoPoupTrialRunning()
+	{
+		return this.autoPopupTurningOffTrailRunning;
 	}
 
 	public void setRebalancingAlarmFirstTime()
@@ -416,19 +473,123 @@ public class StickerSearchManager
 		return numStickersVisibleAtOneTime;
 	}
 
-	public void setNumStickersVisibleAtOneTime(int numStickersVisibleAtOneTime)
+	private void setNumStickersVisibleAtOneTime(int numStickersVisibleAtOneTime)
 	{
 		this.numStickersVisibleAtOneTime = numStickersVisibleAtOneTime;
 	}
 
-	public boolean isShowAutopopupSettingOn()
+	private void setShowAutoPopupConfiguration()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+		this.showAutoPopupSettingOn = StickerSearchUtility.getStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+
+		if (this.showAutoPopupSettingOn)
+		{
+			if ((HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF))
+					&& (HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF)))
+			{
+				this.autoPopupTurningOffTrailRunning = true;
+				this.rejectionCountPerTrial = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF,
+						Integer.MAX_VALUE);
+				this.trialCountForAutoPopupTurnOff = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+						Integer.MAX_VALUE);
+
+				this.rejectionCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW, 0);
+				this.rejectionPatternCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW, 0);
+			}
+			else
+			{
+				this.autoPopupTurningOffTrailRunning = false;
+			}
+		}
+		else
+		{
+			this.autoPopupTurningOffTrailRunning = false;
+		}
 	}
 
-	public void setShowAutopopupSettingOn(boolean showAutopopupSettingOn)
+	public void setShowAutoPopupSettingOn(boolean showAutopopupSettingOn)
 	{
-		this.showAutopopupSettingOn = showAutopopupSettingOn;
+		this.showAutoPopupSettingOn = showAutopopupSettingOn;
+	}
+
+	public void setShowAutoPopupTurnOffPattern(int rejectCountPerTrial, int trailCount)
+	{
+		if (this.showAutoPopupSettingOn)
+		{
+			this.autoPopupTurningOffTrailRunning = true;
+			this.rejectionCountPerTrial = rejectCountPerTrial;
+			this.trialCountForAutoPopupTurnOff = trailCount;
+
+			resetOrStartFreshTrialForAutoPopupTurnOff(true);
+		}
+		else
+		{
+			// User had already turned off auto pop-up setting, no need to start auto pop-up trial
+			saveOrDeleteAutoPopupTrialState(true);
+		}
+	}
+
+	public void resetOrStartFreshTrialForAutoPopupTurnOff(boolean isFirstTrialStarting)
+	{
+		this.rejectionCount = 0;
+		if (isFirstTrialStarting)
+		{
+			this.rejectionPatternCount = 0;
+		}
+	}
+
+	public void checkToTakeActionOnAutoPopupTurnOff()
+	{
+		this.rejectionCount++;
+
+		if (this.rejectionCount >= this.rejectionCountPerTrial)
+		{
+			this.rejectionPatternCount++;
+
+			// Turn off auto pop-up
+			if (this.rejectionPatternCount >= this.trialCountForAutoPopupTurnOff)
+			{
+				this.autoPopupTurningOffTrailRunning = false;
+				setShowAutoPopupSettingOn(false);
+
+				StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+				saveOrDeleteAutoPopupTrialState(true);
+				
+				if(listener != null)
+				{
+					listener.showStickerRecommendAutoPopupOffTip();
+				}
+
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP, true);
+			}
+			// Reset count and start next trial
+			else
+			{
+				resetOrStartFreshTrialForAutoPopupTurnOff(false);
+			}
+		}
+
+		Logger.d(StickerTagWatcher.TAG, "checkToTakeActionOnAutoPopupTurnOff(), r = " + this.rejectionCount + ", p = " + this.rejectionPatternCount);
+	}
+
+	public void saveOrDeleteAutoPopupTrialState(boolean isClearing)
+	{
+		if (isClearing)
+		{
+			// If auto-suggestion setting is turned on/ off by user or server packet, stop running rejection trial
+			this.autoPopupTurningOffTrailRunning = false;
+
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW);
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW);
+
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF);
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF);
+		}
+		else
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW, this.rejectionCount);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW, this.rejectionPatternCount);
+		}
 	}
 
 	public void shutdown()

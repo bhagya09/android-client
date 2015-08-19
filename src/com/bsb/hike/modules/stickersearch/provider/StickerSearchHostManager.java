@@ -833,9 +833,9 @@ public class StickerSearchHostManager
 		StickerSearchDataController.getInstance().analyseMessageSent(textBeforeSticker, sticker, textAfterSticker);
 	}
 
-	public Pair<Pair<String, String>, ArrayList<Sticker>> onClickToSendSticker(int where)
+	public Pair<Pair<String, String>, ArrayList<Sticker>> onClickToShowRecommendedStickers(int where)
 	{
-		Logger.i(TAG, "onClickToSendSticker(" + where + ")");
+		Logger.d(TAG, "onClickToShowRecommendedStickers(" + where + ")");
 
 		ArrayList<Word> wordList = mCurrentWords;
 		String currentString = mCurrentText;
@@ -858,8 +858,8 @@ public class StickerSearchHostManager
 
 			if ((where >= wordList.get(i).getStart()) && (where <= wordList.get(i).getEnd()))
 			{
-				Logger.v(TAG, "onClickToSendSticker(), Clicked word index = " + i);
-				Logger.v(TAG, "onClickToSendSticker(), Clicked word = " + word);
+				Logger.d(TAG, "onClickToShowRecommendedStickers(), Clicked word index = " + i);
+				Logger.d(TAG, "onClickToShowRecommendedStickers(), Clicked word = " + word);
 
 				if (word.length() > 0)
 				{
@@ -895,7 +895,7 @@ public class StickerSearchHostManager
 
 					if ((preInvalidCount <= 0) && (postInvalidCount <= 0))
 					{
-						Logger.v(TAG, "onClickToSendSticker(), No valid combination of words is present in current text.");
+						Logger.d(TAG, "onClickToShowRecommendedStickers(), No valid combination of words is present in current text.");
 					}
 					else
 					{
@@ -920,7 +920,7 @@ public class StickerSearchHostManager
 					stickers = results.second;
 				}
 
-				Logger.i(TAG, "onClickToSendSticker(), Fetched stickers (effective clicked word index = " + effectiveClickedWordIndex + "): " + stickers);
+				Logger.d(TAG, "onClickToShowRecommendedStickers(), Fetched stickers (effective clicked word index = " + effectiveClickedWordIndex + "): " + stickers);
 				break;
 			}
 

@@ -118,16 +118,7 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 	{
 		Bitmap bitmap = null;
 		String fileName = Utils.getProfileImageFileName(id);
-		File orgFile = null;
-
-		if (loadingProfilePic)
-		{
-			orgFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, fileName);
-		}
-		else
-		{
-			orgFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT, fileName);
-		}
+		File orgFile =  new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, fileName);
 
 		if (!orgFile.exists())
 		{
