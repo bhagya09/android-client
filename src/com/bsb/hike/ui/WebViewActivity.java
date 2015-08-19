@@ -646,6 +646,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 		TextView title = (TextView) actionBarView.findViewById(R.id.contact_name);
 		title.setText(titleString);
+		
+		actionBarView.findViewById(R.id.contactinfocontainer).setClickable(false);
 
 		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 
