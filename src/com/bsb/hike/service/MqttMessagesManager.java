@@ -3751,18 +3751,11 @@ public class MqttMessagesManager
 					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
 					
 					//Saving count to file to display the counter at home screen
-					HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+					if(count != -1)
 					{
-						@Override
-						public void run()
-						{
-							int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
-							if(count != -1)
-							{
-								HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
-							}
-						}
-					});
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
+					}
 
 					if (isSuccess)
 					{
