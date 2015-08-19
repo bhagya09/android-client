@@ -81,6 +81,10 @@ public class MessageTextCounter
 		noContactSent = 0;
 
 		noContactRec = 0;
+		
+		messDel=0;
+		
+		messRead=0;
 
 	}
 	

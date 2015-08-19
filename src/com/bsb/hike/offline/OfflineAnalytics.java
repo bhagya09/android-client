@@ -8,6 +8,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.offline.OfflineConstants.AnalyticsConstants;
 import com.bsb.hike.utils.Logger;
+
 //import com.bsb.hike.offline.OfflineConstants.AnalyticsEvents;
 
 /**
@@ -37,7 +38,7 @@ public class OfflineAnalytics
 		}
 
 	}
-	
+
 	public static void noInternetTipClicked()
 	{
 		JSONObject object = new JSONObject();
@@ -48,7 +49,7 @@ public class OfflineAnalytics
 			object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_PUSH);
 			object.put(HikeConstants.TAG, AnalyticsConstants.TAG_NO_INTERNET_CLICKED);
 			recordAnalytics(object);
-			
+
 		}
 		catch (JSONException e)
 		{
@@ -69,7 +70,7 @@ public class OfflineAnalytics
 		}
 		catch (JSONException e)
 		{
-		
+
 		}
 	}
 
@@ -89,7 +90,7 @@ public class OfflineAnalytics
 
 		}
 	}
-	
+
 	private static void recordAnalytics(JSONObject metaData)
 	{
 		if (metaData == null)
@@ -104,14 +105,14 @@ public class OfflineAnalytics
 		JSONObject object = new JSONObject();
 		try
 		{
-			object.put(HikeConstants.EVENT_TYPE,AnalyticsConstants.EVENT_TYPE_OFFLINE);
+			object.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.EVENT_TYPE_OFFLINE);
 			object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_PUSH);
 			object.put(HikeConstants.TAG, AnalyticsConstants.RETRY_BUTTON_CLICKED);
 			recordAnalytics(object);
 		}
-		catch(JSONException e)
+		catch (JSONException e)
 		{
-			Logger.e(TAG,"Exception while recording offline retry button Analytics");
+			Logger.e(TAG, "Exception while recording offline retry button Analytics");
 		}
 	}
 
@@ -120,40 +121,49 @@ public class OfflineAnalytics
 		JSONObject object = new JSONObject();
 		try
 		{
-			object.put(HikeConstants.EVENT_TYPE,AnalyticsConstants.EVENT_TYPE_OFFLINE);
+			object.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.EVENT_TYPE_OFFLINE);
 			object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_CANCEL);
 			recordAnalytics(object);
 		}
-		catch(JSONException e)
+		catch (JSONException e)
 		{
-			Logger.e(TAG,"Exception while recording cross click offline Analytics");
+			Logger.e(TAG, "Exception while recording cross click offline Analytics");
 		}
 	}
 
-	//type 0  is popup-1(Connecting case)
-	//type 1 is popup-2(Connected case) 
-	public static void disconnectPopupClicked(int type,int itemClicked)
+	// type 0 is popup-1(Connecting case)
+	// type 1 is popup-2(Connected case)
+	public static void disconnectPopupClicked(int type, int itemClicked)
 	{
 		JSONObject object = new JSONObject();
 		try
 		{
-			object.put(HikeConstants.EVENT_TYPE,AnalyticsConstants.EVENT_TYPE_OFFLINE);
-			if(type==1)
+			object.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.EVENT_TYPE_OFFLINE);
+			if (type == 1)
 			{
-				object.put(HikeConstants.EVENT_KEY,AnalyticsConstants.EVENT_KEY_CONNECTING_POP_UP_CLICK);
+				object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_CONNECTING_POP_UP_CLICK);
 			}
 			else
 			{
-				object.put(HikeConstants.EVENT_KEY,AnalyticsConstants.EVENT_KEY_CONNECTED_POP_UP_CLICK);
+				object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_CONNECTED_POP_UP_CLICK);
 			}
-			object.put(HikeConstants.TAG,itemClicked);
+			object.put(HikeConstants.TAG, itemClicked);
 			recordAnalytics(object);
 		}
-		catch(JSONException e)
+		catch (JSONException e)
 		{
-			Logger.e(TAG,"Exception while recording offline disconnection popup analytics");
+			Logger.e(TAG, "Exception while recording offline disconnection popup analytics");
 		}
-		
+
 	}
-	
+
+	public static void recordSessionAnalytics(JSONObject md) throws JSONException
+	{
+		md.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.EVENT_TYPE_OFFLINE);
+		md.put(HikeConstants.EVENT_KEY, "msg");
+
+		HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, EventPriority.HIGH, md);
+
+	}
+
 }

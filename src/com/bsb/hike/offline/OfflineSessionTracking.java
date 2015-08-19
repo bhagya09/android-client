@@ -164,9 +164,10 @@ public class OfflineSessionTracking
 			// send Analytics
 			try
 			{
-				JSONObject object=computeAnalyticsJSON();
+				JSONObject object = computeAnalyticsJSON();
 				object.put("sest", sessionEndTime - sessionStartTime);
 				Logger.d(TAG, "OfflineAnaly >>>" + object.toString(2));
+				OfflineAnalytics.recordSessionAnalytics(object);
 			}
 			catch (JSONException e)
 			{
@@ -191,7 +192,7 @@ public class OfflineSessionTracking
 		}
 		
 		if (array.length() > 0)
-			json.put("hddir", array);
+			json.put("hd", array);
 
 		return json;
 	}
