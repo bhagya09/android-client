@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.dialog.HikeDialog;
@@ -55,6 +56,10 @@ public class ImageParser
 			else if (data != null && data.getAction() == GalleryActivity.GALLERY_RESULT_ACTION)
 			{
 				capturedFilepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
+			}
+			else if(data != null && data.hasExtra(HikeConstants.HikePhotos.ORIG_FILE))
+			{
+				capturedFilepath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
 			}
 			else
 			{
