@@ -12,20 +12,26 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
 
+	// Version history for DATABASE_HIKE_STICKER_SEARCH==============================================[[
+	public static final int VERSION_STICKER_TAG_MAPPING_INDEX_ADDED = 2;
+
+	// ==============================================Version history for DATABASE_HIKE_STICKER_SEARCH]]
+
 	// Fixed tables used for Sticker-Tag relation and recommendations================================[[
 	public static final String TABLE_STICKER_TAG_ENTITY = "stickerTagEntity";
 
 	public static final String TABLE_STICKER_PACK_CATEGORY_HISTORY = "stickerCategoryHistory";
 
 	public static final String TABLE_STICKER_TAG_MAPPING = "stickerTagMapping";
-	
-	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
 
 	// ================================Fixed tables used for Sticker-Tag relation and recommendations]]
 
 	// Dynamic tables used for Sticker-Tag relation and recommendations==============================[[
 	public static final String TABLE_STICKER_TAG_SEARCH = "stickerTagSearchData_";
 
+	// ==============================Dynamic tables used for Sticker-Tag relation and recommendations]]
+
+	// Capacity constants used for Sticker-Tag relation and recommendations==========================[[
 	public static final int INITIAL_FTS_TABLE_COUNT = 27; // 26 for alphabets and one for special characters
 
 	public static final int THRESHOLD_DYNAMIC_TABLE_COUNT = 50; // Changeable in future based on memory usage
@@ -40,7 +46,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final float THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f; // 70 percent // Changeable in future based on memory usage
 
-	public static final float TEST_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f;  // 70 percent // Changeable in future based on test configuration
+	public static final float TEST_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f; // 70 percent // Changeable in future based on test configuration
 
 	public static final float THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = 0.20f; // 20 percent // Changeable in future based on memory usage
 
@@ -50,9 +56,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final float TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = 0.90f; // 90 percent // Changeable in future based on test configuration
 
-	// ==============================Dynamic tables used for Sticker-Tag relation and recommendations]]
+	// ==========================Capacity constants used for Sticker-Tag relation and recommendations]]
 
-	// Constants used for Sticker-Tag relation and recommendations===================================[[
 	public static final String UNIQUE_ID = "_id";
 
 	// Table: TABLE_STICKER_TAG_ENTITY
@@ -104,6 +109,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_AVAILABILITY = "stickerAvailability";
 
+	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
+
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
 
@@ -123,6 +130,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String SYNTAX_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ";
 
 	public static final String SYNTAX_CREATE_VTABLE = "CREATE VIRTUAL TABLE ";
+
+	public static final String SYNTAX_CREATE_INDEX = "CREATE INDEX IF NOT EXISTS ";
 
 	public static final String SYNTAX_FTS_VERSION_4 = " USING fts4";
 
@@ -155,6 +164,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String SYNTAX_DESCENDING = " DESC";
 
 	public static final String SYNTAX_LESS_THAN_OR_EQUALS = "<=";
+
+	public static final String SYNTAX_INDEX_ON = " ON ";
 
 	// Entity type constants
 	public static final int ENTITY_INIT_MARKER = 0; // Reserved

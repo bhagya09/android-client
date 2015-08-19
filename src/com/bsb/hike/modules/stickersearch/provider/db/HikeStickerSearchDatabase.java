@@ -38,10 +38,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
 	public static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
-	
-	public static final String INSERT_TIME_TAG = "insertTime";
 
-	public static final String TAG_REBALANCING = "HSSDB$Rebalancing";
+	public static final String TAG_INSERTION = "HSSDB$InsertOperation";
+
+	public static final String TAG_REBALANCING = "HSSDB$RebalancingOperation";
 
 	private volatile int MAXIMUM_SELECTION_COUNT_PER_SEARCH;
 
@@ -56,10 +56,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	private static volatile HikeStickerSearchDatabase sHikeStickerSearchDatabase;
 
 	private static final Object sDatabaseLock = new Object();
-	
-	private static long primaryInsertTime = 0;
-	
-	private static long virtualInsertTime = 0;
 
 	private HikeStickerSearchDatabase(Context context)
 	{
@@ -141,11 +137,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
 		Logger.i(TAG, "onUpgrade(" + db + ", " + oldVersion + ", " + newVersion + ")");
-		
-		if(oldVersion < 2)
+
+		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_TAG_MAPPING_INDEX_ADDED)
 		{
-			String sql = "CREATE INDEX IF NOT EXISTS " + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + " ON " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ( " + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + " , " + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
-					+ " )";
+			// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 2 columns 'Tag Word/ Phrase' and 'Sticker Information' together (described above while creating table)
+			String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX
+					+ HikeStickerSearchBaseConstants.SYNTAX_INDEX_ON + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_START
+					+ HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
+					+ HikeStickerSearchBaseConstants.SYNTAX_END;
 			db.execSQL(sql);
 		}
 	}
@@ -218,9 +217,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_LAST + HikeStickerSearchBaseConstants.SYNTAX_END;
 		db.execSQL(sql);
-		
-		sql = "CREATE INDEX IF NOT EXISTS " + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + " ON " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ( " + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + " , " + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
-				+ " )";
+
+		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 2 columns 'Tag Word/ Phrase' and 'Sticker Information' together (described above while creating table)
+		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_INDEX_ON
+				+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
+				+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_END;
 		db.execSQL(sql);
 	}
 
@@ -233,6 +234,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
 		int remainingCount = HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT - 1;
+
 		for (int i = 0; i < remainingCount; i++)
 		{
 			tables[i + 1] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH + (char) (((int) 'A') + i);
@@ -338,8 +340,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		// Delete dynamically added tables
 		String[] tables = new String[HikeStickerSearchBaseConstants.INITIAL_FTS_TABLE_COUNT];
-
 		tables[0] = HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_SEARCH;
+
 		if (Utils.isTableExists(mDb, tables[0]))
 		{
 			Logger.v(TAG, "Deleting virtual table with name: " + tables[0]);
@@ -367,8 +369,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	{
 		Logger.i(TAG, "insertStickerTagData()");
 
-		long startTime = System.currentTimeMillis();
-		
 		ArrayList<String> newTags = new ArrayList<String>();
 		ArrayList<Long> rows = new ArrayList<Long>();
 
@@ -378,6 +378,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		long newTagsCount = 0;
 		String tag;
 
+		double operationStarttartTime = (double) System.nanoTime();
 		try
 		{
 			mDb.beginTransaction();
@@ -477,12 +478,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			mDb.endTransaction();
 		}
-		
-		long endTime = System.currentTimeMillis();
-		
-		primaryInsertTime += (endTime - startTime);
-		Logger.d(INSERT_TIME_TAG, "primary insert time : " + primaryInsertTime);
-		
+
+		double operationOverTime = (double) System.nanoTime();
+		Logger.d(TAG_INSERTION, "Time taken in insertion (into primary table) = " + ((operationOverTime - operationStarttartTime) / 1E+9d) + " seconds");
+
 		Logger.v(TAG, "Existing tags count = " + existingTagsCount);
 		Logger.v(TAG, "Newly added tags count = " + newTagsCount);
 
@@ -490,14 +489,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			Logger.v(TAG, "Newly added tags: " + newTags);
 
-			startTime = System.currentTimeMillis();
-			
+			operationStarttartTime = (double) System.nanoTime();
+
 			insertIntoVirtualTable(newTags, rows);
-			
-			endTime = System.currentTimeMillis();
-			
-			virtualInsertTime += (endTime - startTime);
-			Logger.d(INSERT_TIME_TAG, "virtual insert time : " + virtualInsertTime);
+
+			operationOverTime = (double) System.nanoTime();
+			Logger.d(TAG_INSERTION, "Time taken in insertion (into virtual table) = " + ((operationOverTime - operationStarttartTime) / 1E+9d) + " seconds");
 		}
 	}
 
