@@ -107,6 +107,12 @@ public class HikeSharedPreferenceUtil
 		return editor.commit();
 	}
 
+	public synchronized boolean saveStringSet(String key, Set<String> stringSet)
+	{
+		editor.putStringSet(key, stringSet);
+		return editor.commit();
+	}
+
 	public synchronized boolean saveDataSet(String key, Set<String> value)
 	{
 		if (Utils.isHoneycombOrHigher())
@@ -151,6 +157,12 @@ public class HikeSharedPreferenceUtil
 	public synchronized String getData(String key, String defaultValue)
 	{
 		return hikeSharedPreferences.getString(key, defaultValue);
+	}
+
+	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues)
+	{
+
+		return hikeSharedPreferences.getStringSet(key, defaultValues);
 	}
 
 	public synchronized Set<String> getDataSet(String key, Set<String> defaultValues)

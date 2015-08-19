@@ -198,8 +198,6 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
@@ -218,11 +216,13 @@ import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
@@ -1074,11 +1074,17 @@ public class Utils
 		}
 	}
 
+	/**
+	 *  DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
+	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs)
 	{
 		return getUserContactInfo(prefs, false);
 	}
 
+	/**
+	 *  DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
+	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
 	
@@ -1094,6 +1100,28 @@ public class Utils
 		else
 		{
 			myName = prefs.getString(HikeMessengerApp.NAME_SETTING, null);
+		}
+
+		ContactInfo contactInfo = new ContactInfo(myName, myMsisdn, myName, myMsisdn, true);
+		contactInfo.setHikeJoinTime(userJoinTime);
+
+		return contactInfo;
+	}
+	
+	public static ContactInfo getUserContactInfo(boolean showNameAsYou)
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		String myMsisdn = prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		long userJoinTime = prefs.getData(HikeMessengerApp.USER_JOIN_TIME, 0L);
+
+		String myName;
+		if (showNameAsYou)
+		{
+			myName = "You";
+		}
+		else
+		{
+			myName = prefs.getData(HikeMessengerApp.NAME_SETTING, null);
 		}
 
 		ContactInfo contactInfo = new ContactInfo(myName, myMsisdn, myName, myMsisdn, true);
@@ -1468,7 +1496,11 @@ public class Utils
 
 	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri)
 	{
-
+		if(uri == null)
+		{
+			Toast.makeText(mContext, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			return null;
+		}
 		String fileUriString = uri.toString();
 		String fileUriStart = "file:";
 
@@ -2679,7 +2711,7 @@ public class Utils
 		int notificationCount = 0;
 
 		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
-
+		notificationCount += accountPrefs.getInt(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 		if (countUsersStatus)
 		{
 			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
@@ -3367,8 +3399,18 @@ public class Utils
 				jObject = null;
 			}
 		};
-		RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
-		token.execute();
+		
+		if (TextUtils.isEmpty(url))
+		{
+			jObject = null;
+			return jObject;
+		}
+		
+		else
+		{
+			RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
+			token.execute();
+		}
 		return jObject;
 	}
 
@@ -3830,10 +3872,15 @@ public class Utils
 
 	public static Intent getTimelineActivityIntent(Context context)
 	{
+		return getTimelineActivityIntent(context, false);
+	}
+	
+	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed)
+	{
 		final Intent intent = new Intent(context, TimelineActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, true);
-
+		intent.putExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, openActivityFeed);
 		return intent;
 	}
 
@@ -4294,7 +4341,7 @@ public class Utils
 		}, contactInfo.getFirstName());
 	}
 
-	private static void toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
+	public static void toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
 	{
 		FavoriteType favoriteType;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -6185,7 +6232,31 @@ public class Utils
 
 		return false;
 	}
-
+	
+	public static boolean isTimelineShowCountEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, false);
+		}
+		
+		return false;
+	}
+	
+	public static boolean isTimelineShowLikesEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, false);
+		}
+		
+		return false;
+	}
+	
 	public static boolean moveFile(File inputFile, File outputFile)
 	{
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
@@ -6798,6 +6869,12 @@ public class Utils
 		}
 		return appVersion;
 		}
+	
+	public static boolean showContactsUpdates(ContactInfo contactInfo)
+	{
+		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) && (contactInfo.isOnhike());
+	}
+	
 	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
 	{
 		switch (unreadCount.length())
@@ -6814,5 +6891,11 @@ public class Utils
 			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
 		}
 	}
+	
+	public static boolean isSelfMsisdn(String argMsisdn)
+	{
+		return getUserContactInfo(false).getMsisdn().equals(argMsisdn);
+	}
+
 }
 

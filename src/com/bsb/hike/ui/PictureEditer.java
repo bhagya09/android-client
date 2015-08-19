@@ -323,15 +323,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
-		mActionBarBackButton = actionBarView.findViewById(R.id.back);
-		mActionBarBackButton.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
 
 		mActionBarDoneContainer = actionBarView.findViewById(R.id.done_container);
 
@@ -628,6 +619,42 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						else if (actionCode == PhotoActionsFragment.ACTION_SET_DP)
 						{
 							setupProfilePicUpload();
+						}
+						else if (actionCode == PhotoActionsFragment.ACTION_POST)
+						{
+							beginProgress();
+
+							editView.saveImage(HikeFileType.IMAGE, filename, new HikePhotosListener()
+							{
+
+								@Override
+								public void onFailure()
+								{
+									finishProgress();
+								}
+
+								@Override
+								public void onComplete(Bitmap bmp)
+								{
+									// Do nothing
+								}
+
+								@Override
+								public void onComplete(File f)
+								{
+									finishProgress();
+
+									if (f.exists())
+									{
+										startActivity(IntentFactory.getPostStatusUpdateIntent(PictureEditer.this, f.getAbsolutePath()));
+									}
+									else
+									{
+										Toast.makeText(getApplicationContext(), R.string.photos_oom_save, Toast.LENGTH_SHORT).show();
+									}
+								}
+							});
+
 						}
 					}
 				});

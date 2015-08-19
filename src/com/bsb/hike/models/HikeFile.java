@@ -97,6 +97,14 @@ public class HikeFile
 			{
 				return HikeConstants.CONTACT_CONTENT_TYPE;
 			}
+			else if (hikeFileType == OTHER)
+			{
+				return "other";
+			}
+			else if (hikeFileType == APK)
+			{
+				return "apk";
+			}
 			return null;
 		}
 

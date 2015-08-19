@@ -2,6 +2,7 @@ package com.bsb.hike.offline;
 
 import java.io.File;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,12 +14,15 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -98,13 +102,73 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	}
 
 	@Override
-	public void onTransitBegin(SenderConsignment senderConsignment) {
-
+	public void onTransitBegin(SenderConsignment senderConsignment)
+	{
+		if (senderConsignment == null || senderConsignment.getTag() == null)
+		{
+			return;
+		}
+		ConvMessage convMessage = (ConvMessage) senderConsignment.getTag();
+		if (senderConsignment.getFile() != null)
+		{
+			
+			if (convMessage.getMetadata().getSticker() == null)
+			{
+				HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+				String fileType = HikeFileType.toString(hikeFile.getHikeFileType());
+				long fileSize = hikeFile.getFileSize();
+				SessionTracFilePOJO pojo = new SessionTracFilePOJO(fileType, fileSize);
+				OfflineSessionTracking.getInstance().addToListOfFiles(convMessage.getMsgID(), pojo);
+			}
+			else
+			{
+				Sticker stk = convMessage.getMetadata().getSticker();
+				String catId = stk.getCategoryId();
+				String stkId = stk.getStickerId();
+				SessionTrackingStickerPOJO pojo = new SessionTrackingStickerPOJO(senderConsignment.getTotalFileSize(), catId, stkId);
+				OfflineSessionTracking.getInstance().addToListOfFiles(convMessage.getMsgID(), pojo);
+			}
+		}
+		else
+		{
+			if (convMessage.getMetadata() != null)
+			{
+				if (convMessage.isFileTransferMessage())
+				{
+					HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+					if (hikeFile.getHikeFileType() == HikeFileType.CONTACT)
+					{
+						OfflineSessionTracking.getInstance().incrementContact(true);
+					}
+				}
+				else
+				{
+					OfflineSessionTracking.getInstance().incrementMsgSend(convMessage.getMetadata().isPokeMessage());
+				}
+			}
+				
+			else
+			{
+				OfflineSessionTracking.getInstance().incrementMsgSend(false);
+			}
+		}
 	}
 
 	@Override
 	public void onTransitEnd(SenderConsignment senderConsignment) {
-
+		if (senderConsignment == null || senderConsignment.getTag() == null)
+		{
+			return;
+		}
+		ConvMessage convMessage = (ConvMessage) senderConsignment.getTag();
+		if (senderConsignment.getFile() != null)
+		{
+			SessionTracFilePOJO pojo = OfflineSessionTracking.getInstance().getFileSession(convMessage.getMsgID());
+			if (pojo != null)
+			{
+				pojo.recordEndTime();
+			}
+		}
 	}
 
 	@Override
@@ -173,7 +237,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		long msgId = OfflineUtils.getMsgId(message);
 		
 		int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
-		
+		Logger.d(AnalyticsConstants.MSG_REL_TAG,"Rows updated in Db for convMessage Sttae");
+				
 		if(!tempConvMessage.isOfflineMessage())
 		{
 			Logger.d(TAG, "Updating Ordinal value to Offline  for offline msgs");
@@ -191,6 +256,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		
 		Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
+		OfflineSessionTracking.getInstance().incrementDel();
 	}
 
 
@@ -216,33 +282,59 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 			else if(OfflineUtils.isMessageReadType(messageJSON))
 			{
 				MqttMessagesManager.getInstance(context).saveMessageRead(messageJSON);
+				JSONArray serverIds = messageJSON.optJSONArray(HikeConstants.DATA);
+				OfflineSessionTracking.getInstance().incrementRead(serverIds.length());
 			}
 			else if(OfflineUtils.isInfoPkt(messageJSON))
 			{
-				Logger.d(TAG, "Info Packet received ...>>" + messageJSON.toString());
+				Logger.d(TAG, "Info Packet received ...>>" + messageJSON.toString() +"and "+messageJSON.opt(OfflineConstants.CONNECTION_ID));
+				OfflineSessionTracking.getInstance().updateConnectionId(messageJSON.optLong(OfflineConstants.CONNECTION_ID));
 			}
 			else 
 			{
-				if (OfflineUtils.isChatThemeMessage(messageJSON)) 
+				
+				if (OfflineUtils.isChatThemeMessage(messageJSON))
 				{
-					if(messagesManager==null)
+					ConvMessage convMessage = new ConvMessage(messageJSON, context);
+					if (messagesManager == null)
 					{
 						messagesManager = new OfflineMessagesManager();
 					}
 					messagesManager.handleChatThemeMessage(messageJSON);
+					OfflineSessionTracking.getInstance().incrementMsgSend(convMessage.getMetadata().isPokeMessage());
 					return;
-				} 
-				else if (OfflineUtils.isDisconnectPkt(messageJSON)) 
+				}
+				else if (OfflineUtils.isDisconnectPkt(messageJSON))
 				{
 					throw new OfflineException(OfflineException.USER_DISCONNECTED);
 				}
 				ConvMessage convMessage = new ConvMessage(messageJSON, context);
-				if (OfflineUtils.isStickerMessage(messageJSON)) 
+				if (OfflineUtils.isStickerMessage(messageJSON))
 				{
 					receiverConsignment.setTag(convMessage);
 				}
+				else
+				{
+					if (convMessage.getMetadata() != null)
+						OfflineSessionTracking.getInstance().incrementMsgRec(convMessage.getMetadata().isPokeMessage());
+					else
+						OfflineSessionTracking.getInstance().incrementMsgRec(false);
+				}
 				if (!addToDatabase(convMessage))
 					return;
+				
+				if (convMessage.getMetadata() != null && convMessage.getMetadata().getSticker()!=null)
+				{
+					Sticker stk = convMessage.getMetadata().getSticker();
+					String catId = stk.getCategoryId();
+					String stkId = stk.getStickerId();
+					SessionTrackingStickerPOJO pojo = new SessionTrackingStickerPOJO(receiverConsignment.getTotalFileSize(), catId, stkId, MessageType.RECEIVED.ordinal());
+					OfflineSessionTracking.getInstance().addToListOfFiles(convMessage.getMsgID(), pojo);
+				}
+				if(OfflineUtils.isContactTransferMessage(messageJSON))
+				{
+					OfflineSessionTracking.getInstance().incrementContact(false);
+				}
 			}
 		} 
 		catch (JSONException jsonException) 

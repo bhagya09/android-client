@@ -1,7 +1,6 @@
 package com.bsb.hike.chatthread;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -508,7 +507,7 @@ public class ChatThreadUtils
 	 * @param drawable
 	 * @param imageView
 	 */
-	protected static void applyMatrixTransformationToImageView(Drawable drawable, ImageView imageView)
+	public static void applyMatrixTransformationToImageView(Drawable drawable, ImageView imageView)
 	{
 		/**
 		 * Drawable width and height
@@ -574,10 +573,19 @@ public class ChatThreadUtils
 	 * Sends nmr/mr as per pd is present in convmessage or not.Not sending MR for Offline conversation
 	 * @param msisdn
 	 */
-	public static void sendMR(String msisdn,IChannelSelector  channelSelector)
+	public static void sendMR(String msisdn, List<ConvMessage> unreadConvMessages, boolean readMessageExists,IChannelSelector  channelSelector)
 	{
-
-		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
+		List<Pair<Long, JSONObject>> pairList = null;
+		if (readMessageExists)
+		{
+			// here we know which msg ids should be marked as read, therefore passing unread conv messages to db method
+			pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(unreadConvMessages);
+		}
+		else
+		{
+			// mark all msgs of this chat thread as read
+			pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
+		}
 
 		if (pairList == null)
 		{

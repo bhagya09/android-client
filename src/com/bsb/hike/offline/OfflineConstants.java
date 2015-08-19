@@ -184,8 +184,20 @@ public class OfflineConstants
 		public static final String TAG_NO_INTERNET_CLICKED = "noti";
 		
 		public static final String RETRY_BUTTON_CLICKED = "rtry";
+		
+		public static final String EVENY_KEY_CONN_TIME = "est";
+
+		public static final String EVENY_KEY_DISCONN_REA = "hddis";
+
+		public static final String TIP_KEY = "tipkey";
 
 	}
 	
-	
+	public static final String CONNECTION_ID = "conn_id";
+
+	public static enum MessageType
+	{
+		SENT, RECEIVED
+	}
+
 }
