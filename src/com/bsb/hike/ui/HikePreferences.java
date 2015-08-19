@@ -1773,8 +1773,8 @@ private void setupToolBar(int titleRes){
 			}
 		};
 		dialog.setTitle(R.string.choose_setting);
-		dialog.setPositiveButton(R.string.always, listener);
-		dialog.setNegativeButton(R.string.just_once, listener);
+		dialog.setPositiveButton(R.string.ALWAYS, listener);
+		dialog.setNegativeButton(R.string.JUST_ONCE, listener);
 		dialog.show();
 	}
 	

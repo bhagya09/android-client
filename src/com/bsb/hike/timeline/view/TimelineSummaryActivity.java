@@ -617,7 +617,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					{
 
 						Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-								.getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false, false);
+								.getContact(msisdns.get(position),true,true), false, false);
 						// Add anything else to the intent
 						intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
