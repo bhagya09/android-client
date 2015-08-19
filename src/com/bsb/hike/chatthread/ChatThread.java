@@ -781,7 +781,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				overFlowMenuItem.enabled = !isMessageListEmpty && !mConversation.isBlocked();
 				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && overFlowMenuItem.enabled)
 				{
-					overFlowMenuItem.drawableId = R.drawable.ic_top_bar_indicator_search;
+					overFlowMenuItem.drawableId = R.drawable.ic_overflow_item_indicator_search;
 				}
 				else
 				{

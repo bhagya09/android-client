@@ -175,20 +175,10 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.pin_history);
-
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
@@ -343,7 +333,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		try
 		{
-			TextView tv = (TextView) LayoutInflater.from(this).inflate(chatTheme.systemMessageLayoutId(), null, false);
+			TextView tv = (TextView) LayoutInflater.from(this).inflate(chatTheme.systemMessageTextViewLayoutId(), null, false);
 			tv.setText(R.string.pinHistoryTutorialText);
 			if (chatTheme == ChatTheme.DEFAULT)
 			{

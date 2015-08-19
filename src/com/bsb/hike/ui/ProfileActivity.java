@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,12 +37,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -448,7 +447,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
@@ -473,16 +471,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			break;
 		}
 
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				Utils.hideSoftKeyboard(getApplicationContext(), v);
-				onBackPressed();
-			}
-		});
 
 		if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 		{
@@ -712,6 +700,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case R.id.add_people:
 			openAddToGroup();
 			break;
+		case android.R.id.home:
+			Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView().getRootView());
+			onBackPressed();
+			return true;
+
 		}
 
 		return super.onOptionsItemSelected(item);
