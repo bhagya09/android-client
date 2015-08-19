@@ -831,7 +831,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.parent.setPadding(0, 0, 0, 0);
 		}
 		
-		Logger.d(HikeConstants.TIMELINE_LOGS, "exit BindView " + viewHolder);
 	}
 
 	private DecelerateInterpolator cardInterp = new DecelerateInterpolator();
