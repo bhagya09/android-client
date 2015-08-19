@@ -728,7 +728,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0));
+				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
 				
 				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
 				
