@@ -507,7 +507,22 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onClick(View v)
 	{
-		onBackPressed();
+		if (Utils.isSelfMsisdn(mStatusMessage.getMsisdn()))
+		{
+			Intent intent2 = new Intent(TimelineSummaryActivity.this, ProfileActivity.class);
+			intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+			startActivity(intent2);
+		}
+		else
+		{
+
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
+					.getContact(mStatusMessage.getMsisdn(),true,true), false, false);
+			// Add anything else to the intent
+			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+		}
 	}
 
 	public interface DisplayPictureEditListener
