@@ -825,7 +825,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		// Done to support Quick Return
 		if (position == 0 && !mShowUserProfile)
 		{
-			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(50), 0, 0);
+			viewHolder.parent.setPadding(0, HikePhotosUtils.dpToPx(52), 0, 0);
 		}
 		else
 		{
@@ -937,7 +937,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				ArrayAdapter<String> dialogAdapter = new ArrayAdapter<String>(mActivity.get(), R.layout.alert_item, R.id.item, getLongPressListItemsArray(statusMessage));
 				dialogBuilder.setAdapter(dialogAdapter, longPressListClickListener);
 				alertDialog = dialogBuilder.show();
-				alertDialog.getListView().setDivider(mContext.getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+				alertDialog.getListView().setDivider(null);
+				alertDialog.getListView().setPadding(0, HikeMessengerApp.getInstance().getResources().getDimensionPixelSize(R.dimen.menu_list_padding_top), 0, HikeMessengerApp.getInstance().getResources().getDimensionPixelSize(R.dimen.menu_list_padding_bottom));
+				
 				return true;
 
 			}
