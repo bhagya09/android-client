@@ -613,6 +613,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, LIKE_CONTACTS_DIALOG);
 			dialog.setContentView(R.layout.display_contacts_dialog);
 			dialog.setCancelable(true);
+			dialog.setCanceledOnTouchOutside(true);
 
 			ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
 			DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns);
@@ -638,16 +639,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(intent);
 					}
-					mActivityState.dialogShown = false;
-				}
-			});
-			ImageButton cancelButton = (ImageButton) dialog.findViewById(R.id.btn_cancel);
-			cancelButton.setOnClickListener(new View.OnClickListener()
-			{
-				@Override
-				public void onClick(View arg0)
-				{
-					dialog.dismiss();
 					mActivityState.dialogShown = false;
 				}
 			});
