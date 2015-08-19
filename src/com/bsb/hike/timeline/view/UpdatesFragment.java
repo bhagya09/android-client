@@ -306,7 +306,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		if (!mShowProfileHeader)
 		{
 			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
-					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
+					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(52)).isSnappable(false).build();
 
 			mUpdatesList.addOnScrollListener(scrollListener);
 			

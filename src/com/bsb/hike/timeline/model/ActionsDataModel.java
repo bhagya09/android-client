@@ -115,7 +115,7 @@ public class ActionsDataModel
 
 	public int getCount()
 	{
-		return count;
+		return contactInfoList.size();
 	}
 
 	public ActionsDataModel.ActionTypes getType()
@@ -126,18 +126,6 @@ public class ActionsDataModel
 	public void setType(ActionsDataModel.ActionTypes type)
 	{
 		this.type = type;
-	}
-
-	public void setCount(int count)
-	{
-		if (count < 0)
-		{
-			this.count = 0;
-		}
-		else
-		{
-			this.count = count;
-		}
 	}
 
 	public LinkedHashSet<ContactInfo> getContactInfoList()
@@ -201,19 +189,17 @@ public class ActionsDataModel
 		if (contactInfo != null)
 		{
 			// Check isAlready present
-			if (contactInfoList.contains(contactInfo))
+			for (ContactInfo cInfo : contactInfoList)
 			{
-				return false;
+				if (cInfo.getMsisdn().equals(contactInfo.getMsisdn()))
+				{
+					return false;
+				}
 			}
 
 			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding coninfo name: " + contactInfo.getName());
 			boolean isAdded = contactInfoList.add(contactInfo);
 			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding " + (isAdded ? "issuccess" : "failed"));
-			if (isAdded)
-			{
-				setCount(contactInfoList.size());
-			}
-
 			return isAdded;
 		}
 		return false;
@@ -242,13 +228,7 @@ public class ActionsDataModel
 				break;
 			}
 		}
-
 		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "isRemoved: " + isRemoved);
-		
-		if (isRemoved)
-		{
-			setCount(contactInfoList.size());
-		}
 		return isRemoved;
 	}
 

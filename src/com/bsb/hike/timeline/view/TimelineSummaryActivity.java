@@ -250,8 +250,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			Linkify.addLinks(fullTextView, Linkify.ALL);
 			imageView.setVisibility(View.GONE);
 			fadeScreen.setBackgroundColor(Color.WHITE);
-			textViewCounts.setTextColor(Color.BLACK);
-			fullTextView.setTextColor(Color.BLACK);
+			textViewCounts.setTextColor(0x3D000000);
+			fullTextView.setTextColor(0x99000000);
 			checkBoxLove.setButtonDrawable(R.drawable.btn_love_selector);
 		}
 		else
@@ -349,7 +349,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		contentContainer.animate().setDuration(ANIM_DURATION).scaleX(1).scaleY(1).alpha(1f);
 
-		float alphaFinal = isTextStatusMessage ? 1f : 0.95f;
+		float alphaFinal = isTextStatusMessage ? 1f : 1f;
 
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, alphaFinal);
 		bgAnim.setDuration(ANIM_DURATION);
@@ -507,7 +507,22 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onClick(View v)
 	{
-		onBackPressed();
+		if (Utils.isSelfMsisdn(mStatusMessage.getMsisdn()))
+		{
+			Intent intent2 = new Intent(TimelineSummaryActivity.this, ProfileActivity.class);
+			intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+			startActivity(intent2);
+		}
+		else
+		{
+
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
+					.getContact(mStatusMessage.getMsisdn(),true,true), false, false);
+			// Add anything else to the intent
+			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+		}
 	}
 
 	public interface DisplayPictureEditListener
@@ -655,8 +670,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 
 		actionBarView = LayoutInflater.from(this).inflate(R.layout.chat_thread_action_bar, null);
-
-		View backContainer = actionBarView.findViewById(R.id.back);
 
 		View contactInfoContainer = actionBarView.findViewById(R.id.contact_info);
 

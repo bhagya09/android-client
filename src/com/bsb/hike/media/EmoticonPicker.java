@@ -388,6 +388,14 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		showEmoticonPicker(orientation);
 	}
 
+	public void setDisableExtraPadding(boolean disabled)
+	{
+		if(mPopUpLayout != null)
+		{
+			mPopUpLayout.setPaddingDisabled(disabled);
+		}
+	}
+
 	OnPageChangeListener onPageChangeListener = new OnPageChangeListener()
 	{
 

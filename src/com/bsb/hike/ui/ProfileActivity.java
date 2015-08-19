@@ -372,6 +372,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			this.profileType = ProfileType.CONTACT_INFO_TIMELINE;
 			setupContactTimelineScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
+			StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 		}
 		else
 		{
@@ -405,6 +406,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				setupProfileScreen(savedInstanceState);
 				HikeMessengerApp.getPubSub().addListeners(this, profilePubSubListeners);
 				triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.PROFILE_PHOTO.ordinal();
+				StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 			}
 		}
 		if (mActivityState.groupEditDialogShowing)
@@ -3461,11 +3463,5 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		this.mLocalMSISDN = msisdn;
 		super.setLocalMsisdn(mLocalMSISDN);
-	}
-	
-	@Override
-	protected void setStatusBarColor(Window window, String color)
-	{
-		StatusBarColorChanger.setStatusBarColor(window, Color.BLACK);
 	}
 }
