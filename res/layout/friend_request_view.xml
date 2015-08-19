@@ -7,25 +7,19 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="64dp"
+        android:minHeight="@dimen/compose_item_height"
         android:background="@drawable/list_item"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp" >
+        android:paddingLeft="@dimen/conv_item_padding"
+        android:paddingRight="@dimen/conv_item_padding" >
 
-        <FrameLayout
-            android:id="@+id/avatar_container"
-            android:layout_width="@dimen/medium_avatar"
-            android:layout_height="@dimen/medium_avatar"
-            android:layout_centerVertical="true" >
+        <com.bsb.hike.view.RoundedImageView
+             android:id="@+id/avatar"
+             android:layout_width="@dimen/compose_avatar_dimen"
+             android:layout_height="@dimen/compose_avatar_dimen"
+             style="@style/RoundedStyle"
+             android:layout_alignParentLeft="true"
+             android:layout_centerVertical="true" />
 
-            <com.bsb.hike.view.RoundedImageView
-                android:id="@+id/avatar"
-                style="@style/AvatarStyle.Padding" />
-
-            <ImageView
-                android:id="@+id/avatar_frame"
-                style="@style/AvatarStyle" />
-        </FrameLayout>
 
         <ImageView
             android:id="@+id/accept"
@@ -38,47 +32,29 @@
             android:id="@+id/reject"
             style="@style/RequestBtn.Reject"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="8dp"
             android:layout_toLeftOf="@id/accept" />
 
         <LinearLayout
             android:id="@+id/contact_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
             android:layout_toLeftOf="@id/reject"
-            android:layout_toRightOf="@id/avatar_container"
+            android:layout_toRightOf="@id/avatar"
+            style="@style/compose_name_container_margins"
+            android:paddingBottom="12dp"
             android:orientation="vertical" >
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:ellipsize="end"
-                android:singleLine="true"
                 android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
-                android:textColor="@color/list_item_header"
-                android:textSize="16sp"
-                android:textStyle="bold|italic" />
+                style="@style/ListItemHeaderTextView" />
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/last_seen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:ellipsize="end"
-                android:lineSpacingExtra="2dp"
                 android:text="what&apos;s up dude?  I really like cookies.  They taste so good and fresh.  I like pie as well.  I&apos;m so fat"
-                android:textColor="@color/conversation_timestamp"
-                android:textSize="13sp"
-                android:textStyle="italic"
-                android:visibility="visible" />
+                android:layout_marginTop="4dp"
+                style="@style/ListItemSubHeaderTextView"
+                android:singleLine="false" />
         </LinearLayout>
     </RelativeLayout>
 

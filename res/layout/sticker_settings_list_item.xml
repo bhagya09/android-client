@@ -94,7 +94,7 @@
                 android:layout_marginLeft="6dp"
                 android:layout_toRightOf="@id/category_name"
                 android:text="@string/new_stickers"
-                android:textColor="#0f8fe1"
+                android:textColor="#1da8e8"
                 android:textSize="12sp"
                 android:visibility="gone" />
         </RelativeLayout>

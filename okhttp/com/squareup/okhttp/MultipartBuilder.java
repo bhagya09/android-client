@@ -15,11 +15,13 @@
  */
 package com.squareup.okhttp;
 
+import com.bsb.hike.utils.Logger;
 import com.squareup.okhttp.internal.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import okio.Buffer;
 import okio.BufferedSink;
 import okio.ByteString;
 
@@ -72,10 +74,11 @@ public final class MultipartBuilder {
 
   private final ByteString boundary;
   private MediaType type = MIXED;
+  private long length = 0;
 
-  // Parallel lists of nullable headers and non-null bodies.
-  private final List<Headers> partHeaders = new ArrayList<Headers>();
-  private final List<RequestBody> partBodies = new ArrayList<RequestBody>();
+  // Parallel lists of nullable headings (boundary + headers) and non-null bodies.
+  private final List<Buffer> partHeadings = new ArrayList<>();
+  private final List<RequestBody> partBodies = new ArrayList<>();
 
   /** Creates a new multipart builder that uses a random boundary token. */
   public MultipartBuilder() {
@@ -108,12 +111,23 @@ public final class MultipartBuilder {
   }
 
   /** Add a part to the body. */
-  public MultipartBuilder addPart(RequestBody body) {
-    return addPart(null, body);
-  }
+public MultipartBuilder addPart(RequestBody body)
+{
+try
+{
+return addPart(null, body);
+}
+catch (IOException ioe)
+{
+ioe.printStackTrace();
+Logger.e("Atul", "IOEXCEPTION CAUGHT");
+return null;
+}
+}
 
-  /** Add a part to the body. */
-  public MultipartBuilder addPart(Headers headers, RequestBody body) {
+  /** Add a part to the body. 
+ * @throws IOException */
+  public MultipartBuilder addPart(Headers headers, RequestBody body) throws IOException {
     if (body == null) {
       throw new NullPointerException("body == null");
     }
@@ -124,8 +138,17 @@ public final class MultipartBuilder {
       throw new IllegalArgumentException("Unexpected header: Content-Length");
     }
 
-    partHeaders.add(headers);
+    Buffer heading = createPartHeading(headers, body, partHeadings.isEmpty());
+    partHeadings.add(heading);
     partBodies.add(body);
+
+    long bodyContentLength = body.contentLength();
+    if (bodyContentLength == -1) {
+      length = -1;
+    } else if (length != -1) {
+      length += heading.size() + bodyContentLength;
+    }
+
     return this;
   }
 
@@ -181,78 +204,102 @@ public final class MultipartBuilder {
       appendQuotedString(disposition, filename);
     }
 
-    return addPart(Headers.of("Content-Disposition", disposition.toString()), value);
+    try
+{
+return addPart(Headers.of("Content-Disposition", disposition.toString()), value);
+}
+catch (IOException e)
+{
+e.printStackTrace();
+return null;
+}
+  }
+
+  /** Creates a part "heading" from the boundary and any real or generated headers. 
+ * @throws IOException */
+  private Buffer createPartHeading(Headers headers, RequestBody body, boolean isFirst) throws IOException {
+    Buffer sink = new Buffer();
+
+    if (!isFirst) {
+      sink.write(CRLF);
+    }
+    sink.write(DASHDASH);
+    sink.write(boundary);
+    sink.write(CRLF);
+
+    if (headers != null) {
+      for (int i = 0; i < headers.size(); i++) {
+        sink.writeUtf8(headers.name(i))
+            .write(COLONSPACE)
+            .writeUtf8(headers.value(i))
+            .write(CRLF);
+      }
+    }
+
+    MediaType contentType = body.contentType();
+    if (contentType != null) {
+      sink.writeUtf8("Content-Type: ")
+          .writeUtf8(contentType.toString())
+          .write(CRLF);
+    }
+
+    long contentLength = body.contentLength();
+    if (contentLength != -1) {
+      sink.writeUtf8("Content-Length: ")
+          .writeUtf8(Long.toString(contentLength))
+          .write(CRLF);
+    }
+
+    sink.write(CRLF);
+
+    return sink;
   }
 
   /** Assemble the specified parts into a request body. */
   public RequestBody build() {
-    if (partHeaders.isEmpty()) {
+    if (partHeadings.isEmpty()) {
       throw new IllegalStateException("Multipart body must have at least one part.");
     }
-    return new MultipartRequestBody(type, boundary, partHeaders, partBodies);
+    return new MultipartRequestBody(type, boundary, partHeadings, partBodies, length);
   }
 
   private static final class MultipartRequestBody extends RequestBody {
     private final ByteString boundary;
     private final MediaType contentType;
-    private final List<Headers> partHeaders;
+    private final List<Buffer> partHeadings;
     private final List<RequestBody> partBodies;
+    private final long length;
 
-    public MultipartRequestBody(MediaType type, ByteString boundary, List<Headers> partHeaders,
-        List<RequestBody> partBodies) {
+    public MultipartRequestBody(MediaType type, ByteString boundary, List<Buffer> partHeadings,
+        List<RequestBody> partBodies, long length) {
       if (type == null) throw new NullPointerException("type == null");
 
       this.boundary = boundary;
       this.contentType = MediaType.parse(type + "; boundary=" + boundary.utf8());
-      this.partHeaders = Util.immutableList(partHeaders);
+      this.partHeadings = Util.immutableList(partHeadings);
       this.partBodies = Util.immutableList(partBodies);
+      if (length != -1) {
+        // Add the length of the final boundary.
+        length += CRLF.length + DASHDASH.length + boundary.size() + DASHDASH.length + CRLF.length;
+      }
+      this.length = length;
+    }
+
+    @Override public long contentLength() {
+      return length;
     }
 
     @Override public MediaType contentType() {
       return contentType;
     }
 
-    @Override public long contentLength() throws IOException {
-      return -1L;
-    }
-
     @Override public void writeTo(BufferedSink sink) throws IOException {
-      for (int p = 0, partCount = partHeaders.size(); p < partCount; p++) {
-        Headers headers = partHeaders.get(p);
-        RequestBody body = partBodies.get(p);
-
-        sink.write(DASHDASH);
-        sink.write(boundary);
-        sink.write(CRLF);
-
-        if (headers != null) {
-          for (int h = 0, headerCount = headers.size(); h < headerCount; h++) {
-            sink.writeUtf8(headers.name(h))
-                .write(COLONSPACE)
-                .writeUtf8(headers.value(h))
-                .write(CRLF);
-          }
-        }
-
-        MediaType contentType = body.contentType();
-        if (contentType != null) {
-          sink.writeUtf8("Content-Type: ")
-              .writeUtf8(contentType.toString())
-              .write(CRLF);
-        }
-
-        long contentLength = body.contentLength();
-        if (contentLength != -1) {
-          sink.writeUtf8("Content-Length: ")
-              .writeUtf8(Long.toString(contentLength))
-              .write(CRLF);
-        }
-
-        sink.write(CRLF);
-        partBodies.get(p).writeTo(sink);
-        sink.write(CRLF);
+      for (int i = 0, size = partHeadings.size(); i < size; i++) {
+        sink.writeAll(partHeadings.get(i).clone());
+        partBodies.get(i).writeTo(sink);
       }
 
+      sink.write(CRLF);
       sink.write(DASHDASH);
       sink.write(boundary);
       sink.write(DASHDASH);

@@ -7,7 +7,7 @@
 
     <com.bsb.hike.view.PinnedSectionListView
         android:id="@id/android:list"
-        style="@style/HomeList"
+        style="@style/ComposeList"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
         android:background="@color/white" />

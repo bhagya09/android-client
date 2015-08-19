@@ -35,6 +35,7 @@ import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -60,7 +61,9 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
@@ -410,6 +413,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 		});
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void setupActionBarTitle()
@@ -749,7 +754,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
 					builder.setTitle(R.string.number_confirm_title);
 					builder.setMessage(getString(R.string.number_confirmation_string, number));
-					builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener()
+					builder.setPositiveButton(R.string.CONFIRM, new DialogInterface.OnClickListener()
 					{
 
 						@Override
@@ -770,7 +775,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 							}
 						}
 					});
-					builder.setNegativeButton(R.string.edit, new DialogInterface.OnClickListener()
+					builder.setNegativeButton(R.string.EDIT, new DialogInterface.OnClickListener()
 					{
 
 						@Override
@@ -1913,7 +1918,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	public void onBackPressed()
 	{
 		SharedPreferences settings = getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		if (settings.getBoolean(HikeMessengerApp.RESTORING_BACKUP, false))
+		if (viewFlipper.getDisplayedChild() == BACKUP_FOUND || viewFlipper.getDisplayedChild() == RESTORING_BACKUP)
 		{
 			return;
 		}
@@ -2537,5 +2542,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		nextBtn.setEnabled(enabled);
 		arrow.setEnabled(enabled);
 		postText.setEnabled(enabled);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// TODO Auto-generated method stub
+		return true;
 	}
 }
