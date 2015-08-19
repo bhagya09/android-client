@@ -221,14 +221,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 		}
-
-		@Override
-		public String toString()
-		{
-			return "ViewHolder [name=" + name.getText() + ", mainInfo=" + mainInfo.getText() +"]";
-		}
-		
-		
 	}
 
 	private Context mContext;
