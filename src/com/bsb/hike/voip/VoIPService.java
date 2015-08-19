@@ -1779,7 +1779,6 @@ public class VoIPService extends Service {
 					int compressedDataLength = 0;
 
 					while (keepRunning) {
-						Logger.d(tag, "Running.");
 						// If it's an audio packet, then compress it
 						if (broadcastPacket.getType() == PacketType.AUDIO_PACKET) {
 							// Compress the audio frame
