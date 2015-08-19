@@ -54,6 +54,7 @@ import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
@@ -215,10 +216,21 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 							List<StatusMessage> olderMessages = null;
 
-							if (friendMsisdns.length > 0)
+							int startId = -1;
+
+							if (isLastMsgJoinTime())
+							{
+								startId = (int) statusMessages.get(statusMessages.size() - 2).getId();
+							}
+							else
+							{
+								startId = (int) statusMessages.get(statusMessages.size() - 1).getId();
+							}
+
+							if (friendMsisdns.length > 0 && startId > 1)
 							{
 								olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(mShowProfileHeader ? false : true,
-										HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME, (int) statusMessages.get(statusMessages.size() - 1).getId(), friendMsisdns);
+										HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME, startId, friendMsisdns);
 							}
 							else
 							{
@@ -286,10 +298,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								 * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
 								 */
 								reachedEnd = true;
+								addJoinTimeMessage();
 							}
 
 						}
-
 					};
 					if (Utils.isHoneycombOrHigher())
 					{
@@ -299,6 +311,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					{
 						asyncTask.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
 					}
+				}
+				else
+				{
+					//User joined status message
+					addJoinTimeMessage();
 				}
 			}
 		});
@@ -331,6 +348,52 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 	}
 
+	private boolean isLastMsgJoinTime()
+	{
+		// Check if last message is joined hike message (self inserted)
+		if (statusMessages != null && !statusMessages.isEmpty())
+		{
+			StatusMessage lastMessage = statusMessages.get(statusMessages.size() - 1);
+			if (lastMessage.getStatusMessageType() == StatusMessageType.JOINED_HIKE)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void addJoinTimeMessage()
+	{
+		if(isLastMsgJoinTime())
+		{
+			return;
+		}
+		
+		if(mShowProfileHeader)
+		{
+			ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
+			
+			if(!joinConInfo.isOnhike())
+			{
+				return;
+			}
+			
+			StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
+			
+			if (cJoinedSM != null)
+			{
+				statusMessages.add(cJoinedSM);
+				notifyVisibleItems();
+				if(cJoinedSM.getTimeStamp() == 0)
+				{
+					joinConInfo.httpGetHikeJoinTime();
+				}
+			}
+			
+			Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
+		}
+	}
+	
 	@Override
 	public void onDestroy()
 	{
@@ -723,25 +786,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			}
 			
-			//User joined status message
-			if(mShowProfileHeader)
+			if(statusMessages.size() < HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY)
 			{
-				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
-				
-				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
-				
-				if (cJoinedSM != null)
-				{
-					statusMessages.add(cJoinedSM);
-					if(cJoinedSM.getTimeStamp() == 0)
-					{
-						joinConInfo.httpGetHikeJoinTime();
-					}
-				}
-				
-				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
+				addJoinTimeMessage();
 			}
-
+			
+			timelineCardsAdapter.notifyDataSetChanged();
+			
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
 		}
 
