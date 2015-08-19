@@ -283,7 +283,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		if (mShowUserProfile)
 		{
-			profileContactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(filterMsisdns.get(0));
+			profileContactInfo = ContactManager.getInstance().getContact(filterMsisdns.get(0),true,true);
 		}
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.FAVORITE_TOGGLED, this);
@@ -1006,7 +1006,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				if (mActivity.get() != null)
 				{
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
-							ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(mStatusMessage.getMsisdn()), false, false);
+							ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(),true,true), false, false);
 					startActivity(intent);
 				}
 			}

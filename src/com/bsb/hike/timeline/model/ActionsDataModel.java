@@ -195,7 +195,7 @@ public class ActionsDataModel
 
 		if (!msisdn.equals(contactInfo.getMsisdn()))
 		{
-			contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+			contactInfo = ContactManager.getInstance().getContact(msisdn,true,true);
 		}
 
 		if (contactInfo != null)
