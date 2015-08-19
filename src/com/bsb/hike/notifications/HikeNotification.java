@@ -845,7 +845,7 @@ public class HikeNotification
 
 		String message = null;
 		String text = null;
-		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			message = context.getString(R.string.status_text_notification, "\"" + statusMessage.getText() + "\"");
 			/*
@@ -869,7 +869,7 @@ public class HikeNotification
 			message = context.getString(R.string.status_profile_pic_notification, key);
 			text = key + " " + message;
 		}
-		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 		{
 			message = context.getString(R.string.notif_posted_photo);
 			text = key + " " + message;
