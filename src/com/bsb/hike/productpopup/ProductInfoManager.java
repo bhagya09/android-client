@@ -6,6 +6,7 @@ import java.util.Collections;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.usage.UsageEvents.Event;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -15,6 +16,9 @@ import android.util.SparseArray;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -177,6 +181,25 @@ public class ProductInfoManager
 		});
 
 	}
+	
+	public static void recordPopupEvent(String appName, String pid, boolean isFullScreen, String type)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(ProductPopupsConstants.APP_NAME, appName);
+			metadata.put(ProductPopupsConstants.PID, pid);
+			metadata.put(ProductPopupsConstants.IS_FULL_SCREEN, isFullScreen);
+			metadata.put(HikeConstants.STATUS, type);
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, ProductPopupsConstants.PRODUCT_POP_UP, metadata);
+
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * 
@@ -257,6 +280,7 @@ public class ProductInfoManager
 						mmSparseArray.put(productContentModel.getTriggerpoint(), mmArrayList);
 					}
 					HikeContentDatabase.getInstance().updatePopupStatus(productContentModel.hashCode(), PopupStateEnum.DOWNLOADED.ordinal());
+                    recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), HikeConstants.DOWNLOAD);
 				}
 			}
 

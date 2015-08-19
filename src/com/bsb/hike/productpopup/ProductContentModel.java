@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,6 +38,12 @@ public class ProductContentModel implements Parcelable
 	private long pushTime;
 	
 	private boolean isCancellable;
+	
+	private String pid;
+	
+	private final String CARD_OBJ = "cardObj";
+
+	private final String LD = "ld";
 
 	private ProductContentModel(JSONObject contentData)
 	{
@@ -44,10 +51,24 @@ public class ProductContentModel implements Parcelable
 
 		starttime = contentData.optLong(START_TIME, 0l);
 		endtime = contentData.optLong(END_TIME, new Long(Integer.MAX_VALUE));
-		triggerpoint = contentData.optInt(TRIGGER_POINT,PopupTriggerPoints.HOME_SCREEN.ordinal());
+		triggerpoint = contentData.optInt(TRIGGER_POINT, PopupTriggerPoints.HOME_SCREEN.ordinal());
 		isFullScreen = contentData.optBoolean(IS_FULL_SCREEN, false);
 		pushTime = contentData.optLong(PUSH_TIME, 0l);
-		isCancellable=contentData.optBoolean(IS_CANCELLABLE,false);
+		isCancellable = contentData.optBoolean(IS_CANCELLABLE, false);
+		JSONObject cardObj = contentData.optJSONObject(CARD_OBJ);
+		JSONObject ld = null;
+		if (cardObj != null && cardObj.has(LD) )
+		{
+			ld = cardObj.optJSONObject(LD);
+		}
+		if (ld != null && ld.has(ProductPopupsConstants.PID))
+		{
+			pid = ld.optString(ProductPopupsConstants.PID, "");
+		}
+		else
+		{
+			pid = "";
+		}
 	}
 
 	public static ProductContentModel makeProductContentModel(JSONObject contentData)
@@ -83,6 +104,11 @@ public class ProductContentModel implements Parcelable
 	public String getAppName()
 	{
 		return mmContentModel.cardObj.getAppName();
+	}
+	
+	public String getPid()
+	{
+		return pid;
 	}
 
 	public String getAppVersion()

@@ -17,6 +17,7 @@ import android.view.Window;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.content.HikeWebClient;
@@ -143,8 +144,9 @@ public class HikeDialogFragment extends DialogFragment
 		super.onActivityCreated(arg0);
 		Logger.d("ProductPopup", "onActivityCreated");
 		getDialog().setCanceledOnTouchOutside(false);
+		ProductContentModel productContentModel = (ProductContentModel)mmModel.getData();
+		ProductInfoManager.recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), ProductPopupsConstants.SEEN);
 		mmBridge = new ProductJavaScriptBridge(mmWebView, new WeakReference<HikeDialogFragment>(this), mmModel.getData());
-
 		mmWebView.addJavascriptInterface(mmBridge, ProductPopupsConstants.POPUP_BRIDGE_NAME);
 		mmWebView.setWebViewClient(new CustomWebClient());
 		mmWebView.post(new Runnable()
