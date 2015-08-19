@@ -12,28 +12,31 @@ import java.util.List;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.Filter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.PinnedHeaderListView;
 import com.bsb.hike.adapters.SectionedBaseAdapter;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.view.PinnedSectionListView;
+import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
 
-public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity implements TextWatcher
+public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity 
 {
 	public static final String RESULT_COUNTRY_NAME = "resCName";
 
@@ -41,7 +44,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 	private SectionedBaseAdapter listViewAdapter;
 
-	private PinnedHeaderListView listView;
+	private PinnedSectionListView listView;
 
 	private boolean searching;
 
@@ -123,10 +126,9 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 		searchListViewAdapter = new SearchAdapter(this);
 
-		listView = (PinnedHeaderListView) findViewById(R.id.listView);
+		listView = (PinnedSectionListView) findViewById(R.id.listView);
 		listView.setVerticalScrollBarEnabled(false);
 		listView.setAdapter(listViewAdapter = new ListAdapter(this));
-		((EditText) findViewById(R.id.search_text)).addTextChangedListener(this);
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
 		{
 			@Override
@@ -179,30 +181,15 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
-		ImageView backIcon = (ImageView) actionBarView.findViewById(R.id.abs__up);
-
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
-
-		backIcon.setImageResource(R.drawable.ic_back);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
+		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 		title.setText(R.string.select_country);
 	}
 
-	private class SearchAdapter extends BaseAdapter
+	private class SearchAdapter extends BaseAdapter implements PinnedSectionListAdapter
 	{
 		private Context mContext;
 
@@ -287,13 +274,20 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		@Override
 		public int getViewTypeCount()
 		{
-			return 1;
+			return 2;
 		}
 
 		@Override
 		public boolean isEmpty()
 		{
 			return searchResult == null || searchResult.size() == 0;
+		}
+
+		@Override
+		public boolean isItemViewTypePinned(int viewType)
+		{
+			// TODO Auto-generated method stub
+			return false;
 		}
 	}
 
@@ -362,21 +356,9 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		}
 
 		@Override
-		public int getItemViewType(int section, int position)
-		{
-			return 0;
-		}
-
-		@Override
 		public int getItemViewTypeCount()
 		{
 			return 1;
-		}
-
-		@Override
-		public int getSectionHeaderViewType(int section)
-		{
-			return 0;
 		}
 
 		@Override
@@ -402,53 +384,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 		}
 	}
 
-	@Override
-	public void afterTextChanged(Editable s)
-	{
-		String query = s.toString().trim().toLowerCase();
-
-		if (!TextUtils.isEmpty(query))
-		{
-			if (!(listView.getAdapter() instanceof SearchAdapter))
-			{
-				listView.setAdapter(searchListViewAdapter);
-				if (android.os.Build.VERSION.SDK_INT >= 11)
-				{
-					listView.setFastScrollAlwaysVisible(false);
-				}
-				listView.setFastScrollEnabled(false);
-				listView.setVerticalScrollBarEnabled(true);
-			}
-			searching = true;
-			filter.filter(query);
-		}
-		else
-		{
-			if ((listView.getAdapter() instanceof SearchAdapter))
-			{
-				searching = false;
-				listView.setAdapter(listViewAdapter);
-				if (android.os.Build.VERSION.SDK_INT >= 11)
-				{
-					listView.setFastScrollAlwaysVisible(true);
-				}
-				listView.setFastScrollEnabled(true);
-				listView.setVerticalScrollBarEnabled(false);
-			}
-		}
-
-	}
-
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count, int after)
-	{
-	}
-
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count)
-	{
-	}
-
+	
 	private class CountryFilter extends Filter
 	{
 		@Override
@@ -484,5 +420,85 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 			searchResult = (ArrayList<Country>) results.values;
 			searchListViewAdapter.notifyDataSetChanged();
 		}
+	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// TODO Auto-generated method stub
+		getMenuInflater().inflate(R.menu.country_select_menu, menu);
+		MenuItem searchMenuItem = menu.findItem(R.id.search);
+		final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+		searchView.clearFocus();
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		searchView.setOnQueryTextListener(onQueryTextListener);
+		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+		{
+
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item)
+			{
+				return true;
+			}
+
+			@Override
+			public boolean onMenuItemActionCollapse(MenuItem item)
+			{
+				searchView.setQuery("", true);
+				return true;
+			}
+		});
+
+		return true;
+	}
+
+	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
+	{
+
+		@Override
+		public boolean onQueryTextSubmit(String query)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean onQueryTextChange(String s)
+		{
+			String query = s.toString().trim().toLowerCase();
+
+			if (!TextUtils.isEmpty(query))
+			{
+				if (!(listView.getAdapter() instanceof SearchAdapter))
+				{
+					listView.setAdapter(searchListViewAdapter);
+					if (android.os.Build.VERSION.SDK_INT >= 11)
+					{
+						listView.setFastScrollAlwaysVisible(false);
+					}
+					listView.setFastScrollEnabled(false);
+					listView.setVerticalScrollBarEnabled(true);
+				}
+				searching = true;
+				filter.filter(query);
+			}
+			else
+			{
+				if ((listView.getAdapter() instanceof SearchAdapter))
+				{
+					searching = false;
+					listView.setAdapter(listViewAdapter);
+					if (android.os.Build.VERSION.SDK_INT >= 11)
+					{
+						listView.setFastScrollAlwaysVisible(true);
+					}
+					listView.setFastScrollEnabled(true);
+					listView.setVerticalScrollBarEnabled(false);
+				}
+			}
+			return true;
+		}
+	};
+	public void onBackPressed() {
+		finish();
 	}
 }

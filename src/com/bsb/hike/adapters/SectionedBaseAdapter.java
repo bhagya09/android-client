@@ -4,7 +4,9 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
-public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implements PinnedHeaderListView.PinnedSectionedHeaderAdapter
+import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
+
+public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implements PinnedSectionListAdapter
 {
 
 	/**
@@ -31,6 +33,11 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 	 * Caches the section count
 	 */
 	private int mSectionCount;
+	
+	protected enum ViewType
+	{
+		SECTION, OTHER;
+	}
 
 	public SectionedBaseAdapter()
 	{
@@ -120,9 +127,9 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 	{
 		if (isSectionHeader(position))
 		{
-			return getItemViewTypeCount() + getSectionHeaderViewType(getSectionForPosition(position));
+			return ViewType.SECTION.ordinal(); 
 		}
-		return getItemViewType(getSectionForPosition(position), getPositionInSectionForPosition(position));
+		return ViewType.OTHER.ordinal();
 	}
 
 	@Override
@@ -200,19 +207,9 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 		return false;
 	}
 
-	public int getItemViewType(int section, int position)
-	{
-		return 0;
-	}
-
 	public int getItemViewTypeCount()
 	{
-		return 1;
-	}
-
-	public int getSectionHeaderViewType(int section)
-	{
-		return 0;
+		return ViewType.values().length;
 	}
 
 	public int getSectionHeaderViewTypeCount()
@@ -252,6 +249,11 @@ public abstract class SectionedBaseAdapter extends BaseFragmentAdapter implement
 		}
 		mSectionCount = getSectionCount();
 		return mSectionCount;
+	}
+	
+	public boolean isItemViewTypePinned(int viewType)
+	{
+		return viewType == ViewType.SECTION.ordinal();
 	}
 
 }

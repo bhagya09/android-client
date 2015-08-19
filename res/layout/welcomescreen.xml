@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="@string/welcome_to"
-            android:textColor="@color/welcome_blue"
+            android:textColor="@color/blue_hike"
             android:textSize="14sp" />
 
         <ImageView
@@ -36,7 +36,7 @@
             android:layout_below="@id/welcome_text"
             android:layout_centerHorizontal="true"
             android:orientation="horizontal"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="12dp"
             android:src="@drawable/lbl_hike_messenger" />
     </LinearLayout>
     
@@ -74,14 +74,15 @@
 	            android:text="@string/get_started"
 	            android:textColor="@drawable/signup_btn_text"
 	            android:textSize="15sp"
-	            android:textStyle="bold|italic" />
+	            android:textStyle="bold|italic"
+	            android:textAllCaps="false" />
 
 	        <LinearLayout
 	            android:id="@+id/loading_layout"
 	            android:layout_width="180dp"
 	            android:layout_height="48dp"
 	            android:layout_centerHorizontal="true"
-	            android:background="@drawable/signup_btn_loading"
+	            android:background="@color/blue_hike_status_bar_m"
 	            android:gravity="center"
 	            android:orientation="horizontal"
 	            android:visibility="invisible" >

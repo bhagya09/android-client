@@ -29,11 +29,11 @@
 
         <ImageView
             android:id="@+id/add_participant"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="11dp"
-            android:src="@drawable/ic_invite_to_hike"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:scaleType="centerInside"
+            android:paddingLeft="1.5dp"
+            android:src="@drawable/ic_invite_to_hike_profile"
             android:visibility="gone" />
     </LinearLayout>
     
@@ -45,7 +45,7 @@
 		android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:gravity="center"
-        android:layout_marginRight="8dp"   
+        android:layout_marginRight="16dp"   
         android:visibility="gone"
         android:id="@+id/owner_indicator" >
         
@@ -62,7 +62,7 @@
         android:textStyle="normal"/>
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/details_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -74,52 +74,38 @@
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="Rishabh Sharma"
-            android:textColor="@color/updates_text"
-            android:textSize="16sp"
-            android:textStyle="bold|italic" />
-        
-        <LinearLayout 
-            android:id="@+id/unsaved_cont_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="2dp"
-            android:visibility="gone"
-            >
+            android:text="Rishabh Sharma" 
+            android:layout_centerVertical="true"
+            style="@style/SettingsHeaderItemTextView"/>
         
              <View
-                android:id="@+id/divider"
-                android:layout_width="0.5dp"
-                android:layout_height="14dp"
-                android:layout_centerVertical="true"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="6dp"
-                android:layout_marginRight="6dp"
-                android:background="@color/updates_text" />
+                 android:id="@+id/divider"
+                 android:layout_width="1dp"
+                 android:layout_height="14dp"
+                 android:layout_centerVertical="true"
+                 android:layout_marginLeft="6dp"
+                 android:layout_marginRight="6dp"
+                 android:layout_toRightOf="@id/name"
+                 android:background="@color/home_screen_list_divider"
+                 android:visibility="gone" />
              
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/telephone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
+            android:layout_toRightOf="@id/divider"
             android:text="Rishabh Sharma"
-            android:textColor="@color/updates_text"
-            android:textSize="14sp"
-            android:textStyle="italic" />
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            style="@style/SettingsHeaderSubItemTextView" />
         
-        </LinearLayout>
-
-    </LinearLayout>
-
+    </RelativeLayout>
 
     <View
         style="@style/Divider"
+        android:background="@drawable/setting_list_divider"
         android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
