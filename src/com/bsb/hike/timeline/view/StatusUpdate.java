@@ -569,15 +569,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		moodParent.setClickable(true);
 		GridView moodPager = (GridView) findViewById(R.id.mood_pager);
 
-		parentLayout.post(new Runnable()
+		parentLayout.postDelayed(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				moodParent.setVisibility(View.VISIBLE);				
+				if (moodParent != null)
+					moodParent.setVisibility(View.VISIBLE);
 			}
-		});
-		
+		}, mActivityTask.keyboardShowing ? 300 : 0); // TODO Remove hack. Use Shareable popup layout
+
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 		int columns = portrait ? 4 : 6;
 

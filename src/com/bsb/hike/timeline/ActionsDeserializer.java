@@ -79,7 +79,7 @@ public class ActionsDeserializer implements JsonDeserializer<TimelineActions>
 							for (int j = 0; j < likesArraySize; j++)
 							{
 								String msisdn = likesArray.get(j).getAsJsonObject().get("mdn").getAsString();
-								ContactInfo contact = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+								ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, true);
 								if (contact != null)
 								{
 									contactInfoList.add(contact);

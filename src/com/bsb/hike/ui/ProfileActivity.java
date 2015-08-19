@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,11 +37,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -111,6 +111,7 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.IntentFactory;
@@ -3460,5 +3461,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		this.mLocalMSISDN = msisdn;
 		super.setLocalMsisdn(mLocalMSISDN);
 	}
-
+	
+	@Override
+	protected void setStatusBarColor(Window window, String color)
+	{
+		StatusBarColorChanger.setStatusBarColor(window, Color.BLACK);
+	}
 }
