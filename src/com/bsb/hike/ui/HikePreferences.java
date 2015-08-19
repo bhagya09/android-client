@@ -1419,7 +1419,7 @@ private void setupToolBar(int titleRes){
 		}
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
 			lp.setTitleColor(R.color.blue_hike);
-		lp.setTitle(lp.getTitle() + " : " + lp.getEntry());
+		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
 		lp.setNegativeButtonText(R.string.CANCEL);
 	}
 
