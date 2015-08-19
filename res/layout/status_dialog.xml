@@ -102,7 +102,7 @@
                 android:src="@drawable/ic_remove_photo" />
         </RelativeLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/emoji_container"
             android:layout_width="match_parent"
             android:layout_height="@dimen/emoticon_pallete"
@@ -111,7 +111,7 @@
             android:visibility="gone" >
 
             <include layout="@layout/emoticon_layout" />
-        </LinearLayout>
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/mood_parent_status"
