@@ -78,6 +78,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.notifications.HikeNotification;
@@ -2345,11 +2346,68 @@ public class MqttMessagesManager
 			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
 		}
-		
+
+		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
+		{
+			boolean autoRecommendationTurningOn = data.getBoolean(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED);
+
+			// Turn on auto-suggestion of stickers
+			if (autoRecommendationTurningOn)
+			{
+				// Remove previous observations for turning off, if any
+				StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
+				{
+					StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+
+					StickerSearchManager.getInstance().setShowAutoPopupSettingOn(true);
+				}
+			}
+			// Trigger to turn off auto-suggestion of stickers depending upon pattern found in packet
+			else
+			{
+				int autoRecommendationContinuousRejectionCount = data.optInt(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF, 0);
+
+				// Set turning-off pattern auto-suggestion of stickers, if they are getting rejected
+				if (autoRecommendationContinuousRejectionCount > 0)
+				{
+					int autoRecommendationRejectionPatternCount = data.optInt(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+							StickerSearchConstants.MINIMUM_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT);
+
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF,
+							autoRecommendationContinuousRejectionCount);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+							autoRecommendationRejectionPatternCount);
+
+					StickerSearchManager.getInstance().setShowAutoPopupTurnOffPattern(autoRecommendationContinuousRejectionCount, autoRecommendationRejectionPatternCount);
+				}
+				// Turn off auto-suggestion of stickers, if no pattern is recognized in packet or rejection count is zero (no-tolerance)
+				else
+				{
+					// Remove previous observations for turning off, if any
+					StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+					if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
+					{
+						StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+
+						StickerSearchManager.getInstance().setShowAutoPopupSettingOn(false);
+					}
+				}
+			}
+		}
+
 		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL))
 		{
 			long tagRefreshInterval = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, tagRefreshInterval);
+		}
+
+		if (data.has(HikeConstants.STICKER_RECOMMENDATION_DOWNLOAD_TAGS))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
+			StickerManager.getInstance().downloadDefaultTags(false);
 		}
 
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_CONFIGURATION_DATA))
@@ -2399,6 +2457,7 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.REWARDS_BOT_MSISDN, data.getString(HikeConstants.REWARDS_BOT_MSISDN));
 		}
+
 		if (data.has(HikeConstants.EXTRAS_BOT_MSISDN))
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
@@ -4358,7 +4417,7 @@ public class MqttMessagesManager
 					msisdnSet.add(msisdn);
 					if(!new File(Utils.getProfileImageFileName(msisdn)).exists())
 					{
-						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().getContact(msisdn, true, true).hasCustomPhoto(), false, null, null, null, false,false).startLoadingTask();
+						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().hasIcon(msisdn), false, null, null, null, false,false).startLoadingTask();
 					}
 				}
 				
@@ -4396,14 +4455,20 @@ public class MqttMessagesManager
 				if(iterator.hasNext())
 				{
 					currentMsisdn = iterator.next();
-					Logger.d("tl_ftue", "ftue packet, card on top is from SP "+ currentMsisdn);
+					Logger.d("tl_ftue", "ftue packet, card on top is fav card and from SP "+ currentMsisdn);
 				}
 				
 				//add to new list
 				if(!TextUtils.isEmpty(currentMsisdn))
 				{
 					msisdnSet.add(currentMsisdn);
+					counter = counter + 1;
+					Logger.d("tl_ftue", "ftue packet, card on top is fav card, so inc counter "+ counter);
 				}
+			}
+			else
+			{
+				Logger.d("tl_ftue", "ftue packet, NO CARDS ON TOP ");
 			}
 			
 			//save new list

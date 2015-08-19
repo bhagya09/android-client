@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants.TIME_CODE;
@@ -28,6 +29,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
 
 public class StickerSearchUtility
 {
@@ -35,6 +37,20 @@ public class StickerSearchUtility
 	public static boolean isTestModeForSRModule()
 	{
 		return Utils.isTestMode(HikeConstants.MODULE_STICKER_SEARCH);
+	}
+
+	/* Save setting preference related to sticker recommendation */
+	public static void saveStickerRecommendationSettingsValue(String key, boolean value)
+	{
+		Editor editor = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance()).edit();
+		editor.putBoolean(key, value);
+		editor.commit();
+	}
+
+	/* Get setting preference related to sticker recommendation */
+	public static boolean getStickerRecommendationSettingsValue(String key, boolean defaultvalue)
+	{
+		return PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance()).getBoolean(key, defaultvalue);
 	}
 
 	/* Save the configuration settings received from server for sticker recommendation */

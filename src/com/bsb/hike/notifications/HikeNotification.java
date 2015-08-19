@@ -1565,17 +1565,19 @@ public class HikeNotification
 					return;
 				}
 					
+				ContactInfo info = ContactManager.getInstance().getContact(activityFeed.getActor(), true, true);
+				
 				if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 				{
-					message = context.getString(R.string.dp_like_text);
+					message =  info.getNameOrMsisdn()+ " " +context.getString(R.string.dp_like_text);
 				}
 				else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 				{
-					message = context.getString(R.string.photo_like_text);
+					message = info.getNameOrMsisdn() + " " +context.getString(R.string.photo_like_text);
 				}
 				else if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 				{
-					message = context.getString(R.string.status_update_like_text);
+					message = info.getNameOrMsisdn() + " " +context.getString(R.string.status_update_like_text);
 				}
 				else
 				{

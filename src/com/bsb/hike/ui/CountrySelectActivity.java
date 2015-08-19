@@ -181,19 +181,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
@@ -510,4 +498,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity
 			return true;
 		}
 	};
+	public void onBackPressed() {
+		finish();
+	}
 }
