@@ -189,9 +189,12 @@ public class ActionsDataModel
 		if (contactInfo != null)
 		{
 			// Check isAlready present
-			if (contactInfoList.contains(contactInfo))
+			for (ContactInfo cInfo : contactInfoList)
 			{
-				return false;
+				if (cInfo.getMsisdn().equals(contactInfo.getMsisdn()))
+				{
+					return false;
+				}
 			}
 
 			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding coninfo name: " + contactInfo.getName());
