@@ -510,7 +510,7 @@ public class ConnectionManager implements ChannelListener
 	private void connectToWifi(String ssid)
 	{
 		
-		if(TextUtils.isEmpty(ssid))
+		if(TextUtils.isEmpty(ssid) ||  (ssid.startsWith("0x") || ssid.startsWith("0X")) || ssid.contains("unknown ssid") || ssid.contains("none"))
 		{
 			return ;
 		}
@@ -520,7 +520,9 @@ public class ConnectionManager implements ChannelListener
 			wifiManager.setWifiEnabled(true);
 		}
 		
-		List<WifiConfiguration> list= wifiManager.getConfiguredNetworks();
+		Logger.d("OfflineMANAGER", "WILL BE GETTING LIST" + System.currentTimeMillis()+ " trying ssid " +ssid);
+		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+		Logger.d("OfflineMANAGER", "LIST RECEIVED"+System.currentTimeMillis());
 		
 		if (list != null)
 		{
@@ -540,10 +542,10 @@ public class ConnectionManager implements ChannelListener
 				if (currentSSID.equals(ssid))
 				{
 					
-					Logger.d("OfflineManager", "Disconnecting existing ssid");
+					Logger.d("OfflineManager", "Disconnecting existing ssid" + System.currentTimeMillis());
 					wifiManager.disconnect();
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
-					Logger.d("OfflineManager", "Enabled network" + status);
+					Logger.d("OfflineManager", "Enabled network" + status + System.currentTimeMillis());
 					connectedNetworkId = wifiConfiguration.networkId;
 					wifiManager.reconnect();
 					Logger.d("OfflineManager", "trying to connect! to ");
@@ -615,6 +617,10 @@ public class ConnectionManager implements ChannelListener
 			{
 				forgetWifiNetwork();
 				connectToWifi(currentnetId);
+//				if(!TextUtils.isEmpty(currentnetId))
+//				{
+//					startWifi();
+//				}
 			}
 		}
 		
