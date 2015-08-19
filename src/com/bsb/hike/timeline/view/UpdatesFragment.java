@@ -205,7 +205,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								for (String msisdn : params)
 								{
 									// TODO Improve for multiple msisdns
-									if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+									if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn,true,true)))
 									{
 										friendMsisdns = params;
 										break;
@@ -415,8 +415,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					}
 				}
 			});
-
-			
 			
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
@@ -452,10 +450,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							Pair<Set<String>, Integer> pair = (Pair<Set<String>, Integer>)object;
 							HashSet<String> msisdnSet = (HashSet<String>) pair.first;
 							int counter = pair.second;
-							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and count "+ counter);
+							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and final count is "+ counter);
 							Iterator<String> iterator = msisdnSet.iterator();
 							int i=0;
-							while(iterator.hasNext() && i < counter + 1)
+							while(iterator.hasNext() && i < counter)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
 								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
@@ -728,18 +726,17 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0));
+				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
 				
 				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
 				
 				if (cJoinedSM != null)
 				{
 					statusMessages.add(cJoinedSM);
-				}
-				
-				if(cJoinedSM.getTimeStamp() == 0)
-				{
-					joinConInfo.httpGetHikeJoinTime();
+					if(cJoinedSM.getTimeStamp() == 0)
+					{
+						joinConInfo.httpGetHikeJoinTime();
+					}
 				}
 				
 				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);

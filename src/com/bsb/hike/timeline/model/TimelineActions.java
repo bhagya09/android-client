@@ -140,7 +140,7 @@ public class TimelineActions
 		if (actions == null)
 		{
 			ArrayList<ContactInfo> cInfoList = new ArrayList<ContactInfo>();
-			cInfoList.add(ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(feedData.getActor()));
+			cInfoList.add(ContactManager.getInstance().getContact(feedData.getActor(), true, true));
 			addActionDetails(feedData.getObjID(), cInfoList, actionType, 1, feedData.getObjType());
 		}
 		else
