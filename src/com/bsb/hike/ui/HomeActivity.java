@@ -616,6 +616,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				toggleMenuItems(menu, false);
 				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
 				showingSearchModeActionBar = true;
+				if (hiButton != null)
+				{
+					hiButton.clearAnimation();
+				}
+				
 				return true;
 			}
 
@@ -1458,6 +1463,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void run()
 				{
+					/**
+					 * If we are showing search mode action bar, we should not show tip/anim
+					 */
+					if (showingSearchModeActionBar)
+					{
+						return;
+					}
+					
 					if(hiButton != null)
 					{
 						hiButton.startAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
