@@ -4451,14 +4451,20 @@ public class MqttMessagesManager
 				if(iterator.hasNext())
 				{
 					currentMsisdn = iterator.next();
-					Logger.d("tl_ftue", "ftue packet, card on top is from SP "+ currentMsisdn);
+					Logger.d("tl_ftue", "ftue packet, card on top is fav card and from SP "+ currentMsisdn);
 				}
 				
 				//add to new list
 				if(!TextUtils.isEmpty(currentMsisdn))
 				{
 					msisdnSet.add(currentMsisdn);
+					counter = counter + 1;
+					Logger.d("tl_ftue", "ftue packet, card on top is fav card, so inc counter "+ counter);
 				}
+			}
+			else
+			{
+				Logger.d("tl_ftue", "ftue packet, NO CARDS ON TOP ");
 			}
 			
 			//save new list
