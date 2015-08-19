@@ -63,6 +63,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
@@ -205,7 +206,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 			// TODO think of a better place to do this without breaking animation
 			mStatusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
-
+			
 			msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
 
 			isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
@@ -255,6 +256,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 		else
 		{
+			StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 			showImage();
 			fullTextView.setVisibility(View.GONE);
 		}
@@ -287,27 +289,13 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			if (isShowCountEnabled || mStatusMessage.isMyStatusUpdate())
 			{
 				// Set count
-				if (isTextStatusMessage)
+				if (msisdns.size() == 1)
 				{
-					if (msisdns.size() == 1)
-					{
-						textViewCounts.setText(String.format(getString(R.string.post_like), msisdns.size()));
-					}
-					else
-					{
-						textViewCounts.setText(String.format(getString(R.string.post_likes), msisdns.size()));
-					}
+					textViewCounts.setText(String.format(getString(R.string.num_like), msisdns.size()));
 				}
 				else
 				{
-					if (msisdns.size() == 1)
-					{
-						textViewCounts.setText(String.format(getString(R.string.photo_like), msisdns.size()));
-					}
-					else
-					{
-						textViewCounts.setText(String.format(getString(R.string.photo_likes), msisdns.size()));
-					}
+					textViewCounts.setText(String.format(getString(R.string.num_likes), msisdns.size()));
 				}
 			}
 			else
@@ -629,7 +617,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					{
 
 						Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-								.getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false, false);
+								.getContact(msisdns.get(position),true,true), false, false);
 						// Add anything else to the intent
 						intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

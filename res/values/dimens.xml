@@ -232,4 +232,8 @@
 	<dimen name="md_divider_height">1dp</dimen>
 	<dimen name="tick_padding_bottom">3dp</dimen>
 	<dimen name="clock_padding_bottom">2dp</dimen>
+	<dimen name="bottom_padding_pin_view">150dp</dimen>
+	
+	<dimen name="overflow_menu_top_margin_non_overlay">-52dp</dimen>
+	<dimen name="overflow_menu_top_margin_overlay">4dp</dimen>
 </resources>
