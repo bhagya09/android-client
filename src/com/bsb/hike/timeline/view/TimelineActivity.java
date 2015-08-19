@@ -441,6 +441,12 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		else 
 		{
 			getSupportFragmentManager().popBackStack();
+			ActionBar actionBar = getSupportActionBar();
+			View actionBarView = actionBar.getCustomView();
+
+			TextView title = (TextView) actionBarView.findViewById(R.id.title);
+			title.setText(R.string.timeline);	
+			
 		}
 
 	}
