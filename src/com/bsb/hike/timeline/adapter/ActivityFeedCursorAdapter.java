@@ -189,21 +189,27 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(mContext.getString(R.string.status_update_like_text) +" " +statusMessage.getText()+". "+ Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
+				viewHolder.largeProfilePic.setVisibility(View.GONE);
+
 			}
 			else if (viewType == IMAGE || viewType == TEXT_IMAGE)
 			{
 				viewHolder.mainInfo.setText(mContext.getString(R.string.photo_like_text) +". " + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
+				viewHolder.largeProfilePic.setVisibility(View.VISIBLE);
+				ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
+				viewHolder.largeProfilePic.setTag(imageViewerInfo);
+				profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
+
 			}
 			else
 			{
 				viewHolder.mainInfo.setText(mContext.getString(R.string.dp_like_text) +". " + Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()));
+				viewHolder.largeProfilePic.setVisibility(View.VISIBLE);
+				ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
+				viewHolder.largeProfilePic.setTag(imageViewerInfo);
+				profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
+
 			}
-
-			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(statusMessage.getMappedId(), null, true);
-
-			viewHolder.largeProfilePic.setTag(imageViewerInfo);
-
-			profileImageLoader.loadImage(statusMessage.getMappedId(), viewHolder.largeProfilePic, false, false, false, statusMessage);
 
 			viewHolder.parent.setTag(statusMessage);
 			viewHolder.parent.setOnClickListener(onProfileInfoClickListener);

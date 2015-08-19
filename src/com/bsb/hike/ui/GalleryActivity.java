@@ -553,15 +553,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 		actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 		actionBarView.setBackgroundResource(android.R.color.transparent);
-		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
+	
 		TextView titleView = (TextView) actionBarView.findViewById(R.id.title);
 
 		titleView.setText(getString(R.string.photo_gallery_choose_pic));

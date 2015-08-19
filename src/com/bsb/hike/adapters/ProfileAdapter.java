@@ -87,16 +87,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private boolean hasCustomPhoto;
 	
-	private static final int SHOW_CONTACTS_STATUS = 0;
-	
-	private static final int NOT_A_FRIEND = 1;
-
-	private static final int UNKNOWN_ON_HIKE = 2;
-
-	private static final int REQUEST_RECEIVED = 3;
-
-	private static final int UNKNOWN_NOT_ON_HIKE = 4;
-	
 	private int sizeOfThumbnail;
 
 	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile)

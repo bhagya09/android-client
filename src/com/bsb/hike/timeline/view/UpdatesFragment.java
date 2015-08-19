@@ -83,8 +83,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
-			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE };
-
+			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED };
+	
 	private String[] friendMsisdns = new String[]{};
 
 	private RecyclerView mUpdatesList;
@@ -205,7 +205,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								for (String msisdn : params)
 								{
 									// TODO Improve for multiple msisdns
-									if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+									if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn,true,true)))
 									{
 										friendMsisdns = params;
 										break;
@@ -415,8 +415,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					}
 				}
 			});
-
-			
 			
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
@@ -452,10 +450,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							Pair<Set<String>, Integer> pair = (Pair<Set<String>, Integer>)object;
 							HashSet<String> msisdnSet = (HashSet<String>) pair.first;
 							int counter = pair.second;
-							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and count "+ counter);
+							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and final count is "+ counter);
 							Iterator<String> iterator = msisdnSet.iterator();
 							int i=0;
-							while(iterator.hasNext() && i < counter + 1)
+							while(iterator.hasNext() && i < counter)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
 								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
@@ -488,6 +486,27 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 				});
 			}
+		}
+		else if (HikePubSub.HIKE_JOIN_TIME_OBTAINED.equals(type) || HikePubSub.USER_JOIN_TIME_OBTAINED.equals(type))
+		{
+			if (!mShowProfileHeader || mMsisdnArray == null || mMsisdnArray.isEmpty())
+			{
+				return;
+			}
+
+			Pair<String, Long> msisdnHikeJoinTimePair = (Pair<String, Long>) object;
+
+			String msisdn = msisdnHikeJoinTimePair.first;
+			long hikeJoinTime = msisdnHikeJoinTimePair.second;
+
+			if (!msisdn.equals(mMsisdnArray.get(0)))
+			{
+				return;
+			}
+
+			ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true, false).setHikeJoinTime(hikeJoinTime);
+
+			notifyVisibleItems();
 		}
 	}
 
@@ -707,11 +726,19 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			//User joined status message
 			if(mShowProfileHeader)
 			{
-				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true));
+				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
+				
+				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
+				
 				if (cJoinedSM != null)
 				{
 					statusMessages.add(cJoinedSM);
+					if(cJoinedSM.getTimeStamp() == 0)
+					{
+						joinConInfo.httpGetHikeJoinTime();
+					}
 				}
+				
 				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
 			}
 
@@ -892,6 +919,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
+			if(!Utils.isPhotosEditEnabled())
+			{
+				galleryFlags = galleryFlags|GalleryActivity.GALLERY_CROP_IMAGE;
+			}
+			
 			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, getNewImagePostFilePath());
 			startActivityForResult(galleryPickerIntent, TIMELINE_POST_IMAGE_REQ);
 			break;
