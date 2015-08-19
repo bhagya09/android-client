@@ -1111,7 +1111,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusMessage.getMappedId());
 				hikeDialog.dismiss();
 			}
 
