@@ -211,7 +211,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 				}
 				break;
 			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
-				showActiveCallButtons();
+				if (voipService.getCallStatus() != CallStatus.INCOMING_CALL)
+					showActiveCallButtons();
 				break;
 			default:
 				super.handleMessage(msg);

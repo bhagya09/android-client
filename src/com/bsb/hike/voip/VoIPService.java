@@ -140,7 +140,6 @@ public class VoIPService extends Service {
 	
 	// Buffer queues
 	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<>(VoIPConstants.MAX_SAMPLES_BUFFER);
-	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> processedRecordedSamples      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> playbackBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> conferenceBroadcastPackets      = new LinkedBlockingQueue<>();
@@ -1171,7 +1170,6 @@ public class VoIPService extends Service {
 		// Empty the queues
 		conferenceBroadcastPackets.clear();
 		recordedSamples.clear();
-		buffersToSend.clear();
 		processedRecordedSamples.clear();
 		playbackBuffersQueue.clear();
 		recordBuffer.clear();
@@ -1294,34 +1292,6 @@ public class VoIPService extends Service {
 		startRecordingAndPlayback(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
-	
-	private void startSendingBuffersToEncode() {
-		bufferSendingThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				VoIPClient client = getClient();
-				if (client == null) {
-					Logger.e(tag, "Could not find client.");
-					return;
-				}
-				
-				while (keepRunning) {
-					VoIPDataPacket dp;
-					try {
-						// We will only get a buffer to send if a conference is not active. 
-						dp = buffersToSend.take();
-						client.addSampleToEncode(dp); 
-					} catch (InterruptedException e1) {
-						break;
-					}
-				}
-			}
-		}, "BUFFER_ALLOCATOR_THREAD");
-		bufferSendingThread.start();
-	}
-
 	
 	private synchronized void startRecordingAndPlayback(String msisdn) {
 
@@ -1514,9 +1484,9 @@ public class VoIPService extends Service {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				
 				while (keepRunning == true) {
-					VoIPDataPacket dpencode;
+					VoIPDataPacket dpRaw;
 					try {
-						dpencode = recordedSamples.take();
+						dpRaw = recordedSamples.take();
 					} catch (InterruptedException e) {
 						break;
 					}
@@ -1527,7 +1497,7 @@ public class VoIPService extends Service {
 
 					// AEC
 					if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
-						int ret = solicallAec.processMic(dpencode.getData());
+						int ret = solicallAec.processMic(dpRaw.getData());
 
 						if (useVADToReduceData) {
 							if (ret == 0) 
@@ -1538,10 +1508,7 @@ public class VoIPService extends Service {
 					} else
 						aecMicSignal = true;
 					
-					if (buffersToSend.size() > VoIPConstants.MAX_SAMPLES_BUFFER)
-						continue;
-
-					recordBuffer.write(dpencode.getData());
+					recordBuffer.write(dpRaw.getData());
 
 					// Pass the recorded samples to the client objects
 					// so they can be compressed and sent
@@ -1551,23 +1518,16 @@ public class VoIPService extends Service {
 						VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 						dp.setData(pcmData);
 						dp.setVoice(speechDetected);
-						
-						// If we are hosting a conference, then the recorded sample must be
-						// mixed with all the other incoming audio
-						if (hostingConference()) {
-							// Maintain a tight queue
-							if (processedRecordedSamples.size() < 2)
-								processedRecordedSamples.add(dp);
-						} else {
-							buffersToSend.add(dp);
-						}
+						if (processedRecordedSamples.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+							processedRecordedSamples.add(dp);
+						else
+							Logger.w(tag, "Recorded buffers queue is full.");
 					}
 				}
 			}
 		}, "PROCESS_RECORDED_SAMPLES_THREAD");
 		
 		processRecordedSamplesThread.start();
-		startSendingBuffersToEncode();
 	}
 	
 	private void startPlayBack() {
@@ -1662,10 +1622,10 @@ public class VoIPService extends Service {
 		}, "PLAY_BACK_THREAD");
 		
 		playbackThread.start();
-		processDecodedSamples();
+		startAudioProcessor();
 	}
 	
-	private void processDecodedSamples() {
+	private void startAudioProcessor() {
 		
 		// This is how often we feed PCM samples to the speaker. 
 		// Should be equal to 60ms for a frame size of 2880. (2880 / 48000)
@@ -1694,7 +1654,7 @@ public class VoIPService extends Service {
 
 				if (keepRunning) {
 
-					// Retrieve decoded samples from all clients and combine into one
+					// Retrieve decoded samples from all clients and combine into one for playback
 					VoIPDataPacket finalDecodedSample = null;
 					synchronized (clients) {
 						for (VoIPClient client : clients.values()) {
@@ -1709,11 +1669,7 @@ public class VoIPService extends Service {
 									// We have to combine samples
 									finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
 								}
-							} else {
-								// If we have no audio data from a client
-								// then assume that it has stopped speaking.
-								client.setSpeaking(false);
-							}
+							} 
 						}
 					}
 
@@ -1775,6 +1731,13 @@ public class VoIPService extends Service {
 								client.addSampleToEncode(clientDp); 
 							}
 						}
+					} else {
+						// We are in a one-to-one call, 
+						// so just send our recorded stream to the other client.
+						VoIPDataPacket dp = processedRecordedSamples.poll();
+						VoIPClient client = getClient();
+						if (dp != null && client != null)
+							client.addSampleToEncode(dp);
 					}
 
 					if (hostingConference())
@@ -1816,7 +1779,7 @@ public class VoIPService extends Service {
 					int compressedDataLength = 0;
 
 					while (keepRunning) {
-						
+						Logger.d(tag, "Running.");
 						// If it's an audio packet, then compress it
 						if (broadcastPacket.getType() == PacketType.AUDIO_PACKET) {
 							// Compress the audio frame
