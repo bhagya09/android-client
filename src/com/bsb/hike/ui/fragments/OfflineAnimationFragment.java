@@ -178,8 +178,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onFinish()
 			{
-				hideTimer();
-				updateAnimationText(connectionInfo, getResources().getString(R.string.disconnecting_offline),false);
+					hideTimer();
+					updateAnimationText(connectionInfo, getResources().getString(R.string.disconnecting_offline),false);
 			}
 		};
 				
@@ -212,9 +212,13 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationEnd(Animation animation)
 			{
-				source.setText("");
-				source.setVisibility(View.VISIBLE);
-				source.startAnimation(appearAnimation);
+				if(isAdded())
+				{
+					source.setText("");
+					source.setVisibility(View.VISIBLE);
+					source.startAnimation(appearAnimation);
+				}
+				
 			}
 		});
 		
@@ -224,8 +228,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationStart(Animation animation)
 			{
-				
-				source.setText(message);
+				if(isAdded())
+				{
+					source.setText(message);
+				}
 			}
 			
 			@Override
@@ -237,9 +243,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onAnimationEnd(Animation animation)
 			{
-				if(startTimer)
+				if(isAdded())
 				{
-					timer.start();
+					if(startTimer)
+					{
+						timer.start();
+					}
 				}
 			}
 		});
@@ -623,6 +632,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		{
 			return;
 		}
+		connectionInfo.setText(getResources().getString(R.string.retry_connection));
 		showRetryIcon(R.drawable.cross_retry);
 		cancelRotationAnimation();
 		hideAndStopTimer();
@@ -630,8 +640,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		secondMessage.setVisibility(View.INVISIBLE);
 		removePostedMessages();
 		showRetryButton();
-		connectionInfo.setText(getResources().getString(R.string.retry_connection));
-		
 		retryButton.setOnClickListener(new OnClickListener()
 		{
 			
@@ -869,7 +877,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	protected void hideTimer()
 	{
-		secondMessage.setVisibility(View.GONE);
+		if(isAdded())
+		{
+			secondMessage.setVisibility(View.GONE);
+		}
 	}
 	
 	public void hideRetryButton()

@@ -1662,8 +1662,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}else if ( presentIntent.hasExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT))
 		{
 			ArrayList<FileTransferData> fileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
+			ArrayList<FileTransferData> offlinefileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
+			
 			ArrayList<ConvMessage> multipleMessageList = new ArrayList<ConvMessage>();
 			ArrayList<ConvMessage> offlineMessageList = new ArrayList<ConvMessage>();
+			
 			String jsonString = presentIntent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
 			try
 			{
@@ -1731,7 +1734,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
-
+						
 						if (Utils.isPicasaUri(filePath))
 						{
 							FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(filePath), hikeFileType, ((ContactInfo)arrayList.get(0)).getMsisdn(), ((ContactInfo)arrayList.get(0)).isOnhike());
@@ -1739,8 +1742,24 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						else
 						{
 							FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, arrayList);
-							if(fileData!=null){
-								fileTransferList.add(fileData);
+							if (fileData != null && fileData.file != null)
+							{
+								if ((HikeConstants.MAX_FILE_SIZE > fileData.file.length()))
+								{
+									fileTransferList.add(fileData);
+									offlinefileTransferList.add(fileData);
+								}
+								else
+								{
+									if (offlineContact != null)
+									{
+										offlinefileTransferList.add(fileData);
+									}
+									FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
+											"Compose - InitialiseFileTransfer - Max size reached.");
+									Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
+								}
+
 							}
 						}
 						
@@ -1763,8 +1782,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							initialiseContactTransfer(contactJson,arrayList);
 							if(offlineContact!=null)
 							{
-								  //To Do how to check if is OnHike()
-								  ConvMessage offlineConvMessage = OfflineUtils.createOfflineContactConvMessage(offlineContact.getMsisdn(),contactJson,true);
+								  ConvMessage offlineConvMessage = OfflineUtils.createOfflineContactConvMessage(offlineContact.getMsisdn(),contactJson,offlineContact.isOnhike());
 								  offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 								  offlineMessageList.add(offlineConvMessage);
 							}
@@ -1858,9 +1876,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					controller.sendMultiMessages(offlineMessageList,offlineContact.getMsisdn());
 				}
-				if(offlineContact!=null  && !fileTransferList.isEmpty())
+				if(offlineContact!=null  && !offlinefileTransferList.isEmpty())
 				{
-					controller.sendFile(fileTransferList, offlineContact.getMsisdn());
+					controller.sendFile(offlinefileTransferList, offlineContact.getMsisdn());
 				}
 				
 				if(multipleMessageList.size() ==0 || arrayList.size()==0){
