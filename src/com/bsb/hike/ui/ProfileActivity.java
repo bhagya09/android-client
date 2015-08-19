@@ -38,6 +38,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -111,6 +112,7 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.IntentFactory;
@@ -3465,5 +3467,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		this.mLocalMSISDN = msisdn;
 		super.setLocalMsisdn(mLocalMSISDN);
+	}
+	
+	@Override
+	protected void setStatusBarColor(Window window, String color)
+	{
+		StatusBarColorChanger.setStatusBarColor(window, Color.BLACK);
 	}
 }
