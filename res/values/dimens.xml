@@ -74,7 +74,7 @@
     <!-- Text size for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_text_size">6dp</dimen>
     <!-- Top margin for action bar subtitles -->
-    <dimen name="ab__action_bar_subtitle_top_margin">-3dp</dimen>
+    <dimen name="ab__action_bar_subtitle_top_margin">2dp</dimen>
     <!-- Bottom margin for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_bottom_margin">5dip</dimen>
     <dimen name="ab__status_bar_height">24dp</dimen>
