@@ -2066,7 +2066,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						 */
 						movedFromEmptyToNonEmpty();
 					}
-					else if(displayedConversations.size() == 2)
+					else if(displayedConversations.size() == 4)
 					{
 						StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 					}
@@ -3202,7 +3202,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				movedFromEmptyToNonEmpty();
 			}
-			else if (displayedConversations.size() == 3)
+			else if (displayedConversations.size() == 5)
 			{
 				StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 			}
