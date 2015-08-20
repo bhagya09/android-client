@@ -668,7 +668,9 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
 
-		String name = ContactManager.getInstance().getName(mStatusMessage.getMsisdn(), true);
+		ContactInfo statusMsisdnCInfo = ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(), true, false);
+		
+		String name = statusMsisdnCInfo.getNameOrMsisdn();
 
 		if (name == null)
 		{

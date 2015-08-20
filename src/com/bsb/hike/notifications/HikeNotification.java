@@ -1548,7 +1548,9 @@ public class HikeNotification
 
 		final int icon = returnSmallIcon();
 
-		String name = ContactManager.getInstance().getName(activityFeed.getActor());
+		ContactInfo actorContactInfo = ContactManager.getInstance().getContact(activityFeed.getActor(),true,false);
+		
+		String name = actorContactInfo.getNameOrMsisdn();
 
 		final String key = TextUtils.isEmpty(name) ? activityFeed.getActor() : name;
 
