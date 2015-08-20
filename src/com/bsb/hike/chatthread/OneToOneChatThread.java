@@ -1582,20 +1582,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		switch (OfflineController.getInstance().getOfflineState())
 		{
 		case CONNECTED:
-			/*Toast.makeText(activity, getResources().getString(R.string.connected_previously,
-					OfflineUtils.getConnectedMsisdn()), Toast.LENGTH_SHORT).show();*/
-			showPreviouslyConnectedorConnectingTip(true);
+			if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			{
+				showPreviouslyConnectedorConnectingTip(true,true);
+			}
 			break;
 		case CONNECTING:
-			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			if(!OfflineUtils.isConnectingToSameMsisdn(msisdn))
 			{
-				Toast.makeText(activity, getResources().getString(R.string.connecting_previously_to_same_msisdn,
-						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
-			}
-			else
-			{
-				Toast.makeText(activity, getResources().getString(R.string.connecting_previously,
-						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
+				showPreviouslyConnectedorConnectingTip(true,true);
 			}
 			break;
 		case DISCONNECTING:
@@ -1609,15 +1604,20 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 			Logger.d("OfflineAnimationFragment",msisdn);
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
-			showToast(R.string.scan_process_started);
+			//showToast(R.string.scan_process_started);
 			offlineController.connectAsPerMsisdn(msisdn);
 			setupOfflineUI();
 			break;
 		}
 	}
 	
-
-	private void showPreviouslyConnectedorConnectingTip(boolean isConnected)
+	/**
+	 * 
+	 * @param isConnected True if device is already connected to some other device
+	 * @param startNewConnection True indicates whether we need to start a new connection if user cancels the ongoing connection 
+	 */
+	
+	private void showPreviouslyConnectedorConnectingTip(boolean isConnected,boolean startNewConnection)
 	{
 
 		FragmentManager fragmentManager = activity.getSupportFragmentManager();
@@ -1642,7 +1642,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				return;
 			}
-			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn,null,1);
+			if(startNewConnection)
+			{
+				offlineDisconnectFragment = offlineDisconnectFragment.newInstance(msisdn,connectingMsisdn,0);
+			}
+			else
+			{
+				offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn,null,1);
+			}
+			
 		}
 		offlineDisconnectFragment.setConnectionListner(this);
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -3072,7 +3080,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 			else if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
 			{
-				showPreviouslyConnectedorConnectingTip(false);
+				showPreviouslyConnectedorConnectingTip(false,false);
 			}
 			else
 			{
