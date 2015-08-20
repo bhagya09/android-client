@@ -1568,7 +1568,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="actionbar_activity_feed_title">Activity</string>
 	<string name="photo_like_text">Liked your photo</string>
 	<string name="dp_like_text">Liked your profile photo</string>
-	<string name="status_update_like_text">Liked your post</string>
+	<string name="status_update_like_text">Liked this post</string>
 	<string name="activity_feed_actionbar_title">Activity Feed</string>
 	<string name="posted_photo">Posted a photo</string>
 	<string name="love_failed">No internet. Please try again later.</string>
