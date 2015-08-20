@@ -84,7 +84,7 @@ public class StickerSearchHostManager
 
 	private volatile ArrayList<Integer> mWordEndIndicesInCurrentText = null;
 
-	private TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
+	private TIME_CODE mMomentCode;
 
 	private ArrayList<String> mPreviousWords;
 
