@@ -129,7 +129,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 
 			Logger.d(HikeConstants.TIMELINE_LOGS, "onPost Execute, The no of feeds are " + result.getCount());
 			
-			if(result != null && result.getCount() > 0)
+			if(result != null)
 			{
 				if (activityFeedCardAdapter == null)
 				{
@@ -161,7 +161,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 			}
 			else
 			{
-				getActivity().onBackPressed();
+				Logger.d(HikeConstants.TIMELINE_LOGS, "DB call for Feed return 0 result " + result.getCount());
 			}
 		}
 
