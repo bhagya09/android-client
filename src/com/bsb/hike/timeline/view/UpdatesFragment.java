@@ -537,7 +537,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							while(iterator.hasNext() && i < counter)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
-								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
+										&& !Utils.getUserContactInfo(false).getMsisdn().equals(info.getMsisdn()))
 								{
 									mFtueFriendList.add(info);
 									i++;
@@ -868,7 +869,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				String id = iterator.next();
 				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
-				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
+						&& !c.getMsisdn().equals(Utils.getUserContactInfo(false).getMsisdn()))
 				{
 					Logger.d("tl_ftue", id + " is not a frnd so adding for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
 					finalContactLsit.add(c);
