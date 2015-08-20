@@ -61,7 +61,7 @@ public class Logger
 	{
 		if (AppConfig.SHOW_LOGS)
 		{
-			if (HikeConstants.TIMELINE_LOGS.equals(tag) || HikeConstants.TIMELINE_COUNT_LOGS.equals(tag))
+			/*if (HikeConstants.TIMELINE_LOGS.equals(tag) || HikeConstants.TIMELINE_COUNT_LOGS.equals(tag))
 			{
 				// THIS IS TEMPORARY. REMOVE BEFORE MARKET LAUNCH TODO TODO TODO
 				String dest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+ tag + Calendar.getInstance().get(Calendar.DAY_OF_MONTH) + ".txt";
@@ -93,7 +93,7 @@ public class Logger
 
 					}
 				}
-			}
+			}*/
 			Log.d(tag, msg);
 		}
 	}

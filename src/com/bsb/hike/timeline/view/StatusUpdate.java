@@ -197,17 +197,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		avatar.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(selfMsisdn, false));
 
 		mIconImageLoader.loadImage(selfMsisdn, avatar, false, true, false);
-		mIconImageLoader.setSuccessfulImageLoadingListener(new SuccessfulImageLoadingListener()
-		{
-			@Override
-			public void onSuccessfulImageLoaded(ImageView imageView)
-			{
-				if (imageView.getDrawable() != null)
-				{
-					ChatThreadUtils.applyMatrixTransformationToImageView(imageView.getDrawable(), imageView);
-				}
-			}
-		});
 
 		parentLayout.setOnSoftKeyboardListener(this);
 
@@ -280,6 +269,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (!shouldShowMoodsButton())
 		{
 			addMoodLayout.setVisibility(View.GONE);
+		}
+	}
+	
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		if (statusImage != null && statusImage.getDrawable() != null)
+		{
+			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
 		}
 	}
 
@@ -723,6 +722,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int[] dontEatThisTouch = {R.id.emoji_btn};
 		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
 		mEmoticonPicker.setOnDismissListener(this);
+		mEmoticonPicker.setDisableExtraPadding(true);
 	}
 	
 	private void setEmoticonButtonSelected(boolean selected)

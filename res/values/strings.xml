@@ -1582,7 +1582,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="favourites">Favorites</string>
 	<string name="clear_timeline_dialog">Are you sure you want to clear your timeline?</string>
 	<string name="like">Like</string>
-	<string name="liked_it">You liked this</string>
+	<string name="liked_it">Liked</string>
 	<string name="status_hint">What are you upto?</string>
 	<string name="status_hint_image">Something about this photo</string>
 	<string name="add_mood">Add Mood</string>
@@ -1599,8 +1599,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
     <string name="send_logs">Send logs</string>
     <string name="like_this">Like</string>
-    <string name="num_likes">%1$s likes</string>
-    <string name="num_like">%1$s like</string>
+    <string name="num_likes">%1$s Likes</string>
+    <string name="num_like">%1$s Like</string>
     <string name="dialog_btn_yes">YES</string>
     <string name="dialog_btn_no">NO</string>
     <string name="timeline_ftue_show_me">SHOW ME</string>
@@ -1649,4 +1649,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="no_places_found">No places found</string>
     <string name="SAVE">SAVE</string>
     <string name="add_member_menu">Add a member</string>
+    <string name="JUST_ONCE">JUST ONCE</string>
+    <string name="ALWAYS">ALWAYS</string>
+    <string name="UNLINK_ACCOUNT">RESET ACCOUNT</string>
+    <string name="UNLINK">UNLINK</string>
+    <string name="UPDATE_APP">UPDATE</string>
 </resources>

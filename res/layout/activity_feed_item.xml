@@ -10,7 +10,7 @@
 
     <RelativeLayout
         android:id="@+id/avatar_container"
-        android:layout_width="52dp"
+        android:layout_width="60dp"
         android:layout_height="45dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
@@ -32,8 +32,8 @@
 
         <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/love_status"
-            android:layout_width="12dp"
-            android:layout_height="11dp"
+            android:layout_width="19dp"
+            android:layout_height="18dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:scaleType="fitXY"
@@ -50,10 +50,10 @@
 
     <LinearLayout
         android:id="@+id/content"
-        android:layout_toLeftOf="@+id/profile_pic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/profile_pic"
         android:layout_toRightOf="@+id/avatar_container"
         android:orientation="vertical" >
 
@@ -74,10 +74,10 @@
             android:id="@+id/main_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:text="Added you as a friend"
-            android:maxLines="3"
             android:layout_marginBottom="3.5dp"
+            android:includeFontPadding="false"
+            android:maxLines="3"
+            android:text="Added you as a friend"
             android:textColor="@color/black_45"
             android:textSize="12sp"
             android:textStyle="normal" />
