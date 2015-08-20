@@ -8093,7 +8093,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 							ContactInfo contactInfo;
 							try
 							{
-								contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(myList.getString(i));
+								contactInfo = ContactManager.getInstance().getContact(myList.getString(i), true, true);
 
 								if (contactInfo != null)
 								{

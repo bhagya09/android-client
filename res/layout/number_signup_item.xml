@@ -81,7 +81,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="3dp"
                 android:layout_gravity="top"
                 android:src="@drawable/ic_country" />
 
@@ -127,7 +127,7 @@
                     android:gravity="bottom"
                     android:inputType="number"
                     android:maxLength="4"
-                    android:paddingLeft="45dp"
+                    android:paddingLeft="40dp"
                     android:selectAllOnFocus="true"
                     android:singleLine="true"
                     android:text="9134"
@@ -139,8 +139,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@id/country_picker"
                     android:layout_alignBottom="@id/country_picker"
-                    android:layout_marginLeft="32dp"
-                    android:paddingLeft="5dp"
+                    android:layout_marginLeft="30dp"
                     android:gravity="top"
                     android:layout_centerInParent="true"
                     android:text="+"

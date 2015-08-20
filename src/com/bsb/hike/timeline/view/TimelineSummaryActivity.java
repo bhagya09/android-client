@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,7 +13,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.text.util.Linkify;
@@ -29,7 +27,6 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
@@ -41,6 +38,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -55,6 +54,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.timeline.adapter.DisplayContactsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -69,6 +69,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -96,8 +97,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	private String[] timelineSummaryPubSubListeners = { HikePubSub.ICON_CHANGED };
 
 	private View fadeScreen;
-
-	private final String TAG = TimelineSummaryActivity.class.getSimpleName();
 
 	private boolean hasCustomImage;
 
@@ -216,6 +215,19 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			mActivityState.msisdnsList = msisdns;
 			mActivityState.isLikedByMe = isLikedByMe;
 		}
+		
+		JSONObject metadataSU = new JSONObject();
+		try
+		{
+			metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_SUMMARY_OPEN);
+			metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+			metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 
 		if (msisdns == null)
 		{
@@ -250,8 +262,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			Linkify.addLinks(fullTextView, Linkify.ALL);
 			imageView.setVisibility(View.GONE);
 			fadeScreen.setBackgroundColor(Color.WHITE);
-			textViewCounts.setTextColor(Color.BLACK);
-			fullTextView.setTextColor(Color.BLACK);
+			textViewCounts.setTextColor(0x3D000000);
+			fullTextView.setTextColor(0x99000000);
 			checkBoxLove.setButtonDrawable(R.drawable.btn_love_selector);
 		}
 		else
@@ -349,7 +361,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		contentContainer.animate().setDuration(ANIM_DURATION).scaleX(1).scaleY(1).alpha(1f);
 
-		float alphaFinal = isTextStatusMessage ? 1f : 0.95f;
+		float alphaFinal = isTextStatusMessage ? 1f : 1f;
 
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, alphaFinal);
 		bgAnim.setDuration(ANIM_DURATION);
@@ -507,7 +519,22 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onClick(View v)
 	{
-		onBackPressed();
+		if (Utils.isSelfMsisdn(mStatusMessage.getMsisdn()))
+		{
+			Intent intent2 = new Intent(TimelineSummaryActivity.this, ProfileActivity.class);
+			intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+			startActivity(intent2);
+		}
+		else
+		{
+
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
+					.getContact(mStatusMessage.getMsisdn(),true,true), false, false);
+			// Add anything else to the intent
+			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+		}
 	}
 
 	public interface DisplayPictureEditListener
@@ -598,6 +625,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			final HikeDialog dialog = new HikeDialog(TimelineSummaryActivity.this, R.style.Theme_CustomDialog, LIKE_CONTACTS_DIALOG);
 			dialog.setContentView(R.layout.display_contacts_dialog);
 			dialog.setCancelable(true);
+			dialog.setCanceledOnTouchOutside(true);
 
 			ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
 			DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns);
@@ -617,7 +645,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					{
 
 						Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-								.getContactInfoFromPhoneNoOrMsisdn(msisdns.get(position)), false, false);
+								.getContact(msisdns.get(position),true,true), false, false);
 						// Add anything else to the intent
 						intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -626,18 +654,20 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					mActivityState.dialogShown = false;
 				}
 			});
-			ImageButton cancelButton = (ImageButton) dialog.findViewById(R.id.btn_cancel);
-			cancelButton.setOnClickListener(new View.OnClickListener()
-			{
-				@Override
-				public void onClick(View arg0)
-				{
-					dialog.dismiss();
-					mActivityState.dialogShown = false;
-				}
-			});
 			dialog.show();
 			mActivityState.dialogShown = true;
+			JSONObject metadataSU = new JSONObject();
+			try
+			{
+				metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_SUMMARY_LIKES_DIALOG_OPEN);
+				metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+				metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+			}
+			catch (JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 		}
 	}
 
@@ -656,15 +686,15 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		actionBarView = LayoutInflater.from(this).inflate(R.layout.chat_thread_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		View contactInfoContainer = actionBarView.findViewById(R.id.contact_info);
 
 		TextView contactName = (TextView) contactInfoContainer.findViewById(R.id.contact_name);
 
 		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
 
-		String name = ContactManager.getInstance().getName(mStatusMessage.getMsisdn(), true);
+		ContactInfo statusMsisdnCInfo = ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(), true, false);
+		
+		String name = statusMsisdnCInfo.getNameOrMsisdn();
 
 		if (name == null)
 		{

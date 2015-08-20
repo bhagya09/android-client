@@ -115,7 +115,12 @@ public class ActionsDataModel
 
 	public int getCount()
 	{
-		return count;
+		if(contactInfoList == null)
+		{
+			return 0;
+		}
+		
+		return contactInfoList.size();
 	}
 
 	public ActionsDataModel.ActionTypes getType()
@@ -126,18 +131,6 @@ public class ActionsDataModel
 	public void setType(ActionsDataModel.ActionTypes type)
 	{
 		this.type = type;
-	}
-
-	public void setCount(int count)
-	{
-		if (count < 0)
-		{
-			this.count = 0;
-		}
-		else
-		{
-			this.count = count;
-		}
 	}
 
 	public LinkedHashSet<ContactInfo> getContactInfoList()
@@ -164,18 +157,23 @@ public class ActionsDataModel
 			throw new IllegalArgumentException("addContact(argContactInfo) : input ContactInfo cannot be null");
 		}
 
-		if (contactInfoList == null)
+		boolean isAdded = true;
+		
+		for(ContactInfo contact:argContactInfo)
 		{
-			contactInfoList = new LinkedHashSet<ContactInfo>();
+			boolean cAdd = addContact(contact.getMsisdn());
+			if(!cAdd)
+			{
+				isAdded = cAdd;
+			}
 		}
-
-		return contactInfoList.addAll(argContactInfo);
+		return isAdded;
 	}
 	
 	public boolean addContact(String msisdn)
 	{
-		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding: "+msisdn);
-		
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding: " + msisdn);
+
 		if (TextUtils.isEmpty(msisdn))
 		{
 			throw new IllegalArgumentException("addContact(argContactInfo) : input msisdn cannot be null");
@@ -190,19 +188,23 @@ public class ActionsDataModel
 
 		if (!msisdn.equals(contactInfo.getMsisdn()))
 		{
-			contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(msisdn);
+			contactInfo = ContactManager.getInstance().getContact(msisdn,true,true);
 		}
-		
+
 		if (contactInfo != null)
 		{
-			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding coninfo name: "+contactInfo.getName());
-			boolean isAdded = contactInfoList.add(contactInfo);
-			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding "+(isAdded?"issuccess":"failed"));
-			if (isAdded)
+			// Check isAlready present
+			for (ContactInfo cInfo : contactInfoList)
 			{
-				setCount(contactInfoList.size());
+				if (cInfo.getMsisdn().equals(contactInfo.getMsisdn()))
+				{
+					return false;
+				}
 			}
 
+			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding coninfo name: " + contactInfo.getName());
+			boolean isAdded = contactInfoList.add(contactInfo);
+			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "adding " + (isAdded ? "issuccess" : "failed"));
 			return isAdded;
 		}
 		return false;
@@ -231,13 +233,7 @@ public class ActionsDataModel
 				break;
 			}
 		}
-
 		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS, "isRemoved: " + isRemoved);
-		
-		if (isRemoved)
-		{
-			setCount(contactInfoList.size());
-		}
 		return isRemoved;
 	}
 
