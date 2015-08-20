@@ -142,21 +142,15 @@ public class ActivityFeedFragment extends Fragment implements Listener
 					activityFeedCardAdapter.swapCursor(result);
 				}
 
-				/**
-				 * Added this check as to ensure that this call for updating read status only when screen is shown to user i.e in post execute, fragment is Added and visible
-				 */
-				if (isVisible())
-				{
-					UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
+				UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
 
-					if (Utils.isHoneycombOrHigher())
-					{
-						updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-					}
-					else
-					{
-						updateActivityFeedTask.execute();
-					}
+				if (Utils.isHoneycombOrHigher())
+				{
+					updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				}
+				else
+				{
+					updateActivityFeedTask.execute();
 				}
 			}
 			else
