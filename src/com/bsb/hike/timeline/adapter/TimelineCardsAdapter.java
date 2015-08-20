@@ -1272,9 +1272,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				try
 				{
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_SHOW_ME_CLICKED);
-					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
-					metadata.put(HikeConstants.LogEvent.OS_VERSION, Build.VERSION.RELEASE);
-					metadata.put(HikeConstants.MSISDN, Utils.getUserContactInfo(false).getMsisdn());
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
 				}
 				catch (JSONException e)
@@ -1313,10 +1310,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				try
 				{
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_GOT_IT_CLICKED);
-					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
-					metadata.put(HikeConstants.MSISDN, Utils.getUserContactInfo(false).getMsisdn());
-					metadata.put(HikeConstants.LogEvent.OS_VERSION, Build.VERSION.RELEASE);
-					
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
 				}
 				catch (JSONException e)
