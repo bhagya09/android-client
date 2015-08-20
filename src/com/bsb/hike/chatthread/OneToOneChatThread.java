@@ -15,7 +15,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -81,6 +83,8 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
@@ -844,10 +848,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void onOfflineConnection(String message)
 	{
-		setLastSeen(message);
-		showNetworkError(ChatThreadUtils.checkNetworkError());
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
-		activity.invalidateOptionsMenu();
+			setLastSeen(message);
+			activity.invalidateOptionsMenu();
+			showNetworkError(ChatThreadUtils.checkNetworkError());
 	}
 
 	private void onOfflineDisconnection()
@@ -855,7 +858,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		hideLastSeenText();
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		activity.updateActionBarColor(getCurrentlTheme().headerBgResId());
 		showCallIcon();
 		activity.invalidateOptionsMenu();
@@ -3256,14 +3258,18 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		//TODO  - Handle Animation
-		if(offlineAnimationFragment!=null)
+		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
-			offlineAnimationFragment.connectedToMsisdn(msisdn);
+			if(offlineAnimationFragment!=null)
+			{
+				offlineAnimationFragment.connectedToMsisdn(connectedDevice);
+			}
+			sendUIMessage(OFFLINE_CONNECTED,getString(R.string.connection_established));
+			changeChannel(true,false);
+			clearAttachmentPicker();
 		}
-		sendUIMessage(OFFLINE_CONNECTED,getString(R.string.connection_established));
-		changeChannel(true,false);
-		clearAttachmentPicker();
+		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
 	}
 
 	private void clearAttachmentPicker() {
@@ -3286,7 +3292,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		
+		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+        
 		Logger.d("OfflineManager", "disconnect Called " + errorCode + " time- " + System.currentTimeMillis());
 		switch (errorCode)
 		{
