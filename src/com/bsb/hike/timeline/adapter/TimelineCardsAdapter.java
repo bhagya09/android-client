@@ -391,8 +391,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 			boolean isMyProfile = mUserMsisdn.equals(headerMsisdn);
+			
+			ContactInfo mHeaderConInfo = ContactManager.getInstance().getContact(headerMsisdn, true, false);
 
-			viewHolder.name.setText(isMyProfile ? HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, "Me") : ContactManager.getInstance().getName(headerMsisdn));
+			viewHolder.name.setText(isMyProfile ? HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, "Me") :mHeaderConInfo.getNameOrMsisdn());
 
 			if (!isMyProfile)
 			{
