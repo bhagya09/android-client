@@ -15,7 +15,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -81,6 +83,8 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
@@ -844,10 +848,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void onOfflineConnection(String message)
 	{
+		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 		setLastSeen(message);
-		showNetworkError(ChatThreadUtils.checkNetworkError());
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		activity.invalidateOptionsMenu();
+		showNetworkError(ChatThreadUtils.checkNetworkError());
+		
 	}
 
 	private void onOfflineDisconnection()
@@ -855,7 +860,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		hideLastSeenText();
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		activity.updateActionBarColor(getCurrentlTheme().headerBgResId());
 		showCallIcon();
 		activity.invalidateOptionsMenu();
@@ -1362,6 +1366,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			setupSMSToggleLayout();
 		}
+		//Changing actionbar color for offline mode
+		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		{
+			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+		}
 	}
 
 	/**
@@ -1580,24 +1589,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		switch (OfflineController.getInstance().getOfflineState())
 		{
 		case CONNECTED:
-			/*Toast.makeText(activity, getResources().getString(R.string.connected_previously,
-					OfflineUtils.getConnectedMsisdn()), Toast.LENGTH_SHORT).show();*/
-			showPreviouslyConnectedorConnectingTip(true);
+			if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			{
+				showPreviouslyConnectedorConnectingTip(true,true);
+			}
 			break;
 		case CONNECTING:
-			if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
+			if(!OfflineUtils.isConnectingToSameMsisdn(msisdn))
 			{
-				Toast.makeText(activity, getResources().getString(R.string.connecting_previously_to_same_msisdn,
-						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
-			}
-			else
-			{
-				Toast.makeText(activity, getResources().getString(R.string.connecting_previously,
-						OfflineUtils.getConnectingMsisdn()), Toast.LENGTH_SHORT).show();
+				showPreviouslyConnectedorConnectingTip(false,true);
 			}
 			break;
 		case DISCONNECTING:
-			Toast.makeText(activity, getResources().getString(R.string.disconnecting_offline),Toast.LENGTH_SHORT).show();
+			showToast(R.string.disconnecting_offline);
 			break;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
@@ -1607,15 +1611,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 			Logger.d("OfflineAnimationFragment",msisdn);
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
-			showToast(R.string.scan_process_started);
 			offlineController.connectAsPerMsisdn(msisdn);
 			setupOfflineUI();
 			break;
 		}
 	}
 	
-
-	private void showPreviouslyConnectedorConnectingTip(boolean isConnected)
+	/**
+	 * 
+	 * @param isConnected True if device is already connected to some other device
+	 * @param startNewConnection True indicates whether we need to start a new connection if user cancels the ongoing connection 
+	 */
+	
+	private void showPreviouslyConnectedorConnectingTip(boolean isConnected,boolean startNewConnection)
 	{
 
 		FragmentManager fragmentManager = activity.getSupportFragmentManager();
@@ -1640,7 +1648,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				return;
 			}
-			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn,null,1);
+			if(startNewConnection)
+			{
+				offlineDisconnectFragment = offlineDisconnectFragment.newInstance(msisdn,connectingMsisdn,0);
+			}
+			else
+			{
+				offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn,null,1);
+			}
+			
 		}
 		offlineDisconnectFragment.setConnectionListner(this);
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -1746,7 +1762,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void showNetworkError(boolean isNetworkError) 
 	{
-		if(isNetworkError && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		if(isNetworkError && ( !OfflineUtils.isConnectedToSameMsisdn(msisdn) && !OfflineUtils.isConnectingToSameMsisdn(msisdn)))
 		{
 			animateNetworkCard();
 		}
@@ -3070,7 +3086,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 			else if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
 			{
-				showPreviouslyConnectedorConnectingTip(false);
+				showPreviouslyConnectedorConnectingTip(false,false);
 			}
 			else
 			{
@@ -3256,14 +3272,18 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		//TODO  - Handle Animation
-		if(offlineAnimationFragment!=null)
+		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
-			offlineAnimationFragment.connectedToMsisdn(msisdn);
+			if(offlineAnimationFragment!=null)
+			{
+				offlineAnimationFragment.connectedToMsisdn(connectedDevice);
+			}
+			sendUIMessage(OFFLINE_CONNECTED,getString(R.string.connection_established));
+			changeChannel(true,false);
+			clearAttachmentPicker();
 		}
-		sendUIMessage(OFFLINE_CONNECTED,getString(R.string.connection_established));
-		changeChannel(true,false);
-		clearAttachmentPicker();
+		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
 	}
 
 	private void clearAttachmentPicker() {
@@ -3286,7 +3306,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		
-		
+		NotificationManager notificationManager = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+        
 		Logger.d("OfflineManager", "disconnect Called " + errorCode + " time- " + System.currentTimeMillis());
 		switch (errorCode)
 		{

@@ -377,17 +377,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void connectAsPerMsisdn(final String msisdn)
 	{
-		OFFLINE_STATE offlineState = OfflineController.getInstance().getOfflineState();
-		if (offlineState == OFFLINE_STATE.CONNECTING)
-		{
-			HikeMessengerApp.getInstance().showToast("We are already connecting");
-			return;
-		}
-		if(offlineState == OFFLINE_STATE.CONNECTED)
-		{
-			HikeMessengerApp.getInstance().showToast("We are already connected.Kindly disconnect first and then reconnect");
-			return;
-		}
+
 		timeTakenToEstablishConnection=System.currentTimeMillis();
 		connectinMsisdn = msisdn;
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTING);

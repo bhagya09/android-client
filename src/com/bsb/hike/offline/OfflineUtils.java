@@ -614,20 +614,20 @@ public class OfflineUtils
 		return null;
 	}
 
-	public static String getErrorString(ERRORCODES e)
+	public static int getErrorStringId(ERRORCODES e)
 	{
 		if (e == ERRORCODES.FILE_NOT_EXISTS)
-			return "File not found";
+			return R.string.file_expire;
 		else if (e == ERRORCODES.NOT_CONNECTED)
-			return "You are not connected. Kindly connect and re-try.";
+			return R.string.already_connected_offline;
 		else if (e == ERRORCODES.NOT_ENOUGH_MEMORY)
-			return "The recepient does not have enough memory to receive the file";
+			return R.string.not_enough_space_receiver;
 		else if (e == ERRORCODES.SD_CARD_NOT_PRESENT)
-			return "The recepient does not have SD card to store the file";
+			return R.string.no_sdcard_receiver;
 		else if (e == ERRORCODES.SD_CARD_NOT_WRITABLE)
-			return "External storage on recepient is READ_ONLY";
+			return R.string.receiver_cannot_receive;
 		else
-			return "An unknown error occured";
+			return R.string.unknown_error;
 	}
 
 	public static JSONObject createInfoPkt(long connectID)
@@ -696,12 +696,12 @@ public class OfflineUtils
 	{
 		if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTED))	
 		{
-			HikeMessengerApp.getInstance().showToast(context.getString(R.string.disconnect_offline));
+			//HikeMessengerApp.getInstance().showToast(context.getString(R.string.disconnect_offline));
 			OfflineController.getInstance().shutDown();
 		}
 		else if(OfflineController.getInstance().getOfflineState().equals(OFFLINE_STATE.CONNECTING))
 		{
-			HikeMessengerApp.getInstance().showToast(context.getString(R.string.connection_cancelled));	
+			//HikeMessengerApp.getInstance().showToast(context.getString(R.string.connection_cancelled));	
 			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.CONNECTION_CANCELLED));
 		}
 		

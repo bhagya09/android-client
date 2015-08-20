@@ -446,7 +446,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	@Override
 	public void onError(SenderConsignment senderConsignment, ERRORCODES errorCode) 
 	{
-		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorString(errorCode));
+		HikeMessengerApp.getInstance().showToast(OfflineUtils.getErrorStringId(errorCode));
 		
 		switch(errorCode)
 		{
@@ -458,11 +458,15 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		case NOT_ENOUGH_MEMORY:
 		case SD_CARD_NOT_PRESENT:
 		case SD_CARD_NOT_WRITABLE:
-			try {
+			try 
+			{
+				
 				fileManager.removeFileAndUpdateView(OfflineUtils.getMsgId(new JSONObject(senderConsignment.getMessage())));
-			} catch (JSONException e) {
-				HikeMessengerApp.getInstance().showToast("JSONException dude... Ask the other guy to send proper message");
-				e.printStackTrace();
+			}
+			catch (JSONException e) 
+			{
+				//HikeMessengerApp.getInstance().showToast("JSONException dude... Ask the other guy to send proper message");
+				Logger.e(TAG,"Json exception");
 			}
 			break;
 		default:

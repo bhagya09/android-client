@@ -49,6 +49,7 @@ import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineParameters;
+import com.bsb.hike.offline.OfflineSessionTracking;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
@@ -618,7 +619,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				@Override
 				public void run()
 				{
-					updateUIOnDisconnect();
+					if(OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.DISCONNECTING &&
+							OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.DISCONNECTED)
+					{
+						updateUIOnDisconnect();
+					}
+					
 				}
 			});
 			break;
@@ -742,7 +748,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 						{
 							if (isAdded())
 							{
-								((ChatThreadActivity) getActivity()).updateActionBarColor(new ColorDrawable(Color.BLACK));
 								closeFragment();
 							}
 						}
