@@ -622,12 +622,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				@Override
 				public void run()
 				{
-					if(OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.DISCONNECTING &&
-							OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.DISCONNECTED)
-					{
-						updateUIOnDisconnect();
-					}
-					
+					updateUIOnDisconnect();
 				}
 			});
 			break;
