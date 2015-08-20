@@ -574,7 +574,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
 
 				viewHolder.actionsLayout.setVisibility(View.VISIBLE);
-
 				break;
 			case FRIEND_REQUEST_ACCEPTED:
 			case USER_ACCEPTED_FRIEND_REQUEST:
@@ -1711,6 +1710,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (object != null && object instanceof String)
 			{
 				removeStatusUpdate((String) object);
+				Message emptyMessage = Message.obtain();
+				emptyMessage.arg1 = UpdatesFragment.MSG_DELETE;
+				handleUIMessage(emptyMessage);
 			}
 		}
 	}
