@@ -81,6 +81,7 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -1774,6 +1775,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
 					}
 					catch(JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
+					
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OPEN);
+						if (Utils.getNotificationCount(accountPrefs, false) > 0)
+						{
+							metadataSU.put(AnalyticsConstants.EVENT_SOURCE, HikeConstants.LogEvent.TIMELINE_WITH_RED_DOT);
+						}
+
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
 					{
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}

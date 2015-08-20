@@ -319,7 +319,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 	}
 
-	private String getPostType(StatusMessage statusMessage)
+	public static String getPostType(StatusMessage statusMessage)
 	{
 		switch (statusMessage.getStatusMessageType())
 		{

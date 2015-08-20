@@ -47,6 +47,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.AccountUtils;
@@ -274,6 +275,17 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 								{
 									HikeConversationsDatabase.getInstance().clearTable(DBConstants.STATUS_TABLE);
 									HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_WIPE, null);
+									JSONObject metadataSU = new JSONObject();
+									try
+									{
+										metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTIONS);
+										metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTION_CLEAR);
+										HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+									}
+									catch (JSONException e)
+									{
+										Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+									}
 								}
 							}, 0);
 							if (hikeDialog != null && hikeDialog.isShowing())
@@ -303,11 +315,33 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 					Intent intent = new Intent(TimelineActivity.this, PeopleActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTIONS);
+						metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTION_FAV);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 					break;
 				case R.string.my_profile:
 					Intent intent2 = new Intent(TimelineActivity.this, ProfileActivity.class);
 					intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 					startActivity(intent2);
+					JSONObject metadataSU2 = new JSONObject();
+					try
+					{
+						metadataSU2.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTIONS);
+						metadataSU2.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTION_MY_PROFILE);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU2);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 					break;
 				}
 			}
