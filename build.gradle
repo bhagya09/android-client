@@ -20,6 +20,7 @@ android {
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
         targetSdkVersion 17
+        multiDexEnabled = true
     }
     lintOptions {
         lintConfig file("lint.xml")
