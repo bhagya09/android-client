@@ -138,6 +138,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
 				if (!voipService.isAudioRunning()) {
 					VoIPClient clientPartner = voipService.getPartnerClient();
+					if (clientPartner == null)
+						break;
 					if (clientPartner.isInitiator())
 						setupCalleeLayout();
 					else
