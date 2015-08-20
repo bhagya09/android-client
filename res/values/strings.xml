@@ -1516,7 +1516,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
-	<string name="scan_free_hike">Scan Hike Direct</string>
+	<string name="scan_free_hike">Hike Direct</string>
 	<string name="connection_established">Hike Direct Connected</string>
 	<string name="awaiting_response">Awaiting Response</string>
 	<string name="connection_establishing">Establishing Connection ...</string>
@@ -1682,4 +1682,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="delete_account_description">This will delete all your messages, backup, free SMS and any hike rewards</string>
     <string name="no_places_found">No places found</string>
     <string name="SAVE">SAVE</string>
+    <string name ="already_connected_offline">You are not connected. Kindly connect and re-try</string>
+    <string name ="not_enough_space_receiver">Receiver does not have enough memory</string>
+    <string name ="no_sdcard_receiver">Receiver does not have SD Card</string>
+    <string name ="receiver_cannot_receive">Receiver cannot recieve file</string>
 </resources>

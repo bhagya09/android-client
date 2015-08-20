@@ -409,11 +409,6 @@ public class OfflineController
 	public void handleRetryButton(ConvMessage convMessage) 
 	{
 		
-		if (OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED) 
-		{
-			HikeMessengerApp.getInstance().showToast("You are not connected..!! Kindly connect.");
-			return;
-		}
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 		Logger.d(TAG, "Hike File type is: "
 				+ hikeFile.getHikeFileType().ordinal());
@@ -454,8 +449,7 @@ public class OfflineController
 		}
 		else 
 		{
-			
-			HikeMessengerApp.getInstance().showToast("File not found.!!");
+			HikeMessengerApp.getInstance().showToast(R.string.file_expire);
 		}
 	}
 	
@@ -493,7 +487,7 @@ public class OfflineController
 
 			
 			Logger.d(TAG, "going to disconnect");
-			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
+			//HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
 
 			hikeConverter.releaseResources();
 

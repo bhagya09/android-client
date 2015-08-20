@@ -1597,11 +1597,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case CONNECTING:
 			if(!OfflineUtils.isConnectingToSameMsisdn(msisdn))
 			{
-				showPreviouslyConnectedorConnectingTip(true,true);
+				showPreviouslyConnectedorConnectingTip(false,true);
 			}
 			break;
 		case DISCONNECTING:
-			Toast.makeText(activity, getResources().getString(R.string.disconnecting_offline),Toast.LENGTH_SHORT).show();
+			showToast(R.string.disconnecting_offline);
 			break;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
@@ -1611,7 +1611,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 			Logger.d("OfflineAnimationFragment",msisdn);
 			OfflineUtils.sendOfflineRequestPacket(msisdn);
-			//showToast(R.string.scan_process_started);
 			offlineController.connectAsPerMsisdn(msisdn);
 			setupOfflineUI();
 			break;
