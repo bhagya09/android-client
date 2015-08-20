@@ -118,6 +118,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public static final int EMPTY_STATE = -10;
 
 	public static final int FILL_STATE = -11;
+
+	public static final int MSG_DELETE = -12;
 	
 	private boolean reachedEnd;
 
@@ -182,6 +184,20 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				{
 					checkIfTimelineEmpty();
 					msg.recycle();
+				}
+				else if (msg.arg1 == UpdatesFragment.MSG_DELETE)
+				{
+					if (actionsView != null && getActivity()!=null)
+					{
+						getActivity().runOnUiThread(new Runnable()
+						{
+							public void run()
+							{
+								actionsView.setX(0);
+								actionsView.setY(0);
+							}
+						});
+					}
 				}
 			}
 		};
@@ -322,10 +338,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		if (!mShowProfileHeader)
 		{
-			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
+			QuickReturnRecyclerViewOnScrollListener quickReturnscrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
 					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(52)).isSnappable(false).build();
 
-			mUpdatesList.addOnScrollListener(scrollListener);
+			mUpdatesList.addOnScrollListener(quickReturnscrollListener);
 			
 			actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
 
