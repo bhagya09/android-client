@@ -115,6 +115,11 @@ public class ActionsDataModel
 
 	public int getCount()
 	{
+		if(contactInfoList == null)
+		{
+			return 0;
+		}
+		
 		return contactInfoList.size();
 	}
 

@@ -5,7 +5,7 @@
         android:id="@+id/conversation_item"
         android:layout_width="match_parent"
         android:layout_height="@dimen/conv_item_height"
-        android:background="@drawable/list_item"
+        android:background="@drawable/conversation_list_item"
         android:orientation="horizontal"
         android:paddingLeft="@dimen/conv_item_padding"
         android:paddingRight="@dimen/conv_item_padding" >
