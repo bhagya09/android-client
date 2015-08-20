@@ -1004,6 +1004,19 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (mContext.getString(R.string.copy).equals(option))
 			{
 				Utils.setClipboardText(mStatusMessage.getText(), mContext);
+				JSONObject metadataSU = new JSONObject();
+				try
+				{
+					metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_CARD_LONG_PRESS);
+					metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+					metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+					metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_LONG_PRESS_COPY);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
 			}
 			else if (mContext.getString(R.string.delete_post).equals(option))
 			{
@@ -1014,6 +1027,19 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				else
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mStatusMessage.getMappedId());
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_CARD_LONG_PRESS);
+						metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+						metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+						metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_LONG_PRESS_DELETE);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 				}
 			}
 			else if (String.format(mContext.getString(R.string.message_person), mStatusMessage.getNotNullName()).equals(option))
@@ -1023,6 +1049,19 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
 							ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(),true,true), false, false);
 					startActivity(intent);
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_CARD_LONG_PRESS);
+						metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+						metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+						metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_LONG_PRESS_MESSAGE);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 				}
 			}
 		}
@@ -1091,6 +1130,20 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					public void onRequestSuccess(Response result)
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusMessage.getMappedId());
+						
+						JSONObject metadataSU = new JSONObject();
+						try
+						{
+							metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_CARD_LONG_PRESS);
+							metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(statusMessage));
+							metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, statusMessage.getMsisdn());
+							metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_LONG_PRESS_DELETE);
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+						}
+						catch (JSONException e)
+						{
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						}
 
 						// update the preference value used to store latest dp change status update id
 						if (statusMessage.getMappedId().equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DP_CHANGE_STATUS_ID, null))
