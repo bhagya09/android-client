@@ -631,7 +631,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			}
 			metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
 			metadata.put(HikeConstants.LogEvent.OS_VERSION, Build.VERSION.RELEASE);
-
+			metadata.put(HikeConstants.MSISDN, Utils.getUserContactInfo(false).getMsisdn());
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ACTIONBAR_CLICK);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
 		}

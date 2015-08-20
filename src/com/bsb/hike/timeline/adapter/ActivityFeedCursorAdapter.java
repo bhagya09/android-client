@@ -212,6 +212,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			}
 
 			viewHolder.parent.setTag(statusMessage);
+			viewHolder.parent.setTag(R.id.activity_feed_item_key, feedDataModel.getActor());
 			viewHolder.parent.setOnClickListener(onProfileInfoClickListener);
 			break;
 		}
@@ -290,7 +291,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 					metadata.put(AnalyticsConstants.EVENT_SOURCE, postType);
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ITEM_CLICKED);
 					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
-								
+					metadata.put(HikeConstants.MSISDN, v.getTag(R.id.activity_feed_item_key));
 					String osVersion = Build.VERSION.RELEASE;
 					metadata.put(HikeConstants.LogEvent.OS_VERSION, osVersion);
 					
@@ -326,10 +327,10 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			return AnalyticsConstants.DISPLAY_PIC;
 
 		case IMAGE:
-			return AnalyticsConstants.POST_UPDATE;
+			return AnalyticsConstants.PICTURE_UPDATE;
 
 		case TEXT_IMAGE:
-			return AnalyticsConstants.POST_UPDATE;
+			return AnalyticsConstants.PICTURE_TEXT;
 
 		case TEXT:
 			return AnalyticsConstants.STATUS_UPDATE;
