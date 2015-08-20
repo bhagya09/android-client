@@ -9,6 +9,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
@@ -44,6 +45,10 @@ public class ProductContentModel implements Parcelable
 	private final String CARD_OBJ = "cardObj";
 
 	private final String LD = "ld";
+	
+	private PopupConfiguration popupConfiguration;
+	
+	private int config;
 
 	private ProductContentModel(JSONObject contentData)
 	{
@@ -69,8 +74,15 @@ public class ProductContentModel implements Parcelable
 		{
 			pid = "";
 		}
+		config = contentData.optInt(HikeConstants.CONFIGURATION, 0);
+		popupConfiguration = new PopupConfiguration(config);
 	}
 
+	public PopupConfiguration getConfig()
+	{
+		return popupConfiguration;
+	}
+	
 	public static ProductContentModel makeProductContentModel(JSONObject contentData)
 	{
 		return new ProductContentModel(contentData);
@@ -211,6 +223,7 @@ public class ProductContentModel implements Parcelable
 		jsonObj.addProperty(IS_FULL_SCREEN, isFullScreen);
 		jsonObj.addProperty(PUSH_TIME,pushTime);
 		jsonObj.addProperty(IS_CANCELLABLE, isCancellable);
+		jsonObj.addProperty(HikeConstants.CONFIGURATION, config);
 		return jsonObj.toString();
 	}
 
@@ -240,7 +253,7 @@ public class ProductContentModel implements Parcelable
 	
 	public boolean isPushReceived()
 	{	
-		if (!TextUtils.isEmpty(getUser()) && !TextUtils.isEmpty(getNotifTitle()))
+		if (!TextUtils.isEmpty(getUser()) && !TextUtils.isEmpty(getNotifTitle()) && endtime>System.currentTimeMillis())
 		{
 			return true;
 		}

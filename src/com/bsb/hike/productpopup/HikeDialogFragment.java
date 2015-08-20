@@ -2,10 +2,13 @@ package com.bsb.hike.productpopup;
 
 import java.lang.ref.WeakReference;
 
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.IInterface;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -103,6 +106,15 @@ public class HikeDialogFragment extends DialogFragment
 			 lp.width=LinearLayout.LayoutParams.MATCH_PARENT;
 			Logger.i("HeightAnim", "set height given in card is =" + minHeight);
 			mmWebView.setLayoutParams(lp);
+		}
+		if (mmModel.getData() instanceof ProductContentModel)
+		{
+			ProductContentModel model = (ProductContentModel) mmModel.getData();
+
+			if (model.getConfig().showInPortraitOnly())
+			{
+				getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
 		}
 		loadingCard.setVisibility(View.VISIBLE);
 		return view;

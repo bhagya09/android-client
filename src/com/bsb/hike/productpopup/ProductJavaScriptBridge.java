@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -129,6 +130,10 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 
 		if (mHikeDialogFragment != null && mHikeDialogFragment.get() != null)
 		{
+			if (productContentModel != null && productContentModel instanceof ProductContentModel && ((ProductContentModel) productContentModel).getConfig().showInPortraitOnly())
+			{
+				mHikeDialogFragment.get().getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+			}
 			if (mHikeDialogFragment.get().isAdded())
 			{
 				mHikeDialogFragment.get().dismiss();
