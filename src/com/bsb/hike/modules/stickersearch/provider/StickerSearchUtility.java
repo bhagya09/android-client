@@ -296,14 +296,14 @@ public class StickerSearchUtility
 		if (count > 0)
 		{
 			sb = new StringBuilder(count
-					* (HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NO_CHECK.length() + HikeStickerSearchBaseConstants.SYNTAX_NEXT_IMMEDIATE.length())
-					- HikeStickerSearchBaseConstants.SYNTAX_NEXT_IMMEDIATE.length());
+					* (HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NO_CHECK.length() + HikeStickerSearchBaseConstants.SYNTAX_NEXT_WITHOUT_SPACE.length())
+					- HikeStickerSearchBaseConstants.SYNTAX_NEXT_WITHOUT_SPACE.length());
 			int lengthBeforeLastParameter = count - 1;
 
 			for (int i = 0; i < lengthBeforeLastParameter; i++)
 			{
 				sb.append(HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NO_CHECK);
-				sb.append(HikeStickerSearchBaseConstants.SYNTAX_NEXT_IMMEDIATE);
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_NEXT_WITHOUT_SPACE);
 			}
 
 			// Add last parameter syntax
@@ -334,22 +334,22 @@ public class StickerSearchUtility
 			{
 				StringBuilder sb = new StringBuilder(
 						count
-								* (HikeStickerSearchBaseConstants.SYNTAX_START.length() + condition.length() + HikeStickerSearchBaseConstants.SYNTAX_END.length() + HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT
+								* (HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN.length() + condition.length() + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE.length() + HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT
 										.length()) - HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT.length());
 				int lengthBeforeLastSubCondition = count - 1;
 
 				for (int i = 0; i < lengthBeforeLastSubCondition; i++)
 				{
-					sb.append(HikeStickerSearchBaseConstants.SYNTAX_START);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN);
 					sb.append(condition);
-					sb.append(HikeStickerSearchBaseConstants.SYNTAX_END);
+					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE);
 					sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
 				}
 
 				// Add last sub-condition
-				sb.append(HikeStickerSearchBaseConstants.SYNTAX_START);
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN);
 				sb.append(condition);
-				sb.append(HikeStickerSearchBaseConstants.SYNTAX_END);
+				sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE);
 
 				syntaxString = sb.toString();
 			}

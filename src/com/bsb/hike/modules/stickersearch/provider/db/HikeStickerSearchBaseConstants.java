@@ -145,11 +145,11 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_NEXT = ", ";
 
-	public static final String SYNTAX_NEXT_IMMEDIATE = ",";
+	public static final String SYNTAX_NEXT_WITHOUT_SPACE = ",";
 
-	public static final String SYNTAX_START = "(";
+	public static final String SYNTAX_BRACKET_OPEN = "(";
 
-	public static final String SYNTAX_END = ")";
+	public static final String SYNTAX_BRACKET_CLOSE = ")";
 
 	public static final String SYNTAX_MATCH_START = " MATCH '";
 
@@ -157,7 +157,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_PREDICATE_MATCH_END = "*'";
 
-	public static final String SYNTAX_IN_OPEN = " IN (";
+	public static final String SYNTAX_IN = " IN ";
 
 	public static final String SYNTAX_SINGLE_PARAMETER_NO_CHECK = "?";
 
@@ -171,7 +171,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_LESS_THAN_OR_EQUALS = "<=";
 
-	public static final String SYNTAX_INDEX_ON = " ON ";
+	public static final String SYNTAX_ON = " ON ";
 
 	// Entity type constants
 	public static final int ENTITY_INIT_MARKER = 0; // Reserved

@@ -142,10 +142,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_TAG_MAPPING_INDEX_ADDED)
 		{
 			// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 2 columns 'Tag Word/ Phrase' and 'Sticker Information' together (described above while creating table)
-			String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX
-					+ HikeStickerSearchBaseConstants.SYNTAX_INDEX_ON + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_START
+			String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_ON
+					+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
 					+ HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
-					+ HikeStickerSearchBaseConstants.SYNTAX_END;
+					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 			db.execSQL(sql);
 		}
 	}
@@ -166,11 +166,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// Type of Entity : Integer [Compulsory], Recognize to know what kind of entity is in above examples
 		// Qualified Data : String [Optional], Data of entity, which can be directly 'imposed over'/'defined for' client user
 		// Unqualified data : String [Optional], Data of entity, which can be used relatively to determine order of probability distribution
-		String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY + HikeStickerSearchBaseConstants.SYNTAX_START
-				+ HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_PRIMARY_KEY + HikeStickerSearchBaseConstants.ENTITY_NAME
-				+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.ENTITY_TYPE + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT
-				+ HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-				+ HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + HikeStickerSearchBaseConstants.SYNTAX_END;
+		String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY
+				+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_PRIMARY_KEY
+				+ HikeStickerSearchBaseConstants.ENTITY_NAME + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.ENTITY_TYPE
+				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
+				+ HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 
 		// Create fixed table: TABLE_STICKER_PACK_CATEGORY_HISTORY
@@ -178,10 +178,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// Chat Story : String [Compulsory], IDs of associated stories put from TABLE_STICKER_TAG_ENTITY
 		// Sticker History : String [Compulsory], History of each sticker falling under given category
 		// Overall History : String [Compulsory], History of given category w.r.t. its own
-		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_PACK_CATEGORY_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_START
-				+ HikeStickerSearchBaseConstants.CATEGORY_ID + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.CATEGORY_CHAT_STORIES
-				+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.CATEGORY_STICKERS_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-				+ HikeStickerSearchBaseConstants.CATEGORY_OVERALL_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + HikeStickerSearchBaseConstants.SYNTAX_END;
+		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_PACK_CATEGORY_HISTORY
+				+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.CATEGORY_ID + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
+				+ HikeStickerSearchBaseConstants.CATEGORY_CHAT_STORIES + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.CATEGORY_STICKERS_HISTORY
+				+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.CATEGORY_OVERALL_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST
+				+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 
 		// Create fixed table: TABLE_STICKER_TAG_MAPPING
@@ -201,7 +202,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// Surrounding Words For Rejection : String [Optional], List of words/ texts with which given tag-sticker is rejected in LRU cycle
 		// Popularity : Integer [Compulsory], Order of tag for given sticker i.e. overall ranking of tag among all tags used with that sticker in terms of usage count
 		// Availability : Integer [Compulsory], Download state of sticker, whether it is available for direct use or need to download
-		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_START
+		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
 				+ HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_PRIMARY_KEY + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
 				+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.STICKER_REGION_FUNCTION_OF_FREQUENCY
 				+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.STICKER_STATE_FUNCTION_OF_FREQUENCY
@@ -216,13 +217,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
-				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_LAST + HikeStickerSearchBaseConstants.SYNTAX_END;
+				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_LAST + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 
 		// Create index on fixed table: TABLE_STICKER_TAG_MAPPING for 2 columns 'Tag Word/ Phrase' and 'Sticker Information' together (described above while creating table)
-		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_INDEX_ON
-				+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
-				+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_END;
+		sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_INDEX + HikeStickerSearchBaseConstants.STICKER_TAG_MAPPING_INDEX + HikeStickerSearchBaseConstants.SYNTAX_ON
+				+ HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE
+				+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
 	}
 
@@ -279,13 +280,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						Logger.v(TAG, "Creating virtual table with name: " + tablesNames[i]);
 
 						sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tablesNames[i] + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4
-								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
+								+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
 								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_NEXT
-								+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY + HikeStickerSearchBaseConstants.SYNTAX_START
-								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
+								+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
+								+ HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE
 								+ HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_REF + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING
-								+ HikeStickerSearchBaseConstants.SYNTAX_START + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_END
-								+ HikeStickerSearchBaseConstants.SYNTAX_END;
+								+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.UNIQUE_ID
+								+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 						mDb.execSQL(sql);
 					}
 				}
@@ -498,7 +499,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		ArrayList<Long> insertedRows = new ArrayList<Long>(newTagsCount);
 		int newTagsInsertionSucceeded = 0;
 		int newTagsInsertionFailed = 0;
-		
+
 		try
 		{
 			mDb.beginTransaction();
@@ -597,7 +598,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		Logger.i(TAG_INSERTION,
 				"Time taken in insertion (into primary table) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
 
-		Logger.v(TAG, "insertStickerTagData(), Existing tags count = " + existingTagsCount + ", New tags count = " + newTagsCount );
+		Logger.v(TAG, "insertStickerTagData(), Existing tags count = " + existingTagsCount + ", New tags count = " + newTagsCount);
 		Logger.v(TAG, "insertStickerTagData(), Newly inserted tags count = " + newTagsInsertionSucceeded + ", Newly abandoned tags count = " + newTagsInsertionFailed);
 
 		if (newTagsInsertionSucceeded > 0)
@@ -678,9 +679,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			try
 			{
-				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID
-						+ HikeStickerSearchBaseConstants.SYNTAX_IN_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(referenceArgs.length)
-						+ HikeStickerSearchBaseConstants.SYNTAX_END, referenceArgs, null, null, null);
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_IN
+						+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(referenceArgs.length)
+						+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE, referenceArgs, null, null, null);
 
 				int count = (c == null) ? 0 : c.getCount();
 
@@ -1118,9 +1119,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			try
 			{
-				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
-						+ HikeStickerSearchBaseConstants.SYNTAX_IN_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(count)
-						+ HikeStickerSearchBaseConstants.SYNTAX_END, Arrays.copyOfRange(args, j, indexLimit), null, null, null);
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null,
+						HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_IN + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
+								+ StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(count) + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE,
+						Arrays.copyOfRange(args, j, indexLimit), null, null, null);
 			}
 			finally
 			{
@@ -1179,8 +1181,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						SQLiteDatabase.releaseMemory();
 					}
 
-					mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_IN_OPEN
-							+ StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(count) + HikeStickerSearchBaseConstants.SYNTAX_END, ids);
+					mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_IN
+							+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(count)
+							+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE, ids);
 
 					j = indexLimit;
 				}
@@ -1273,9 +1276,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							: remainingCount;
 					indexLimit = i + currentCount;
 
-					mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.UNIQUE_ID
-							+ HikeStickerSearchBaseConstants.SYNTAX_IN_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(currentCount)
-							+ HikeStickerSearchBaseConstants.SYNTAX_END, Arrays.copyOfRange(rowIds, i, indexLimit));
+					mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_IN
+							+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(currentCount)
+							+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE, Arrays.copyOfRange(rowIds, i, indexLimit));
 
 					remainingCount -= currentCount;
 					i = indexLimit;
