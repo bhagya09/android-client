@@ -172,13 +172,13 @@ public class GalleryItemLoaderTask implements Runnable{
 							}
 						}while (mRunning && cursor.moveToNext());
 					}
+					mRunning = false;
 					if(pendingItemList != null && pendingItemList.size() > 0)
 					{
 						for (GalleryItem galleryItem : pendingItemList) {
 							listener.onGalleryItemLoaded(galleryItem);
 						}
 					}
-					mRunning = false;
 				}
 				finally
 				{
@@ -186,6 +186,11 @@ public class GalleryItemLoaderTask implements Runnable{
 				}
 			}
 		}
+	}
+
+	public boolean isRunning()
+	{
+		return mRunning;
 	}
 
 	private void addItemInPreferredOrder(GalleryItem galleryItem, List<GalleryItem> pendingItemList)

@@ -128,6 +128,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	GalleryItemLoaderTask galleryItemLoader = null;
 	
 	public static final String GALLERY_RESULT_ACTION = "gal_res_act";
+
+	private View progressLoading;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -259,6 +261,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		galleryItemLoader = new GalleryItemLoaderTask(this, isInsideAlbum, enableCameraPick);
 		galleryItemLoader.startQuery(uri, projection, selection, args, sortBy, editEnabled, editedImages);
+
+		progressLoading = findViewById(R.id.progressLoading);
+		if(!isInsideAlbum)
+			progressLoading.setVisibility(View.VISIBLE);
+		else
+			progressLoading.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -770,6 +778,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		GalleryActivity.this.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				if (!isInsideAlbum && (galleryItemLoader == null || !galleryItemLoader.isRunning()) && progressLoading != null)
+				{
+					progressLoading.setVisibility(View.GONE);
+				}
 				adapter.notifyDataSetChanged();
 			}
 		});
