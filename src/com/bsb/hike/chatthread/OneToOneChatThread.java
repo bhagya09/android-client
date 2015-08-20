@@ -3362,6 +3362,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void onDisconnectionRequest()
 	{
+		sendUIMessage(UPDATE_LAST_SEEN,getResources().getString(R.string.disconnecting_offline));
 		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 	}
 
