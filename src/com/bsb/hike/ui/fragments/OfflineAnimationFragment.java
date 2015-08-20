@@ -742,7 +742,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 						{
 							if (isAdded())
 							{
-								((ChatThreadActivity) getActivity()).updateActionBarColor(new ColorDrawable(Color.BLACK));
 								closeFragment();
 							}
 						}

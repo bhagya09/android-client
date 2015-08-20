@@ -848,9 +848,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void onOfflineConnection(String message)
 	{
-			setLastSeen(message);
-			activity.invalidateOptionsMenu();
-			showNetworkError(ChatThreadUtils.checkNetworkError());
+		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+		setLastSeen(message);
+		activity.invalidateOptionsMenu();
+		showNetworkError(ChatThreadUtils.checkNetworkError());
+		
 	}
 
 	private void onOfflineDisconnection()
@@ -1363,6 +1365,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		if (!mContactInfo.isUnknownContact())
 		{
 			setupSMSToggleLayout();
+		}
+		//Changing actionbar color for offline mode
+		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		{
+			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 		}
 	}
 
