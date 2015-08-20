@@ -368,7 +368,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		if (viewType == USER_PROFILE_HEADER)
 		{
-			String headerMsisdn = mFilteredMsisdns.get(0);
+			final String headerMsisdn = mFilteredMsisdns.get(0);
 			if (mActivity.get() != null)
 			{
 				String mapedId = headerMsisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
@@ -398,8 +398,20 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 			if (!isMyProfile)
 			{
-				viewHolder.profileBtnDivider.setVisibility(View.GONE);
-				viewHolder.changeProfile.setVisibility(View.GONE);
+				viewHolder.changeProfile.setImageResource(R.drawable.ic_action_message);
+				viewHolder.changeProfile.setOnClickListener(new View.OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						if (mActivity.get() != null && mActivity.get() instanceof ProfileActivity)
+						{
+							Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
+									ContactManager.getInstance().getContact(headerMsisdn, true, false), false, false);
+							startActivity(intent);
+						}
+					}
+				});
 				viewHolder.extraInfo.setText(headerMsisdn);
 			}
 			else
