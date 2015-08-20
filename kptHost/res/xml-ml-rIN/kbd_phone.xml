@@ -245,7 +245,7 @@
         atx:kpt_keyboardMode="@+id/phone_last_row_no_voice"
         atx:kpt_rowEdgeFlags="bottom" >
         <Key
-            atx:kpt_codes="-1"
+            atx:kpt_codes="-19"
             atx:kpt_iconText="@string/kpt_icontext_shift_off"
             atx:kpt_isModifier="true"
             atx:kpt_isSticky="true"
@@ -279,7 +279,7 @@
         atx:kpt_keyboardMode="@+id/phone_last_row_with_voice"
         atx:kpt_rowEdgeFlags="bottom" >
         <Key
-            atx:kpt_codes="-1"
+            atx:kpt_codes="-19"
             atx:kpt_iconText="@string/kpt_icontext_shift_off"
             atx:kpt_isModifier="true"
             atx:kpt_isSticky="true"
@@ -365,7 +365,7 @@
         atx:kpt_keyboardMode="@+id/phone_last_row_no_voice_hide_xi"
         atx:kpt_rowEdgeFlags="bottom" >
         <Key
-            atx:kpt_codes="-1"
+            atx:kpt_codes="-19"
             atx:kpt_iconText="@string/kpt_icontext_shift_off"
             atx:kpt_isModifier="true"
             atx:kpt_isSticky="true"
@@ -395,7 +395,7 @@
         atx:kpt_keyboardMode="@+id/phone_last_row_with_voice_hide_xi"
         atx:kpt_rowEdgeFlags="bottom" >
         <Key
-            atx:kpt_codes="-1"
+            atx:kpt_codes="-19"
             atx:kpt_iconText="@string/kpt_icontext_shift_off"
             atx:kpt_isModifier="true"
             atx:kpt_isSticky="true"

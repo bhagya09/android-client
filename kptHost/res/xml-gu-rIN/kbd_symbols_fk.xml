@@ -169,12 +169,12 @@
             atx:kpt_codes="-1073,2728"
             atx:kpt_keyLabel="જ્ઞ"
             atx:kpt_keyLabel2="ન"
-            atx:kpt_keyOutputText="જ્ઞ" />
+            />
         <Key
             atx:kpt_codes="-1073,2741"
             atx:kpt_keyLabel="ત્ર"
             atx:kpt_keyLabel2="વ"
-            atx:kpt_keyOutputText="ત્ર" />
+             />
         <Key
             atx:kpt_codes="2739,2738"
             atx:kpt_keyLabel="ળ"
@@ -184,16 +184,15 @@
             atx:kpt_keyLabel="શ"
             atx:kpt_keyLabel2="સ" />
         <Key
-            atx:kpt_codes="-1073,2709"
+            atx:kpt_codes="2743,-1073"
             atx:kpt_keyLabel="ષ"
             atx:kpt_keyLabel2="ક્ષ"
-            atx:kpt_keyOutputText="ષ"
             atx:kpt_popupKeyboard="@xml/popup_ligature_4" />
         <Key
             atx:kpt_codes="-1073,2735"
             atx:kpt_keyLabel="શ્ર"
             atx:kpt_keyLabel2="ય"
-            atx:kpt_keyOutputText="શ્ર" />
+             />
         <Key
             atx:kpt_codes="-5"
             atx:kpt_keyType="@integer/kpt_functional_key_dont_send_to_core"

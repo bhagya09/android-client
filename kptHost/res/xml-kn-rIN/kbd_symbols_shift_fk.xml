@@ -217,10 +217,9 @@
             atx:kpt_keyLabel="\&apos;"
             atx:kpt_keyLabel2="ಸ" />
         <Key
-            atx:kpt_codes="-1073,2351"
+            atx:kpt_codes="3249,-1073"
             atx:kpt_keyLabel="ಱ"
             atx:kpt_keyLabel2="ಕ್ಷ"
-            atx:kpt_keyOutputText="ಱ"
             atx:kpt_popupKeyboard="@xml/popup_ligature4" />
         <Key
             atx:kpt_codes="-5"

@@ -210,10 +210,10 @@
             atx:kpt_popupCharacters="@string/kpt_alternates_for_currency"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="-1073,2709"
+            atx:kpt_codes="-1073,-1073"
             atx:kpt_keyLabel="રૂ"
             atx:kpt_keyLabel2="ક્ષ"
-            atx:kpt_keyOutputText="રૂ" />
+             />
         <Key
             atx:kpt_codes="37,2735"
             atx:kpt_keyLabel="%"

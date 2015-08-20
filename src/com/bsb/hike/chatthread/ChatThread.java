@@ -589,21 +589,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
-//		mLanguagePicker = new LanguageListener();
-//		
-//		mLanguagePicker.
-		
-//		HikeUiHandler hikeUiHandler = new HikeUiHandler(activity);
-//		hikeUiHandler.post(new Runnable()
-//		{
-//			
-//			@Override
-//			public void run()
-//			{
-//				Logger.d("bansal", "message : " + mLanguagePicker.getLanguage());
-//			}
-//		});
-//		updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
 		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(DEFAULT_SYSTEM_KEYBORAD, false);
 		mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
 		Logger.d("anu", "height : " + mCustomKeyboard.getKeyBoardAndCVHeight());
@@ -649,12 +634,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void initView()
 	{
 		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
+		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
+
 		mCustomKeyboard= new CustomKeyboard(activity, parentView);
 		mCustomKeyboard.registerEditText(R.id.msg_compose,KPTConstants.MULTILINE_LINE_EDITOR,ChatThread.this,ChatThread.this);
+		mCustomKeyboard.init(mComposeView);
+		
+		mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 		
 		audioRecordView = new AudioRecordView(activity, this);
-		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-//		mComposeView.setOnClickListener(this);
+
 		initShareablePopup();
 
 		initActionMode();
@@ -935,7 +924,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (item.id)
 		{
 		case R.string.change_keyboard:
-			id = item.id;
 			Boolean systemKeyboard = !isSystemKeyborad();
 			
 			HikeSharedPreferenceUtil.getInstance().saveData(DEFAULT_SYSTEM_KEYBORAD, systemKeyboard);
@@ -1136,6 +1124,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				mShareablePopupLayout.dismiss();
 			}
+			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
@@ -5879,6 +5868,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void changeKeyboard(boolean systemKeyboard)
 	{
 
+		Logger.d("changeKeyboard", "ChageKeyboard called!");
 		AdaptxtEditText editText = (AdaptxtEditText) mComposeView;
 		if (systemKeyboard)
 		{
@@ -5933,7 +5923,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void onAdaptxtclick(View arg0)
 	{
 		// TODO Auto-generated method stub
-		
+		mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+
 	}
 	
 	@Override
@@ -5951,12 +5942,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 
 	@Override
-	public void onInputviewVisbility(boolean paramBoolean)
+	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		if (paramBoolean)
+		Logger.d("calllag", "visibility call : " + System.currentTimeMillis());
+		Logger.d("kptVisibility", "kptVisible : " + kptVisible);
+		if (kptVisible)
 		{
-			updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
-		}else{
+			Logger.d("calllag", "height : " + height);
+//			updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
+			updatePadding(height);
+		}
+		else
+		{
 			updatePadding(0);
 		}
 	}

@@ -25,4 +25,6 @@
 	<item name="kpt_keyLabel2YPos" format="float" type="dimen">0.25</item>
     <dimen name="kpt_keyLabelTextSize">14sp</dimen>
 	<dimen name="kpt_keyLabel2TextSize">14sp</dimen>
+	
+	<item name="kpt_keyLabel_commaYPos" format="float" type="dimen">0.72</item>
 </resources>

@@ -89,12 +89,11 @@
         atx:kpt_horizontalGap="0dp"
         atx:kpt_keyWidth="9%p" >
         <Key
-            atx:kpt_codes="-1073,2463"
+            atx:kpt_codes="2453,2463"
             atx:kpt_horizontalGap="0.5%p"
             atx:kpt_keyEdgeFlags="left"
             atx:kpt_keyLabel="ক"
             atx:kpt_keyLabel2="ট"
-            atx:kpt_keyOutputText="ক"
             atx:kpt_popupKeyboard="@xml/popup_ligature5" />
         <Key
             atx:kpt_codes="2454,2464"
@@ -109,10 +108,9 @@
             atx:kpt_keyLabel="ঘ"
             atx:kpt_keyLabel2="ঢ" />
         <Key
-            atx:kpt_codes="-1073,2467"
+            atx:kpt_codes="2457,2467"
             atx:kpt_keyLabel="ঙ"
             atx:kpt_keyLabel2="ণ"
-            atx:kpt_keyOutputText="ঙ"
             atx:kpt_popupKeyboard="@xml/popup_ligature6" />
         <Key
             atx:kpt_codes="2458,2468"
@@ -131,17 +129,15 @@
             atx:kpt_keyLabel="ঝ"
             atx:kpt_keyLabel2="ধ" />
         <Key
-            atx:kpt_codes="-1073,2472"
+            atx:kpt_codes="2462,2472"
             atx:kpt_keyLabel="ঞ"
             atx:kpt_keyLabel2="ন"
-            atx:kpt_keyOutputText="ঞ"
             atx:kpt_popupKeyboard="@xml/popup_ligature7" />
         <Key
-            atx:kpt_codes="-1073,2434"
+            atx:kpt_codes="2510,2434"
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_keyLabel="ৎ"
             atx:kpt_keyLabel2="ং"
-            atx:kpt_keyOutputText="ৎ"
             atx:kpt_popupKeyboard="@xml/popup_ligature8" />
     </Row>
     <Row
@@ -178,20 +174,18 @@
             atx:kpt_keyLabel="ম"
             atx:kpt_keyLabel2="ড়" />
         <Key
-            atx:kpt_codes="-1073,2525"
+            atx:kpt_codes="2487,2525"
             atx:kpt_keyLabel="ষ"
             atx:kpt_keyLabel2="ঢ়"
-            atx:kpt_keyOutputText="ষ"
             atx:kpt_popupKeyboard="@xml/popup_ligature9" />
         <Key
             atx:kpt_codes="2488,2527"
             atx:kpt_keyLabel="স"
             atx:kpt_keyLabel2="য়" />
         <Key
-            atx:kpt_codes="-1073,2530"
+            atx:kpt_codes="2489,2530"
             atx:kpt_keyLabel="হ"
             atx:kpt_keyLabel2="ৢ"
-            atx:kpt_keyOutputText="হ"
             atx:kpt_popupKeyboard="@xml/popup_ligature10" />
         <Key
             atx:kpt_codes="2435,2433"

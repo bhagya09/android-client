@@ -269,7 +269,7 @@
         <Key
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
-            atx:kpt_keyLabel2YPos="0.5"
+            atx:kpt_keyLabelYPos="0.5"
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_useExternalFont="true" />
     </Row>
@@ -308,7 +308,7 @@
         <Key
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
-            atx:kpt_keyLabel2YPos="0.5"
+            atx:kpt_keyLabelYPos="0.5"
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_keyWidth="12.5%p"
             atx:kpt_useExternalFont="true" />
@@ -354,7 +354,7 @@
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
             atx:kpt_keyEdgeFlags="right"
-            atx:kpt_keyLabel2YPos="0.5"
+            atx:kpt_keyLabelYPos="0.5"
             atx:kpt_keyWidth="12.5%p"
             atx:kpt_useExternalFont="true" />
     </Row>
@@ -381,7 +381,7 @@
         <Key
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
-            atx:kpt_keyLabel2YPos="0.5"
+            atx:kpt_keyLabelYPos="0.5"
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_useExternalFont="true" />
     </Row>
@@ -414,7 +414,7 @@
         <Key
             atx:kpt_codes="10"
             atx:kpt_iconText="@string/kpt_icontext_enter_kbhide"
-            atx:kpt_keyLabel2YPos="0.5"
+            atx:kpt_keyLabelYPos="0.5"
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_keyWidth="12.5%p"
             atx:kpt_useExternalFont="true" />

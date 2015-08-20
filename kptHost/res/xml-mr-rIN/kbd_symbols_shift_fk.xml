@@ -159,17 +159,15 @@
             atx:kpt_popupCharacters="@string/kpt_alternates_for_plus"
             atx:kpt_popupKeyboard="@xml/kbd_popup_template" />
         <Key
-            atx:kpt_codes="-1073,120"
+            atx:kpt_codes="42,-1073"
             atx:kpt_keyLabel="*"
             atx:kpt_keyLabel2="क्ष"
-            atx:kpt_keyOutputText="*"
             atx:kpt_popupKeyboard="@xml/popup_ligature2" />
         <Key
-            atx:kpt_codes="-1073,120"
+            atx:kpt_codes="2416,-1073"
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_keyLabel="॰"
             atx:kpt_keyLabel2="ज्ञ"
-            atx:kpt_keyOutputText="॰"
             atx:kpt_popupKeyboard="@xml/popup_ligature3" />
     </Row>
     <Row

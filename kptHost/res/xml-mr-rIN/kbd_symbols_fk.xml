@@ -94,7 +94,7 @@
             atx:kpt_keyEdgeFlags="left"
             atx:kpt_keyLabel="अं"
             atx:kpt_keyLabel2="क"
-            atx:kpt_keyOutputText="अं" />
+             />
         <Key
             atx:kpt_codes="2377,2327"
             atx:kpt_keyLabel="ॉ"
@@ -128,17 +128,15 @@
             atx:kpt_keyLabel="ण"
             atx:kpt_keyLabel2="न" />
         <Key
-            atx:kpt_codes="-1073,-1073"
+            atx:kpt_codes="2328,-1073"
             atx:kpt_keyLabel="घ"
             atx:kpt_keyLabel2="क्ष"
-            atx:kpt_keyOutputText="घ"
             atx:kpt_popupKeyboard="@xml/popup_ligature2" />
         <Key
-            atx:kpt_codes="-1073,-1073"
+            atx:kpt_codes="2334,-1073"
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_keyLabel="ञ"
             atx:kpt_keyLabel2="ज्ञ"
-            atx:kpt_keyOutputText="ञ"
             atx:kpt_popupKeyboard="@xml/popup_ligature3" />
     </Row>
     <Row

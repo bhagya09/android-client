@@ -139,7 +139,7 @@
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_keyLabel="ರ್"
             atx:kpt_keyLabel2="ಳ"
-            atx:kpt_keyOutputText="ರ್" />
+             />
     </Row>
     <Row
         atx:kpt_horizontalGap="0dp"
@@ -189,10 +189,9 @@
             atx:kpt_keyLabel="ಹ"
             atx:kpt_keyLabel2="ಸ" />
         <Key
-            atx:kpt_codes="-1073,2351"
+            atx:kpt_codes="-1073,-1073"
             atx:kpt_keyLabel="ಜ್ಞ"
             atx:kpt_keyLabel2="ಕ್ಷ"
-            atx:kpt_keyOutputText="ಜ್ಞ"
             atx:kpt_popupKeyboard="@xml/popup_ligature4" />
         <Key
             atx:kpt_codes="-5"

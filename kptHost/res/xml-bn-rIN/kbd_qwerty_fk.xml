@@ -160,16 +160,14 @@
             atx:kpt_keyLabel="ঢ"
             atx:kpt_keyLabel2="ঘ" />
         <Key
-            atx:kpt_codes="-1073,2457"
+            atx:kpt_codes="-2467,2457"
             atx:kpt_keyLabel="ণ"
             atx:kpt_keyLabel2="ঙ"
-            atx:kpt_keyOutputText="ণ"
             atx:kpt_popupKeyboard="@xml/popup_ligature1" />
         <Key
-            atx:kpt_codes="-1073,2458"
+            atx:kpt_codes="2468,2458"
             atx:kpt_keyLabel="ত"
             atx:kpt_keyLabel2="চ"
-            atx:kpt_keyOutputText="ত"
             atx:kpt_popupKeyboard="@xml/popup_ligature2" />
         <Key
             atx:kpt_codes="2469,2459"
@@ -207,16 +205,14 @@
             atx:kpt_keyLabelYPos="0.50"
             atx:kpt_useExternalFont="true" />
         <Key
-            atx:kpt_codes="-1073,2474"
+            atx:kpt_codes="2479,2474"
             atx:kpt_keyLabel="য"
             atx:kpt_keyLabel2="প"
-            atx:kpt_keyOutputText="য"
             atx:kpt_popupKeyboard="@xml/popup_ligature3" />
         <Key
-            atx:kpt_codes="-1073,2475"
+            atx:kpt_codes="2480,2475"
             atx:kpt_keyLabel="র"
             atx:kpt_keyLabel2="ফ"
-            atx:kpt_keyOutputText="র"
             atx:kpt_popupKeyboard="@xml/popup_ligature4" />
         <Key
             atx:kpt_codes="2482,2476"

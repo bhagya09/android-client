@@ -184,11 +184,10 @@
             atx:kpt_keyLabel="ಂ"
             atx:kpt_keyLabel2="ಃ" />
         <Key
-            atx:kpt_codes="-1073,2336"
+            atx:kpt_codes="3251,-1073"
             atx:kpt_keyEdgeFlags="right"
             atx:kpt_keyLabel="ಳ"
             atx:kpt_keyLabel2="ರ್"
-            atx:kpt_keyOutputText="ಳ"
             atx:kpt_popupKeyboard="@xml/popup_ligature1" />
     </Row>
     <Row
@@ -238,10 +237,9 @@
             atx:kpt_keyLabel="ಸ"
             atx:kpt_keyLabel2="ಹ" />
         <Key
-            atx:kpt_codes="-1073,2399"
+            atx:kpt_codes="-1073,-1073"
             atx:kpt_keyLabel="ಕ್ಷ"
             atx:kpt_keyLabel2="ಜ್ಞ"
-            atx:kpt_keyOutputText="ಕ್ಷ"
             atx:kpt_popupKeyboard="@xml/popup_ligature2" />
         <Key
             atx:kpt_codes="-5"
