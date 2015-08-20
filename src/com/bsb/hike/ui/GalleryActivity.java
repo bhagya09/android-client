@@ -41,6 +41,8 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.tasks.GalleryItemLoaderTask;
+import com.bsb.hike.tasks.GalleryItemLoaderTask.GalleryItemLoaderImp;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
@@ -53,7 +55,7 @@ import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
 import com.jess.ui.TwoWayAdapterView.OnItemLongClickListener;
 import com.jess.ui.TwoWayGridView;
 
-public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener
+public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener, GalleryItemLoaderImp
 {
 
 	public static final String DISABLE_MULTI_SELECT_KEY = "en_mul_sel";
@@ -111,27 +113,19 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private boolean disableMultiSelect;
 
-	private final String ALL_IMAGES_BUCKET_NAME = "All images";
+	public static final String ALL_IMAGES_BUCKET_NAME = "All images";
 
-	private final String HIKE_IMAGES = "hike";
-	
-	private final String CAMERA_TILE = "gallery_tile_camera";
+	public static final String CAMERA_TILE = "gallery_tile_camera";
 
-	private final String CAMERA_IMAGES = "Camera";
-
-	private final String NEW_PHOTO = "New photo";
-
-	private final String TYPE_JPG = ".jpg";
-
-	private final String TYPE_JPEG = ".jpeg";
-
-	private final String TYPE_PNG = ".png";
+	public static final String NEW_PHOTO = "New photo";
 
 	private boolean enableCameraPick;
 	
 	private boolean editEnabled;
 	
 	private ArrayList<String> editedImages;
+
+	GalleryItemLoaderTask galleryItemLoader = null;
 	
 	public static final String GALLERY_RESULT_ACTION = "gal_res_act";
 	
@@ -151,7 +145,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		String selection = null;
 		String[] args = null;
-		Cursor cursor = null;
 
 		Bundle data;
 		if (savedInstanceState != null)
@@ -239,80 +232,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 
 		}
-		
-		// Add "pick from camera" button/bucket
-		if (enableCameraPick)
-		{
-			GalleryItem allImgItem = new GalleryItem(GalleryItem.CAMERA_TILE_ID, NEW_PHOTO, CAMERA_TILE, 0);
-			galleryItemList.add(allImgItem);
-		}
 
-
-		/*
-		 * Creating All images bucket where we will show all images present in the device.
-		 */
-		if (!isInsideAlbum)
-		{
-			String[] proj = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
-			cursor = getContentResolver().query(uri, proj, null, null, sortBy);
-			if (cursor != null)
-			{
-				try
-				{
-					int idIdx = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-					int dataIdx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-					if (cursor.moveToNext())
-					{
-						GalleryItem allImgItem = new GalleryItem(cursor.getLong(idIdx), null, ALL_IMAGES_BUCKET_NAME, cursor.getString(dataIdx), cursor.getCount());
-						galleryItemList.add(allImgItem);
-					}
-				}
-				finally
-				{
-					cursor.close();
-				}
-			}
-		}
-		
-		cursor = getContentResolver().query(uri, projection, selection, args, sortBy);
-
-		if (cursor != null)
-		{
-			try
-			{
-				int idIdx = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-				int bucketIdIdx = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-				int nameIdx = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-				int dataIdx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-
-				while (cursor.moveToNext())
-				{
-					int count = 0;
-					String filePath = cursor.getString(dataIdx);
-					if(!isValidFile(filePath))
-					{
-						continue;
-					}
-					
-					if (!isInsideAlbum)
-					{
-						count = getGalleryItemCount(new File(filePath).getParent());
-					}
-					
-					GalleryItem galleryItem = new GalleryItem(cursor.getLong(idIdx), cursor.getString(bucketIdIdx), cursor.getString(nameIdx), cursor.getString(dataIdx), count);
-					galleryItemList.add(galleryItem);
-					if (!isInsideAlbum)
-					{
-						galleryItemList = reOrderList(galleryItemList);
-					}
-				}
-			}
-			finally
-			{
-				cursor.close();
-			}
-		}
-		
 		TwoWayGridView gridView = (TwoWayGridView) findViewById(R.id.gallery);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
@@ -337,130 +257,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			setupActionBar(albumTitle);
 		}
-	}
-	
-	//returns true if the filePath was edited in the current MultiEdit Flow
-	private boolean isImageEdited(String filePath)
-	{
-		if(editedImages == null || !filePath.contains(PictureEditer.getEditImageSaveDirectory(false)))
-		{
-			return false;
-		}
-		
-		String filename=(new File(filePath)).getName();
-		for(String editedImage:editedImages)
-		{
-			if(editedImage == null)
-			{
-				continue;
-			}
-			String editFilename=(new File(editedImage)).getName();
-			if(editFilename.equalsIgnoreCase(filename))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private boolean isValidFile(String filePath)
-	{
-		if (TextUtils.isEmpty(filePath))
-		{
-			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: empty " + filePath);
-			return false;
-		}
-		
-		File mediafile = new File(filePath);
-		if (!mediafile.exists())
-		{
-			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: does not exist " + filePath);
-			return false;
-		}
-		
-		String dirPath = mediafile.getParent();
-		if(dirPath == null)
-		{
-			return false;
-		}
-		
-		if(editEnabled && isImageEdited(filePath))
-		{
-			//Skipping this file since this is a temp file created by multi-edit 
-			return false;
-		}
-		return true;
-	}
-
-	private ArrayList<GalleryItem> reOrderList(List<GalleryItem> list)
-	{
-		ArrayList<GalleryItem> resultList = new ArrayList<GalleryItem>();
-		LinkedList<GalleryItem> customList = new LinkedList<GalleryItem>();
-		
-		int customCount = 0;
-		
-		for (Iterator<GalleryItem> iterator = list.iterator(); iterator.hasNext();)
-		{
-			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			if (galleryItem.getName().startsWith(HIKE_IMAGES) || galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME) || galleryItem.getName().startsWith(CAMERA_IMAGES))
-			{
-				customList.addLast(galleryItem);
-				iterator.remove();
-			}
-			else if (galleryItem.getType() == GalleryItem.CUSTOM)
-			{
-				customList.add(customCount, galleryItem);
-				customCount++;
-				iterator.remove();
-			}
-		}
-		
-		for (Iterator<GalleryItem> iterator = customList.iterator(); iterator.hasNext();)
-		{
-			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			resultList.add(galleryItem);
-		}
-		
-		for (Iterator<GalleryItem> iterator = list.iterator(); iterator.hasNext();)
-		{
-			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			resultList.add(galleryItem);
-		}
-		return resultList;
-	}
-
-	private int getGalleryItemCount(String dirPath)
-	{
-		File dir = new File(dirPath);
-		int number = 0;
-		if (dir != null && dir.exists())
-		{
-			File[] files = dir.listFiles();
-			if (files != null)
-			{
-				for (File file : files)
-				{
-					if (file.isFile())// Check file or directory
-					{
-						if (isImage(file.getName().toLowerCase()))
-						{
-							number++;
-						}
-					}
-				}
-			}
-		}
-		return number;
-	}
-
-	private boolean isImage(String fileName)
-	{
-		boolean isImg = false;
-		if (fileName.endsWith(TYPE_JPG) || fileName.endsWith(TYPE_JPEG) || fileName.endsWith(TYPE_PNG))
-		{
-			isImg = true;
-		}
-		return isImg;
+		galleryItemLoader = new GalleryItemLoaderTask(this, isInsideAlbum, enableCameraPick);
+		galleryItemLoader.startQuery(uri, projection, selection, args, sortBy, editEnabled, editedImages);
 	}
 
 	@Override
@@ -501,6 +299,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onBackPressed()
 	{
+		if(galleryItemLoader != null)
+		{
+			galleryItemLoader.cancelTask();
+		}
 		if (multiSelectMode)
 		{
 			if( editEnabled && editedImages != null)
@@ -960,5 +762,16 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		Utils.deleteFiles(getApplicationContext(), initialEditList, HikeFileType.IMAGE);
 		
 	}
-	
+
+	@Override
+	public void onGalleryItemLoaded(GalleryItem galleryItem) {
+		this.galleryItemList.add(galleryItem);
+		adapter.updateGalleryItemList(this.galleryItemList);
+		GalleryActivity.this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				adapter.notifyDataSetChanged();
+			}
+		});
+	}
 }
