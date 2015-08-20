@@ -542,7 +542,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		mRemoveImagePath = removeImagePath;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(R.string.profile_photo);
 
 		// We have a single element array so that if new options are added to the dialog we just have to add strings to this array.
 		final CharSequence[] items = ctx.getResources().getStringArray(R.array.profile_pic_dialog);

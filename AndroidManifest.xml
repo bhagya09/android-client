@@ -5,7 +5,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1380"
-    android:versionName="4.0.0.26.1.sr_autopopup" >
+    android:versionName="4.0.0.27" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>

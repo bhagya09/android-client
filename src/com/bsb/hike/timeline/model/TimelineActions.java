@@ -111,7 +111,6 @@ public class TimelineActions
 		}
 
 		actionDM.addContacts(contactInfo);
-		actionDM.setCount(totalCount);
 
 		if (newInstance)
 		{
