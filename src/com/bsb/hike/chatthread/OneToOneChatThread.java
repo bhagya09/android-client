@@ -1756,7 +1756,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void showNetworkError(boolean isNetworkError) 
 	{
-		if(isNetworkError && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		if(isNetworkError && ( !OfflineUtils.isConnectedToSameMsisdn(msisdn) && !OfflineUtils.isConnectingToSameMsisdn(msisdn)))
 		{
 			animateNetworkCard();
 		}
