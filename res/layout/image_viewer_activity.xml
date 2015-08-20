@@ -50,7 +50,7 @@
         android:background="@color/white"
         android:text="Your caption here!Your caption here!Your caption here!Your caption here!Your caption here!"
         android:textColor="@android:color/white"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="normal" />
 
     <LinearLayout

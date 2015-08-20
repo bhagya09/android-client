@@ -62,7 +62,7 @@
                     android:textColor="@color/list_item_header"
                     android:textColorHint="#44444444"
                     android:textSize="16sp"
-                    android:textStyle="italic" >
+                    android:textStyle="normal" >
                 </com.bsb.hike.view.CustomFontEditText>
             </RelativeLayout>
         </RelativeLayout>
@@ -76,7 +76,7 @@
 
             <ImageView
                 android:id="@+id/status_image"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="33dp"
@@ -142,8 +142,8 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1.5dp"
-                android:background="@drawable/shadow_top" />
+                android:layout_height="1px"
+                android:background="@color/black_16" />
 
             <com.bsb.hike.view.CustomFontTextView
                 android:layout_width="wrap_content"
