@@ -22,6 +22,7 @@ public class TimelineActionsManager
 			{
 				if (instance == null)
 				{
+					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "TAM NEW INSTANCE!", Toast.LENGTH_LONG).show();
 					instance = new TimelineActionsManager();
 				}
 			}

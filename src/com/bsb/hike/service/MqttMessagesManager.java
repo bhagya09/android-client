@@ -3751,6 +3751,8 @@ public class MqttMessagesManager
 
 					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
 					
+					TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
+					
 					//Saving count to file to display the counter at home screen
 					HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 					{
