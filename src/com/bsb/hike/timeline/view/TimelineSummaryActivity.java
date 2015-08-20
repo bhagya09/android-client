@@ -54,6 +54,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.timeline.adapter.DisplayContactsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
@@ -200,15 +201,37 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			mActivityState = new ActivityState();
 
 			Bundle extras = getIntent().getExtras();
-
 			mappedId = extras.getString(HikeConstants.Extras.MAPPED_ID);
 
-			// TODO think of a better place to do this without breaking animation
+			//Try to get actions data from cache
 			mStatusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
-			
-			msisdns = extras.getStringArrayList(HikeConstants.MSISDNS);
+			ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData()
+					.getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
-			isLikedByMe = extras.getBoolean(HikeConstants.Extras.LOVED_BY_SELF, false);
+			if(actionsData == null)
+			{
+				// Try to get actions data from database
+				ArrayList<String> suIDs = new ArrayList<String>();
+				suIDs.add(mappedId);
+				
+				HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDs,
+						TimelineActionsManager.getInstance().getActionsData());
+				actionsData = TimelineActionsManager.getInstance().getActionsData().getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
+			}
+			
+			if (actionsData != null)
+			{
+				msisdns = actionsData.getAllMsisdn();
+
+				isLikedByMe = actionsData.isLikedBySelf();
+			}
+
+			// No likes
+			if (msisdns == null)
+			{
+				// Empty list
+				msisdns = new ArrayList<String>();
+			}
 
 			mActivityState.mappedId = mappedId;
 			mActivityState.statusMessage = mStatusMessage;
@@ -227,12 +250,6 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		catch (JSONException e)
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-
-		if (msisdns == null)
-		{
-			// Empty list
-			msisdns = new ArrayList<String>();
 		}
 
 		checkBoxLove.setTag(mStatusMessage);
