@@ -179,8 +179,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onFinish()
 			{
-					hideTimer();
-					updateAnimationText(connectionInfo, getResources().getString(R.string.disconnecting_offline),false);
+					if(isAdded())
+					{
+						hideTimer();
+						updateAnimationText(connectionInfo, getResources().getString(R.string.disconnecting_offline),false);
+					}
 			}
 		};
 				
