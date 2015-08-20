@@ -145,6 +145,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_NEXT = ", ";
 
+	public static final String SYNTAX_NEXT_IMMEDIATE = ",";
+
 	public static final String SYNTAX_START = "(";
 
 	public static final String SYNTAX_END = ")";
@@ -157,9 +159,13 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_IN_OPEN = " IN (";
 
-	public static final String SYNTAX_SINGLE_PARAMETER = "=?";
+	public static final String SYNTAX_SINGLE_PARAMETER_NO_CHECK = "?";
 
-	public static final String SYNTAX_SINGLE_PARAMETER_NEXT = "=? AND ";
+	public static final String SYNTAX_SINGLE_PARAMETER_CHECK = "=?";
+
+	public static final String SYNTAX_AND_NEXT = " AND ";
+
+	public static final String SYNTAX_OR_NEXT = " OR ";
 
 	public static final String SYNTAX_DESCENDING = " DESC";
 
