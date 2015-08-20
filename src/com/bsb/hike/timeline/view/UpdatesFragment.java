@@ -54,6 +54,7 @@ import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
@@ -215,10 +216,21 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 							List<StatusMessage> olderMessages = null;
 
-							if (friendMsisdns.length > 0)
+							int startId = -1;
+
+							if (isLastMsgJoinTime())
+							{
+								startId = (int) statusMessages.get(statusMessages.size() - 2).getId();
+							}
+							else
+							{
+								startId = (int) statusMessages.get(statusMessages.size() - 1).getId();
+							}
+
+							if (friendMsisdns.length > 0 && startId > 1)
 							{
 								olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(mShowProfileHeader ? false : true,
-										HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME, (int) statusMessages.get(statusMessages.size() - 1).getId(), friendMsisdns);
+										HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME, startId, friendMsisdns);
 							}
 							else
 							{
@@ -286,10 +298,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								 * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
 								 */
 								reachedEnd = true;
+								addJoinTimeMessage();
 							}
 
 						}
-
 					};
 					if (Utils.isHoneycombOrHigher())
 					{
@@ -300,13 +312,18 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 						asyncTask.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
 					}
 				}
+				else
+				{
+					//User joined status message
+					addJoinTimeMessage();
+				}
 			}
 		});
 
 		if (!mShowProfileHeader)
 		{
 			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
-					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
+					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(52)).isSnappable(false).build();
 
 			mUpdatesList.addOnScrollListener(scrollListener);
 			
@@ -331,6 +348,52 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 	}
 
+	private boolean isLastMsgJoinTime()
+	{
+		// Check if last message is joined hike message (self inserted)
+		if (statusMessages != null && !statusMessages.isEmpty())
+		{
+			StatusMessage lastMessage = statusMessages.get(statusMessages.size() - 1);
+			if (lastMessage.getStatusMessageType() == StatusMessageType.JOINED_HIKE)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void addJoinTimeMessage()
+	{
+		if(isLastMsgJoinTime())
+		{
+			return;
+		}
+		
+		if(mShowProfileHeader)
+		{
+			ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
+			
+			if(!joinConInfo.isOnhike())
+			{
+				return;
+			}
+			
+			StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
+			
+			if (cJoinedSM != null)
+			{
+				statusMessages.add(cJoinedSM);
+				notifyVisibleItems();
+				if(cJoinedSM.getTimeStamp() == 0)
+				{
+					joinConInfo.httpGetHikeJoinTime();
+				}
+			}
+			
+			Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
+		}
+	}
+	
 	@Override
 	public void onDestroy()
 	{
@@ -349,7 +412,24 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		if (HikePubSub.TIMELINE_UPDATE_RECIEVED.equals(type))
 		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
+			
 			final StatusMessage statusMessage = (StatusMessage) object;
+
+			// If not showing profile, lets add new message
+			if (mShowProfileHeader)
+			{
+				// If showing profile, check if msisdn is same or not
+				if (mMsisdnArray != null && statusMessage.getMsisdn().equals(mMsisdnArray.get(0)))
+				{
+					//Do nothing, add message
+				}
+				else
+				{
+					return;
+				}
+			}
+
 			final int startIndex = getStartIndex();
 
 			getActivity().runOnUiThread(new Runnable()
@@ -357,12 +437,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void run()
 				{
-					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index "+ startIndex);
+					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index " + startIndex);
 					statusMessages.add(startIndex, statusMessage);
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
-			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
 		}
 		else if (HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED.equals(type))
 		{
@@ -427,6 +506,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					statusMessages.clear();
 					resetSharedPrefOnRemovingFTUE();
 					timelineCardsAdapter.notifyDataSetChanged();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 				}
 			});
 		}
@@ -723,25 +804,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			}
 			
-			//User joined status message
-			if(mShowProfileHeader)
+			if(statusMessages.size() < HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY)
 			{
-				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
-				
-				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
-				
-				if (cJoinedSM != null)
-				{
-					statusMessages.add(cJoinedSM);
-					if(cJoinedSM.getTimeStamp() == 0)
-					{
-						joinConInfo.httpGetHikeJoinTime();
-					}
-				}
-				
-				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
+				addJoinTimeMessage();
 			}
-
+			
+			timelineCardsAdapter.notifyDataSetChanged();
+			
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
 		}
 

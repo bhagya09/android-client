@@ -1722,7 +1722,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (position >= 0)
 			{
-				scrollToPosition(position, (int) (40 * Utils.densityMultiplier));
+				scrollToPosition(position, (int) (28 * Utils.densityMultiplier));
 			}
 			else
 			{
