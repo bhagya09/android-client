@@ -57,7 +57,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			String ssid = wifiManager.getConnectionInfo().getSSID();
 			if (!TextUtils.isEmpty(ssid))
 			{
-				Log.d(TAG, "OfflineBroadCast ssid: " + ssid +".......Detailed state is "+  (netInfo.getDetailedState()==(NetworkInfo.DetailedState.CONNECTED)) +"....idOfflineSSID     "+OfflineUtils.isOfflineSsid(ssid)+"     netIfo state is  "+netInfo.isConnected());
+				Logger.d(TAG, "OfflineBroadCast ssid: " + ssid +".......Detailed state is "+  (netInfo.getDetailedState()==(NetworkInfo.DetailedState.CONNECTED)) +"....idOfflineSSID     "+OfflineUtils.isOfflineSsid(ssid)+"     netIfo state is  "+netInfo.isConnected());
 				
 				
 				// HTC desire X gives ssid without quotes but all other devices give ssid with quotes
@@ -68,7 +68,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 						(netInfo.getDetailedState()==(NetworkInfo.DetailedState.CONNECTED)) && 
 						(OfflineUtils.isOfflineSsid(ssid)))
 				{
-					Log.d(TAG,"inconnected");
+					Logger.d(TAG,"inconnected");
 					wifiCallBack.onConnectionToWifiNetwork();
 				}
 			}
@@ -81,7 +81,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			{
 				return;
 			}
-			Log.d(TAG,"Wifi state change "+extraWifiState);
+			Logger.d(TAG,"Wifi state change "+extraWifiState);
 			switch (extraWifiState)
 			{
 			case WifiManager.WIFI_STATE_DISABLED:
@@ -129,7 +129,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			case OfflineConstants.WIFI_HOTSPOT_STATE_UNKNOWN:
 				break;
 			}
-			Log.d(TAG, "Wifi Hotspot State " + state);
+			Logger.d(TAG, "Wifi Hotspot State " + state);
 		}
 
 	}

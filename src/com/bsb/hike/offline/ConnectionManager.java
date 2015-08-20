@@ -12,7 +12,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
@@ -75,7 +74,7 @@ public class ConnectionManager implements ChannelListener
 	{
 		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(),targetMsisdn);
 	//	wifiManager.saveConfiguration();
-		Log.d("OfflineManager","SSID is "+ssid);
+		Logger.d("OfflineManager","SSID is "+ssid);
 		WifiConfiguration wifiConfig = new WifiConfiguration();
 		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
 		wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
@@ -91,12 +90,12 @@ public class ConnectionManager implements ChannelListener
 		wifiP2pManager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() { 
-            	Log.d(TAG, "Wifi Direct Discovery Enabled");
+            	Logger.d(TAG, "Wifi Direct Discovery Enabled");
             }
 
             @Override
             public void onFailure(int reasonCode) {
-            	Log.d(TAG, "Wifi Direct Discovery FAILED");
+            	Logger.d(TAG, "Wifi Direct Discovery FAILED");
             }
 		});
 	}
@@ -163,7 +162,7 @@ public class ConnectionManager implements ChannelListener
 			return;
 		}
 		boolean wifiScan = wifiManager.startScan();
-		Log.d(TAG, "Wifi Scan returns " + wifiScan);
+		Logger.d(TAG, "Wifi Scan returns " + wifiScan);
 	}
 	
 	public void startWifi()
@@ -186,12 +185,12 @@ public class ConnectionManager implements ChannelListener
 		wifiP2pManager.stopPeerDiscovery(channel, new ActionListener() {
 			@Override
 			public void onSuccess() {
-				Log.d(TAG, "stop peer discovery started");
+				Logger.d(TAG, "stop peer discovery started");
 			}
 			
 			@Override
 			public void onFailure(int reason) {
-				Log.d(TAG, "Stop peer discovery failed");
+				Logger.d(TAG, "Stop peer discovery failed");
 			}
 		});
 	}
@@ -200,20 +199,20 @@ public class ConnectionManager implements ChannelListener
 		if(wifiManager.getConnectionInfo()!=null)
 		{
 			String ssid = wifiManager.getConnectionInfo().getSSID();
-			Log.d("OfflineManager","Connected SSID in getConnectedHikeNetwork "+ssid);
+			Logger.d("OfflineManager","Connected SSID in getConnectedHikeNetwork "+ssid);
 			
 			// System returns ssid as "ssid". Hence removing the quotes.
 			if (ssid.length() > 2&&ssid.startsWith("\"")&&ssid.endsWith("\""))
 				ssid = ssid.substring(1, ssid.length() - 1);
 			
-			Log.d(TAG, "ssid after removing quotes" + ssid);
+			Logger.d(TAG, "ssid after removing quotes" + ssid);
 			boolean isHikeNetwork = (OfflineUtils.isOfflineSsid(ssid));
 			if(isHikeNetwork)
 			{
 				String decodedSSID = OfflineUtils.decodeSsid(ssid);
-				Log.d("ConnectionManager","decodedSSID  is " + decodedSSID);
+				Logger.d("ConnectionManager","decodedSSID  is " + decodedSSID);
 				String connectedMsisdn = OfflineUtils.getconnectedDevice(decodedSSID);  
-				Log.d("ConnectionManager","connectedMsisdn is " + connectedMsisdn);
+				Logger.d("ConnectionManager","connectedMsisdn is " + connectedMsisdn);
 				return connectedMsisdn;
 			}
 		}
@@ -249,7 +248,7 @@ public class ConnectionManager implements ChannelListener
 	public Boolean createHotspot(String wifiP2pDeviceName)
 	{
 		// save current WifiHotspot Name
-		Log.d("OfflineManager","wil create hotspot for "+wifiP2pDeviceName);
+		Logger.d("OfflineManager","wil create hotspot for "+wifiP2pDeviceName);
 		if(saveCurrentHotspotSSID())
 		{
 			if(isHotspotCreated())
@@ -258,7 +257,7 @@ public class ConnectionManager implements ChannelListener
 			}
 		}
 		Boolean result = setWifiApEnabled(wifiP2pDeviceName, true);
-		Log.d("OfflineManager", "HotSpot creation result is "+ result);
+		Logger.d("OfflineManager", "HotSpot creation result is "+ result);
 		return result;
 	}
 	private boolean closeExistingHotspot(WifiConfiguration config) {
@@ -274,14 +273,14 @@ public class ConnectionManager implements ChannelListener
 		try {
 			enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
 		} catch (NoSuchMethodException e) {
-			Log.e(TAG,e.toString());
+			Logger.e(TAG,e.toString());
 			return result;
 		}
 		try {
 			result = (Boolean) enableWifi.invoke(wifiManager,config,false);
 		} catch (IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			Log.e(TAG,e.toString());
+			Logger.e(TAG,e.toString());
 			return result;
 		}
 		
@@ -290,7 +289,7 @@ public class ConnectionManager implements ChannelListener
 
 	public Boolean closeHikeHotspot(String targetMsisdn)
 	{
-		Log.d(TAG, "going to close hotspot");
+		Logger.d(TAG, "going to close hotspot");
 		Boolean result = setWifiApEnabled(targetMsisdn, false);
 		// restore previous WifiHotspot Name back
 		setPreviousHotspotConfig();
@@ -305,15 +304,15 @@ public class ConnectionManager implements ChannelListener
 		try {
 			enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
 		} catch (NoSuchMethodException e) {
-			Log.e(TAG,e.toString());
+			Logger.e(TAG,e.toString());
 			return result;
 		}
 		String ssid  =   OfflineUtils.getSsidForMsisdn(targetMsisdn,OfflineUtils.getMyMsisdn());
-		Log.d("OfflineManager","SSID is "+ssid + " -> " + status);
+		Logger.d("OfflineManager","SSID is "+ssid + " -> " + status);
 		String encryptedSSID = OfflineUtils.encodeSsid(ssid);
-		Log.d(TAG, encryptedSSID);
+		Logger.d(TAG, encryptedSSID);
 		String pass = OfflineUtils.generatePassword(ssid);
-		Log.d(TAG, "Password: " + (pass));
+		Logger.d(TAG, "Password: " + (pass));
 		WifiConfiguration  myConfig =  new WifiConfiguration();
 		myConfig.SSID = encryptedSSID;
 		myConfig.preSharedKey  = pass ;
@@ -461,7 +460,7 @@ public class ConnectionManager implements ChannelListener
 
 			if (isHTC)
 			{
-				Log.d("OfflineManager", "This is a HTC device");
+				Logger.d("OfflineManager", "This is a HTC device");
 				methodName = htcMethodName;
 			}
 			setConfigMethod = wifiManager.getClass().getMethod(methodName, WifiConfiguration.class);
@@ -470,7 +469,7 @@ public class ConnectionManager implements ChannelListener
 		} 
 		catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) 
 		{
-			Log.e(TAG,e.toString());
+			Logger.e(TAG,e.toString());
 			result = false;
 		}
 		return result;
@@ -486,7 +485,7 @@ public class ConnectionManager implements ChannelListener
 			isWifiHotspotRunning = (Boolean) method.invoke(wifiManager);
 		} catch (IllegalAccessException | IllegalArgumentException
 				| NoSuchMethodException| InvocationTargetException e) {
-			Log.e(TAG,e.toString());
+			Logger.e(TAG,e.toString());
 		}
 
 		return isWifiHotspotRunning;
@@ -558,7 +557,7 @@ public class ConnectionManager implements ChannelListener
 	
 	public void tryConnectingToHotSpot(final String msisdn) 
 	{
-		Log.d(TAG, "tryConnectingToHotSpot");
+		Logger.d(TAG, "tryConnectingToHotSpot");
 		
 		if(!wifiManager.isWifiEnabled())
 		{
@@ -577,7 +576,7 @@ public class ConnectionManager implements ChannelListener
 		// removing quotes.
 		if (connectedToSSID.length() > 2)
 			connectedToSSID = connectedToSSID.substring(1, connectedToSSID.length()-1);
-		Log.d(TAG, "Connected SSID in isConnectedToSSID: " + connectedToSSID + " EncodedSSID: " + encodedSSID);
+		Logger.d(TAG, "Connected SSID in isConnectedToSSID: " + connectedToSSID + " EncodedSSID: " + encodedSSID);
 		
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -591,7 +590,7 @@ public class ConnectionManager implements ChannelListener
 	public String getConnectedSSID()
 	{
 		String ssid =  wifiManager.getConnectionInfo().getSSID();
-		Log.d(TAG, "In getConnectedSSID: " + ssid);
+		Logger.d(TAG, "In getConnectedSSID: " + ssid);
 		ssid = ssid.substring(1, ssid.length()-1);
 		return ssid;
 	}
