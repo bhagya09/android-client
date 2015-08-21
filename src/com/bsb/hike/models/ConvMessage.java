@@ -85,8 +85,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	
 	private String nameSpace;
 	
-	private boolean isOfflineFtueHeader;
-
 	private ViewDimentions viewDimentions;
 	
 	private int notificationType;
@@ -1384,15 +1382,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		{
 			this.privateData = messagePrivateData;
 		}
-	}
-	
-	public boolean isOfflineFtueHeader() {
-		return isOfflineFtueHeader;
-	}
-	
-	public void setOfflineFtueHeader(Boolean isOfflineFtueHeader)
-	{
-		this.isOfflineFtueHeader = isOfflineFtueHeader;
 	}
 	
 	@Override
