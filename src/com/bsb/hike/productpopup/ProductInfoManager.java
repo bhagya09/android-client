@@ -456,35 +456,4 @@ public class ProductInfoManager
 	{
 		mmSparseArray.clear();
 	}
-
-	public void downloadStkPk(String metaData)
-	{
-		try
-		{
-			JSONObject object=new JSONObject(metaData);
-			String categoryId=object.optString(StickerManager.CATEGORY_ID);
-			String categoryName=object.optString(StickerManager.CATEGORY_NAME);
-			int totalStickers = object.optInt(StickerManager.TOTAL_STICKERS);
-			int categorySize = object.optInt(StickerManager.CATEGORY_SIZE);
-
-			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
-			{
-				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
-				downloadStkPk(category);
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	private void downloadStkPk(StickerCategory category)
-	{
-		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
-		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, context);
-		
-	}
-
 }
