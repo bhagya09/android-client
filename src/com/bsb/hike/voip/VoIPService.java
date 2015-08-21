@@ -353,7 +353,6 @@ public class VoIPService extends Service {
 		acquireWakeLock();
 		setCallid(0);
 		initAudioManager();
-		setSpeaker(false);
 		keepRunning = true;
 		isRingingIncoming = false;
 		
@@ -949,7 +948,15 @@ public class VoIPService extends Service {
 			audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 		
 		saveCurrentAudioSettings();
+		initSoundPool();
+		setSpeaker(false);
 		
+		// Check vibrator
+		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT)
+			vibratorEnabled = false;
+		else
+			vibratorEnabled = true;
+
 		// Audio focus
 		mOnAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
 			
@@ -981,14 +988,6 @@ public class VoIPService extends Service {
 			Logger.w(tag, "Unable to gain audio focus. result: " + result);
 		} else
 			Logger.d(tag, "Received audio focus.");
-		
-		initSoundPool();
-
-		// Check vibrator
-		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT)
-			vibratorEnabled = false;
-		else
-			vibratorEnabled = true;
 	}
 	
 	private void releaseAudioManager() {
@@ -1904,18 +1903,16 @@ public class VoIPService extends Service {
 
 	public void setSpeaker(boolean speaker)
 	{
-		if (this.speaker == speaker)
-			return;
-		
 		this.speaker = speaker;
-		if(audioManager!=null)
+		if (audioManager != null)
 		{
 			audioManager.setSpeakerphoneOn(speaker);
 			
 			// Restart recording because the audio source will change 
 			// depending on whether we're on speakerphone or not. 
 			// Fixes Anirban's Nexus 5 bug where his mic works only on speakerphone.
-			startRecording();
+			if (isAudioRunning())
+				startRecording();
 		}
 		
 		// If we have swiched off the speaker and a bluetooth headset is connected
