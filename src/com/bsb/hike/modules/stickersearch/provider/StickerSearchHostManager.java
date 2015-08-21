@@ -1554,7 +1554,6 @@ public class StickerSearchHostManager
 			sCacheForLocalOrderedStickers.clear();
 
 			mCurrentText = null;
-			mMomentCode = null;
 
 			TextMatchManager.clearResources();
 
