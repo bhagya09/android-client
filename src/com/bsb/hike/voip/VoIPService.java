@@ -47,6 +47,7 @@ import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -98,6 +99,7 @@ public class VoIPService extends Service {
 	private boolean hostingConference = false;
 	private boolean forceMute = false, hostForceMute = false;
 	private boolean speechDetected = true;
+	private TextToSpeech tts = null;
 	
 	// Task executors
 	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
@@ -322,8 +324,10 @@ public class VoIPService extends Service {
 				if (forceMute == true) {
 					setMute(forceMute);
 					sendHandlerMessage(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
-				}
-				
+					tts.speak(getString(R.string.voip_speech_force_mute_on), TextToSpeech.QUEUE_FLUSH, null);
+				} else
+					tts.speak(getString(R.string.voip_speech_force_mute_off), TextToSpeech.QUEUE_FLUSH, null);
+					
 			default:
 				// Pass message to activity through its handler
 				sendHandlerMessage(msg.what);
@@ -369,6 +373,18 @@ public class VoIPService extends Service {
 		if (resamplerEnabled && resampler == null) 
 			resampler = new Resampler();
 		
+		// Initialize text to speech
+		tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+			
+			@Override
+			public void onInit(int status) {
+				if (status != TextToSpeech.ERROR)
+					tts.setLanguage(Locale.getDefault());
+				else
+					Logger.w(tag, "Error initializing text to speech.");
+			}
+		});
+
 		startConnectionTimeoutThread();
 		startBluetooth();
 		registerBroadcastReceivers();
@@ -383,6 +399,11 @@ public class VoIPService extends Service {
 		
 		if (bluetoothHelper != null) {
 			bluetoothHelper.stop();
+		}
+		
+		if (tts != null) {
+			tts.stop();
+			tts.shutdown();
 		}
 		
 		Logger.d(tag, "VoIP Service destroyed.");
