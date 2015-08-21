@@ -277,11 +277,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 					String postType = getPostType(statusMessage);
 					metadata.put(AnalyticsConstants.EVENT_SOURCE, postType);
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ITEM_CLICKED);
-					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
 					metadata.put(HikeConstants.MSISDN, v.getTag(R.id.activity_feed_item_key));
-					String osVersion = Build.VERSION.RELEASE;
-					metadata.put(HikeConstants.LogEvent.OS_VERSION, osVersion);
-					
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
 				}
 				catch (JSONException e)
