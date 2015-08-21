@@ -3183,7 +3183,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected void blockUnBlockUser(boolean isBlocked)
 	{
 		super.blockUnBlockUser(isBlocked);
-		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
+		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		{
+			OfflineUtils.stopFreeHikeConnection(activity, msisdn);
+		}
 		/**
 		 * If blocked, hide LastSeen view, else, try to show the lastSeen
 		 */
