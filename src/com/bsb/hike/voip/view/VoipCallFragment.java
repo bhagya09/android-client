@@ -878,8 +878,14 @@ public class VoipCallFragment extends Fragment implements CallActions
 				numberOfParticipants = getString(R.string.voip_conference_waiting_for_participants_info);
 			else
 				numberOfParticipants = clientCount + " " + getString(R.string.participants);
-			contactMsisdnView.setVisibility(View.VISIBLE);
-			contactMsisdnView.setText(numberOfParticipants);
+			
+			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
+				contactMsisdnView.setVisibility(View.VISIBLE);
+				contactMsisdnView.setText(contactInfo.getNameOrMsisdn());
+			} else {
+				contactMsisdnView.setVisibility(View.VISIBLE);
+				contactMsisdnView.setText(numberOfParticipants);
+			}
 			
 			// When a call is initiated or received, 
 			// show the participants list only to the host
