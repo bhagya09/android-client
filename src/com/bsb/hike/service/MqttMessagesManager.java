@@ -39,6 +39,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -2457,6 +2458,19 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.EXTRAS_BOT_MSISDN))
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
+		}
+		if (data.has(HikeConstants.AG_ENABLED))
+		{
+			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AG_ENABLED, agoopLogs);
+			if(agoopLogs)
+			{
+				NetworkAgModule.startLogging();
+			}
+			else
+			{
+				NetworkAgModule.stopLogging();
+			}
 		}
 		
 		editor.commit();
