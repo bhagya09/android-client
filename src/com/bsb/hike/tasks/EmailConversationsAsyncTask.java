@@ -161,7 +161,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 					HikeFile hikeFile = cMetadata.getHikeFiles().get(0);
 					HikeFileType fileType = hikeFile.getHikeFileType();
 					if ((fileType == (HikeFileType.IMAGE) || fileType == (HikeFileType.AUDIO) || fileType == (HikeFileType.AUDIO_RECORDING) || fileType == (HikeFileType.VIDEO))
-							&& !TextUtils.isEmpty(hikeFile.getFilePath()))
+							&& !TextUtils.isEmpty(hikeFile.getFilePath()) && new File(hikeFile.getFilePath()).exists())
 					{
 						listValues.add(hikeFile.getFilePath());
 					}
