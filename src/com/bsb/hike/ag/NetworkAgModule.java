@@ -41,7 +41,7 @@ public class NetworkAgModule
 		mConnectivity.setAuthenticationKey("120a7b20-05e3-11e5-9971-023d7307ee72");// Your AuthenticationKey
 		mConnectivity.setServerUrl("http://ag.hike.in/mobile");
 		mConnectivity.setDownloadUrl("http://ag.hike.in/latency");
-		mConnectivity.setLogIntervalSec(28800);
+		mConnectivity.setLogIntervalSec(60);
 		mConnectivity.setHighLocationPrecise(false);
 		mConnectivity.startLogging();
 		
