@@ -260,7 +260,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			setupActionBar(albumTitle);
 		}
 		galleryItemLoader = new GalleryItemLoaderTask(this, isInsideAlbum, enableCameraPick);
-		galleryItemLoader.startQuery(uri, projection, selection, args, sortBy, editEnabled, editedImages);
+		galleryItemLoader.buildQuery(uri, projection, selection, args, sortBy, editEnabled, editedImages);
+		Utils.executeAsyncTask(galleryItemLoader);
 
 		progressLoading = findViewById(R.id.progressLoading);
 		if(!isInsideAlbum)

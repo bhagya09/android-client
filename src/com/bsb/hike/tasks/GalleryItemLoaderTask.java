@@ -8,6 +8,7 @@ import java.util.List;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
@@ -16,7 +17,7 @@ import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.PictureEditer;
 
-public class GalleryItemLoaderTask implements Runnable{
+public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 	
 	public static interface GalleryItemLoaderImp
 	{
@@ -24,7 +25,6 @@ public class GalleryItemLoaderTask implements Runnable{
 	}
 
 	private GalleryItemLoaderImp listener;
-	private Thread mThread;
 	private boolean mRunning;
 	private boolean isInsideAlbum;
 
@@ -53,7 +53,6 @@ public class GalleryItemLoaderTask implements Runnable{
 	
 	public GalleryItemLoaderTask(GalleryItemLoaderImp listener, boolean isInsideAlbum, boolean enableCameraPick) {
 		this.listener = listener;
-		mThread = new Thread(this);
 		this.isInsideAlbum = isInsideAlbum;
 		this.enableCameraPick = enableCameraPick;
 	}
@@ -68,7 +67,7 @@ public class GalleryItemLoaderTask implements Runnable{
 	 * @param editEnabled
 	 * @param editedImages
 	 */
-	public void startQuery(Uri uri, String [] projection, String selection, String [] args, String sortBy, boolean editEnabled, List<String> editedImages)
+	public void buildQuery(Uri uri, String [] projection, String selection, String [] args, String sortBy, boolean editEnabled, List<String> editedImages)
 	{
 		this.uri = uri;
 		this.projection = projection;
@@ -77,12 +76,7 @@ public class GalleryItemLoaderTask implements Runnable{
 		this.sortBy = sortBy;
 		this.editEnabled = editEnabled;
 		this.editedImages = editedImages;
-		
-		if(!mRunning && mThread != null)
-		{
-			mThread.start();
-			mRunning = true;
-		}
+		mRunning = true;
 	}
 
 	public void cancelTask()
@@ -90,9 +84,13 @@ public class GalleryItemLoaderTask implements Runnable{
 		mRunning = false;
 	}
 
+	public boolean isRunning()
+	{
+		return mRunning;
+	}
+
 	@Override
-	public void run() {
-		
+	protected Void doInBackground(Void... params) {
 		while (mRunning) {
 			Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
 			Cursor cursor = null;
@@ -186,11 +184,7 @@ public class GalleryItemLoaderTask implements Runnable{
 				}
 			}
 		}
-	}
-
-	public boolean isRunning()
-	{
-		return mRunning;
+		return null;
 	}
 
 	private void addItemInPreferredOrder(GalleryItem galleryItem, List<GalleryItem> pendingItemList)
