@@ -1309,9 +1309,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 
 		initAttachmentPicker(mConversation.isOnHike());
-		int width = (int) (Utils.scaledDensityMultiplier * 270);
-		int xOffset = -(int) (276 * Utils.scaledDensityMultiplier);
-		int yOffset = -(int) (0.5 * Utils.scaledDensityMultiplier);
+		int xOffset = -(int) (276 * Utils.densityMultiplier);
+		int yOffset = -(int) (0.5 * Utils.densityMultiplier);
 		attachmentPicker.show(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
 	}
 
