@@ -25,6 +25,15 @@ public class NetworkAgModule
 
 	public static void startLogging()
 	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AG_ENABLED, true))
+		{
+			Logger.d(TAG, "AG network logging is not enabled.. returning");
+			return;
+		}
+		else
+		{
+			Logger.d(TAG, "starting AG network logging");
+		}
 		
 		long startTime = System.currentTimeMillis();
 		
