@@ -312,6 +312,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 		void showCallFailedFragment(Bundle bundle);
 
 		boolean isShowingCallFailedFragment();
+		
+		void clearActivityFlags();
 	}
 
 	private void connectMessenger() 
