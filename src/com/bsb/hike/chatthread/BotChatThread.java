@@ -6,8 +6,8 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.support.v4.util.Pair;
 import android.support.v4.view.MenuItemCompat;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.View;
 
