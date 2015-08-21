@@ -220,8 +220,7 @@ public class ProductInfoManager
 			public void onEventOccured(int uniqueId,EventCode event)
 			{
 				productContentModel = getProductContentModel();
-
-				switch (event)
+			    switch (event)
 				{
 				case LOW_CONNECTIVITY:
 					HikeContentDatabase.getInstance().updatePopupStatus(productContentModel.hashCode(), PopupStateEnum.NOT_DOWNLOADED.ordinal());
@@ -324,10 +323,12 @@ public class ProductInfoManager
 	{
 
 		Logger.d("ProductPopup", "Popup received Going to inserti in DB");
-
+		
 		// saving the Popup in DataBase:
 		ProductContentModel productContentModel = ProductContentModel.makeProductContentModel(metaData);
 
+		recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), ProductPopupsConstants.RECEIVED);
+		
 		HikeContentDatabase.getInstance().savePopup(productContentModel, PopupStateEnum.NOT_DOWNLOADED.ordinal());
 
 		parseAndShowPopup(productContentModel, null);

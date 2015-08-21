@@ -61,6 +61,8 @@ public class ProductPopupsConstants
 	
 	public static final String SEEN = "seen";
 
+	public static final String RECEIVED = "rec";
+
 	
 	public static enum PopupStateEnum
 	{
