@@ -73,6 +73,9 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -1567,7 +1570,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void checkNShowNetworkError()
 	{
-		if (networkErrorPopUp == null)
+		if (networkErrorPopUp == null || OfflineController.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
 			return;
 		Logger.d(getClass().getSimpleName(), "visiblity for: " + HikeMessengerApp.networkError);
 		// networkErrorPopUp.clearAnimation();
@@ -1585,7 +1588,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void animateNShowNetworkError()
 	{
-		if (networkErrorPopUp == null)
+		if (networkErrorPopUp == null || OfflineController.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
 			return;
 		Logger.d(getClass().getSimpleName(), "animation for: " + HikeMessengerApp.networkError);
 		if (HikeMessengerApp.networkError)
