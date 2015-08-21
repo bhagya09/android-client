@@ -1665,20 +1665,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		fragmentTransaction.commit();
 	}
 
-	private void setupOfflineDisconnectCardView()
-	{
-		ImageView avatar = (ImageView) hikeOfflineDisconnectView.findViewById(R.id.connected_avatar);
-		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(OfflineUtils.getConnectedMsisdn());
-		if (drawable == null)
-		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(OfflineUtils.getConnectedMsisdn(), false);
-		}
-		avatar.setScaleType(ScaleType.FIT_CENTER);
-		avatar.setImageDrawable(drawable);
-		hikeOfflineDisconnectView.findViewById(R.id.reject_disconnect).setOnClickListener(this);
-		hikeOfflineDisconnectView.findViewById(R.id.accept_disconnect).setOnClickListener(this);
-	}
-
 	@Override
 	protected String getMsisdnMainUser()
 	{
@@ -2569,9 +2555,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case R.id.network_error_card:
 			handleNetworkCardClick();
 			break;
-		case R.id.free_hike_cancel:
-			setOfflineFtueCardCancelled();
-			break;
 		default:
 			super.onClick(v);
 		}
@@ -2614,46 +2597,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		sendUIMessage(START_OFFLINE_CONNECTION, 0,startAnimation);
 	}
-
-	private void setOfflineFtueCardCancelled() 
-	{
-		try
-		{
-			JSONObject offlineFtueInfo  = new  JSONObject(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.OFFLINE_FTUE_INFO,null));
-			offlineFtueInfo.put(OfflineConstants.OFFLINE_FTUE_SHOWN_AND_CANCELLED,true);
-			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_FTUE_INFO,offlineFtueInfo.toString());
-			if(messages!=null)
-			{
-				if(messages.size()>0)
-				{
-					ConvMessage firstConvMessage = messages.get(0);
-					if(firstConvMessage.isBlockAddHeader())
-					{
-						if(messages.size()>1)
-						{
-							ConvMessage secondConvMessage = messages.get(1);
-							if(secondConvMessage.isOfflineFtueHeader())
-							{
-								messages.remove(1);
-								mAdapter.notifyDataSetChanged();
-							}
-						}
-					}
-					else if(firstConvMessage.isOfflineFtueHeader())
-					{
-						messages.remove(0);
-						mAdapter.notifyDataSetChanged();
-					}
-					
-				}
-			}
-		}
-		catch (JSONException e) 
-		{
-			Logger.e(TAG, "Problems with JSON");
-		}
-	}
-
+	
 	private void h20NextClick()
 	{
 		HAManager.getInstance().record(HikeConstants.LogEvent.FIRST_OFFLINE_TIP_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
@@ -3239,7 +3183,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected void blockUnBlockUser(boolean isBlocked)
 	{
 		super.blockUnBlockUser(isBlocked);
-		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
+		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+		{
+			OfflineUtils.stopFreeHikeConnection(activity, msisdn);
+		}
 		/**
 		 * If blocked, hide LastSeen view, else, try to show the lastSeen
 		 */
@@ -3362,6 +3309,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void onDisconnectionRequest()
 	{
+		sendUIMessage(UPDATE_LAST_SEEN,getResources().getString(R.string.disconnecting_offline));
 		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 	}
 

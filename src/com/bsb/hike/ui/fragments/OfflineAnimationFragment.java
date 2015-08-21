@@ -119,6 +119,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private HoloCircularProgress circularProgress;
 	
+	Boolean connectionCancelled =false;
+	
 	private  Handler uiHandler = new Handler()
 	{
 		public void handleMessage(android.os.Message msg)
@@ -622,7 +624,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				@Override
 				public void run()
 				{
-					updateUIOnDisconnect();
+					if(!connectionCancelled)
+					{
+						updateUIOnDisconnect();
+					}
 				}
 			});
 			break;
@@ -902,6 +907,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	@Override
 	public void onDisconnectionRequest()
 	{
+		connectionCancelled = true;
 		listener.onDisconnectionRequest();
 	}
 

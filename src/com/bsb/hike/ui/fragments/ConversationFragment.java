@@ -1548,7 +1548,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				else if (getString(R.string.block_title).equals(option))
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
-					OfflineUtils.stopFreeHikeConnection(HikeMessengerApp.getInstance().getApplicationContext(), conv.getMsisdn());
+					if(OfflineUtils.isConnectedToSameMsisdn(conv.getMsisdn()))
+					{
+						OfflineUtils.stopFreeHikeConnection(HikeMessengerApp.getInstance().getApplicationContext(), conv.getMsisdn());
+					}
+					
 				}
 				else if (getString(R.string.unblock_title).equals(option))
 				{
