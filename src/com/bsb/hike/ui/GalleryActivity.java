@@ -265,9 +265,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		progressLoading = findViewById(R.id.progressLoading);
 		if(!isInsideAlbum)
+		{
 			progressLoading.setVisibility(View.VISIBLE);
+		}
 		else
+		{
 			progressLoading.setVisibility(View.GONE);
+		}
 	}
 
 	@Override

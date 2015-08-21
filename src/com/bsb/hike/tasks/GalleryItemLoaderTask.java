@@ -16,6 +16,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.PictureEditer;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 	
@@ -50,6 +52,8 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 	private final String CAMERA_IMAGES = "Camera";
 
 	private final String HIKE_IMAGES = "hike";
+
+	private final String TAG = "GalleryItemLoaderTask";
 	
 	public GalleryItemLoaderTask(GalleryItemLoaderImp listener, boolean isInsideAlbum, boolean enableCameraPick) {
 		this.listener = listener;
@@ -102,7 +106,7 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 			if (enableCameraPick)
 			{
 				GalleryItem cameraItem = new GalleryItem(GalleryItem.CAMERA_TILE_ID, GalleryActivity.NEW_PHOTO, GalleryActivity.CAMERA_TILE, 0);
-				listener.onGalleryItemLoaded(cameraItem);
+				onItemLoaded(cameraItem);
 			}
 			/*
 			 * Creating All images bucket where we will show all images present in the device.
@@ -120,7 +124,7 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 						if (cursor.moveToFirst())
 						{
 							GalleryItem allImgItem = new GalleryItem(cursor.getLong(idIdx), null, GalleryActivity.ALL_IMAGES_BUCKET_NAME, cursor.getString(dataIdx), cursor.getCount());
-							listener.onGalleryItemLoaded(allImgItem);
+							onItemLoaded(allImgItem);
 						}
 					}
 					finally
@@ -160,18 +164,22 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 							if(!isInsideAlbum)
 							{
 								if(galleryItem.getName().startsWith(CAMERA_IMAGES))
-									listener.onGalleryItemLoaded(galleryItem);
+								{
+									onItemLoaded(galleryItem);
+								}
 								else
+								{
 									addItemInPreferredOrder(galleryItem, pendingItemList);
+								}
 							}
 							else
 							{
-								listener.onGalleryItemLoaded(galleryItem);
+								onItemLoaded(galleryItem);
 							}
 						}while (mRunning && cursor.moveToNext());
 					}
 					mRunning = false;
-					if(pendingItemList != null && pendingItemList.size() > 0)
+					if(!Utils.isEmpty(pendingItemList))
 					{
 						for (GalleryItem galleryItem : pendingItemList) {
 							listener.onGalleryItemLoaded(galleryItem);
@@ -195,7 +203,9 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 			pendingItemList.add(0, galleryItem);
 		}
 		else
+		{
 			pendingItemList.add(galleryItem);
+		}
 	}
 
 	/**
@@ -220,6 +230,7 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			Logger.e(TAG, "Exception while getting item count" , e);
 		}
 		return number;
 	}
@@ -250,11 +261,14 @@ public class GalleryItemLoaderTask extends AsyncTask<Void, Void, Void>{
 			return false;
 		}
 
-		if(editedImages.contains(filePath))
-		{
-			return true;
-		}
+		return editedImages.contains(filePath);
+	}
 
-		return false;
+	private void onItemLoaded(GalleryItem item)
+	{
+		if(this.listener != null)
+		{
+			listener.onGalleryItemLoaded(item);
+		}
 	}
 }
