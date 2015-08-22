@@ -120,10 +120,8 @@ public class VoIPActivity extends AppCompatActivity implements CallFragmentListe
 
 			// Using this method to ensure fragment commit happens immediately
 			getSupportFragmentManager().executePendingTransactions();
+			clearActivityFlags();
 			
-			// Let the screen switch off
-			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 	}
 
@@ -179,5 +177,11 @@ public class VoIPActivity extends AppCompatActivity implements CallFragmentListe
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void clearActivityFlags() {
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 }
