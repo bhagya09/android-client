@@ -1627,7 +1627,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private void addFTUEItemIfExists(boolean addFav)
 	{
 		StatusMessage statusMessage = null;
-		if (!mStatusMessages.isEmpty())
+		if (!mStatusMessages.isEmpty() && mFtueFriendList != null && !mFtueFriendList.isEmpty())
 		{
 			ContactInfo contact = mFtueFriendList.get(0);
 			if (addFav && (contact.getFavoriteType() != FavoriteType.FRIEND))
