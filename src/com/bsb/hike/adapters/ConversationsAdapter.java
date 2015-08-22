@@ -976,6 +976,8 @@ public class ConversationsAdapter extends BaseAdapter
 				imgStatus.setVisibility(View.VISIBLE);
 				imgStatus.setImageResource(R.drawable.freehike_logo);
 				messageView.setText(context.getResources().getString(R.string.free_hike_connection));	
+				imgStatus.setPadding(0, 0,  context.getResources().getDimensionPixelSize(R.dimen.hike_direct_msg_padding), context.getResources().getDimensionPixelSize(R.dimen.tick_padding_bottom));
+
 			}
 			if(isNuxLocked)
 			{ 
