@@ -221,20 +221,24 @@ public class ConnectionManager implements ChannelListener
 	public Map<String, ScanResult> getWifiNetworksForMyMsisdn() {
 		
 		List<ScanResult> results = wifiManager.getScanResults();
-		Map<String,ScanResult> distinctNetworks = new HashMap<String, ScanResult>();
-		for(ScanResult scanResult :  results)
+		Map<String, ScanResult> distinctNetworks = new HashMap<String, ScanResult>();
+		if (results == null || results.isEmpty())
+		{
+			return distinctNetworks;
+		}
+		for (ScanResult scanResult : results)
 		{
 			boolean cond = !(TextUtils.isEmpty(scanResult.SSID));
 			scanResult.SSID = OfflineUtils.decodeSsid(scanResult.SSID);
-			if(cond && scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
+			if (cond && scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
 			{
-				if(!distinctNetworks.containsKey(scanResult))
+				if (!distinctNetworks.containsKey(scanResult))
 				{
-					distinctNetworks.put(scanResult.SSID, scanResult); 
+					distinctNetworks.put(scanResult.SSID, scanResult);
 				}
 				else
 				{
-					if(WifiManager.compareSignalLevel(scanResult.level, distinctNetworks.get(scanResult.SSID).level)>0)
+					if (WifiManager.compareSignalLevel(scanResult.level, distinctNetworks.get(scanResult.SSID).level) > 0)
 					{
 						distinctNetworks.put(scanResult.SSID, scanResult);
 					}
