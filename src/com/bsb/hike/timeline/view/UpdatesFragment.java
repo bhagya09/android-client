@@ -781,11 +781,21 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}, 0);
 			}
 
-			long currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+			long currentProtipId = -1l;
+
+			//Defensive check. TODO Remove protip code from application.
+			try
+			{
+				currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
 
 			Protip protip = null;
 			boolean showProtip = false;
-			if (currentProtipId != -1)
+			if (currentProtipId != -1l)
 			{
 				showProtip = true;
 				protip = HikeConversationsDatabase.getInstance().getProtipForId(currentProtipId);

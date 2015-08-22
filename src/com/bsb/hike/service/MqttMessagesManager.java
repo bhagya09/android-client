@@ -2853,7 +2853,18 @@ public class MqttMessagesManager
 		// need it anymore.
 		// As per the last request from growth team, we don't need to show
 		// the older pro tips once the latest pro tips come in.
-		long currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+		long currentProtipId = -1l;
+
+		//Defensive check. TODO Remove protip code from application.
+		try
+		{
+			currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
 		boolean isValidProtip = false;
 
 		Protip protip = new Protip(jsonObj);
