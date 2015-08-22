@@ -34,6 +34,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
@@ -249,7 +250,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			}
 			else if (contactInfo.getFavoriteType() == FavoriteType.FRIEND || contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
 			{
-				holder.status.setText("is friend");
 				StatusMessage lastStatusMessage = getLastStatusMessagesMap().get(contactInfo.getMsisdn());
 				if (lastStatusMessage != null)
 				{
@@ -274,6 +274,28 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 						holder.statusMood.setVisibility(View.GONE);
 						break;
 
+					case IMAGE:
+					case TEXT_IMAGE:
+						SmileyParser smileyParser = SmileyParser.getInstance();
+						if(TextUtils.isEmpty(lastStatusMessage.getText()))
+						{
+							holder.status.setText(lastStatusMessage.getMsisdn());
+						}
+						else
+						{
+							holder.status.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
+						}
+						if (lastStatusMessage.hasMood())
+						{
+							holder.statusMood.setVisibility(View.VISIBLE);
+							holder.statusMood.setImageResource(EmoticonConstants.moodMapping.get(lastStatusMessage.getMoodId()));
+						}
+						else
+						{
+							holder.statusMood.setVisibility(View.GONE);
+						}
+						break;
+						
 					default:
 						break;
 					}

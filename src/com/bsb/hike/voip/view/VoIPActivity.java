@@ -6,14 +6,13 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
 import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
@@ -46,6 +45,7 @@ public class VoIPActivity extends AppCompatActivity implements CallFragmentListe
 		{
 			mainFragment.handleIntent(intent);
 		}
+		StatusBarColorChanger.setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_BLUE);
 	}
 
 	@Override
