@@ -3374,7 +3374,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 *  Note: This is to be shown only once
 		 */
 		boolean ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
-		if (!ctSearchIndicatorShown && !mActionBar.isOverflowMenuIndicatorInUse()
+		if (!ctSearchIndicatorShown && mActionBar !=null && !mActionBar.isOverflowMenuIndicatorInUse()
 				&& (firstVisibleItem + visibleItemCount + 1) < totalItemCount && !loadingMoreMessages)
 		{
 			// If user has already discovered search option, theres on need to show the search icon on overflow menu icon.

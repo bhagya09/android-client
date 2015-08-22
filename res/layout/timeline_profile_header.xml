@@ -38,14 +38,6 @@
             android:scaleType="centerInside"
             android:src="@drawable/ic_change_profile_pic" />
 
-        <View
-            android:id="@+id/button_divider"
-            android:layout_width="1dp"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/change_profile"
-            android:background="@color/white_16" />
-
         <LinearLayout
             android:id="@+id/info_layout"
             android:layout_width="match_parent"
