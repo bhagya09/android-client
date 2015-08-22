@@ -64,6 +64,10 @@ public class HikeFile
 				{
 					return HikeFileType.CONTACT;
 				}
+				else if (fileTypeString.contains("package-archive"))	
+				{
+					return HikeFileType.APK;
+				}
 			}
 			return HikeFileType.OTHER;
 		}
