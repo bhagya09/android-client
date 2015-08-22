@@ -22,7 +22,7 @@ public class OfflineSessionTracking
 
 	private Map<Long, SessionTracFilePOJO> listOfFiles = null;
 
-	MessageTextCounter counter = null;
+	MessageTextCounter counter = new MessageTextCounter();
 	
 	public static final String TAG = "OfflineAnalytics";
 	
@@ -50,7 +50,6 @@ public class OfflineSessionTracking
 		listOfFiles = new ConcurrentHashMap<Long, SessionTracFilePOJO>();
 		toUser = null;
 		fUser = null;
-		counter = new MessageTextCounter();
 		sessionStartTime=System.currentTimeMillis();
 	}
 
