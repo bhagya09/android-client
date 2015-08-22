@@ -3,21 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/new_update"
-        android:icon="@drawable/ic_new_status"
+        android:id="@+id/activity_feed"
         app:showAsAction="always"
-        android:title="@string/post_new_update"/>
-    <item
-        android:id="@+id/show_people"
-        app:actionLayout="@layout/overflow_icon_view"
-        app:showAsAction="always"
-        android:title="@string/favorites"/>
+        app:actionLayout="@layout/activity_feed_icon_view"
+        android:title="@string/actionbar_activity_feed_title"/>
     <item
         android:id="@+id/overflow_menu"
+        android:menuCategory="secondary"
         app:actionLayout="@layout/overflow_icon_view"
         app:showAsAction="always"
-        android:visible="false"
-        android:menuCategory="secondary" >
+        android:title="@string/other">
     </item>
 
 </menu>

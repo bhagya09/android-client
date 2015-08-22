@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:gravity="center_vertical"
-    android:minHeight="30dp" >
+    android:paddingBottom="2dp" >
 
     <ViewStub
         android:id="@+id/day_stub"
@@ -18,18 +18,22 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/day_container"
         android:layout_centerVertical="true"
-        android:layout_margin="10dp"
-        android:background="@drawable/participant_info_bg"
+        android:layout_marginLeft="@dimen/chat_bubble_edge_spacing"
+        android:layout_marginRight="@dimen/chat_bubble_edge_spacing"
+        android:background="@drawable/bg_system_message_dark"
         android:gravity="center_vertical"
-        android:orientation="horizontal" >
+        android:minHeight="33dp"
+        android:orientation="horizontal"
+        android:paddingBottom="3dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="3dp" >
 
         <ImageView
             android:id="@+id/voip_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginTop="2dp"
             android:src="@drawable/ic_call" />
 
@@ -41,8 +45,6 @@
             android:layout_alignParentRight="true"
             android:gravity="center"
             android:paddingBottom="3dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:paddingTop="3dp"
             android:text="10:00"
             android:textColor="@color/timestampcolor"

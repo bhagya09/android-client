@@ -2,7 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+        >
 
     <FrameLayout
         android:layout_width="96dp"
@@ -44,8 +47,6 @@
         android:gravity="center_vertical"
         android:hint="@string/name_group"
         android:maxLength="@integer/max_length_group_name"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
         android:paddingTop="8dp"
         android:singleLine="true" />
     
@@ -56,8 +57,8 @@
         android:clickable="true"
         android:onClick="onGSCheckboxClicked"
         android:orientation="horizontal"
-        android:paddingLeft="19dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:paddingTop="20dp"
         android:paddingBottom="20dp" >
 
@@ -81,20 +82,29 @@
             android:focusable="false" />
     </RelativeLayout>
     
+    <View   	    
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="8dp"
+       	android:layout_marginRight="8dp"         
+        android:alpha="0.08"
+        android:background="#000000"/>
+    
      <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/group_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/ic_chat_theme_info"
+        android:layout_marginTop="36dp"
         android:drawablePadding="4dp"
-        android:paddingLeft="10dp"
-        android:layout_marginLeft="9dp"
-        android:paddingRight="10dp"
         android:paddingTop="8dp"
+        android:layout_gravity="center"
         android:paddingBottom="8dp"
         android:textSize="12sp"
         android:singleLine="true"
-        android:background="#f2f2f2"
+         android:paddingLeft="10dp"
+      
+        android:paddingRight="10dp"
         android:text="@string/group_participant_info"/>
 
 </LinearLayout>

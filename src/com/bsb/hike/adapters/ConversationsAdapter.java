@@ -31,9 +31,8 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -216,15 +215,8 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			if (!isSearchModeOn)
 			{
-				if (BotUtils.getBotAnimaionType(convInfo) == BotUtils.BOT_READ_SLIDE_OUT_ANIMATION)
-				{
-					animation = getSlideOutAnimation(convInfo);
-					startSlideOutAnimation(animation, v);
-				}
-				else
-				{
-					removeConversation(convInfo);
-				}
+				animation = getSlideOutAnimation(convInfo);
+				startSlideOutAnimation(animation, v);
 				removeBotMsisdn = null;
 			}
 			else
@@ -945,9 +937,6 @@ public class ConversationsAdapter extends BaseAdapter
 					unreadIndicator.setVisibility(View.VISIBLE);
 					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
 					String unreadCountString = convInfo.getUnreadCountString();
-					LayoutParams lp = (LayoutParams) unreadIndicator.getLayoutParams();
-					lp.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
-					unreadIndicator.setLayoutParams(lp);
 					unreadIndicator.setText(unreadCountString);
 			}
 
@@ -963,8 +952,10 @@ public class ConversationsAdapter extends BaseAdapter
 
 			if (message.isSent())
 			{
-				imgStatus.setImageResource(message.getImageState());
+				int drawableResId = message.getImageState();
+				imgStatus.setImageResource(drawableResId);
 				imgStatus.setVisibility(View.VISIBLE);
+				setImgStatusPadding(imgStatus, drawableResId);
 			}
 
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
@@ -972,9 +963,6 @@ public class ConversationsAdapter extends BaseAdapter
 					unreadIndicator.setVisibility(View.VISIBLE);
 					unreadIndicator.setBackgroundResource(R.drawable.ic_messagecounter);
 					String unreadCountString = convInfo.getUnreadCountString();
-					LayoutParams lp2 = (LayoutParams) unreadIndicator.getLayoutParams();
-					lp2.width = Utils.getUnreadCounterBadgeWidth(context, unreadCountString);
-					unreadIndicator.setLayoutParams(lp2);
 					unreadIndicator.setText(unreadCountString);
 			}
 			
@@ -985,7 +973,7 @@ public class ConversationsAdapter extends BaseAdapter
 				messageView.setText(NUXManager.getInstance().getNuxChatRewardPojo().getChatWaitingText());	
 			}
 			
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
+			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) messageView.getLayoutParams();
 			lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
 			messageView.setLayoutParams(lp);
 		}
@@ -999,6 +987,12 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
 		}
+	}
+
+	private void setImgStatusPadding(ImageView imgStatus, int drawableResId)
+	{
+		// we have separate padding from bottom for clock and other assets
+		imgStatus.setPadding(0, 0, 0, drawableResId == R.drawable.ic_retry_sending ? context.getResources().getDimensionPixelSize(R.dimen.clock_padding_bottom) : context.getResources().getDimensionPixelSize(R.dimen.tick_padding_bottom));
 	}
 
 	private CharSequence getConversationText(ConvInfo convInfo, ConvMessage message)

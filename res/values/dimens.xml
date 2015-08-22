@@ -25,7 +25,8 @@
     <dimen name="main_text_size">18sp</dimen>
     <dimen name="sub_text_size">14sp</dimen>
     <dimen name="top_btn_padding">0dp</dimen>
-    <dimen name="emoticon_pallete">228dp</dimen>
+    <dimen name="emoticon_pallete">268dp</dimen>
+    <dimen name="mood_pallete">288dp</dimen>
     <dimen name="sticker_padding">16dp</dimen>
     <dimen name="emoticon_pager_padding">5dp</dimen>
     <dimen name="protip_btn_padding">37dp</dimen>
@@ -73,7 +74,7 @@
     <!-- Text size for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_text_size">6dp</dimen>
     <!-- Top margin for action bar subtitles -->
-    <dimen name="ab__action_bar_subtitle_top_margin">-3dp</dimen>
+    <dimen name="ab__action_bar_subtitle_top_margin">2dp</dimen>
     <!-- Bottom margin for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_bottom_margin">5dip</dimen>
     <dimen name="ab__status_bar_height">24dp</dimen>
@@ -101,6 +102,7 @@
     <dimen name="gift_card_width">208dp</dimen>
     <dimen name="gift_card_height">220dp</dimen>
     <dimen name="timeine_big_picture_size">200dp</dimen>
+    <dimen name="timeine_profile_picture_size">320dp</dimen>
     <dimen name="icon_picture_size">50dp</dimen>
     <dimen name="gallery_grid_spacing">5dp</dimen>
     <dimen name="gallery_cover_item_size">179dp</dimen>
@@ -160,7 +162,7 @@
 	<dimen name="sm_rightmargin">53dp</dimen>
 	<dimen name="top_margin_shared_content">8dp</dimen>
 	<dimen name="shared_media_top_margin_hike_bot">3dp</dimen>
-	<dimen name="avatar_profile_size">68dp</dimen>
+	<dimen name="avatar_profile_size">69dp</dimen>
 	<dimen name="welcome_with_love_top">30dp</dimen>
 	<dimen name="diwali_popup_width">290dp</dimen>
 	<dimen name="diwali_popup_height">380dp</dimen>
@@ -197,6 +199,8 @@
 	<dimen name="sticker_recommend_padding">8dp</dimen>
 	<dimen name="sticker_recommend_sticker_image_padding">4dp</dimen>
 	<dimen name="sticker_btn_width">60dp</dimen>
+	<dimen name="photos_selector_top_padding">8dp</dimen>
+	<dimen name="preview_brush_width">38dp</dimen>
 	<dimen name="home_sreen_divider_left_padding">80dp</dimen>
 	<dimen name="home_sreen_divider_right_padding">16dp</dimen>
 	<dimen name="conv_item_height">68dp</dimen>
@@ -214,12 +218,22 @@
 	<dimen name="menu_list_padding_top">8dp</dimen>
 	<dimen name="menu_list_padding_bottom">8dp</dimen>
 	<dimen name="overflow_menu_shadow_padding">6.5dp</dimen>
-	<dimen name="photos_selector_top_padding">8dp</dimen>
-	<dimen name="preview_brush_width">38dp</dimen>
-	
 	<dimen name="unread_badge_single_width">22dp</dimen>
 	<dimen name="unread_badge_double_width">24dp</dimen>
 	<dimen name="unread_badge_triple_width">30dp</dimen>
 	<dimen name="unread_badge_quad_width">36dp</dimen>
 	<dimen name="attachment_column_width">73dp</dimen>
+	<dimen name="attachment_grid_vertical_margin">156dp</dimen>
+	<dimen name="attachment_grid_portrait_height">278dp</dimen>
+	<dimen name="attachment_grid_landscape_height">188dp</dimen>
+	<dimen name="md_notitle_vertical_padding">0dp</dimen>
+	<dimen name="md_button_frame_vertical_padding">0dp</dimen>
+	<dimen name="md_button_height">56dp</dimen>
+	<dimen name="md_divider_height">1dp</dimen>
+	<dimen name="tick_padding_bottom">3dp</dimen>
+	<dimen name="clock_padding_bottom">2dp</dimen>
+	<dimen name="bottom_padding_pin_view">150dp</dimen>
+	
+	<dimen name="overflow_menu_top_margin_non_overlay">-52dp</dimen>
+	<dimen name="overflow_menu_top_margin_overlay">4dp</dimen>
 </resources>

@@ -38,14 +38,15 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
@@ -1146,6 +1147,28 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 							statusMood.setVisibility(View.GONE);
 							break;
 
+						case IMAGE:
+						case TEXT_IMAGE:
+							SmileyParser smileyParser = SmileyParser.getInstance();
+							if(TextUtils.isEmpty(lastStatusMessage.getText()))
+							{
+								lastSeen.setText(lastStatusMessage.getMsisdn());
+							}
+							else
+							{
+								lastSeen.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
+							}
+							if (lastStatusMessage.hasMood())
+							{
+								statusMood.setVisibility(View.VISIBLE);
+								statusMood.setImageResource(EmoticonConstants.moodMapping.get(lastStatusMessage.getMoodId()));
+							}
+							else
+							{
+								statusMood.setVisibility(View.GONE);
+							}
+							break;
+							
 						default:
 							break;
 						}

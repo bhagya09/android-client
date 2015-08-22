@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">Dern. connexion</string>
     <string name="status_updates_proper_casing">Mises à j. du statut</string>
     <string name="bigger_better_attachments">Pièces jointes plus volumineuses à la prise en charge améliorée</string>
-    <string name="alp_42447968_cmd_confirm">Confirmer</string>
-    <string name="alp_42447968_cmd_continue">Continuer</string>
+    <string name="CONFIRM">CONFIRMER</string>
+    <string name="CONTINUE">CONTINUER</string>
     <string name="alp_42447968_cmd_forgot_pattern">Schéma oublié ?</string>
-    <string name="alp_42447968_cmd_retry">Réessayer</string>
     <string name="alp_42447968_loading">Chargement...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Téléphone ajouté</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Schéma annulé</string>
@@ -898,7 +897,6 @@
     <string name="vib_default_key">Par défaut</string>
     <string name="vib_short_key">Court</string>
     <string name="vib_long_key">Long</string>
-    <string name="delete_account_heading">EN SUPPRIMANT TON COMPTE, TU VAS</string>
     <string name="chat_unmarked_stealth_first">Tu as marqué un tchat comme visible. Quiconque lancera hike pourra le voir.</string>
     <string name="tickSoundTitle">Sons de conversation</string>
     <string name="tickSoundSummary">Émet un son pour les messages entrants et sortants</string>
@@ -921,7 +919,6 @@
     <string name="delete_account_msg">Delete your Hike account.</string>
     <string name="unlink_confirmation">Are you sure you want to reset your account?</string>
     <string name="unlinking_account">Resetting...</string>
-    <string name="delete_confirm_msg_1">This will delete all your messages, SMS balance and any hike rewards.</string>
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Ajouter aux contacts</string>
     <string name="delete_leave">Delete and exit group</string>
@@ -1194,12 +1191,11 @@
     <string name="sticker_shop">Boutique de stickers</string>
     <string name="my_stickers">Mes stickers</string>
     <string name="update_all">METTRE À JOUR TOUT</string>
-    <string name="retry_sticker">RÉESSAYER</string>
+    <string name="RETRY">RÉESSAYER</string>
     <string name="see_them">TERMINÉ</string>
     <string name="drag_tip_text">Touche longuement un pack pour réorganiser tes packs de stickers</string>
     <string name="drag_tip_subtext">Touche et fais glisser pour réorganiser tes stickers</string>
     <string name="CANCEL">ANNULER</string>
-    <string name="CONFIRM">CONFIRMER</string>
     <string name="n_more">%1$d DE PLUS</string>
     <string name="n_stickers">%1$d stickers</string>
     <string name="last_backup">Dernière sauvegarde</string>
@@ -1247,7 +1243,6 @@
     <string name="action_settings">Réglages</string>
     <string name="creating_backup_message">Création d\'une sauvegarde de ton compte. Les sauvegardes quotidiennes interviennent à 3 heures du matin</string>
     <string name="restore">Rétablir</string>
-    <string name="delete_account_description">supprimer tous tes messages, tes sauvegardes, tes SMS gratuits et tes récompenses hike</string>
     <string name="auth_connected_to_hike">L\'appli %1$s est connectée à hike !</string>
     <string name="auth_state_connecting">Connexion en cours...</string>
     <string name="auth_please_wait_connect">Attends pendant qu\'on te connecte...</string>

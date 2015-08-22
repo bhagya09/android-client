@@ -42,17 +42,21 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */
-        if (Utils.requireAuth(this))
-        {
+		if (Utils.requireAuth(this))
+		{
 			/**
 			 * To avoid super Not Called exception
 			 */
-        	super.onCreate(savedInstanceState);
-            return;
-        }
-        if(filter(getIntent()))
-        init(getIntent());
-		//Activity should be created first in order to access action bar from chatthread.oncreate
+			super.onCreate(savedInstanceState);
+			return;
+		}
+
+		if (filter(getIntent()))
+		{
+			init(getIntent());
+		}
+		
+		// Activity should be created first in order to access action bar from chatthread.oncreate
 		super.onCreate(savedInstanceState);
 		if (filter(getIntent()))
 		{
@@ -307,7 +311,15 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	public void onAttachFragment(android.support.v4.app.Fragment fragment)
 	{
 		Logger.i(TAG, "onAttachFragment");
-		chatThread.onAttachFragment(fragment);
+		if (chatThread != null)
+		{
+			chatThread.onAttachFragment(fragment);
+		}
+		
+		else
+		{
+			Logger.wtf(TAG, "Chat Thread obj is null! We are attaching a ghost fragment!!");
+		}
 		super.onAttachFragment(fragment);
 	}
 	

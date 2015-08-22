@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -47,8 +48,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 	private ActionMode actionMode;
 
-	private ChatTheme userSelection;
-
+	/* It contains the currently selected ChatTheme in ThemePicker and an index of that ChatTheme according to ChatTheme.THEME_PICKER array */
+	private Pair<ChatTheme, Integer> userSelection;
+	
 	private ThemePickerListener listener;
 
 	private boolean listenerInvoked = false, reInflation;
@@ -59,7 +61,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	
 	public ThemePicker(AppCompatActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
 	{
-		this.userSelection = currentTheme;
+		this.userSelection = new Pair<ChatTheme, Integer>(currentTheme, ChatTheme.getPositionForTheme(currentTheme));
 		this.sherlockFragmentActivity = sherlockFragmentActivity;
 		this.listener = listener;
 		this.popUpLayout = new PopUpLayout(sherlockFragmentActivity.getApplicationContext());
@@ -85,7 +87,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	public void showThemePicker(int xoffset, int yoffset, View anchor, ChatTheme currentTheme, int footerTextResId, int orientation)
 	{
 		Logger.i(TAG, "show theme picker");
-		this.userSelection = currentTheme;
+		this.userSelection = new Pair<ChatTheme, Integer>(currentTheme, ChatTheme.getPositionForTheme(currentTheme));
 		sherlockFragmentActivity.startSupportActionMode(actionmodeCallback);
 		initView(footerTextResId, orientation);
 		popUpLayout.showPopUpWindowNoDismiss(xoffset, yoffset, anchor, getView());
@@ -121,7 +123,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		attachmentsGridView.setNumColumns(getNumColumnsChatThemes());
 
-		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(sherlockFragmentActivity.getApplicationContext(), -1, ChatTheme.values())
+		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(sherlockFragmentActivity.getApplicationContext(), -1, ChatTheme.THEME_PICKER)
 		{
 
 			@Override
@@ -138,17 +140,16 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 				animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
 				theme.setBackgroundResource(chatTheme.previewResId());
-				theme.setEnabled(userSelection == chatTheme);
+				theme.setEnabled(userSelection.first == chatTheme);
 
 				return convertView;
 			}
 		};
 
 		attachmentsGridView.setAdapter(gridAdapter);
-		if (userSelection != null)
+		if (userSelection != null && userSelection.first != null)
 		{
-			int selection = userSelection.ordinal();
-			attachmentsGridView.setSelection(selection);
+			attachmentsGridView.setSelection(userSelection.second);
 		}
 		attachmentsGridView.setOnItemClickListener(new OnItemClickListener()
 		{
@@ -156,13 +157,13 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 			{
-				ChatTheme selected = ChatTheme.values()[position];
+				ChatTheme selected = ChatTheme.THEME_PICKER[position];
 				gridAdapter.notifyDataSetChanged();
-				if (selected != userSelection)
+				if (selected != userSelection.first)
 				{
 					listener.themeClicked(selected);
 				}
-				userSelection = selected;
+				userSelection = new Pair<ChatTheme, Integer>(selected, position);
 			}
 		});
 
@@ -307,7 +308,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		if (arg0.getId() == R.id.done_container)
 		{
-			listener.themeSelected(userSelection);
+			listener.themeSelected(userSelection.first);
 			listenerInvoked = true;
 			popUpLayout.dismiss();
 		}

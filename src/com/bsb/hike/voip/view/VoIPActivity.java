@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
@@ -51,6 +52,7 @@ public class VoIPActivity extends AppCompatActivity implements CallFragmentListe
 		{
 			mainFragment.handleIntent(intent);
 		}
+		StatusBarColorChanger.setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_BLUE);
 	}
 
 	private void setupMainFragment()

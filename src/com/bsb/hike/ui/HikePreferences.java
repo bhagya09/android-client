@@ -75,7 +75,6 @@ import com.bsb.hike.view.SwitchPreferenceCompat;
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
 {
-
 	private enum BlockingTaskType
 	{
 		NONE, DELETING_ACCOUNT, UNLINKING_ACCOUNT, /*UNLINKING_TWITTER,*/ BACKUP_ACCOUNT, FETCH_RINGTONE
@@ -207,7 +206,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				getPreferenceScreen().removePreference(stickerRecommendPreference);
+				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
+				stickerPreferenceCategory.removePreference(stickerRecommendPreference);
 			}
 		}
 		
@@ -222,7 +222,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				getPreferenceScreen().removePreference(stickerRecommendAutopopupPreference);
+				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
+				stickerPreferenceCategory.removePreference(stickerRecommendAutopopupPreference);
 			}
 			
 		}
@@ -540,7 +541,7 @@ private void setupToolBar(int titleRes){
 	_toolBar=(Toolbar)findViewById(R.id.abp__toolbar);
 	_toolBar.setClickable(true);
 	View backContainer = findViewById(R.id.back);
-	TextView title = (TextView) backContainer.findViewById(R.id.title);
+	TextView title = (TextView) findViewById(R.id.title);
 	title.setText(titleRes);
 	backContainer.setOnClickListener(new View.OnClickListener()
 	{
@@ -1212,21 +1213,28 @@ private void setupToolBar(int titleRes){
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
 						AnalyticsConstants.CLICK_EVENT, metadata);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			HikeMessengerApp.getPubSub().publish(HikePubSub.NUDGE_SETTINGS_CHANGED, isChecked);
 		}
-		else if(HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
+		else if (HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
+
 			StickerManager.getInstance().sendRecommendationlSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 		}
-		else if(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey()))
+		else if (HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF.equals(preference.getKey()))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, isChecked);
-			StickerSearchManager.getInstance().setShowAutopopupSettingOn(isChecked);
+			StickerSearchManager.getInstance().setShowAutoPopupSettingOn(isChecked);
+			StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+			// Auto-suggestion setting is turned on by user, remove disable toast pref which was set automatically due to rejection pattern
+			if (isChecked)
+			{
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP);
+			}
+
 			StickerManager.getInstance().sendRecommendationAutopopupSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
@@ -1398,7 +1406,7 @@ private void setupToolBar(int titleRes){
 				{
 					PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, false).commit();
 					if(preference instanceof IconListPreference)
-						((IconListPreference)preference).setTitleColor(R.color.list_item_header);
+						((IconListPreference)preference).setTitleColor(R.color.settings_text_header_color);
 				}
 				HAManager.logClickEvent(HikeConstants.LogEvent.LS_SETTING_CLICKED);
 				return false;
@@ -1410,7 +1418,7 @@ private void setupToolBar(int titleRes){
 			lp.setSummary(ls_summary);
 		}
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
-			lp.setTitleColor(R.color.unread_message_blue);
+			lp.setTitleColor(R.color.blue_hike);
 		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
 		lp.setNegativeButtonText(R.string.CANCEL);
 	}
@@ -1735,16 +1743,11 @@ private void setupToolBar(int titleRes){
 			
 		});
 		
-		dialog.setCancelable(true);
-		
-		dialog.setTitle(R.string.choose_setting);
-		dialog.setPositiveButton(R.string.always, null);
-		dialog.setNegativeButton(R.string.just_once, null);
-		
-		dialog.buttonPositive.setOnClickListener(new OnClickListener()
+		HikeDialogListener listener = new HikeDialogListener()
 		{
+			
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				if (dialog.getCheckedRadioButtonId() != R.string.free_hike_sms && !PreferenceManager.getDefaultSharedPreferences(HikePreferences.this).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
 				{
@@ -1754,20 +1757,24 @@ private void setupToolBar(int titleRes){
 				{
 					smsDialogActionClicked(true, dialog.getCheckedRadioButtonId() == R.string.free_hike_sms);
 				}
-				dialog.dismiss();
+				hikeDialog.dismiss();
 			}
-		});
-		
-		dialog.buttonNegative.setOnClickListener(new OnClickListener()
-		{
+			
 			@Override
-			public void onClick(View v)
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				smsDialogActionClicked(false, dialog.getCheckedRadioButtonId() == R.string.free_hike_sms);
-				dialog.dismiss();
+				hikeDialog.dismiss();
 			}
-		});
-		
+		};
+		dialog.setTitle(R.string.choose_setting);
+		dialog.setPositiveButton(R.string.ALWAYS, listener);
+		dialog.setNegativeButton(R.string.JUST_ONCE, listener);
 		dialog.show();
 	}
 	
@@ -1829,7 +1836,7 @@ private void setupToolBar(int titleRes){
 		{
 			Utils.setSendUndeliveredAlwaysAsSmsSetting(this, false);
 		}
-		
+
 		Preference pref = getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.KEY_HIKE_OFFLINE);
 		
 		if (pref != null)
@@ -1853,7 +1860,5 @@ private void setupToolBar(int titleRes){
 			pref.setTitle(titleString);
 			pref.setSummary(summaryString);
 		}
-		
 	}
-
 }
