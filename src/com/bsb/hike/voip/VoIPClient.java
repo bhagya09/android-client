@@ -1017,6 +1017,15 @@ public class VoIPClient  {
 	
 	public synchronized void sendPacket(VoIPDataPacket dp, boolean requiresAck) {
 		
+		if (dp.getType() != PacketType.ACK && dp.getPacketNumber() == 0)
+			dp.setPacketNumber(currentPacketNumber++);
+		
+		dp.setRequiresAck(requiresAck);
+		dp.setTimestamp(System.currentTimeMillis());
+		
+		if (requiresAck == true)
+			addPacketToAckWaitQueue(dp);
+
 		if (dp == null || keepRunning == false)
 			return;
 		
@@ -1036,18 +1045,9 @@ public class VoIPClient  {
 			dp.setDestinationPort(getExternalPort());
 		}
 		
-		if (dp.getType() != PacketType.ACK && dp.getPacketNumber() == 0)
-			dp.setPacketNumber(currentPacketNumber++);
-		
 		if (dp.getType() == PacketType.AUDIO_PACKET)
 			rawVoiceSent += dp.getLength();
 		
-		dp.setRequiresAck(requiresAck);
-		dp.setTimestamp(System.currentTimeMillis());
-		
-		if (requiresAck == true)
-			addPacketToAckWaitQueue(dp);
-
 		if (dp.getType() == PacketType.AUDIO_PACKET) {
 			// Voice packet numbers are disabled for conferences
 			if (!isInAHostedConference && version >= 2)
