@@ -293,29 +293,9 @@ public class VoIPUtils {
 	
 	public static boolean shouldShowCallRatePopupNow()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-	}
-	
-	public static void setupCallRatePopupNextTime()
-	{
 		HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance();
-		int callsCount = sharedPref.getData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-		sharedPref.saveData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, ++callsCount);
-
 		int frequency = sharedPref.getData(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, -1);
-		boolean shownAlready = sharedPref.getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-
-		if(callsCount == frequency)
-		{
-			// Show popup next time
-			sharedPref.saveData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, true);
-			sharedPref.saveData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-		}
-		else if(shownAlready)
-		{
-			// Shown for the first time, dont show later
-			sharedPref.saveData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-		}
+		return ((new Random().nextInt(frequency) + 1) == frequency);
 	}
 	
 	/**

@@ -998,7 +998,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 				intent.putExtra(VoIPConstants.CALL_RATE_BUNDLE, bundle);
 				startActivity(intent);
 			}
-			VoIPUtils.setupCallRatePopupNextTime();
 		}
 		isCallActive = false;
 		getActivity().finish();

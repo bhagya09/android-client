@@ -218,6 +218,7 @@ public class VoIPService extends Service {
 	// Handler for messages from VoIP clients
 	Handler handler = new Handler() {
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void handleMessage(Message msg) {
 			Bundle bundle = msg.getData();
