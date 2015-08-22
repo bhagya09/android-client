@@ -712,25 +712,37 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		//Get contact info
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(), true,  false);
 
-		//Check if this guy has a saved name
+		// Check if this guy has a saved name
 		String name = contactInfo.getName();
-		
-		if (TextUtils.isEmpty(name))
+
+		try
 		{
-			//Was this our own contact info?
-			ContactInfo myContactInfo = Utils.getUserContactInfo(false);
-			if (myContactInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
+			if (TextUtils.isEmpty(name))
 			{
-				//Get name from account shared pref
-				name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, getApplicationContext().getString(R.string.me));
-			}
-			else
-			{
-				//Neither my contact info nor has a name, show msisdn 
-				name = contactInfo.getNameOrMsisdn();
+				// Was this our own contact info?
+				ContactInfo myContactInfo = Utils.getUserContactInfo(false);
+				if (myContactInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
+				{
+					// Get name from account shared pref
+					name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, getApplicationContext().getString(R.string.me));
+				}
+				else
+				{
+					// Neither my contact info nor has a name, show msisdn
+					name = contactInfo.getNameOrMsisdn();
+				}
 			}
 		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
 		
+		if(TextUtils.isEmpty(name))
+		{
+			name = contactInfo.getNameOrMsisdn();
+		}
+
 		contactName.setText(name);
 
 		contactStatus.setText(mStatusMessage.getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));
