@@ -39,7 +39,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -82,6 +81,7 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -1136,7 +1136,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		updateAlert.setTitle(updateType == HikeConstants.CRITICAL_UPDATE ? R.string.critical_update_head : R.string.normal_update_head);
 		updateAlert.setMessage(accountPrefs.getString(HikeConstants.Extras.UPDATE_MESSAGE, ""));
 
-		updateAlert.setPositiveButton(R.string.update_app, dialogListener);
+		updateAlert.setPositiveButton(R.string.UPDATE_APP, dialogListener);
 		if (updateType != HikeConstants.CRITICAL_UPDATE)
 		{
 			updateAlert.setNegativeButton(R.string.CANCEL, dialogListener);
@@ -1778,6 +1778,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
+					
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OPEN);
+						if (Utils.getNotificationCount(accountPrefs, false) > 0)
+						{
+							metadataSU.put(AnalyticsConstants.EVENT_SOURCE, HikeConstants.LogEvent.TIMELINE_WITH_RED_DOT);
+						}
+
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 
 					editor.putBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					editor.commit();
@@ -1823,20 +1839,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		overFlowWindow.setFocusable(true);
 		overFlowWindow.setWidth(Utils.getOverflowMenuWidth(getApplicationContext()));
 		overFlowWindow.setHeight(LayoutParams.WRAP_CONTENT);
-		/*
-		 * In some devices Activity crashes and a BadTokenException is thrown by showAsDropDown method. Still need to find out exact repro of the bug.
-		 */
-		try
+		
+		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+		final int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
+
+		final View anchor = findViewById(R.id.overflow_anchor);
+		anchor.post(new Runnable()
 		{
-			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
-			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-			
-			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
-		}
-		catch (BadTokenException e)
-		{
-			Logger.e(getClass().getSimpleName(), "Excepetion in HomeActivity Overflow popup", e);
-		}
+
+			@Override
+			public void run()
+			{
+				overFlowWindow.showAsDropDown(anchor, -rightMargin, 0);
+			}
+
+		});
+
 		overFlowWindow.getContentView().setFocusableInTouchMode(true);
 		overFlowWindow.getContentView().setOnKeyListener(new View.OnKeyListener()
 		{

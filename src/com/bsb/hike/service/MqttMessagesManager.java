@@ -93,6 +93,7 @@ import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
+import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -3750,19 +3751,14 @@ public class MqttMessagesManager
 
 					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
 					
+					TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
+					
 					//Saving count to file to display the counter at home screen
-					HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+					if(count != -1)
 					{
-						@Override
-						public void run()
-						{
-							int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
-							if(count != -1)
-							{
-								HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
-							}
-						}
-					});
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
+					}
 
 					if (isSuccess)
 					{
