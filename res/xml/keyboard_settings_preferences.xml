@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/settings_keyboard" >
+    
+    <ListPreference
+        android:key="languagePref"
+        android:layout="@layout/list_preference"
+        android:summary="@string/language_summary"
+        android:title="@string/language_title" />
+    
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="keyboardPref"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/keyboard_summary"
+        android:title="@string/keyboard_title"
+        android:widgetLayout="@layout/switch_widget" />
+    
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="glidePref"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/glide_summary"
+        android:title="@string/glide_title"
+        android:widgetLayout="@layout/switch_widget" />
+    
+    <com.bsb.hike.view.IconPreference
+            android:key="shorthandPref"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/shorthand_summary"
+            android:title="@string/shorthand_title" />
+
+    <com.bsb.hike.view.IconPreference
+            android:key="advancedPref"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/kpt_adv_summary"
+            android:title="@string/kpt_adv_title" />
+    
+</PreferenceScreen>

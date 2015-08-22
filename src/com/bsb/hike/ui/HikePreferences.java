@@ -1,5 +1,7 @@
 package com.bsb.hike.ui;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -45,6 +47,10 @@ import com.bsb.hike.view.IconListPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
 import com.bsb.hike.view.SwitchPreferenceCompat;
+import com.kpt.adaptxt.beta.AdaptxtSettings;
+import com.kpt.adaptxt.beta.AdaptxtSettingsRegisterListener;
+import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
+import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -69,7 +75,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
-							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
+							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener, AdaptxtSettingsRegisterListener
 {
 	private enum BlockingTaskType
 	{
@@ -89,7 +95,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	private boolean mIsResumed = false;
 	
+	KPTAdaptxtAddonSettings kptSettings;
 
+	private ProgressDialog mProgressDialog;
+
+	boolean mCoreEngineStatus;
+
+	List<KPTAddonItem> mInstalledLanguagesList;
+
+	private String mCurrentlangName;
+	
 	@Override
 	public Object onRetainNonConfigurationInstance()
 	{
@@ -121,8 +136,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			mTask.setActivity(this);
 		}
 
+		kptSettings = new KPTAdaptxtAddonSettings(this, this);
+
+		if(mCoreEngineStatus)
+		{
+			callAddonServices();
+		}
+		addKeyboardLanguagePrefListener();
+		addAutoTextReplacement();
+
 		addClickPreferences();
 		addSwitchPreferences();
+
 		
 		Preference deletePreference = getPreferenceScreen().findPreference(HikeConstants.DELETE_PREF);
 		if (deletePreference != null)
@@ -171,9 +196,60 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceChangeListeners(HikeConstants.DOUBLE_TAP_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.H2O_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.GLIDE_PREF);
 		addStickerRecommendPreferenceChangeListener();
 		addSslPreferenceChangeListener();
 		addStickerRecommendAutopopupPreferenceChangeListener();
+	}
+	
+	private void addKeyboardLanguagePrefListener()
+	{
+		if (mCoreEngineStatus)
+		{
+			if (mProgressDialog != null && mProgressDialog.isShowing())
+			{
+				mProgressDialog.dismiss();
+			}
+			final ListPreference languagePref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
+			if (languagePref != null)
+			{
+				CharSequence entries[] = new String[mInstalledLanguagesList.size()];
+				CharSequence entryValues[] = new String[mInstalledLanguagesList.size()];
+				int i=0;
+				for (KPTAddonItem item : mInstalledLanguagesList)
+				{
+					entries[i] = item.getDisplayName();
+					entryValues[i] = item.getDisplayName();
+					i++;
+				}
+				languagePref.setEntries(entries);
+				languagePref.setEntryValues(entryValues);
+				
+				languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
+				{
+					
+					@Override
+					public boolean onPreferenceChange(Preference preference, Object newValue)
+					{
+						for (KPTAddonItem item : mInstalledLanguagesList)
+						{
+							if (item.getDisplayName().equalsIgnoreCase((String) newValue))
+							{
+								kptSettings.changeLanguage(item);
+								mCurrentlangName = (String) newValue;
+							}
+						}
+						return true;
+					}
+				});
+			}
+		}
+		else
+		{
+			mProgressDialog = ProgressDialog.show(this, getResources().getText(R.string.kpt_title_wait), "Loading languages...", true, false);
+			Thread thread = new Thread();
+			thread.start();
+		}
 	}
 	
 	private void addStealthPrefListeners()
@@ -496,6 +572,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			mDialog = null;
 		}
 		mTask = null;
+		kptSettings.destroySettings();
 	}
 
 	public void setBlockingTask(ActivityCallableTask task)
@@ -1129,6 +1206,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 			return false;
 		}
+		else if (HikeConstants.GLIDE_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
 		return true;
 	}
 
@@ -1674,5 +1755,75 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			pref.setTitle(titleString);
 			pref.setSummary(summaryString);
 		}
+	}
+
+	@Override
+	public void coreEngineService()
+	{
+		if(mCoreEngineStatus)
+		{
+			callAddonServices();
+			addKeyboardLanguagePrefListener();
+			addAutoTextReplacement();
+		}
+	}
+
+	@Override
+	public void coreEngineStatus(boolean coreStatus)
+	{
+		if (coreStatus)
+		{
+			mCoreEngineStatus = coreStatus;
+			Logger.e("KPT", "--------------> core engine connected -----> " + coreStatus);
+		}
+		else
+		{
+			mCoreEngineStatus = coreStatus;
+			Logger.e("KPT", "--------------> core engine init start -----> " + coreStatus);
+		}
+	}
+	
+	private void callAddonServices(){
+		mInstalledLanguagesList = kptSettings.getInstalledLanguages();
+		mCurrentlangName = kptSettings.getCurrentLanguage();
+
+		HashMap<String, String> atrMap = kptSettings.getATRList();
+
+
+		for (HashMap.Entry<String, String> entry : atrMap.entrySet()){
+			Logger.e("KPT", entry.getKey() + "/" + entry.getValue());
+		}
+
+		int atrStatus = kptSettings.addATRShortcut("HRU", "How are you?");
+
+		// Intimate the user here for errors
+		switch (atrStatus) {
+		case AdaptxtSettings.KPT_SUCCESS:
+			Logger.e("KPT", "-----------> ATR SHORTCUT ADDED SUCCESFULLY <------------");
+			break;
+		case AdaptxtSettings.ATR_ERROR_EXPANSION_SHORT:
+			Logger.e("KPT", "-----------> ATR EXPANSION is LESS than 3 <------------");
+			break;
+		case AdaptxtSettings.ATR_ERROR_SHORTCUT_SHORT:
+			Logger.e("KPT", "-----------> ATR SHORTCUT is LESS than 3 <------------");
+			break;
+		case AdaptxtSettings.ATR_ERROR_SHORTCUT_LONG:
+			Logger.e("KPT", "-----------> ATR SHORTCUT is GREATER than 3 <------------");
+			break;
+		case AdaptxtSettings.ATR_ERROR_NULL:
+			Logger.e("KPT", "-----------> ATR OR EXPANSION is NULL <------------");
+			break;
+
+
+		default:
+			break;
+		}
+		
+		//mLangList = kptSettings.getLanguagesList();
+		//Log.e("VMC", "TOTAL LANGUAGES LIST ---------> "+langList.size());
+		Logger.e("KPT", "INSTALLED LANGUAGES -----------> "+mInstalledLanguagesList.size());
+		Logger.e("KPT", "CURRENT LANGUAGE --------------> "+mCurrentlangName);
+		Logger.e("KPT", "UNSUPPORTED LANGUAGE --------------> "+kptSettings.getUnsupportedLanguagesList().size());
+		
 	}
 }

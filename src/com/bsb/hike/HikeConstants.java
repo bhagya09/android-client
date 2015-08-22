@@ -597,6 +597,36 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
+	public static final String KEYBOARD_LANGUAGE_PREF = "languagePref";
+	
+	public static final String KEYBOARD_PREF = "keyboardPref";
+	
+	public static final String GLIDE_PREF = "glidePref";
+	
+	public static final String SHORTHAND_PREF = "shorthandPref";
+	
+	public static final String KEYBOARD_ADV_PREF = "advancedPref";
+	
+	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
+	
+	public static final String AUTO_CAPITALIZATION_PREF = "autoCapsPref";
+	
+	public static final String AUTO_SPACING_PREF = "autoSpacingPref";
+	
+	public static final String DISPLAY_SUGGESTIONS_PREF = "dispSuggPref";
+	
+	public static final String DISPLAY_ACCENTS_PREF = "dispAccentsPref";
+	
+	public static final String POPUP_ON_KEYPRESS_PREF = "popupOnKeypressPref";
+	
+	public static final String SOUND_ON_KEYPRESS_PREF = "soundOnKeypressPref";
+	
+	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
+	
+	public static final String PORTRAIT_IS_STD_PREF = "portraitIsStdPref";
+	
+	public static final String LANDSCAPE_IS_STD_PREF = "landscapeIsStdPref";
+	
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 	
 	public static final String UPGRADING = "upgrading";

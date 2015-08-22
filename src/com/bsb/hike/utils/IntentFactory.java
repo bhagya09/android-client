@@ -268,6 +268,14 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_chat);
 		context.startActivity(intent);
 	}
+	
+	public static void openSettingKeyboard(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_settings_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_keyboard);
+		context.startActivity(intent);
+	}
 
 	public static void openInviteSMS(Context context)
 	{
