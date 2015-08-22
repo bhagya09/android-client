@@ -46,6 +46,8 @@ public class BotInfo extends ConvInfo
 	
 	private AtomicBoolean isBackPressAllowed = new AtomicBoolean(false);
 
+	private AtomicBoolean isUpPressAllowed = new AtomicBoolean(false);
+
 	private String helperData;
 	
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
@@ -284,6 +286,22 @@ public class BotInfo extends ConvInfo
 	public void setIsBackPressAllowed(boolean isBackPressAllowed)
 	{
 		this.isBackPressAllowed.set(isBackPressAllowed);
+	}
+
+	/**
+	 * @return the isUpPressAllowed
+	 */
+	public boolean getIsUpPressAllowed()
+	{
+		return isUpPressAllowed.get();
+	}
+
+	/**
+	 * @param isUpPressAllowed the isUpPressAllowed to set
+	 */
+	public void setIsUpPressAllowed(boolean isUpPressAllowed)
+	{
+		this.isUpPressAllowed.set(isUpPressAllowed);
 	}
 	
 	/**
