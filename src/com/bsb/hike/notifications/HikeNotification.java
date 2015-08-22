@@ -1580,7 +1580,7 @@ public class HikeNotification
 				}
 				else if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 				{
-					message = info.getNameOrMsisdn() + " " +context.getString(R.string.status_update_like_text);
+					message = info.getNameOrMsisdn() + " " +context.getString(R.string.liked_your_post);
 				}
 				else
 				{

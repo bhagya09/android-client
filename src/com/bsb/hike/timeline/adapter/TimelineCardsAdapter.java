@@ -906,13 +906,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				StatusMessage statusMessage = (StatusMessage) v.getTag();
 				Intent intent = new Intent(mActivity.get(), TimelineSummaryActivity.class);
 				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
-
-				if (statusMessage.getActionsData() != null)
-				{
-					intent.putStringArrayListExtra(HikeConstants.MSISDNS, statusMessage.getActionsData().getAllMsisdn());
-					intent.putExtra(HikeConstants.Extras.LOVED_BY_SELF, statusMessage.getActionsData().isLikedBySelf());
-				}
-
 				startActivity(intent);
 			}
 		}
@@ -1634,7 +1627,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private void addFTUEItemIfExists(boolean addFav)
 	{
 		StatusMessage statusMessage = null;
-		if (!mStatusMessages.isEmpty())
+		if (!mStatusMessages.isEmpty() && mFtueFriendList != null && !mFtueFriendList.isEmpty())
 		{
 			ContactInfo contact = mFtueFriendList.get(0);
 			if (addFav && (contact.getFavoriteType() != FavoriteType.FRIEND))

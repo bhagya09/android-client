@@ -30,13 +30,9 @@ import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
-import com.bsb.hike.timeline.TimelineActionsManager;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -186,7 +182,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			if (viewType == TEXT)
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(mContext.getString(R.string.status_update_like_text) +" " +statusMessage.getText()+". "+ Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()), true));
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(mContext.getString(R.string.liked_your_post) +", " +statusMessage.getText()+". "+ Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 				viewHolder.largeProfilePic.setVisibility(View.GONE);
@@ -270,17 +266,8 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 			if (mActivity.get() != null)
 			{
-				TimelineActions actionsData = TimelineActionsManager.getInstance().getActionsData();
-				statusMessage.setActionsData(actionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE));
-				
 				Intent intent = new Intent(mActivity.get(), TimelineSummaryActivity.class);
 				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
-
-				if (statusMessage.getActionsData() != null)
-				{
-					intent.putStringArrayListExtra(HikeConstants.MSISDNS, statusMessage.getActionsData().getAllMsisdn());
-					intent.putExtra(HikeConstants.Extras.LOVED_BY_SELF, statusMessage.getActionsData().isLikedBySelf());
-				}
 
 				startActivity(intent);
 				

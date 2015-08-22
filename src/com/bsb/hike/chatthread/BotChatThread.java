@@ -319,6 +319,17 @@ public class BotChatThread extends OneToOneChatThread
 			}
 		}
 	}
+	
+	@Override
+	protected void setupDefaultActionBar(boolean firstInflation)
+	{
+		super.setupDefaultActionBar(firstInflation);
+		if (!configuration.isViewProfileEnabled())
+		{
+			View contactInfoContainer = mActionBarView.findViewById(R.id.contactinfocontainer);
+			contactInfoContainer.setClickable(false);
+		}
+	}
 
 	@Override
 	protected void onBlockUserclicked()
