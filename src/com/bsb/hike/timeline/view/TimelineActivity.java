@@ -133,6 +133,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		getWindow().setBackgroundDrawable(null);
 		initialiseTimelineScreen(savedInstanceState);
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.TIMELINE.ordinal());
