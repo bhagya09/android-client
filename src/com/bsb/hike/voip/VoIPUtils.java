@@ -22,6 +22,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -293,29 +295,12 @@ public class VoIPUtils {
 	
 	public static boolean shouldShowCallRatePopupNow()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-	}
-	
-	public static void setupCallRatePopupNextTime()
-	{
 		HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance();
-		int callsCount = sharedPref.getData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-		sharedPref.saveData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, ++callsCount);
-
 		int frequency = sharedPref.getData(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, -1);
-		boolean shownAlready = sharedPref.getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-
-		if(callsCount == frequency)
-		{
-			// Show popup next time
-			sharedPref.saveData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, true);
-			sharedPref.saveData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-		}
-		else if(shownAlready)
-		{
-			// Shown for the first time, dont show later
-			sharedPref.saveData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-		}
+		if (frequency > 0)
+			return ((new Random().nextInt(frequency) + 1) == frequency);
+		else 
+			return false;
 	}
 	
 	/**
@@ -521,20 +506,6 @@ public class VoIPUtils {
 					return;		
 				}
 
-				// Check for currently active call
-				if ((metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
-						VoIPUtils.isUserInCall(context)) {
-					Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
-							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
-
-					if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO)) 
-						VoIPUtils.sendVoIPMessageUsingHike(jsonObj.getString(HikeConstants.FROM), 
-								HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
-								metadataJSON.getInt(VoIPConstants.Extras.CALL_ID), 
-								false);
-					return;
-				}
-				
 				/*
 				 * Call Initiation Messages
 				 * Added: 24 Mar, 2015 (AJ)
@@ -843,5 +814,41 @@ public class VoIPUtils {
 		return dp;
 	}
 	
+	public static String getAppVersionName(Context context) {
+		String appVersionName = "Unknown";
+		PackageInfo pInfo;
+		try {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			appVersionName = pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			// Should never happen
+			Logger.e(tag, "Unable to retrieve app version name.");
+		}
+		return appVersionName;
+	}
+
+	/**
+	 * Returns true if we are already in an active call, 
+	 * and notifies the caller.
+	 * @param context
+	 * @param fromMsisdn
+	 * @param callId
+	 * @return
+	 */
+	public static boolean checkForActiveCall(Context context, String fromMsisdn, int callId) {
+		// Check for currently active call
+		if ((callId != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
+				VoIPUtils.isUserInCall(context)) {
+			Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
+					", remote: " + callId);
+
+			VoIPUtils.sendVoIPMessageUsingHike(fromMsisdn, 
+					HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
+					callId, 
+					false);
+			return true;
+		}
+		return false;
+	}
 	
 }
