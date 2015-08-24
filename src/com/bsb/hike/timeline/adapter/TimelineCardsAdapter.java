@@ -1069,7 +1069,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				@Override
 				public void run()
 				{
-					if(mActivity.get().isFinishing())
+					if(mActivity.get() == null || mActivity.get().isFinishing())
 					{
 						return;
 					}
