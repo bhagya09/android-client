@@ -1021,7 +1021,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * 
+	 * Added in Platform Version:5
 	 * @param stickerData
 	 * 
 	 * This function is used to share multifwd sticker.
@@ -1063,6 +1063,7 @@ public abstract class JavascriptBridge
 	}
 	
 	/**
+	 * Added in Platform Version:5
 	 * This function is used to activate Stickey on the client
 	 */
 	@JavascriptInterface
@@ -1073,7 +1074,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * 
+	 * Added in Platform Version:5
 	 * @param stickerData
 	 * This function is used to download a sticker pack on the client.
 	 * Sample JSON:{'catId':'doggy','categoryName':'Adorable Snuggles','totalStickers':30,'categorySize':100}
