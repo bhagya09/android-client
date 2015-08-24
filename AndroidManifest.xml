@@ -191,6 +191,9 @@
             android:name=".ui.HikePreferences"
             android:label="@string/preferences">
         </activity>
+        <activity 
+            android:name=".modules.kpt.KptShorthand" >
+        </activity>
         <activity
             android:name=".ui.HikeListActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

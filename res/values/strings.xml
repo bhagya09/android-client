@@ -1684,5 +1684,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="vibrate_on_keypress_title">Vibrate on keypress</string>
     <string name="portrait_is_std_title">Portrait is Standard</string>
     <string name="landscape_is_std_title">Landscape is Standard</string>
-    
+    <string name="delete_all">Delete All</string>
 </resources>

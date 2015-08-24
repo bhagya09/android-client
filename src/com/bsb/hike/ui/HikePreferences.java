@@ -87,6 +87,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	ProgressDialog mDialog;
 
 	private Toolbar _toolBar;
+	
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
 	
 	public static final float PREF_ENABLED_ALPHA = 1.0f;
@@ -104,6 +105,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	List<KPTAddonItem> mInstalledLanguagesList;
 
 	private String mCurrentlangName;
+	
+	private static int SHORTHAND_REQUEST_CODE = 412;
 	
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -143,7 +146,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			callAddonServices();
 		}
 		addKeyboardLanguagePrefListener();
-		addAutoTextReplacement();
 
 		addClickPreferences();
 		addSwitchPreferences();
@@ -187,6 +189,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.CHAT_BG_NOTIFICATION_PREF);
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
+		addOnPreferenceClickListeners(HikeConstants.SHORTHAND_PREF);
 	}
 	
 	private void addSwitchPreferences()
@@ -936,6 +939,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
 			startActivity(i);
 		}
+		else if(HikeConstants.SHORTHAND_PREF.equals(preference.getKey()))
+		{
+			if (mCoreEngineStatus)
+			{
+				if (mProgressDialog != null && mProgressDialog.isShowing())
+				{
+					mProgressDialog.dismiss();
+				}
+				kptSettings = null;
+				Intent shortHandIntent = IntentFactory.getIntentForKeyboardShorthand(HikePreferences.this);
+				startActivityForResult(shortHandIntent, SHORTHAND_REQUEST_CODE);
+			}
+			else
+			{
+				mProgressDialog = ProgressDialog.show(this, getResources().getText(R.string.kpt_title_wait), "Loading languages...", true, false);
+				Thread thread = new Thread();
+				thread.start();
+			}
+		}
 		
 		return true;
 	}
@@ -1527,7 +1549,19 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF)
+		if (requestCode == SHORTHAND_REQUEST_CODE)
+		{
+			if (kptSettings == null)
+			{
+				kptSettings = new KPTAdaptxtAddonSettings(this, this);
+				if(mCoreEngineStatus)
+				{
+					callAddonServices();
+				}
+			}
+			
+		}
+		else if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF)
 		{
 			if(resultCode != RESULT_OK)
 			{
@@ -1764,7 +1798,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			callAddonServices();
 			addKeyboardLanguagePrefListener();
-			addAutoTextReplacement();
 		}
 	}
 
