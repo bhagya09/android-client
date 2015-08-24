@@ -869,8 +869,9 @@ public class MqttMessagesManager
 				{
 					boolean activeStealthChat = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && StealthModeManager.getInstance().isActive();
 					boolean stealthNotifPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true);
-					if(!activeStealthChat || !stealthNotifPref)
+					if(activeStealthChat || stealthNotifPref ||  !StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 					{
+						
 						if (OneToNConversationUtils.isGroupConversation(msisdn))
 						{
 							if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
@@ -883,10 +884,7 @@ public class MqttMessagesManager
 							vibrate  = true;
 						}
 					}
-					else
-					{
-						vibrate = true;
-					}
+					
 				}
 				if (vibrate)
 				{
