@@ -42,10 +42,6 @@ public class ProductContentModel implements Parcelable
 	
 	private String pid;
 	
-	private final String CARD_OBJ = "cardObj";
-
-	private final String LD = "ld";
-	
 	private PopupConfiguration popupConfiguration;
 	
 	private int config;
@@ -60,22 +56,8 @@ public class ProductContentModel implements Parcelable
 		isFullScreen = contentData.optBoolean(IS_FULL_SCREEN, false);
 		pushTime = contentData.optLong(PUSH_TIME, 0l);
 		isCancellable = contentData.optBoolean(IS_CANCELLABLE, false);
-		JSONObject cardObj = contentData.optJSONObject(CARD_OBJ);
-		JSONObject ld = null;
-		if (cardObj != null && cardObj.has(LD) )
-		{
-			ld = cardObj.optJSONObject(LD);
-		}
-		if (ld != null && ld.has(ProductPopupsConstants.PID))
-		{
-			pid = ld.optString(ProductPopupsConstants.PID, "");
-		}
-		else
-		{
-			pid = "";
-		}
-		config = contentData.optInt(HikeConstants.CONFIGURATION, 0);
-		popupConfiguration = new PopupConfiguration(config);
+		pid = mmContentModel.getPid();
+
 	}
 
 	public PopupConfiguration getConfig()

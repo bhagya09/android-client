@@ -156,8 +156,11 @@ public class HikeDialogFragment extends DialogFragment
 		super.onActivityCreated(arg0);
 		Logger.d("ProductPopup", "onActivityCreated");
 		getDialog().setCanceledOnTouchOutside(false);
-		ProductContentModel productContentModel = (ProductContentModel)mmModel.getData();
-		ProductInfoManager.recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), ProductPopupsConstants.SEEN);
+		if (mmModel.getData() instanceof ProductContentModel)
+		{
+			ProductContentModel productContentModel = (ProductContentModel) mmModel.getData();
+			ProductInfoManager.recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), ProductPopupsConstants.SEEN);
+		}
 		mmBridge = new ProductJavaScriptBridge(mmWebView, new WeakReference<HikeDialogFragment>(this), mmModel.getData());
 		mmWebView.addJavascriptInterface(mmBridge, ProductPopupsConstants.POPUP_BRIDGE_NAME);
 		mmWebView.setWebViewClient(new CustomWebClient());
