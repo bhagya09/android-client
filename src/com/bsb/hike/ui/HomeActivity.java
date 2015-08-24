@@ -412,17 +412,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			showAppropriateDialog();
 		}
 
-		if (dialogShowing == null)
-		{
-			if (!accountPrefs.getBoolean(HikeMessengerApp.SHOWN_SMS_CLIENT_POPUP, true))
-			{
-				showSMSClientDialog();
-			}
-			else if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_FREE_INVITE_POPUP, false))
-			{
-				showFreeInviteDialog();
-			}
-		}
+		showSmsOrFreeInvitePopup();
 
 		HikeMessengerApp.getPubSub().addListeners(this, homePubSubListeners);
 
@@ -548,7 +538,25 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			MenuItemCompat.getActionView(searchMenuItem).clearFocus();
 			MenuItemCompat.collapseActionView(searchMenuItem);
 		}
+		
+		showSmsOrFreeInvitePopup();
+		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+	}
+
+	private void showSmsOrFreeInvitePopup()
+	{
+		if (dialogShowing == null)
+		{
+			if (!accountPrefs.getBoolean(HikeMessengerApp.SHOWN_SMS_CLIENT_POPUP, true))
+			{
+				showSMSClientDialog();
+			}
+			else if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_FREE_INVITE_POPUP, false))
+			{
+				showFreeInviteDialog();
+			}
+		}
 	}
 
 	@Override
