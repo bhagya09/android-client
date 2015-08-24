@@ -115,6 +115,7 @@
         android:layout_below="@id/restore_layout"
         android:layout_centerHorizontal="true"
         android:background="@drawable/signup_button"
+        android:stateListAnimator="@null" 
         android:text="@string/retry"
         android:textColor="@drawable/signup_btn_text"
         android:textSize="15sp"

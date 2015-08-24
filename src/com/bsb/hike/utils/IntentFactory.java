@@ -41,12 +41,13 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
-import com.bsb.hike.ui.CreditsActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
@@ -65,7 +66,6 @@ import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
-import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPConstants;
@@ -187,7 +187,10 @@ public class IntentFactory
 
 	public static void openSettingSMS(Context context)
 	{
-		context.startActivity(new Intent(context, CreditsActivity.class));
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.sms_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.free_sms_txt);
+		context.startActivity(intent);
 	}
 
 	public static void openSettingAccount(Context context)
@@ -303,6 +306,11 @@ public class IntentFactory
 	public static Intent getGamingIntent(Context context)
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String extraBotMsisdn = prefs.getString(HikeConstants.EXTRAS_BOT_MSISDN, null);
+		if (!TextUtils.isEmpty(extraBotMsisdn) && BotUtils.isBot(extraBotMsisdn) && (BotUtils.getBotInfoForBotMsisdn(extraBotMsisdn)).isNonMessagingBot())
+		{
+			return getNonMessagingBotIntent(extraBotMsisdn, context);
+		}
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
 		String hikeExtrasUrl = prefs.getString(HikeConstants.HIKE_EXTRAS_URL, AccountUtils.gamesUrl);
 
@@ -330,6 +338,11 @@ public class IntentFactory
 	public static Intent getRewardsIntent(Context context)
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String rewardsBotMsisdn = prefs.getString(HikeConstants.REWARDS_BOT_MSISDN, null);
+		if (!TextUtils.isEmpty(rewardsBotMsisdn) && BotUtils.isBot(rewardsBotMsisdn) && (BotUtils.getBotInfoForBotMsisdn(rewardsBotMsisdn)).isNonMessagingBot())
+		{
+			return getNonMessagingBotIntent(rewardsBotMsisdn, context);
+		}
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
 		String rewards_url = prefs.getString(HikeConstants.REWARDS_URL, AccountUtils.rewardsUrl);
 
@@ -625,7 +638,7 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String croppedOutputDestination)
+	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String outputDestination)
 	{
 		
 		boolean allowMultiSelect = (flags & GalleryActivity.GALLERY_ALLOW_MULTISELECT )!=0;
@@ -634,6 +647,7 @@ public class IntentFactory
 		boolean editSelectedImage = (flags & GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE)!=0;
 		boolean compressEdited = (flags & GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE)!=0;
 		boolean forProfileUpdate = (flags & GalleryActivity.GALLERY_FOR_PROFILE_PIC_UPDATE)!=0;
+		boolean cropImage = (flags & GalleryActivity.GALLERY_CROP_IMAGE)!=0;
 		
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
@@ -643,14 +657,14 @@ public class IntentFactory
 		
 		ArrayList<Intent> destIntents = new ArrayList<Intent>();
 		
-		if(editSelectedImage)
+		if(editSelectedImage && Utils.isPhotosEditEnabled())
 		{
-			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, null, forProfileUpdate));
+			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, cropImage?null:outputDestination, forProfileUpdate));
 		}
 		
-		if(croppedOutputDestination != null)
+		if(cropImage)
 		{
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true,80, false));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, true,80, false));
 		}
 		
 		if(destIntents.size()>0)
@@ -962,6 +976,13 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static Intent getInviteViaSMSIntent(Context context)
+	{
+		Intent intent = new Intent(context, HikeListActivity.class);
+		intent.putExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, true);
+		return intent;
+	}
+		
 	public static Intent getEmailOpenIntent(Context context)
 	{
 		return getEmailOpenIntent(context, null, null, null);
@@ -1010,5 +1031,15 @@ public class IntentFactory
 		return intent;
 	}
 
-	
+	public static Intent getPostStatusUpdateIntent(Activity argActivity, String argImagePath)
+	{
+		Intent intent = new Intent(argActivity, StatusUpdate.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		if (!TextUtils.isEmpty(argImagePath))
+		{
+			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
+		}
+		return intent;
+	}
 }

@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/overflowmenu"
-    android:layout_width="230dp"
-    android:layout_height="match_parent"
-    android:background="@drawable/bg_attachments"
+    style="@style/OverflowMenuContainerStyle"
+    android:background="@drawable/shadow_overflow"
     android:orientation="vertical" >
 
     <ListView
         android:id="@+id/overflow_menu_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:cacheColorHint="#00000000"
-        android:divider="#161616"
-        android:dividerHeight="0.5dp" />
+        android:layout_height="match_parent"
+        android:cacheColorHint="@android:color/transparent"
+        android:paddingTop="@dimen/menu_list_padding_top"
+		android:paddingBottom="@dimen/menu_list_padding_bottom"
+        android:background="@drawable/over_flow_rounded"
+        android:scrollbars="none"
+        android:divider="@null" />
 
 </LinearLayout>

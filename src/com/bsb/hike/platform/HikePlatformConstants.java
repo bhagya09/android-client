@@ -185,7 +185,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 	
-	public static final int CURRENT_VERSION = 3;
+	public static final int CURRENT_VERSION = 4;
 	
 	public static final String AB_COLOR = "color";
 	
@@ -203,4 +203,6 @@ public interface HikePlatformConstants
 	final String FULL_SCREEN_CONFIG = "full_screen_config";
 	
 	final String SECONDARY_TITLE = "secondary_title";
+	
+	final String STATUS_BAR_COLOR = "sb_color";
 }

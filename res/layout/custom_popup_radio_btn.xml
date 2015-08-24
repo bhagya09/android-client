@@ -1,0 +1,87 @@
+<com.bsb.hike.view.MDRootLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/BackgroundCustomDialog"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:paddingBottom="0dp"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/title_template"
+        style="@style/TitleCustomDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:scaleType="fitCenter"
+            android:src="@null"
+            android:visibility="gone" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/TitleTextStyleCustomDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="Title"
+            android:textAlignment="viewStart" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/checkBoxContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@null"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:id="@+id/button_panel"
+        style="@style/ButtonBarCustomDialog"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="bottom"
+        android:layoutDirection="locale"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_neutral"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEUTRAL_BTN"
+            android:visibility="gone" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="invisible" />
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_negative"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEG_BTN"
+            android:visibility="gone" />
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_positive"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POS_BTN"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</com.bsb.hike.view.MDRootLayout>
