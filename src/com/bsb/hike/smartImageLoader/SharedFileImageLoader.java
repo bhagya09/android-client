@@ -103,7 +103,7 @@ public class SharedFileImageLoader extends ImageWorker
 		Bitmap thumbnail = null;
 		Log.d("image_config", "========================== \n Inside API  getSharedMediaThumbnailFromCache");
 		
-		thumbnail = HikeBitmapFactory.getBestResolutionBitmap(context, destFilePath, defaultSize,Utils.isHoneycombOrHigher()? HikeBitmapFactory.BitmapResolutionState.STATE_3:HikeBitmapFactory.BitmapResolutionState.STATE_3);
+		thumbnail = HikeBitmapFactory.getBestResolutionBitmap(context, destFilePath, defaultSize,Utils.isHoneycombOrHigher()? HikeBitmapFactory.BitmapResolutionState.INIT_STATE:HikeBitmapFactory.BitmapResolutionState.STATE_3);
 		thumbnail = Utils.getRotatedBitmap(destFilePath, thumbnail);
 		
 		return thumbnail;
