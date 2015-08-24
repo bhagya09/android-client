@@ -432,11 +432,15 @@
         <item name="android:colorAccent">@color/blue_hike</item>
     </style>
 
-<style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
+    <style name="SearchViewStyleMyApp" parent="Widget.AppCompat.SearchView">
+        <item name="android:colorControlActivated">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+    </style>
 
-    <item name="android:colorControlActivated">@color/white</item>
-    <item name="colorControlActivated">@color/white</item>
-</style>
+    <style name="EditextStyleChatSearch" parent="Base.Widget.AppCompat.EditText">
+        <item name="android:colorControlActivated">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+    </style>
 
     <style name="Widget.Styled.PhotosActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/photos_action_bar_transcluscent_background</item>
@@ -482,12 +486,12 @@
         <item name="android:paddingBottom">1dp</item>
     </style>
 
-    <style name="ActionBarText">
+    <style name="ActionBarText" parent = "BaseStyleTextView">
         <item name="android:ellipsize">end</item>
         <item name="android:scrollHorizontally">true</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/actionbar_text</item>
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold|italic</item>
     </style>
 
@@ -959,8 +963,8 @@
      <style name="ButtonCustomDialogBase" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:paddingBottom">10dp</item>
         <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
         <item name="android:textStyle">bold|italic</item>
         <item name="android:textSize">14sp</item>
         <item name="android:minWidth">64dp</item>

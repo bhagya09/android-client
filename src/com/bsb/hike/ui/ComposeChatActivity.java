@@ -2478,8 +2478,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		public boolean onQueryTextChange(String newText)
 		{
+			if (newText != null)
+				newText = newText.trim();
 			adapter.onQueryChanged(newText);
-			
+
 			return true;
 		}
 	};

@@ -893,11 +893,18 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
     {
     	String dirPath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
     	File dir = new File(dirPath);
-    	if (!dir.exists())
+    	if (!dir.exists() || !dir.isDirectory())
     	{
     		return;
     	}
-    	for (File file : dir.listFiles())
+    	
+    	File[] profileList = dir.listFiles();
+    	if( (profileList == null) || (profileList.length==0))
+    	{
+    		return;
+    	}
+    	
+    	for (File file : profileList)
     	{
     		file.delete();
     	}
