@@ -1222,20 +1222,26 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void showOfflineOverflowIndiactorIfRequired()
 	{
-		Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
-		if(!isClicked)
+		if(offlineParameters.isOfflineEnabled())
 		{
-			mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot,true);
+			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
+			if(!isClicked)
+			{
+				mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot,true);
+			}
 		}
 	}
 	
 	@Override
 	protected void showOverflowMenu()
 	{
-		Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
-		if(!isClicked)
+		if(offlineParameters.isOfflineEnabled())
 		{
-			sharedPreference.saveData(OfflineConstants.OFFLINE_INDICATOR_CLICKED, true);
+			Boolean isClicked = sharedPreference.getData(OfflineConstants.OFFLINE_INDICATOR_CLICKED,false);
+			if(!isClicked)
+			{
+				sharedPreference.saveData(OfflineConstants.OFFLINE_INDICATOR_CLICKED, true);
+			}
 		}
 		super.showOverflowMenu();
 	}
