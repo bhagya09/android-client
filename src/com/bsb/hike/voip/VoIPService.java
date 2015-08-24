@@ -479,6 +479,10 @@ public class VoIPService extends Service {
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST)) {
 
 			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
+			
+			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId))
+				return returnInt;
+			
 			setCallid(partnerCallId);
 			client.setInitiator(true);
 			
@@ -523,6 +527,9 @@ public class VoIPService extends Service {
 			
 			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
 						
+			if (VoIPUtils.checkForActiveCall(getApplicationContext(), msisdn, partnerCallId))
+				return returnInt;
+			
 			// Error case: partner is trying to reconnect to us, but we aren't
 			// expecting a reconnect
 			boolean partnerReconnecting = intent.getBooleanExtra(VoIPConstants.Extras.RECONNECTING, false);

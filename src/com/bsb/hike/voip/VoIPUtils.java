@@ -506,20 +506,6 @@ public class VoIPUtils {
 					return;		
 				}
 
-				// Check for currently active call
-				if ((metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
-						VoIPUtils.isUserInCall(context)) {
-					Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
-							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
-
-					if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO)) 
-						VoIPUtils.sendVoIPMessageUsingHike(jsonObj.getString(HikeConstants.FROM), 
-								HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
-								metadataJSON.getInt(VoIPConstants.Extras.CALL_ID), 
-								false);
-					return;
-				}
-				
 				/*
 				 * Call Initiation Messages
 				 * Added: 24 Mar, 2015 (AJ)
@@ -839,6 +825,30 @@ public class VoIPUtils {
 			Logger.e(tag, "Unable to retrieve app version name.");
 		}
 		return appVersionName;
+	}
+
+	/**
+	 * Returns true if we are already in an active call, 
+	 * and notifies the caller.
+	 * @param context
+	 * @param fromMsisdn
+	 * @param callId
+	 * @return
+	 */
+	public static boolean checkForActiveCall(Context context, String fromMsisdn, int callId) {
+		// Check for currently active call
+		if ((callId != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
+				VoIPUtils.isUserInCall(context)) {
+			Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
+					", remote: " + callId);
+
+			VoIPUtils.sendVoIPMessageUsingHike(fromMsisdn, 
+					HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
+					callId, 
+					false);
+			return true;
+		}
+		return false;
 	}
 	
 }
