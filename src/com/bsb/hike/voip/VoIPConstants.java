@@ -91,6 +91,12 @@ public class VoIPConstants {
 	 */
 	public static final int BITRATE_STEP_UP = 200;
 
+	/**
+	 * The minimum duration of a call (in seconds) beyond which the call 
+	 * rating popup can be displayed.
+	 */
+	public static final int MIN_CALL_DURATION_FOR_RATING_POPUP = 10;
+
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions
@@ -118,6 +124,7 @@ public class VoIPConstants {
 	public static final String APP_VERSION_NAME = "appVersionName";
 	public static final String OS_VERSION = "OsVersion";
 	public static final String IS_CONFERENCE = "isConf";
+	public static final String CALL_DURATION = "duration";
 
 	/*
 	 *  Handler Message Constants

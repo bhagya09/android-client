@@ -1153,6 +1153,7 @@ public class VoIPService extends Service {
 		bundle.putInt(VoIPConstants.CALL_NETWORK_TYPE, VoIPUtils.getConnectionClass(getApplicationContext()).ordinal());
 		bundle.putString(VoIPConstants.APP_VERSION_NAME, VoIPUtils.getAppVersionName(getApplicationContext()));
 		bundle.putInt(VoIPConstants.OS_VERSION, Build.VERSION.SDK_INT);
+		bundle.putInt(VoIPConstants.CALL_DURATION, getCallDuration());
 		if (clientPartner != null) {
 			bundle.putInt(VoIPConstants.IS_CALL_INITIATOR, clientPartner.isInitiator() ? 0 : 1);
 			bundle.putString(VoIPConstants.PARTNER_MSISDN, clientPartner.getPhoneNumber());

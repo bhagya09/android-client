@@ -990,7 +990,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 	private void startCallRateActivity(Bundle bundle)
 	{
-		if(isCallActive)
+		int duration = bundle.getInt(VoIPConstants.CALL_DURATION);
+		if(duration > VoIPConstants.MIN_CALL_DURATION_FOR_RATING_POPUP && isCallActive)
 		{
 			if(bundle!=null && VoIPUtils.shouldShowCallRatePopupNow())
 			{
