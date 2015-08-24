@@ -3359,37 +3359,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private void showOverflowIndicatorsIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
-		showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
+		
 	}
 
-	private void showOverflowSearchIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-		/* 
-		 * SEARCH INDICATOR
-		 * The search indicator over overflow menu item is shown if:
-		 *  - It hasn't been shown before
-		 *  - Theres nothing being displayed in its position right now, like gc pin unread count.
-		 *  - User has scrolled up by atleast 1 message.
-		 *  - Messages not are being loaded.
-		 *  Note: This is to be shown only once
-		 */
-		boolean ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
-		if (!ctSearchIndicatorShown && mActionBar !=null && !mActionBar.isOverflowMenuIndicatorInUse()
-				&& (firstVisibleItem + visibleItemCount + 1) < totalItemCount && !loadingMoreMessages)
-		{
-			// If user has already discovered search option, theres on need to show the search icon on overflow menu icon.
-			// Just mark it already shown and move on.
-			if (sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
-			{
-				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
-			}
-			// If the indicator is successfully displayed the setting is saved, so that its not shown again.
-			else if (mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_top_bar_indicator_search,false))
-			{
-				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
-			}
-		}
-	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
