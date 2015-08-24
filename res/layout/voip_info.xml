@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:gravity="center_vertical"
-    android:minHeight="30dp" >
+    android:paddingBottom="2dp" >
 
     <ViewStub
         android:id="@+id/day_stub"

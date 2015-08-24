@@ -93,6 +93,7 @@ import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
+import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -2852,7 +2853,18 @@ public class MqttMessagesManager
 		// need it anymore.
 		// As per the last request from growth team, we don't need to show
 		// the older pro tips once the latest pro tips come in.
-		long currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+		long currentProtipId = -1l;
+
+		//Defensive check. TODO Remove protip code from application.
+		try
+		{
+			currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
 		boolean isValidProtip = false;
 
 		Protip protip = new Protip(jsonObj);
@@ -3750,19 +3762,14 @@ public class MqttMessagesManager
 
 					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
 					
+					TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
+					
 					//Saving count to file to display the counter at home screen
-					HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+					if(count != -1)
 					{
-						@Override
-						public void run()
-						{
-							int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
-							if(count != -1)
-							{
-								HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
-							}
-						}
-					});
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
+					}
 
 					if (isSuccess)
 					{

@@ -46,6 +46,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
@@ -1146,6 +1147,28 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 							statusMood.setVisibility(View.GONE);
 							break;
 
+						case IMAGE:
+						case TEXT_IMAGE:
+							SmileyParser smileyParser = SmileyParser.getInstance();
+							if(TextUtils.isEmpty(lastStatusMessage.getText()))
+							{
+								lastSeen.setText(lastStatusMessage.getMsisdn());
+							}
+							else
+							{
+								lastSeen.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
+							}
+							if (lastStatusMessage.hasMood())
+							{
+								statusMood.setVisibility(View.VISIBLE);
+								statusMood.setImageResource(EmoticonConstants.moodMapping.get(lastStatusMessage.getMoodId()));
+							}
+							else
+							{
+								statusMood.setVisibility(View.GONE);
+							}
+							break;
+							
 						default:
 							break;
 						}

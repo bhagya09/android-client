@@ -326,7 +326,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			dialog.setTitle(R.string.native_header);
 			dialog.setMessage(R.string.native_info);
 			dialog.setCheckBox(R.string.not_show_call_alert_msg, null, false);
-			dialog.setPositiveButton(R.string.continue_txt, dialogListener);
+			dialog.setPositiveButton(R.string.CONTINUE, dialogListener);
 
 			dialog.show();
 		}

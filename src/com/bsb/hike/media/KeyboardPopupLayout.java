@@ -42,6 +42,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	
 	protected boolean isDrawSystemBarBgFlagEnabled = false;
 	
+	private boolean mIsPaddingDisabled = false;
+	
 
 	/**
 	 * 
@@ -86,7 +88,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 
 	private void updatePadding(int bottomPadding)
 	{
-		if (mainView != null && mainView.getPaddingBottom() != bottomPadding)
+		if (mainView != null && mainView.getPaddingBottom() != bottomPadding && !mIsPaddingDisabled)
 		{
 			Logger.i("chatthread", "resize main height with bottom padding " + bottomPadding);
 			mainView.setPadding(0, 0, 0, bottomPadding);
@@ -507,6 +509,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		isKeyboardOpen = false;
 		Intent intent = new Intent(ACTION_KEYBOARD_CLOSED);
 		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
+	}
+
+	public void setPaddingDisabled(boolean disabled)
+	{
+		mIsPaddingDisabled = disabled;
 	}
 
 }

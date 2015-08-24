@@ -1419,7 +1419,7 @@ private void setupToolBar(int titleRes){
 		}
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
 			lp.setTitleColor(R.color.blue_hike);
-		lp.setTitle(lp.getTitle() + " : " + lp.getEntry());
+		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
 		lp.setNegativeButtonText(R.string.CANCEL);
 	}
 
@@ -1743,16 +1743,11 @@ private void setupToolBar(int titleRes){
 			
 		});
 		
-		dialog.setCancelable(true);
-		
-		dialog.setTitle(R.string.choose_setting);
-		dialog.setPositiveButton(R.string.always, null);
-		dialog.setNegativeButton(R.string.just_once, null);
-		
-		dialog.buttonPositive.setOnClickListener(new OnClickListener()
+		HikeDialogListener listener = new HikeDialogListener()
 		{
+			
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				if (dialog.getCheckedRadioButtonId() != R.string.free_hike_sms && !PreferenceManager.getDefaultSharedPreferences(HikePreferences.this).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
 				{
@@ -1762,20 +1757,24 @@ private void setupToolBar(int titleRes){
 				{
 					smsDialogActionClicked(true, dialog.getCheckedRadioButtonId() == R.string.free_hike_sms);
 				}
-				dialog.dismiss();
+				hikeDialog.dismiss();
 			}
-		});
-		
-		dialog.buttonNegative.setOnClickListener(new OnClickListener()
-		{
+			
 			@Override
-			public void onClick(View v)
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				smsDialogActionClicked(false, dialog.getCheckedRadioButtonId() == R.string.free_hike_sms);
-				dialog.dismiss();
+				hikeDialog.dismiss();
 			}
-		});
-		
+		};
+		dialog.setTitle(R.string.choose_setting);
+		dialog.setPositiveButton(R.string.ALWAYS, listener);
+		dialog.setNegativeButton(R.string.JUST_ONCE, listener);
 		dialog.show();
 	}
 	
