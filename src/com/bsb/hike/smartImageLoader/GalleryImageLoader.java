@@ -13,11 +13,8 @@ public class GalleryImageLoader extends ImageWorker
 
 	private int size_image;
 
-	private Context context;
-
 	public GalleryImageLoader(Context context , int size_image)
 	{
-		this.context = context;
 		this.size_image = size_image;
 	}
 
