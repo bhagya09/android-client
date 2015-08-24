@@ -1,13 +1,25 @@
 package com.bsb.hike.chatHead;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SwitchCompat;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -18,20 +30,6 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import android.content.Context;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 {
@@ -51,11 +49,13 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private static ArrayList<ListViewItem> mListViewItems;
 
-	private static CheckBox selectAllCheckbox;
+	private static SwitchCompat selectAllCheckbox;
 	
 	private static ChatHeadSettingsArrayAdapter listAdapter;
 	
 	private static final String TAG = "StickerShareSettings";  
+	
+	static boolean isSelectAllTouched = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -69,7 +69,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	{
 		creatingArrayList();
 		listAdapter = new ChatHeadSettingsArrayAdapter(this, R.layout.settings_sticker_share_item, mListViewItems);
-		selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
+		selectAllCheckbox = (SwitchCompat) findViewById(R.id.select_all_checkbox);
 		settingOnClickEvent();
 		settingSelectAllText();
 		ListView listView = (ListView) findViewById(R.id.list_items);
@@ -88,12 +88,25 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 				onSelectAllCheckboxClick();
 			}
 		});
-		selectAllCheckbox.setOnClickListener(new View.OnClickListener()
+		selectAllCheckbox.setOnTouchListener(new View.OnTouchListener()
 		{
 			@Override
-			public void onClick(View v)
+			public boolean onTouch(View v, MotionEvent event)
 			{
-				onSelectAllCheckboxClick();
+				isSelectAllTouched = true;
+				return false;
+			}
+		});
+		selectAllCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+		{
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+			{
+				if(isSelectAllTouched)
+				{
+					isSelectAllTouched = false;
+					onSelectAllCheckboxClick();
+				}
 			}
 		});
 	}
@@ -226,20 +239,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.settings_share_stickers);
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
 	}
 

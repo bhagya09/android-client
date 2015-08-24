@@ -31,16 +31,19 @@ android {
         jumboMode = true
     }
     dependencies {
-        compile(project(':actionbar-sherlock')) {
+        compile(project(':appcompatv7')) {
             exclude module: 'support-v4'
         }
         compile(project(':google-play')) {
             exclude module: 'support-v4'
         }
-        compile(project(':facebook')) {
+        compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
-        compile(project(':viewpager-indicator-library')) {
+        compile(project(':cardview')) {
+            exclude module: 'support-v4'
+        }
+        compile(project(':recyclerview')) {
             exclude module: 'support-v4'
         }
         compile fileTree(dir: 'libs', include: ['*.jar'])

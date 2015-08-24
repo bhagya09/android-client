@@ -8,7 +8,7 @@
 
     <ListView
         android:id="@+id/ftue_list"
-        style="@style/HomeList"
+        style="@style/HomeListParent"
         android:divider="@null"
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false" />

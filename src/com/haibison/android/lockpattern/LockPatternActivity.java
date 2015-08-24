@@ -477,9 +477,9 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         List<Cell> lastPattern = mLockPatternView != null ? mLockPatternView
                 .getPattern() : null;
                 
-        if(getSupportActionBar() != null)
+        if(getActionBar() != null)
         {
-        	getSupportActionBar().hide();
+        	getActionBar().hide();
         }
 
         setContentView(R.layout.alp_42447968_lock_pattern_activity);
@@ -581,9 +581,19 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         		mLockPinView.requestFocus();
         		Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
         		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        		//Somehow for lollipop, the view was not shifting downwards and hence we needed to add padding manually
+        		if (Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+        		{
+        			findViewById(R.id.parentView).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.bottom_padding_pin_view));
+        		}
         	}
         	else
         	{
+        		//Somehow for lollipop, the view was not shifting downwards and hence we needed to add padding manually
+        		if(Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+        		{
+        			findViewById(R.id.parentView).setPadding(0, 0, 0, 0);
+        		}
         		mLockPinView.setVisibility(View.GONE);
         		mLockPatternView.setVisibility(View.VISIBLE);
         		mLockPatternView.requestFocus();
@@ -650,9 +660,19 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 						mLockPatternView.clearPattern();
 			        	mLockPinView.requestFocus();
 			        	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+			        	//Somehow for lollipop, the view was not shifting upwards and hence we needed to add padding manually
+						if (Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+						{
+							findViewById(R.id.parentView).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.bottom_padding_pin_view));
+						}
 			        	mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
 					} else 
 					{
+						//Somehow for lollipop, the view was not shifting downwards and hence we needed to add padding manually
+						if(Utils.isLollipopOrHigher() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+						{
+							findViewById(R.id.parentView).setPadding(0, 0, 0, 0);
+						}
 						mLockPatternView.setVisibility(View.VISIBLE);
 						mLockPinView.setVisibility(View.GONE);
 						mLockPatternView.requestFocus();
@@ -740,10 +760,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                 mBtnOkCmd = ButtonOkCommand.CONTINUE;
             switch (mBtnOkCmd) {
             case CONTINUE:
-                mBtnConfirm.setText(R.string.alp_42447968_cmd_continue);
+                mBtnConfirm.setText(R.string.CONTINUE);
                 break;
             case DONE:
-                mBtnConfirm.setText(R.string.alp_42447968_cmd_confirm);
+                mBtnConfirm.setText(R.string.CONFIRM);
                 break;
             default:
                 /*
@@ -1200,7 +1220,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     	if (mBtnOkCmd == ButtonOkCommand.CONTINUE) 
     	{
     		mIsRetryBtnVisible = true;
-    		mBtnCancel.setText(R.string.retry);
+    		mBtnCancel.setText(R.string.RETRY);
     		mBtnCancel.setOnClickListener(mBtnRetryOnClickListener);
     	}
     }
@@ -1210,7 +1230,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     	if (mBtnOkCmd == ButtonOkCommand.CONTINUE) 
     	{
     		mIsRetryBtnVisible = false;
-    		mBtnCancel.setText(android.R.string.cancel);
+    		mBtnCancel.setText(R.string.CANCEL);
     		mBtnCancel.setOnClickListener(mBtnCancelOnClickListener);
     	}
     }
@@ -1241,7 +1261,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     } else {
                     	mTextInfo.setText(R.string.stealth_msg_redraw_pattern_to_confirm);
                     }
-                    mBtnConfirm.setText(R.string.alp_42447968_cmd_confirm);
+                    mBtnConfirm.setText(R.string.CONFIRM);
                     mBtnConfirm.setEnabled(false);
                     mIsRetryBtnVisible = null;
                 } else {

@@ -18,10 +18,10 @@
             android:id="@+id/arrow_pointer"
             android:layout_width="44dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:paddingTop="10dp"
             android:scaleType="fitEnd"
             android:paddingRight="10dp"
+            android:layout_marginLeft="9dp"
             android:src="@drawable/ftue_up_arrow_left" />
 
         <LinearLayout

@@ -9,9 +9,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
@@ -25,7 +28,7 @@ import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
  * @author anuj
  *
  */
-public class VoIPActivity extends SherlockFragmentActivity implements CallFragmentListener, CallFailedFragListener
+public class VoIPActivity extends AppCompatActivity implements CallFragmentListener, CallFailedFragListener
 {
 	private VoipCallFragment mainFragment;
 	private String tag = VoIPConstants.TAG + " Activity";
@@ -49,6 +52,7 @@ public class VoIPActivity extends SherlockFragmentActivity implements CallFragme
 		{
 			mainFragment.handleIntent(intent);
 		}
+		StatusBarColorChanger.setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_BLUE);
 	}
 
 	private void setupMainFragment()

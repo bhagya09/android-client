@@ -16,10 +16,8 @@ import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
@@ -28,6 +26,7 @@ import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SearchManager.Searchable;
@@ -81,6 +80,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 	private int  hashMessage= HikeConstants.HASH_MESSAGE_TYPE.DEFAULT_MESSAGE;
 	
 	private int contentId;
+	
 	private String nameSpace;
 	
 	private ViewDimentions viewDimentions;
@@ -610,6 +610,10 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 			if (metadata.getStatusMessage().getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 			{
 				msg = context.getString(R.string.changed_profile);
+			}
+			else if (metadata.getStatusMessage().getStatusMessageType() == StatusMessageType.IMAGE || metadata.getStatusMessage().getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+			{
+				msg = context.getString(R.string.posted_photo);
 			}
 			else
 			{
@@ -1244,7 +1248,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique
 		// Search on status messages.
 		else if (getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE)
 		{
-			if (getMetadata().getStatusMessage().getText().toLowerCase().contains(s))
+			if (getMetadata().getStatusMessage().getText()!=null && getMetadata().getStatusMessage().getText().toLowerCase().contains(s))
 			{
 				return true;
 			}

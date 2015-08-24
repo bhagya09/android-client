@@ -1,162 +1,179 @@
 package com.bsb.hike.dialog;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
 
+/**
+ * CustomAlertDialog is a class that extends {@link HikeDialog}. The purpose of this class is
+ * keep the alert dialog implementation to as close as possible to the native AlertDialog
+ * and preserve our custom settings(UI) like fonts, etc... 
+ * @author gauravmittal
+ */
 public class CustomAlertDialog extends HikeDialog
 {
 
-	TextView header;
+	Context mContext;
 
-	TextView body;
+	View titleTemplate;
 
-	Button btnOk;
+	TextView title;
 
-	Button btnCancel;
+	TextView message;
+
+	CheckBox checkBox;
+
+	View buttonPanel;
+
+	Button buttonPositive;
+
+	Button buttonNegative;
+
+	Button buttonNeutral;
 	
-	CheckBox bodyCheckBox;
+	ProgressBar mProgressIndeterminate;
 	
+	private static final int DEFAULT_LAYOUT_RESID = R.layout.custom_dialog;
+	
+	private int layoutResId;
+
 	public CustomAlertDialog(Context context, int dialogId)
 	{
-		super(context, R.style.Theme_CustomDialog, dialogId);
+		this(context, dialogId, DEFAULT_LAYOUT_RESID);
+	}
+	
+	public CustomAlertDialog(Context context, int dialogId, int layoutResId)
+	{
+		super(context, dialogId);
+		this.mContext = context;
+		this.layoutResId = layoutResId;
 		initViews();
 	}
 
 	private void initViews()
 	{
-		this.setContentView(R.layout.operator_alert_popup);
+		this.setContentView(layoutResId);
 		this.setCancelable(true);
 
-		header = (TextView) this.findViewById(R.id.header);
-		body = (TextView) this.findViewById(R.id.body_text);
-		btnOk = (Button) this.findViewById(R.id.btn_ok);
-		btnCancel = (Button) this.findViewById(R.id.btn_cancel);
-		bodyCheckBox = (CheckBox) findViewById(R.id.body_checkbox);
-
-		bodyCheckBox.setVisibility(View.GONE);
-
+		titleTemplate = (View) this.findViewById(R.id.title_template);
+		title = (TextView) this.findViewById(R.id.title);
+		message = (TextView) this.findViewById(R.id.message);
+		checkBox = (CheckBox) this.findViewById(R.id.checkbox);
+		buttonPanel = (View) this.findViewById(R.id.button_panel);
+		buttonPositive = (Button) this.findViewById(R.id.btn_positive);
+		buttonNegative = (Button) this.findViewById(R.id.btn_negative);
+		buttonNeutral = (Button) this.findViewById(R.id.btn_neutral);
+		mProgressIndeterminate = (ProgressBar) this.findViewById(R.id.loading_progress);
 	}
 
-	/**
-	 * Pass null to remove header
-	 * 
-	 * @param headerText
-	 */
-	public void setHeader(String headerText)
+	public void setTitle(int resId)
 	{
-		if (TextUtils.isEmpty(headerText))
-		{
-			header.setVisibility(View.GONE);
-			findViewById(R.id.div1).setVisibility(View.GONE);
-		}
-		else
-		{
-			header.setVisibility(View.VISIBLE);
-			findViewById(R.id.div1).setVisibility(View.VISIBLE);
-			header.setText(headerText);
-		}
+		setTitle(mContext.getString(resId));
 	}
 
-	public void setHeader(int headerTextResId)
+	@Override
+	public void setTitle(CharSequence titleText)
 	{
-		header.setText(headerTextResId);
+		title.setText(titleText);
+		titleTemplate.setVisibility(View.VISIBLE);
 	}
 
-	public void setBody(String bodyText)
+	public void setMessage(int resId)
 	{
-		body.setText(bodyText);
+		setMessage(mContext.getString(resId));
 	}
 
-	public void setBody(int bodyTextResId)
+	public void setMessage(CharSequence messageText)
 	{
-		body.setText(bodyTextResId);
+		message.setText(messageText);
 	}
 
-	public void setOkButton(String ok, View.OnClickListener l)
+	public void setCheckBox(int textResId, OnCheckedChangeListener listener, boolean isChecked)
 	{
-		btnOk.setText(ok);
-		btnOk.setOnClickListener(l);
+		setCheckBox(mContext.getString(textResId), listener, isChecked);
 	}
 
-	public void setOkButton(int okResId, View.OnClickListener l)
+	public void setCheckBox(CharSequence checkBoxText, OnCheckedChangeListener listener, boolean isChecked)
 	{
-		btnOk.setText(okResId);
-		btnOk.setOnClickListener(l);
+		checkBox.setText(checkBoxText);
+		checkBox.setOnCheckedChangeListener(listener);
+		checkBox.setChecked(isChecked);
+		checkBox.setVisibility(View.VISIBLE);
 	}
 
-	public void setCancelButton(String cancel, View.OnClickListener l)
-	{
-		btnCancel.setText(cancel);
-		btnCancel.setOnClickListener(l);
-	}
-
-	public void setCancelButton(int cancelResId, View.OnClickListener l)
-	{
-		btnCancel.setText(cancelResId);
-		btnCancel.setOnClickListener(l);
-	}
-
-	public void setCancelButton(String cancel)
-	{
-		btnCancel.setText(cancel);
-		btnCancel.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				CustomAlertDialog.this.dismiss();
-			}
-		});
-	}
-
-	public void setCancelButton(int cancelResId)
-	{
-		btnCancel.setText(cancelResId);
-		btnCancel.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				CustomAlertDialog.this.dismiss();
-			}
-		});
-	}
-
-	public void setCancelButtonVisibility(int val)
-	{
-		btnCancel.setVisibility(val);
-	}
-	
-	public void setCheckBox(int checkBoxStringResId, OnCheckedChangeListener l)
-	{
-		bodyCheckBox.setVisibility(View.VISIBLE);
-		bodyCheckBox.setOnCheckedChangeListener(l);
-		bodyCheckBox.setText(checkBoxStringResId);
-	}
-
-	public void setCheckBox(int checkBoxStringResId, boolean isChecked)
-	{
-		bodyCheckBox.setVisibility(View.VISIBLE);
-		bodyCheckBox.setText(checkBoxStringResId);
-		bodyCheckBox.setChecked(isChecked);
-	}
-	
 	public boolean isChecked()
 	{
-		return bodyCheckBox.getVisibility() == View.VISIBLE && bodyCheckBox.isChecked();
+		return checkBox.isChecked();
 	}
-	
-	public void setCheckboxVisibility(int visibility)
+
+	private void setHikeDialogButtonClick(Button buttonView, final HikeDialogListener l, final int whichButton)
 	{
-		bodyCheckBox.setVisibility(visibility);		
+		buttonView.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				switch (whichButton)
+				{
+				case HikeDialogListener.BUTTON_POSITIVE:
+					l.positiveClicked(CustomAlertDialog.this);
+					break;
+				case HikeDialogListener.BUTTON_NEGATIVE:
+					l.negativeClicked(CustomAlertDialog.this);
+					break;
+				case HikeDialogListener.BUTTON_NEUTRAL:
+					l.neutralClicked(CustomAlertDialog.this);
+					break;
+				}
+			}
+		});
+	}
+
+	public void setPositiveButton(int textResId, HikeDialogListener l)
+	{
+		setPositiveButton(mContext.getString(textResId), l);
+	}
+
+	public void setPositiveButton(CharSequence text, HikeDialogListener l)
+	{
+		buttonPositive.setText(text);
+		buttonPositive.setVisibility(View.VISIBLE);
+		if (l != null)
+			setHikeDialogButtonClick(buttonPositive, l, HikeDialogListener.BUTTON_POSITIVE);
+		buttonPanel.setVisibility(View.VISIBLE);
+	}
+
+	public void setNegativeButton(int textResId, HikeDialogListener l)
+	{
+		setNegativeButton(mContext.getString(textResId), l);
+	}
+
+	public void setNegativeButton(CharSequence text, HikeDialogListener l)
+	{
+		buttonNegative.setText(text);
+		buttonNegative.setVisibility(View.VISIBLE);
+		if (l != null)
+			setHikeDialogButtonClick(buttonNegative, l, HikeDialogListener.BUTTON_NEGATIVE);
+		buttonPanel.setVisibility(View.VISIBLE);
+	}
+
+	public void setNeutralButton(int textResId, HikeDialogListener l)
+	{
+		setNeutralButton(mContext.getString(textResId), l);
+	}
+
+	public void setNeutralButton(CharSequence text, HikeDialogListener l)
+	{
+		buttonNeutral.setText(text);
+		buttonNeutral.setVisibility(View.VISIBLE);
+		if (l != null)
+			setHikeDialogButtonClick(buttonNeutral, l, HikeDialogListener.BUTTON_NEUTRAL);
+		buttonPanel.setVisibility(View.VISIBLE);
 	}
 }

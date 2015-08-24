@@ -13,7 +13,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -22,7 +21,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants;
 
-public class CallRateDialogFragment extends SherlockDialogFragment
+public class CallRateDialogFragment extends DialogFragment
 {
 	private int rating = -1;
 	
@@ -64,7 +63,7 @@ public class CallRateDialogFragment extends SherlockDialogFragment
 				
 				@Override
 				public void onClick(View v) {
-					getSherlockActivity().finish();
+					getActivity().finish();
 					dismiss();
 				}
 			});
@@ -77,7 +76,7 @@ public class CallRateDialogFragment extends SherlockDialogFragment
 				{
 					submitRating();
 					dismiss();
-					getSherlockActivity().finish();
+					getActivity().finish();
 				}
 				else if(rating >= 0)
 				{
@@ -133,7 +132,7 @@ public class CallRateDialogFragment extends SherlockDialogFragment
 	@Override
 	public void onCancel(DialogInterface dialog)
 	{
-		getSherlockActivity().finish();
+		getActivity().finish();
 		super.onCancel(dialog);
 	}
 

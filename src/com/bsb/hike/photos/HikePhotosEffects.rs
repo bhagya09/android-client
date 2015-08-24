@@ -569,4 +569,3 @@ uchar4 __attribute__((kernel)) filter_original(uchar4 in,uint32_t x,uint32_t y) 
 
 	return in;
 }
-
