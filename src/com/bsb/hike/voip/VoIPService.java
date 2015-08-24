@@ -37,6 +37,7 @@ import android.media.RingtoneManager;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -1138,6 +1139,21 @@ public class VoIPService extends Service {
 			groupChatMsisdn = null;
 		}
 
+		// Call Rating, analytics etc. 
+		VoIPClient clientPartner = getClient();
+		Bundle bundle = new Bundle();
+		bundle.putInt(VoIPConstants.CALL_ID, getCallId());
+		bundle.putInt(VoIPConstants.CALL_NETWORK_TYPE, VoIPUtils.getConnectionClass(getApplicationContext()).ordinal());
+		bundle.putString(VoIPConstants.APP_VERSION_NAME, VoIPUtils.getAppVersionName(getApplicationContext()));
+		bundle.putInt(VoIPConstants.OS_VERSION, Build.VERSION.SDK_INT);
+		if (clientPartner != null) {
+			bundle.putInt(VoIPConstants.IS_CALL_INITIATOR, clientPartner.isInitiator() ? 0 : 1);
+			bundle.putString(VoIPConstants.PARTNER_MSISDN, clientPartner.getPhoneNumber());
+			bundle.putBoolean(VoIPConstants.IS_CONFERENCE, hostingConference() || clientPartner.isHostingConference);
+		}
+		
+		sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY, bundle);
+
 		synchronized (clients) {
 			for (VoIPClient client : clients.values())
 				client.close();
@@ -1195,7 +1211,6 @@ public class VoIPService extends Service {
 		playbackBuffersQueue.clear();
 		recordBuffer.clear();
 		
-		sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
 		releaseWakeLock();
 		stopSelf();
 	}

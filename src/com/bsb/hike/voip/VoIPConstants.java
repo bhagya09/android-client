@@ -115,6 +115,9 @@ public class VoIPConstants {
 	public static final String CALL_FAILED_REASON = "callfailreason";
 	public static final String PARTNER_NAME = "pname";
 	public static final String CALL_RATE_BUNDLE = "callRateBundle";
+	public static final String APP_VERSION_NAME = "appVersionName";
+	public static final String OS_VERSION = "OsVersion";
+	public static final String IS_CONFERENCE = "isConf";
 
 	/*
 	 *  Handler Message Constants
@@ -163,8 +166,6 @@ public class VoIPConstants {
 
 		public static final String NEW_LOG ="nl";
 
-		public static final String OLD_NETWORK_TYPE = "oldnet";
-
 		public static final String CALL_SOURCE = "source";
 
 		public static final String DATA_SENT = "dsent";
@@ -176,6 +177,12 @@ public class VoIPConstants {
 		public static final String DURATION = "dur";
 
 		public static final String CALL_CONNECT_FAIL_REASON = "reason";
+
+		public static final String APP_VERSION_NAME = "appv";
+
+		public static final String OS_VERSION = "osv";
+
+		public static final String IS_CONFERENCE = "isconf";
 	}
 
 	public static final class CallFailedCodes

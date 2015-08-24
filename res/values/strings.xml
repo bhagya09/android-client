@@ -1386,8 +1386,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_error_force_mute">You have been put on mute by the host.</string>
     <string name="voip_conf_mute_all_off">Force Mute Everyone</string>
     <string name="voip_conf_mute_all_on">Remove Force Mute</string>
-    <string name="voip_speech_force_mute_on">force mute on</string>
-    <string name="voip_speech_force_mute_off">force mute off</string>
+    <string name="voip_speech_force_mute_on">The host has muted everyone</string>
+    <string name="voip_speech_force_mute_off">Force mute has been turned off</string>
     <string name="nux_expired">This activity has expired</string>
     <string name="nux_completed">You\'ve already completed this activity.</string>
     <string name="holi">Happy Holi</string>

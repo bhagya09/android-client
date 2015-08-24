@@ -22,6 +22,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -295,7 +297,10 @@ public class VoIPUtils {
 	{
 		HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance();
 		int frequency = sharedPref.getData(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, -1);
-		return ((new Random().nextInt(frequency) + 1) == frequency);
+		if (frequency > 0)
+			return ((new Random().nextInt(frequency) + 1) == frequency);
+		else 
+			return false;
 	}
 	
 	/**
@@ -823,5 +828,17 @@ public class VoIPUtils {
 		return dp;
 	}
 	
+	public static String getAppVersionName(Context context) {
+		String appVersionName = "Unknown";
+		PackageInfo pInfo;
+		try {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			appVersionName = pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			// Should never happen
+			Logger.e(tag, "Unable to retrieve app version name.");
+		}
+		return appVersionName;
+	}
 	
 }
