@@ -288,7 +288,7 @@ public abstract class OneToNConversation extends Conversation
 
 	public void updateReadByList(String msisdn, long msgId)
 	{
-		if (lastSentMsgId > msgId || TextUtils.isEmpty(msisdn))
+		if (lastSentMsgId != msgId || TextUtils.isEmpty(msisdn))
 		{
 			return;
 		}
@@ -297,18 +297,9 @@ public abstract class OneToNConversation extends Conversation
 			readByParticipantsList = new ArrayList<String>();
 		}
 
-		if (lastSentMsgId == msgId)
+		if (!readByParticipantsList.contains(msisdn))
 		{
-			if (!readByParticipantsList.contains(msisdn))
-			{
-				readByParticipantsList.add(msisdn);
-			}
-		}
-		else if (lastSentMsgId < msgId)
-		{
-			readByParticipantsList.clear();
 			readByParticipantsList.add(msisdn);
-			lastSentMsgId = msgId;
 		}
 	}
 
