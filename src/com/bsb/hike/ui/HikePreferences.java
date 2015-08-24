@@ -190,6 +190,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
 		addOnPreferenceClickListeners(HikeConstants.SHORTHAND_PREF);
+		addOnPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
 	}
 	
 	private void addSwitchPreferences()
@@ -200,6 +201,15 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceChangeListeners(HikeConstants.H2O_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.GLIDE_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.AUTO_CAPITALIZATION_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.AUTO_SPACING_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.DISPLAY_SUGGESTIONS_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.PRIVATE_MODE_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.DISPLAY_ACCENTS_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.POPUP_ON_KEYPRESS_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.SOUND_ON_KEYPRESS_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.VIBRATE_ON_KEYPRESS_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.PORTRAIT_IS_STD_PREF);
 		addStickerRecommendPreferenceChangeListener();
 		addSslPreferenceChangeListener();
 		addStickerRecommendAutopopupPreferenceChangeListener();
@@ -958,6 +968,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				thread.start();
 			}
 		}
+		else if(HikeConstants.KEYBOARD_ADV_PREF.equals(preference.getKey()))
+		{
+			startActivity(IntentFactory.getIntentForKeyboardAdvSettings(HikePreferences.this));
+		}
 		
 		return true;
 	}
@@ -1231,6 +1245,42 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.GLIDE_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.AUTO_CAPITALIZATION_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setAutoCapitalizationState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.AUTO_SPACING_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setAutoSpacingState(isChecked ? AdaptxtSettings.KPT_TRUE : kptSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.DISPLAY_SUGGESTIONS_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setDisplaySuggestionsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.PRIVATE_MODE_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setPrivateModeState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.DISPLAY_ACCENTS_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setDisplayAccentsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.POPUP_ON_KEYPRESS_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setPopupOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.SOUND_ON_KEYPRESS_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setSoundOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.VIBRATE_ON_KEYPRESS_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setVibrateOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.PORTRAIT_IS_STD_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setPortraitKeyboardType(isChecked ? "0" : "1");
 		}
 		return true;
 	}

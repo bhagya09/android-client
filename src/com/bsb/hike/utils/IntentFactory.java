@@ -278,6 +278,14 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
+	public static Intent getIntentForKeyboardAdvSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.kpt_advanced_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.advanced_keyboard_settings);
+		return intent;
+	}
+	
 	public static Intent getIntentForKeyboardShorthand(Context context)
 	{
 		Intent intent = new Intent(context, KptShorthand.class);

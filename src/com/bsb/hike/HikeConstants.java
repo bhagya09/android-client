@@ -615,6 +615,8 @@ public class HikeConstants
 	
 	public static final String DISPLAY_SUGGESTIONS_PREF = "dispSuggPref";
 	
+	public static final String PRIVATE_MODE_PREF = "privateModePref";
+	
 	public static final String DISPLAY_ACCENTS_PREF = "dispAccentsPref";
 	
 	public static final String POPUP_ON_KEYPRESS_PREF = "popupOnKeypressPref";
@@ -624,8 +626,6 @@ public class HikeConstants
 	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
 	
 	public static final String PORTRAIT_IS_STD_PREF = "portraitIsStdPref";
-	
-	public static final String LANDSCAPE_IS_STD_PREF = "landscapeIsStdPref";
 	
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 	

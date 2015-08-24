@@ -1673,6 +1673,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="kpt_adv_summary">Auto correction, touch feedback and more</string>
     <string name="kpt_adv_title">Advanced Settings</string>
     <string name="advanced_keyboard_settings">Advancced Keyboard Settings</string>
+    <string name="private_mode_title">Private Mode</string>
     <string name="auto_caps_summary">Auto Capitalization</string>
     <string name="auto_caps_title">Auto Capitalization</string>
     <string name="auto_spacing_summary">Auto Spacing</string>
@@ -1683,6 +1684,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="sound_on_keypress_title">Sound on keypress</string>
     <string name="vibrate_on_keypress_title">Vibrate on keypress</string>
     <string name="portrait_is_std_title">Portrait is Standard</string>
-    <string name="landscape_is_std_title">Landscape is Standard</string>
     <string name="delete_all">Delete All</string>
 </resources>
