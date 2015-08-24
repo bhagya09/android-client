@@ -1028,8 +1028,9 @@ public abstract class JavascriptBridge
 	 * Sample JSON:{'catId':'expressions','stkId':'002_lol.png','selectAll':false}
 	 */
 	@JavascriptInterface
-	protected void sendMultiFwdSticker(String stickerData)
+	public void sendMultiFwdSticker(String stickerData)
 	{
+		Logger.d(tag,"sendmultiFwdSticker");
 		if (mHandler == null || weakActivity == null)
 		{
 			return;
@@ -1065,8 +1066,9 @@ public abstract class JavascriptBridge
 	 * This function is used to activate Stickey on the client
 	 */
 	@JavascriptInterface
-	protected void activiteStickey()
+	public void activiteStickey()
 	{
+		Logger.d(tag,"onChatHeadPopupActivateClick");
 		PlatformUtils.OnChatHeadPopupActivateClick();
 	}
 
@@ -1077,8 +1079,9 @@ public abstract class JavascriptBridge
 	 * Sample JSON:{'catId':'doggy','categoryName':'Adorable Snuggles','totalStickers':30,'categorySize':100}
 	 */
 	@JavascriptInterface
-	protected void downloadStkPack(String stickerData)
+	public void downloadStkPack(String stickerData)
 	{
+		Logger.d(tag,"downaloadStkPack");
 		PlatformUtils.downloadStkPk(stickerData);
 	}
 	
