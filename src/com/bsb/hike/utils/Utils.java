@@ -4390,6 +4390,10 @@ public class Utils
 	{
 		ActivityManager mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		List<RunningAppProcessInfo> l = mActivityManager.getRunningAppProcesses();
+		// TODO. need review if we should return true or false.crash#46.
+		if(isEmpty(l))
+			return false;
+		
 		Iterator<RunningAppProcessInfo> i = l.iterator();
 		while (i.hasNext())
 		{
