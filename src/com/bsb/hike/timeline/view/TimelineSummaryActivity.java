@@ -209,6 +209,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			if(mStatusMessage == null)
 			{
 				finish();
+				Logger.e(HikeConstants.TIMELINE_LOGS, "Opening timeline summary activity for null status message");
 				return;
 			}
 			
