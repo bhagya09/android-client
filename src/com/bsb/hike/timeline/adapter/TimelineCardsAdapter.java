@@ -1060,23 +1060,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 	};
 
-	public void removeStatusUpdate(String statusId)
+	public void removeStatusUpdate(final String statusId)
 	{
-		if (mStatusMessages == null || mStatusMessages.isEmpty())
-		{
-			return;
-		}
-
-		for (StatusMessage statusMessage : mStatusMessages)
-		{
-			if (statusId.equals(statusMessage.getMappedId()))
-			{
-				mStatusMessages.remove(statusMessage);
-				Logger.d(HikeConstants.TIMELINE_LOGS, "SU list after deleting post "+ mStatusMessages);
-				break;
-			}
-		}
-
 		if (mActivity.get() != null)
 		{
 			mActivity.get().runOnUiThread(new Runnable()
@@ -1084,6 +1069,26 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				@Override
 				public void run()
 				{
+					if(mActivity.get() == null || mActivity.get().isFinishing())
+					{
+						return;
+					}
+					
+					if (mStatusMessages == null || mStatusMessages.isEmpty())
+					{
+						return;
+					}
+
+					for (StatusMessage statusMessage : mStatusMessages)
+					{
+						if (statusId.equals(statusMessage.getMappedId()))
+						{
+							mStatusMessages.remove(statusMessage);
+							Logger.d(HikeConstants.TIMELINE_LOGS, "SU list after deleting post "+ mStatusMessages);
+							break;
+						}
+					}
+
 					notifyDataSetChanged();
 				}
 			});
