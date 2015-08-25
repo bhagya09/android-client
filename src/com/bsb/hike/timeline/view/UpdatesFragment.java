@@ -671,7 +671,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
 		
-		mFtueFriendList.clear();
+		if(mFtueFriendList != null)
+		{
+			mFtueFriendList.clear();
+		}
 	}
 
 	private class FetchUpdates extends AsyncTask<String, Void, List<StatusMessage>>
