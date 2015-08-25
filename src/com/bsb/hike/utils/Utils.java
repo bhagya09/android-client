@@ -1584,18 +1584,27 @@ public class Utils
 
 	public static double getFreeSpace()
 	{
-		StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
 		double sdAvailSize = 0.0;
-		if (isJELLY_BEAN_MR2OrHigher())
+		try
 		{
-			sdAvailSize = (double) stat.getAvailableBlocksLong() * (double) stat.getBlockSizeLong();
-		}
-		else
-		{
-			sdAvailSize = (double) stat.getAvailableBlocks() * (double) stat.getBlockSize();
-		}
-		Logger.d("StickerSize", "get available blocks : " + (double) stat.getAvailableBlocks() + "  get block size : " + (double) stat.getBlockSize());
+			StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+			if (isJELLY_BEAN_MR2OrHigher())
+			{
+				sdAvailSize = (double) stat.getAvailableBlocksLong() * (double) stat.getBlockSizeLong();
+			}
+			else
+			{
+				sdAvailSize = (double) stat.getAvailableBlocks() * (double) stat.getBlockSize();
+			}
+			Logger.d("StickerSize", "get available blocks : " + (double) stat.getAvailableBlocks() + "  get block size : " + (double) stat.getBlockSize());
 
+		}
+		catch(IllegalArgumentException e) // http://stackoverflow.com/questions/23516075/invalid-path-error-get-the-external-memory-size
+		{
+			//returning sufficient amount of size so that download is executed
+			sdAvailSize = 15 * 1024 * 1024;
+		}
+		
 		return sdAvailSize;
 	}
 
