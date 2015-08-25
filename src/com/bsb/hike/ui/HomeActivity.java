@@ -1499,7 +1499,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		if (accountPrefs.getBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false) || count < 1 || (null != overFlowWindow && overFlowWindow.isShowing()))
 		{
-			topBarIndicator.setVisibility(View.GONE);
+			if(topBarIndicator!=null)
+				topBarIndicator.setVisibility(View.GONE);
 		}
 		else
 		{
