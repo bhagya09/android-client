@@ -53,6 +53,7 @@ import com.bsb.hike.offline.OfflineSessionTracking;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
@@ -156,14 +157,23 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				updateAnimationText(connectionInfo,(String)(msg.obj),false);
 				break;
 			case UPDATE_ANIMATION_SECOND_MESSAGE:
-				updateAnimationText(secondMessage,(String)msg.obj,false);
+				if(!isOfflineConnected())
+					updateAnimationText(secondMessage,(String)msg.obj,false);
 				break;
 			case START_TIMER:
-				updateAnimationText(connectionInfo,"" +timerDuration/1000,true);
-				startTimer();
+				if(!isOfflineConnected())
+				{
+					updateAnimationText(connectionInfo,"" +timerDuration/1000,true);
+					startTimer();
+				}
 				break;	
 		}
 		
+	}
+	
+	public boolean isOfflineConnected()
+	{
+		return OfflineUtils.isConnectedToSameMsisdn(msisdn);
 	}
 	
 	private void startTimer()
