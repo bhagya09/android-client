@@ -62,8 +62,6 @@ public enum StickerSearchDataController
 
 	public void setupStickerSearchWizard(JSONObject json, int state)
 	{
-		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
-
 		if (!((state == StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP) || (state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)))
 		{
 			Logger.e(TAG, "setupStickerSearchWizard(), Invalid trial request.");
@@ -476,7 +474,6 @@ public enum StickerSearchDataController
 				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, HikeStickerSearchBaseConstants.DECISION_STATE_YES) == HikeStickerSearchBaseConstants.DECISION_STATE_YES))
 		{
 			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
 
 			if (pendingRetrySet != null)
 			{
