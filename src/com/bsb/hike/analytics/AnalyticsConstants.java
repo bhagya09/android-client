@@ -456,7 +456,15 @@ public class AnalyticsConstants
 	
 	public static final String DISPLAY_PIC = "dp";
 	
-	public static final String POST_UPDATE = "pu";
+	public static final String PICTURE_UPDATE = "pu";
+	
+	public static final String PICTURE_TEXT = "pt";
 	
 	public static final String STATUS_UPDATE = "su";
+	
+	public static final String UPDATE_TYPE = "ut";
+	
+	public static final String TIMELINE_U_ID = "tid";
+	
+	public static final String TIMELINE_OPTION_TYPE = "ot";
 }

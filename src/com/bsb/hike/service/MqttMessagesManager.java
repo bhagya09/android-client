@@ -79,7 +79,9 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -91,6 +93,7 @@ import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
+import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -2346,7 +2349,58 @@ public class MqttMessagesManager
 			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
 		}
-		
+
+		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
+		{
+			boolean autoRecommendationTurningOn = data.getBoolean(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED);
+
+			// Turn on auto-suggestion of stickers
+			if (autoRecommendationTurningOn)
+			{
+				// Remove previous observations for turning off, if any
+				StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
+				{
+					StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+
+					StickerSearchManager.getInstance().setShowAutoPopupSettingOn(true);
+				}
+			}
+			// Trigger to turn off auto-suggestion of stickers depending upon pattern found in packet
+			else
+			{
+				int autoRecommendationContinuousRejectionCount = data.optInt(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF, 0);
+
+				// Set turning-off pattern auto-suggestion of stickers, if they are getting rejected
+				if (autoRecommendationContinuousRejectionCount > 0)
+				{
+					int autoRecommendationRejectionPatternCount = data.optInt(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+							StickerSearchConstants.MINIMUM_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT);
+
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF,
+							autoRecommendationContinuousRejectionCount);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+							autoRecommendationRejectionPatternCount);
+
+					StickerSearchManager.getInstance().setShowAutoPopupTurnOffPattern(autoRecommendationContinuousRejectionCount, autoRecommendationRejectionPatternCount);
+				}
+				// Turn off auto-suggestion of stickers, if no pattern is recognized in packet or rejection count is zero (no-tolerance)
+				else
+				{
+					// Remove previous observations for turning off, if any
+					StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+					if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
+					{
+						StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+
+						StickerSearchManager.getInstance().setShowAutoPopupSettingOn(false);
+					}
+				}
+			}
+		}
+
 		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME))
 		{
 			long tagRefreshTime = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME);
@@ -2391,6 +2445,12 @@ public class MqttMessagesManager
 			}
 		}
 		
+		if(data.has(HikeConstants.DOWNLOAD_TAGS))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
+			StickerManager.getInstance().downloadDefaultTags(false);
+		}
+		
 		if (data.has(HikeConstants.REWARDS_BOT_MSISDN))
 		{
 			editor.putString(HikeConstants.REWARDS_BOT_MSISDN, data.getString(HikeConstants.REWARDS_BOT_MSISDN));
@@ -2399,6 +2459,7 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
 		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -2792,7 +2853,18 @@ public class MqttMessagesManager
 		// need it anymore.
 		// As per the last request from growth team, we don't need to show
 		// the older pro tips once the latest pro tips come in.
-		long currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+		long currentProtipId = -1l;
+
+		//Defensive check. TODO Remove protip code from application.
+		try
+		{
+			currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
 		boolean isValidProtip = false;
 
 		Protip protip = new Protip(jsonObj);
@@ -3668,7 +3740,7 @@ public class MqttMessagesManager
 
 	private void saveActivityUpdate(final JSONObject jsonObj)
 	{
-		Logger.d("tl_"+ getClass().getSimpleName(), "ac_up packet received " + jsonObj);
+		Logger.d(HikeConstants.TIMELINE_LOGS, "ac_up packet received " + jsonObj);
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 		{
 			@Override
@@ -3683,26 +3755,21 @@ public class MqttMessagesManager
 						StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(feedData.getObjID());
 						if(statusMessage == null)
 						{
-							Logger.d("tl_"+ getClass().getSimpleName(), "Status Msg is null so returning  for MappedOd " + feedData.getObjID());
+							Logger.d(HikeConstants.TIMELINE_LOGS, "Status Msg is null so returning  for MappedOd " + feedData.getObjID());
 							return;
 						}
 					}
 
 					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
 					
+					TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
+					
 					//Saving count to file to display the counter at home screen
-					HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+					if(count != -1)
 					{
-						@Override
-						public void run()
-						{
-							int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
-							if(count != -1)
-							{
-								HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
-							}
-						}
-					});
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
+					}
 
 					if (isSuccess)
 					{
@@ -4353,7 +4420,7 @@ public class MqttMessagesManager
 					msisdnSet.add(msisdn);
 					if(!new File(Utils.getProfileImageFileName(msisdn)).exists())
 					{
-						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().getContact(msisdn, true, true).hasCustomPhoto(), false, null, null, null, false,false).startLoadingTask();
+						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().hasIcon(msisdn), false, null, null, null, false,false).startLoadingTask();
 					}
 				}
 				
@@ -4362,7 +4429,7 @@ public class MqttMessagesManager
 		
 		//case 1) if init not show or on top
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_SHOWN, true)
-				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
 		{
 			//just replace these values
 			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
@@ -4391,13 +4458,20 @@ public class MqttMessagesManager
 				if(iterator.hasNext())
 				{
 					currentMsisdn = iterator.next();
+					Logger.d("tl_ftue", "ftue packet, card on top is fav card and from SP "+ currentMsisdn);
 				}
 				
 				//add to new list
 				if(!TextUtils.isEmpty(currentMsisdn))
 				{
 					msisdnSet.add(currentMsisdn);
+					counter = counter + 1;
+					Logger.d("tl_ftue", "ftue packet, card on top is fav card, so inc counter "+ counter);
 				}
+			}
+			else
+			{
+				Logger.d("tl_ftue", "ftue packet, NO CARDS ON TOP ");
 			}
 			
 			//save new list

@@ -897,7 +897,6 @@
     <string name="vib_default_key">Par défaut</string>
     <string name="vib_short_key">Court</string>
     <string name="vib_long_key">Long</string>
-    <string name="delete_account_heading">EN SUPPRIMANT TON COMPTE, TU VAS</string>
     <string name="chat_unmarked_stealth_first">Tu as marqué un tchat comme visible. Quiconque lancera hike pourra le voir.</string>
     <string name="tickSoundTitle">Sons de conversation</string>
     <string name="tickSoundSummary">Émet un son pour les messages entrants et sortants</string>
@@ -920,7 +919,6 @@
     <string name="delete_account_msg">Delete your Hike account.</string>
     <string name="unlink_confirmation">Are you sure you want to reset your account?</string>
     <string name="unlinking_account">Resetting...</string>
-    <string name="delete_confirm_msg_1">This will delete all your messages, SMS balance and any hike rewards.</string>
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Ajouter aux contacts</string>
     <string name="delete_leave">Delete and exit group</string>
@@ -1245,7 +1243,6 @@
     <string name="action_settings">Réglages</string>
     <string name="creating_backup_message">Création d\'une sauvegarde de ton compte. Les sauvegardes quotidiennes interviennent à 3 heures du matin</string>
     <string name="restore">Rétablir</string>
-    <string name="delete_account_description">supprimer tous tes messages, tes sauvegardes, tes SMS gratuits et tes récompenses hike</string>
     <string name="auth_connected_to_hike">L\'appli %1$s est connectée à hike !</string>
     <string name="auth_state_connecting">Connexion en cours...</string>
     <string name="auth_please_wait_connect">Attends pendant qu\'on te connecte...</string>

@@ -74,7 +74,7 @@
     <!-- Text size for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_text_size">6dp</dimen>
     <!-- Top margin for action bar subtitles -->
-    <dimen name="ab__action_bar_subtitle_top_margin">-3dp</dimen>
+    <dimen name="ab__action_bar_subtitle_top_margin">2dp</dimen>
     <!-- Bottom margin for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_bottom_margin">5dip</dimen>
     <dimen name="ab__status_bar_height">24dp</dimen>
@@ -162,7 +162,7 @@
 	<dimen name="sm_rightmargin">53dp</dimen>
 	<dimen name="top_margin_shared_content">8dp</dimen>
 	<dimen name="shared_media_top_margin_hike_bot">3dp</dimen>
-	<dimen name="avatar_profile_size">68dp</dimen>
+	<dimen name="avatar_profile_size">69dp</dimen>
 	<dimen name="welcome_with_love_top">30dp</dimen>
 	<dimen name="diwali_popup_width">290dp</dimen>
 	<dimen name="diwali_popup_height">380dp</dimen>
@@ -230,4 +230,10 @@
 	<dimen name="md_button_frame_vertical_padding">0dp</dimen>
 	<dimen name="md_button_height">56dp</dimen>
 	<dimen name="md_divider_height">1dp</dimen>
+	<dimen name="tick_padding_bottom">3dp</dimen>
+	<dimen name="clock_padding_bottom">2dp</dimen>
+	<dimen name="bottom_padding_pin_view">150dp</dimen>
+	
+	<dimen name="overflow_menu_top_margin_non_overlay">-52dp</dimen>
+	<dimen name="overflow_menu_top_margin_overlay">4dp</dimen>
 </resources>

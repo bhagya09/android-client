@@ -18,10 +18,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/alp_42447968_pattern_red_background"
+    android:id="@+id/parentView"
     android:orientation="vertical" >
 
     <RelativeLayout
+        android:background="@color/alp_42447968_pattern_red_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
@@ -58,7 +59,7 @@
                     android:layout_toRightOf="@id/stealth_passcode_img"
                     android:text="Your patterns don’t match. Try again. jla aldfa ld faldf alsdf a"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textIsSelectable="true"
+                    android:textIsSelectable="false"
                     android:textSize="14dp" />
             </RelativeLayout>
         </LinearLayout>
@@ -152,7 +153,7 @@
                     android:gravity="center"
                     android:text="@string/CANCEL"
                     android:textColor="@drawable/popup_button_text_color_selector"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:visibility="gone" />
 
                 <View
@@ -170,7 +171,7 @@
                     android:gravity="center"
                     android:text="@string/continue_txt"
                     android:textColor="@drawable/popup_button_text_color_selector"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
         

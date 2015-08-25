@@ -1,6 +1,5 @@
 package com.bsb.hike.timeline.view;
 
-import java.io.File;
 import java.io.IOException;
 
 import android.app.ProgressDialog;
@@ -16,6 +15,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -197,17 +197,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		avatar.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(selfMsisdn, false));
 
 		mIconImageLoader.loadImage(selfMsisdn, avatar, false, true, false);
-		mIconImageLoader.setSuccessfulImageLoadingListener(new SuccessfulImageLoadingListener()
-		{
-			@Override
-			public void onSuccessfulImageLoaded(ImageView imageView)
-			{
-				if (imageView.getDrawable() != null)
-				{
-					ChatThreadUtils.applyMatrixTransformationToImageView(imageView.getDrawable(), imageView);
-				}
-			}
-		});
 
 		parentLayout.setOnSoftKeyboardListener(this);
 
@@ -282,6 +271,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			addMoodLayout.setVisibility(View.GONE);
 		}
 	}
+	
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		if (statusImage != null && statusImage.getDrawable() != null)
+		{
+			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
+		}
+	}
 
 	private void readArguments(Intent intent)
 	{
@@ -329,8 +328,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		doneBtn = actionBarView.findViewById(R.id.done_container);
 		arrow = (ImageView) actionBarView.findViewById(R.id.arrow);
@@ -343,16 +340,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);
 
 		setTitle();
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
-				actionBarBackPressed();
-			}
-		});
 
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
@@ -553,9 +540,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			e.printStackTrace();
 			return;
 		}
-		mActivityTask.task.execute();
+		
+		if(mActivityTask.task != null)
+		{
+			mActivityTask.task.execute();
 
-		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+		}
+		
 	}
 
 	public void hideEmoticonSelector()
@@ -576,15 +568,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		moodParent.setClickable(true);
 		GridView moodPager = (GridView) findViewById(R.id.mood_pager);
 
-		parentLayout.post(new Runnable()
+		parentLayout.postDelayed(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				moodParent.setVisibility(View.VISIBLE);				
+				if (moodParent != null)
+					moodParent.setVisibility(View.VISIBLE);
 			}
-		});
-		
+		}, mActivityTask.keyboardShowing ? 300 : 0); // TODO Remove hack. Use Shareable popup layout
+
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 		int columns = portrait ? 4 : 6;
 
@@ -610,10 +603,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		statusTxt.setHint(moodsArray[moodIndex]);
 
 		toggleEnablePostButton();
-		if (isEmojiOrMoodLayoutVisible())
-		{
-			onBackPressed();
-		}
 	}
 
 	private void showCancelButton(boolean moodLayout)
@@ -733,6 +722,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int[] dontEatThisTouch = {R.id.emoji_btn};
 		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
 		mEmoticonPicker.setOnDismissListener(this);
+		mEmoticonPicker.setDisableExtraPadding(true);
+		mEmoticonPicker.useStatusUpdateEmojisList(true);
 	}
 	
 	private void setEmoticonButtonSelected(boolean selected)
@@ -801,4 +792,24 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		}
 	}
+
+	@Override
+	public String toString()
+	{
+		return "StatusUpdate [statusTxt=" + statusTxt + ", title=" + title + ", mImagePath=" + mImagePath + ", statusImage=" + statusImage + "]";
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		// TODO Auto-generated method stub
+		if(item.getItemId()==android.R.id.home)
+		{
+			Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
+			actionBarBackPressed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	
 }

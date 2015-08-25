@@ -19,10 +19,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -49,10 +49,12 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.timeline.ActionsDeserializer;
+import com.bsb.hike.timeline.EndlessRecyclerScrollListener;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
@@ -82,8 +84,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
-			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE };
-
+			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED };
+	
 	private String[] friendMsisdns = new String[]{};
 
 	private RecyclerView mUpdatesList;
@@ -117,6 +119,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 	public static final int FILL_STATE = -11;
 
+	public static final int MSG_DELETE = -12;
+	
+	private boolean reachedEnd;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -136,6 +142,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		super.onResume();
 		checkIfTimelineEmpty();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
 	}
 
 	@Override
@@ -179,18 +186,164 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					checkIfTimelineEmpty();
 					msg.recycle();
 				}
+				else if (msg.arg1 == UpdatesFragment.MSG_DELETE)
+				{
+					if (actionsView != null && getActivity()!=null)
+					{
+						getActivity().runOnUiThread(new Runnable()
+						{
+							public void run()
+							{
+								actionsView.setX(0);
+								actionsView.setY(0);
+							}
+						});
+					}
+				}
 			}
 		};
 
 		mUpdatesList.setAdapter(timelineCardsAdapter);
+		
+		mUpdatesList.addOnScrollListener(new EndlessRecyclerScrollListener(mLayoutManager)
+		{
+			@Override
+			public void onLoadMore(int current_page)
+			{
+				if (!reachedEnd && !statusMessages.isEmpty() && statusMessages.size() > HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME)
+				{
+					AsyncTask<String, Void, List<StatusMessage>> asyncTask = new AsyncTask<String, Void, List<StatusMessage>>()
+					{
+
+						@Override
+						protected List<StatusMessage> doInBackground(String... params)
+						{
+							if (params != null && params.length > 0)
+							{
+								for (String msisdn : params)
+								{
+									// TODO Improve for multiple msisdns
+									if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn,true,true)))
+									{
+										friendMsisdns = params;
+										break;
+									}
+								}
+							}
+
+							List<StatusMessage> olderMessages = null;
+
+							int startId = -1;
+
+							if (isLastMsgJoinTime())
+							{
+								startId = (int) statusMessages.get(statusMessages.size() - 2).getId();
+							}
+							else
+							{
+								startId = (int) statusMessages.get(statusMessages.size() - 1).getId();
+							}
+
+							if (friendMsisdns.length > 0 && startId > 1)
+							{
+								olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(mShowProfileHeader ? false : true,
+										HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME, startId, friendMsisdns);
+							}
+							else
+							{
+								olderMessages = new ArrayList<>();
+							}
+							return olderMessages;
+						}
+
+						@Override
+						protected void onPostExecute(List<StatusMessage> olderMessages)
+						{
+							if (!isAdded())
+							{
+								return;
+							}
+
+							final ArrayList<String> suIDList = new ArrayList<String>();
+
+							if (!olderMessages.isEmpty())
+							{
+								for (StatusMessage suMessage : olderMessages)
+								{
+									if (!TextUtils.isEmpty(suMessage.getMappedId()))
+									{
+										suIDList.add(suMessage.getMappedId());
+									}
+								}
+								
+								if (!suIDList.isEmpty())
+								{
+									// Get actions for SU from HTTP
+									JSONArray suIDArray = new JSONArray(suIDList);
+									JSONObject suUpdateJSON = new JSONObject();
+									try
+									{
+										Logger.d(HikeConstants.TIMELINE_LOGS, "list of suIDArray, fetching HTTP calls " + suIDArray);
+										suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
+										RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
+										requestToken.execute();
+									}
+									catch (JSONException e)
+									{
+										e.printStackTrace();
+									}
+
+									// Get actions for SU from DB
+									HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+									{
+										@Override
+										public void run()
+										{
+											HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDList,
+													TimelineActionsManager.getInstance().getActionsData());
+											notifyVisibleItems();
+										}
+									}, 0);
+								}
+								
+								statusMessages.addAll(statusMessages.size(), olderMessages);
+								timelineCardsAdapter.notifyDataSetChanged();
+							}
+							else
+							{
+								/*
+								 * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
+								 */
+								reachedEnd = true;
+								addJoinTimeMessage();
+							}
+
+						}
+					};
+					if (Utils.isHoneycombOrHigher())
+					{
+						asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
+					}
+					else
+					{
+						asyncTask.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
+					}
+				}
+				else
+				{
+					//User joined status message
+					addJoinTimeMessage();
+				}
+			}
+		});
 
 		if (!mShowProfileHeader)
 		{
-			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
-					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
+			QuickReturnRecyclerViewOnScrollListener quickReturnscrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
+					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(52)).isSnappable(false).build();
 
-			mUpdatesList.setOnScrollListener(scrollListener);
-
+			mUpdatesList.addOnScrollListener(quickReturnscrollListener);
+			
 			actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
 
 			actionsView.findViewById(R.id.new_status_tab).setOnClickListener(this);
@@ -212,6 +365,52 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 	}
 
+	private boolean isLastMsgJoinTime()
+	{
+		// Check if last message is joined hike message (self inserted)
+		if (statusMessages != null && !statusMessages.isEmpty())
+		{
+			StatusMessage lastMessage = statusMessages.get(statusMessages.size() - 1);
+			if (lastMessage.getStatusMessageType() == StatusMessageType.JOINED_HIKE)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void addJoinTimeMessage()
+	{
+		if(isLastMsgJoinTime())
+		{
+			return;
+		}
+		
+		if(mShowProfileHeader)
+		{
+			ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
+			
+			if(!joinConInfo.isOnhike())
+			{
+				return;
+			}
+			
+			StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
+			
+			if (cJoinedSM != null)
+			{
+				statusMessages.add(cJoinedSM);
+				notifyVisibleItems();
+				if(cJoinedSM.getTimeStamp() == 0)
+				{
+					joinConInfo.httpGetHikeJoinTime();
+				}
+			}
+			
+			Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
+		}
+	}
+	
 	@Override
 	public void onDestroy()
 	{
@@ -230,7 +429,24 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		if (HikePubSub.TIMELINE_UPDATE_RECIEVED.equals(type))
 		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
+			
 			final StatusMessage statusMessage = (StatusMessage) object;
+
+			// If not showing profile, lets add new message
+			if (mShowProfileHeader)
+			{
+				// If showing profile, check if msisdn is same or not
+				if (mMsisdnArray != null && statusMessage.getMsisdn().equals(mMsisdnArray.get(0)))
+				{
+					//Do nothing, add message
+				}
+				else
+				{
+					return;
+				}
+			}
+
 			final int startIndex = getStartIndex();
 
 			getActivity().runOnUiThread(new Runnable()
@@ -238,12 +454,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void run()
 				{
+					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index " + startIndex);
 					statusMessages.add(startIndex, statusMessage);
 					timelineCardsAdapter.notifyDataSetChanged();
-					Logger.d("tl_", "list of SUs after pubsub TIMELINE_UPDATE_RECIEVED " + statusMessage);
 				}
 			});
-			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
 		}
 		else if (HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED.equals(type))
 		{
@@ -282,12 +497,21 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
 		{
-			if (object != null && object instanceof FeedDataModel)
+			getActivity().runOnUiThread(new Runnable()
 			{
-				FeedDataModel feedData = (FeedDataModel) object;
-				TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
-				notifyVisibleItems();
-			}
+				@Override
+				public void run()
+				{
+					if (object != null && object instanceof FeedDataModel)
+					{
+						FeedDataModel feedData = (FeedDataModel) object;
+						Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
+						TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
+						notifyVisibleItems();
+					}
+				}
+			});
+			
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
 		{
@@ -299,6 +523,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					statusMessages.clear();
 					resetSharedPrefOnRemovingFTUE();
 					timelineCardsAdapter.notifyDataSetChanged();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 				}
 			});
 		}
@@ -316,33 +542,70 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							return;
 						}
 
-						if (object != null && object instanceof Set)
+						if (object != null)
 						{
 							mFtueFriendList = new ArrayList<ContactInfo>(); 
 							Pair<Set<String>, Integer> pair = (Pair<Set<String>, Integer>)object;
 							HashSet<String> msisdnSet = (HashSet<String>) pair.first;
 							int counter = pair.second;
-							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and count "+ counter);
+							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and final count is "+ counter);
 							Iterator<String> iterator = msisdnSet.iterator();
 							int i=0;
 							while(iterator.hasNext() && i < counter)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
-								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
+										&& !Utils.getUserContactInfo(false).getMsisdn().equals(info.getMsisdn()))
 								{
 									mFtueFriendList.add(info);
 									i++;
+									Logger.d("tl_ftue", " adding "+ info.getMsisdn()+" as htis is NON-FRIEND");
+								}
+								else
+								{
+									Logger.d("tl_ftue", " not adding "+ info.getMsisdn()+" as status is "+ info.getMsisdnType());
 								}
 							}
 							Logger.d("tl_ftue", "inside pubub, final list after check is " + mFtueFriendList);
-							addFTUEItem();
-							updateFTUEMsisdnsList(mFtueFriendList);
-							notifyVisibleItems();
+							if(statusMessages.isEmpty() 
+									|| !(statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_EXIT
+									|| statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_INIT
+									|| statusMessages.get(0).getId() == TimelineCardsAdapter.FTUE_CARD_FAV))
+							{
+								updateFTUEMsisdnsList(mFtueFriendList, false);
+								addFTUEItem();
+								notifyVisibleItems();
+							}
+							else
+							{
+								updateFTUEMsisdnsList(mFtueFriendList, true);
+							}
 						}
 					}
 
 				});
 			}
+		}
+		else if (HikePubSub.HIKE_JOIN_TIME_OBTAINED.equals(type) || HikePubSub.USER_JOIN_TIME_OBTAINED.equals(type))
+		{
+			if (!mShowProfileHeader || mMsisdnArray == null || mMsisdnArray.isEmpty())
+			{
+				return;
+			}
+
+			Pair<String, Long> msisdnHikeJoinTimePair = (Pair<String, Long>) object;
+
+			String msisdn = msisdnHikeJoinTimePair.first;
+			long hikeJoinTime = msisdnHikeJoinTimePair.second;
+
+			if (!msisdn.equals(mMsisdnArray.get(0)))
+			{
+				return;
+			}
+
+			ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true, false).setHikeJoinTime(hikeJoinTime);
+
+			notifyVisibleItems();
 		}
 	}
 
@@ -423,7 +686,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				for (String msisdn : params)
 				{
 					// TODO Improve for multiple msisdns
-					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+					if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn, true, true)))
 					{
 						friendMsisdns = params;
 						break;
@@ -434,7 +697,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
 
-				Logger.d("tl_", "list of friends from CM before filter" + friendsList);
+				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends from CM before filter" + friendsList);
 				
 				ArrayList<String> msisdnList = new ArrayList<String>();
 
@@ -451,7 +714,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 				friendMsisdns = new String[msisdnList.size()];
 				msisdnList.toArray(friendMsisdns);
-				Logger.d("tl_", "list of friends after filter whose SU we are fetching " + friendMsisdns);
+				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends after filter whose SU we are fetching " + friendMsisdns);
 			}
 
 			List<StatusMessage> statusMessages = null;
@@ -477,7 +740,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				return;
 			}
 
-			Logger.d("tl_", "list of SUs to show on Timeline " + result);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "list of SUs to show on Timeline " + result);
+			
 			final ArrayList<String> suIDList = new ArrayList<String>();
 
 			for (StatusMessage suMessage : result)
@@ -495,6 +759,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				JSONObject suUpdateJSON = new JSONObject();
 				try
 				{
+					Logger.d(HikeConstants.TIMELINE_LOGS, "list of suIDArray, fetching HTTP calls " + suIDArray);
 					suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
 					RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
 					requestToken.execute();
@@ -516,11 +781,21 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}, 0);
 			}
 
-			long currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+			long currentProtipId = -1l;
+
+			//Defensive check. TODO Remove protip code from application.
+			try
+			{
+				currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
 
 			Protip protip = null;
 			boolean showProtip = false;
-			if (currentProtipId != -1)
+			if (currentProtipId != -1l)
 			{
 				showProtip = true;
 				protip = HikeConversationsDatabase.getInstance().getProtipForId(currentProtipId);
@@ -535,7 +810,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			statusMessages.addAll(result);
 			
-			Logger.d("tl_"+getClass().getSimpleName(), "list of SUs after protip on Timeline " + statusMessages);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "list of SUs after protip on Timeline " + statusMessages);
 			
 			Logger.d(getClass().getSimpleName(), "Updating...");
 
@@ -557,12 +832,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			}
 			
-			//User joined status message
-			if(mShowProfileHeader)
+			if(statusMessages.size() < HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY)
 			{
-				statusMessages.add(StatusMessage.getJoinedHikeStatus(ContactManager.getInstance().getContact(mMsisdnArray.get(0))));
+				addJoinTimeMessage();
 			}
-
+			
+			timelineCardsAdapter.notifyDataSetChanged();
+			
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
 		}
 
@@ -620,7 +896,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				String id = iterator.next();
 				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
-				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
+						&& !c.getMsisdn().equals(Utils.getUserContactInfo(false).getMsisdn()))
 				{
 					Logger.d("tl_ftue", id + " is not a frnd so adding for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
 					finalContactLsit.add(c);
@@ -658,14 +935,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		else
 		{
-			updateFTUEMsisdnsList(finalContactLsit);
+			updateFTUEMsisdnsList(finalContactLsit, false);
 			Logger.d("tl_ftue", "final list after check "+ settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null));
 			Logger.d("tl_ftue", "their names are "+ finalContactLsit);
 		}
 		return finalContactLsit;
 	}
 
-	private void updateFTUEMsisdnsList(List<ContactInfo> finalContactLsit)
+	private void updateFTUEMsisdnsList(List<ContactInfo> finalContactLsit, boolean rearrangeList)
 	{
 		Set<String> list = new HashSet<String>();
 		for(int i = 0; i< finalContactLsit.size(); i++)
@@ -674,6 +951,16 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		settings.saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, list);
+		
+		//set current FTUE is as first element of list
+		if(rearrangeList)
+		{
+			String currentMsisdn = statusMessages.get(0).getMsisdn();
+			ContactInfo currentFTUE = ContactManager.getInstance().getContact(currentMsisdn, true, true);
+			finalContactLsit.remove(currentFTUE);
+			finalContactLsit.add(0, currentFTUE);
+		}
+		timelineCardsAdapter.setFTUEFriendList(finalContactLsit);
 	}
 
 	private IRequestListener actionUpdatesReqListener = new IRequestListener()
@@ -683,7 +970,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		{
 			final JSONObject response = (JSONObject) result.getBody().getContent();
 
-			Logger.d("tl_", "responce from http call "+ response);
+			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call "+ response);
 			
 			if (Utils.isResponseValid(response))
 			{
@@ -707,7 +994,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		public void onRequestFailure(HttpException httpException)
 		{
 			// Do nothing
-			Logger.d("tl_", "responce from http call failed "+ httpException.toString());
+			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call failed "+ httpException.toString());
 		}
 	};
 
@@ -730,6 +1017,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
+			if(!Utils.isPhotosEditEnabled())
+			{
+				galleryFlags = galleryFlags|GalleryActivity.GALLERY_CROP_IMAGE;
+			}
+			
 			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, getNewImagePostFilePath());
 			startActivityForResult(galleryPickerIntent, TIMELINE_POST_IMAGE_REQ);
 			break;

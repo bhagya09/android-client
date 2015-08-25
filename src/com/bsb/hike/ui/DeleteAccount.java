@@ -77,20 +77,9 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.back_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.delete_account);
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
-
+		
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
@@ -279,5 +268,11 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 			task.setActivity(null);
 		}
 		super.onDestroy();
+	}
+	@Override
+	public void onBackPressed()
+	{
+		// TODO Auto-generated method stub
+		finish();
 	}
 }

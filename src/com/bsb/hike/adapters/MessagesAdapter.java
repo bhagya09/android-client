@@ -692,7 +692,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			v = mChatThreadCardRenderer.getView(v, convMessage, parent);
 			DetailViewHolder holder = (DetailViewHolder) v.getTag();
 			dayHolder = holder;
-			setSenderDetails(convMessage, position, holder, false);
+			setSenderDetails(convMessage, position, holder, true);
 			setTimeNStatus(position, holder, true, holder.messageContainer);
 			setSelection(convMessage, holder.selectedStateOverlay);
 		}
@@ -709,7 +709,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			WebViewCardRenderer.WebViewHolder holder = (WebViewCardRenderer.WebViewHolder) v.getTag();
 			dayHolder = holder;
 			setSelection(convMessage, holder.selectedStateOverlay);
-			setSenderDetails(convMessage, position, holder, false);
+			setSenderDetails(convMessage, position, holder, true);
 			setTimeNStatus(position, holder, true, holder.messageContainer);
 		}
 		else
@@ -1188,7 +1188,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = videoHolder;
-				setSenderDetails(convMessage, position, videoHolder, false);
+				setSenderDetails(convMessage, position, videoHolder, true);
 
 				videoHolder.fileThumb.setBackgroundResource(0);
 				videoHolder.fileThumb.setImageResource(0);
@@ -1355,7 +1355,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = imageHolder;
-				setSenderDetails(convMessage, position, imageHolder, false);
+				setSenderDetails(convMessage, position, imageHolder, true);
 
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
@@ -1508,7 +1508,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				dayHolder = imageHolder;
-				setSenderDetails(convMessage, position, imageHolder, false);
+				setSenderDetails(convMessage, position, imageHolder, true);
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
 
@@ -1977,15 +1977,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.timestampcolor));
-				((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.participant_info_bg);
 			}
 			else
 			{
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.white));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
-				((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.participant_info_custom_bg);
 			}
-			
+			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(chatTheme.systemMessageBackgroundId());
 			int duration = metadata.getDuration();
 			boolean initiator = metadata.isVoipInitiator();
 
@@ -2094,7 +2092,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			int right = 0;
 			int bottom = positiveMargin;
 
-			int layoutRes = chatTheme.systemMessageLayoutId();
+			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
 			
 			if (infoState == ParticipantInfoState.PARTICIPANT_JOINED)
 			{
@@ -2400,7 +2398,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				participantInfoHolder = (ParticipantInfoHolder) v.getTag();
 			}
 			dayHolder = participantInfoHolder;
-			int layoutRes = chatTheme.systemMessageLayoutId();
+			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
 			TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 			if (convMessage.getUnreadCount() == 1)
 			{
@@ -2633,13 +2631,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
-	private void setSenderDetails(ConvMessage convMessage, int position, DetailViewHolder detailHolder, boolean ext)
+	private void setSenderDetails(ConvMessage convMessage, int position, DetailViewHolder detailHolder, boolean isNameExternal)
 	{
 		boolean firstMessageFromParticipant = ifFirstMessageFromRecepient(convMessage, position);
 		if (firstMessageFromParticipant)
 		{
 			setGroupParticipantName(convMessage, detailHolder.senderDetails, detailHolder.senderName, detailHolder.senderNameUnsaved, firstMessageFromParticipant);
-			if (ext)
+			if (isNameExternal)
 			{
 				if (detailHolder.senderName != null)
 				{
@@ -3571,7 +3569,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				hikeDialog.dismiss();
 			}
-		}, contact, context.getString(R.string.save), true);
+		}, contact, context.getString(R.string.SAVE), true);
 	}
 
 	/*

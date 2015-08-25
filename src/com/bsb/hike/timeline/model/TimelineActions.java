@@ -3,8 +3,8 @@ package com.bsb.hike.timeline.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -40,6 +40,8 @@ public class TimelineActions
 
 	public ActionsDataModel getActions(String uuid, ActionsDataModel.ActionTypes actionType, ActivityObjectTypes objType)
 	{
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"gettingAction: "+ uuid); 
+		
 		if (TextUtils.isEmpty(uuid) || timelineActionsMap == null || timelineActionsMap.isEmpty())
 		{
 			return null;
@@ -51,8 +53,11 @@ public class TimelineActions
 
 		if (listForUUID == null || listForUUID.isEmpty())
 		{
+			Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"gettingAction: failed");
 			return null;
 		}
+		
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"gettingAction: found");
 
 		for (ActionsDataModel action : listForUUID)
 		{
@@ -67,6 +72,13 @@ public class TimelineActions
 
 	public void addActionDetails(String uuid, List<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount, ActivityObjectTypes objType)
 	{
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"addActionDetails: "+ uuid);
+		
+		if(type == ActionTypes.UNLIKE)
+		{
+			return;
+		}
+		
 		Pair<String, String> uuidObjType = new Pair<String, String>(uuid, objType.getTypeString());
 
 		ArrayList<ActionsDataModel> actionDMList = timelineActionsMap.get(uuidObjType);
@@ -104,7 +116,6 @@ public class TimelineActions
 		}
 
 		actionDM.addContacts(contactInfo);
-		actionDM.setCount(totalCount);
 
 		if (newInstance)
 		{
@@ -119,6 +130,8 @@ public class TimelineActions
 
 	public void updateByActivityFeed(FeedDataModel feedData)
 	{
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"updateByActivityFeed: "); 
+		
 		if (feedData == null)
 		{
 			throw new IllegalArgumentException("updateActivityFeed(): input FeedDataModel cannot be null");
@@ -131,7 +144,7 @@ public class TimelineActions
 		if (actions == null)
 		{
 			ArrayList<ContactInfo> cInfoList = new ArrayList<ContactInfo>();
-			cInfoList.add(ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(feedData.getActor()));
+			cInfoList.add(ContactManager.getInstance().getContact(feedData.getActor(), true, true));
 			addActionDetails(feedData.getObjID(), cInfoList, actionType, 1, feedData.getObjType());
 		}
 		else

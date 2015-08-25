@@ -311,7 +311,15 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	public void onAttachFragment(android.support.v4.app.Fragment fragment)
 	{
 		Logger.i(TAG, "onAttachFragment");
-		chatThread.onAttachFragment(fragment);
+		if (chatThread != null)
+		{
+			chatThread.onAttachFragment(fragment);
+		}
+		
+		else
+		{
+			Logger.wtf(TAG, "Chat Thread obj is null! We are attaching a ghost fragment!!");
+		}
 		super.onAttachFragment(fragment);
 	}
 	

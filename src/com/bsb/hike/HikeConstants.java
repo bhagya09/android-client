@@ -479,7 +479,9 @@ public class HikeConstants
 	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
 	
 	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
-	
+
+	public static final String STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP = "sarsofft";
+
 	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
 	
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
@@ -2293,6 +2295,33 @@ public class HikeConstants
 		public static final String FTUE_GOT_IT_CLICKED = "tL_GiT";
 
 		public static final String DPI = "dpi";
+		
+		/**
+		 * Timelnie
+		 */
+		public static final String TIMELINE_OPEN = "tLO";
+		
+		public static final String TIMELINE_WITH_RED_DOT = "wr";
+		
+		public static final String TIMELINE_SUMMARY_OPEN = "tL_OpUS";
+		
+		public static final String TIMELINE_SUMMARY_LIKES_DIALOG_OPEN = "tL_OpLc";
+		
+		public static final String TIMELINE_CARD_LONG_PRESS = "tL_LPclk";
+		
+		public static final String TIMELINE_LONG_PRESS_MESSAGE = "mu";
+		
+		public static final String TIMELINE_LONG_PRESS_DELETE = "du";
+		
+		public static final String TIMELINE_LONG_PRESS_COPY = "cu";
+		
+		public static final String TIMELINE_OVERFLOW_OPTIONS = "tL_ofLO";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_CLEAR = "clt";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_MY_PROFILE = "myp";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
 	}
 
@@ -3163,14 +3192,32 @@ public class HikeConstants
 	
 	public static final String STICKER_TAG_REFRESH_TIME = "strt";
 
+	public static final String STICKER_AUTO_RECOMMENDATION_ENABLED = "sare"; // boolean
+
+	public static final String STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF = "sarcrc"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF = "sarrpc"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW = "sarcrct"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW = "sarrpct"; // integer
+
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 
 	public static final String CALLBACK_ID ="callbackid";
 
 	public static final String DEVICE_DETAILS = "dd";
+	
+	public static final String DOWNLOAD_TAGS = "srdt";
 
 	public static final String EXTRAS_BOT_MSISDN = "extras_bot_msisdn";
 
 	public static final String REWARDS_BOT_MSISDN = "rewards_bot_msisdn";
+	
+	public static final String TIMELINE_LOGS = "tl_logs";
+	
+	public static final String TIMELINE_COUNT_LOGS = "tlc_logs";
+	
+	public static final String STICKER_SETTINGS = "stickerSettings";
 
 }

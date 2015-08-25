@@ -1464,12 +1464,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if (feedData.getActionType() == ActionTypes.LIKE)
 		{
 			isUpdated = addActivityLike(feedData);
-			Logger.d("tl_", "Adding Like into DB " + feedData);
 		}
 		else if (feedData.getActionType() == ActionTypes.UNLIKE)
 		{
 			isUpdated = deleteActivityLike(feedData);
-			Logger.d("tl_", "removing Like from DB " + feedData);
 		}
 		else if (feedData.getActionType() == ActionTypes.VIEW)
 		{
@@ -1502,6 +1500,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		else
 		{
 			isComplete = true;
+			Logger.d(HikeConstants.TIMELINE_LOGS, "Adding Like into DB " + feedData);
 		}
 
 		if (isComplete)
@@ -1511,7 +1510,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
 		
 			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
-		fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+			fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
 		}
 
 		return isComplete;
@@ -1650,6 +1649,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if (rowDeleted != 0)
 		{
 			isComplete = true;
+			Logger.d(HikeConstants.TIMELINE_LOGS, "removing Like from DB " + feedData);
 		}
 		else
 		{
@@ -1663,7 +1663,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			actorList.add(feedData.getActor());
 			changeActionCountForObjID(feedData.getObjID(), feedData.getObjType().getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
 		
-			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
 			if(!isAnyFeedEntryPresent())
 			{
 				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
@@ -1690,7 +1689,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if(count == TimelineActivity.FETCH_FEED_FROM_DB)
 		{
 			count = getUnreadActivityFeedCount();
+			Logger.d(HikeConstants.TIMELINE_LOGS, "unread activity feeds from DB " + count);
 		}
+		Logger.d(HikeConstants.TIMELINE_LOGS, "firing ACTIVITY_FEED_COUNT_CHANGED " + count);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_FEED_COUNT_CHANGED, new Integer(count));
 	}
 	
@@ -1742,6 +1743,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if (rowDeleted != 0)
 		{
 			isComplete = true;
+			Logger.d(HikeConstants.TIMELINE_LOGS, "removing "+ rowDeleted + " ActivityFeed from DB for id " + mappedId);
 		}
 		else
 		{
@@ -1750,7 +1752,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if (isComplete)
 		{
-			fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+			if(!isAnyFeedEntryPresent())
+			{
+				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
+			}
+			else
+			{
+				fireUpdateNotificationIconPubsub(TimelineActivity.FETCH_FEED_FROM_DB);
+			}
 		}
 
 		return isComplete;
@@ -1770,7 +1779,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String where = DBConstants.READ + " = 0 ";
 		long rowID = mDb.update(DBConstants.FEED_TABLE, conVal, where, null);
 
-		Logger.d("tl_", "The no of feeds marked as read " + rowID);
+		Logger.d(HikeConstants.TIMELINE_LOGS, "inside updateActivityFeedReadStatus,feeds marked as read " + rowID);
 		
 		if (rowID == -1L)
 		{
@@ -1783,7 +1792,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if(isComplete)
 		{
-			//Fire UPDATE_ACTIVITY_FEED_ICON_NOTIFICATION pubsub
 			fireUpdateNotificationIconPubsub(0);
 		}
 		
@@ -3924,6 +3932,63 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return null;
 	}
 
+	public List<Pair<Long, JSONObject>> updateStatusAndSendDeliveryReport(List<ConvMessage> convMessages)
+	{
+		if (convMessages == null || convMessages.isEmpty())
+		{
+			return null;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+
+		List<Pair<Long, JSONObject>> ids = new ArrayList<Pair<Long, JSONObject>>();
+		for (int j = 0; j < convMessages.size(); j++)
+		{
+			ConvMessage msg = convMessages.get(j);
+
+			long msgId = msg.getMsgID();
+			long mappedMsgId = msg.getMappedMsgID();
+			if (mappedMsgId > 0)
+			{
+				try
+				{
+					JSONObject dataObject = new JSONObject();
+					dataObject.put(HikeConstants.METADATA, msg.getMetadata());
+					dataObject.put(HikeConstants.PRIVATE_DATA, msg.getPrivateData());
+					Pair<Long, JSONObject> pair = new Pair<Long, JSONObject>(mappedMsgId, dataObject);
+					ids.add(pair);
+				}
+				catch (JSONException ex)
+				{
+					Logger.e("unread", "exception for msg id : " + msg.getMsgID() + " exception : ", ex);
+				}
+			}
+			sb.append(msgId);
+			if (j < convMessages.size() - 1)
+			{
+				sb.append(",");
+			}
+		}
+
+		sb.append(")");
+
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.MSG_STATUS, ConvMessage.State.RECEIVED_READ.ordinal());
+		int rowsAffected = mDb.update(DBConstants.MESSAGES_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
+
+		// Resetting the unread count as well
+		values.put(DBConstants.UNREAD_COUNT, 0);
+		mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MESSAGE_ID + " in " + sb.toString(), null);
+
+		Logger.d("HIKE CONVERSATION DB ", "Rows Updated : " + rowsAffected);
+		if (ids.size() == 0)
+		{
+			return null;
+		}
+		return ids;
+	}
+	
 	/**
 	 * deletes multiple messages corresponding to give msgId
 	 *
@@ -7953,7 +8018,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 							ContactInfo contactInfo;
 							try
 							{
-								contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(myList.getString(i));
+								contactInfo = ContactManager.getInstance().getContact(myList.getString(i), true, true);
 
 								if (contactInfo != null)
 								{
@@ -8010,6 +8075,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					cv.put(ACTION_COUNT, actionDM.getCount());
 					cv.put(ACTORS, actionDM.getContactsMsisdnJSON());
 					mDb.insertWithOnConflict(ACTIONS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					Logger.d(HikeConstants.TIMELINE_LOGS, " inserting Action Data "+ actionDM);
 				}
 			}
 

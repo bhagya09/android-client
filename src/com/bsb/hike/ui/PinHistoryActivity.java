@@ -47,6 +47,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
@@ -122,6 +123,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		mPinListView.setOnItemLongClickListener(this);
 		
 		mPinListView.setAdapter(pinAdapter);
+		StatusBarColorChanger.setStatusBarColor(this, chatTheme.statusBarColor());
 		
 		if (chatTheme != ChatTheme.DEFAULT)
 		{
@@ -173,20 +175,10 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.pin_history);
-
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
@@ -203,8 +195,9 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			menu.findItem(R.id.forward_msgs).setVisible(false);
 			
 			menu.findItem(R.id.copy_msgs).setVisible(true);
-		}
-		return super.onCreateOptionsMenu(menu);
+		}else
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		return true;
 	}
 
 	@Override
@@ -340,7 +333,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		try
 		{
-			TextView tv = (TextView) LayoutInflater.from(this).inflate(chatTheme.systemMessageLayoutId(), null, false);
+			TextView tv = (TextView) LayoutInflater.from(this).inflate(chatTheme.systemMessageTextViewLayoutId(), null, false);
 			tv.setText(R.string.pinHistoryTutorialText);
 			if (chatTheme == ChatTheme.DEFAULT)
 			{
@@ -375,7 +368,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		actionBar.setDisplayHomeAsUpEnabled(false);
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.action_mode_action_bar, null);
 
 		View closeBtn = actionBarView.findViewById(R.id.close_action_mode);
