@@ -2470,7 +2470,9 @@ public class HikeConstants
 		
 		public static final String SESSION = "sess";
 
-		public static final String GENERAL_EVENT = "ge";
+		public static final String GENERAL_EVENT_QOS_ONE = "ge1";
+
+		public static final String GENERAL_EVENT_QOS_ZERO = "ge0";
 	}
 
 	public static final class GeneralEventMessagesTypes

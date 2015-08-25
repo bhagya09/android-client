@@ -975,7 +975,7 @@ public class PlatformUtils
 		try
 		{
 			long timestamp = System.currentTimeMillis();
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT);
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
 			object.put(HikeConstants.SEND_TIMESTAMP, timestamp);
 			object.put(HikeConstants.TIMESTAMP, timestamp);
 			object.put(HikeConstants.TO, msisdn);

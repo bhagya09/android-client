@@ -3604,7 +3604,7 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
-		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT.equals(type))
+		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
 		{
 			GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(jsonObj);
 		}
@@ -4210,7 +4210,7 @@ public class MqttMessagesManager
 				{
 					VoIPUtils.handleVOIPPacket(context, json);
 				}
-				else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT.equals(type))
+				else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
 				{
 					GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(json);
 				}
