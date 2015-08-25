@@ -899,6 +899,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				String id = iterator.next();
 				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
+				
+				if(c == null || c.getFavoriteType() == null || c.getMsisdn() == null)
+				{
+					Logger.d("tl_ftue", "NPE: favourite null");
+					continue;
+				}
+				
 				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
 						&& !c.getMsisdn().equals(Utils.getUserContactInfo(false).getMsisdn()))
 				{
