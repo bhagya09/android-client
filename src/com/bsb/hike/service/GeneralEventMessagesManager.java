@@ -1,5 +1,6 @@
 package com.bsb.hike.service;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -66,7 +67,7 @@ public class GeneralEventMessagesManager
 		}
 	}
 
-	public static GeneralEventMessagesManager getInstance(Context context)
+	public static GeneralEventMessagesManager getInstance()
 	{
 		if (instance == null)
 		{
@@ -74,7 +75,7 @@ public class GeneralEventMessagesManager
 			{
 				if (instance == null)
 				{
-					instance = new GeneralEventMessagesManager(context);
+					instance = new GeneralEventMessagesManager(HikeMessengerApp.getInstance().getApplicationContext());
 				}
 			}
 		}

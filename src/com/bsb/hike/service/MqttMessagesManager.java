@@ -3606,7 +3606,7 @@ public class MqttMessagesManager
 		}
 		else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
 		{
-			GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(jsonObj);
+			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
 		}
 	}
 
@@ -4212,7 +4212,7 @@ public class MqttMessagesManager
 				}
 				else if(HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
 				{
-					GeneralEventMessagesManager.getInstance(context).handleGeneralMessage(json);
+					GeneralEventMessagesManager.getInstance().handleGeneralMessage(json);
 				}
 				else
 				{
