@@ -205,6 +205,13 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 			//Try to get actions data from cache
 			mStatusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
+			
+			if(mStatusMessage == null)
+			{
+				finish();
+				return;
+			}
+			
 			ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData()
 					.getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
