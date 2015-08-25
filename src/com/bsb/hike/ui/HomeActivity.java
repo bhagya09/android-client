@@ -36,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager.BadTokenException;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -1850,7 +1851,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			@Override
 			public void run()
 			{
-				overFlowWindow.showAsDropDown(anchor, -rightMargin, 0);
+				try
+				{
+					overFlowWindow.showAsDropDown(anchor, -rightMargin, 0);
+				}
+
+				catch (BadTokenException e)
+				{
+					Logger.wtf(TAG, " Getting badToken exception in showAsDropDown method");
+				}
 			}
 
 		});
