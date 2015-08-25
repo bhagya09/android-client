@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 
@@ -47,7 +48,14 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 		}
 		else if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action))
 		{
-			wifiCallBack.onScanResultAvailable();
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					wifiCallBack.onScanResultAvailable();
+				}
+			});
 		}
 		else if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action))
 		{
@@ -57,18 +65,16 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 			String ssid = wifiManager.getConnectionInfo().getSSID();
 			if (!TextUtils.isEmpty(ssid))
 			{
-				Logger.d(TAG, "OfflineBroadCast ssid: " + ssid +".......Detailed state is "+  (netInfo.getDetailedState()==(NetworkInfo.DetailedState.CONNECTED)) +"....idOfflineSSID     "+OfflineUtils.isOfflineSsid(ssid)+"     netIfo state is  "+netInfo.isConnected());
-				
-				
+				Logger.d(TAG, "OfflineBroadCast ssid: " + ssid + ".......Detailed state is " + (netInfo.getDetailedState() == (NetworkInfo.DetailedState.CONNECTED))
+						+ "....idOfflineSSID     " + OfflineUtils.isOfflineSsid(ssid) + "     netIfo state is  " + netInfo.isConnected());
+
 				// HTC desire X gives ssid without quotes but all other devices give ssid with quotes
-				if (ssid.length() > 2&&ssid.startsWith("\"")&&ssid.endsWith("\""))
+				if (ssid.length() > 2 && ssid.startsWith("\"") && ssid.endsWith("\""))
 					ssid = ssid.substring(1, ssid.length() - 1);
-			
-				if ((netInfo != null) &&
-						(netInfo.getDetailedState()==(NetworkInfo.DetailedState.CONNECTED)) && 
-						(OfflineUtils.isOfflineSsid(ssid)))
+
+				if ((netInfo != null) && (netInfo.getDetailedState() == (NetworkInfo.DetailedState.CONNECTED)) && (OfflineUtils.isOfflineSsid(ssid)))
 				{
-					Logger.d(TAG,"inconnected");
+					Logger.d(TAG, "inconnected");
 					wifiCallBack.onConnectionToWifiNetwork();
 				}
 			}
