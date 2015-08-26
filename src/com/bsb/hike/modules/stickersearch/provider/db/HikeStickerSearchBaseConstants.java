@@ -8,7 +8,7 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 public class HikeStickerSearchBaseConstants
 {
-	public static final int STICKERS_SEARCH_DATABASE_VERSION = 1;
+	public static final int STICKERS_SEARCH_DATABASE_VERSION = 2;
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
 
@@ -18,6 +18,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String TABLE_STICKER_PACK_CATEGORY_HISTORY = "stickerCategoryHistory";
 
 	public static final String TABLE_STICKER_TAG_MAPPING = "stickerTagMapping";
+	
+	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
 
 	// ================================Fixed tables used for Sticker-Tag relation and recommendations]]
 

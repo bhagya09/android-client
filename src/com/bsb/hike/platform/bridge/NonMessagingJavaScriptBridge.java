@@ -52,6 +52,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	private static final int CHANGE_ACTION_BAR_TITLE = 115;
 	
+	private static final int CHANGE_STATUS_BAR_COLOR = 116;
+	
 	private BotInfo mBotInfo;
 	
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
@@ -511,6 +513,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				String title = (String) msg.obj;
 				mCallback.changeActionBarTitle(title);
 			}
+			break;
+			
+		case CHANGE_STATUS_BAR_COLOR:
+			if (mCallback != null)
+			{
+				String sbColor = (String) msg.obj;
+				mCallback.changeStatusBarColor(sbColor);
+			}
+			
 		default:
 			super.handleUiMessage(msg);
 		}
@@ -657,6 +668,26 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (!TextUtils.isEmpty(mBotInfo.getConversationName()))
 		{
 			sendMessageToUiThread(CHANGE_ACTION_BAR_TITLE, mBotInfo.getConversationName());
+		}
+	}
+	
+
+	/**
+	 * Platform bridge Version 4
+	 * 
+	 * Call this method to change the status bar color at runtime. <br>
+	 * this method will work only on Android L and above (i.e. API Level 21 + ) <br>
+	 * However calling this on lower devices will not crash the app <br>
+	 * 
+	 * @param sbColor : The hex code of the color. eg : "#ef48f1"
+	 * Be careful about the '#' in the hex code
+	 */
+	@JavascriptInterface
+	public void setStatusBarColor(String sbColor)
+	{
+		if (!TextUtils.isEmpty(sbColor))
+		{
+			sendMessageToUiThread(CHANGE_STATUS_BAR_COLOR, sbColor);
 		}
 	}
 

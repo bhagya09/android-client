@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -255,6 +256,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String UNSEEN_STATUS_COUNT = "unseenStatusCount";
 
 	public static final String UNSEEN_USER_STATUS_COUNT = "unseenUserStatusCount";
+	
+	public static final String USER_TIMELINE_ACTIVITY_COUNT = "usertimelineactivitycount";
 
 	public static final String BATCH_STATUS_NOTIFICATION_VALUES = "batchStatusNotificationValues";
 
@@ -512,6 +515,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STICKER_SET = "stickerSet";
 
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
+	
+	public static final String SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP = "shownStickerRecommendAutoPopupOffTip";
 
 	public static final String STICKER_RECOMMEND_SCROLL_FTUE_COUNT = "stickerRecommendScrollFtueCount";
 
@@ -585,6 +590,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String STICKER_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = "stickerSearchDatabaseSizeShrinkCoefficient"; // float
 
+	public static final String LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME = "lastSuccessfulTagsDownloadTime";
+	
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
@@ -622,6 +629,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	RegisterToGCMTrigger mmRegisterToGCMTrigger = null;
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
+	
+	public static int bottomNavBarHeightPortrait = 0;
+	
+	public static int bottomNavBarWidthLandscape = 0;
 
 	static
 	{
@@ -923,10 +934,13 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		{
 			fetchPlatformIDIfNotPresent();
 		}
-
+		
 		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
 		StickerManager.getInstance().refreshTagData();
 		StickerSearchManager.getInstance().removeDeletedStickerTags();
+		
+		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
+		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1079,6 +1093,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		folder = new File(root + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
+
+		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		Utils.makeNoMediaFile(folder, true);
+
 	}
 
 	public static HikePubSub getPubSub()

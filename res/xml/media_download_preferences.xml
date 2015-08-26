@@ -4,77 +4,75 @@
 
  	<PreferenceCategory
  	    android:key="videoCompressCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#00000000"
+        android:layout="@layout/settings_section_header"
         android:orderingFromXml="true"
         android:selectable="false"
-        android:textColor="@color/auto_download"
         android:title="@string/video_compress" >
-        <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_video"
+        
+        <com.bsb.hike.view.SwitchPreferenceCompat
             android:key="videoCompress"
             android:defaultValue="true"
             android:layout="@layout/icon_preference"
             android:title="@string/send_compress_video"
-            android:widgetLayout="@layout/checkbox_widget" />
+            android:widgetLayout="@layout/switch_widget" />
     </PreferenceCategory>
+    
     <PreferenceCategory
         android:orderingFromXml="true"
         android:selectable="false"
-        android:textColor="@color/auto_download"
+        android:layout="@layout/settings_section_header"
         android:title="@string/md_auto_download_media" >
-        <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_image"
+        
+        <com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="mdAutoDownloadImagePref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_image_title"
-            android:widgetLayout="@layout/checkbox_widget" />
-        <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_video"
+            android:widgetLayout="@layout/switch_widget" />
+        
+        <com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="mdAutoDownloadVideoPref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_video_title"
-            android:widgetLayout="@layout/checkbox_widget" />
-        <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_audio"
+            android:widgetLayout="@layout/switch_widget" />
+        
+        <com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="mdAutoDownloadAudioPref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_audio_title"
-            android:widgetLayout="@layout/checkbox_widget" />
+            android:widgetLayout="@layout/switch_widget" />
+        
     </PreferenceCategory>
+    
     <PreferenceCategory
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#00000000"
         android:orderingFromXml="true"
         android:selectable="false"
-        android:textColor="@color/auto_download"
+         android:layout="@layout/settings_section_header"
         android:title="@string/wf_auto_download_media" >
-        <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_image"
+        
+        <com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="wfAutoDownloadImagePref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_image_title"
-            android:widgetLayout="@layout/checkbox_widget" />
-        <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_video"
+            android:widgetLayout="@layout/switch_widget" />
+        
+        <com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="wfAutoDownloadVideoPref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_video_title"
-            android:widgetLayout="@layout/checkbox_widget" />
-        <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_auto_download_audio"
+            android:widgetLayout="@layout/switch_widget" />
+        
+        <com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="wfAutoDownloadAudioPref"
             android:layout="@layout/icon_preference"
             android:title="@string/auto_download_audio_title"
-            android:widgetLayout="@layout/checkbox_widget" />
+            android:widgetLayout="@layout/switch_widget" />
+        
     </PreferenceCategory>
 
 </PreferenceScreen>

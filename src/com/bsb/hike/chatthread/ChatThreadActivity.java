@@ -6,11 +6,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.ViewConfiguration;
+import android.view.Window;
+import android.view.WindowManager;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -34,21 +35,31 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	{
 		Logger.i(TAG, "OnCreate");
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		if (Utils.isLollipopOrHigher() && getWindow() != null)
+		{
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+		}
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */
-        if (Utils.requireAuth(this))
-        {
+		if (Utils.requireAuth(this))
+		{
 			/**
 			 * To avoid super Not Called exception
 			 */
-        	super.onCreate(savedInstanceState);
-            return;
-        }
-		
+			super.onCreate(savedInstanceState);
+			return;
+		}
+
 		if (filter(getIntent()))
 		{
 			init(getIntent());
+		}
+		
+		// Activity should be created first in order to access action bar from chatthread.oncreate
+		super.onCreate(savedInstanceState);
+		if (filter(getIntent()))
+		{
 			chatThread.onCreate(savedInstanceState);
 			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.CHAT_SCR.ordinal());
 		}
@@ -56,7 +67,6 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		{
 			closeChatThread(null);
 		}
-		super.onCreate(savedInstanceState);
 	}
 
 	private boolean filter(Intent intent)
@@ -139,7 +149,8 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	{	
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		Logger.i(TAG, "OnCreate Options Menu Called");
 		return chatThread.onCreateOptionsMenu(menu) ? true : super.onCreateOptionsMenu(menu);
 
@@ -300,7 +311,15 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	public void onAttachFragment(android.support.v4.app.Fragment fragment)
 	{
 		Logger.i(TAG, "onAttachFragment");
-		chatThread.onAttachFragment(fragment);
+		if (chatThread != null)
+		{
+			chatThread.onAttachFragment(fragment);
+		}
+		
+		else
+		{
+			Logger.wtf(TAG, "Chat Thread obj is null! We are attaching a ghost fragment!!");
+		}
 		super.onAttachFragment(fragment);
 	}
 	
@@ -362,5 +381,11 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		super.onRestoreInstanceState(savedInstanceState);
 		
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color) {
+		// TODO Auto-generated method stub
+		//Nothing to be done with status bar
+		return;
 	}
 }

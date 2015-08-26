@@ -1,7 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
 import java.util.ArrayList;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ListFragment;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -35,7 +34,6 @@ import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.TellAFriend;
@@ -43,7 +41,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
-public class FriendsFragment extends SherlockListFragment implements Listener, OnItemLongClickListener, OnScrollListener
+public class FriendsFragment extends ListFragment implements Listener, OnItemLongClickListener, OnScrollListener
 {
 
 	private FriendsAdapter friendsAdapter;
@@ -534,6 +532,11 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 
 		AlertDialog alertDialog = builder.show();
 		alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
+		if (options.length == 1)
+		{
+			alertDialog.getListView().setDividerHeight(0); //Remove divier on single item
+		}
+		
 		return true;
 	}
 

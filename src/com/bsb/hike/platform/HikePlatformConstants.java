@@ -226,4 +226,6 @@ public interface HikePlatformConstants
 	final String FULL_SCREEN_CONFIG = "full_screen_config";
 	
 	final String SECONDARY_TITLE = "secondary_title";
+	
+	final String STATUS_BAR_COLOR = "sb_color";
 }
