@@ -326,10 +326,16 @@ public class VoIPService extends Service {
 				if (forceMute == true) {
 					setMute(forceMute);
 					sendHandlerMessage(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
-					tts.speak(getString(R.string.voip_speech_force_mute_on), TextToSpeech.QUEUE_FLUSH, null);
-				} else
-					tts.speak(getString(R.string.voip_speech_force_mute_off), TextToSpeech.QUEUE_FLUSH, null);
-					
+				} 
+				
+				// Text to speech
+				if (recordingAndPlaybackRunning) {
+					if (forceMute == true) 
+						tts.speak(getString(R.string.voip_speech_force_mute_on), TextToSpeech.QUEUE_FLUSH, null);
+					 else
+						tts.speak(getString(R.string.voip_speech_force_mute_off), TextToSpeech.QUEUE_FLUSH, null);
+				}
+				
 			default:
 				// Pass message to activity through its handler
 				sendHandlerMessage(msg.what);
@@ -1052,7 +1058,7 @@ public class VoIPService extends Service {
 	
 	@SuppressWarnings("deprecation")
 	@SuppressLint("InlinedApi") 
-	private boolean initSoundPool() {
+	private synchronized boolean initSoundPool() {
 		
 		if (soundpool != null) {
 			Logger.d(tag, "Soundpool already initialized.");
@@ -1448,7 +1454,7 @@ public class VoIPService extends Service {
 				}
 				
 				if (recorder == null || recorder.getState() != AudioRecord.STATE_INITIALIZED) {
-					Logger.e(tag, "AudioRecord initialization failed. Mic may not work. State: " + recorder.getState());
+					Logger.e(tag, "AudioRecord initialization failed. Mic may not work.");
 					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 					return;
 				}
@@ -2212,7 +2218,6 @@ public class VoIPService extends Service {
 		synchronized (clients) {
 			clients.put(client.getPhoneNumber(), client);
 			if (clients.size() > 1) {
-				Logger.w(tag, "We are now hosting a conference.");
 				hostingConference = true;
 			}
 		}

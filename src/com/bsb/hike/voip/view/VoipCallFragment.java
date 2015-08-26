@@ -74,7 +74,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private Chronometer callDuration;
 
 	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
-	private TextView muteAllTextView;
+	private LinearLayout forceMuteContainer = null;
 	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 
@@ -112,7 +112,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		speakerButton = (ImageButton) view.findViewById(R.id.speaker_btn);
 		addButton = (ImageButton) view.findViewById(R.id.add_btn);
 		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
-		muteAllTextView = (TextView) view.findViewById(R.id.mute_all_textview);
+		forceMuteContainer = (LinearLayout) view.findViewById(R.id.force_mute_layout);
 		
 		if (VoIPUtils.isConferencingEnabled(getActivity())) 
 			addButton.setVisibility(View.VISIBLE);
@@ -578,10 +578,30 @@ public class VoipCallFragment extends Fragment implements CallActions
 		holdButton.setSelected(voipService.getHold());
 		speakerButton.setSelected(voipService.getSpeaker());
 		addButton.setSelected(false);
+		setupForceMuteLayout();
 
 		setupActiveCallButtonActions();
 	}
 
+	private void setupForceMuteLayout() {
+		
+		TextView muteAllTextView = (TextView) getView().findViewById(R.id.mute_all_textview);
+		ImageView muteAllIcon= (ImageView) getView().findViewById(R.id.force_mute_icon);
+
+		boolean forceMute = voipService.getHostForceMute();
+
+		if (forceMute == true) {
+			muteAllTextView.setText(getString(R.string.voip_conf_mute_all_on));
+			muteAllIcon.setImageResource(R.drawable.ic_force_unmute);
+		} else {
+			muteAllTextView.setText(getString(R.string.voip_conf_mute_all_off));
+			muteAllIcon.setImageResource(R.drawable.ic_force_mute);
+		}
+		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+		anim.setDuration(500);
+		forceMuteContainer.startAnimation(anim);
+	}
+	
 	private void animateActiveCallButtons()
 	{
 		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
@@ -697,23 +717,14 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		});
 		
-		muteAllTextView.setOnClickListener(new OnClickListener() {
+		forceMuteContainer.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				boolean newMute = !voipService.getHostForceMute();
 				Logger.w(tag, "Setting force mute to: " + newMute);
 				voipService.setHostForceMute(newMute);
-				if (newMute == true) {
-					muteAllTextView.setText(getString(R.string.voip_conf_mute_all_on));
-					muteAllTextView.setBackgroundColor(getResources().getColor(R.color.voip_mute_all_on));
-				} else {
-					muteAllTextView.setText(getString(R.string.voip_conf_mute_all_off));
-					muteAllTextView.setBackgroundColor(getResources().getColor(R.color.voip_mute_all_off));
-				}
-				AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-				anim.setDuration(500);
-				muteAllTextView.startAnimation(anim);
+				setupForceMuteLayout();
 			}
 		});
 		
@@ -865,15 +876,10 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		}
 
-		if (voipService.hostingConference() && signalContainer != null) {
-			// remove quality indicator
-			signalContainer.setVisibility(View.GONE);
-		}
-		
 		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			
 			// Display the contact name and participant count
-			nameOrMsisdn = getString(R.string.voip_conference_label);
+			contactNameView.setText(R.string.voip_conference_label);
 			int clientCount = voipService.getClientCount();
 			String numberOfParticipants;
 			if (clientCount == 1)
@@ -883,7 +889,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 			
 			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
 				contactMsisdnView.setVisibility(View.VISIBLE);
-				contactMsisdnView.setText(contactInfo.getNameOrMsisdn());
+				contactMsisdnView.setText(nameOrMsisdn);
 			} else {
 				contactMsisdnView.setVisibility(View.VISIBLE);
 				contactMsisdnView.setText(numberOfParticipants);
@@ -894,27 +900,24 @@ public class VoipCallFragment extends Fragment implements CallActions
 			// and to the participants after they accept the call
 			if (voipService.recordingAndPlaybackRunning || voipService.hostingConference())
 				updateConferenceList();
+		} else {
+			if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
+			{
+				contactNameView.setTextSize(24);
+			}
+			
+			contactNameView.setText(nameOrMsisdn);
 		}
 
 		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
 			if (clientPartner.isHostingConference) {
 				addButton.setVisibility(View.GONE);
-				muteAllTextView.setVisibility(View.GONE);
+				forceMuteContainer.setVisibility(View.GONE);
 			} else {
 				addButton.setVisibility(View.VISIBLE);
 			}
 		}
 
-		if (voipService.hostingConference()) {
-			muteAllTextView.setVisibility(View.VISIBLE);
-		}
-		
-		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
-		{
-			contactNameView.setTextSize(24);
-		}
-		
-		contactNameView.setText(nameOrMsisdn);
 	}
 	
 	private void updateConferenceList() {
@@ -930,6 +933,22 @@ public class VoipCallFragment extends Fragment implements CallActions
 		// Remove profile image
 		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
 		profileView.setVisibility(View.INVISIBLE);
+
+		if (voipService.hostingConference()) {
+			
+			// Show force mute option
+			forceMuteContainer.setVisibility(View.VISIBLE);
+			
+			// Remove the margin from the participants listview
+			ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) conferenceList.getLayoutParams();
+			layoutParams.setMargins(0, 0, 0, 20);
+//			conferenceList.setLayoutParams(layoutParams);
+			
+			// remove quality indicator
+			if (signalContainer != null) {
+				signalContainer.setVisibility(View.GONE);
+			}
+		}
 	}
 	
 	private void hideConferenceList() {
