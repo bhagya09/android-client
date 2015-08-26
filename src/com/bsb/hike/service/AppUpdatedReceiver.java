@@ -11,6 +11,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.TrackerUtil;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -72,6 +73,13 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 				HikeMessengerApp.getPubSub().publish(HikePubSub.FREE_SMS_TOGGLED, freeSMSOn);
 			}
 
+		}
+		// Call the MAT api on update flag here :
+		TrackerUtil tUtil = TrackerUtil.getInstance(context.getApplicationContext());
+		if (tUtil != null)
+		{
+			// tUtil.init();
+			tUtil.setTrackOptions(false);
 		}
 	}
 }
