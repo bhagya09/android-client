@@ -118,6 +118,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public static final int EMPTY_STATE = -10;
 
 	public static final int FILL_STATE = -11;
+
+	public static final int MSG_DELETE = -12;
 	
 	private boolean reachedEnd;
 
@@ -140,6 +142,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		super.onResume();
 		checkIfTimelineEmpty();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
 	}
 
 	@Override
@@ -182,6 +185,20 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				{
 					checkIfTimelineEmpty();
 					msg.recycle();
+				}
+				else if (msg.arg1 == UpdatesFragment.MSG_DELETE)
+				{
+					if (actionsView != null && getActivity()!=null)
+					{
+						getActivity().runOnUiThread(new Runnable()
+						{
+							public void run()
+							{
+								actionsView.setX(0);
+								actionsView.setY(0);
+							}
+						});
+					}
 				}
 			}
 		};
@@ -322,10 +339,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		if (!mShowProfileHeader)
 		{
-			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
+			QuickReturnRecyclerViewOnScrollListener quickReturnscrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
 					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(52)).isSnappable(false).build();
 
-			mUpdatesList.addOnScrollListener(scrollListener);
+			mUpdatesList.addOnScrollListener(quickReturnscrollListener);
 			
 			actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
 
@@ -537,7 +554,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							while(iterator.hasNext() && i < counter)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
-								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
+										&& !Utils.getUserContactInfo(false).getMsisdn().equals(info.getMsisdn()))
 								{
 									mFtueFriendList.add(info);
 									i++;
@@ -653,7 +671,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
 		
-		mFtueFriendList.clear();
+		if(mFtueFriendList != null)
+		{
+			mFtueFriendList.clear();
+		}
 	}
 
 	private class FetchUpdates extends AsyncTask<String, Void, List<StatusMessage>>
@@ -763,11 +784,21 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}, 0);
 			}
 
-			long currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+			long currentProtipId = -1l;
+
+			//Defensive check. TODO Remove protip code from application.
+			try
+			{
+				currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
 
 			Protip protip = null;
 			boolean showProtip = false;
-			if (currentProtipId != -1)
+			if (currentProtipId != -1l)
 			{
 				showProtip = true;
 				protip = HikeConversationsDatabase.getInstance().getProtipForId(currentProtipId);
@@ -868,7 +899,15 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				String id = iterator.next();
 				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
-				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+				
+				if(c == null || c.getFavoriteType() == null || c.getMsisdn() == null)
+				{
+					Logger.d("tl_ftue", "NPE: favourite null");
+					continue;
+				}
+				
+				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
+						&& !c.getMsisdn().equals(Utils.getUserContactInfo(false).getMsisdn()))
 				{
 					Logger.d("tl_ftue", id + " is not a frnd so adding for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
 					finalContactLsit.add(c);

@@ -36,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager.BadTokenException;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -81,6 +82,7 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -1498,7 +1500,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		if (accountPrefs.getBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false) || count < 1 || (null != overFlowWindow && overFlowWindow.isShowing()))
 		{
-			topBarIndicator.setVisibility(View.GONE);
+			if(topBarIndicator!=null)
+				topBarIndicator.setVisibility(View.GONE);
 		}
 		else
 		{
@@ -1777,6 +1780,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
+					
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OPEN);
+						if (Utils.getNotificationCount(accountPrefs, false) > 0)
+						{
+							metadataSU.put(AnalyticsConstants.EVENT_SOURCE, HikeConstants.LogEvent.TIMELINE_WITH_RED_DOT);
+						}
+
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 
 					editor.putBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					editor.commit();
@@ -1833,7 +1852,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			@Override
 			public void run()
 			{
-				overFlowWindow.showAsDropDown(anchor, -rightMargin, 0);
+				try
+				{
+					overFlowWindow.showAsDropDown(anchor, -rightMargin, 0);
+				}
+
+				catch (BadTokenException e)
+				{
+					Logger.wtf(TAG, " Getting badToken exception in showAsDropDown method");
+				}
 			}
 
 		});

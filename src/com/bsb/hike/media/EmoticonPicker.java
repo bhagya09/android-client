@@ -48,6 +48,15 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 
 	private int currentItem;
 	
+	private static int[] statusUpdateDefaultEmojisList = new int[] { R.drawable.emo_recent, R.drawable.emo_tab_5_selector, R.drawable.emo_tab_6_selector,
+			R.drawable.emo_tab_7_selector, R.drawable.emo_tab_8_selector, R.drawable.emo_tab_9_selector };
+
+	private static int[] defaultEmojisList = new int[] { R.drawable.emo_recent, R.drawable.emo_tab_1_selector, R.drawable.emo_tab_2_selector, R.drawable.emo_tab_3_selector,
+			R.drawable.emo_tab_4_selector, R.drawable.emo_tab_5_selector, R.drawable.emo_tab_6_selector, R.drawable.emo_tab_7_selector, R.drawable.emo_tab_8_selector,
+			R.drawable.emo_tab_9_selector };
+	
+	private boolean useStatusUpdateList = false;
+	
 	public int getCurrentItem()
 	{
 		return currentItem;
@@ -210,18 +219,44 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		
 		View eraseKey = view.findViewById(R.id.erase_key_image);
 		eraseKey.setOnClickListener(this);
+		
+		int [] tabDrawables;
 
-		int[] tabDrawables = new int[] { R.drawable.emo_recent, R.drawable.emo_tab_1_selector, R.drawable.emo_tab_2_selector, R.drawable.emo_tab_3_selector,
-				R.drawable.emo_tab_4_selector, R.drawable.emo_tab_5_selector, R.drawable.emo_tab_6_selector, R.drawable.emo_tab_7_selector, R.drawable.emo_tab_8_selector,
-				R.drawable.emo_tab_9_selector };
+		if (useStatusUpdateList) //SU List
+
+		{
+			tabDrawables = statusUpdateDefaultEmojisList; 
+		}
+		
+		else //Default list
+		{
+			tabDrawables = defaultEmojisList;
+		}
 
 		boolean isPortrait = mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 
-		int emoticonsListSize = EmoticonConstants.DEFAULT_SMILEY_RES_IDS.length;
+		//EmoticonConstants.EMOJI_RES_ID is a list of emojis used only in STATUS UPDATE SCREEN and default is used elsewhere
+		int emoticonsListSize = useStatusUpdateList ? EmoticonConstants.EMOJI_RES_IDS.length : EmoticonConstants.DEFAULT_SMILEY_RES_IDS.length;
 
 		int recentEmoticonsSizeReq = isPortrait ? EmoticonAdapter.MAX_EMOTICONS_PER_ROW_PORTRAIT : EmoticonAdapter.MAX_EMOTICONS_PER_ROW_LANDSCAPE;
 
-		int[] mRecentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(0, emoticonsListSize, recentEmoticonsSizeReq);
+
+		int[] mRecentEmoticons;
+		
+		/**
+		 * For Status update screen, since normal hike emojis are not parsed in iOS, we use a truncated list for recents as well as overall emojis.
+		 */
+		if (useStatusUpdateList)
+		{
+			int startOffset = EmoticonConstants.DEFAULT_SMILEY_RES_IDS.length;
+			int endOffset = startOffset + emoticonsListSize;
+			mRecentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(startOffset, endOffset, recentEmoticonsSizeReq);
+		}
+
+		else
+		{
+			mRecentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(0, emoticonsListSize, recentEmoticonsSizeReq);
+		}
 
 		/**
 		 * If there aren't sufficient recent emoticons, we do not show the recent emoticons tab.
@@ -233,7 +268,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 
 		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 
-		mEmoticonAdapter = new EmoticonAdapter(mActivity, this, isPortrait, tabDrawables);
+		mEmoticonAdapter = new EmoticonAdapter(mActivity, this, isPortrait, tabDrawables, useStatusUpdateList);
 
 		mPager.setVisibility(View.VISIBLE);
 
@@ -415,4 +450,13 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		{
 		}
 	};
+	
+	/**
+	 * Setter for {@link #useStatusUpdateList}
+	 * @param emojiList
+	 */
+	public void useStatusUpdateEmojisList(boolean shouldUse)
+	{
+		this.useStatusUpdateList = shouldUse;
+	}
 }
