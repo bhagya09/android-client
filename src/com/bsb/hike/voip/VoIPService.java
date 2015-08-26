@@ -326,10 +326,16 @@ public class VoIPService extends Service {
 				if (forceMute == true) {
 					setMute(forceMute);
 					sendHandlerMessage(VoIPConstants.MSG_UPDATE_CALL_BUTTONS);
-					tts.speak(getString(R.string.voip_speech_force_mute_on), TextToSpeech.QUEUE_FLUSH, null);
-				} else
-					tts.speak(getString(R.string.voip_speech_force_mute_off), TextToSpeech.QUEUE_FLUSH, null);
-					
+				} 
+				
+				// Text to speech
+				if (recordingAndPlaybackRunning) {
+					if (forceMute == true) 
+						tts.speak(getString(R.string.voip_speech_force_mute_on), TextToSpeech.QUEUE_FLUSH, null);
+					 else
+						tts.speak(getString(R.string.voip_speech_force_mute_off), TextToSpeech.QUEUE_FLUSH, null);
+				}
+				
 			default:
 				// Pass message to activity through its handler
 				sendHandlerMessage(msg.what);
