@@ -2392,11 +2392,8 @@ public class MqttMessagesManager
 		
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
 		{
-			if(Utils.isHoneycombOrHigher())
-			{
-				boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
-			}
+			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+			StickerManager.getInstance().toggleStickerRecommendation(isStickerRecommendationEnabled);
 		}
 
 		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
