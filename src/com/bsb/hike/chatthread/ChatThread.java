@@ -2914,6 +2914,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				ArrayList<ConvMessage> msgList;
 				if (loaderId == SEARCH_PREVIOUS || loaderId == SEARCH_LOOP)
 				{
+					msgSize = chatThread.get().messages.size();
 					long maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
 					long minId = -1;
 					ArrayList<Long> ids = new ArrayList<Long>();
@@ -2961,6 +2962,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 				if (loaderId == SEARCH_NEXT)
 				{
+					msgSize = chatThread.get().messages.size();
 					int count = firstVisisbleItem;
 					long minId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
 					int maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
