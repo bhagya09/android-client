@@ -225,6 +225,7 @@ public class BotUtils
 			HikeMessengerApp.hikeBotInfoMap.remove(msisdn);
 			HikeConversationsDatabase.getInstance().deleteBot(msisdn);
 		}
+		botInfo.setUnreadCount(0);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
 	}
 
