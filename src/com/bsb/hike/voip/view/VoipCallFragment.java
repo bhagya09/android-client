@@ -53,6 +53,7 @@ import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
+import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
 import com.bsb.hike.voip.VoIPUtils;
@@ -73,6 +74,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private Chronometer callDuration;
 
 	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
+	private LinearLayout forceMuteContainer = null;
 	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
 
@@ -110,6 +112,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		speakerButton = (ImageButton) view.findViewById(R.id.speaker_btn);
 		addButton = (ImageButton) view.findViewById(R.id.add_btn);
 		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
+		forceMuteContainer = (LinearLayout) view.findViewById(R.id.force_mute_layout);
 		
 		if (VoIPUtils.isConferencingEnabled(getActivity())) 
 			addButton.setVisibility(View.VISIBLE);
@@ -133,7 +136,16 @@ public class VoipCallFragment extends Fragment implements CallActions
 				shutdown(msg.getData());
 				break;
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
-				updateCallStatus();
+				if (!voipService.isAudioRunning()) {
+					VoIPClient clientPartner = voipService.getPartnerClient();
+					if (clientPartner == null)
+						break;
+					if (clientPartner.isInitiator())
+						setupCalleeLayout();
+					else
+						setupCallerLayout();
+				} else
+					updateCallStatus();
 				break;
 			case VoIPConstants.MSG_AUDIO_START:
 				isCallActive = true;
@@ -166,9 +178,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
 				break;
-			case VoIPConstants.MSG_UPDATE_HOLD_BUTTON:
-				boolean hold = voipService.getHold();
-				holdButton.setSelected(hold);
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
 				updateCallStatus();
 				break;
@@ -192,6 +201,20 @@ public class VoipCallFragment extends Fragment implements CallActions
 				Bundle bundle = msg.getData();
 				String name = bundle.getString(VoIPConstants.PARTNER_NAME);
 				showMessage(getString(R.string.voip_conference_not_supported, name));
+				break;
+			case VoIPConstants.MSG_PARTNER_BUSY:
+				if (voipService != null && !voipService.hostingConference())
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+					voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
+					updateCallStatus();
+				}
+				break;
+			case VoIPConstants.MSG_UPDATE_CALL_BUTTONS:
+				if (voipService.getCallStatus() != CallStatus.INCOMING_CALL)
+					showActiveCallButtons();
 				break;
 			default:
 				super.handleMessage(msg);
@@ -289,6 +312,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 		void showCallFailedFragment(Bundle bundle);
 
 		boolean isShowingCallFailedFragment();
+		
+		void clearActivityFlags();
 	}
 
 	private void connectMessenger() 
@@ -380,18 +405,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		}
 		
-		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) 
-		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
-			VoIPUtils.sendMissedCallNotificationToPartner(msisdn, null);
-			if (voipService != null)
-			{
-				voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
-				updateCallStatus();
-				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_BUSY);
-				voipService.stop();
-			}
-		}
 	}
 
 	private void shutdown(final Bundle bundle) 
@@ -411,12 +424,12 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		}
 		catch (IllegalArgumentException e) {
-			Logger.d(tag, "shutdown() exception: " + e.toString());
+			// Expected. Can happen. 
 		}
 
 		if(activity.isShowingCallFailedFragment())
 		{
-			Logger.w(tag, "Showing call failed fragment. Returning.");
+			Logger.d(tag, "Not shutting down because call failed fragment is being displayed.");
 			return;
 		}
 
@@ -435,12 +448,26 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (voipService!=null && !voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+		if (voipService == null)
+			return false;
+		
+		if (!voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 			&& voipService.getPartnerClient() != null && voipService.getPartnerClient().isInitiator())
 		{
 			voipService.stopRingtone();
 			return true;
 		}
+		
+		if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
+
+			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
+				acceptCall();
+			} else
+				voipService.hangUp();
+			
+			return true;
+		}
+		
 		return false;
 	}
 
@@ -551,10 +578,30 @@ public class VoipCallFragment extends Fragment implements CallActions
 		holdButton.setSelected(voipService.getHold());
 		speakerButton.setSelected(voipService.getSpeaker());
 		addButton.setSelected(false);
+		setupForceMuteLayout();
 
 		setupActiveCallButtonActions();
 	}
 
+	private void setupForceMuteLayout() {
+		
+		TextView muteAllTextView = (TextView) getView().findViewById(R.id.mute_all_textview);
+		ImageView muteAllIcon= (ImageView) getView().findViewById(R.id.force_mute_icon);
+
+		boolean forceMute = voipService.getHostForceMute();
+
+		if (forceMute == true) {
+			muteAllTextView.setText(getString(R.string.voip_conf_mute_all_on));
+			muteAllIcon.setImageResource(R.drawable.ic_force_unmute);
+		} else {
+			muteAllTextView.setText(getString(R.string.voip_conf_mute_all_off));
+			muteAllIcon.setImageResource(R.drawable.ic_force_mute);
+		}
+		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+		anim.setDuration(500);
+		forceMuteContainer.startAnimation(anim);
+	}
+	
 	private void animateActiveCallButtons()
 	{
 		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
@@ -606,9 +653,13 @@ public class VoipCallFragment extends Fragment implements CallActions
 				if(isCallActive)
 				{
 					boolean newMute = !voipService.getMute();
-					muteButton.setSelected(newMute);
-					voipService.setMute(newMute);
-					voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_MUTE, newMute ? 1 : 0);
+					boolean success = voipService.setMute(newMute);
+					if (success) {
+						muteButton.setSelected(newMute);
+						voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_MUTE, newMute ? 1 : 0);
+					} else {
+						showMessage(getString(R.string.voip_error_force_mute));
+					}
 				}
 			}
 		});
@@ -663,6 +714,17 @@ public class VoipCallFragment extends Fragment implements CallActions
 			public void onClick(View v) {
 				bluetoothButton.setSelected(!bluetoothButton.isSelected());
 				voipService.toggleBluetoothFromActivity(bluetoothButton.isSelected());
+			}
+		});
+		
+		forceMuteContainer.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				boolean newMute = !voipService.getHostForceMute();
+				Logger.w(tag, "Setting force mute to: " + newMute);
+				voipService.setHostForceMute(newMute);
+				setupForceMuteLayout();
 			}
 		});
 		
@@ -814,44 +876,48 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		}
 
-		if (voipService.hostingConference() && signalContainer != null) {
-			// remove quality indicator
-			signalContainer.setVisibility(View.GONE);
-		}
-		
 		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			
 			// Display the contact name and participant count
-			nameOrMsisdn = getString(R.string.voip_conference_label);
+			contactNameView.setText(R.string.voip_conference_label);
 			int clientCount = voipService.getClientCount();
 			String numberOfParticipants;
 			if (clientCount == 1)
 				numberOfParticipants = getString(R.string.voip_conference_waiting_for_participants_info);
 			else
 				numberOfParticipants = clientCount + " " + getString(R.string.participants);
-			contactMsisdnView.setVisibility(View.VISIBLE);
-			contactMsisdnView.setText(numberOfParticipants);
+			
+			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
+				contactMsisdnView.setVisibility(View.VISIBLE);
+				contactMsisdnView.setText(nameOrMsisdn);
+			} else {
+				contactMsisdnView.setVisibility(View.VISIBLE);
+				contactMsisdnView.setText(numberOfParticipants);
+			}
 			
 			// When a call is initiated or received, 
 			// show the participants list only to the host
 			// and to the participants after they accept the call
 			if (voipService.recordingAndPlaybackRunning || voipService.hostingConference())
 				updateConferenceList();
+		} else {
+			if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
+			{
+				contactNameView.setTextSize(24);
+			}
+			
+			contactNameView.setText(nameOrMsisdn);
 		}
 
 		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
 			if (clientPartner.isHostingConference) {
 				addButton.setVisibility(View.GONE);
-			} else
+				forceMuteContainer.setVisibility(View.GONE);
+			} else {
 				addButton.setVisibility(View.VISIBLE);
+			}
 		}
-		
-		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
-		{
-			contactNameView.setTextSize(24);
-		}
-		
-		contactNameView.setText(nameOrMsisdn);
+
 	}
 	
 	private void updateConferenceList() {
@@ -867,6 +933,22 @@ public class VoipCallFragment extends Fragment implements CallActions
 		// Remove profile image
 		ImageView profileView = (ImageView) getView().findViewById(R.id.profile_image);
 		profileView.setVisibility(View.INVISIBLE);
+
+		if (voipService.hostingConference()) {
+			
+			// Show force mute option
+			forceMuteContainer.setVisibility(View.VISIBLE);
+			
+			// Remove the margin from the participants listview
+			ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) conferenceList.getLayoutParams();
+			layoutParams.setMargins(0, 0, 0, 20);
+//			conferenceList.setLayoutParams(layoutParams);
+			
+			// remove quality indicator
+			if (signalContainer != null) {
+				signalContainer.setVisibility(View.GONE);
+			}
+		}
 	}
 	
 	private void hideConferenceList() {
@@ -927,7 +1009,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 	private void startCallRateActivity(Bundle bundle)
 	{
-		if(isCallActive)
+		int duration = bundle.getInt(VoIPConstants.CALL_DURATION);
+		if(duration > VoIPConstants.MIN_CALL_DURATION_FOR_RATING_POPUP && isCallActive)
 		{
 			if(bundle!=null && VoIPUtils.shouldShowCallRatePopupNow())
 			{
@@ -935,7 +1018,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 				intent.putExtra(VoIPConstants.CALL_RATE_BUNDLE, bundle);
 				startActivity(intent);
 			}
-			VoIPUtils.setupCallRatePopupNextTime();
 		}
 		isCallActive = false;
 		getActivity().finish();
@@ -974,7 +1056,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		bundle.putInt(VoIPConstants.CALL_FAILED_REASON, callFailCode);
 		bundle.putString(VoIPConstants.PARTNER_NAME, partnerName);
 
-		Logger.w(tag, "Showing call failed fragment.");
+		Logger.d(tag, "Showing call failed fragment.");
 		activity.showCallFailedFragment(bundle);
 	}
 

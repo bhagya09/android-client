@@ -205,6 +205,12 @@ public class ToastListener implements Listener
 			if(!TextUtils.isEmpty(statusId))
 			{
 				StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(statusId);
+				
+				if(statusMessage == null)
+				{
+					return;
+				}
+				
 				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 				{
 					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
