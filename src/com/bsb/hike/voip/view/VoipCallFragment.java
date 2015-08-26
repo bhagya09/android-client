@@ -578,10 +578,29 @@ public class VoipCallFragment extends Fragment implements CallActions
 		holdButton.setSelected(voipService.getHold());
 		speakerButton.setSelected(voipService.getSpeaker());
 		addButton.setSelected(false);
+		setupForceMuteLayout();
 
 		setupActiveCallButtonActions();
 	}
 
+	private void setupForceMuteLayout() {
+		TextView muteAllTextView = (TextView) getView().findViewById(R.id.mute_all_textview);
+		ImageView muteAllIcon= (ImageView) getView().findViewById(R.id.force_mute_icon);
+
+		boolean forceMute = voipService.getHostForceMute();
+
+		if (forceMute == true) {
+			muteAllTextView.setText(getString(R.string.voip_conf_mute_all_on));
+			muteAllIcon.setImageResource(R.drawable.ic_force_unmute);
+		} else {
+			muteAllTextView.setText(getString(R.string.voip_conf_mute_all_off));
+			muteAllIcon.setImageResource(R.drawable.ic_force_mute);
+		}
+		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+		anim.setDuration(500);
+		forceMuteContainer.startAnimation(anim);
+	}
+	
 	private void animateActiveCallButtons()
 	{
 		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
@@ -701,22 +720,10 @@ public class VoipCallFragment extends Fragment implements CallActions
 			
 			@Override
 			public void onClick(View v) {
-				TextView muteAllTextView = (TextView) getView().findViewById(R.id.mute_all_textview);
-				ImageView muteAllIcon= (ImageView) getView().findViewById(R.id.force_mute_icon);
-
 				boolean newMute = !voipService.getHostForceMute();
 				Logger.w(tag, "Setting force mute to: " + newMute);
 				voipService.setHostForceMute(newMute);
-				if (newMute == true) {
-					muteAllTextView.setText(getString(R.string.voip_conf_mute_all_on));
-					muteAllIcon.setImageResource(R.drawable.ic_force_unmute);
-				} else {
-					muteAllTextView.setText(getString(R.string.voip_conf_mute_all_off));
-					muteAllIcon.setImageResource(R.drawable.ic_force_mute);
-				}
-				AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-				anim.setDuration(500);
-				forceMuteContainer.startAnimation(anim);
+				setupForceMuteLayout();
 			}
 		});
 		
