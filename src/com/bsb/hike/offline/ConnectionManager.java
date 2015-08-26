@@ -84,78 +84,87 @@ public class ConnectionManager implements ChannelListener
 	
 	public void startDiscovery()
 	{
-		if (!wifiManager.isWifiEnabled()) {
+		if (!wifiManager.isWifiEnabled())
+		{
 			wifiManager.setWifiEnabled(true);
-        }
-		wifiP2pManager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() { 
-            	Logger.d(TAG, "Wifi Direct Discovery Enabled");
-            }
+		}
+		wifiP2pManager.discoverPeers(channel, new WifiP2pManager.ActionListener()
+		{
+			@Override
+			public void onSuccess()
+			{
+				Logger.d(TAG, "Wifi Direct Discovery Enabled");
+			}
 
-            @Override
-            public void onFailure(int reasonCode) {
-            	Logger.d(TAG, "Wifi Direct Discovery FAILED");
-            }
+			@Override
+			public void onFailure(int reasonCode)
+			{
+				Logger.d(TAG, "Wifi Direct Discovery FAILED");
+			}
 		});
 	}
 	
-	public void requestPeers(PeerListListener  peerListListener)
+	public void requestPeers(PeerListListener peerListListener)
 	{
-		if (wifiP2pManager != null) {
-            wifiP2pManager.requestPeers(channel, peerListListener);
+		if (wifiP2pManager != null)
+		{
+			wifiP2pManager.requestPeers(channel, peerListListener);
 		}
 	}
-	
+
 	@Override
-	public void onChannelDisconnected() {
-		if (wifiP2pManager != null && !retryChannel) {
-            retryChannel = true;
-            wifiP2pManager.initialize(context, looper, this);
-        }
+	public void onChannelDisconnected()
+	{
+		if (wifiP2pManager != null && !retryChannel)
+		{
+			retryChannel = true;
+			wifiP2pManager.initialize(context, looper, this);
+		}
 	}
 
-	public void startWifiScan() {
-		
+	public void startWifiScan()
+	{
+
 		// Switching off wifi Hotspot before wifi scanning
-		if(isHotspotCreated())
+		if (isHotspotCreated())
 		{
-			if(saveCurrentHotspotSSID())
+			if (saveCurrentHotspotSSID())
 			{
 				closeExistingHotspot(prevConfig);
 			}
-			/*Adding sleep so that wifi can switch on after closing of hotspot .\
-				This may take longer on some devices . So will have to change logic later*/
-			try 
+			/*
+			 * Adding sleep so that wifi can switch on after closing of hotspot .\ This may take longer on some devices . So will have to change logic later
+			 */
+			try
 			{
 				Thread.sleep(1000);
-			} 
+			}
 			catch (InterruptedException e)
 			{
-				e.printStackTrace();
+				Logger.e(TAG, "Error in thread sleep while starting wifi");
 			}
 		}
-		
-		if(!wifiManager.isWifiEnabled())
+
+		if (!wifiManager.isWifiEnabled())
 		{
 			wifiManager.setWifiEnabled(true);
 		}
-		//We are trying to switch on user's wifi
-		int attempts =0;
-		while(!wifiManager.isWifiEnabled() && attempts<OfflineConstants.WIFI_RETRY_COUNT)
+		// We are trying to switch on user's wifi
+		int attempts = 0;
+		while (!wifiManager.isWifiEnabled() && attempts < OfflineConstants.WIFI_RETRY_COUNT)
 		{
-			try 
+			try
 			{
 				Thread.sleep(500);
-			} 
+			}
 			catch (InterruptedException e)
 			{
-				e.printStackTrace();
+				Logger.e(TAG, "Error in thread sleep while starting wifi");
 			}
 			attempts++;
 			Logger.d(TAG, "Trying to start wifi. Wifi State " + wifiManager.getWifiState());
 		}
-		if(!wifiManager.isWifiEnabled())
+		if (!wifiManager.isWifiEnabled())
 		{
 			Logger.d(TAG, "WIFI COULD NOT START .CALLING SHUT DOWN");
 			OfflineController.getInstance().shutdown(new OfflineException(OfflineException.WIFI_COULD_NOT_START));
@@ -177,49 +186,61 @@ public class ConnectionManager implements ChannelListener
 			wifiManager.setWifiEnabled(false);
 	}
 	
-	public boolean isWifiEnabled() {
+	public boolean isWifiEnabled()
+	{
 		return wifiManager.isWifiEnabled();
 	}
-	
-	public void stopDiscovery() {
-		wifiP2pManager.stopPeerDiscovery(channel, new ActionListener() {
+
+	public void stopDiscovery()
+	{
+		wifiP2pManager.stopPeerDiscovery(channel, new ActionListener()
+		{
 			@Override
-			public void onSuccess() {
+			public void onSuccess()
+			{
 				Logger.d(TAG, "stop peer discovery started");
 			}
-			
+
 			@Override
-			public void onFailure(int reason) {
+			public void onFailure(int reason)
+			{
 				Logger.d(TAG, "Stop peer discovery failed");
 			}
 		});
 	}
-	
-	public String getConnectedHikeNetworkMsisdn() {
-		if(wifiManager.getConnectionInfo()!=null)
+
+	public String getConnectedHikeNetworkMsisdn()
+	{
+		if (wifiManager.getConnectionInfo() != null)
 		{
 			String ssid = wifiManager.getConnectionInfo().getSSID();
-			Logger.d("OfflineManager","Connected SSID in getConnectedHikeNetwork "+ssid);
-			
-			// System returns ssid as "ssid". Hence removing the quotes.
-			if (ssid.length() > 2&&ssid.startsWith("\"")&&ssid.endsWith("\""))
-				ssid = ssid.substring(1, ssid.length() - 1);
-			
-			Logger.d(TAG, "ssid after removing quotes" + ssid);
-			boolean isHikeNetwork = (OfflineUtils.isOfflineSsid(ssid));
-			if(isHikeNetwork)
+			if (!TextUtils.isEmpty(ssid))
 			{
-				String decodedSSID = OfflineUtils.decodeSsid(ssid);
-				Logger.d("ConnectionManager","decodedSSID  is " + decodedSSID);
-				String connectedMsisdn = OfflineUtils.getconnectedDevice(decodedSSID);  
-				Logger.d("ConnectionManager","connectedMsisdn is " + connectedMsisdn);
-				return connectedMsisdn;
+				Logger.d("OfflineManager", "Connected SSID in getConnectedHikeNetwork " + ssid);
+
+				// System returns ssid as "ssid". Hence removing the quotes.
+				if (ssid.length() > 2 && ssid.startsWith("\"") && ssid.endsWith("\""))
+					ssid = ssid.substring(1, ssid.length() - 1);
+
+				Logger.d(TAG, "ssid after removing quotes" + ssid);
+				boolean isHikeNetwork = (OfflineUtils.isOfflineSsid(ssid));
+				if (isHikeNetwork)
+				{
+					String decodedSSID = OfflineUtils.decodeSsid(ssid);
+					Logger.d("ConnectionManager", "decodedSSID  is " + decodedSSID);
+					String connectedMsisdn = OfflineUtils.getconnectedDevice(decodedSSID);
+					Logger.d("ConnectionManager", "connectedMsisdn is " + connectedMsisdn);
+					return connectedMsisdn;
+				}
 			}
+
 		}
 		return null;
 	}
-	public Map<String, ScanResult> getWifiNetworksForMyMsisdn() {
-		
+
+	public Map<String, ScanResult> getWifiNetworksForMyMsisdn()
+	{
+
 		List<ScanResult> results = wifiManager.getScanResults();
 		Map<String, ScanResult> distinctNetworks = new HashMap<String, ScanResult>();
 		if (results == null || results.isEmpty())
@@ -228,9 +249,13 @@ public class ConnectionManager implements ChannelListener
 		}
 		for (ScanResult scanResult : results)
 		{
-			boolean cond = !(TextUtils.isEmpty(scanResult.SSID));
+			if(scanResult==null || TextUtils.isEmpty(scanResult.SSID))
+			{
+				continue;
+			}
+			
 			scanResult.SSID = OfflineUtils.decodeSsid(scanResult.SSID);
-			if (cond && scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
+			if (scanResult.SSID.contains(OfflineUtils.getMyMsisdn()))
 			{
 				if (!distinctNetworks.containsKey(scanResult))
 				{
@@ -264,30 +289,47 @@ public class ConnectionManager implements ChannelListener
 		Logger.d("OfflineManager", "HotSpot creation result is "+ result);
 		return result;
 	}
-	private boolean closeExistingHotspot(WifiConfiguration config) {
-		
-		if(config==null)
+
+	private boolean closeExistingHotspot(WifiConfiguration config)
+	{
+
+		if (config == null)
 		{
 			return false;
 		}
-		
+
 		boolean result = false;
 		wifiManager.setWifiEnabled(false);
 		Method enableWifi;
-		try {
+		try
+		{
 			enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
-		} catch (NoSuchMethodException e) {
-			Logger.e(TAG,e.toString());
+		}
+		catch (NoSuchMethodException e)
+		{
+			Logger.e(TAG, "setwifiApEnabled method not found");
 			return result;
 		}
-		try {
-			result = (Boolean) enableWifi.invoke(wifiManager,config,false);
-		} catch (IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
-			Logger.e(TAG,e.toString());
+		try
+		{
+			result = (Boolean) enableWifi.invoke(wifiManager, config, false);
+		}
+		catch (IllegalAccessException e)
+		{
+			Logger.e(TAG, "IllegalAccess exception occured");
 			return result;
 		}
-		
+		catch(IllegalArgumentException e)
+		{
+			Logger.e(TAG, "IllegalArgument exception occured");
+			return result;
+		}
+		catch(InvocationTargetException e)
+		{
+			Logger.e(TAG, "InvocationTargetException exception occured");
+			return result;
+		}
+
 		return result;
 	}
 
@@ -300,39 +342,52 @@ public class ConnectionManager implements ChannelListener
 		return result;
 	}
 	
-	private boolean setWifiApEnabled(String targetMsisdn,boolean status)
+	private boolean setWifiApEnabled(String targetMsisdn, boolean status)
 	{
 		boolean result = false;
 		wifiManager.setWifiEnabled(false);
 		Method enableWifi;
-		try {
+		try
+		{
 			enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
-		} catch (NoSuchMethodException e) {
-			Logger.e(TAG,e.toString());
+		}
+		catch (NoSuchMethodException e)
+		{
+			Logger.e(TAG, "setWifiApEnabled method not found");
 			return result;
 		}
-		String ssid  =   OfflineUtils.getSsidForMsisdn(targetMsisdn,OfflineUtils.getMyMsisdn());
-		Logger.d("OfflineManager","SSID is "+ssid + " -> " + status);
+		String ssid = OfflineUtils.getSsidForMsisdn(targetMsisdn, OfflineUtils.getMyMsisdn());
+		Logger.d("OfflineManager", "SSID is " + ssid + " -> " + status);
 		String encryptedSSID = OfflineUtils.encodeSsid(ssid);
 		Logger.d(TAG, encryptedSSID);
 		String pass = OfflineUtils.generatePassword(ssid);
 		Logger.d(TAG, "Password: " + (pass));
-		WifiConfiguration  myConfig =  new WifiConfiguration();
+		WifiConfiguration myConfig = new WifiConfiguration();
 		myConfig.SSID = encryptedSSID;
-		myConfig.preSharedKey  = pass ;
-		myConfig.status =   WifiConfiguration.Status.ENABLED;
+		myConfig.preSharedKey = pass;
+		myConfig.status = WifiConfiguration.Status.ENABLED;
 		myConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-		
+
 		if (isHTC)
 			setHTCSSID(myConfig);
-		
-		try {
-			result = (Boolean) enableWifi.invoke(wifiManager, myConfig,status);
-		} 
-		catch (IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) 
+
+		try
 		{
-			e.printStackTrace();
+			result = (Boolean) enableWifi.invoke(wifiManager, myConfig, status);
+		}
+		catch (IllegalAccessException e)
+		{
+			Logger.e(TAG, "IllegalAccess exception occured");
+			return result;
+		}
+		catch(IllegalArgumentException e)
+		{
+			Logger.e(TAG, "IllegalArgument exception occured");
+			return result;
+		}
+		catch(InvocationTargetException e)
+		{
+			Logger.e(TAG, "InvocationTargetException exception occured");
 			return result;
 		}
 		
@@ -341,26 +396,37 @@ public class ConnectionManager implements ChannelListener
 	
 	private void setHTCSSID(WifiConfiguration config)
 	{
-		try
-		{
-			Field mWifiApProfileField = WifiConfiguration.class.getDeclaredField("mWifiApProfile");
-			mWifiApProfileField.setAccessible(true);
-			Object hotSpotProfile = mWifiApProfileField.get(config);
-			mWifiApProfileField.setAccessible(false);
-
-			if (hotSpotProfile != null)
+		
+			Field mWifiApProfileField;
+			try
 			{
-				setField(hotSpotProfile, "SSID", config.SSID);
-				setField(hotSpotProfile, "key", config.preSharedKey);
-				setField(hotSpotProfile, "secureType", "wpa-psk");
-				setField(hotSpotProfile, "dhcpEnable", 1);
-				setField(hotSpotProfile, "maxConns", 8);
+				mWifiApProfileField = WifiConfiguration.class.getDeclaredField("mWifiApProfile");
+				mWifiApProfileField.setAccessible(true);
+				Object hotSpotProfile = mWifiApProfileField.get(config);
+				mWifiApProfileField.setAccessible(false);
+
+				if (hotSpotProfile != null)
+				{
+					setField(hotSpotProfile, "SSID", config.SSID);
+					setField(hotSpotProfile, "key", config.preSharedKey);
+					setField(hotSpotProfile, "secureType", "wpa-psk");
+					setField(hotSpotProfile, "dhcpEnable", 1);
+					setField(hotSpotProfile, "maxConns", 8);
+				}
 			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+			catch (NoSuchFieldException e)
+			{
+				Logger.e(TAG, "mWifiApProfile method not found");
+			}
+			catch (IllegalAccessException e)
+			{
+				Logger.e(TAG, "IllegalAccess exception occured");
+			}
+			catch (IllegalArgumentException e)
+			{
+				Logger.e(TAG, "IllegalArgument exception occured");
+			}
+		
 	}
 	
 	private void setField(Object object, String field, String value)
@@ -372,9 +438,17 @@ public class ConnectionManager implements ChannelListener
 			statusField.set(object, value);
 			statusField.setAccessible(false);
 		}
-		catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException e)
+		catch (NoSuchFieldException e)
 		{
-			e.printStackTrace();
+			Logger.e(TAG, "mWifiApProfile method not found");
+		}
+		catch (IllegalAccessException e)
+		{
+			Logger.e(TAG, "IllegalAccess exception occured");
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(TAG, "IllegalArgument exception occured");
 		}
 	}
 	
@@ -387,9 +461,17 @@ public class ConnectionManager implements ChannelListener
 			statusField.set(object, value);
 			statusField.setAccessible(false);
 		}
-		catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException e)
+		catch (NoSuchFieldException e)
 		{
-			e.printStackTrace();
+			Logger.e(TAG, "mWifiApProfile method not found");
+		}
+		catch (IllegalAccessException e)
+		{
+			Logger.e(TAG, "IllegalAccess exception occured");
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(TAG, "IllegalArgument exception occured");
 		}
 	}
 	
@@ -401,7 +483,7 @@ public class ConnectionManager implements ChannelListener
 		} 
 		catch (IllegalArgumentException e) 
 		{
-			Logger.e(TAG, "Could not save previous config");
+			Logger.e(TAG, "Could not save prev config");
 			return false;
 		}
 		return true;
@@ -417,10 +499,21 @@ public class ConnectionManager implements ChannelListener
 			if (isHTC)
 				configuration = getHtcWifiApConfiguration(configuration);
 		}
-		catch (NoSuchMethodException | IllegalAccessException |
-				IllegalArgumentException | InvocationTargetException e)
+		catch (IllegalAccessException e)
 		{
-			e.printStackTrace();
+			Logger.e(TAG, "IllegalAccess exception occured");
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(TAG, "IllegalArgument exception occured");
+		}
+		catch (NoSuchMethodException e)
+		{
+			Logger.e(TAG, "setwifiApEnabled method not found");
+		}
+		catch (InvocationTargetException e)
+		{
+			Logger.e(TAG, "InvocationTargetException exception occured");
 		}
 		return configuration;
 	}
@@ -428,16 +521,22 @@ public class ConnectionManager implements ChannelListener
 	private WifiConfiguration getHtcWifiApConfiguration(WifiConfiguration standard)
 	{
 		WifiConfiguration htcWifiConfig = standard;
-		try
-		{
-			Object mWifiApProfileValue = getFieldValue(standard, "mWifiApProfile");
-			if (mWifiApProfileValue != null)
-				htcWifiConfig.SSID = (String) getFieldValue(mWifiApProfileValue, "SSID");
-		}
-		catch (Exception e)
-		{
-			Logger.e(TAG, "Could not get htc config");
-		}
+			Object mWifiApProfileValue;
+			try
+			{
+				mWifiApProfileValue = getFieldValue(standard, "mWifiApProfile");
+				if (mWifiApProfileValue != null)
+					htcWifiConfig.SSID = (String) getFieldValue(mWifiApProfileValue, "SSID");
+			}
+			catch (IllegalAccessException e)
+			{
+				Logger.e(TAG, "IllegalAccessException occured");
+			}
+			catch (NoSuchFieldException e)
+			{
+				Logger.e(TAG, "No such field found");
+			}
+				
 		return htcWifiConfig;
 	}
 
@@ -450,14 +549,14 @@ public class ConnectionManager implements ChannelListener
 	    
 	private boolean setPreviousHotspotConfig()
 	{
-		if(prevConfig==null)
+		if (prevConfig == null)
 		{
 			return false;
 		}
-		
+
 		Method setConfigMethod;
 		boolean result = false;
-		try 
+		try
 		{
 			String methodName = "setWifiApConfiguration";
 			String htcMethodName = "setWifiApConfig";
@@ -470,26 +569,58 @@ public class ConnectionManager implements ChannelListener
 			setConfigMethod = wifiManager.getClass().getMethod(methodName, WifiConfiguration.class);
 			setConfigMethod.invoke(wifiManager, prevConfig);
 			result = true;
-		} 
-		catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) 
+		}
+		catch (IllegalAccessException e)
 		{
-			Logger.e(TAG,e.toString());
-			result = false;
+			Logger.e(TAG, "IllegalAccess exception occured");
+			result  = false;
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(TAG, "IllegalArgument exception occured");
+			result  = false;
+		}
+		catch (NoSuchMethodException e)
+		{
+			Logger.e(TAG, "setwifiApEnabled method not found");
+			result  = false;
+		}
+		catch (InvocationTargetException e)
+		{
+			Logger.e(TAG, "InvocationTargetException exception occured");
+			result  = false;
 		}
 		return result;
 	}
 	
-	public boolean isHotspotCreated() 
+	public boolean isHotspotCreated()
 	{
 		Method method;
 		Boolean isWifiHotspotRunning = false;
-		try {
+		try
+		{
 			method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
 			method.setAccessible(true);
 			isWifiHotspotRunning = (Boolean) method.invoke(wifiManager);
-		} catch (IllegalAccessException | IllegalArgumentException
-				| NoSuchMethodException| InvocationTargetException e) {
-			Logger.e(TAG,e.toString());
+		}
+		catch (IllegalAccessException e)
+		{
+			Logger.e(TAG, "IllegalAccess exception occured");
+
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(TAG, "IllegalArgument exception occured");
+
+		}
+		catch (NoSuchMethodException e)
+		{
+			Logger.e(TAG, "setwifiApEnabled method not found");
+
+		}
+		catch (InvocationTargetException e)
+		{
+			Logger.e(TAG, "InvocationTargetException exception occured");
 		}
 
 		return isWifiHotspotRunning;
@@ -512,51 +643,51 @@ public class ConnectionManager implements ChannelListener
 	 */
 	private void connectToWifi(String ssid)
 	{
-		
-		if(TextUtils.isEmpty(ssid) ||  (ssid.startsWith("0x") || ssid.startsWith("0X")) || ssid.contains("unknown ssid") || ssid.contains("none"))
+
+		if (TextUtils.isEmpty(ssid) || (ssid.startsWith("0x") || ssid.startsWith("0X")) || ssid.contains("unknown ssid") || ssid.contains("none"))
 		{
-			return ;
+			return;
 		}
-		
-		if(!wifiManager.isWifiEnabled())
+
+		if (!wifiManager.isWifiEnabled())
 		{
 			wifiManager.setWifiEnabled(true);
 		}
-		
-		Logger.d("OfflineMANAGER", "WILL BE GETTING LIST" + System.currentTimeMillis()+ " trying ssid " +ssid);
+
+		Logger.d("OfflineMANAGER", "WILL BE GETTING LIST" + System.currentTimeMillis() + " trying ssid " + ssid);
 		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
-		Logger.d("OfflineMANAGER", "LIST RECEIVED"+System.currentTimeMillis());
-		
+		Logger.d("OfflineMANAGER", "LIST RECEIVED" + System.currentTimeMillis());
+
 		if (list != null)
 		{
 			for (WifiConfiguration wifiConfiguration : list)
 			{
-				String currentSSID = "";
+				String currentSsid = "";
 				if (wifiConfiguration == null || TextUtils.isEmpty(wifiConfiguration.SSID))
 				{
 					continue;
 				}
-				
+
 				if (OfflineUtils.isSSIDWithQuotes(wifiConfiguration.SSID) && !OfflineUtils.isSSIDWithQuotes(ssid))
-					currentSSID = wifiConfiguration.SSID.substring(1, wifiConfiguration.SSID.length() - 1);
+					currentSsid = wifiConfiguration.SSID.substring(1, wifiConfiguration.SSID.length() - 1);
 				else
-					currentSSID=wifiConfiguration.SSID;
-				
-				if (currentSSID.equals(ssid))
+					currentSsid = wifiConfiguration.SSID;
+
+				Logger.d(TAG, "currentssid is " + currentSsid + "and ssid is " + ssid);
+				if (currentSsid.equals(ssid))
 				{
-					
-					Logger.d("OfflineManager", "Disconnecting existing ssid" + System.currentTimeMillis());
+
+					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID);
 					wifiManager.disconnect();
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
-					Logger.d("OfflineManager", "Enabled network" + status + System.currentTimeMillis());
+					Logger.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
 					wifiManager.reconnect();
-					Logger.d("OfflineManager", "trying to connect! to ");
 
 				}
 			}
 		}
-		
+
 	}
 	
 	public void tryConnectingToHotSpot(final String msisdn) 
@@ -577,6 +708,10 @@ public class ConnectionManager implements ChannelListener
 		String encodedSSID = OfflineUtils.encodeSsid(OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(), msisdn));
 		String connectedToSSID = wifiManager.getConnectionInfo().getSSID();
 		
+		if(TextUtils.isEmpty(connectedToSSID))
+		{
+			return isConnected;
+		}
 		// removing quotes.
 		if (connectedToSSID.length() > 2)
 			connectedToSSID = connectedToSSID.substring(1, connectedToSSID.length()-1);
@@ -584,22 +719,12 @@ public class ConnectionManager implements ChannelListener
 		
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		if (connectedToSSID.compareTo(encodedSSID)==0 && networkInfo.isConnected())
+		if (connectedToSSID.compareTo(encodedSSID)==0 &&  networkInfo!=null && networkInfo.isConnected())
 		{
 			isConnected = true;
 		}
 		return isConnected;
 	}
-
-	public String getConnectedSSID()
-	{
-		String ssid =  wifiManager.getConnectionInfo().getSSID();
-		Logger.d(TAG, "In getConnectedSSID: " + ssid);
-		ssid = ssid.substring(1, ssid.length()-1);
-		return ssid;
-	}
-
-	
 	
 	public void closeConnection(String deviceName) 
 	{
@@ -620,17 +745,14 @@ public class ConnectionManager implements ChannelListener
 			{
 				forgetWifiNetwork();
 				connectToWifi(currentnetId);
-//				if(!TextUtils.isEmpty(currentnetId))
-//				{
-//					startWifi();
-//				}
 			}
 		}
 		
 		clearAllVariables();
 	}
 
-	private void clearAllVariables() {
+	private void clearAllVariables()
+	{
 		prevConfig = null;
 		connectedNetworkId = -1;
 		currentnetId = null;
@@ -640,13 +762,15 @@ public class ConnectionManager implements ChannelListener
 	{
 		String host = OfflineUtils.getIPFromMac(null);
 		int tries = 0;
-		while(TextUtils.isEmpty(host))
+		while (TextUtils.isEmpty(host))
 		{
-			try{
+			try
+			{
 				Thread.sleep(100);
 			}
-			catch (InterruptedException e){
-				e.printStackTrace();
+			catch (InterruptedException e)
+			{
+				Logger.e(TAG, "Error in thread sleep");
 			}
 			host = OfflineUtils.getIPFromMac(null);
 			tries++;
