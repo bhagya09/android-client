@@ -389,6 +389,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 
 	public boolean onEditTextTouch(View v, MotionEvent event)
 	{
+		if (isShowing())
+		{
+			dismiss();
+			return true;
+		}
 		return false;
 	}
 

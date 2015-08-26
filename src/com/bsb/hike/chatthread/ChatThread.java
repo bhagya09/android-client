@@ -328,8 +328,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     
     private int NUDGE_TOAST_OCCURENCE = 2;
     
-    private static final String DEFAULT_SYSTEM_KEYBORAD="DEFAULT_SYSTEM_KEYBORAD";
-    	
     private int currentNudgeCount = 0;
     
     protected ChatThreadActivity activity;
@@ -661,9 +659,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
-		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(DEFAULT_SYSTEM_KEYBORAD, false);
+		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
 		mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
-		Logger.d("anu", "height : " + mCustomKeyboard.getKeyBoardAndCVHeight());
+		Logger.d("kbdht", "height : " + mCustomKeyboard.getKeyBoardAndCVHeight());
 		if (systemKeyboard)
 		{
 			changeKeyboard(systemKeyboard);
@@ -998,7 +996,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.string.change_keyboard:
 			Boolean systemKeyboard = !isSystemKeyborad();
 			
-			HikeSharedPreferenceUtil.getInstance().saveData(DEFAULT_SYSTEM_KEYBORAD, systemKeyboard);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CURRENT_KEYBOARD, systemKeyboard);
 			changeKeyboard(systemKeyboard);
 			mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
 			
@@ -5979,7 +5977,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public boolean isSystemKeyborad()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(DEFAULT_SYSTEM_KEYBORAD, false);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
 	}
 	
 	private void updatePadding(int bottomPadding)

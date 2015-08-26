@@ -63,7 +63,7 @@ public class ShareablePopupLayout
 	{
 		if (mKeyboardPopupLayout == null)
 		{
-			if (HikeMessengerApp.keyboardApproach(context))
+			if (HikeMessengerApp.keyboardApproach(context) && HikeMessengerApp.currentKeyboard(context))
 			{
 				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener, onSoftKeyboardListener)
 						: new KeyboardPopupLayout21(mainView, firstTimeHeight, context, eatOuterTouchIds, listener, onSoftKeyboardListener);

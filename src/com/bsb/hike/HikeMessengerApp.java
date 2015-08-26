@@ -1163,4 +1163,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		int kc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KEYBOARD_CONFIGURATION, HikeConstants.KEYBOARD_CONFIGURATION_NEW);
 		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
 	}
+	
+	public static boolean currentKeyboard(Context context)
+	{
+		Logger.d("keyboard", "Current keyboard : " + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false));
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+	}
 }
