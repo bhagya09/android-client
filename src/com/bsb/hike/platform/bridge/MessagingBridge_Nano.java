@@ -368,4 +368,9 @@ public class MessagingBridge_Nano extends JavascriptBridge
 		updateMetadata(MessagingBotBridgeHelper.updateMetadata((int)message.getMsgID(), json), notifyScreen);
 	}
 
+	public void eventReceived(String event)
+	{
+		mWebView.loadUrl("javascript:eventReceived(" + "'" + event + "')");
+	}
+
 }

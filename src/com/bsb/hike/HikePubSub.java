@@ -384,6 +384,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String PLATFORM_CARD_ALARM = "platformCardAlarm";
 
+	public static final String MESSAGE_EVENT_RECEIVED = "messageEventReceived";
+
 	public static final String CONVERSATION_TS_UPDATED = "conversationTSUpdated";
 	
 	public static final String CONVERSATION_DELETED = "conversationDeleted";

@@ -74,7 +74,7 @@ public interface HikePlatformConstants
 	public static final String NORMAL_EVENT = "e";
 	public static final String RECIPIENT_NAMESPACES = "recipients";
 	public static final String MAPPED_EVENT_ID = "i";
-	public static final String EVENT_METADATA = "cd";
+	public static final String EVENT_CARDDATA = "cd";
 	public static final String CLIENT_TIMESTAMP = "c";
 
 	public static final class PlatformUIDFetchType

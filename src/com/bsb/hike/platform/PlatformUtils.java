@@ -931,7 +931,7 @@ public class PlatformUtils
 					{
 						mappedEventId = sharedData.getLong(HikePlatformConstants.MAPPED_EVENT_ID);
 					}
-					String metadata = sharedData.getString(HikePlatformConstants.EVENT_METADATA);
+					String metadata = sharedData.getString(HikePlatformConstants.EVENT_CARDDATA);
 					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
 					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(), mappedEventId);
 					long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
@@ -971,9 +971,10 @@ public class PlatformUtils
 			return;
 		}
 		JSONObject object = new JSONObject();
-		JSONObject data = new JSONObject();
+
 		try
 		{
+			JSONObject data = new JSONObject(eventMetadata);
 			long timestamp = System.currentTimeMillis();
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
 			object.put(HikeConstants.SEND_TIMESTAMP, timestamp);
@@ -983,7 +984,6 @@ public class PlatformUtils
 			data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT);
 			data.put(HikePlatformConstants.MESSAGE_HASH, messageHash);
 			data.put(HikePlatformConstants.NAMESPACE, nameSpace);
-			data.put(HikePlatformConstants.EVENT_METADATA, eventMetadata);
 
 			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
 					HikePlatformConstants.EventStatus.EVENT_SENT, timestamp);
