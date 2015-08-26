@@ -128,12 +128,14 @@ public class MultipleConvMessage
                 } else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 				{
 					msg.put(HikeConstants.METADATA, convMessage.webMetadata.getJSON());
+					msg.put(HikeConstants.PLATFORM_PACKET, convMessage.getPlatformData());
 					msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.WEB_CONTENT_TYPE);
 
 				}
 				else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 				{
 					msg.put(HikeConstants.METADATA, convMessage.webMetadata.getJSON());
+					msg.put(HikeConstants.PLATFORM_PACKET, convMessage.getPlatformData());
 					msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE);
 				}
 				

@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 43;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 44;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -225,6 +225,22 @@ public interface DBConstants
 
 	public static final String IS_BOT_ENABLE = "bot_enabled";
 
+	public static final String MESSAGE_EVENT_TABLE = "messageEventTable";
+
+	public static final String EVENT_ID = "eventId";
+
+	public static final String EVENT_HASH = "eventHash";
+
+	public static final String EVENT_STATUS = "eventStatus";
+
+	public static final String MAPPED_EVENT_ID = "mappedEventId";
+
+	public static final String EVENT_HASH_INDEX = "eventHashIndex";
+
+	public static final String EVENT_METADATA = "eventMetadata";
+
+	public static final String EVENT_TYPE = "eventType";
+
 	// ActionsTable
 	public static final String ACTIONS_TABLE = "actions";
 
@@ -259,7 +275,7 @@ public interface DBConstants
 
 	public static interface HIKE_CONV_DB
 	{
-		// CHANNEL TABLE -> _id,channel_id,name,visibility,index 
+		// CHANNEL TABLE -> _id,channel_id,name,visibility,index
 		public static final String CHANNEL_TABLE = "channel";
 		public static final String CHANNEL_ID = "channel_id";
 		public static final String CHANNEL_NAME = "name";
