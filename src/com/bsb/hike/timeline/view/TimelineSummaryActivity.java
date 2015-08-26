@@ -153,6 +153,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	private ContactInfo profileContactInfo;
 	
 	private boolean isStopped = false;
+	
+	DisplayContactsAdapter contactsAdapter;
 
 	public class ActivityState
 	{
@@ -205,6 +207,14 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 			//Try to get actions data from cache
 			mStatusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
+			
+			if(mStatusMessage == null)
+			{
+				finish();
+				Logger.e(HikeConstants.TIMELINE_LOGS, "Opening timeline summary activity for null status message");
+				return;
+			}
+			
 			ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData()
 					.getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
@@ -345,6 +355,11 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 
 		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
+		
+		if(contactsAdapter != null)
+		{
+			contactsAdapter.notifyDataSetChanged();
+		}
 	}
 
 	private void initReferences()
@@ -645,7 +660,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			dialog.setCanceledOnTouchOutside(true);
 
 			ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
-			DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns);
+			contactsAdapter = new DisplayContactsAdapter(msisdns);
 			listContacts.setAdapter(contactsAdapter);
 			listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
 			{
@@ -709,21 +724,38 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 		TextView contactStatus = (TextView) contactInfoContainer.findViewById(R.id.contact_status);
 
-		ContactInfo statusMsisdnCInfo = ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(), true, false);
-		
-		String name = statusMsisdnCInfo.getNameOrMsisdn();
+		//Get contact info
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(), true,  false);
 
-		if (name == null)
+		// Check if this guy has a saved name
+		String name = contactInfo.getName();
+
+		try
 		{
-			ContactInfo userConInfo = Utils.getUserContactInfo(true);
-			if (userConInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
+			if (TextUtils.isEmpty(name))
 			{
-				name = getString(R.string.me);
+				// Was this our own contact info?
+				ContactInfo myContactInfo = Utils.getUserContactInfo(false);
+				if (myContactInfo.getMsisdn().equals(mStatusMessage.getMsisdn()))
+				{
+					// Get name from account shared pref
+					name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, getApplicationContext().getString(R.string.me));
+				}
+				else
+				{
+					// Neither my contact info nor has a name, show msisdn
+					name = contactInfo.getNameOrMsisdn();
+				}
 			}
-			else
-			{
-				name = mStatusMessage.getMsisdn();
-			}
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		if(TextUtils.isEmpty(name))
+		{
+			name = contactInfo.getNameOrMsisdn();
 		}
 
 		contactName.setText(name);
