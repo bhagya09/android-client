@@ -58,6 +58,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private static final Object sDatabaseLock = new Object();
 
+	private static long sIntertionTimePerSession = 0;
+
 	private HikeStickerSearchDatabase(Context context)
 	{
 		super(context, HikeStickerSearchBaseConstants.DATABASE_HIKE_STICKER_SEARCH, null, HikeStickerSearchBaseConstants.STICKERS_SEARCH_DATABASE_VERSION);
@@ -369,11 +371,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<TagToStcikerDataContainer> stickersTagData)
 	{
-		Logger.i(TAG, "insertStickerTagData()");
+		Logger.i(TAG_INSERTION, "insertStickerTagData()");
 
 		if (Utils.isEmpty(stickersTagData))
 		{
-			Logger.wtf("insertStickerTagData()", "Invalid tag data insertion request.");
+			Logger.wtf("TAG_INSERTION", "insertStickerTagData(), Invalid tag data insertion request.");
 			return;
 		}
 
@@ -411,13 +413,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 			else
 			{
-				Logger.wtf(TAG, "insertStickerTagData(), Wrong data for " + stickerTagData);
+				Logger.wtf(TAG_INSERTION, "insertStickerTagData(), Wrong data for " + stickerTagData);
 			}
 		}
 
 		int totalTagsCount = allTagList.size();
 		long operationOverTime = System.nanoTime();
-		Logger.i(TAG, "insertStickerTagData(), Total tags count (to update/ insert) = " + totalTagsCount);
+		Logger.i(TAG_INSERTION, "insertStickerTagData(), Total tags count (to update/ insert) = " + totalTagsCount);
 		Logger.i(TAG_INSERTION,
 				"Time taken in checking tag data conformity = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
 
@@ -439,12 +441,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			String[] argsInCondition = new String[currentCount * columnsInvolvedInQuery.length];
 			int argIndex;
 
-			for (int j = 0; j < currentCount; j++)
+			for (int j = 0; j < currentCount; j++, i++)
 			{
 				argIndex = j * columnsInvolvedInQuery.length;
 
 				argsInCondition[argIndex] = allTagList.get(i);
-				argsInCondition[argIndex + 1] = stickerCodeList.get(i++);
+				argsInCondition[argIndex + 1] = stickerCodeList.get(i);
 			}
 
 			try
@@ -614,8 +616,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					"Time taken in insertion (into virtual table) = " + Utils.getExecutionTimeLog(operationStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
 		}
 
-		Logger.d(TAG_INSERTION,
-				"Time taken in overall insert request completion = " + Utils.getExecutionTimeLog(requestStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+		Logger.i(TAG_INSERTION,
+				"Time taken in overall insertion for current request = " + Utils.getExecutionTimeLog(requestStartTime, operationOverTime, Utils.PRECISION_UNIT_NANO_SECOND));
+
+		sIntertionTimePerSession += (operationOverTime - requestStartTime);
+
+		Logger.d(TAG_INSERTION, "Time taken in overall insertion for current session = " + Utils.getExecutionTimeLog(0, sIntertionTimePerSession, Utils.PRECISION_UNIT_NANO_SECOND));
 	}
 
 	private boolean isValidTagData(TagToStcikerDataContainer stickersTagData)
