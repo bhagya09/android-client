@@ -1214,6 +1214,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			sendMessageForStickerRecommendLearning();
 			sendMessage();
+			mCustomKeyboard.updateCore();
 			dismissStickerRecommendationPopup();
 			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
@@ -3969,6 +3970,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onDestroy()
 	{
+		mCustomKeyboard.unregister(mComposeView);
+		
+		mCustomKeyboard.closeAnyDialogIfShowing();
+
+		mCustomKeyboard.destroyCustomKeyboard();
+
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
