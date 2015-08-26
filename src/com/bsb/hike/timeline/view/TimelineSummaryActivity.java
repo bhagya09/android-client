@@ -153,6 +153,8 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 	private ContactInfo profileContactInfo;
 	
 	private boolean isStopped = false;
+	
+	DisplayContactsAdapter contactsAdapter;
 
 	public class ActivityState
 	{
@@ -205,6 +207,14 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 			//Try to get actions data from cache
 			mStatusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(mappedId);
+			
+			if(mStatusMessage == null)
+			{
+				finish();
+				Logger.e(HikeConstants.TIMELINE_LOGS, "Opening timeline summary activity for null status message");
+				return;
+			}
+			
 			ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData()
 					.getActions(mStatusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
@@ -345,6 +355,11 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 
 		checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
+		
+		if(contactsAdapter != null)
+		{
+			contactsAdapter.notifyDataSetChanged();
+		}
 	}
 
 	private void initReferences()
@@ -645,7 +660,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			dialog.setCanceledOnTouchOutside(true);
 
 			ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
-			DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns);
+			contactsAdapter = new DisplayContactsAdapter(msisdns);
 			listContacts.setAdapter(contactsAdapter);
 			listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
 			{
