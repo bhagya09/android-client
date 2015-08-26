@@ -7,9 +7,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:id="@+id/access_header"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_above="@+id/main_select_layout"
         android:background="@color/hidden_mode_ftue" >
 
         <TextView
@@ -32,6 +32,7 @@
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
+        android:layout_below="@id/access_header"
         android:background="@drawable/list_item"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:orientation="horizontal" >

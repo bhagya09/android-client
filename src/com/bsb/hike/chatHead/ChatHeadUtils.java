@@ -17,6 +17,9 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
+import android.text.TextUtils;
 import android.widget.HeterogeneousExpandableList;
 
 import com.bsb.hike.HikeConstants;
@@ -207,6 +210,54 @@ public class ChatHeadUtils
 			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0);
 		}
+	}
+	
+	public static boolean isAccessibilityEnabled(Context ctx)
+	{
+		int accessibilityEnabled = 0;
+		final String LIGHTFLOW_ACCESSIBILITY_SERVICE = "com.bsb.hike/com.bsb.hike.service.HikeAccessibilityService";
+		boolean accessibilityFound = false;
+		try
+		{
+			accessibilityEnabled = Settings.Secure.getInt(ctx.getContentResolver(), android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+			Logger.d(TAG, "ACCESSIBILITY: " + accessibilityEnabled);
+		}
+		catch (SettingNotFoundException e)
+		{
+			Logger.d(TAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
+		}
+
+		TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
+
+		if (accessibilityEnabled == 1)
+		{
+			Logger.d(TAG, "***ACCESSIBILIY IS ENABLED***: ");
+
+			String settingValue = Settings.Secure.getString(ctx.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+			Logger.d(TAG, "Setting: " + settingValue);
+			if (settingValue != null)
+			{
+				TextUtils.SimpleStringSplitter splitter = mStringColonSplitter;
+				splitter.setString(settingValue);
+				while (splitter.hasNext())
+				{
+					String accessabilityService = splitter.next();
+					Logger.d(TAG, "Setting: " + accessabilityService);
+					if (accessabilityService.equalsIgnoreCase(LIGHTFLOW_ACCESSIBILITY_SERVICE))
+					{
+						Logger.d(TAG, "We've found the correct setting - accessibility is switched on!");
+						return true;
+					}
+				}
+			}
+
+			Logger.d(TAG, "***END***");
+		}
+		else
+		{
+			Logger.d(TAG, "***ACCESSIBILIY IS DISABLED***");
+		}
+		return accessibilityFound;
 	}
 
 	private static void startService()

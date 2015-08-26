@@ -76,7 +76,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		click2Accessibility = (TextView) findViewById(R.id.show_accessibility);
 		settingOnClickEvent();
 		settingSelectAllText();
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, false))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, false) && !ChatHeadUtils.isAccessibilityEnabled(this))
 		{
 			click2Accessibility.setVisibility(View.VISIBLE);
 		}
