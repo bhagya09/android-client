@@ -5,7 +5,9 @@
 
     <PreferenceCategory
         android:selectable="false"
+        android:layout="@layout/settings_section_header"
         android:title="@string/stealth_password_settings" >
+        
         <com.bsb.hike.view.IconPreference
             icon="@drawable/blankspace"
             android:key="changeStealthPasscode"
@@ -26,27 +28,31 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:selectable="false"
+        android:layout="@layout/settings_section_header"
         android:title="@string/stealth_notification_settings" >
-        <com.bsb.hike.view.IconCheckBoxPreference
+        
+        <com.bsb.hike.view.SwitchPreferenceCompat
              icon="@drawable/blankspace"
             android:defaultValue="true"
             android:key="stealthIndicatorEnabled"
             android:layout="@layout/icon_preference"
             android:summary="@string/enable_stealth_indicator_body"
             android:title="@string/enable_stealth_indicator"
-            android:widgetLayout="@layout/checkbox_widget" />
-        <com.bsb.hike.view.IconCheckBoxPreference
+            android:widgetLayout="@layout/switch_widget" />
+        <com.bsb.hike.view.SwitchPreferenceCompat
              icon="@drawable/blankspace"
             android:defaultValue="true"
             android:key="stealthNotificationEnabled"
             android:layout="@layout/icon_preference"
             android:summary="@string/enable_stealth_notification_body"
             android:title="@string/enable_stealth_notification"
-            android:widgetLayout="@layout/checkbox_widget" />
+            android:widgetLayout="@layout/switch_widget" />
     </PreferenceCategory>
     <PreferenceCategory
         android:selectable="false"
-        android:title="@string/stealth_reset_settings" >
+        android:title="@string/stealth_reset_settings"
+        android:layout="@layout/settings_section_header" >
+        
         <com.bsb.hike.view.IconPreference
              icon="@drawable/blankspace"
             android:key="resetStealthPref"

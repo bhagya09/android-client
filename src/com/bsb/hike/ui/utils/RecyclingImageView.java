@@ -7,6 +7,8 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * 
@@ -41,8 +43,13 @@ public class RecyclingImageView extends ImageView
 	@Override
 	protected void onDetachedFromWindow()
 	{
-		// This has been detached from Window, so clear the drawable
-		setImageDrawable(null);
+
+		if (!Utils.isHoneycombOrHigher())
+		{
+			Logger.i(RecyclingImageView.class.getSimpleName(), "RecyclingImageView: onDetachedFromWindow");
+			// This has been detached from Window, so clear the drawable
+			setImageDrawable(null);
+		}
 
 		super.onDetachedFromWindow();
 	}
@@ -61,7 +68,7 @@ public class RecyclingImageView extends ImageView
 		// Notify previous drawable so it is no longer displayed
 		notifyDrawable(previousDrawable, false);
 	}
-	
+
 	/**
 	 * @see android.widget.ImageView#setImageDrawable(android.graphics.drawable.Drawable)
 	 */

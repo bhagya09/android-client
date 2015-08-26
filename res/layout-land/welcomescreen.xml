@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingTop="48dp" >
 
         <ImageView
             android:layout_width="0dp"
@@ -46,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:text="@string/welcome_to"
-                    android:textColor="@color/welcome_blue"
+                    android:textColor="@color/blue_hike"
                     android:textSize="14sp" />
 
                 <ImageView
