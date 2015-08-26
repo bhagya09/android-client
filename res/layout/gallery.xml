@@ -17,7 +17,15 @@
 	        android:background="@color/black"
 	        android:orientation="vertical"
 	        android:paddingTop="@dimen/st__action_bar_default_height" >
-	
+
+	        <android.support.v7.widget.RecyclerView
+	            android:id="@+id/gallery_recyclerview"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:clipToPadding="false"
+	            android:padding="@dimen/gallery_grid_spacing" >
+	        </android.support.v7.widget.RecyclerView>
+
 	        <com.jess.ui.TwoWayGridView
 	            android:id="@+id/gallery"
 	            android:layout_width="match_parent"

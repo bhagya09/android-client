@@ -2,5 +2,6 @@
 <resources>
 
     <item name="drag_handle" type="id"/>
+    <item name="gallery_item_click" type="id" />
 
 </resources>
