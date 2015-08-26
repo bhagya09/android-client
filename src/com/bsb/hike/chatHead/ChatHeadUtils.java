@@ -239,7 +239,10 @@ public class ChatHeadUtils
 		boolean chatHeadEnabledAndValid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
 				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false)
 				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null;
-		if (chatHeadEnabledAndValid || sessionLogEnabled)
+		
+		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, false);
+		
+		if ((chatHeadEnabledAndValid || sessionLogEnabled) && !forceAccessibility)
 		{
 			if (jsonChanged)
 			{

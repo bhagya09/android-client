@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -48,6 +49,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	}
 
 	private static ArrayList<ListViewItem> mListViewItems;
+	
+	private static TextView click2Accessibility;
 
 	private static SwitchCompat selectAllCheckbox;
 	
@@ -70,8 +73,17 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		creatingArrayList();
 		listAdapter = new ChatHeadSettingsArrayAdapter(this, R.layout.settings_sticker_share_item, mListViewItems);
 		selectAllCheckbox = (SwitchCompat) findViewById(R.id.select_all_checkbox);
+		click2Accessibility = (TextView) findViewById(R.id.show_accessibility);
 		settingOnClickEvent();
 		settingSelectAllText();
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, false))
+		{
+			click2Accessibility.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			click2Accessibility.setVisibility(View.GONE);
+		}
 		ListView listView = (ListView) findViewById(R.id.list_items);
 		listView.setAdapter(listAdapter);
 		setupActionBar();
@@ -86,6 +98,20 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			public void onClick(View v)
 			{
 				onSelectAllCheckboxClick();
+			}
+		});
+		click2Accessibility.setOnClickListener(new View.OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+
+				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true))
+				{
+					Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+					startActivityForResult(intent, 0);
+				}
 			}
 		});
 		selectAllCheckbox.setOnTouchListener(new View.OnTouchListener()
@@ -174,7 +200,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		}
 
 		settingSelectAllText();
-
 	}
 
 	private static void settingSelectAllText()
