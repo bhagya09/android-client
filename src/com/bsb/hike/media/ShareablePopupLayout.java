@@ -234,13 +234,6 @@ public class ShareablePopupLayout
 		mKeyboardPopupLayout.releaseResources();
 	}
 
-	public void onCloseKeyBoard()
-	{
-		if (isKeyboardOpen())
-		{
-			mKeyboardPopupLayout.onCloseKeyBoard();
-		}
-	}
 	public boolean onEditTextTouch(View v, MotionEvent event){
 		return mKeyboardPopupLayout.onEditTextTouch(v, event);
 	}
