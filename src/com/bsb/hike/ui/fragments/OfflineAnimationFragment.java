@@ -154,7 +154,10 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		switch(msg.what)
 		{
 			case UPDATE_ANIMATION_MESSAGE:
-				updateAnimationText(connectionInfo,(String)(msg.obj),false);
+				if(!isOfflineConnected())
+				{
+					updateAnimationText(connectionInfo,(String)(msg.obj),false);
+				}
 				break;
 			case UPDATE_ANIMATION_SECOND_MESSAGE:
 				if(!isOfflineConnected())
