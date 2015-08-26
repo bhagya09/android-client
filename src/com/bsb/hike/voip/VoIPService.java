@@ -1052,7 +1052,7 @@ public class VoIPService extends Service {
 	
 	@SuppressWarnings("deprecation")
 	@SuppressLint("InlinedApi") 
-	private boolean initSoundPool() {
+	private synchronized boolean initSoundPool() {
 		
 		if (soundpool != null) {
 			Logger.d(tag, "Soundpool already initialized.");
