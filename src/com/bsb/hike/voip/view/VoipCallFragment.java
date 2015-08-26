@@ -871,7 +871,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (voipService.hostingConference() || clientPartner.isHostingConference) {
 			
 			// Display the contact name and participant count
-			nameOrMsisdn = getString(R.string.voip_conference_label);
+			contactNameView.setText(R.string.voip_conference_label);
 			int clientCount = voipService.getClientCount();
 			String numberOfParticipants;
 			if (clientCount == 1)
@@ -881,7 +881,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 			
 			if (voipService.getCallStatus() == CallStatus.INCOMING_CALL) {
 				contactMsisdnView.setVisibility(View.VISIBLE);
-				contactMsisdnView.setText(contactInfo.getNameOrMsisdn());
+				contactMsisdnView.setText(nameOrMsisdn);
 			} else {
 				contactMsisdnView.setVisibility(View.VISIBLE);
 				contactMsisdnView.setText(numberOfParticipants);
@@ -892,6 +892,13 @@ public class VoipCallFragment extends Fragment implements CallActions
 			// and to the participants after they accept the call
 			if (voipService.recordingAndPlaybackRunning || voipService.hostingConference())
 				updateConferenceList();
+		} else {
+			if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
+			{
+				contactNameView.setTextSize(24);
+			}
+			
+			contactNameView.setText(nameOrMsisdn);
 		}
 
 		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
@@ -903,12 +910,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		}
 
-		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
-		{
-			contactNameView.setTextSize(24);
-		}
-		
-		contactNameView.setText(nameOrMsisdn);
 	}
 	
 	private void updateConferenceList() {
