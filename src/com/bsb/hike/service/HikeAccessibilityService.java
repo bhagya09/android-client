@@ -1,19 +1,57 @@
 package com.bsb.hike.service;
 
-import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.utils.Logger;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
+import android.animation.Animator.AnimatorListener;
+import android.content.Context;
+import android.content.Intent;
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
+import android.animation.Animator.AnimatorListener;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+
+import com.bsb.hike.chatHead.ChatHeadViewManager;
 
 public class HikeAccessibilityService extends AccessibilityService
 {
+	private final String TAG = "HikeAccessService";
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		ChatHeadViewManager.getInstance(this).onConfigCahnged();
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		ChatHeadViewManager.getInstance(this).onDestroy();;
+		super.onDestroy();
+	}
 
-	static final String TAG = "HikeAccessibilitySerivce";
-
+	@Override
+	public void onCreate()
+	{
+		super.onCreate();
+		Log.d(TAG, "onCreate");
+		
+		ChatHeadViewManager.getInstance(this).onCreate();
+	}
+	
 	private String getEventType(AccessibilityEvent event)
 	{
 
@@ -31,7 +69,15 @@ public class HikeAccessibilityService extends AccessibilityService
 		case AccessibilityEvent.TYPE_VIEW_SELECTED:
 			return value + "TYPE_VIEW_SELECTED";
 		case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-			return value + "TYPE_WINDOW_STATE_CHANGED";
+		case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+			
+			if(getEventText(event).equals("hike") || !event.getPackageName().equals("com.bsb.hike"))
+			{
+				Set<String> packages = new HashSet<String>(1);
+				packages.add( event.getPackageName().toString());
+				ChatHeadViewManager.getInstance(this).actionWindowChange(packages);
+			}
+			return value + "TYPE_WINDOW_CONTENT-STATE_CHANGED";
 		case AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED:
 			return value + "TYPE_VIEW_TEXT_CHANGED";
 		}

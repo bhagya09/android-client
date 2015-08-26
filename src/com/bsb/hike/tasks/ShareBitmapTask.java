@@ -9,6 +9,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -53,7 +54,7 @@ public class ShareBitmapTask extends AsyncTask<Void, Void, Void>
 		{
 			if (isFromChatHead)
 			{
-				if (ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(ChatHeadService.foregroundApp))
+				if (ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(ChatHeadViewManager.sharableActivePackage))
 				{
 					mContext.startActivity(intent);
 				}
