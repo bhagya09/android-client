@@ -2394,4 +2394,12 @@ public class StickerManager
 		
 		return true;
 	}
+	
+	public void toggleStickerRecommendation(boolean state)
+	{
+		if(Utils.isHoneycombOrHigher())
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, state);
+		}
+	}
 }
