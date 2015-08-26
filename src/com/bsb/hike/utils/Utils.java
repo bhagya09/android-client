@@ -230,6 +230,14 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
+	public static final int PRECISION_UNIT_SECOND = 0;
+
+	public static final int PRECISION_UNIT_MILLI_SECOND = 3;
+
+	public static final int PRECISION_UNIT_MICRO_SECOND = 6;
+
+	public static final int PRECISION_UNIT_NANO_SECOND = 9;
+
 	public static Pattern shortCodeRegex;
 
 	public static Pattern msisdnRegex;
@@ -6874,5 +6882,96 @@ public class Utils
 		return getUserContactInfo(false).getMsisdn().equals(argMsisdn);
 	}
 
-}
+	/**
+	 * Get differential time logging upto nano second
+	 * 
+	 * @param long
+	 *            start time
+	 * @param long
+	 *            end time
+	 * @param int
+	 *            precision points count in time unit
+	 * @author Ved Prakash Singh [ved@hike.in]
+	 */
+	public static String getExecutionTimeLog(long start, long end, int precisionInTimeUnitSecond)
+	{
+		StringBuilder timeLogBuilder = new StringBuilder();
+		String second = " s";
+		String milliSecond = " ms";
+		String microSecond = " μs";
+		String nanoSecond = " ns";
+		String delimiter = ", ";
+		String tag = "ExecutionTimeLogging";
 
+		long diff = end - start;
+		if (diff < 0)
+		{
+			Logger.wtf(tag, "End time can not be less then start time.");
+			diff = 0;
+		}
+
+		switch (precisionInTimeUnitSecond)
+		{
+		case PRECISION_UNIT_SECOND:
+			timeLogBuilder.append(diff);
+			timeLogBuilder.append(second);
+			break;
+
+		case PRECISION_UNIT_MILLI_SECOND:
+			int unitInSecond = (int) Math.pow(10, PRECISION_UNIT_MILLI_SECOND);
+			long sec = diff / unitInSecond;
+			timeLogBuilder.append(sec);
+			timeLogBuilder.append(second);
+			timeLogBuilder.append(delimiter);
+			long milliSec = diff - (sec * unitInSecond);
+			timeLogBuilder.append(milliSec);
+			timeLogBuilder.append(milliSecond);
+			break;
+
+		case PRECISION_UNIT_MICRO_SECOND:
+			unitInSecond = (int) Math.pow(10, PRECISION_UNIT_MICRO_SECOND);
+			sec = diff / unitInSecond;
+			timeLogBuilder.append(sec);
+			timeLogBuilder.append(second);
+			timeLogBuilder.append(delimiter);
+			diff = diff - (sec * unitInSecond);
+			int unitInMilliSecond = (int) Math.pow(10, (PRECISION_UNIT_MICRO_SECOND - PRECISION_UNIT_MILLI_SECOND));
+			milliSec = diff / unitInMilliSecond;
+			timeLogBuilder.append(milliSec);
+			timeLogBuilder.append(milliSecond);
+			timeLogBuilder.append(delimiter);
+			long microSec = diff - (milliSec * unitInMilliSecond);
+			timeLogBuilder.append(microSec);
+			timeLogBuilder.append(microSecond);
+			break;
+
+		case PRECISION_UNIT_NANO_SECOND:
+			unitInSecond = (int) Math.pow(10, PRECISION_UNIT_NANO_SECOND);
+			sec = diff / unitInSecond;
+			timeLogBuilder.append(sec);
+			timeLogBuilder.append(second);
+			timeLogBuilder.append(delimiter);
+			diff = diff - (sec * unitInSecond);
+			unitInMilliSecond = (int) Math.pow(10, (PRECISION_UNIT_NANO_SECOND - PRECISION_UNIT_MILLI_SECOND));
+			milliSec = diff / unitInMilliSecond;
+			timeLogBuilder.append(milliSec);
+			timeLogBuilder.append(milliSecond);
+			timeLogBuilder.append(delimiter);
+			diff = diff - (milliSec * unitInMilliSecond);
+			int unitInMicroSecond = (int) Math.pow(10, (PRECISION_UNIT_NANO_SECOND - PRECISION_UNIT_MICRO_SECOND));
+			microSec = diff / unitInMicroSecond;
+			timeLogBuilder.append(microSec);
+			timeLogBuilder.append(microSecond);
+			timeLogBuilder.append(delimiter);
+			long nanoSec = diff - (microSec * unitInMicroSecond);
+			timeLogBuilder.append(nanoSec);
+			timeLogBuilder.append(nanoSecond);
+			break;
+
+		default:
+			Logger.w(tag, "Unable to determine time units.");
+		}
+
+		return timeLogBuilder.toString();
+	}
+}
