@@ -72,7 +72,12 @@ public class TimelineActions
 
 	public void addActionDetails(String uuid, List<ContactInfo> contactInfo, ActionsDataModel.ActionTypes type, int totalCount, ActivityObjectTypes objType)
 	{
-		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"addActionDetails: "+ uuid); 
+		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"addActionDetails: "+ uuid);
+		
+		if(type == ActionTypes.UNLIKE)
+		{
+			return;
+		}
 		
 		Pair<String, String> uuidObjType = new Pair<String, String>(uuid, objType.getTypeString());
 

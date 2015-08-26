@@ -15,6 +15,7 @@ import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -111,7 +112,6 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
-import com.nineoldandroids.animation.ObjectAnimator;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
@@ -2066,7 +2066,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						 */
 						movedFromEmptyToNonEmpty();
 					}
-					else if(displayedConversations.size() == 2)
+					else if(displayedConversations.size() == 4)
 					{
 						StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 					}
@@ -3202,7 +3202,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				movedFromEmptyToNonEmpty();
 			}
-			else if (displayedConversations.size() == 3)
+			else if (displayedConversations.size() == 5)
 			{
 				StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 			}
