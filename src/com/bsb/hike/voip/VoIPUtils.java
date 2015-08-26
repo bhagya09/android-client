@@ -377,7 +377,7 @@ public class VoIPUtils {
 	
 	public static boolean isGroupCallEnabled(Context context) 
 	{
-		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_GROUP_CALL_ENABLED, true);
+		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_GROUP_CALL_ENABLED, false);
 		return enabled;
 	}
 	
