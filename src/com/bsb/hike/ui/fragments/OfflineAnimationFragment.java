@@ -164,7 +164,6 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				if(!isOfflineConnected())
 				{
 					updateAnimationText(connectionInfo,"" +timerDuration/1000,true);
-					startTimer();
 				}
 				break;	
 		}
@@ -193,11 +192,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			{
 					if(isAdded())
 					{
-						hideTimer();
-						updateAnimationText(connectionInfo, getResources().getString(R.string.disconnecting_offline),false);
+						connectionInfo.setText(getString(R.string.disconnecting_offline));
+						secondMessage.setVisibility(View.GONE);
 					}
 			}
 		};
+		timer.start();
 				
 	}
 
@@ -263,7 +263,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				{
 					if(startTimer)
 					{
-						timer.start();
+						startTimer();
 					}
 				}
 			}
@@ -592,6 +592,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 
 		connectionInfo.setText(getResources().getString(R.string.connecting_to, contactFirstName));
 		connectionInfo.setVisibility(View.VISIBLE);
+		secondMessage.setText("");
 		if (!shouldResumeFragment)
 		{
 			sendUIMessage(UPDATE_ANIMATION_MESSAGE, OfflineConstants.FIRST_MESSAGE_TIME, getResources().getString(R.string.offline_animation_second_message));
@@ -666,11 +667,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			@Override
 			public void onClick(View v)
 			{
+				sendUiMessages();
 				hideRetryButton();
 				showRetryIcon(R.drawable.iconconnection);
 				frame.setVisibility(View.VISIBLE);
-				startRotateAnimation();
-				sendUiMessages();
+				startRotateAnimation();		
 				listener.onConnectionRequest(false);
 				OfflineAnalytics.retryButtonClicked();
 			}
