@@ -6065,7 +6065,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					{
 						Logger.e("KPT", " Language name " + supportedLanguages[i]);
 					}
-
+					createBuilder(globeKeyData);
 				}
 				else
 				{
@@ -6087,8 +6087,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				{
 					Logger.e("KPT", " GOOD! Device support all the languag of KPT ");
 				}
-
-				createBuilder(globeKeyData);
 
 				// We need to inform this to hike // 1 is the selected language index
 				/*
