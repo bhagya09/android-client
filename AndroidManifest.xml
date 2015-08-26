@@ -6,8 +6,9 @@
     android:installLocation="auto"
     android:versionCode="1396"
     android:versionName="4.0.1" >
+    
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
 
     <permission

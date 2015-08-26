@@ -11,12 +11,12 @@ buildscript {
 apply plugin: 'com.android.application'
 android {
     compileSdkVersion "Google Inc.:Google APIs:21"
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "21.0.2"
     aaptOptions {
         useNewCruncher true
     }
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 9
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
         targetSdkVersion 17
