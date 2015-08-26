@@ -107,9 +107,9 @@ public class ApkExplorerListAdapter extends BaseAdapter{
           {
             convertView = mInflater.inflate(R.layout.apk_list_single,parent,false);
             apkName = (TextView)convertView.findViewById(R.id.apk_name);
+            apkSelection =  (CheckBox)convertView.findViewById(R.id.apk_selection_box);
             apkSize = (TextView)convertView.findViewById(R.id.apk_size);
             apkImage = (ImageView)convertView.findViewById(R.id.apk_image);
-            apkSelection =  (CheckBox)convertView.findViewById(R.id.apk_selection_box);
             listHolder = new ViewHolder(apkName,apkSize,apkImage,apkSelection);
 			convertView.setTag(listHolder); 
           }
@@ -131,7 +131,6 @@ public class ApkExplorerListAdapter extends BaseAdapter{
 		});
 		
           apkImage.setImageDrawable(appInfo.get(position).getApplicationInfo().loadIcon(mContext.getPackageManager()));
-          apkName.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
           apkName.setText(mContext.getPackageManager().getApplicationLabel(appInfo.get(position).getApplicationInfo()));
           File  apkFile =   new File(appInfo.get(position).getApplicationInfo().sourceDir);
           if(apkFile!=null)
