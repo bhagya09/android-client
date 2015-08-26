@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.ui.HomeActivity;
 import com.mobileapptracker.MobileAppTracker;
 
 public class TrackerUtil
@@ -40,12 +41,11 @@ public class TrackerUtil
 	{
 
 		// initialize the MobileAppTracker framework
-		_mobileAppTracker = new MobileAppTracker(this._ctx, HikeConstants.MA_TRACKER_AD_ID, HikeConstants.MA_TRACKER_KEY, true, false);
-
+		MobileAppTracker.init(this._ctx, HikeConstants.MA_TRACKER_AD_ID, HikeConstants.MA_TRACKER_KEY);
+		_mobileAppTracker = MobileAppTracker.getInstance();
 		_matResponse = new MatResponse();
 
 		_mobileAppTracker.setMATResponse(_matResponse);
-		_mobileAppTracker.setRefId(HikeConstants.MA_TRACKER_REF_ID_PREFIX + System.currentTimeMillis());
 		_mobileAppTracker.setSiteId(HikeConstants.MA_SITE_ID);
 
 	}
@@ -69,14 +69,14 @@ public class TrackerUtil
 		{
 			// the SDK will record an update for all versions including the
 			// current version
-			_mobileAppTracker.trackUpdate();
+			_mobileAppTracker.measureSession();
 
 		}
 		else
 		{
 			// the SDK will record an install for this version and an update for
 			// all subsequent versions.
-			_mobileAppTracker.trackInstall();
+			_mobileAppTracker.measureSession();
 		}
 	}
 }
