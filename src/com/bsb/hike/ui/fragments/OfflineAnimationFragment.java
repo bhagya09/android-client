@@ -2,6 +2,7 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
+
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.animation.Animator;
@@ -10,8 +11,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Bundle;
@@ -34,7 +33,6 @@ import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -49,7 +47,6 @@ import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineParameters;
-import com.bsb.hike.offline.OfflineSessionTracking;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
@@ -654,13 +651,14 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		{
 			return;
 		}
-		connectionInfo.setText(getResources().getString(R.string.retry_connection));
-		showRetryIcon(R.drawable.cross_retry);
-		cancelRotationAnimation();
+		removePostedMessages();
 		hideAndStopTimer();
+		connectionInfo.setText(getResources().getString(R.string.retry_connection));
+		connectionInfo.setVisibility(View.VISIBLE);
 		frame.setVisibility(View.INVISIBLE);
 		secondMessage.setVisibility(View.INVISIBLE);
-		removePostedMessages();
+		showRetryIcon(R.drawable.cross_retry);
+		cancelRotationAnimation();		
 		showRetryButton();
 		retryButton.setOnClickListener(new OnClickListener()
 		{
@@ -891,7 +889,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private void hideAndStopTimer()
 	{
-		secondMessage.setVisibility(View.GONE);
+		connectionInfo.setVisibility(View.INVISIBLE);
 		if(timer!=null)
 			timer.cancel();
 	}
@@ -900,7 +898,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	{
 		if(isAdded())
 		{
-			secondMessage.setVisibility(View.GONE);
+			connectionInfo.setVisibility(View.INVISIBLE);
 		}
 	}
 	
