@@ -2218,7 +2218,6 @@ public class VoIPService extends Service {
 		synchronized (clients) {
 			clients.put(client.getPhoneNumber(), client);
 			if (clients.size() > 1) {
-				Logger.w(tag, "We are now hosting a conference.");
 				hostingConference = true;
 			}
 		}

@@ -584,6 +584,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	}
 
 	private void setupForceMuteLayout() {
+		
 		TextView muteAllTextView = (TextView) getView().findViewById(R.id.mute_all_textview);
 		ImageView muteAllIcon= (ImageView) getView().findViewById(R.id.force_mute_icon);
 
