@@ -1817,7 +1817,7 @@ public class VoIPClient  {
 		
 	}
 	
-	private void sendLocalBitrate() {
+	public void sendLocalBitrate() {
 
 		new Thread(new Runnable() {
 			

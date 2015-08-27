@@ -738,6 +738,7 @@ public class VoIPService extends Service {
 			primary.cryptoEnabled = false;
 			primary.isInAHostedConference = true;
 			primary.setIdealBitrate();
+			primary.sendLocalBitrate();
 		}
 		
 		if (clients.size() > 0 && getCallId() > 0) {
