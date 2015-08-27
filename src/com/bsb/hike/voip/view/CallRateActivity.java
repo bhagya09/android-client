@@ -6,7 +6,6 @@ import android.view.WindowManager;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants;
 
 public class CallRateActivity extends HikeAppStateBaseFragmentActivity implements IVoipCallRateListener
@@ -18,7 +17,6 @@ public class CallRateActivity extends HikeAppStateBaseFragmentActivity implement
 		
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
 		setContentView(R.layout.call_rate_activity);
