@@ -141,7 +141,7 @@ public class CallRateDialogFragment extends DialogFragment
 		Bundle bundle = getArguments();
 		int isCallInitiator = -1, callId = -1, network = -1, osVersion = -1;
 		String toMsisdn = "", appVersionName = "";
-		boolean isConf = false;
+		int isConf = 0;
 		
 		if(bundle!=null)
 		{
@@ -151,7 +151,7 @@ public class CallRateDialogFragment extends DialogFragment
 			toMsisdn = bundle.getString(VoIPConstants.PARTNER_MSISDN);
 			appVersionName = bundle.getString(VoIPConstants.APP_VERSION_NAME);
 			osVersion = bundle.getInt(VoIPConstants.OS_VERSION);
-			isConf = bundle.getBoolean(VoIPConstants.IS_CONFERENCE);
+			isConf = bundle.getBoolean(VoIPConstants.IS_CONFERENCE) == true ? 1 : 0;
 		}
 
 		try
