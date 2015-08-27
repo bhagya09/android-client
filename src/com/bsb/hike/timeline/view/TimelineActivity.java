@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -133,6 +134,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		getWindow().setBackgroundDrawable(new ColorDrawable(0xFFF4F4F7));
 		initialiseTimelineScreen(savedInstanceState);
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.TIMELINE.ordinal());
