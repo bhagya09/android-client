@@ -905,5 +905,21 @@ public class PlatformUtils
 		}
 		return false;
 	}
+	
+	public static void sendPlatformCrashAnalytics(String crashType, String msisdn)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.APP_CRASH_EVENT);
+			json.put(AnalyticsConstants.MICRO_APP_ID, msisdn);
+			json.put(AnalyticsConstants.DATA, crashType);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 }

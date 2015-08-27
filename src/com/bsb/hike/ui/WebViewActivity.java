@@ -61,6 +61,7 @@ import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.IBridgeCallback;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.HikeWebClient;
@@ -164,6 +165,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		
 		super.onCreate(savedInstanceState);
+		checkForWebViewPackageInstalled();
+		
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
@@ -1084,6 +1087,26 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 
 		anchor.setLayoutParams(params);
+	}
+
+	/**
+	 * To prevent package name not found exception we check whether webview package is installed or not in Android L+.
+	 * Check this for more info : 
+	 * 
+	 * https://code.google.com/p/chromium/issues/detail?id=506369
+	 * 
+	 */
+	private void checkForWebViewPackageInstalled()
+	{
+		if (Utils.isLollipopOrHigher())
+		{
+			if (!Utils.appInstalledOrNot(getApplicationContext(), "com.google.android.webview"))
+			{
+				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_LONG).show();
+				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
+				this.finish();
+			}
+		}
 	}
 
 }
