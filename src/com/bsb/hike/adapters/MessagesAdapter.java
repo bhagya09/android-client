@@ -4029,7 +4029,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		statusHolder.messageInfo.setText(statusMessage.getTimestampFormatted(true, context));
 
-		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
 		{
 			SmileyParser smileyParser = SmileyParser.getInstance();
 			statusHolder.messageTextView.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
@@ -4040,7 +4040,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			statusHolder.messageTextView.setText(R.string.changed_profile);
 		}
-		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 		{
 			statusHolder.messageTextView.setText(R.string.posted_photo);
 		}
