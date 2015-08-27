@@ -295,7 +295,7 @@ public class HikePhotosUtils
 					
 					if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
 					{
-						effectfilters.addFilter("TIRANGA", FilterType.TIRANGAA);
+						effectfilters.addFilter("TIRANGAA", FilterType.TIRANGAA);
 					}
 					effectfilters.addFilter("MELLOW", FilterType.SOLOMON);
 					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
@@ -397,6 +397,11 @@ public class HikePhotosUtils
 			}
 		}
 
+	}
+	
+	public static int getServerConfigDimenForDP()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
 	}
 
 }

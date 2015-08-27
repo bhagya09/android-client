@@ -4,12 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
+    android:versionCode="1396"
+    android:versionName="4.0.1.platform" >
 
-    android:versionCode="1285"
-    android:versionName="3.9.8.81.27.platform" >
-    
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
 
     <permission
@@ -136,7 +135,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-             <intent-filter android:label="@string/app_label">
+        </activity>
+        <activity
+            android:name=".ui.ComposeChatActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_label"
+            android:theme="@style/AppTheme.Home"
+            android:windowSoftInputMode="stateHidden" >
+            <intent-filter android:label="@string/app_label">
                 <action android:name="android.intent.action.SEND" />
                 
 				<action android:name="android.intent.action.SEND_MULTIPLE" />
@@ -145,13 +151,6 @@
                 
                 <data android:mimeType="*/*" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".ui.ComposeChatActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_label"
-            android:theme="@style/AppTheme.Home"
-            android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
             android:name=".ui.AddFriendsActivity"
@@ -176,7 +175,7 @@
             android:hardwareAccelerated="true"
             android:label="@string/app_label"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme"
+            android:theme="@style/AppTheme.ChatThread"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
@@ -189,7 +188,7 @@
         </activity>
         <activity
             android:name=".ui.HikePreferences"
-            android:label="@string/preferences" >
+            android:label="@string/preferences">
         </activity>
         <activity
             android:name=".ui.HikeListActivity"
@@ -199,7 +198,8 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/AppTheme.Overlay" >
             <intent-filter android:label="@string/set_profile_pic" >
                 <action android:name="android.intent.action.ATTACH_DATA" />
 
@@ -211,13 +211,13 @@
         <activity
             android:name=".cropimage.CropImage"
             android:configChanges="orientation|screenSize|screenLayout"
-            android:theme="@style/AppTheme.Home.Photos" />
-        <activity android:name=".ui.CreditsActivity" >
-        </activity>
+            android:theme="@style/AppTheme.Home.PhotoEditor" />
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:exported="true" >
+            android:exported="true" 
+            android:theme="@style/AppTheme.Overlay" 
+            >
         </activity>
         <activity
             android:name=".ui.ShareLocation"
@@ -251,17 +251,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.StatusUpdate"
-            android:windowSoftInputMode="adjustResize" >
+            android:name="com.bsb.hike.timeline.view.StatusUpdate"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.GalleryActivity"
-            android:theme="@style/AppTheme.Home.Photos" >
+            android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
         <activity android:name=".ui.HikeSharedFilesActivity"
-            android:theme="@style/AppTheme.Home.Photos" >
+            android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
-        <activity android:name=".ui.GallerySelectionViewer">
+        <activity android:name=".ui.GallerySelectionViewer"
+            android:screenOrientation="portrait">
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
         </activity>
@@ -284,15 +285,14 @@
         <activity android:name=".ui.CreateNewGroupOrBroadcastActivity" >
         </activity>
         <activity
-            android:name=".ui.FtueBroadcast"
-            android:configChanges="keyboardHidden|screenSize" >
-        </activity>
-        <activity
             android:name=".ui.PeopleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
-            android:name=".ui.TimelineActivity"
+            android:name="com.bsb.hike.timeline.view.TimelineActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
@@ -311,30 +311,28 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" >
         </activity>
+         <activity
+            android:name="com.bsb.hike.timeline.view.TimelineSummaryActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Transparent">
+        </activity>
         <activity
             android:name="com.bsb.hike.ui.PictureEditer"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Home.Photos" >
+            android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
         <activity
-            android:name=".chatHead.ChatHeadActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:noHistory="true"
-            android:excludeFromRecents="true"
-            android:taskAffinity="com.bsb.hike.chatHead"
-            android:launchMode="singleInstance">
-		</activity>
-		<activity
             android:name=".chatHead.StickerShareSettings"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
         
 		<activity
             android:name=".ui.PinHistoryActivity"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@style/AppTheme.ChatThread" >
         </activity>
         <activity
             android:name=".voip.view.CallRateActivity"
@@ -420,6 +418,13 @@
             android:value="@integer/google_play_services_version" />
 
         <receiver android:name=".service.SmsMessageStatusReceiver" />
+        <receiver
+            android:name=".service.AppTrackerReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".service.AlarmBroadcastReceiver" >
             <intent-filter>
                 <action android:name="com.bsb.hike.START_ALARM" />
@@ -463,13 +468,6 @@
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>
         
-        <receiver
-            android:name=".service.ReferralReceiver"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="com.android.vending.INSTALL_REFERRER" />
-            </intent-filter>
-        </receiver>
         <receiver
             android:name="com.bsb.hike.service.DeviceShutDownReceiver"
             android:enabled="true" >

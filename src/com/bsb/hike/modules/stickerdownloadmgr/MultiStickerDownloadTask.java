@@ -178,8 +178,6 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						return;
 					}
 
-					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STICKER_DATA_FIRST_SETUP);
-
 					if (!data.has(HikeConstants.PACKS))
 					{
 						Logger.e(TAG, "Sticker download failed null pack data");
@@ -219,6 +217,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 							{
 								byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
+								StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
+								
 							}
 							catch (FileNotFoundException e)
 							{
@@ -230,6 +230,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 							}
 						}
 					}
+
+					StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP);
 
 					if (totalNumber != 0)
 					{

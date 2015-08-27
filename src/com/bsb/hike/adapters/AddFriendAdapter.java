@@ -91,21 +91,9 @@ public class AddFriendAdapter extends SectionedBaseAdapter {
 	}
 
 	@Override
-	public int getItemViewType(int section, int position)
-	{
-		return 0;
-	}
-
-	@Override
 	public int getItemViewTypeCount()
 	{
 		return 1;
-	}
-
-	@Override
-	public int getSectionHeaderViewType(int section)
-	{
-		return 0;
 	}
 
 	@Override

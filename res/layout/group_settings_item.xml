@@ -1,0 +1,49 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+     android:orientation="vertical" >
+
+<RelativeLayout 
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="10dp"
+    android:orientation="horizontal"
+    android:layout_centerVertical="true"
+    android:clickable="true"
+    android:onClick="onGSCheckboxClicked"
+   >
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/groups_massegesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="4dp"
+        android:layout_centerVertical="true"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        android:text="@string/group_setting_option_only_admin" />
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/groups_massegesTextView"
+        android:layout_marginRight="14dp"
+        android:button="@drawable/hike_list_item_checkbox"
+        android:focusable="false"
+        android:clickable="false"
+  />
+
+</RelativeLayout>
+
+<View
+    android:layout_width="match_parent"
+    android:layout_height="0.5dp"
+    android:background="#f5f5f5"
+   
+   />
+
+</LinearLayout>

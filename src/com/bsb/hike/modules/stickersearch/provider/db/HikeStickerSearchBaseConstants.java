@@ -8,8 +8,7 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 public class HikeStickerSearchBaseConstants
 {
-
-	public static final int STICKERS_SEARCH_DATABASE_VERSION = 1;
+	public static final int STICKERS_SEARCH_DATABASE_VERSION = 2;
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
 
@@ -19,6 +18,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String TABLE_STICKER_PACK_CATEGORY_HISTORY = "stickerCategoryHistory";
 
 	public static final String TABLE_STICKER_TAG_MAPPING = "stickerTagMapping";
+	
+	public static final String STICKER_TAG_MAPPING_INDEX = "stickerTagMappingIndex";
 
 	// ================================Fixed tables used for Sticker-Tag relation and recommendations]]
 
@@ -31,7 +32,23 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MAXIMUM_DYNAMIC_TABLE_CAPACITY = 10000; // Changeable in future based on memory usage
 
-	public static final float THRESHOLD_DYNAMIC_TABLE_CAPACITY = 0.90f; // 90 percent // Changeable in future based on memory usage
+	public static final float THRESHOLD_DYNAMIC_TABLE_CAPACITY = 0.80f; // 80 percent // Changeable in future based on memory usage
+
+	public static final int MAXIMUM_PRIMARY_TABLE_CAPACITY = 500000; // Changeable in future based on memory usage
+
+	public static final int TEST_MAXIMUM_PRIMARY_TABLE_CAPACITY = 10000; // Changeable in future based on test configuration
+
+	public static final float THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f; // 70 percent // Changeable in future based on memory usage
+
+	public static final float TEST_THRESHOLD_PRIMARY_TABLE_CAPACITY_FRACTION = 0.70f;  // 70 percent // Changeable in future based on test configuration
+
+	public static final float THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = 0.20f; // 20 percent // Changeable in future based on memory usage
+
+	public static final float TEST_THRESHOLD_DATABASE_EXPANSION_COEFFICIENT = 0.20f; // 20 percent // Changeable in future based on test configuration
+
+	public static final float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = 0.90f; // 90 percent // Changeable in future based on memory usage
+
+	public static final float TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = 0.90f; // 90 percent // Changeable in future based on test configuration
 
 	// ==============================Dynamic tables used for Sticker-Tag relation and recommendations]]
 
@@ -85,15 +102,19 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_TAG_POPULARITY = "stickerTagSuitabilityOrder";
 
+	public static final String STICKER_AVAILABILITY = "stickerAvailability";
+
 	// Table: TABLE_TAG_SEARCH_*X, where *X is dynamically changeable variable
 	public static final String TAG_REAL_PHRASE = "realTagName";
 
 	public static final String TAG_GROUP_UNIQUE_ID = "tagUniqueId"; // foreign key from TABLE_STICKER_TAG_MAPPING
 
 	// Syntax constants
+	public static final int SQLITE_FIRST_INTEGER_ROW_ID = 1;
+
 	public static final int SQLITE_LIMIT_VARIABLE_NUMBER = 500;
 
-	public static final String SYNTAX_PRIMARY_KEY = " INTEGER PRIMARY KEY AUTOINCREMENT, ";
+	public static final String SYNTAX_PRIMARY_KEY = " INTEGER PRIMARY KEY, ";
 
 	public static final String SYNTAX_FOREIGN_KEY = "FOREIGN KEY";
 
@@ -101,7 +122,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ";
 
-	public static final String SYNTAX_CREATE_VTABLE = "CREATE VIRTUAL TABLE IF NOT EXISTS ";
+	public static final String SYNTAX_CREATE_VTABLE = "CREATE VIRTUAL TABLE ";
 
 	public static final String SYNTAX_FTS_VERSION_4 = " USING fts4";
 
@@ -119,6 +140,22 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_END = ")";
 
+	public static final String SYNTAX_MATCH_START = " MATCH '";
+
+	public static final String SYNTAX_MATCH_END = "'";
+
+	public static final String SYNTAX_PREDICATE_MATCH_END = "*'";
+
+	public static final String SYNTAX_IN_OPEN = " IN (";
+
+	public static final String SYNTAX_SINGLE_PARAMETER = "=?";
+
+	public static final String SYNTAX_SINGLE_PARAMETER_NEXT = "=? AND ";
+
+	public static final String SYNTAX_DESCENDING = " DESC";
+
+	public static final String SYNTAX_LESS_THAN_OR_EQUALS = "<=";
+
 	// Entity type constants
 	public static final int ENTITY_INIT_MARKER = 0; // Reserved
 
@@ -128,9 +165,11 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int ENTITY_CHAT_STORY_TOPIC = 3; // Conversation story
 
-	public static final int ENTITY_INDIVIDUAL_USER = 4; // Individual person to chat with
+	public static final int ENTITY_USER_SELF = 4; // Self
 
-	public static final int ENTITY_GROUP_USER = 5; // Group to chat in
+	public static final int ENTITY_USER_INDIVIDUAL = 5; // Individual person to chat with
+
+	public static final int ENTITY_USER_GROUP = 6; // Group to chat in
 
 	// Entity-qualified constants
 	public static final String IS_INITIALISED = "isInitialising";
@@ -139,39 +178,12 @@ public class HikeStickerSearchBaseConstants
 
 	// =============================Constants used for Sticker-Tag relation and recommendations]]
 
-	// Constants used in calculation===========================================================[[
-	public static final int MAXIMUM_PROBABILITY = 100; // percent
+	// Decision constants======================================================================[[
+	public static final int DECISION_STATE_NO = 0;
 
-	public static final int CURRENT_SUMMERY_TIME_WINDOW = 3; // days
+	public static final int DECISION_STATE_YES = 1;
 
-	public static final int MAXIMUM_FREQUENCY = 100; // relative count
-
-	// ===========================================================Constants used in calculation]]
-
-	// Generic constants=======================================================================[[
-	public static final String STRING_EMPTY = "";
-
-	public static final String STRING_SPACE = "";
-
-	public static final String STRING_PREDICATE = "";
-
-	public static final String STRING_TRUE = String.valueOf(true);
-
-	public static final String STRING_FALSE = String.valueOf(false);
-
-	public static final String STRING_INNER_SET_OPEN = "(";
-
-	public static final String STRING_INNER_SET_CLOSE = ")";
-
-	public static final String STRING_OUTER_SET_OPEN = "[";
-
-	public static final String STRING_OUTER_SET_CLOSE = "]";
-
-	public static final String STRING_ASSOCIATOR = " + ";
-
-	public static final String STRING_DISSOCIATOR = ", ";
-
-	// =======================================================================Generic constants]]
+	// ======================================================================Decision constants]]
 
 	// Constants used in shared_pref or system_db==============================================[[
 	public static final String SHARED_PREF_STICKER_DATA = "hike_sticker_tag_data";
@@ -190,7 +202,11 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String KEY_PREF_IS_POPULATED = "is_populated";
 
-	public static final String KEY_PREF_LAST_SUMMERIZATION_TIME = "last_summerization_time";
+	public static final String KEY_PREF_LAST_TRENDING_SUMMERIZATION_TIME = "last_trending_summerization_time";
+
+	public static final String KEY_PREF_LAST_LOCAL_SUMMERIZATION_TIME = "last_local_summerization_time";
+
+	public static final String KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME = "last_global_summerization_time";
 
 	// ==============================================Constants used in shared_pref or system_db]]
 
@@ -202,7 +218,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_UNIVERSAL_TERMINATOR = 1;
 
-	public static final int MOMENT_CODE_MORNING_TERMINAL = 2;
+	public static final int MOMENT_CODE_FIRST_TERMINAL_OF_DAY = 2;
+
+	public static final int MOMENT_CODE_MORNING_TERMINAL = MOMENT_CODE_FIRST_TERMINAL_OF_DAY;
 
 	public static final int MOMENT_CODE_NOON_TERMINAL = 3;
 
@@ -212,9 +230,11 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_NIGHT_TERMINAL = 6;
 
-	// [[----------------------------Add more in future; if required----------------------------]]
+	// ------------------------------Add more in future; if required-----------------------------
 
-	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = 11;
+	public static final int MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY = 11;
+
+	public static final int MOMENT_CODE_MORNING_NON_TERMINAL = MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY;
 
 	public static final int MOMENT_CODE_NOON_NON_TERMINAL = 12;
 
@@ -224,7 +244,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int MOMENT_CODE_NIGHT_NON_TERMINAL = 15;
 
-	// =============================================Constants used for indexing of sticker data]]
+	// ===============================================Constants used for coding of time moments]]
 
 	// Constants used for indexing of sticker data=============================================[[
 	// Order of following indices must be maintained iteratively; whenever removal/ addition of new index is taken place
@@ -254,18 +274,17 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12;
 
-	public static final int INDEX_STICKER_DATA_COUNT = 13;
+	public static final int INDEX_STICKER_AVAILABILITY_STATUS = 13;
+
+	public static final int INDEX_STICKER_DATA_COUNT = 14;
 
 	// =============================================Constants used for indexing of sticker data]]
 
 	// Default story
-	public static final String STORY_DEFAULT = "generic";
+	public static final String DEFAULT_STORY = "generic";
 
 	// Default theme
-	public static final String THEME_DEFAULT = "GENERIC";
-
-	// Default moment
-	public static final int MOMENT_DEFAULT = -1;
+	public static final String DEFAULT_THEME_TAG = "GENERIC";
 
 	// States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY
@@ -295,7 +314,6 @@ public class HikeStickerSearchBaseConstants
 
 		public static int getIdFromCategory(String tagCategory)
 		{
-
 			int id;
 
 			switch (tagCategory)
@@ -349,7 +367,7 @@ public class HikeStickerSearchBaseConstants
 	// States used for day time division=======================================================[[
 	public static enum TIME_CODE
 	{
-		UNKNOWN(-1), MORNING(0), NOON(1), AFTER_NOON(2), EVENING(3), NIGHT(4);
+		INVALID(-1000), UNKNOWN(-1), MORNING(0), NOON(1), AFTER_NOON(2), EVENING(3), NIGHT(4);
 
 		private final int mId;
 
@@ -361,6 +379,39 @@ public class HikeStickerSearchBaseConstants
 		public int getId()
 		{
 			return mId;
+		}
+
+		public static TIME_CODE getTerminal(int identifier)
+		{
+			identifier = identifier - MOMENT_CODE_FIRST_TERMINAL_OF_DAY;
+			switch (identifier)
+			{
+			case -1:
+				return UNKNOWN;
+
+			case 0:
+				return MORNING;
+
+			case 1:
+				return NOON;
+
+			case 2:
+				return AFTER_NOON;
+
+			case 3:
+				return EVENING;
+
+			case 4:
+				return NIGHT;
+
+			default:
+				return INVALID;
+			}
+		}
+
+		public static TIME_CODE getContinuer(int identifier)
+		{
+			return getTerminal(identifier - MOMENT_CODE_FIRST_NON_TERMINAL_OF_DAY + MOMENT_CODE_FIRST_TERMINAL_OF_DAY);
 		}
 	}
 	// =======================================================States used for day time division]]

@@ -38,7 +38,9 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -135,7 +137,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private TextView title;
 
-	private ImageView backIcon;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -257,7 +258,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			{
 				try
 				{
-					String searchString = ((EditText) findViewById(R.id.search)).getText().toString();
+					String searchString = ((EditText) findViewById(R.id.search)).getText().toString().trim();
 					if (!searchString.equals(""))
 					{
 						searchString = URLEncoder.encode(searchString, "UTF-8");
@@ -301,8 +302,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private void init()
 	{
-		backIcon.setImageResource(R.drawable.ic_back);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
+		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 	}
 
 	private void setupActionBar()
@@ -312,9 +312,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
-		View backContainer = actionBarView.findViewById(R.id.back);
-
-		backIcon = (ImageView) actionBarView.findViewById(R.id.abs__up);
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.share_location);
 
@@ -324,15 +321,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
 		postText.setText(R.string.send);
 
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
 
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
@@ -345,6 +333,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		init();
 	}
@@ -656,6 +646,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 					adapter.notifyDataSetChanged();
 				}
 			}
+			if(totalPlaces == 0)
+				Toast.makeText(ShareLocation.this, getString(R.string.no_places_found), Toast.LENGTH_SHORT).show();
 			findViewById(R.id.progress_dialog).setVisibility(View.GONE);
 		}
 	}
@@ -932,5 +924,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 		return address;
 	}
-
+	@Override
+	public void onBackPressed()
+	{
+		// TODO Auto-generated method stub
+		finish();
+	}
 }

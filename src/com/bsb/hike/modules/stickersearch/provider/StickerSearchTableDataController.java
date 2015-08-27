@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -115,7 +117,7 @@ public class StickerSearchTableDataController
 				// Sort the tags to apply searching operation
 				Collections.sort(mTags, String.CASE_INSENSITIVE_ORDER);
 				// Initial call to tabulate tags
-				computeTableContent(HikeStickerSearchBaseConstants.STRING_EMPTY);
+				computeTableContent(StickerSearchConstants.STRING_EMPTY);
 
 				if (tagsResultData.length < SIZE_RESULT_ARRAY)
 				{
@@ -155,7 +157,7 @@ public class StickerSearchTableDataController
 		for (String str : mTags)
 		{
 			str = ((str == null) ? str : str.trim().toUpperCase(Locale.ENGLISH));
-			if (TextUtils.isEmpty(str))
+			if (Utils.isBlank(str))
 			{
 				// Handle invalid tag
 				mTags.set(mCurrentWordsOrder, null);
@@ -165,7 +167,7 @@ public class StickerSearchTableDataController
 			else
 			{
 				// Handle special character within the tag
-				str = StickerSearchUtility.formGeneralizedWord(sb, str);
+				str = StickerSearchUtility.formGeneralizedWord(str, sb);
 				if (TextUtils.isEmpty(str))
 				{
 					specialCount++;
@@ -201,8 +203,8 @@ public class StickerSearchTableDataController
 
 		if (wordsOrder > 0)
 		{
-			mPrefixLBOfTableContent.add(HikeStickerSearchBaseConstants.STRING_EMPTY);
-			mPrefixUBOfTableContent.add(HikeStickerSearchBaseConstants.STRING_EMPTY);
+			mPrefixLBOfTableContent.add(StickerSearchConstants.STRING_EMPTY);
+			mPrefixUBOfTableContent.add(StickerSearchConstants.STRING_EMPTY);
 			mTableRemainingCapacity.add(mTotalCapacityOfAnyTable - wordsOrder);
 			mTotalCapacityRemained -= mTotalCapacityOfAnyTable;
 		}
@@ -313,7 +315,7 @@ public class StickerSearchTableDataController
 
 				actualIndexOfLastExistingTable = virtualIndexOfLastExistingTable = mPrefixLBOfTableContent.size() - 1;
 				// Do not use reserved table, named previously, if any
-				if (mPrefixLBOfTableContent.contains(HikeStickerSearchBaseConstants.STRING_EMPTY))
+				if (mPrefixLBOfTableContent.contains(StickerSearchConstants.STRING_EMPTY))
 				{
 					virtualIndexOfLastExistingTable = actualIndexOfLastExistingTable - 1;
 				}

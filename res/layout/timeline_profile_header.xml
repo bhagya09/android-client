@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <com.bsb.hike.ui.utils.SquareRecyclingImageView
+        android:id="@+id/profile_pic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/content_des_user_profile_detail_edit_profile_pic"
+        android:scaleType="fitXY"
+        android:src="@drawable/misc_timeline_ftue" />
+
+    <View
+        android:id="@+id/gradient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/contentLayout"
+        android:layout_alignTop="@+id/contentLayout"
+        android:background="@color/black_10" />
+
+    <RelativeLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/profile_pic" >
+
+        <ImageView
+            android:id="@+id/change_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_overflow_menu_selector"
+            android:contentDescription="@string/content_des_user_profile_detail_edit_profile_pic"
+            android:padding="20dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_change_profile_pic" />
+
+        <LinearLayout
+            android:id="@+id/info_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/change_profile"
+            android:orientation="vertical"
+            android:paddingBottom="14dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="10dp" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:text="Sheldon Cooper"
+                android:textColor="@color/white"
+                android:textSize="24sp" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/details"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:text="@string/profile_header_subtext"
+                android:textColor="@color/white_80"
+                android:textSize="12sp"
+                android:textStyle="bold|italic" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

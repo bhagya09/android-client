@@ -14,7 +14,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EntityUtils;
@@ -50,10 +49,10 @@ import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -288,7 +287,7 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.BROADCAST.toString()))
 			{
-				IntentFactory.createBroadcastDefault(context);
+				IntentFactory.createBroadcastIntent(context);
 			}
 			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
 			{   
@@ -381,14 +380,12 @@ public class PlatformUtils
 		createBotMqttAnalytics(key, botInfo, null);
 	}
 
-	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject metadata)
+	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
-		if (metadata == null)
-		{
-			metadata = new JSONObject();
-		}
+
 		try
 		{
+			JSONObject metadata = json == null ? new JSONObject() : new JSONObject(json.toString());
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.NON_UI_EVENT);
 

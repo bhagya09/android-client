@@ -133,9 +133,6 @@ class AlarmPingSender implements MqttPingSender {
 			// This guarantees that the phone will not sleep until you have
 			// finished handling the broadcast.", but this class still get
 			// a wake lock to wait for ping finished.
-			int count = intent.getIntExtra(Intent.EXTRA_ALARM_COUNT, -1);
-			Logger.d(TAG, "Ping " + count + " times.");
-
 			Logger.d(TAG, "Check time :" + System.currentTimeMillis());
 			IMqttToken token = comms.checkForActivity();
 

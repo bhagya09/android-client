@@ -1,0 +1,28 @@
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.14.4'
+    }
+}
+
+apply plugin: 'com.android.library'
+android {
+    lintOptions {
+        abortOnError false
+    }
+    compileSdkVersion 19
+    buildToolsVersion '21.0.2'
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            res.srcDirs = ['res']
+        }
+    }
+    dependencies {
+        compile files('libs/android-support-v7-recyclerview.jar')
+    }
+}

@@ -1,0 +1,46 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overflowmenu"
+    android:layout_width="56dp"
+    android:layout_height="match_parent"
+    android:background="@drawable/back_container_selector" >
+
+    <ImageView
+        android:id="@+id/overflow_icon_image"
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:contentDescription="Overflow menu"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_activity" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/top_bar_indicator_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/overflow_icon_image"
+        android:layout_marginLeft="28dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/ic_top_bar_indicator"
+        android:gravity="center"
+        android:paddingBottom="1dp"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:text="1"
+        android:textColor="@color/white"
+        android:textSize="12dp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/top_bar_indicator_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/overflow_icon_image"
+        android:layout_marginLeft="28dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/ic_top_bar_indicator"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:visibility="gone" />
+
+</RelativeLayout>

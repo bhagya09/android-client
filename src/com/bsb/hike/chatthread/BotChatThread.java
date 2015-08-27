@@ -6,10 +6,11 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.v4.view.MenuItemCompat;
 import android.util.Pair;
 import android.view.View;
 
-import com.actionbarsherlock.view.Menu;
+import android.view.Menu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -25,6 +26,7 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontButton;
 
@@ -193,7 +195,7 @@ public class BotChatThread extends OneToOneChatThread
 		if (configuration.isOverflowMenuEnabled() && !menuItemList.isEmpty())
 		{
 			menu.findItem(R.id.overflow_menu).setVisible(true);
-			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
+			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
 		}
 		else
@@ -224,6 +226,10 @@ public class BotChatThread extends OneToOneChatThread
 		if (configuration.isChatThemeInOverflowMenuEnabled())
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+		}
+		if (configuration.isSearchInOverflowMenuEnabled() && (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true)))
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		}
 
 		/**
@@ -304,6 +310,17 @@ public class BotChatThread extends OneToOneChatThread
 				overFlowMenuItem.text = mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute);
 				break;
 			}
+		}
+	}
+	
+	@Override
+	protected void setupDefaultActionBar(boolean firstInflation)
+	{
+		super.setupDefaultActionBar(firstInflation);
+		if (!configuration.isViewProfileEnabled())
+		{
+			View contactInfoContainer = mActionBarView.findViewById(R.id.contactinfocontainer);
+			contactInfoContainer.setClickable(false);
 		}
 	}
 

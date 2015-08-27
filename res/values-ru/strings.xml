@@ -639,7 +639,7 @@
     <string name="protip_games">Игры</string>
     <string name="ftue_grid_string">Начните чат с одним из своих друзей.</string>
     <string name="remind">Напомнить</string>
-    <string name="ok">ОК</string>
+    <string name="OK">ОК</string>
     <string name="not_show_call_alert_msg">Больше не показывать</string>
     <string name="view_profile">Показать профиль</string>
     <string name="normal_update_head">Доступно важное обновление</string>
@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">Чтобы подмигнуть друзьям, нажмите дважды</string>
     <string name="addedYouAsFavorite">добавил(а) пользователя %1$s в избранное</string>
     <string name="addedYouFrindDescription"><![CDATA[
- Вы открыли пользователю %1$s доступ к сведениям о своем <font color="#ef554e">последнем появлении в сети</font> и <font color="#0f8fe1">обновлениям статуса</font>. Попросить его сделать то же самое?
+ Вы открыли пользователю %1$s доступ к сведениям о своем <font color="#ef554e">последнем появлении в сети</font> и <font color="#1da8e8">обновлениям статуса</font>. Попросить его сделать то же самое?
 	    
     ]]></string>
     <string name="contacts_upper_case">КОНТАКТЫ</string>
@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">В онлайн:</string>
     <string name="status_updates_proper_casing">Обнов. состоян</string>
     <string name="bigger_better_attachments">Вложения большего объема</string>
-    <string name="alp_42447968_cmd_confirm">Подтв.</string>
-    <string name="alp_42447968_cmd_continue">Продолжить</string>
+    <string name="CONFIRM">ПОДТВ.</string>
+    <string name="CONTINUE">ПРОДОЛЖИТЬ</string>
     <string name="alp_42447968_cmd_forgot_pattern">Забыли рисунок?</string>
-    <string name="alp_42447968_cmd_retry">Повторить</string>
     <string name="alp_42447968_loading">Загрузка...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Сотовый добавлен</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Рисунок стерт</string>
@@ -900,7 +899,6 @@
     <string name="vib_default_key">По умолчанию</string>
     <string name="vib_short_key">Короткий</string>
     <string name="vib_long_key">Длинный</string>
-    <string name="delete_account_heading">ПРИ УДАЛЕНИИ ВАШЕЙ УЧЕТНОЙ ЗАПИСИ </string>
     <string name="chat_unmarked_stealth_first">Вы пометили чат как видимый. Теперь он будет виден всем, кто откроет hike.</string>
     <string name="tickSoundTitle">Сигналы разговоров</string>
     <string name="tickSoundSummary">Воспроизводить мелодию при входящих и исходящих сообщениях</string>
@@ -923,8 +921,6 @@
     <string name="delete_account_msg">Удаление моей учетной записи hike.</string>
     <string name="unlink_confirmation">Действительно сбросить настройки вашей учетной записи?</string>
     <string name="unlinking_account">Выполняется сброс… </string>
-    <string name="delete_confirm_msg_1">При этом будут удалены все ваши сообщения и призы hike, а также обнулен баланс бесплатных SMS.</string>
-    <string name="delete_confirm_msg_2">Продолжить? (Это действие необратимо.)</string>
     <string name="shortcut">Добавить ярлык разговора</string>
     <string name="add_to_contacts">Добавить в контакты</string>
     <string name="delete_leave">Удалить и выйти из группы</string>
@@ -1197,12 +1193,11 @@
     <string name="sticker_shop">Магазин стикеров</string>
     <string name="my_stickers">Мои стикеры</string>
     <string name="update_all">ОБНОВИТЬ ВСЕ</string>
-    <string name="retry_sticker">ПОВТОРИТЬ</string>
+    <string name="RETRY">ПОВТОРИТЬ</string>
     <string name="see_them">ГОТОВО</string>
     <string name="drag_tip_text">Коснитесь и удержите, чтобы перегруппировать свои наборы стикеров</string>
     <string name="drag_tip_subtext">Коснитесь и перетащите, чтобы поменять стикеры местами</string>
-    <string name="sticker_cancel">ОТМЕНА</string>
-    <string name="sticker_confirm">ПОДТВЕРДИТЬ</string>
+    <string name="CANCEL">ОТМЕНА</string>
     <string name="n_more">ЕЩЕ %1$d</string>
     <string name="n_stickers">%1$d стик.</string>
     <string name="last_backup">Последняя резервная копия</string>
@@ -1250,12 +1245,10 @@
     <string name="action_settings">Настройки</string>
     <string name="creating_backup_message">Создание резервной копии вашей учетной записи. Резервное копирование происходит ежедневно в 3:00 AM</string>
     <string name="restore">Восстановить</string>
-    <string name="delete_account_description">удалить все ваши сообщения, резервные копии, бесплатные SMS и бонусы hike</string>
     <string name="auth_connected_to_hike">Пользователь %1$s присоединился к hike!</string>
     <string name="auth_state_connecting">Подключение...</string>
     <string name="auth_please_wait_connect">Подождите, пока мы подключаем вас...</string>
     <string name="auth_done">ГОТОВО</string>
-    <string name="auth_cancel">Отмена</string>
     <string name="auth_retry">Повторить</string>
     <string name="auth_went_wrong">Произошла ошибка.</string>
     <string name="install_text">БЕСПЛАТНАЯ УСТАНОВКА</string>

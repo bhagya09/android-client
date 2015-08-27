@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -20,19 +21,22 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
-import com.bsb.hike.media.StickerPickerListener;
+import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.ui.colorspan.ColorSpanPool;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import static com.bsb.hike.modules.stickersearch.StickerSearchConstants.*;
 
@@ -40,9 +44,11 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 {
 	public static final String TAG = StickerTagWatcher.class.getSimpleName();
 
+	private static int MAXIMUM_SEARCH_TEXT_BROKER_LIMIT;
+
 	private HikeAppStateBaseFragmentActivity activity;
 
-	private StickerPickerListener stickerPickerListener;
+	private IStickerPickerRecommendationListener stickerPickerListener;
 
 	private ChatThread chatthread;
 
@@ -56,23 +62,31 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	private Fragment fragment;
 
+	private Fragment fragmentFtue;
+
 	private int count;
 
 	private ColorSpanPool colorSpanPool;
-	
+
 	private boolean shownStickerRecommendFtueTip;
+
+	private boolean shownStickerRecommendFtue;
 
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
 		Logger.i(TAG, "Initialising sticker tag watcher...");
 
+		MAXIMUM_SEARCH_TEXT_BROKER_LIMIT = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER,
+				StickerSearchConstants.MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
+
 		this.activity = activity;
 		this.editText = editText;
 		this.color = color;
 		this.chatthread = chathread;
-		this.stickerPickerListener = (StickerPickerListener) chathread;
+		this.stickerPickerListener = (IStickerPickerRecommendationListener) chathread;
 		this.colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
+		this.shownStickerRecommendFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, false);
 		this.shownStickerRecommendFtueTip = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
@@ -87,6 +101,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
 		Logger.i(TAG, "onTextChanged(), " + "CharSequence: " + s + ", [start: " + start + ", before : " + before + ", count : " + count + "]");
+
 		StickerSearchManager.getInstance().onTextChanged(s, start, before, count);
 		colorSpanPool.unMarkAll();
 	}
@@ -95,13 +110,20 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void afterTextChanged(Editable editable)
 	{
 		this.editable = editable;
-		Logger.i(TAG, "afterTextChanged(), " + "string: " + editable);
+		Logger.i(TAG, "afterTextChanged(), current text: " + editable);
 	}
 
 	@Override
 	public void highlightText(int start, int end)
 	{
 		Logger.d(TAG, "highlightText [" + " start : " + start + ", end : " + end + "]");
+
+		if (editable == null)
+		{
+			Logger.wtf(TAG, "highlightText [" + start + " - " + end + "]");
+			return;
+		}
+
 		if (end > editable.length())
 		{
 			end = editable.length();
@@ -110,8 +132,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 		if (end > start)
 		{
-			removeAttachedSpans(start, end);
-			editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			try
+			{
+				removeAttachedSpans(start, end);
+				editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+			catch (Exception e)
+			{
+				Logger.e(TAG, "Error while executing highlight spanning !!!", e);
+			}
 		}
 	}
 
@@ -119,16 +148,30 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public void unHighlightText(int start, int end)
 	{
 		Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
-		if ((end > editable.length()) || (end > StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT))
+
+		if (editable == null)
 		{
-			end = Math.min(editable.length(), StickerSearchConstants.SEARCH_MAX_BROKER_LIMIT);
+			Logger.wtf(TAG, "unHighlightText [" + start + " - " + end + "]");
+			return;
+		}
+
+		if ((end > editable.length()) || (end > MAXIMUM_SEARCH_TEXT_BROKER_LIMIT))
+		{
+			end = Math.min(editable.length(), MAXIMUM_SEARCH_TEXT_BROKER_LIMIT);
 			Logger.d(TAG, "unHighlightText [" + " start : " + start + ", end : " + end + "]");
 		}
 
 		if (end > start)
 		{
-			removeAttachedSpans(start, end);
-			editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			try
+			{
+				removeAttachedSpans(start, end);
+				editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+			catch (Exception e)
+			{
+				Logger.e(TAG, "Error while executing unhighlight spanning !!!", e);
+			}
 		}
 	}
 
@@ -166,20 +209,19 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			@Override
 			public void run()
 			{
-				if (stickerList == null || stickerList.size() == 0 || !chatthread.isKeyboardOpen() || isStickerRecommnedPoupShowing())
+				if (Utils.isEmpty(stickerList) || !chatthread.isKeyboardOpen())
 				{
-					Logger.d(
-							TAG,
-							"showStickerSearchPopup(), No sticker list or popup is already shown: " + isStickerRecommnedPoupShowing() + ", isKeyboardOpen(): "
-									+ chatthread.isKeyboardOpen());
+					Logger.d(TAG, "showStickerSearchPopup(), No sticker list or isKeyboardOpen(): " + chatthread.isKeyboardOpen());
 					return;
 				}
 
-				Logger.d(TAG, "showStickerSearchPopup() is called: " + stickerList);
+				Logger.d(TAG, "showStickerSearchPopup(), stickerList: " + stickerList);
+
+				FragmentManager fm = activity.getSupportFragmentManager();
 
 				if (stickerRecommendView == null)
 				{
-					Logger.i(StickerTagWatcher.TAG, "sticker recommend view is null, initialising ..");
+					Logger.i(StickerTagWatcher.TAG, "sticker recommend view is null, initialising...");
 
 					stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
 					android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
@@ -189,16 +231,61 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 					Logger.i(StickerTagWatcher.TAG, "initialising fragment");
 
+					removeFragment(fm.findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG));
+					removeFragment(fm.findFragmentByTag(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG));
+
 					fragment = StickerRecommendationFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
-					activity.getSupportFragmentManager().beginTransaction()
-							.replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG).commitAllowingStateLoss();
+					fm.beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG).commitAllowingStateLoss();
+					fm.executePendingTransactions();
 				}
 
-				((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, stickerList);
+				dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+				dismissTip(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP);
 				stickerRecommendView.setVisibility(View.VISIBLE);
-				showFtueAnimation();
+
+				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
+
+				if (shouldShowFtue(result)) // no available stickers present show ftue
+				{
+					if (fragmentFtue == null)
+					{
+						Logger.i(StickerTagWatcher.TAG, "initialising ftue fragment");
+
+						fragmentFtue = StickerRecommendationFtueFragment.newInstance(StickerTagWatcher.this, (ArrayList<Sticker>) stickerList);
+						fm.beginTransaction().add(R.id.sticker_recommendation_parent, fragmentFtue, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG)
+								.commitAllowingStateLoss();
+						fm.executePendingTransactions();
+					}
+
+					hideFragment(fragment);
+					showFragment(fragmentFtue);
+					((StickerRecommendationFtueFragment) fragmentFtue).setAndNotify(word, phrase, result.second);
+				}
+				else
+				// show only available stickers
+				{
+					hideFragment(fragmentFtue);
+					showFragment(fragment);
+
+					((StickerRecommendationFragment) fragment).setAndNotify(word, phrase, result.second);
+					showFtueAnimation();
+				}
 			}
 		});
+	}
+
+	private boolean shouldShowFtue(Pair<Boolean, List<Sticker>> result)
+	{
+		Logger.d(TAG, "result first : " + result.first);
+		if (fragmentFtue != null)
+			Logger.d(TAG, "is visible  : " + fragmentFtue.isVisible());
+		Logger.d(TAG, "shown ftue : " + shownStickerRecommendFtue);
+
+		if (!result.first || (fragmentFtue != null && fragmentFtue.isVisible() && !shownStickerRecommendFtue))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public void showFtueAnimation()
@@ -206,7 +293,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		if (count > 0)
 		{
 			stickerRecommendView.removeCallbacks(scrollRunnable);
-			stickerRecommendView.postDelayed(scrollRunnable, SCROLL_DELAY);
+			stickerRecommendView.postDelayed(scrollRunnable, WAIT_TIME_IN_FTUE_SCROLL);
 		}
 	}
 
@@ -216,7 +303,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		@Override
 		public void run()
 		{
-			if (isStickerRecommnedPoupShowing() && fragment != null)
+			if (isStickerRecommendationPopupShowing() && fragment != null)
 			{
 				boolean shown = ((StickerRecommendationFragment) fragment).showFtueAnimation();
 				if (shown)
@@ -239,11 +326,14 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				@Override
 				public void run()
 				{
+					Logger.i(TAG, "dismissStickerSearchPopup()");
+
 					if (stickerRecommendView != null)
 					{
-						Logger.i(TAG, "dismissStickerSearchPopup()");
 						stickerRecommendView.setVisibility(View.INVISIBLE);
 					}
+					hideFragment(fragment);
+					hideFragment(fragmentFtue);
 				}
 			});
 		}
@@ -257,60 +347,79 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	public boolean onTouch(View v, MotionEvent event)
 	{
 		Logger.i(TAG, "onTouch() called " + editText);
+
 		if ((editText == null) || (event.getAction() != MotionEvent.ACTION_DOWN))
 		{
 			return false;
 		}
 
 		int clickPosition = StickerSearchUtils.getOffsetForPosition(editText, event.getX(), event.getY());
-		StickerSearchManager.getInstance().onClickToSendSticker(clickPosition, true);
+		StickerSearchManager.getInstance().onClickToShowRecommendedStickers(clickPosition, true);
 		return false;
 	}
 
 	@Override
-	public void stickerSelected(String word, String phrase, Sticker sticker, int selectIndex, int size)
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, int size, String source, boolean dismissAndClear)
 	{
-		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectIndex + ")");
+		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + ")");
 
-		if (stickerPickerListener == null)
+		sendSticker(sticker, source, dismissAndClear);
+
+		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && StickerSearchManager.getInstance().isFromAutoRecommendation())
 		{
-			throw new IllegalStateException("sticker picker is null but sticker is selected");
+			StickerSearchManager.getInstance().resetOrStartFreshTrialForAutoPopupTurnOff(false);
 		}
 
-		StickerManager.getInstance().addRecentStickerToPallete(sticker);
-		stickerPickerListener.stickerSelected(sticker, (StickerSearchManager.getInstance().getFirstContinuousMatchFound() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
-				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL));
-
-		/*
-		 * dismiss sticker search popup
-		 */
-		dismissStickerSearchPopup();
-
-		/*
-		 * if its first word or first phrase clear edit text
-		 */
-		if (StickerSearchManager.getInstance().getFirstContinuousMatchFound())
+		if (dismissAndClear)
 		{
-			clearSearchText();
-		}
-		else
-		// select complete text
-		{
-			selectSearchText();
-		}
-		
-		//send Analytics
-		StickerManager.getInstance().sendRecommendationSelectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), sticker.getStickerId(), sticker.getCategoryId(), selectIndex + 1, size, StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
+			/*
+			 * dismiss sticker search pop-up
+			 */
+			dismissStickerSearchPopup();
 
+			/*
+			 * if sticker is selected from pop-up due to other than first word/ phrase, then clear all the text
+			 */
+			if (StickerSearchManager.getInstance().getFirstContinuousMatchFound())
+			{
+				clearSearchText();
+			}
+			/*
+			 * if sticker is selected from pop-up due to other than first word/ phrase, then select all the text
+			 */
+			else
+			{
+				selectSearchText();
+			}
+		}
+
+		// Send analytics
+		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), size,
+				StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
 	}
 
 	@Override
-	public void onCloseClicked(String word, String phrase)
+	public void onCloseClicked(String word, String phrase, boolean ftue)
 	{
 		dismissStickerSearchPopup();
-		
-		//send Analyics
-		StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_CROSS, word, phrase);
+
+		// Send analytics
+		if (ftue && (fragmentFtue != null))
+		{
+			StickerRecommendationFtueFragment stickerRecommendationFtueFragment = (StickerRecommendationFtueFragment) fragmentFtue;
+			StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), StickerManager.REJECT_FROM_CROSS, word,
+					phrase);
+		}
+		else
+		{
+			StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().isFromAutoRecommendation(), StickerManager.REJECT_FROM_CROSS,
+					word, phrase);
+		}
+
+		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && StickerSearchManager.getInstance().isFromAutoRecommendation())
+		{
+			StickerSearchManager.getInstance().checkToTakeActionOnAutoPopupTurnOff();
+		}
 	}
 
 	@Override
@@ -319,11 +428,11 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		IntentFactory.openSettingChat(activity);
 		StickerManager.getInstance().sendRecommendationPanelSettingsButtonClickAnalytics();
 	}
-	
+
 	@Override
 	public void showStickerRecommendFtueTip()
 	{
-		if(!shownStickerRecommendFtueTip && chatthread.isKeyboardOpen())
+		if (!shownStickerRecommendFtueTip && chatthread.isKeyboardOpen())
 		{
 			Logger.d(TAG, "show recommend ftue tip");
 			chatthread.showStickerRecommendTip();
@@ -331,20 +440,30 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 	
 	@Override
-	public void setStickerRecommendFtueSeen()
+	public void showStickerRecommendAutoPopupOffTip()
 	{
-		if(chatthread.isKeyboardOpen())
+		if (chatthread.isKeyboardOpen())
 		{
-			Logger.d(TAG, "set recommend ftue tip seen");
-			chatthread.setStickerRecommendFtueTipSeen();
+			Logger.d(TAG, "show recommend ftue tip");
+			chatthread.showStickerRecommendAutopopupOffTip();
 		}
 	}
-	
+
 	@Override
-	public void dismissStickerRecommendFtueTip()
+	public void setTipSeen(int whichTip, boolean dismissIfVisible)
+	{
+		if (chatthread.isKeyboardOpen())
+		{
+			Logger.d(TAG, "set recommend ftue tip seen");
+			chatthread.setTipSeen(whichTip, dismissIfVisible);
+		}
+	}
+
+	@Override
+	public void dismissTip(int whichTip)
 	{
 		Logger.d(TAG, "dismiss recommend ftue tip");
-		chatthread.dismissStickerRecommendTip();
+		chatthread.dismissTip(whichTip);
 	}
 
 	@Override
@@ -359,33 +478,81 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		chatthread.selectAllComposeText();
 	}
 
-	public boolean isStickerRecommnedPoupShowing()
+	@Override
+	public void shownStickerRecommendFtue()
 	{
-		if (stickerRecommendView == null)
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, true);
+		shownStickerRecommendFtue = true;
+	}
+	
+	private void sendSticker(Sticker sticker, String source, boolean dismissAndClear)
+	{
+		if (stickerPickerListener == null)
 		{
-			return false;
+			Logger.wtf(TAG, "Sticker picker is null but sticker is selected.");
+			return;
 		}
-		return stickerRecommendView.getVisibility() == View.VISIBLE;
+
+		StickerManager.getInstance().addRecentStickerToPallete(sticker);
+		stickerPickerListener.stickerSelectedRecommedationPopup(sticker, source, dismissAndClear && StickerSearchManager.getInstance().getFirstContinuousMatchFound());
 	}
 
-	public void releaseResources()
+	public boolean isStickerRecommendationPopupShowing()
 	{
-		if ((activity != null) && (!activity.isDestroyed()) && (fragment != null))
+		return (stickerRecommendView != null) && (stickerRecommendView.getVisibility() == View.VISIBLE);
+	}
+
+	private void removeFragment(Fragment fragment)
+	{
+		if ((activity != null) && (fragment != null))
 		{
 			FragmentManager fragmentManager = activity.getSupportFragmentManager();
 			fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
 			fragmentManager.executePendingTransactions();
-
 		}
-
-		StickerSearchManager.getInstance().removeStickerSearchListener(this);
-		stickerRecommendView = null;
 		fragment = null;
+	}
+
+	private void hideFragment(Fragment fragment)
+	{
+		if ((activity != null) && (fragment != null))
+		{
+			FragmentManager fragmentManager = activity.getSupportFragmentManager();
+			fragmentManager.beginTransaction().hide(fragment).commitAllowingStateLoss();
+			fragmentManager.executePendingTransactions();
+		}
+		fragment = null;
+	}
+
+	private void showFragment(Fragment fragment)
+	{
+		if ((activity != null) && (fragment != null))
+		{
+			FragmentManager fragmentManager = activity.getSupportFragmentManager();
+			fragmentManager.beginTransaction().show(fragment).commitAllowingStateLoss();
+			fragmentManager.executePendingTransactions();
+		}
+		fragment = null;
+	}
+
+	public void releaseResources()
+	{
+		StickerSearchHostManager.getInstance().clearTransientResources();
+		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning())
+		{
+			StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(false);;
+		}
+		StickerSearchManager.getInstance().removeStickerSearchListener(this);
+
+		fragment = null;
+		fragmentFtue = null;
+
+		stickerRecommendView = null;
+		activity = null;
 
 		colorSpanPool.releaseResources();
 		colorSpanPool = null;
 		stickerPickerListener = null;
-		activity = null;
 	}
 
 	/**
@@ -400,14 +567,28 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			return true;
 		}
 	};
-	
-	public void sendIgnoreAnalytics()
+
+	public void markStickerRecommendationIgnoreAndSendAnalytics()
 	{
-		if(isStickerRecommnedPoupShowing() && fragment != null)
+		if (isStickerRecommendationPopupShowing())
 		{
-			StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().getFirstContinuousMatchFound(), StickerManager.REJECT_FROM_IGNORE, ((StickerRecommendationFragment) fragment).getTappedWord(), ((StickerRecommendationFragment) fragment).getTaggedPhrase());
+			if (fragmentFtue != null)
+			{
+				StickerRecommendationFtueFragment stickerRecommendationFtueFragment = (StickerRecommendationFtueFragment) fragmentFtue;
+				StickerManager.getInstance().sendRecommendationRejectionAnalyticsFtue(stickerRecommendationFtueFragment.isFtueScreen1Visible(), StickerManager.REJECT_FROM_IGNORE,
+						stickerRecommendationFtueFragment.getTappedWord(), stickerRecommendationFtueFragment.getTaggedPhrase());
+			}
+			else if (fragment != null)
+			{
+				StickerRecommendationFragment stickerRecommendationFragment = (StickerRecommendationFragment) fragment;
+				StickerManager.getInstance().sendRecommendationRejectionAnalytics(StickerSearchManager.getInstance().isFromAutoRecommendation(), StickerManager.REJECT_FROM_IGNORE,
+						stickerRecommendationFragment.getTappedWord(), stickerRecommendationFragment.getTaggedPhrase());
+			}
+
+			if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && StickerSearchManager.getInstance().isFromAutoRecommendation())
+			{
+				StickerSearchManager.getInstance().checkToTakeActionOnAutoPopupTurnOff();
+			}
 		}
 	}
-
-	
 }

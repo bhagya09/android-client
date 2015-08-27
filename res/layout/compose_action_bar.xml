@@ -41,16 +41,19 @@
         android:layout_marginTop="8dp"
         android:background="@color/transparent_white_ab"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_toLeftOf="@id/done_container" />
+        android:layout_toLeftOf="@id/done_container"
+        android:visibility="gone" />
     
     <ProgressBar
         android:id="@+id/loading_progress"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="17dp"
+        android:layout_height="17dp"
         android:layout_centerVertical="true"
         android:visibility="gone"
         android:layout_toLeftOf="@id/seprator"
-        android:layout_alignWithParentIfMissing="true" />
+        android:layout_marginRight="20dp"
+        android:layout_alignWithParentIfMissing="true"
+        android:indeterminateDrawable="@drawable/circular_double_spinner"/>
     <LinearLayout
         android:id="@+id/actionsView"
         android:layout_width="wrap_content"
@@ -67,7 +70,7 @@
             android:id="@+id/actionBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/btn_doodle_enable" />
+            android:src="@drawable/btn_wand" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -79,18 +82,13 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="fill_parent"
 	        android:background="@drawable/bg_overflow_menu_selector"
+	        android:clickable="false"
 	        android:gravity="center_vertical"
 	        android:orientation="horizontal"
-	        android:paddingRight="5dp" >
+	        android:paddingRight="5dp"
+	        android:paddingLeft="17dp" >
 	
-	        <ImageView
-	            android:id="@id/abs__up"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:paddingLeft="8dp"
-	            android:paddingRight="8dp"
-	            android:src="@drawable/ic_back" />
-	
+	    
 	        <LinearLayout
 	            android:layout_width="wrap_content"
 	            android:layout_height="match_parent"
@@ -110,8 +108,8 @@
 	                style="@style/ActionBarText"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:layout_marginBottom="@dimen/abs__action_bar_subtitle_bottom_margin"
-	                android:layout_marginTop="@dimen/abs__action_bar_subtitle_top_margin"
+	                android:layout_marginBottom="@dimen/ab__action_bar_subtitle_bottom_margin"
+	                android:layout_marginTop="@dimen/ab__action_bar_subtitle_top_margin"
 	                android:textSize="12sp"
 	                android:textStyle="normal"
 	                android:visibility="gone" />

@@ -26,7 +26,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategori
 public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
 
-	private static String TAG = "StickerTagDownloadTask";
+	private static String TAG = StickerTagDownloadTask.class.getSimpleName();
 
 	private static int requestStep = 0;
 
@@ -167,7 +167,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		JSONObject response = (JSONObject) result;
-		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.STICKER_DATA_UPDATE_TRIAL);
+		StickerSearchManager.getInstance().insertStickerTags(response, StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH);
 	}
 
 	@Override

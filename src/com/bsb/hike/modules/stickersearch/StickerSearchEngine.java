@@ -88,4 +88,16 @@ public class StickerSearchEngine
 			uiExecutor.executeDelayed(task, delayMillis);
 		}
 	}
+	
+	public void shutDown()
+	{
+		backgroundSearchExecuter.shutdown();
+		backgroundQueryExecuter.shutdown();
+		searchQueue.clear();
+		
+		uiExecutor = null;
+		backgroundSearchExecuter = null;
+		backgroundQueryExecuter = null;
+		searchQueue = null;
+	}
 }

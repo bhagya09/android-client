@@ -11,6 +11,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Utils;
 
@@ -24,7 +25,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	@Override
 	public String toString()
 	{
-		return name;
+		return "ContactInfo [name=" + name + ", msisdn=" + msisdn + "]";
 	}
 
 	private String name;
@@ -597,5 +598,12 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		return (this.getFavoriteType() == FavoriteType.NOT_FRIEND
 				|| this.getFavoriteType() == FavoriteType.REQUEST_SENT_REJECTED 
 				|| this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED);
+	}
+	
+
+	public void httpGetHikeJoinTime()
+	{
+		GetHikeJoinTimeTask getHikeJoinTimeTask = new GetHikeJoinTimeTask(msisdn);
+		getHikeJoinTimeTask.execute();
 	}
 }

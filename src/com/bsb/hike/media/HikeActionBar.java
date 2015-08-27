@@ -1,24 +1,24 @@
 package com.bsb.hike.media;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.media.OverFlowMenuLayout;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
-import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 
@@ -28,16 +28,26 @@ import com.bsb.hike.utils.Utils;
  * @generated
  */
 
-public class HikeActionBar
+public class HikeActionBar implements OverflowItemClickListener
 {
 
 	private HikeAppStateBaseFragmentActivity mActivity;
 
-	public OverFlowMenuLayout overFlowMenuLayout;
+	public OverFlowMenuLayout overFlowMenuLayoutPrimary;
+
+	public OverFlowMenuLayout overFlowMenuLayoutSecondary;
 	
 	private Menu mMenu;
 	
 	private boolean overflowMenIndicatorInUse = false;
+	
+	int layoutWidth;
+	int layoutHeight;
+	int layoutXOffset;
+	int layoutYOffset;
+	View layoutAnchor;
+	
+	OverflowItemClickListener overflowItemClickListener;
 
 	/**
 	 * @generated
@@ -52,7 +62,7 @@ public class HikeActionBar
 
 	public void onCreateOptionsMenu(Menu menu, int menuLayout)
 	{
-		MenuInflater menuInflater = mActivity.getSupportMenuInflater();
+		MenuInflater menuInflater = mActivity.getMenuInflater();
 		menuInflater.inflate(menuLayout, menu);
 		this.mMenu = menu;
 	}
@@ -65,12 +75,31 @@ public class HikeActionBar
 
 	private void onCreateOverflowMenu(List<OverFlowMenuItem> overflowItems, OverflowItemClickListener listener, OnDismissListener onDismissListener)
 	{
-		overFlowMenuLayout = new OverFlowMenuLayout(overflowItems, listener, onDismissListener, mActivity);
+		List<OverFlowMenuItem> overflowItemsSecondary = new ArrayList<OverFlowMenuItem>();
+		List<OverFlowMenuItem> overflowItemsPrimary = new ArrayList<OverFlowMenuItem>();
+		for (OverFlowMenuItem menuItem:overflowItems)
+		{
+			if (menuItem.secondary)
+				overflowItemsSecondary.add(menuItem);
+			else
+				overflowItemsPrimary.add(menuItem);
+		}
+		if (overflowItemsSecondary.isEmpty())
+		{
+			overFlowMenuLayoutPrimary = new OverFlowMenuLayout(overflowItems, this, onDismissListener, mActivity);
+		}
+		else
+		{
+			overflowItemsPrimary.add(new OverFlowMenuItem(mActivity.getString(R.string.more), 0, 0, R.string.more));
+			overFlowMenuLayoutPrimary = new OverFlowMenuLayout(overflowItemsPrimary, this, onDismissListener, mActivity);
+			overFlowMenuLayoutSecondary = new OverFlowMenuLayout(overflowItemsSecondary, this, onDismissListener, mActivity);
+		}
+		overflowItemClickListener = listener;
 	}
 
 	public boolean isOverflowMenuPopulated()
 	{
-		return overFlowMenuLayout != null;
+		return overFlowMenuLayoutPrimary != null;
 	}
 
 	public void onPreareOptionsMenu(Menu menu)
@@ -80,7 +109,9 @@ public class HikeActionBar
 
 	public void setOverflowViewListener(OverflowViewListener viewListener)
 	{
-		overFlowMenuLayout.setOverflowViewListener(viewListener);
+		overFlowMenuLayoutPrimary.setOverflowViewListener(viewListener);
+		if (overFlowMenuLayoutSecondary != null)
+			overFlowMenuLayoutSecondary.setOverflowViewListener(viewListener);
 	}
 
 	/**
@@ -108,6 +139,13 @@ public class HikeActionBar
 		View actionBarView = LayoutInflater.from(mActivity.getApplicationContext()).inflate(layoutResId, null);
 		
 		sherlockActionBar.setCustomView(actionBarView);
+		sherlockActionBar.setDisplayHomeAsUpEnabled(true);
+		sherlockActionBar.show(); //The action bar could be hidden due to other fragments using it. Hence calling a show here
+		//http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
+		//removing space on the left of action bar
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
+		
 		
 		return actionBarView;
 	}
@@ -123,16 +161,31 @@ public class HikeActionBar
 	}
 
 	/**
-	 * Returns the list of overflow menu items held by this ActionBar
+	 * Returns the list of primary overflow menu items held by this ActionBar
 	 * @return
 	 */
-	public List<OverFlowMenuItem> getOverFlowMenuItems()
+	public List<OverFlowMenuItem> getOverFlowMenuItemsPrimary()
 	{
-		if(overFlowMenuLayout != null)
+		if(overFlowMenuLayoutPrimary != null)
 		{
-			return overFlowMenuLayout.getOverFlowMenuItems(); 
+			return overFlowMenuLayoutPrimary.getOverFlowMenuItems(); 
 		}
-		
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns the list of secondary overflow menu items held by this ActionBar
+	 * @return
+	 */
+	public List<OverFlowMenuItem> getOverFlowMenuItemsSecondary()
+	{
+		if(overFlowMenuLayoutSecondary != null)
+		{
+			return overFlowMenuLayoutSecondary.getOverFlowMenuItems(); 
+		}
 		else
 		{
 			return null;
@@ -144,9 +197,33 @@ public class HikeActionBar
 		/**
 		 * Getting an NPE at times here. This can be null only in case where onCreateOptionsMenu is yet to be called though it shouldn't happen. It's a defensive check
 		 */
-		if (overFlowMenuLayout != null)
+		if (overFlowMenuLayoutPrimary != null)
 		{	
-			overFlowMenuLayout.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
+			overFlowMenuLayoutPrimary.initView();
+			overFlowMenuLayoutPrimary.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		}
+		
+		layoutWidth = width;
+		layoutHeight = height;
+		layoutXOffset = xOffset;
+		layoutYOffset = yOffset;
+		layoutAnchor = anchor;
+	}
+
+	private void showSecondaryOverflowMenu()
+	{
+		showSecondaryOverflowMenu(layoutWidth, layoutHeight, layoutXOffset, layoutYOffset, layoutAnchor);
+	}
+
+	private void showSecondaryOverflowMenu(int width, int height, int xOffset, int yOffset, View anchor)
+	{
+		/**
+		 * Getting an NPE at times here. This can be null only in case where onCreateOptionsMenu is yet to be called though it shouldn't happen. It's a defensive check
+		 */
+		if (overFlowMenuLayoutSecondary != null)
+		{	
+			overFlowMenuLayoutSecondary.initView();
+			overFlowMenuLayoutSecondary.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
 	}
 	
@@ -176,9 +253,13 @@ public class HikeActionBar
 	 */
 	public void updateOverflowMenuItemCount(int itemId, int newCount)
 	{
-		if(overFlowMenuLayout!=null)
+		if(overFlowMenuLayoutPrimary!=null)
 		{
-			overFlowMenuLayout.updateOverflowMenuItemCount(itemId, newCount);
+			overFlowMenuLayoutPrimary.updateOverflowMenuItemCount(itemId, newCount);
+		}
+		if(overFlowMenuLayoutSecondary!=null)
+		{
+			overFlowMenuLayoutSecondary.updateOverflowMenuItemCount(itemId, newCount);
 		}
 	}
 	
@@ -190,9 +271,13 @@ public class HikeActionBar
 	 */
 	public void updateOverflowMenuItemString(int itemId, String newTitle)
 	{
-		if(overFlowMenuLayout!=null)
+		if(overFlowMenuLayoutPrimary!=null)
 		{
-			overFlowMenuLayout.updateOverflowMenuItemString(itemId, newTitle);
+			overFlowMenuLayoutPrimary.updateOverflowMenuItemString(itemId, newTitle);
+		}
+		if(overFlowMenuLayoutSecondary!=null)
+		{
+			overFlowMenuLayoutSecondary.updateOverflowMenuItemString(itemId, newTitle);
 		}
 	}
 	
@@ -204,9 +289,13 @@ public class HikeActionBar
 	 */
 	public void updateOverflowMenuItemActiveState(int itemId, boolean enabled)
 	{
-		if(overFlowMenuLayout!=null)
+		if(overFlowMenuLayoutPrimary!=null)
 		{
-			overFlowMenuLayout.updateOverflowMenuItemActiveState(itemId, enabled, true);
+			overFlowMenuLayoutPrimary.updateOverflowMenuItemActiveState(itemId, enabled, true);
+		}
+		if(overFlowMenuLayoutSecondary!=null)
+		{
+			overFlowMenuLayoutSecondary.updateOverflowMenuItemActiveState(itemId, enabled, true);
 		}
 	}
 
@@ -218,9 +307,13 @@ public class HikeActionBar
 	 */
 	public void updateOverflowMenuItemIcon(int itemId, int drawableId)
 	{
-		if(overFlowMenuLayout!=null)
+		if(overFlowMenuLayoutPrimary!=null)
 		{
-			overFlowMenuLayout.updateOverflowMenuItemIcon(itemId, drawableId);
+			overFlowMenuLayoutPrimary.updateOverflowMenuItemIcon(itemId, drawableId);
+		}
+		if(overFlowMenuLayoutSecondary!=null)
+		{
+			overFlowMenuLayoutSecondary.updateOverflowMenuItemIcon(itemId, drawableId);
 		}
 	}
 
@@ -239,10 +332,10 @@ public class HikeActionBar
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
-		if (menuItem != null && menuItem.getActionView() != null)
+		if (menuItem != null && MenuItemCompat.getActionView(menuItem) != null)
 		{
-			ImageView topBarIndiImage = (ImageView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_img);
-			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+			ImageView topBarIndiImage = (ImageView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_img);
+			TextView topBarCounter = (TextView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_text);
 
 			if (imadeResId != 0 && topBarCounter.getVisibility() != View.VISIBLE)
 			{
@@ -279,9 +372,9 @@ public class HikeActionBar
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
-		if (menuItem != null && menuItem.getActionView() != null)
+		if (menuItem != null && MenuItemCompat.getActionView(menuItem) != null)
 		{
-			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+			TextView topBarCounter = (TextView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_text);
 
 			if (newCount < 1)
 			{
@@ -318,26 +411,39 @@ public class HikeActionBar
 
 	public void removeItemIfExists(int id)
 	{
-		if (overFlowMenuLayout != null)
+		if (overFlowMenuLayoutPrimary != null)
 		{
-			overFlowMenuLayout.removeItem(id);
+			overFlowMenuLayoutPrimary.removeItem(id);
+		}
+		if (overFlowMenuLayoutSecondary != null)
+		{
+			overFlowMenuLayoutSecondary.removeItem(id);
 		}
 	}
 
 	public void releseResources()
 	{
-		if (overFlowMenuLayout != null)
+		if (overFlowMenuLayoutPrimary != null)
 		{
-			overFlowMenuLayout.releaseResources();
-			overFlowMenuLayout = null;
+			overFlowMenuLayoutPrimary.releaseResources();
+			overFlowMenuLayoutPrimary = null;
+		}
+		if (overFlowMenuLayoutSecondary != null)
+		{
+			overFlowMenuLayoutSecondary.releaseResources();
+			overFlowMenuLayoutSecondary = null;
 		}
 	}
 	
 	public boolean isOverflowMenuShowing()
 	{
-		if (overFlowMenuLayout != null)
+		if (overFlowMenuLayoutPrimary != null && overFlowMenuLayoutPrimary.isShowing())
 		{
-			return overFlowMenuLayout.isShowing();
+			return true;
+		}
+		if (overFlowMenuLayoutSecondary != null && overFlowMenuLayoutSecondary.isShowing())
+		{
+			return true;
 		}
 		
 		return false;
@@ -345,9 +451,13 @@ public class HikeActionBar
 
 	public void dismissOverflowMenu()
 	{
-		if (overFlowMenuLayout != null)
+		if (overFlowMenuLayoutPrimary != null)
 		{
-			overFlowMenuLayout.dismiss();
+			overFlowMenuLayoutPrimary.dismiss();
+		}
+		if (overFlowMenuLayoutSecondary != null)
+		{
+			overFlowMenuLayoutSecondary.dismiss();
 		}
 	}
 
@@ -361,9 +471,13 @@ public class HikeActionBar
 	 */
 	public void setShouldAvoidDismissOnClick(boolean shouldAvoidDismissOnClick)
 	{
-		if (overFlowMenuLayout != null)
+		if (overFlowMenuLayoutPrimary != null)
 		{
-			overFlowMenuLayout.setShouldAvoidDismissOnClick(shouldAvoidDismissOnClick);
+			overFlowMenuLayoutPrimary.setShouldAvoidDismissOnClick(shouldAvoidDismissOnClick);
+		}
+		if (overFlowMenuLayoutSecondary != null)
+		{
+			overFlowMenuLayoutSecondary.setShouldAvoidDismissOnClick(shouldAvoidDismissOnClick);
 		}
 	}
 	
@@ -374,9 +488,28 @@ public class HikeActionBar
 	 */
 	public void refreshOverflowMenuItem(OverFlowMenuItem item)
 	{
-		if (overFlowMenuLayout != null)
+		if (overFlowMenuLayoutPrimary != null)
 		{
-			overFlowMenuLayout.refreshOverflowMenuItm(item);
+			overFlowMenuLayoutPrimary.refreshOverflowMenuItm(item);
 		}
+		if (overFlowMenuLayoutSecondary != null)
+		{
+			overFlowMenuLayoutSecondary.refreshOverflowMenuItm(item);
+		}
+	}
+
+	@Override
+	public void itemClicked(OverFlowMenuItem item)
+	{
+		if (item.id == R.string.more)
+		{
+			dismissOverflowMenu();
+			showSecondaryOverflowMenu();
+		}
+		else
+		{
+			overflowItemClickListener.itemClicked(item);
+		}
+		
 	}
 }

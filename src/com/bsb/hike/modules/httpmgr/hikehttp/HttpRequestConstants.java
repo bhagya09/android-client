@@ -15,15 +15,15 @@ public class HttpRequestConstants
 
 	private static final String HTTPS = "https://";
 
-	private static final String PRODUCTION_API = "api.im.hike.in";
+	public static final String PRODUCTION_API = "api.im.hike.in";
 
-	private static final String STAGING_API = "staging.im.hike.in";
+	public static final String STAGING_API = "staging.im.hike.in";
 
-	private static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
+	public static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
-	private static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
+	public static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
 	
-	private static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
+	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 		
 	public static final int PRODUCTION_PORT = 80;
 
@@ -307,10 +307,31 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
 	}
 	
+	public static String updateUnLoveLinkUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/unlove";
+	}
+	
+	public static String updateLoveLinkUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/love";
+	}
+	
+	public static String getActionsUpdateUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/love/get_counts_with_msisdn";
+	}
+	
+	public static String getPostImageSUUrl()
+	{
+		return BASE_URL + BASE_V1 + "/user/status-timeline";
+	}
+	
 	public static String signUpPinCallBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + "/pin-call";
 	}
+	
 	public static String getMorestickersUrl()
 	{
 		return BASE_URL+STICKER_SHARE_PATH ;

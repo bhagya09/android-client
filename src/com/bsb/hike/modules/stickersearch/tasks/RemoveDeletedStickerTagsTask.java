@@ -4,14 +4,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class RemoveDeletedStickerTagsTask implements Runnable 
 {
-
+	private static final String TAG = RemoveDeletedStickerTagsTask.class.getSimpleName();
+			
 	public RemoveDeletedStickerTagsTask()
 	{
 		
@@ -20,22 +25,36 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 	@Override
 	public void run()
 	{
-		List<StickerCategory> stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
-		Set<String> stickerSet = new HashSet<String>();
-		
-		for(StickerCategory stickerCategory : stickerCategories)
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || (Utils.getExternalStorageState() == ExternalStorageState.NONE)) // if there is no external storage do not delete any tags. In this case we dont show any recommendation
 		{
-			if(stickerCategory.isCustom())
+			Logger.d(TAG, "External storage state is none.");
+			return;
+		}
+		
+		List<StickerCategory> stickerCategories = StickerManager.getInstance().getAllStickerCategories();
+		Set<String> stickerSet = new HashSet<String>();
+
+		if (Utils.isEmpty(stickerCategories))
+		{
+			Logger.w(TAG, "Empty list of sticker categories");
+		}
+		else
+		{
+			for(StickerCategory stickerCategory : stickerCategories)
 			{
-				continue;
-			}
-			List<Sticker> stickerList  = stickerCategory.getStickerList();
-			
-			if(stickerList != null)
-			{
-				for(Sticker sticker : stickerList)
+				if(stickerCategory.isCustom())
 				{
-					stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+					continue;
+				}
+
+				List<Sticker> stickerList  = stickerCategory.getStickerList();
+				
+				if(!Utils.isEmpty(stickerList))
+				{
+					for(Sticker sticker : stickerList)
+					{
+						stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+					}
 				}
 			}
 		}

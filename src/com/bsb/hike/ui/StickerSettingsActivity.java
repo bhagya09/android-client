@@ -5,7 +5,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.R;
 import com.bsb.hike.productpopup.DialogPojo;
 import com.bsb.hike.productpopup.HikeDialogFragment;
@@ -37,23 +39,13 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = getLayoutInflater().inflate(R.layout.sticker_shop_action_bar, null);
-
-		View backContainer = actionBarView.findViewById(R.id.back);
 		View stickerSettingsBtn = actionBarView.findViewById(R.id.sticker_settings_btn);
 		stickerSettingsBtn.setVisibility(View.GONE);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.my_stickers);
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
-
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void setupSettingsFragment(Bundle savedInstanceState)

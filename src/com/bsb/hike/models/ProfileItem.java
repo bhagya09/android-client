@@ -3,6 +3,7 @@ package com.bsb.hike.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.PairModified;
 
 public abstract class ProfileItem
@@ -24,6 +25,10 @@ public abstract class ProfileItem
 	
 	public static final int GROUP_MEMBER = -9;
 	public static final int PHONE_NUMBER = -11;
+	
+	public static final int GROUP_SETTINGS = -12;
+	
+	public static final int GROUP_RIGHTS_INFO = -13;
 
 	private int itemId;
 	

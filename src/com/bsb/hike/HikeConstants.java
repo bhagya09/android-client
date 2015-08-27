@@ -4,7 +4,7 @@ import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Environment;
 
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 
 public class HikeConstants
 {
@@ -46,7 +46,13 @@ public class HikeConstants
 
 	public static final String SUB_TYPE = "st";
 	
+	public static final String SU_ID = "su_id";
+	
+	public static final String SU_ID_LIST = "su_ids";
+	
 	public static final String GROUP_CHAT_TIMESTAMP = "gts";
+	
+	public static final String GROUP_CREATOR = "c";
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -75,6 +81,16 @@ public class HikeConstants
 	public static final String NAME = "name";
 
 	public static final String MSISDN = "msisdn";
+	
+	public static final String ADMIN = "admin";
+	
+	public static final String ADMIN_MSISDN = "admin_msisdn";
+	
+	public static final String GROUP_SETTING = "gs";
+	
+	public static final String GROUP_TYPE = "gt";
+	
+	public static final String SETTING = "setting";
 
 	public static final String BOT_THUMBNAIL = "dp";
 
@@ -128,6 +144,8 @@ public class HikeConstants
 
 	public static final String ON_HIKE = "onhike";
 	
+	public static final String ROLE = "role";
+	
 	public static final String IS_BROADCAST = "isBroadcast";
 
 	public static final String DND = "dnd";
@@ -176,8 +194,6 @@ public class HikeConstants
 
 	public static final String SHOW_GAMES = "show_games";
 	
-	public static final String SHOW_BROADCAST = "show_broadcast";
-
 	public static final String GAMES = "games";
 
 	public static final String TALK_TIME = "tt";
@@ -211,6 +227,8 @@ public class HikeConstants
 	public static final String ONE_TO_ONE_CONVERSATION = "oc";
 
 	public static final String MUTED = "muted";
+	
+	public static final String GROUPS = "groups";
 
 	public static final String POST_AB = "postab";
 	
@@ -319,6 +337,8 @@ public class HikeConstants
 	public static final String PROTIP_TEXT = "t";
 
 	public static final String PROTIP_IMAGE_URL = "img";
+	
+	public static final String SU_IMAGE_KEY = "img";
 
 	public static final String PROTIP_WAIT_TIME = "wt";
 
@@ -454,10 +474,16 @@ public class HikeConstants
 		
 	public static final String DOUBLE_TAP_PREF = "doubleTapPref";
 	
-	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
-	
 	public static final String STICKER_REORDER_PREF = "stickerReOrderPref";
 
+	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
+	
+	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
+
+	public static final String STICKER_AUTO_RECOMMEND_SETTING_OFF_TIP = "sarsofft";
+
+	public static final String STICKER_RECOMMEND_AUTOPOPUP_PREF = "stickerRecommendAutopopupPref";
+	
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
 
 	public static final String RESET_STEALTH_PREF = "resetStealthPref";
@@ -491,6 +517,16 @@ public class HikeConstants
 	public static final String FILE_IMAGE_QUALITY = "img_quality";
 	
 	public static final String CAN_EDIT_DP = "canEditDP";
+	
+	public static final String SERVICE = "srv";
+	
+	public static final String CREATE = "crt";
+	
+	public static final String STICKEY_SERVICE = "stky";
+	
+	public static final String HIKE_SERVICE = "hike";
+	
+	
 	
 	public static final String HTTP_STATUS_ID = "?status_id=";
 	
@@ -593,8 +629,6 @@ public class HikeConstants
 
 	public static final String SHOW_TIMELINE_RED_DOT = "showTimelineRedDot";
 	
-	public static final String SHOW_NEW_BROADCAST_RED_DOT = "showBroadcastRedDot";
-	
 	public static final String IS_OF_ICON_CLICKED = "isOfIconClicked";
 
 	public static final String DONE = "Done";
@@ -626,6 +660,19 @@ public class HikeConstants
 	public static final String BROADCAST_ID_PREFIX = "b:";
 	
 	public static final String AVATAR = "avatar";
+	
+	public class InviteSection
+	{
+		public static final String INVITE_SECTION = "invite_section";
+
+		public static final String SHOW_EXTRA_INVITE_SECTION = "show_invite_section";
+
+		public static final String INVITE_SECTION_MAIN_TEXT = "invite_main_text";
+
+		public static final String INVITE_SECTION_BOTTOM_TEXT = "invite_bottom_text";
+
+		public static final String INVITE_SECTION_IMAGE = "invite_image";
+	}
 
 	/* Constant used to name the preference file which saves the drafts */
 	public static final String DRAFT_SETTING = "draftSetting";
@@ -1048,6 +1095,8 @@ public class HikeConstants
 	public static final String IMAGE_FRAGMENT_TAG = "imageFragmentTag";
 	
 	public static final String STICKER_RECOMMENDATION_FRAGMENT_TAG = "stickerRecommendationFragmentTag";
+	
+	public static final String STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG = "stickerRecommendationFragmentFtueTag";
 
 	public static final String SHOW_STEALTH_POPUP = "stlthrmd";
 
@@ -1058,12 +1107,18 @@ public class HikeConstants
 	public static final String HIKE_OFFLINE_NOTIFICATION_PREF = "hikeOfflineNotificationPref";
 
 	public static final String PIN = "pin";
+	
+	public static final String RIGHTS = "rights";
 
 	public static final String UNREAD_COUNT = "unreadCount";
 
 	public static final String TO_SHOW = "toShow";
-
+	
+	public static final String ADD_MEMBERS = "addMembers";
+	
 	public static final String PIN_DISPLAYED = "displayed";
+	public static final String STATUS_BAR_BLUE = "blue";
+	public static final String STATUS_BAR_TRANSPARENT = "transparent";
 
 	public static final int MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY = 51;
 
@@ -1102,6 +1157,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_ENABLED = "aec";
 
 	public static final String VOIP_CONFERENCING_ENABLED = "conf";
+
+	public static final String VOIP_GROUP_CALL_ENABLED = "gccall";
 
 	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
@@ -1177,6 +1234,8 @@ public class HikeConstants
 		public static final String NAME = "name";
 
 		public static final String PREV_MSISDN = "prevMsisdn";
+		
+		public static final String LOVED_BY_SELF = "selfLove";
 
 		public static final String PREV_NAME = "prevName";
 		
@@ -1379,7 +1438,7 @@ public class HikeConstants
 		public static final String CONTACT_METADATA = "contactMetadata";
 
 		public static final String FROM_CENTRAL_TIMELINE = "fromCentralTimeline";
-
+		
 		public static final String BLOCKED_LIST = "blockedList";
 
 		public static final String NUX1_NUMBERS = "nux1Numbers";
@@ -1415,6 +1474,8 @@ public class HikeConstants
 		public static final String EMOTICON_TYPE = "emoticonType";
 
 		public static final String CREATE_GROUP = "createGroup";
+		
+		public static final String CREATE_GROUP_SETTINGS = "createGroupSettings";
 		
 		public static final String CREATE_BROADCAST = "createBroadcast";
 		
@@ -1497,6 +1558,8 @@ public class HikeConstants
 		public static final String SELECTED_SHARABLE_MSGS_MIME_TYPE = "selectedCancelableMsgsMimeType";
 
 		public static final String FROM_NOTIFICATION = "fromNotification";
+		
+		public static final String OPEN_ACTIVITY_FEED = "openAcFeed";
 
 		public static final String LAST_STEALTH_POPUP_ID = "lastStealthPopupId";
 
@@ -1613,6 +1676,10 @@ public class HikeConstants
 		public static final String OKHTTP_WRITE_TIMEOUT = "okwto";
 
 		public static final String ENABLE_PHOTOS = "ph_en";
+		
+		public static final String STATUS_UPDATE_SHOW_COUNTS = "su_sc";
+		
+		public static final String STATUS_UPDATE_SHOW_LIKES = "su_sl";
 
 		public static final String FT_UPLOAD_SO_TIMEOUT = "ftsto";
 		
@@ -1631,6 +1698,18 @@ public class HikeConstants
 		public static final String LAST_MESSAGE_TIMESTAMP = "lastMessageTimeStamp";
 
 		public static final String ENABLE_SEND_LOGS = "ulogs_on";
+
+		public static final String NEW_GROUP = "newGroups";
+		
+		public static final String HAS_CUSTOM_ICON = "h_cus_icon";
+		
+		public static final String IS_PROFILE_PIC_DOWNLOAD = "is_profile_pic_download";
+		
+		public static final String BYTES = "bytes";
+	
+		public static final String DEL_SCR_FILE_ON_CALL_FAIL = "del_tmp_file_call_fail";
+		
+		public static final String DEL_PREV_MSISDN_PIC = "del_prev_msisdn_pic";
 	}
 
 	public static final class LogEvent
@@ -1926,14 +2005,22 @@ public class HikeConstants
 		public static final String STICKER_BTN_CLICKED = "sBnc";
 
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
+		
+		public static final String STKR_SHOP_BTN_CLICKED_FROM_RECOMMENDATION_FTUE = "ftshpck";
 
 		public static final String STICKER_SETTING_BTN_CLICKED = "stickerSettingBtnClicked";
 		
 		public static final String STICKER_RECOMMENDATION_PANEL_SETTINGS_BTN_CLICKED = "srps";
 		
-		public static final String STICKER_RECOMMENDATION_SETTING_STATE = "srSTs";
+		public static final String STICKER_RECOMMENDATION_MANUAL_SETTING_STATE = "srMTs";
+		
+		public static final String STICKER_RECOMMENDATION_AUTOPOPUP_SETTING_STATE = "srATs";
 		
 		public static final String STICKER_RECOMMENDATION_REJECTION_KEY = "srCrP";
+		
+		public static final String STICKER_RECOMMENDATION_FTUE1_REJECTION_KEY = "srCrFt1";
+		
+		public static final String STICKER_RECOMMENDATION_FTUE2_REJECTION_KEY = "srCrFt2";
 		
 		public static final String STICKER_RECOMMENDATION_SELECTION_KEY = "acID";
 		
@@ -2167,6 +2254,8 @@ public class HikeConstants
 		
 		public static final String PHOTOS_SEND_TO = "phSend";
 		
+		public static final String PHOTOS_UNABLE_TO_LOAD = "phImgNotLoad";
+		
 		
 		
 		//Broadcast
@@ -2193,6 +2282,46 @@ public class HikeConstants
 		public static final String SEND_DEVICE_DETAILS = "sendDeviceDetails";
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
+		
+		/**
+		 * Activity Feed 
+		 */
+		public static final String ACTIVITY_FEED_ACTIONBAR_CLICK = "tL_actf";
+		
+		public static final String ACTIVITY_FEED_ITEM_CLICKED = "tL_fdlst";
+		
+		public static final String FTUE_SHOW_ME_CLICKED = "tL_FTsM";
+		
+		public static final String FTUE_GOT_IT_CLICKED = "tL_GiT";
+
+		public static final String DPI = "dpi";
+		
+		/**
+		 * Timelnie
+		 */
+		public static final String TIMELINE_OPEN = "tLO";
+		
+		public static final String TIMELINE_WITH_RED_DOT = "wr";
+		
+		public static final String TIMELINE_SUMMARY_OPEN = "tL_OpUS";
+		
+		public static final String TIMELINE_SUMMARY_LIKES_DIALOG_OPEN = "tL_OpLc";
+		
+		public static final String TIMELINE_CARD_LONG_PRESS = "tL_LPclk";
+		
+		public static final String TIMELINE_LONG_PRESS_MESSAGE = "mu";
+		
+		public static final String TIMELINE_LONG_PRESS_DELETE = "du";
+		
+		public static final String TIMELINE_LONG_PRESS_COPY = "cu";
+		
+		public static final String TIMELINE_OVERFLOW_OPTIONS = "tL_ofLO";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_CLEAR = "clt";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_MY_PROFILE = "myp";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
 	}
 
@@ -2223,6 +2352,10 @@ public class HikeConstants
 		public static final String INVITE_INFO = "ii";
 
 		public static final String GROUP_CHAT_JOIN = "gcj";
+		
+		public static final String GROUP_ADMIN_UPDATE = "gaa";
+		
+		public static final String GROUP_SETTINGS_CHANGE = "gsc";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
 
@@ -2375,6 +2508,12 @@ public class HikeConstants
 		public static final String VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU = "e2";
 
 		/**
+		 * Trying to add a person on a VoIP conference who is on an older, 
+		 * unsupported build.  
+		 */
+		public static final String VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE = "e3";
+
+		/**
 		 * If you receive a packet of this subtype, it implies that the person you are calling is already on a call.
 		 */
 		public static final String VOIP_ERROR_ALREADY_IN_CALL = "mc";
@@ -2388,6 +2527,10 @@ public class HikeConstants
 		public static final String PRODUCT_POPUP="productpopup";
 		
 		public static final String SESSION = "sess";
+		
+		public static final String ACTIVITY_UPDATE = "ac_up";
+		
+		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 	}
 
 	public static final class SMSNative
@@ -2788,15 +2931,13 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
-		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 1240 * 1240;
-		
 		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
 		
 		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
 		
 		public static final int MAX_IMAGE_DIMEN = 1240;
 		
-		public static final String FROM_DP_UPLOAD = "from_dp_upload";
+		public static final String HOME_ON_BACK_PRESS = "from_dp_upload";
 		
 		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 80;
 	}
@@ -2815,9 +2956,9 @@ public class HikeConstants
 	
 	public static TypedArray DEFAULT_AVATAR_BG_COLOR_ARRAY = null;
 
-	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_01, R.drawable.avatar_02, R.drawable.avatar_03, R.drawable.avatar_04, R.drawable.avatar_05};
+	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_bubblegum, R.drawable.avatar_apricot, R.drawable.avatar_carnation, R.drawable.avatar_light_gold, R.drawable.avatar_sky_blue};
 
-	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
+	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_buggle_gum","avatar_apricot", "avatar_carnation", "avatar_light_gold", "avatar_sky_blue"};
 	
 	public static String IS_GROUP = "isGroup";
 	public static final String CAM_IMG_PREFIX = "CAM_";
@@ -2861,9 +3002,17 @@ public class HikeConstants
 		public static final int H2O = 10;
 
 		public static final int OTHER = 11;
-
+		
+		public static final int ACTIVITYUPDATE = 12;
+		
+		public static final int IMAGE_POST = 13;
 	}
-	
+	public static  class GROUPS_TYPE
+	{
+		public static final int OLD_GROUPS = 0;
+
+		public static final int MULTI_ADMIN = 1;
+	}
 	public static final  String NOTIFICATION_RETRY_JSON="notifretry";
 
 	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
@@ -2908,6 +3057,10 @@ public class HikeConstants
 
 	public static final String KEYBOARD_CONFIGURATION = "kc";
 
+	public static final int KEYBOARD_CONFIGURATION_OLD = 1;
+
+	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
+	
 	public static final String GET="get";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
@@ -2945,6 +3098,8 @@ public class HikeConstants
 	public static final String HTTP_EXCEPTION_LOGGING = "httpExc";
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
+	
+	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
 
@@ -2952,7 +3107,48 @@ public class HikeConstants
 
 	public static final String MESSAGING_PROD_AREA_LOGGING = "msgingLogs";
 
-	public static final String  SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	public static final String TAG_HEADLESS_IMAGE_DOWNLOAD_FRAGMENT = "headlessimage_down_fragment";
+	
+	public static final String TAG_HEADLESS_IMAGE_UPLOAD_FRAGMENT = "headlessimage_up_fragment";
+
+	public static final String SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
+	
+	public static final String IMAGE_PATHS = "image-paths";
+
+	public static final String ENABLE_TIMELINE_FTUE = "tl_ftue";
+	
+	public static final String HISTORICAL_UPDATE = "hsu";
+	
+	public static final String INIT_CARD_SHOWN = "timeline_ftue_init_card_shown";
+	
+	public static final String INIT_CARD_ON_TOP = "init_card_on_top";
+	
+	public static final String EXIT_CARD_ON_TOP = "exit_card_on_top";
+	
+	public static final String EXIT_CARD_SHOWN = "timeline_ftue_exit_card_shown";
+	
+	public static final String TIMELINE_FTUE_CARD_TO_SHOW_COUNTER = "timeline_ftue_card_to_show_counter";
+	
+	public static final String ANY_TIMELINE_FTUE_FAV_CLICKED = "any_tl_ftue_clicked";
+	
+	public static final String TIMELINE_FTUE_MSISDN_LIST = "tl_ftue_msdn_list";
+
+	public static final class SMS_SETTINGS
+	{
+		public static final String KEY_HIKE_OFFLINE = "hikeOffline";
+
+		public static final String KEY_RECEIVE_SMS_PREF = "receiveSmsPref";
+
+		public static final String FREE_SMS_PREF = "freeSmsPref";
+
+		public static final String KEY_EARN_FREE_SMS = "earnFreeSms";
+		
+		public static final String KEY_INVITE_VIA_SMS = "inviteViaSms";
+		
+		public static final String HIKE_HIKE = "hike_hike";
+		
+		public static final String FREE_HIKE_TO_SMS_INDIA = "freeHike2SMSIndia";
+	}
 	
 	public static final String  MODULE_STICKER_SEARCH = "stickersearch";
 	
@@ -2962,9 +3158,17 @@ public class HikeConstants
 
 	public static final String NOTIFICATIONS_PRIORITY = "npc";
 
+	public static final String SEND_TIMESTAMP = "c";
+
 	public static final String FT_HOST_IPS = "ftHostIps";
 	
+	public static final String HTTP_HOST_IPS = "httpHostIps";
+
+	public static final String HTTP_HOST_PLATFORM_IPS = "httpHostPlfIps";
+
 	public static final String SPECIAL_DAY_TRIGGER = "s_d_t";
+
+	public static final String DP_IMAGE_SIZE = "dp_img_s";
 	
 	public static class IntentAction
 	{
@@ -2983,4 +3187,37 @@ public class HikeConstants
 	public static final String STICKER_ID = "stkId";
 	
 	public static final String CATEGORY_ID = "catId";
+	
+	public static final String STICKER_RECOMMENDATION_ENABLED = "sre";
+	
+	public static final String STICKER_TAG_REFRESH_TIME = "strt";
+
+	public static final String STICKER_AUTO_RECOMMENDATION_ENABLED = "sare"; // boolean
+
+	public static final String STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF = "sarcrc"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF = "sarrpc"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW = "sarcrct"; // integer
+
+	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW = "sarrpct"; // integer
+
+	public static final String CHAT_SEARCH_ENABLED = "cts_e";
+
+	public static final String CALLBACK_ID ="callbackid";
+
+	public static final String DEVICE_DETAILS = "dd";
+	
+	public static final String DOWNLOAD_TAGS = "srdt";
+
+	public static final String EXTRAS_BOT_MSISDN = "extras_bot_msisdn";
+
+	public static final String REWARDS_BOT_MSISDN = "rewards_bot_msisdn";
+	
+	public static final String TIMELINE_LOGS = "tl_logs";
+	
+	public static final String TIMELINE_COUNT_LOGS = "tlc_logs";
+	
+	public static final String STICKER_SETTINGS = "stickerSettings";
+
 }

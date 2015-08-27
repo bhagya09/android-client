@@ -78,14 +78,7 @@ public final class HikeEffectsFactory
 				mScriptBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
 			}
 		}
-		catch (RSRuntimeException rre)
-		{
-			rre.printStackTrace();
-			fallback(rre);
-			finish();
-			return false;
-		}
-		catch (android.renderscript.RSRuntimeException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			fallback(e);
@@ -494,7 +487,7 @@ public final class HikeEffectsFactory
 		return sepiaMatrix;
 	}
 
-	// UI thread Handler object to make changes to the UI from a seperate threat
+	// UI thread Handler object to make changes to the UI from a seperate thread
 	private static Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	/**
@@ -570,9 +563,15 @@ public final class HikeEffectsFactory
 			catch (RSRuntimeException e)
 			{
 				e.printStackTrace();
-				Logger.e("Dimension Mismatch", "occured while applying : " + effect.toString());
+				error = true;
+				Logger.e("RS Exception", "occured while applying : " + effect.toString());
 			}
-
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				error = true;
+				Logger.e("Editor Exception", "occured while applying : " + effect.toString());
+			}
 			if (!error)
 			{
 				uiHandler.post(new Runnable()
@@ -592,6 +591,13 @@ public final class HikeEffectsFactory
 			int[] ro, ri, go, gi, bo, bi, ci, co;
 			Splines red, green, blue, composite;
 			Bitmap temp = null;
+			
+			if(mInAllocation == null || mOutAllocations == null)
+			{
+				error = true;
+				return;
+			}
+			
 			if (!blurImage)
 			{
 				mScript.set_input1(mBlendAllocation);
@@ -605,7 +611,7 @@ public final class HikeEffectsFactory
 				mScript.set_imageHeight(inBitmapOut.getHeight());
 				mScript.set_imageWidth(inBitmapOut.getWidth());
 			}
-
+			
 			switch (effect)
 			{
 			case CLASSIC:
