@@ -654,11 +654,11 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		}
 		removePostedMessages();
 		hideAndStopTimer();
+		showRetryIcon(R.drawable.cross_retry);
 		connectionInfo.setText(getResources().getString(R.string.retry_connection));
 		connectionInfo.setVisibility(View.VISIBLE);
 		frame.setVisibility(View.INVISIBLE);
-		secondMessage.setVisibility(View.INVISIBLE);
-		showRetryIcon(R.drawable.cross_retry);
+		secondMessage.setVisibility(View.INVISIBLE);	
 		cancelRotationAnimation();		
 		showRetryButton();
 		retryButton.setOnClickListener(new OnClickListener()
