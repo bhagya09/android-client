@@ -76,8 +76,6 @@ public enum StickerSearchDataController
 
 	public void setupStickerSearchWizard(JSONObject json, int state)
 	{
-		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
-
 		if (!Utils.isHoneycombOrHigher())
 		{
 			Logger.d(TAG, "setupStickerSearchWizard(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
@@ -497,7 +495,6 @@ public enum StickerSearchDataController
 				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, HikeStickerSearchBaseConstants.DECISION_STATE_YES) == HikeStickerSearchBaseConstants.DECISION_STATE_YES))
 		{
 			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
 
 			if (pendingRetrySet != null)
 			{
