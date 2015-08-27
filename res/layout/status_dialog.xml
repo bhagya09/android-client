@@ -60,6 +60,7 @@
                     android:inputType="text|textAutoCorrect|textCapSentences|textMultiLine|"
                     android:maxLines="5"
                     android:textColor="@color/list_item_header"
+                    android:maxLength="5000"
                     android:textColorHint="#44444444"
                     android:textSize="16sp"
                     android:textStyle="normal" >

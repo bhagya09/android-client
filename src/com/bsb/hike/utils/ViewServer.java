@@ -43,6 +43,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewDebug;
 
+import com.bsb.hike.AppConfig;
+
 /**
  * <p>This class can be used to enable the use of HierarchyViewer inside an
  * application. HierarchyViewer is an Android SDK tool that can be used
@@ -294,6 +296,12 @@ public class ViewServer implements Runnable {
      * @see #removeWindow(Activity)
      */
     public void addWindow(Activity activity) {
+    	
+    	if(!AppConfig.ALLOW_STAGING_TOGGLE)
+    	{
+    		return;
+    	}
+    	
         String name = activity.getTitle().toString();
         if (TextUtils.isEmpty(name)) {
             name = activity.getClass().getCanonicalName() +
@@ -325,6 +333,11 @@ public class ViewServer implements Runnable {
      * @see #removeWindow(View)
      */
     public void addWindow(View view, String name) {
+    	if(!AppConfig.ALLOW_STAGING_TOGGLE)
+    	{
+    		return;
+    	}
+    	
         mWindowsLock.writeLock().lock();
         try {
             mWindows.put(view.getRootView(), name);
@@ -453,6 +466,10 @@ public class ViewServer implements Runnable {
     }
     
     private void addWindowListener(WindowListener listener) {
+    	if(!AppConfig.ALLOW_STAGING_TOGGLE)
+    	{
+    		return;
+    	}
         if (!mListeners.contains(listener)) {
             mListeners.add(listener);
         }
