@@ -64,6 +64,8 @@ public class HikeConstants
 
 	public static final String MESSAGE_ID = "i";
 
+	public static final String EVENT_ID = "i";
+
 	public static final String METADATA = "md";
 
 	public static final String METADATA_DND = "dnd";
@@ -2527,12 +2529,24 @@ public class HikeConstants
 		public static final String PRODUCT_POPUP="productpopup";
 		
 		public static final String SESSION = "sess";
-		
+
+		public static final String GENERAL_EVENT_QOS_ONE = "ge1";
+
+		public static final String GENERAL_EVENT_QOS_ZERO = "ge0";
+
 		public static final String ACTIVITY_UPDATE = "ac_up";
-		
+
 		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 	}
 
+	public static final class GeneralEventMessagesTypes
+	{
+		public static final String OFFLINE = "off";
+
+		public static final String MESSAGE_EVENT = "me";
+	}
+
+	
 	public static final class SMSNative
 	{
 		/*
@@ -3220,4 +3234,5 @@ public class HikeConstants
 	
 	public static final String STICKER_SETTINGS = "stickerSettings";
 
+	public static final String PLATFORM_PACKET = "pt";
 }
