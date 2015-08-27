@@ -1,4 +1,4 @@
-package com.bsb.hike.tasks;
+package com.bsb.hike.gallery;
 
 import java.io.File;
 import java.io.FilenameFilter;
