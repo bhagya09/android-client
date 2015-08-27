@@ -103,5 +103,20 @@
      <style name="NoTitleBar" parent="Base.NoTitleBar">
          <item name="colorAccent">@color/white</item>
      </style>
+     
+     <style name="Widget.Styled.ActionBar.ShadowLess" parent="Widget.Styled.ActionBar">
+        <item name="android:elevation">0dp</item>
+        <item name="elevation">0dp</item>
+    </style>
     
+	 <style name="WebView.Theme.NoShadow" parent="WebView.Theme" >
+	      <item name="actionBarStyle">@style/Widget.Styled.ActionBar.ShadowLess</item>
+       	  <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar.ShadowLess</item>
+	</style>
+	
+	  <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme">
+	     <item name="actionBarStyle">@style/Widget.Styled.ActionBar.ShadowLess</item>
+       	  <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar.ShadowLess</item>
+	 </style>
+	
 </resources>

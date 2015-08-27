@@ -18,7 +18,6 @@ import android.graphics.drawable.Drawable;
 import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.WindowCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -52,6 +51,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -149,10 +149,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (filterNonMessagingBot(msisdn))
 			{
 				initBot();
-				if (botConfig.shouldOverlayActionBar())
-				{
-					getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
-				}
+				setMicroAppTheme();
 			}
 			
 			else
@@ -405,7 +402,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url)
 			{
-				if (url == null)
+				if (TextUtils.isEmpty(url))
 				{
 					return false;
 				}
@@ -687,16 +684,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		/**
 		 * If we don't have actionBar overlay, then we shouldn't show transparent color
 		 */
-		if (!botConfig.shouldOverlayActionBar() && color == R.color.transparent)
+		if (!botConfig.shouldShowTransparentActionBar() && color == R.color.transparent)
 		{
 			color = R.color.blue_hike;
 		}
 		
 		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		
-		int sbColor = botConfig.getStatusBarColor();
-		sbColor = (sbColor == -1 ) ? Color.parseColor(StatusBarColorChanger.DEFAULT_STATUS_BAR_COLOR) : sbColor;
-		StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
+		setMicroAppStatusBarColor();
 		
 		setAvatar();
 	}
@@ -1034,7 +1029,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		public boolean shouldOverrideUrlLoading(WebView view, String url)
 		{
 			Logger.i(tag, "url about to load " + url);
-			if (url == null)
+			if (TextUtils.isEmpty(url))
 			{
 				return false;
 			}
@@ -1080,8 +1075,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		if ((mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE) && botConfig != null)
 		{
-			if (botConfig.shouldOverlayActionBar())
+			if (botConfig.shouldOverlayStatusBar())
+				params.topMargin = ChatThreadUtils.getStatusBarHeight(getApplicationContext()) + getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_overlay);
+			
+			else if (botConfig.shouldOverlayActionBar())
 				params.topMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_overlay);
+			
 			else
 				params.topMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_non_overlay);
 		}
@@ -1093,5 +1092,55 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		anchor.setLayoutParams(params);
 	}
+	
+	/**
+	 * Should overlay status bar flag is given highest priority. If that is true, we do not respect the other flags like ShouldOverlayActionBar and DisableActionBarShadow
+	 */
+	private void setMicroAppTheme()
+	{
+
+		if (botConfig.shouldOverlayStatusBar())
+		{
+			setTheme(R.style.WebView_Theme_TranslucentStatusBar);
+		}
+
+		else
+		{
+			if (botConfig.shouldOverlayActionBar())
+			{
+				if (botConfig.disableActionBarShadow())
+				{
+					setTheme(R.style.WebView_Theme_ActionBar_Overlay_NoShadow);
+				}
+
+				else
+				{
+					setTheme(R.style.WebView_Theme_ActionBar_Overlay);
+				}
+			}
+
+			else if (botConfig.disableActionBarShadow())
+			{
+				setTheme(R.style.WebView_Theme_NoShadow);
+			}
+		}
+	}
+	
+	/**
+	 * Utility method to set the status bar color of the micro-app
+	 */
+	private void setMicroAppStatusBarColor()
+	{
+		//We have translucent status bar by default in this case
+		if (botConfig.shouldOverlayStatusBar())
+		{
+			return;
+		}
+		
+		int sbColor = botConfig.getStatusBarColor();
+		sbColor = (sbColor == -1 ) ? Color.parseColor(StatusBarColorChanger.DEFAULT_STATUS_BAR_COLOR) : sbColor;
+		StatusBarColorChanger.setStatusBarColor(getWindow(), sbColor);
+	}
+
 
 }
