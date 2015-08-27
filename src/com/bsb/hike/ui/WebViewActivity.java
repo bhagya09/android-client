@@ -3,6 +3,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.net.ParseException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -291,7 +292,23 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void handleURLBotMode()
 	{
 		webView.loadUrl(botMetaData.getUrl());
-		webView.setWebViewClient(new HikeWebViewClient());
+		webView.setWebViewClient(new HikeWebViewClient()
+		{
+			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				super.onPageFinished(view, url);
+				bar.setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				bar.setProgress(0);
+				bar.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
+		});
 		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
 	}
 
@@ -310,6 +327,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		WebViewClient mClient = new HikeWebViewClient()
 		{
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				bar.setProgress(0);
+				bar.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
 			@Override
 			public void onPageFinished(WebView view, String url)
 			{
@@ -318,7 +343,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					Logger.i(tag, "loading js injection");
 					view.loadUrl("javascript:" + js);
 				}
-
+				bar.setVisibility(View.INVISIBLE);
 				super.onPageFinished(view, url);
 			}
 		};
@@ -370,6 +395,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		loadMicroApp();
 		checkAndBlockOrientation();
 		resetNotificationCounter();
+		webView.setWebViewClient(new HikeWebViewClient());
 	}
 
 	private void initMsisdn()
@@ -393,48 +419,25 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 
 			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				super.onPageFinished(view, url);
+				bar.setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				bar.setProgress(0);
+				bar.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
+
+			@Override
 			public WebResourceResponse shouldInterceptRequest(WebView view, String url)
 			{
 				// TODO Auto-generated method stub
 				return super.shouldInterceptRequest(view, url);
-			}
-
-			@Override
-			public boolean shouldOverrideUrlLoading(WebView view, String url)
-			{
-				if (TextUtils.isEmpty(url))
-				{
-					return false;
-				}
-				if (url.startsWith("mailto:"))
-				{
-					MailTo mt = MailTo.parse(url);
-					Intent i = newEmailIntent(WebViewActivity.this, mt.getTo(), mt.getSubject(), mt.getBody(), mt.getCc());
-					startActivity(i);
-					view.reload();
-				}
-				else if (url.toLowerCase().endsWith("hike.in/rewards/invite"))
-				{
-					Intent i = new Intent(WebViewActivity.this, HikeListActivity.class);
-					startActivity(i);
-				}
-				else if (url.startsWith("market://") || url.contains("play.google.com/store/apps/details?id"))
-				{
-					try
-					{
-						view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-					}
-					catch (ActivityNotFoundException e)
-					{
-						Logger.w(getClass().getSimpleName(), e);
-						view.loadUrl(url);
-					}
-				}
-				else
-				{
-					handleURLLoadInWebView(view, url);
-				}
-				return true;
 			}
 		};
 		
@@ -1010,20 +1013,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private class HikeWebViewClient extends HikeWebClient
 	{
-		@Override
-		public void onPageFinished(WebView view, String url)
-		{
-			super.onPageFinished(view, url);
-			bar.setVisibility(View.INVISIBLE);
-		}
-
-		@Override
-		public void onPageStarted(WebView view, String url, Bitmap favicon)
-		{
-			bar.setProgress(0);
-			bar.setVisibility(View.VISIBLE);
-			super.onPageStarted(view, url, favicon);
-		}
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url)
@@ -1033,8 +1022,54 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				return false;
 			}
-			view.loadUrl(url);
+			if (url.startsWith("mailto:"))
+			{
+				try
+				{
+					MailTo mt = MailTo.parse(url);
+					Intent i = newEmailIntent(WebViewActivity.this, mt.getTo(), mt.getSubject(), mt.getBody(), mt.getCc());
+					startActivity(i);
+				}
+				catch (ParseException e)
+				{
+					e.printStackTrace();
+				}
+
+			}
+			else if (url.toLowerCase().endsWith("hike.in/rewards/invite"))
+			{
+				Intent i = new Intent(WebViewActivity.this, HikeListActivity.class);
+				startActivity(i);
+			}
+			else if (url.startsWith("market://") || url.contains("play.google.com/store/apps/details?id"))
+			{
+				try
+				{
+					view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+				}
+				catch (ActivityNotFoundException e)
+				{
+					Logger.w(getClass().getSimpleName(), e);
+					view.loadUrl(url);
+				}
+			}
+			else if (url.startsWith("tel:"))
+			{
+				startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse(url)));
+			}
+			else
+			{
+				if (mode == WEB_URL_MODE)
+				{
+					handleURLLoadInWebView(view, url);
+				}
+				else
+				{
+					view.loadUrl(url);
+				}
+			}
 			return true;
+
 		}
 	}
 
