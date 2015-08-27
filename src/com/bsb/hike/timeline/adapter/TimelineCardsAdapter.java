@@ -906,13 +906,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				StatusMessage statusMessage = (StatusMessage) v.getTag();
 				Intent intent = new Intent(mActivity.get(), TimelineSummaryActivity.class);
 				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
-
-				if (statusMessage.getActionsData() != null)
-				{
-					intent.putStringArrayListExtra(HikeConstants.MSISDNS, statusMessage.getActionsData().getAllMsisdn());
-					intent.putExtra(HikeConstants.Extras.LOVED_BY_SELF, statusMessage.getActionsData().isLikedBySelf());
-				}
-
 				startActivity(intent);
 			}
 		}
@@ -1004,6 +997,19 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (mContext.getString(R.string.copy).equals(option))
 			{
 				Utils.setClipboardText(mStatusMessage.getText(), mContext);
+				JSONObject metadataSU = new JSONObject();
+				try
+				{
+					metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_CARD_LONG_PRESS);
+					metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+					metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+					metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_LONG_PRESS_COPY);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
 			}
 			else if (mContext.getString(R.string.delete_post).equals(option))
 			{
@@ -1014,6 +1020,19 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				else
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mStatusMessage.getMappedId());
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_CARD_LONG_PRESS);
+						metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+						metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+						metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_LONG_PRESS_DELETE);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 				}
 			}
 			else if (String.format(mContext.getString(R.string.message_person), mStatusMessage.getNotNullName()).equals(option))
@@ -1023,28 +1042,26 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
 							ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(),true,true), false, false);
 					startActivity(intent);
+					JSONObject metadataSU = new JSONObject();
+					try
+					{
+						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_CARD_LONG_PRESS);
+						metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(mStatusMessage));
+						metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, mStatusMessage.getMsisdn());
+						metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_LONG_PRESS_MESSAGE);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 				}
 			}
 		}
 	};
 
-	public void removeStatusUpdate(String statusId)
+	public void removeStatusUpdate(final String statusId)
 	{
-		if (mStatusMessages == null || mStatusMessages.isEmpty())
-		{
-			return;
-		}
-
-		for (StatusMessage statusMessage : mStatusMessages)
-		{
-			if (statusId.equals(statusMessage.getMappedId()))
-			{
-				mStatusMessages.remove(statusMessage);
-				Logger.d(HikeConstants.TIMELINE_LOGS, "SU list after deleting post "+ mStatusMessages);
-				break;
-			}
-		}
-
 		if (mActivity.get() != null)
 		{
 			mActivity.get().runOnUiThread(new Runnable()
@@ -1052,6 +1069,26 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				@Override
 				public void run()
 				{
+					if(mActivity.get() == null || mActivity.get().isFinishing())
+					{
+						return;
+					}
+					
+					if (mStatusMessages == null || mStatusMessages.isEmpty())
+					{
+						return;
+					}
+
+					for (StatusMessage statusMessage : mStatusMessages)
+					{
+						if (statusId.equals(statusMessage.getMappedId()))
+						{
+							mStatusMessages.remove(statusMessage);
+							Logger.d(HikeConstants.TIMELINE_LOGS, "SU list after deleting post "+ mStatusMessages);
+							break;
+						}
+					}
+
 					notifyDataSetChanged();
 				}
 			});
@@ -1091,6 +1128,20 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					public void onRequestSuccess(Response result)
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusMessage.getMappedId());
+						
+						JSONObject metadataSU = new JSONObject();
+						try
+						{
+							metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_CARD_LONG_PRESS);
+							metadataSU.put(AnalyticsConstants.UPDATE_TYPE, "" + ActivityFeedCursorAdapter.getPostType(statusMessage));
+							metadataSU.put(AnalyticsConstants.TIMELINE_U_ID, statusMessage.getMsisdn());
+							metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_LONG_PRESS_DELETE);
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
+						}
+						catch (JSONException e)
+						{
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						}
 
 						// update the preference value used to store latest dp change status update id
 						if (statusMessage.getMappedId().equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DP_CHANGE_STATUS_ID, null))
@@ -1283,9 +1334,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				try
 				{
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_SHOW_ME_CLICKED);
-					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
-					metadata.put(HikeConstants.LogEvent.OS_VERSION, Build.VERSION.RELEASE);
-					metadata.put(HikeConstants.MSISDN, Utils.getUserContactInfo(false).getMsisdn());
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
 				}
 				catch (JSONException e)
@@ -1324,10 +1372,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				try
 				{
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_GOT_IT_CLICKED);
-					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
-					metadata.put(HikeConstants.MSISDN, Utils.getUserContactInfo(false).getMsisdn());
-					metadata.put(HikeConstants.LogEvent.OS_VERSION, Build.VERSION.RELEASE);
-					
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
 				}
 				catch (JSONException e)
@@ -1588,10 +1632,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private void addFTUEItemIfExists(boolean addFav)
 	{
 		StatusMessage statusMessage = null;
-		if (!mStatusMessages.isEmpty())
+		if (!mStatusMessages.isEmpty() && mFtueFriendList != null && !mFtueFriendList.isEmpty())
 		{
 			ContactInfo contact = mFtueFriendList.get(0);
-			if (addFav && (contact.getFavoriteType() != FavoriteType.FRIEND))
+			if (addFav && (contact.getFavoriteType()!=null && contact.getFavoriteType() != FavoriteType.FRIEND))
 			{
 				Logger.d("tl_ftue", "Adding " + contact.getMsisdn() +" as friend");
 				Utils.toggleFavorite(mContext, contact, true);

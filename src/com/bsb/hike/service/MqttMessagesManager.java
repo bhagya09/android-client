@@ -1638,24 +1638,10 @@ public class MqttMessagesManager
 			boolean showFtuePopup = data.getBoolean(HikeConstants.VOIP_FTUE_POPUP);
 			editor.putBoolean(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, showFtuePopup);
 		}
-		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW))
+		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ))
 		{
-			int showPopup = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW);
-			if(showPopup == 1)
-			{
-				editor.putBoolean(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, true);
-				editor.putInt(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-				if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ))
-				{
-					int freq = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ);
-					editor.putInt(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, freq);
-				}
-			}
-			else
-			{
-				editor.remove(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP);
-				editor.remove(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY);
-			}
+			int freq = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ);
+			editor.putInt(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, freq);
 		}
 		if (data.has(HikeConstants.VOIP_RELAY_SERVER_PORT))
 		{
@@ -2346,8 +2332,11 @@ public class MqttMessagesManager
 		
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
 		{
-			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+			if(Utils.isHoneycombOrHigher())
+			{
+				boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+			}
 		}
 
 		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
@@ -2853,7 +2842,18 @@ public class MqttMessagesManager
 		// need it anymore.
 		// As per the last request from growth team, we don't need to show
 		// the older pro tips once the latest pro tips come in.
-		long currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+		long currentProtipId = -1l;
+
+		//Defensive check. TODO Remove protip code from application.
+		try
+		{
+			currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
 		boolean isValidProtip = false;
 
 		Protip protip = new Protip(jsonObj);

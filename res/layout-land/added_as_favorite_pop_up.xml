@@ -69,7 +69,7 @@
             android:background="@drawable/file_transfer_pop_up_button_selector"
             android:clickable="true"
             android:gravity="center"
-            android:text="No"
+            android:text="@string/dialog_btn_no"
             android:textColor="#33312e"
             android:textSize="16sp"
              android:padding="14dp" />
@@ -88,7 +88,7 @@
             android:clickable="true"
             android:gravity="center"
            android:padding="14dp"
-            android:text="Yes"
+            android:text="@string/dialog_btn_yes"
             android:textColor="#33312e"
             android:textSize="16sp"
             android:textStyle="bold" />

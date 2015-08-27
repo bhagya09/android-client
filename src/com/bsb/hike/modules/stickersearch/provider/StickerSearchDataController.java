@@ -44,9 +44,16 @@ public enum StickerSearchDataController
 	{
 		Logger.i(TAG, "init()");
 
-		synchronized (StickerSearchDataController.class)
+		if (Utils.isHoneycombOrHigher())
 		{
-			HikeStickerSearchDatabase.getInstance().prepare();
+			synchronized (StickerSearchDataController.class)
+			{
+				HikeStickerSearchDatabase.getInstance().prepare();
+			}
+		}
+		else
+		{
+			Logger.d(TAG, "init(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
 		}
 	}
 
@@ -54,15 +61,27 @@ public enum StickerSearchDataController
 	{
 		Logger.i(TAG, "clear(" + isNeedToClearAllData + ")");
 
-		synchronized (StickerSearchDataController.class)
+		if (Utils.isHoneycombOrHigher())
 		{
-			HikeStickerSearchDatabase.getInstance().deleteDataInTables(isNeedToClearAllData);
+			synchronized (StickerSearchDataController.class)
+			{
+				HikeStickerSearchDatabase.getInstance().deleteDataInTables(isNeedToClearAllData);
+			}
+		}
+		else
+		{
+			Logger.d(TAG, "clear(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
 		}
 	}
 
 	public void setupStickerSearchWizard(JSONObject json, int state)
 	{
-		Logger.i(TAG, "setupStickerSearchWizard(" + json + ", " + state + ")");
+		if (!Utils.isHoneycombOrHigher())
+		{
+			Logger.d(TAG, "setupStickerSearchWizard(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET);
+			return;
+		}
 
 		if (!((state == StickerSearchConstants.TRIAL_STICKER_DATA_FIRST_SETUP) || (state == StickerSearchConstants.TRIAL_STICKER_DATA_UPDATE_REFRESH)))
 		{
@@ -476,7 +495,6 @@ public enum StickerSearchDataController
 				|| (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_TAG_RETRY_ON_FAILED_LOCALLY, HikeStickerSearchBaseConstants.DECISION_STATE_YES) == HikeStickerSearchBaseConstants.DECISION_STATE_YES))
 		{
 			Set<String> pendingRetrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
-			Logger.i(TAG, "setupStickerSearchWizard(), Previous tag fetching trial list: " + pendingRetrySet);
 
 			if (pendingRetrySet != null)
 			{
@@ -511,9 +529,16 @@ public enum StickerSearchDataController
 	{
 		Logger.i(TAG, "updateStickerList(" + stickerInfoSet + ")");
 
-		synchronized (StickerSearchDataController.class)
+		if (Utils.isHoneycombOrHigher())
 		{
-			HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfoSet);
+			synchronized (StickerSearchDataController.class)
+			{
+				HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfoSet);
+			}
+		}
+		else
+		{
+			Logger.d(TAG, "updateStickerList(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
 		}
 	}
 
@@ -521,24 +546,39 @@ public enum StickerSearchDataController
 	{
 		Logger.i(TAG, "analyseMessageSent(" + prevText + ", " + sticker + ", " + nextText + ")");
 
-		HikeStickerSearchDatabase.getInstance().analyseMessageSent(prevText, sticker, nextText);
+		if (Utils.isHoneycombOrHigher())
+		{
+			HikeStickerSearchDatabase.getInstance().analyseMessageSent(prevText, sticker, nextText);
+		}
+		else
+		{
+			Logger.d(TAG, "analyseMessageSent(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
+		}
 	}
 
 	public static boolean startRebalancing()
 	{
 		Logger.i(TAG, "startRebalancing()");
 
-		synchronized (StickerSearchDataController.class)
+		if (Utils.isHoneycombOrHigher())
 		{
-			try
+			synchronized (StickerSearchDataController.class)
 			{
-				return HikeStickerSearchDatabase.getInstance().summarizeAndDoRebalancing();
+				try
+				{
+					return HikeStickerSearchDatabase.getInstance().summarizeAndDoRebalancing();
+				}
+				catch (Throwable t)
+				{
+					Logger.wtf(HikeStickerSearchDatabase.TAG_REBALANCING, "Error while performing summarization and other updates !!!", t);
+					return true;
+				}
 			}
-			catch (Throwable t)
-			{
-				Logger.wtf(HikeStickerSearchDatabase.TAG_REBALANCING, "Error while performing summarization and other updates !!!", t);
-				return true;
-			}
+		}
+		else
+		{
+			Logger.d(TAG, "startRebalancing(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
+			return false;
 		}
 	}
 }
