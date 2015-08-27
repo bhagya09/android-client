@@ -3455,9 +3455,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		switch (v.getId())
 		{
-		case R.id.messageedittext:
-			return mShareablePopupLayout.onEditTextTouch(v, event);
-
 		case R.id.msg_compose:
 
 			if(stickerTagWatcher != null)
