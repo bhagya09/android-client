@@ -1638,24 +1638,10 @@ public class MqttMessagesManager
 			boolean showFtuePopup = data.getBoolean(HikeConstants.VOIP_FTUE_POPUP);
 			editor.putBoolean(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, showFtuePopup);
 		}
-		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW))
+		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ))
 		{
-			int showPopup = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW);
-			if(showPopup == 1)
-			{
-				editor.putBoolean(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, true);
-				editor.putInt(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-				if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ))
-				{
-					int freq = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ);
-					editor.putInt(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, freq);
-				}
-			}
-			else
-			{
-				editor.remove(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP);
-				editor.remove(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY);
-			}
+			int freq = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ);
+			editor.putInt(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, freq);
 		}
 		if (data.has(HikeConstants.VOIP_RELAY_SERVER_PORT))
 		{
@@ -2346,8 +2332,11 @@ public class MqttMessagesManager
 		
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
 		{
-			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+			if(Utils.isHoneycombOrHigher())
+			{
+				boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+			}
 		}
 
 		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
