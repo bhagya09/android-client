@@ -1016,5 +1016,29 @@
     </style>
     
 	 <style name="ComposeList" parent="ComposeListParent" />
-    
+	 
+	 <style name="WebView.Theme" parent="AppTheme">
+	    <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
+	  </style>
+	 
+	 <style name="WebView.Theme.NoShadow" parent="WebView.Theme" >
+	     <item name="android:windowContentOverlay">@null</item>
+	</style>
+	
+	 <style name="WebView.Theme.TranslucentStatusBar" parent = "WebView.Theme">
+	     <item name="android:windowTranslucentStatus">true</item>
+	 </style>
+	 
+	 <style name="WebView.Theme.ActionBar.Overlay" parent = "WebView.Theme">
+	    <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+	 </style>
+	 
+	 <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme">
+	     <item name="android:windowContentOverlay">@null</item>
+	 </style>
+	 
 </resources>
