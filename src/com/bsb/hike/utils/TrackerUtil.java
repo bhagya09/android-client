@@ -34,7 +34,7 @@ public class TrackerUtil
 			_trackerUtil = new TrackerUtil(context);
 		}
 
-		return _trackerUtil;
+		return null;
 	}
 
 	private void init(Context context)
