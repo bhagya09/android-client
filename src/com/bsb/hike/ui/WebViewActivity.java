@@ -3,6 +3,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.net.ParseException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1023,10 +1024,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			if (url.startsWith("mailto:"))
 			{
-				MailTo mt = MailTo.parse(url);
-				Intent i = newEmailIntent(WebViewActivity.this, mt.getTo(), mt.getSubject(), mt.getBody(), mt.getCc());
-				startActivity(i);
-				view.reload();
+				try
+				{
+					MailTo mt = MailTo.parse(url);
+					Intent i = newEmailIntent(WebViewActivity.this, mt.getTo(), mt.getSubject(), mt.getBody(), mt.getCc());
+					startActivity(i);
+				}
+				catch (ParseException e)
+				{
+					e.printStackTrace();
+				}
+
 			}
 			else if (url.toLowerCase().endsWith("hike.in/rewards/invite"))
 			{
