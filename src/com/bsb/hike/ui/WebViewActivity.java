@@ -586,6 +586,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		else if (item.getItemId() == android.R.id.home)
 		{
+			if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
+			{
+				if (botInfo.getIsUpPressAllowed())
+				{
+					mmBridge.onUpPressed();
+					return true;
+				}
+			}
 			this.finish();
 			return true;
 		}
