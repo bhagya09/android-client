@@ -1635,7 +1635,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		if (!mStatusMessages.isEmpty() && mFtueFriendList != null && !mFtueFriendList.isEmpty())
 		{
 			ContactInfo contact = mFtueFriendList.get(0);
-			if (addFav && (contact.getFavoriteType() != FavoriteType.FRIEND))
+			if (addFav && (contact.getFavoriteType()!=null && contact.getFavoriteType() != FavoriteType.FRIEND))
 			{
 				Logger.d("tl_ftue", "Adding " + contact.getMsisdn() +" as friend");
 				Utils.toggleFavorite(mContext, contact, true);

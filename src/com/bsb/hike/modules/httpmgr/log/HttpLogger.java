@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.Logger;
 
 /** Logging for lazy people. */
 public final class HttpLogger
@@ -321,7 +322,19 @@ public final class HttpLogger
 		private static String maybeFormat(String message, Object... args)
 		{
 			// If no varargs are supplied, treat it as a request to log the string without formatting.
-			return args.length == 0 ? message : String.format(message, args);
+			String result = message;
+			if(args.length > 0)
+			{
+				try
+				{
+					result = String.format(message, args);
+				}
+				catch(Exception e)
+				{
+					Logger.e("HttpLogger", "Exception on formating request : ", e);
+				}
+			}
+			return result;
 		}
 
 		@Override
