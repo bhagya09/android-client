@@ -402,7 +402,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url)
 			{
-				if (url == null)
+				if (TextUtils.isEmpty(url))
 				{
 					return false;
 				}
@@ -1021,7 +1021,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		public boolean shouldOverrideUrlLoading(WebView view, String url)
 		{
 			Logger.i(tag, "url about to load " + url);
-			if (url == null)
+			if (TextUtils.isEmpty(url))
 			{
 				return false;
 			}
