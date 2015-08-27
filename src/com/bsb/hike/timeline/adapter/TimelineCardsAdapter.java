@@ -471,7 +471,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getString(R.string.me) : statusMessage.getNotNullName());
 
-			viewHolder.mainInfo.setText(statusMessage.getText());
+			viewHolder.mainInfo.setText(statusMessage.getText().trim());
 
 			viewHolder.timeStamp.setVisibility(View.VISIBLE);
 			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, mContext));
@@ -518,7 +518,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.noBtn.setVisibility(View.GONE);
 
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText().trim(), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 				viewHolder.parent.setTag(statusMessage);
@@ -698,7 +698,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			else
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText().trim(), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 			}
