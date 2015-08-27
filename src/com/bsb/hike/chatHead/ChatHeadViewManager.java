@@ -339,10 +339,10 @@ public class ChatHeadViewManager
 				switch (flag)
 				{
 				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
-					if (!ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(sharableActivePackage))
-					{
-						break;
-					}
+//					if (!ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS).contains(sharableActivePackage))
+//					{
+//						break;
+//					}
 					createAndOpenChatHeadPickerLayout(context.getApplicationContext());
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
