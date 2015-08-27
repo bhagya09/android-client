@@ -1792,13 +1792,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if(isComplete)
 		{
-			if(!isAnyFeedEntryPresent())
+			if(isAnyFeedEntryPresent())
 			{
-				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
+				fireUpdateNotificationIconPubsub(0);
 			}
 			else
 			{
-				fireUpdateNotificationIconPubsub(0);
+				fireUpdateNotificationIconPubsub(TimelineActivity.NO_FEED_PRESENT);
 			}
 		}
 		
