@@ -737,6 +737,7 @@ public class VoIPService extends Service {
 			// We are adding a second client, and hence starting a conference call
 			primary.cryptoEnabled = false;
 			primary.isInAHostedConference = true;
+			primary.setIdealBitrate();
 		}
 		
 		if (clients.size() > 0 && getCallId() > 0) {
