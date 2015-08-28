@@ -183,7 +183,12 @@ public final class HikeEffectsFactory
 			{
 				HikePhotosUtils.manageBitmaps(instance.vignetteBitmap);
 			}
-
+			
+			if(instance.mRS != null)
+			{
+				instance.mRS.destroy();
+			}
+			
 			instance = null;
 		}
 	}
