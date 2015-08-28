@@ -26,6 +26,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -76,7 +79,16 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		click2Accessibility = (TextView) findViewById(R.id.show_accessibility);
 		settingOnClickEvent();
 		settingSelectAllText();
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, false) && !ChatHeadUtils.isAccessibilityEnabled(this))
+	
+		ListView listView = (ListView) findViewById(R.id.list_items);
+		listView.setAdapter(listAdapter);
+		setupActionBar();
+	}
+
+	@Override
+	protected void onResume()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, false) && !ChatHeadUtils.isAccessibilityEnabled(this))
 		{
 			click2Accessibility.setVisibility(View.VISIBLE);
 		}
@@ -84,9 +96,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		{
 			click2Accessibility.setVisibility(View.GONE);
 		}
-		ListView listView = (ListView) findViewById(R.id.list_items);
-		listView.setAdapter(listAdapter);
-		setupActionBar();
+		super.onResume();
 	}
 
 	private void settingOnClickEvent()
@@ -106,7 +116,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			@Override
 			public void onClick(View v)
 			{
-
 				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true))
 				{
 					Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
@@ -176,6 +185,34 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	}
 
 	private void onSelectAllCheckboxClick()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true) && !ChatHeadUtils.isAccessibilityEnabled(this))
+		{
+			HikeDialogFactory.showDialog(StickerShareSettings.this, HikeDialogFactory.ACCESSIBILITY_DIALOG, new HikeDialogListener()
+			{
+				@Override
+				public void positiveClicked(HikeDialog hikeDialog)
+				{
+					Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+					startActivityForResult(intent, 0);
+				}
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{}
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					hikeDialog.dismiss();
+				}
+			}, 2);
+		}
+		else
+		{
+			enalbleSelectAll();
+		}
+	}
+	
+	public void enalbleSelectAll()
 	{
 		boolean allChecked = areAllItemsCheckedOrUnchecked(true);
 		if (allChecked)
