@@ -68,6 +68,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private boolean isBound = false;
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
 	private WakeLock proximityWakeLock = null;
+	private boolean showQuality = true;
 	private int easter = 0;
 
 	private CallActionsView callActionsView;
@@ -216,6 +217,12 @@ public class VoipCallFragment extends Fragment implements CallActions
 				if (voipService.getCallStatus() != CallStatus.INCOMING_CALL)
 					showActiveCallButtons();
 				break;
+			case VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT:
+				if (voipService.getCallStatus() != CallStatus.INCOMING_CALL) {
+					showActiveCallButtons();
+					setupForceMuteLayout();
+				}
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -333,7 +340,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 			return;
 		}
-
+		
 		if(voipService.isAudioRunning())
 		{
 			// Active Call
@@ -350,6 +357,8 @@ public class VoipCallFragment extends Fragment implements CallActions
 			// Outgoing call
 			setupCallerLayout();
 		}
+		
+		setupForceMuteLayout();
 	}
 
 
@@ -578,7 +587,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		holdButton.setSelected(voipService.getHold());
 		speakerButton.setSelected(voipService.getSpeaker());
 		addButton.setSelected(false);
-		setupForceMuteLayout();
 
 		setupActiveCallButtonActions();
 	}
@@ -587,19 +595,58 @@ public class VoipCallFragment extends Fragment implements CallActions
 		
 		TextView muteAllTextView = (TextView) getView().findViewById(R.id.mute_all_textview);
 		ImageView muteAllIcon= (ImageView) getView().findViewById(R.id.force_mute_icon);
+		boolean showForceMuteLayout = false;
 
-		boolean forceMute = voipService.getHostForceMute();
+		if (voipService.hostingConference()) {
+			showForceMuteLayout = true;
+			boolean forceMute = voipService.getHostForceMute();
 
-		if (forceMute == true) {
-			muteAllTextView.setText(getString(R.string.voip_conf_mute_all_on));
-			muteAllIcon.setImageResource(R.drawable.ic_force_unmute);
+			if (forceMute == true) {
+				muteAllTextView.setText(getString(R.string.voip_conf_mute_all_on));
+				muteAllIcon.setImageResource(R.drawable.ic_force_unmute);
+			} else {
+				muteAllTextView.setText(getString(R.string.voip_conf_mute_all_off));
+				muteAllIcon.setImageResource(R.drawable.ic_force_mute);
+			}
 		} else {
-			muteAllTextView.setText(getString(R.string.voip_conf_mute_all_off));
-			muteAllIcon.setImageResource(R.drawable.ic_force_mute);
+			// If we are a participant in a conference in which the
+			// host is using force mute, then display that info
+			VoIPClient client = voipService.getPartnerClient();
+			if (client != null && client.forceMute) {
+				showForceMuteLayout = true;
+				muteAllTextView.setText(getString(R.string.voip_error_force_mute));
+				muteAllIcon.setImageResource(R.drawable.ic_force_unmute);
+			} else
+				showForceMuteLayout = false;
 		}
-		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-		anim.setDuration(500);
-		forceMuteContainer.startAnimation(anim);
+		
+		if (showForceMuteLayout) {
+			// Remove the margin from the participants listview
+			ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
+			ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) conferenceList.getLayoutParams();
+			layoutParams.setMargins(0, 0, 0, 20);
+			conferenceList.setLayoutParams(layoutParams);
+
+			forceMuteContainer.setVisibility(View.VISIBLE);
+			AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+			anim.setDuration(500);
+			forceMuteContainer.startAnimation(anim);
+			
+			showQuality = false;
+			showSignalStrength(null);
+		} else {
+			// Set the margin from the participants listview
+			ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
+			ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) conferenceList.getLayoutParams();
+			layoutParams.setMargins(0, 50, 0, 20);
+			conferenceList.setLayoutParams(layoutParams);
+
+			forceMuteContainer.setVisibility(View.GONE);
+			
+			showQuality = true;
+			CallQuality quality = voipService.getQuality();
+			showSignalStrength(quality);
+		}
 	}
 	
 	private void animateActiveCallButtons()
@@ -721,10 +768,12 @@ public class VoipCallFragment extends Fragment implements CallActions
 			
 			@Override
 			public void onClick(View v) {
-				boolean newMute = !voipService.getHostForceMute();
-				Logger.w(tag, "Setting force mute to: " + newMute);
-				voipService.setHostForceMute(newMute);
-				setupForceMuteLayout();
+				if (voipService.hostingConference()) {
+					boolean newMute = !voipService.getHostForceMute();
+					Logger.w(tag, "Setting force mute to: " + newMute);
+					voipService.setHostForceMute(newMute);
+					setupForceMuteLayout();
+				}
 			}
 		});
 		
@@ -794,6 +843,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 			case ACTIVE:
 				startCallDuration();
+				setupForceMuteLayout();
 				break;
 
 			case ON_HOLD:
@@ -912,7 +962,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (VoIPUtils.isConferencingEnabled(HikeMessengerApp.getInstance())) {
 			if (clientPartner.isHostingConference) {
 				addButton.setVisibility(View.GONE);
-				forceMuteContainer.setVisibility(View.GONE);
 			} else {
 				addButton.setVisibility(View.VISIBLE);
 			}
@@ -935,14 +984,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		profileView.setVisibility(View.INVISIBLE);
 
 		if (voipService.hostingConference()) {
-			
-			// Show force mute option
-			forceMuteContainer.setVisibility(View.VISIBLE);
-			
-			// Remove the margin from the participants listview
-			ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) conferenceList.getLayoutParams();
-			layoutParams.setMargins(0, 0, 0, 20);
-//			conferenceList.setLayoutParams(layoutParams);
 			
 			// remove quality indicator
 			if (signalContainer != null) {
@@ -980,6 +1021,11 @@ public class VoipCallFragment extends Fragment implements CallActions
 		TextView signalStrengthView = (TextView) getView().findViewById(R.id.signal_strength);
 		GradientDrawable gd = (GradientDrawable)signalContainer.getBackground();
 
+		if (!showQuality) {
+			signalContainer.setVisibility(View.GONE);
+			return;
+		}
+		
 		AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
 		anim.setDuration(800);
 
