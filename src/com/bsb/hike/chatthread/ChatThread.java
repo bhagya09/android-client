@@ -414,10 +414,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	protected HikeDialog dialog;
 	
+	protected CustomKeyboard mCustomKeyboard;
+
 	private StickerTagWatcher stickerTagWatcher;
 	
 	protected int mCurrentActionMode;
-	private CustomKeyboard mCustomKeyboard;
 
 	private boolean shouldKeyboardPopupShow;
 	

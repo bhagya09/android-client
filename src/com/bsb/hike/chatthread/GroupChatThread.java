@@ -34,6 +34,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
+import com.kpt.adaptxt.beta.util.KPTConstants;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -651,6 +652,7 @@ public class GroupChatThread extends OneToNChatThread
 		View content = activity.findViewById(R.id.impMessageCreateView);
 		content.setVisibility(View.VISIBLE);
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
+		mCustomKeyboard.registerEditText(R.id.messageedittext, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
 		mComposeView.requestFocus();
 		if (mEmoticonPicker != null)
 		{
@@ -1115,5 +1117,4 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		super.destroySearchMode();
 	}
-
 }
