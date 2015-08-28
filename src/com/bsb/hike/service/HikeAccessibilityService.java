@@ -1,14 +1,16 @@
 package com.bsb.hike.service;
 
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.utils.Logger;
+
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 public class HikeAccessibilityService extends AccessibilityService
 {
 
-	static final String TAG = "hks";
+	static final String TAG = "HikeAccessibilitySerivce";
 
 	private String getEventType(AccessibilityEvent event)
 	{
@@ -47,27 +49,28 @@ public class HikeAccessibilityService extends AccessibilityService
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event)
 	{
-		Log.d(TAG, String.format("onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s", getEventType(event), event.getClassName(), event.getPackageName(),
+		Logger.d(TAG, String.format("onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s", getEventType(event), event.getClassName(), event.getPackageName(),
 				event.getEventTime(), getEventText(event)));
 	}
 
 	@Override
 	public void onInterrupt()
 	{
-		Log.d(TAG, "onInterrupt");
+		Logger.d(TAG, "onInterrupt");
 	}
 
 	@Override
 	protected void onServiceConnected()
 	{
 		super.onServiceConnected();
-		Log.d(TAG, "onServiceConnected");
+		Logger.d(TAG, "onServiceConnected");
 		AccessibilityServiceInfo info = new AccessibilityServiceInfo();
 		info.flags = AccessibilityServiceInfo.DEFAULT;
 		info.notificationTimeout = 100;
 		info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
 		info.feedbackType = AccessibilityServiceInfo.FEEDBACK_ALL_MASK;
 		setServiceInfo(info);
+		ChatHeadUtils.startOrStopService(false);
 	}
 
 }

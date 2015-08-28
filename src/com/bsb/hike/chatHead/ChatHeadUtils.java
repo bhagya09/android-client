@@ -284,16 +284,29 @@ public class ChatHeadUtils
 		startService();
 	}
 
+	public static boolean shouldRunChatHeadServiceForStickey()
+	{
+		boolean enabledForUser = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false);
+		boolean permittedToRun = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
+		boolean packageListNonEmpty = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null;
+		return enabledForUser && permittedToRun && packageListNonEmpty;
+	}
+	
+	public static boolean shouldSwitchToAccessibility()
+	{
+		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, false);
+		boolean dontUseAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, false);
+		
+		return forceAccessibility && !(dontUseAccessibility && isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext()));
+	}
+	
 	public static void startOrStopService(boolean jsonChanged)
 	{
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		boolean chatHeadEnabledAndValid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null;
+		boolean chatHeadEnabledAndValid = shouldRunChatHeadServiceForStickey();
+		boolean onlyUseAccessibility = shouldSwitchToAccessibility();
 		
-		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, false);
-		
-		if ((chatHeadEnabledAndValid || sessionLogEnabled) && !forceAccessibility)
+		if ((chatHeadEnabledAndValid || sessionLogEnabled) && !onlyUseAccessibility)
 		{
 			if (jsonChanged)
 			{
@@ -304,11 +317,11 @@ public class ChatHeadUtils
 				startService();
 			}
 		}
-		if(!chatHeadEnabledAndValid)
+		if(!chatHeadEnabledAndValid || onlyUseAccessibility)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			if(!sessionLogEnabled)
+			if(!sessionLogEnabled || onlyUseAccessibility)
 			{
 				stopService();
 			}
@@ -338,5 +351,10 @@ public class ChatHeadUtils
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static boolean willPollingWork()
+	{
+		return !Utils.isLollipopMR1OrHigher();
 	}
 }

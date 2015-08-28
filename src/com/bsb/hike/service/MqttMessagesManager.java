@@ -2095,16 +2095,16 @@ public class MqttMessagesManager
 		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && Utils.isIceCreamOrHigher())
 		{ 
 			JSONObject stickerWidgetJSONObj = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
-			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.FORCE_ACCESSIBILITY))
-			{	
-				boolean forceAccessibility = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
-			}
-			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.SHOW_ACCESSIBILITY))
-			{	
-				boolean showAccessibility = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
-			}
+				
+			boolean forceAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
+
+			boolean showAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
+
+			boolean dontUseAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
+
 			boolean serviceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
 			{ 

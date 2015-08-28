@@ -1186,6 +1186,8 @@ public class HikeConstants
 		
 		public static final String SHOW_ACCESSIBILITY="shw_acsb";
 
+		public static final String DONT_USE_ACCESSIBILITY="acsb_not";
+
 		public static final String STICKERS_PER_DAY = "stkr_per_day";
 
 		public static final String EXTRA_STICKERS_PER_DAY = "extra_stkr_per_day";

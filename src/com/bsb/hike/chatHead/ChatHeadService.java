@@ -107,9 +107,7 @@ public class ChatHeadService extends Service
 			Set<String> foregroundPackages = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS);
 			UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
 			
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
-					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false)
-					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null)
+			if(ChatHeadUtils.shouldRunChatHeadServiceForStickey())
 			{
 			boolean whiteListAppForegrounded = false;
 			for (String packName : whitelistedPackageList)
