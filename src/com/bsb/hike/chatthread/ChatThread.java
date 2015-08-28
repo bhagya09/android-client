@@ -6004,10 +6004,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 	
 	@Override
-	public void onAdaptxtclick(View arg0)
+	public void onAdaptxtclick(View edittext)
 	{
 		// TODO Auto-generated method stub
-		mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 
 	}
 	
@@ -6028,11 +6027,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onInputviewVisbility(boolean kptVisible, int height)
 	{
-		Logger.d("calllag", "visibility call : " + System.currentTimeMillis());
-		Logger.d("kptVisibility", "kptVisible : " + kptVisible);
+		Logger.d("edittextClick", "kptVisible : " + kptVisible);
 		if (kptVisible)
 		{
 			Logger.d("calllag", "height : " + height);
+			Logger.d("kbdht", "height : " + mCustomKeyboard.getKeyBoardAndCVHeight());
 //			updatePadding(mCustomKeyboard.getKeyBoardAndCVHeight());
 			updatePadding(height);
 		}
