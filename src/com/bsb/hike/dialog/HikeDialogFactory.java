@@ -788,10 +788,9 @@ public class HikeDialogFactory
 		switch (dialogId)
 		{
 		case ACCESSIBILITY_DIALOG:
-			deleteConfirmDialog.setMessage("Accessibility Service should be switched on for stickey");
-			deleteConfirmDialog.setTitle("Accessibility Service");
-			deleteConfirmDialog.setPositiveButton(R.string.CONFIRM, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.CONTINUE, listener);
+			deleteConfirmDialog.setMessage("Hike needs Accessibility Service to be enabled for this feature. Tap ENABLE and select Hike");
+			deleteConfirmDialog.setTitle("Accessibility");
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 		case DELETE_FILES_DIALOG:
 			deleteConfirmDialog.setMessage(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));

@@ -2122,7 +2122,7 @@ public class MqttMessagesManager
 			{	
 				boolean chatHeadServiceUserControl = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
-				setShareEnableForAllApps(chatHeadServiceUserControl);
+				ChatHeadUtils.setShareEnableForAllApps(chatHeadServiceUserControl);
 				ChatHeadUtils.startOrStopService(false);
 			}
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
@@ -2462,28 +2462,6 @@ public class MqttMessagesManager
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
-	}
-
-	private void setShareEnableForAllApps(boolean enable)
-	{
-		JSONArray jsonArray;
-		try
-		{
-			jsonArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
-		
-		for (int i = 0; i < jsonArray.length(); i++)
-		{
-			JSONObject obj = jsonArray.getJSONObject(i);
-			{
-				obj.put(HikeConstants.ChatHead.APP_ENABLE, enable);
-			}
-		}
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, jsonArray.toString());
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	private void saveRewards(JSONObject jsonObj) throws JSONException

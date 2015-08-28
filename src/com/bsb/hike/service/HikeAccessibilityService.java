@@ -60,6 +60,11 @@ public class HikeAccessibilityService extends AccessibilityService
 	}
 
 	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+	}
+	@Override
 	protected void onServiceConnected()
 	{
 		super.onServiceConnected();
