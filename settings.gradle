@@ -15,7 +15,7 @@ include 'shared'
 include 'api'
 include 'services:webservice'
 */
-include 'google-play',':appcompatv7',':viewpager-indicator-library',':cardview',':recyclerview'
+include 'google-play',':appcompatv7',':viewpager-indicator-library',':cardview',':recyclerview',':kpt-host'
 project(':google-play').projectDir = new File('./google-play-services_lib')
 project(':appcompatv7').projectDir = new File('./appcompat')
 project(':viewpager-indicator-library').projectDir = new File('./Android ViewPagerIndicator library')
