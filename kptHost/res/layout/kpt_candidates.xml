@@ -19,105 +19,20 @@
     android:background="@drawable/kpt_keyboard_suggest_strip"
     android:orientation="horizontal" >
 
-    <TextView
+ <TextView
         android:id="@+id/private_custom_theme_ltr"
         android:layout_width="16dip"
         android:layout_height="fill_parent"
         android:gravity="top"
         android:clickable="true"
         android:visibility="gone" />
-    
-    <TextView
-        android:id="@+id/delete_icon_ltr"
-        android:layout_width="72dp"
-        android:layout_height="fill_parent"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:gravity="center"
-        android:clickable="true"
-        android:visibility="gone" />
-    
-     <ImageView
-        android:id="@+id/delete_word_divider_ltr"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:visibility="gone"  />
 
-    <LinearLayout
-        android:id="@+id/acc_parent_ltr"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:id="@+id/acc_head_ltr"
-            android:layout_width="36dp"
-            android:gravity="center"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="10dp"
-            android:clickable="true" 
-            android:visibility="invisible"
-            />
-
-        <Button
-            android:id="@+id/acc_tail_ltr"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:background="@drawable/kpt_acc_tail"
-            android:clickable="true"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:textSize="18sp"
-            android:visibility="gone" />
-    </LinearLayout>
 
     <com.kpt.adaptxt.beta.view.KPTCandidateView
         android:id="@+id/candidates"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/kpt_candidate_height"
         android:layout_weight="1" />
-    <LinearLayout
-        android:id="@+id/acc_parent_rtl"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:id="@+id/acc_head_rtl"
-            android:layout_width="36dp"
-            android:gravity="center"
-            android:layout_height="fill_parent"
-            android:clickable="true"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/acc_tail_rtl"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:background="@drawable/kpt_acc_tail"
-            android:clickable="true"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:textSize="18sp"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/delete_word_divider_rtl"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/delete_icon_rtl"
-        android:layout_width="72dp"
-        android:gravity="center"
-        android:layout_height="fill_parent"
-        android:layout_marginLeft="10dp"
-         android:layout_marginRight="10dp"
-        android:clickable="true"
-        android:visibility="gone" />
-    
     <TextView
         android:id="@+id/private_custom_theme_rtl"
         android:layout_width="16dip"

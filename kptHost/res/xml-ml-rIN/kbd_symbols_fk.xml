@@ -189,7 +189,6 @@
             atx:kpt_codes="44,-102"
             atx:kpt_iconText="@string/kpt_icontext_comma_mic"
             atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabel_commaYPos"
             atx:kpt_keyWidth="10%p"
             atx:kpt_useExternalFont="true" />
         <Key
@@ -234,7 +233,6 @@
             atx:kpt_codes="44,-102"
             atx:kpt_iconText="@string/kpt_icontext_comma_mic"
             atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabel_commaYPos"
             atx:kpt_keyWidth="10%p"
             atx:kpt_useExternalFont="true" />
         <Key
@@ -280,7 +278,6 @@
             atx:kpt_codes="44,-102"
             atx:kpt_iconText="@string/kpt_icontext_comma_mic"
             atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabel_commaYPos"
             atx:kpt_keyWidth="10%p"
             atx:kpt_useExternalFont="true" />
         <Key
@@ -320,7 +317,6 @@
             atx:kpt_codes="44,-102"
             atx:kpt_iconText="@string/kpt_icontext_comma_mic"
             atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabel_commaYPos"
             atx:kpt_keyWidth="10%p"
             atx:kpt_useExternalFont="true" />
         <Key

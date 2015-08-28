@@ -322,6 +322,7 @@
             atx:kpt_codes="-2,2"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelYPos_atx"
+            atx:kpt_horizontalGap="0.5%p"
             atx:kpt_keyWidth="15%p" />
         <Key
             atx:kpt_codes="44,-102"
@@ -338,7 +339,7 @@
         <Key
             atx:kpt_codes="32"
             atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:kpt_keyWidth="45%p" />
+            atx:kpt_keyWidth="44.5%p" />
         <Key
             atx:kpt_codes="46"
             atx:kpt_iconText="@string/kpt_icontext_dot_share"
@@ -360,6 +361,7 @@
             atx:kpt_codes="-2,2"
             atx:kpt_keyIcon="@drawable/kpt_adaptxt_settings_fk"
             atx:kpt_keyLabelYPos="@dimen/kpt_keyLabelYPos_atx"
+            atx:kpt_horizontalGap="0.5%p"
             atx:kpt_keyWidth="15%p" />
         <Key
             atx:kpt_codes="44,-102"
@@ -376,7 +378,7 @@
         <Key
             atx:kpt_codes="32"
             atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:kpt_keyWidth="45%p" />
+            atx:kpt_keyWidth="44.5%p" />
         <Key
             atx:kpt_codes="46"
             atx:kpt_iconText="@string/kpt_icontext_dot_share"

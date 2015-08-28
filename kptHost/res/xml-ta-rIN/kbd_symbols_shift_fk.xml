@@ -132,13 +132,12 @@
             atx:kpt_keyLabel="#"
             atx:kpt_keyLabel2="ோ" />
     </Row>
-    <Row atx:kpt_keyWidth="8.8%p" >
+    <Row atx:kpt_keyWidth="9%p" >
         <Key
             atx:kpt_codes="-6"
             atx:kpt_keyEdgeFlags="left"
             atx:kpt_keyLabel="..."
             atx:kpt_keyLabelYPos="0.50"
-            atx:kpt_keyWidth="10%"
             atx:kpt_popupKeyboard="@xml/popup_symbols" />
         <Key
             atx:kpt_codes="124,2969"
@@ -205,7 +204,6 @@
             atx:kpt_codes="44,-102"
             atx:kpt_iconText="@string/kpt_icontext_comma_mic"
             atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabel_commaYPos"
             atx:kpt_keyWidth="10%p"
             atx:kpt_useExternalFont="true" />
         <Key
@@ -251,7 +249,6 @@
             atx:kpt_codes="44,-102"
             atx:kpt_iconText="@string/kpt_icontext_comma_mic"
             atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabel_commaYPos"
             atx:kpt_keyWidth="10%p"
             atx:kpt_useExternalFont="true" />
         <Key
@@ -296,7 +293,6 @@
             atx:kpt_codes="44,-102"
             atx:kpt_iconText="@string/kpt_icontext_comma_mic"
             atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabel_commaYPos"
             atx:kpt_keyWidth="10%p"
             atx:kpt_useExternalFont="true" />
         <Key
@@ -337,7 +333,6 @@
             atx:kpt_codes="44,-102"
             atx:kpt_iconText="@string/kpt_icontext_comma_mic"
             atx:kpt_keyLabel2YPos="0.35"
-            atx:kpt_keyLabelYPos="@dimen/kpt_keyLabel_commaYPos"
             atx:kpt_keyWidth="10%p"
             atx:kpt_useExternalFont="true" />
         <Key

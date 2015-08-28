@@ -24,7 +24,7 @@
     atx:kpt_keyLabelTextSize="@dimen/kpt_keyLabelTextSize"
     atx:kpt_keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize"
     
-    atx:kpt_isGlideSupported = "true"
+    atx:kpt_isGlideSupported = "false"
     atx:kpt_keyType="@integer/kpt_key_type_normal"
     atx:kpt_isRTL = "false"
     atx:kpt_fontStyleApplicable = "true"
@@ -262,7 +262,6 @@
             atx:kpt_isRepeatable="true"
             atx:kpt_keyEdgeFlags="right"
 	    	atx:kpt_keyLabelYPos="0.50"
-            atx:kpt_keyWidth="10.5%p"
             atx:kpt_useExternalFont="true" /> 
             
         

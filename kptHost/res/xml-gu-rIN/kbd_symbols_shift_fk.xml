@@ -31,7 +31,7 @@
     atx:kpt_fontStyleApplicable = "true"
     atx:kpt_fontSizeApplicable = "false"
     
-    atx:kpt_keyWidth="10%p"
+    atx:kpt_keyWidth="9%p"
     atx:kpt_verticalGap="@dimen/kpt_vertical_gap" >
 
     <Row
@@ -253,7 +253,7 @@
             atx:kpt_codes="32"
             atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
             atx:kpt_keyLabel2TextSize="@dimen/kpt_keyLabel2TextSizeForSpace"
-            atx:kpt_keyWidth="35%p" />
+            atx:kpt_keyWidth="34%p" />
         <Key
             atx:kpt_codes="46"
             atx:kpt_iconText="@string/kpt_icontext_dot_share"
@@ -295,7 +295,7 @@
         <Key
             atx:kpt_codes="32"
             atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:kpt_keyWidth="35%p" />
+            atx:kpt_keyWidth="34%p" />
         <Key
             atx:kpt_codes="46"
             atx:kpt_iconText="@string/kpt_icontext_dot_share"
@@ -339,7 +339,7 @@
         <Key
             atx:kpt_codes="32"
             atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:kpt_keyWidth="45%p" />
+            atx:kpt_keyWidth="44%p" />
         <Key
             atx:kpt_codes="46"
             atx:kpt_iconText="@string/kpt_icontext_dot_share"
@@ -377,7 +377,7 @@
         <Key
             atx:kpt_codes="32"
             atx:kpt_keyIcon="@drawable/kpt_sym_keyboard_space_dk_fk"
-            atx:kpt_keyWidth="45%p" />
+            atx:kpt_keyWidth="44%p" />
         <Key
             atx:kpt_codes="46"
             atx:kpt_iconText="@string/kpt_icontext_dot_share"
