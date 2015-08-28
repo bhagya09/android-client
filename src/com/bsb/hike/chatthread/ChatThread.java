@@ -1140,6 +1140,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
+			mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{//  previous task is running don't accept this event
 				return;
@@ -1150,6 +1152,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
+			mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
+			mCustomKeyboard.showCustomKeyboard(mComposeView, false);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{// previous task is running don't accept this event
 				return;
@@ -3462,7 +3466,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (v.getId())
 		{
 		case R.id.msg_compose:
-
+			if (!isSystemKeyborad())
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			}
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
@@ -4097,7 +4104,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
-			Utils.showSoftKeyboard(activity, mComposeView);
+			if (isSystemKeyborad())
+			{
+				Utils.showSoftKeyboard(activity, mComposeView);
+			}
+			else
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			}
 		}
 		
 		/**
@@ -5947,7 +5961,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void changeKeyboard(boolean systemKeyboard)
 	{
-
 		Logger.d("changeKeyboard", "ChageKeyboard called!");
 		AdaptxtEditText editText = (AdaptxtEditText) mComposeView;
 		if (systemKeyboard)
