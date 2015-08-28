@@ -5974,6 +5974,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		else
 		{
 			mCustomKeyboard.swtichToKPTKeyboard(editText, KPTConstants.MULTILINE_LINE_EDITOR, ChatThread.this, ChatThread.this);
+			mCustomKeyboard.registerEditText(R.id.msg_compose, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+			mCustomKeyboard.init(mComposeView);
+			mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			setEditTextListeners();
 		}
 
 	}
