@@ -1424,12 +1424,12 @@ public class VoIPClient  {
 						
 					case FORCE_MUTE_ON:
 						forceMute = true;
-						sendHandlerMessage(VoIPConstants.MSG_FORCE_MUTE_UPDATED);
+						sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 						break;
 						
 					case FORCE_MUTE_OFF:
 						forceMute = false;
-						sendHandlerMessage(VoIPConstants.MSG_FORCE_MUTE_UPDATED);
+						sendHandlerMessage(VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT);
 						break;
 						
 					default:
