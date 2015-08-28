@@ -1199,12 +1199,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
 			break;
-		case R.id.msg_compose:
-			if (mShareablePopupLayout.isShowing())
-			{
-				mShareablePopupLayout.dismiss();
-			}
-			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
@@ -1564,26 +1558,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return true;
 		}
 		
-		if( mCustomKeyboard.isCustomKeyboardVisible() ){
-			mCustomKeyboard.hideCustomKeyboard((AdaptxtEditText) mComposeView); 
-			
-//			mCustomKeyboard.hideCustomKeyboard(); 
-			updatePadding(0);
-			return true;
-		}
-
 		if (themePicker != null && themePicker.isShowing())
 		{
 			return themePicker.onBackPressed();
 		}
-		if( mCustomKeyboard.isCustomKeyboardVisible() ){
-			EditText editText = (AdaptxtEditText)activity.findViewById(R.id.msg_compose);
-			mCustomKeyboard.hideCustomKeyboard((AdaptxtEditText) editText); 
-			mCustomKeyboard.closeAnyDialogIfShowing();
+		
+		if (mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.hideCustomKeyboard((AdaptxtEditText) mComposeView); 
+			updatePadding(0);
 			return true;
-		}else {
-			mCustomKeyboard.closeAnyDialogIfShowing();
 		}
+		mCustomKeyboard.closeAnyDialogIfShowing();
+
 		if (mActionMode.isActionModeOn())
 		{
 			mActionMode.finish();
