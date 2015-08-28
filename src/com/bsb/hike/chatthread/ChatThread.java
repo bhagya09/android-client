@@ -704,14 +704,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	protected void initView()
 	{
-		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 
-		mCustomKeyboard= new CustomKeyboard(activity, parentView);
-		mCustomKeyboard.registerEditText(R.id.msg_compose,KPTConstants.MULTILINE_LINE_EDITOR,ChatThread.this,ChatThread.this);
-		mCustomKeyboard.init(mComposeView);
+		initCustomKeyboard();
 		
-		mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+//		mCustomKeyboard.showCustomKeyboard(mComposeView, true);
 		
 		audioRecordView = new AudioRecordView(activity, this);
 
@@ -727,6 +724,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		setupStickerSearch();
 	}
 
+	protected void initCustomKeyboard()
+	{	
+		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard= new CustomKeyboard(activity, parentView);
+		mCustomKeyboard.registerEditText(R.id.msg_compose,KPTConstants.MULTILINE_LINE_EDITOR,ChatThread.this,ChatThread.this);
+		mCustomKeyboard.init(mComposeView);
+	}	
+		
 	private void defineEnterAction() {
 		
 		if (mComposeView != null) {
