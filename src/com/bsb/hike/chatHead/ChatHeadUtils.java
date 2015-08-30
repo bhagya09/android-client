@@ -17,6 +17,7 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.text.TextUtils;
@@ -292,19 +293,39 @@ public class ChatHeadUtils
 		return enabledForUser && permittedToRun && packageListNonEmpty;
 	}
 	
-	public static boolean shouldSwitchToAccessibility()
+	public static boolean shouldShowAccessibility()
+	{
+		boolean showAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true);
+		if(!showAccessibility)
+		{
+			return false;
+		}
+		return  !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
+	}
+	
+	public static boolean canAccessibilityBeUsed(boolean serviceDecision)
 	{
 		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
-		boolean dontUseAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
-		
-		return forceAccessibility && !(dontUseAccessibility && isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext()));
+		if(!forceAccessibility)
+		{
+			return false;
+		}
+		boolean accessibilityDisabled = !isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext());
+		if(!serviceDecision)
+		{
+			return accessibilityDisabled;
+		}
+		boolean wantToUseAccessibility = !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, true);
+		//dontUseAccessibility is an internal flag, to prevent user from using accessibility service for stickey,
+		//even if accessibility is enabled by forceAccessibility flag On
+		return  wantToUseAccessibility || accessibilityDisabled;
 	}
 	
 	public static void startOrStopService(boolean jsonChanged)
 	{
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
 		boolean chatHeadEnabledAndValid = shouldRunChatHeadServiceForStickey();
-		boolean onlyUseAccessibility = shouldSwitchToAccessibility();
+		boolean onlyUseAccessibility = canAccessibilityBeUsed(true);
 		
 		if ((chatHeadEnabledAndValid || sessionLogEnabled) && !onlyUseAccessibility)
 		{
@@ -374,9 +395,22 @@ public class ChatHeadUtils
 			e.printStackTrace();
 		}
 	}
-	
-	public static boolean willPollingWork()
+
+	public static boolean checkDeviceFunctionality()
 	{
-		return !Utils.isLollipopMR1OrHigher();
+		if (Utils.isIceCreamOrHigher() && !Utils.isLollipopMR1OrHigher())
+		{
+			return true;
+		}
+		else if(Utils.isLollipopMR1OrHigher())
+		{
+			Set<String> currentPoll = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_ALL_RUNNING_PROCESSES);
+			return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
+		}
+		else
+		{
+			return false; 
+		}
 	}
+	
 }

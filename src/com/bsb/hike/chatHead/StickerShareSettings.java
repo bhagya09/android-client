@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -31,6 +30,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -89,8 +89,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	protected void onResume()
 	{
 		super.onResume();
-		boolean accessibilityOnForHike = ChatHeadUtils.isAccessibilityEnabled(this);
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, ChatHeadUtils.willPollingWork()) && !accessibilityOnForHike)
+		if (ChatHeadUtils.shouldShowAccessibility())
 		{
 			click2Accessibility.setVisibility(View.VISIBLE);
 		}
@@ -101,13 +100,13 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		
 		if(accessibilityDialog==null || !accessibilityDialog.isShowing())
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true) && !accessibilityOnForHike)
+			if (ChatHeadUtils.canAccessibilityBeUsed(false))
 			{
 				forciblyMarkUnchecked();
 			}
 			else
 			{
-				settingSelectAllText(false);
+				stickerSettingsChangedEvent(false);
 			}
 		}
 	}
@@ -129,8 +128,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			@Override
 			public void onClick(View v)
 			{
-				Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-				startActivityForResult(intent, 0);
+				IntentFactory.openAccessibilitySettings(StickerShareSettings.this);
 			}
 		});
 		selectAllCheckbox.setOnTouchListener(new View.OnTouchListener()
@@ -194,48 +192,36 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		}
 	}
 	
-	private void markAllChecked(boolean allChecked)
+	private void forceToggleAllListItems(boolean currentValue)
 	{
-		if (allChecked)
+		for (int j = 0; j < mListViewItems.size(); j++)
 		{
-			for (int j = 0; j < mListViewItems.size(); j++)
-			{
-				mListViewItems.get(j).appChoice = false;
-			}
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SELECT_ALL, AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED);
-
+			mListViewItems.get(j).appChoice = !currentValue;
 		}
-		else
+		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SELECT_ALL, currentValue ? AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED : AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
+		if (!currentValue)
 		{
-			for (int j = 0; j < mListViewItems.size(); j++)
-			{
-				mListViewItems.get(j).appChoice = true;
-			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-
 			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SELECT_ALL, AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
 		}
-
 	}
 
 	private void onSelectAllCheckboxClick()
 	{
-		markAllChecked(areAllItemsCheckedOrUnchecked(true));
-		settingSelectAllText(true);
+		forceToggleAllListItems(areAllItemsCheckedOrUnchecked(true));
+		stickerSettingsChangedEvent(true);
 	}
 	
-	public void settingSelectAllText(boolean showDialog)
+	public void stickerSettingsChangedEvent(boolean showDialog)
 	{
-		if (showDialog && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true) && !ChatHeadUtils.isAccessibilityEnabled(this))
+		if (showDialog && ChatHeadUtils.canAccessibilityBeUsed(false))
 		{
 			accessibilityDialog = HikeDialogFactory.showDialog(StickerShareSettings.this, HikeDialogFactory.ACCESSIBILITY_DIALOG, new HikeDialogListener()
 			{
 				@Override
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
-					Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-					startActivityForResult(intent, 0);
+					IntentFactory.openAccessibilitySettings(StickerShareSettings.this);
 					hikeDialog.dismiss();
 				}
 				@Override
@@ -259,7 +245,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	private void forciblyMarkUnchecked()
 	{
 		selectAllCheckbox.setChecked(false);
-		markAllChecked(true);
+		forceToggleAllListItems(true);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();

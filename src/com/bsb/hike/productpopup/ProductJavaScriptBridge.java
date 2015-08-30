@@ -199,7 +199,7 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 		{
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
-			if (Utils.isIceCreamOrHigher())
+			if (ChatHeadUtils.checkDeviceFunctionality())
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);

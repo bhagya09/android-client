@@ -114,7 +114,7 @@ public class ChatHeadSettingsArrayAdapter extends ArrayAdapter<ListViewItem>
 		}
 		if(mContext instanceof StickerShareSettings)
 		{
-			((StickerShareSettings) mContext).settingSelectAllText(true);
+			((StickerShareSettings) mContext).stickerSettingsChangedEvent(true);
 		}
 	}
 }
