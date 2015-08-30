@@ -14,19 +14,15 @@ import org.json.JSONObject;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.text.TextUtils;
-import android.widget.HeterogeneousExpandableList;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
-import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -57,7 +53,7 @@ public class ChatHeadUtils
 	 */
 	public static Set<String> getRunningAppPackage(int type)
 	{
-		Context context = HikeMessengerApp.getInstance();
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		List<RunningAppProcessInfo> processInfos = activityManager.getRunningAppProcesses();
 		Set<String> packageName = new HashSet<String>();
@@ -65,17 +61,22 @@ public class ChatHeadUtils
 		//called if all the packages whose processes are running is needed
 		if (type == GET_ALL_RUNNING_PROCESSES)
 		{
-			Iterator runningAppProcessInfo = processInfos.iterator();
-			while (runningAppProcessInfo.hasNext())
+			if(processInfos != null && !processInfos.isEmpty())
 			{
-				ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo) (runningAppProcessInfo.next());
-				packageName.add(PhoneSpecUtils.getPackageFromProcess(info.processName));
+				Iterator<RunningAppProcessInfo> runningAppProcessInfo = processInfos.iterator();
+				while (runningAppProcessInfo.hasNext())
+				{
+					ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo) (runningAppProcessInfo.next());
+					packageName.add(PhoneSpecUtils.getPackageFromProcess(info.processName));
+				}
 			}
-			return packageName;
 		}
-
-		//called if all the packages whose task is running is needed
-		return getRunningTaskPackage(context, activityManager, processInfos, packageName, type);
+		else
+		{
+			// called if all the packages whose task is running is needed
+			getRunningTaskPackage(context, activityManager, processInfos, packageName, type);
+		}
+		return packageName;
 	}
 	
 	public static void initVariables()
@@ -99,10 +100,14 @@ public class ChatHeadUtils
 		}
 	}
 
-	public static Set<String> getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
+	public static void getRunningTaskPackage(Context context, ActivityManager activityManager, List<RunningAppProcessInfo> processInfos, Set<String> packageName, int type)
 	{
 		if (Utils.isLollipopOrHigher())
 		{
+			if(processInfos == null)
+			{
+				return;
+			}
 			if (type == GET_TOP_MOST_SINGLE_PROCESS)
 			{
 				Field field = null;
@@ -138,10 +143,8 @@ public class ChatHeadUtils
 						}
 					}
 				}
-
-				return packageName;
 			}
-			else 
+			else if(type == GET_FOREGROUND_PROCESSES) 
 			{
 				for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
 				{
@@ -151,17 +154,20 @@ public class ChatHeadUtils
 						packageName.add(PhoneSpecUtils.getPackageFromProcess(processInfo.processName));
 					}
 				}
-				return packageName;
 			}
 		}
+		// Lower than LOLLIPOP or processInfos null
 		else
 		{
 			try
 			{
 				List<RunningTaskInfo> runningTasks = activityManager.getRunningTasks((type == GET_TOP_MOST_SINGLE_PROCESS)? 1 : Integer.MAX_VALUE);
-				for (int i = 0; i < runningTasks.size(); i++)
+				if(runningTasks != null && !runningTasks.isEmpty())
 				{
-					packageName.add(runningTasks.get(i).topActivity.getPackageName());
+					for (int i = 0; i < runningTasks.size(); i++)
+					{
+						packageName.add(runningTasks.get(i).topActivity.getPackageName());
+					}
 				}
 			}
 			catch (SecurityException se)
@@ -172,11 +178,8 @@ public class ChatHeadUtils
 			{
 				Logger.d(TAG, "Exception in fetching tasks");
 			}
-			return packageName;
 		}
 	}
-	
-	
 	
 	public static boolean areWhitelistedPackagesSharable(Context context)
 	{
@@ -324,10 +327,9 @@ public class ChatHeadUtils
 	public static void startOrStopService(boolean jsonChanged)
 	{
 		boolean sessionLogEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false);
-		boolean chatHeadEnabledAndValid = shouldRunChatHeadServiceForStickey();
-		boolean onlyUseAccessibility = canAccessibilityBeUsed(true);
+		boolean startChatHead = shouldRunChatHeadServiceForStickey() && !canAccessibilityBeUsed(true);
 		
-		if ((chatHeadEnabledAndValid || sessionLogEnabled) && !onlyUseAccessibility)
+		if (sessionLogEnabled || startChatHead)
 		{
 			if (jsonChanged)
 			{
@@ -338,14 +340,15 @@ public class ChatHeadUtils
 				startService();
 			}
 		}
-		if(!chatHeadEnabledAndValid || onlyUseAccessibility)
+		else
+		{
+			stopService();
+		}
+		
+		if(!startChatHead)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			if(!sessionLogEnabled || onlyUseAccessibility)
-			{
-				stopService();
-			}
+			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE); 
 		}
 	}
 
