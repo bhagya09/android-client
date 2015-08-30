@@ -384,7 +384,6 @@ public class ProductPopupsConstants
 				// TODO Auto-generated method stub
 				return "chathead";
 			}
-
 		};
 		
 		

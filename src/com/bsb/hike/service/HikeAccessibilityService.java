@@ -5,6 +5,8 @@ import com.bsb.hike.utils.Logger;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.view.accessibility.AccessibilityEvent;
 
 public class HikeAccessibilityService extends AccessibilityService
@@ -49,8 +51,8 @@ public class HikeAccessibilityService extends AccessibilityService
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event)
 	{
-		Logger.d(TAG, String.format("onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s", getEventType(event), event.getClassName(), event.getPackageName(),
-				event.getEventTime(), getEventText(event)));
+//		Logger.d(TAG, String.format("onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s", getEventType(event), event.getClassName(), event.getPackageName(),
+//				event.getEventTime(), getEventText(event)));
 	}
 
 	@Override
@@ -60,8 +62,23 @@ public class HikeAccessibilityService extends AccessibilityService
 	}
 
 	@Override
+	public void unbindService(ServiceConnection conn)
+	{
+		Logger.d(TAG,"Unbinding service");
+		super.unbindService(conn);
+	}
+	
+	@Override
+	public boolean bindService(Intent service, ServiceConnection conn, int flags)
+	{
+		Logger.d(TAG,"binding service");
+		return super.bindService(service, conn, flags);
+	}
+	@Override
 	public void onDestroy()
 	{
+		Logger.d(TAG,"detroying service");
+		ChatHeadUtils.startOrStopService(false);
 		super.onDestroy();
 	}
 	@Override
@@ -74,6 +91,7 @@ public class HikeAccessibilityService extends AccessibilityService
 		info.notificationTimeout = 100;
 		info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
 		info.feedbackType = AccessibilityServiceInfo.FEEDBACK_ALL_MASK;
+		info.loadDescription(getPackageManager());
 		setServiceInfo(info);
 		ChatHeadUtils.startOrStopService(false);
 	}

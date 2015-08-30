@@ -1661,4 +1661,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="UNLINK">UNLINK</string>
     <string name="UPDATE_APP">UPDATE</string>
     <string name="ENABLE">ENABLE</string>
+    <string name="accessibility_settings_system_text">Hike Stickey offers multiple features like sharing stickers on messaging apps etc. Please enable and turn it ON.</string>
+	<string name="show_accessibility_tip_text">Hike needs Accessibility Services to be enabled for this feature. Please tap here and select Hike</string>
+	<string name="accessibility_dialog_text">Hike needs Accessibility Service to be enabled for this feature. Tap ENABLE and select Hike</string>
+	<string name="accessbility">Accessibility</string>
 </resources>

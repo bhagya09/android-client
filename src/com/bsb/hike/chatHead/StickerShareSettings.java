@@ -15,7 +15,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -23,7 +22,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -64,6 +62,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	
 	static boolean isSelectAllTouched = false;
 	
+	HikeDialog accessibilityDialog;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -84,13 +84,13 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		listView.setAdapter(listAdapter);
 		setupActionBar();
 	}
-
+	
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
 		boolean accessibilityOnForHike = ChatHeadUtils.isAccessibilityEnabled(this);
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, false) && !accessibilityOnForHike)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, ChatHeadUtils.willPollingWork()) && !accessibilityOnForHike)
 		{
 			click2Accessibility.setVisibility(View.VISIBLE);
 		}
@@ -99,13 +99,16 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			click2Accessibility.setVisibility(View.GONE);
 		}
 		
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, false) && !accessibilityOnForHike)
+		if(accessibilityDialog==null || !accessibilityDialog.isShowing())
 		{
-			forciblyMarkUnchecked();
-		}
-		else
-		{
-			settingSelectAllText(false);
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true) && !accessibilityOnForHike)
+			{
+				forciblyMarkUnchecked();
+			}
+			else
+			{
+				settingSelectAllText(false);
+			}
 		}
 	}
 
@@ -126,11 +129,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			@Override
 			public void onClick(View v)
 			{
-				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true))
-				{
-					Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-					startActivityForResult(intent, 0);
-				}
+				Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+				startActivityForResult(intent, 0);
 			}
 		});
 		selectAllCheckbox.setOnTouchListener(new View.OnTouchListener()
@@ -229,7 +229,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	{
 		if (showDialog && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true) && !ChatHeadUtils.isAccessibilityEnabled(this))
 		{
-			HikeDialogFactory.showDialog(StickerShareSettings.this, HikeDialogFactory.ACCESSIBILITY_DIALOG, new HikeDialogListener()
+			accessibilityDialog = HikeDialogFactory.showDialog(StickerShareSettings.this, HikeDialogFactory.ACCESSIBILITY_DIALOG, new HikeDialogListener()
 			{
 				@Override
 				public void positiveClicked(HikeDialog hikeDialog)
@@ -265,7 +265,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		savingUserPref();
 	}
 
-	static boolean areAllItemsCheckedOrUnchecked(boolean allItemsExpectedChecked)
+	private static boolean areAllItemsCheckedOrUnchecked(boolean allItemsExpectedChecked)
 	{
 		// if all list items are expected checked, we return false if even one list item is unchecked, and vice versa
 		for (int j = 0; j < mListViewItems.size(); j++)

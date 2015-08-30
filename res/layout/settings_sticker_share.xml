@@ -23,8 +23,9 @@
             android:gravity="center"
             android:paddingBottom="5dp"
             android:paddingTop="5dp"
-            android:text="Hike needs Accessibility Services to be enabled for this feature. Please tap here and select Hike"
-            android:textColor="#ffffff"/>
+            android:text="@string/show_accessibility_tip_text"
+            android:textColor="#ffffff"
+            android:textSize="14sp"/>
 
     </LinearLayout>
     <LinearLayout

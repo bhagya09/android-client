@@ -294,8 +294,8 @@ public class ChatHeadUtils
 	
 	public static boolean shouldSwitchToAccessibility()
 	{
-		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, false);
-		boolean dontUseAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, false);
+		boolean forceAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
+		boolean dontUseAccessibility = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, ChatHeadUtils.willPollingWork());
 		
 		return forceAccessibility && !(dontUseAccessibility && isAccessibilityEnabled(HikeMessengerApp.getInstance().getApplicationContext()));
 	}

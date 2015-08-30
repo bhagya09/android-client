@@ -7,5 +7,5 @@
     android:canRequestFilterKeyEvents="true"
     android:canRequestTouchExplorationMode="true"
     android:canRetrieveWindowContent="true"
-    android:description="@string/free_messaging_txt"
+    android:description="@string/accessibility_settings_system_text"
     android:notificationTimeout="100" />

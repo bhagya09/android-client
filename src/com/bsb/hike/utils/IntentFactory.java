@@ -204,11 +204,9 @@ public class IntentFactory
 	
 	public static void openStickerSettings(Context context)
 	{
-		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 		if (Utils.isIceCreamOrHigher())
 		{
-			Intent intent = new Intent(context, StickerShareSettings.class);
-			context.startActivity(intent);
+			context.startActivity(getStickerShareSettingsIntent(context));
 		}
 	}
 	
@@ -376,6 +374,7 @@ public class IntentFactory
 
 	public static Intent getStickerShareSettingsIntent(Context context)
 	{
+		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 		return new Intent(context, StickerShareSettings.class);
 	}
 	

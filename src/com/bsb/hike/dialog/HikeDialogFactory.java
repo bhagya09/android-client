@@ -508,7 +508,6 @@ public class HikeDialogFactory
 	{
 		final CustomAlertDialog hikeDialog = new CustomAlertDialog(context, dialogId);
 		hikeDialog.setCancelable(showingNativeInfoDialog);
-
 		hikeDialog.setTitle(showingNativeInfoDialog ? R.string.native_header : R.string.use_hike_for_sms);
 		
 		hikeDialog.setMessage(showingNativeInfoDialog ? R.string.native_info : R.string.use_hike_for_sms_info);
@@ -788,8 +787,10 @@ public class HikeDialogFactory
 		switch (dialogId)
 		{
 		case ACCESSIBILITY_DIALOG:
-			deleteConfirmDialog.setMessage("Hike needs Accessibility Service to be enabled for this feature. Tap ENABLE and select Hike");
-			deleteConfirmDialog.setTitle("Accessibility");
+			deleteConfirmDialog.setMessage(context.getString(R.string.accessibility_dialog_text));
+			deleteConfirmDialog.setTitle(context.getString(R.string.accessbility));
+			deleteConfirmDialog.setCancelable(false);
+			deleteConfirmDialog.setPositiveButton(R.string.ENABLE, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 		case DELETE_FILES_DIALOG:
