@@ -75,6 +75,8 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		{
 			public void onClick(DialogInterface dialog, int which)
 			{
+				// stop the previously playing ringtone first
+				SoundUtils.stopSound();
 				mClickedDialogEntryIndex = which;
 				playSoundAsPerToneClicked();
 			}
