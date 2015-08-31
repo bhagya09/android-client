@@ -225,8 +225,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		recyclerView.setHasFixedSize(true);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
-
 		int numColumns = isInsideAlbum ? 3 : Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
+
+		sizeOfImage = getUpdatedSizeOfImage(numColumns, sizeOfImage);
 
 		recyclerAdapter = new GalleryRecyclerAdapter(this, galleryItemList, isInsideAlbum, sizeOfImage, selectedGalleryItems, false);
 		GalleryItemClickHandler.addTo(recyclerView).setOnItemClickListener(new GalleryItemClickHandler.OnItemClickListener() {
@@ -765,5 +766,24 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		setMultiSelectTitle();
 		return true;
+	}
+
+	/**
+	 * Returns new size of image for gallery item based on extra horizontal space.
+	 * It will be used to maintain the fixed horizontal margin between the gallery item in case when screen width is higher than the ((sizeOfImage*numOfColumns) + (numOfColumns*margin)).
+	 * @param numColumns
+	 * @param oldSizeOfImage
+	 */
+	private int getUpdatedSizeOfImage(int numColumns, int oldSizeOfImage)
+	{
+		int newSizeOfImage = oldSizeOfImage;
+		int extraSpace = getResources().getDisplayMetrics().widthPixels - (numColumns * oldSizeOfImage);
+		int margin = getResources().getDimensionPixelOffset(R.dimen.gallery_grid_spacing);
+		if(extraSpace > (numColumns * margin))
+		{
+			extraSpace = extraSpace - (numColumns * margin);
+			newSizeOfImage += extraSpace/numColumns;
+		}
+		return newSizeOfImage;
 	}
 }
