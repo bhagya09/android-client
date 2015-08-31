@@ -39,7 +39,7 @@ public class NetworkAgModule
 		
 		NetworkConnectivity mConnectivity = NetworkConnectivity.getInstance(HikeMessengerApp.getInstance());
 		mConnectivity.setAuthenticationKey("120a7b20-05e3-11e5-9971-023d7307ee72");// Your AuthenticationKey
-		mConnectivity.setServerUrl("http://ag.hike.in/mobile");
+		mConnectivity.setServerUrl("https://ag.hike.in/mobile");
 		mConnectivity.setDownloadUrl("http://ag.hike.in/latency");
 		mConnectivity.setLogIntervalSec(28800);
 		mConnectivity.setHighLocationPrecise(false);
