@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1396"
-    android:versionName="4.0.1" >
+    android:versionCode="1402"
+    android:versionName="4.0.1.20.3.core_messaging" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -216,8 +216,7 @@
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true" 
-            android:theme="@style/AppTheme.Overlay" 
-            >
+            android:theme="@style/WebView.Theme"> 
         </activity>
         <activity
             android:name=".ui.ShareLocation"
@@ -418,6 +417,13 @@
             android:value="@integer/google_play_services_version" />
 
         <receiver android:name=".service.SmsMessageStatusReceiver" />
+        <receiver
+            android:name=".service.AppTrackerReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".service.AlarmBroadcastReceiver" >
             <intent-filter>
                 <action android:name="com.bsb.hike.START_ALARM" />
@@ -462,13 +468,6 @@
         </receiver>
         
         <receiver
-            android:name=".service.ReferralReceiver"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="com.android.vending.INSTALL_REFERRER" />
-            </intent-filter>
-        </receiver>
-        <receiver
             android:name="com.bsb.hike.service.DeviceShutDownReceiver"
             android:enabled="true" >
             <intent-filter android:priority="999" >
@@ -476,6 +475,30 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
             </intent-filter>
         </receiver>
-    </application>
+        
+        <!-- ag starts -->
+        <receiver
+            android:name="jp.co.agoop.networkconnectivity.lib.service.AlarmReceiver"
+            android:exported="false" >
+
+            <!-- Weight setting -->
+            <meta-data
+                android:name="weight"
+                android:value="970" />
+
+            <intent-filter>
+                <action android:name="jp.co.agoop.networkconnectivity.ACT_START_ALARM" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- ContentProvider -->
+        <provider
+            android:name="com.bsb.hike.ag.NetworkAgProvider"
+            android:authorities="com.bsb.hike.agoop.NetworkTestModuleProvider"
+            android:exported="true" />
+        <!-- ag -->
+        
+        
+</application>
 
 </manifest>

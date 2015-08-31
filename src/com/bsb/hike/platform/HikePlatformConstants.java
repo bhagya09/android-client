@@ -184,9 +184,9 @@ public interface HikePlatformConstants
 	public static final int VERSION_NANO = 0;
 	
 	public static final int VERSION_ALTO = 1;
-	
+
 	public static final int CURRENT_VERSION = 5;
-	
+
 	public static final String AB_COLOR = "color";
 	
 	final String BLOCK = "block";

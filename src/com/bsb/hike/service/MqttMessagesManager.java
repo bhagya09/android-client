@@ -39,6 +39,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -1636,24 +1637,10 @@ public class MqttMessagesManager
 			boolean showFtuePopup = data.getBoolean(HikeConstants.VOIP_FTUE_POPUP);
 			editor.putBoolean(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, showFtuePopup);
 		}
-		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW))
+		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ))
 		{
-			int showPopup = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW);
-			if(showPopup == 1)
-			{
-				editor.putBoolean(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, true);
-				editor.putInt(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-				if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ))
-				{
-					int freq = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ);
-					editor.putInt(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, freq);
-				}
-			}
-			else
-			{
-				editor.remove(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP);
-				editor.remove(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY);
-			}
+			int freq = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ);
+			editor.putInt(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, freq);
 		}
 		if (data.has(HikeConstants.VOIP_RELAY_SERVER_PORT))
 		{
@@ -2444,8 +2431,7 @@ public class MqttMessagesManager
 			{
 				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE));
 			}
-		}
-		
+		}		
 		if(data.has(HikeConstants.DOWNLOAD_TAGS))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
@@ -2460,7 +2446,28 @@ public class MqttMessagesManager
 		{
 			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
 		}
+		if (data.has(HikeConstants.AG_ENABLED))
+		{
+			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AG_ENABLED, agoopLogs);
+			if(agoopLogs)
+			{
+				NetworkAgModule.startLogging();
+			}
+			else
+			{
+				NetworkAgModule.stopLogging();
+			}
+		}
 		
+		if (data.has(HikeConstants.REFERRAL_EMAIL_TEXT))
+		{
+			editor.putString(HikeConstants.REFERRAL_EMAIL_TEXT, data.getString(HikeConstants.REFERRAL_EMAIL_TEXT));
+		}
+		if (data.has(HikeConstants.REFERRAL_OTHER_TEXT))
+		{
+			editor.putString(HikeConstants.REFERRAL_OTHER_TEXT, data.getString(HikeConstants.REFERRAL_OTHER_TEXT));
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

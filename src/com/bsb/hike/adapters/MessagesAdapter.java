@@ -1911,8 +1911,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				SmileyParser smileyParser = SmileyParser.getInstance();
 				markedUp = smileyParser.addSmileySpans(markedUp, false);
 				textHolder.text.setText(markedUp);
-				Linkify.addLinks(textHolder.text, Linkify.ALL);
-				Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
 				msgText = textHolder.text.getText();
 				if (convMessage.getMsgID() > 0)
 					messageTextMap.put(convMessage.getMsgID(), msgText);
@@ -1922,6 +1920,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				msgText = getSpannableSearchString(messageTextMap.get(convMessage.getMsgID()));
 				textHolder.text.setText(msgText);
 			}
+			Linkify.addLinks(textHolder.text, Linkify.ALL);
+			Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
 
 			displayBroadcastIndicator(convMessage, textHolder.broadcastIndicator, true);
 			setTimeNStatus(position, textHolder, false, textHolder.messageContainer);

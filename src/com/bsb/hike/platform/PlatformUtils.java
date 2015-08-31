@@ -984,5 +984,36 @@ public class PlatformUtils
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 		}
 	}
+	
+	public static void sendPlatformCrashAnalytics(String crashType, String msisdn)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.APP_CRASH_EVENT);
+			json.put(HikeConstants.MSISDN, msisdn);
+			json.put(AnalyticsConstants.DATA, crashType);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void sendPlatformCrashAnalytics(String crashType)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.APP_CRASH_EVENT);
+			json.put(AnalyticsConstants.DATA, crashType);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 }
