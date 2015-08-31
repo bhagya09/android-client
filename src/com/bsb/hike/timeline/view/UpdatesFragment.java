@@ -54,6 +54,7 @@ import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.TimelineActions;
@@ -117,6 +118,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public static final int EMPTY_STATE = -10;
 
 	public static final int FILL_STATE = -11;
+
+	public static final int MSG_DELETE = -12;
 	
 	private boolean reachedEnd;
 
@@ -139,6 +142,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		super.onResume();
 		checkIfTimelineEmpty();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
 	}
 
 	@Override
@@ -182,6 +186,20 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					checkIfTimelineEmpty();
 					msg.recycle();
 				}
+				else if (msg.arg1 == UpdatesFragment.MSG_DELETE)
+				{
+					if (actionsView != null && getActivity()!=null)
+					{
+						getActivity().runOnUiThread(new Runnable()
+						{
+							public void run()
+							{
+								actionsView.setX(0);
+								actionsView.setY(0);
+							}
+						});
+					}
+				}
 			}
 		};
 
@@ -205,7 +223,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								for (String msisdn : params)
 								{
 									// TODO Improve for multiple msisdns
-									if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn)))
+									if (userMsisdn.equals(msisdn) || Utils.showContactsUpdates(ContactManager.getInstance().getContact(msisdn,true,true)))
 									{
 										friendMsisdns = params;
 										break;
@@ -215,10 +233,21 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 							List<StatusMessage> olderMessages = null;
 
-							if (friendMsisdns.length > 0)
+							int startId = -1;
+
+							if (isLastMsgJoinTime())
+							{
+								startId = (int) statusMessages.get(statusMessages.size() - 2).getId();
+							}
+							else
+							{
+								startId = (int) statusMessages.get(statusMessages.size() - 1).getId();
+							}
+
+							if (friendMsisdns.length > 0 && startId > 1)
 							{
 								olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(mShowProfileHeader ? false : true,
-										HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME, (int) statusMessages.get(statusMessages.size() - 1).getId(), friendMsisdns);
+										HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME, startId, friendMsisdns);
 							}
 							else
 							{
@@ -286,10 +315,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								 * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
 								 */
 								reachedEnd = true;
+								addJoinTimeMessage();
 							}
 
 						}
-
 					};
 					if (Utils.isHoneycombOrHigher())
 					{
@@ -300,15 +329,20 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 						asyncTask.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
 					}
 				}
+				else
+				{
+					//User joined status message
+					addJoinTimeMessage();
+				}
 			}
 		});
 
 		if (!mShowProfileHeader)
 		{
-			QuickReturnRecyclerViewOnScrollListener scrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
-					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(50)).isSnappable(false).build();
+			QuickReturnRecyclerViewOnScrollListener quickReturnscrollListener = new QuickReturnRecyclerViewOnScrollListener.Builder(QuickReturnViewType.HEADER).header(actionsView)
+					.minHeaderTranslation(-1 * HikePhotosUtils.dpToPx(52)).isSnappable(false).build();
 
-			mUpdatesList.addOnScrollListener(scrollListener);
+			mUpdatesList.addOnScrollListener(quickReturnscrollListener);
 			
 			actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
 
@@ -331,6 +365,52 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 	}
 
+	private boolean isLastMsgJoinTime()
+	{
+		// Check if last message is joined hike message (self inserted)
+		if (statusMessages != null && !statusMessages.isEmpty())
+		{
+			StatusMessage lastMessage = statusMessages.get(statusMessages.size() - 1);
+			if (lastMessage.getStatusMessageType() == StatusMessageType.JOINED_HIKE)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void addJoinTimeMessage()
+	{
+		if(isLastMsgJoinTime())
+		{
+			return;
+		}
+		
+		if(mShowProfileHeader)
+		{
+			ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0), true, true);
+			
+			if(!joinConInfo.isOnhike())
+			{
+				return;
+			}
+			
+			StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
+			
+			if (cJoinedSM != null)
+			{
+				statusMessages.add(cJoinedSM);
+				notifyVisibleItems();
+				if(cJoinedSM.getTimeStamp() == 0)
+				{
+					joinConInfo.httpGetHikeJoinTime();
+				}
+			}
+			
+			Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
+		}
+	}
+	
 	@Override
 	public void onDestroy()
 	{
@@ -349,7 +429,24 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		if (HikePubSub.TIMELINE_UPDATE_RECIEVED.equals(type))
 		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
+			
 			final StatusMessage statusMessage = (StatusMessage) object;
+
+			// If not showing profile, lets add new message
+			if (mShowProfileHeader)
+			{
+				// If showing profile, check if msisdn is same or not
+				if (mMsisdnArray != null && statusMessage.getMsisdn().equals(mMsisdnArray.get(0)))
+				{
+					//Do nothing, add message
+				}
+				else
+				{
+					return;
+				}
+			}
+
 			final int startIndex = getStartIndex();
 
 			getActivity().runOnUiThread(new Runnable()
@@ -357,12 +454,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void run()
 				{
-					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index "+ startIndex);
+					Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub TIMELINE_UPDATE_RECIEVED adding SU " + statusMessage + "at index " + startIndex);
 					statusMessages.add(startIndex, statusMessage);
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
-			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
 		}
 		else if (HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED.equals(type))
 		{
@@ -415,8 +511,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					}
 				}
 			});
-
-			
 			
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
@@ -429,6 +523,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					statusMessages.clear();
 					resetSharedPrefOnRemovingFTUE();
 					timelineCardsAdapter.notifyDataSetChanged();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 				}
 			});
 		}
@@ -452,13 +548,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							Pair<Set<String>, Integer> pair = (Pair<Set<String>, Integer>)object;
 							HashSet<String> msisdnSet = (HashSet<String>) pair.first;
 							int counter = pair.second;
-							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and count "+ counter);
+							Logger.d("tl_ftue", "inside pubub " + msisdnSet+", and final count is "+ counter);
 							Iterator<String> iterator = msisdnSet.iterator();
 							int i=0;
-							while(iterator.hasNext() && i < counter + 1)
+							while(iterator.hasNext() && i < counter)
 							{
 								ContactInfo info = ContactManager.getInstance().getContact(iterator.next(), true, true);
-								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+								if (info.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
+										&& !Utils.getUserContactInfo(false).getMsisdn().equals(info.getMsisdn()))
 								{
 									mFtueFriendList.add(info);
 									i++;
@@ -574,7 +671,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, false);
 		
-		mFtueFriendList.clear();
+		if(mFtueFriendList != null)
+		{
+			mFtueFriendList.clear();
+		}
 	}
 
 	private class FetchUpdates extends AsyncTask<String, Void, List<StatusMessage>>
@@ -684,11 +784,21 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}, 0);
 			}
 
-			long currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+			long currentProtipId = -1l;
+
+			//Defensive check. TODO Remove protip code from application.
+			try
+			{
+				currentProtipId = prefs.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
 
 			Protip protip = null;
 			boolean showProtip = false;
-			if (currentProtipId != -1)
+			if (currentProtipId != -1l)
 			{
 				showProtip = true;
 				protip = HikeConversationsDatabase.getInstance().getProtipForId(currentProtipId);
@@ -725,25 +835,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			}
 			
-			//User joined status message
-			if(mShowProfileHeader)
+			if(statusMessages.size() < HikeConstants.MAX_STATUSES_TO_LOAD_INITIALLY)
 			{
-				ContactInfo joinConInfo = ContactManager.getInstance().getContact(mMsisdnArray.get(0));
-				
-				StatusMessage cJoinedSM = StatusMessage.getJoinedHikeStatus(joinConInfo);
-				
-				if (cJoinedSM != null)
-				{
-					statusMessages.add(cJoinedSM);
-					if(cJoinedSM.getTimeStamp() == 0)
-					{
-						joinConInfo.httpGetHikeJoinTime();
-					}
-				}
-				
-				Logger.d(HikeConstants.TIMELINE_LOGS, "User Profile screen, so adding SU " + cJoinedSM);
+				addJoinTimeMessage();
 			}
-
+			
+			timelineCardsAdapter.notifyDataSetChanged();
+			
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
 		}
 
@@ -801,7 +899,15 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				String id = iterator.next();
 				ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
-				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND))
+				
+				if(c == null || c.getFavoriteType() == null || c.getMsisdn() == null)
+				{
+					Logger.d("tl_ftue", "NPE: favourite null");
+					continue;
+				}
+				
+				if (c.getFavoriteType().equals(FavoriteType.NOT_FRIEND) 
+						&& !c.getMsisdn().equals(Utils.getUserContactInfo(false).getMsisdn()))
 				{
 					Logger.d("tl_ftue", id + " is not a frnd so adding for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
 					finalContactLsit.add(c);
@@ -921,6 +1027,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
+			if(!Utils.isPhotosEditEnabled())
+			{
+				galleryFlags = galleryFlags|GalleryActivity.GALLERY_CROP_IMAGE;
+			}
+			
 			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, getNewImagePostFilePath());
 			startActivityForResult(galleryPickerIntent, TIMELINE_POST_IMAGE_REQ);
 			break;

@@ -781,7 +781,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				overFlowMenuItem.enabled = !isMessageListEmpty && !mConversation.isBlocked();
 				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && overFlowMenuItem.enabled)
 				{
-					overFlowMenuItem.drawableId = R.drawable.ic_top_bar_indicator_search;
+					overFlowMenuItem.drawableId = R.drawable.ic_overflow_item_indicator_search;
 				}
 				else
 				{
@@ -1722,7 +1722,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (position >= 0)
 			{
-				scrollToPosition(position, (int) (40 * Utils.densityMultiplier));
+				scrollToPosition(position, (int) (28 * Utils.densityMultiplier));
 			}
 			else
 			{
@@ -3299,7 +3299,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 *  Note: This is to be shown only once
 		 */
 		boolean ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
-		if (!ctSearchIndicatorShown && !mActionBar.isOverflowMenuIndicatorInUse()
+		if (!ctSearchIndicatorShown && mActionBar !=null && !mActionBar.isOverflowMenuIndicatorInUse()
 				&& (firstVisibleItem + visibleItemCount + 1) < totalItemCount && !loadingMoreMessages)
 		{
 			// If user has already discovered search option, theres on need to show the search icon on overflow menu icon.
@@ -5453,9 +5453,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
 		{
-			mShareablePopupLayout.onCloseKeyBoard();
-
+			mShareablePopupLayout.dismiss();
 		}
+		
 		
 		if (mActionMode != null && mActionMode.isActionModeOn())
 		{

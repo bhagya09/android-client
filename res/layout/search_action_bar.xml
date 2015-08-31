@@ -43,12 +43,13 @@
             android:singleLine="true"
             android:textColor="@color/white"
             android:textCursorDrawable="@drawable/edittextcursorsearch"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:theme="@style/EditextStyleChatSearch" />
 
         <ImageView
             android:id="@+id/search_clear_btn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginBottom="-6dp"
             android:background="@drawable/back_container_selector"
             android:focusable="true"

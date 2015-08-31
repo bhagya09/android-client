@@ -22,6 +22,11 @@ public class VoIPConstants {
 	public static final int AUDIO_SAMPLE_RATE = 48000; 
 	public static final int MAX_SAMPLES_BUFFER = 3;
 
+	// Packet prefixes
+	public static final byte PP_RAW_VOICE_PACKET = 0x01;
+	public static final byte PP_ENCRYPTED_VOICE_PACKET = 0x02;
+	public static final byte PP_PROTOCOL_BUFFER = 0x03;
+
 	/**
 	 * Time (ms) to wait before the client being called replies with its
 	 * own socket information.
@@ -55,7 +60,7 @@ public class VoIPConstants {
 	 * clients will stop transmitting audio completely when they do not
 	 * detect a voice signal from their mic. 
 	 */
-	public static final int CONFERENCE_THRESHOLD = 10;
+	public static final int CONFERENCE_THRESHOLD = 3;
 
 	/**
 	 * Number of seconds to wait for before triggering congestion control again.
@@ -67,6 +72,31 @@ public class VoIPConstants {
 	 */
 	public static final int CONFERENCE_CLIENTS_LIST_BROADCAST_REPEAT = 2000;
 	
+	/**
+	 * Do not attempt a reconnect before this much time has passed
+	 * since the last reconnect.
+	 */
+	public static final int RECONNECT_THRESHOLD = 10000;
+
+	/**
+	 * Maximum number of audio frames that can be put in a single
+	 * UDP packet. 
+	 */
+	public static final int MAXIMUM_FRAMES_PER_PACKET = 3;
+
+	/**
+	 * If bitrate had been lowered previously and now there is 
+	 * no packet loss, then it will be increased in tiny
+	 * increments.
+	 */
+	public static final int BITRATE_STEP_UP = 200;
+
+	/**
+	 * The minimum duration of a call (in seconds) beyond which the call 
+	 * rating popup can be displayed.
+	 */
+	public static final int MIN_CALL_DURATION_FOR_RATING_POPUP = 10;
+
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
 	// Intent actions
@@ -91,6 +121,10 @@ public class VoIPConstants {
 	public static final String CALL_FAILED_REASON = "callfailreason";
 	public static final String PARTNER_NAME = "pname";
 	public static final String CALL_RATE_BUNDLE = "callRateBundle";
+	public static final String APP_VERSION_NAME = "appVersionName";
+	public static final String OS_VERSION = "OsVersion";
+	public static final String IS_CONFERENCE = "isConf";
+	public static final String CALL_DURATION = "duration";
 
 	/*
 	 *  Handler Message Constants
@@ -106,7 +140,6 @@ public class VoIPConstants {
 	public static final int MSG_RECONNECTED = 9;
 	public static final int MSG_UPDATE_QUALITY = 10;
 	public static final int MSG_NETWORK_SUCKS = 11;
-	public static final int MSG_UPDATE_HOLD_BUTTON = 12;
 	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 15;
@@ -120,6 +153,9 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_SPEAKING = 27;
 	public static final int MSG_BLUETOOTH_SHOW = 28;
 	public static final int MSG_DOES_NOT_SUPPORT_CONFERENCE = 29;
+	public static final int MSG_PARTNER_BUSY = 30;
+	public static final int MSG_UPDATE_FORCE_MUTE_LAYOUT = 31;
+	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 
 	public static final class Analytics
 	{
@@ -137,8 +173,6 @@ public class VoIPConstants {
 
 		public static final String NEW_LOG ="nl";
 
-		public static final String OLD_NETWORK_TYPE = "oldnet";
-
 		public static final String CALL_SOURCE = "source";
 
 		public static final String DATA_SENT = "dsent";
@@ -150,6 +184,12 @@ public class VoIPConstants {
 		public static final String DURATION = "dur";
 
 		public static final String CALL_CONNECT_FAIL_REASON = "reason";
+
+		public static final String APP_VERSION_NAME = "appv";
+
+		public static final String OS_VERSION = "osv";
+
+		public static final String IS_CONFERENCE = "isconf";
 	}
 
 	public static final class CallFailedCodes

@@ -2295,6 +2295,33 @@ public class HikeConstants
 		public static final String FTUE_GOT_IT_CLICKED = "tL_GiT";
 
 		public static final String DPI = "dpi";
+		
+		/**
+		 * Timelnie
+		 */
+		public static final String TIMELINE_OPEN = "tLO";
+		
+		public static final String TIMELINE_WITH_RED_DOT = "wr";
+		
+		public static final String TIMELINE_SUMMARY_OPEN = "tL_OpUS";
+		
+		public static final String TIMELINE_SUMMARY_LIKES_DIALOG_OPEN = "tL_OpLc";
+		
+		public static final String TIMELINE_CARD_LONG_PRESS = "tL_LPclk";
+		
+		public static final String TIMELINE_LONG_PRESS_MESSAGE = "mu";
+		
+		public static final String TIMELINE_LONG_PRESS_DELETE = "du";
+		
+		public static final String TIMELINE_LONG_PRESS_COPY = "cu";
+		
+		public static final String TIMELINE_OVERFLOW_OPTIONS = "tL_ofLO";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_CLEAR = "clt";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_MY_PROFILE = "myp";
+		
+		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
 	}
 
@@ -3194,5 +3221,9 @@ public class HikeConstants
 	public static final String STICKER_SETTINGS = "stickerSettings";
 
 	public static final String AG_ENABLED = "agLogs";
+
+	public static final String REFERRAL_EMAIL_TEXT = "ref_mail_txt";
+	
+	public static final String REFERRAL_OTHER_TEXT = "ref_oth_txt";
 
 }

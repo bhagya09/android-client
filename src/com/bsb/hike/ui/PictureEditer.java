@@ -437,7 +437,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				b.putString(HikeConstants.HikePhotos.ORIG_FILE, originalImageFile);
 				profilePicFragment.setArguments(b);
 				getSupportFragmentManager().beginTransaction()
-						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
 						.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
 	}
 

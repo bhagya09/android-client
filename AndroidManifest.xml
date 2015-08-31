@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1378"
-    android:versionName="4.0.0.23.2.agoop" >
+    android:versionCode="1398"
+    android:versionName="4.0.1.20" >
+    
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"/>
@@ -417,6 +418,13 @@
             android:value="@integer/google_play_services_version" />
 
         <receiver android:name=".service.SmsMessageStatusReceiver" />
+        <receiver
+            android:name=".service.AppTrackerReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".service.AlarmBroadcastReceiver" >
             <intent-filter>
                 <action android:name="com.bsb.hike.START_ALARM" />
@@ -460,13 +468,6 @@
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>
         
-        <receiver
-            android:name=".service.ReferralReceiver"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="com.android.vending.INSTALL_REFERRER" />
-            </intent-filter>
-        </receiver>
         <receiver
             android:name="com.bsb.hike.service.DeviceShutDownReceiver"
             android:enabled="true" >

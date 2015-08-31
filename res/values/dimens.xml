@@ -74,7 +74,7 @@
     <!-- Text size for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_text_size">6dp</dimen>
     <!-- Top margin for action bar subtitles -->
-    <dimen name="ab__action_bar_subtitle_top_margin">-3dp</dimen>
+    <dimen name="ab__action_bar_subtitle_top_margin">2dp</dimen>
     <!-- Bottom margin for action bar subtitles -->
     <dimen name="ab__action_bar_subtitle_bottom_margin">5dip</dimen>
     <dimen name="ab__status_bar_height">24dp</dimen>
@@ -233,4 +233,7 @@
 	<dimen name="tick_padding_bottom">3dp</dimen>
 	<dimen name="clock_padding_bottom">2dp</dimen>
 	<dimen name="bottom_padding_pin_view">150dp</dimen>
+	
+	<dimen name="overflow_menu_top_margin_non_overlay">-52dp</dimen>
+	<dimen name="overflow_menu_top_margin_overlay">4dp</dimen>
 </resources>
