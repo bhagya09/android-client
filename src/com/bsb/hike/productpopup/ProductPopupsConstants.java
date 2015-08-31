@@ -53,6 +53,17 @@ public class ProductPopupsConstants
 
 	public static final String REQUEST_TYPE = "requestType";
 	
+	public static final String PRODUCT_POP_UP = "ppopup";
+	
+	public static final String APP_NAME = "app_name";
+	
+	public static final String PID = "pid";
+	
+	public static final String SEEN = "seen";
+
+	public static final String RECEIVED = "rec";
+
+	
 	public static enum PopupStateEnum
 	{
 		NOT_DOWNLOADED(0), DOWNLOADED(1), UNKNOWN(3);

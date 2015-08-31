@@ -9,7 +9,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,6 +39,12 @@ public class ProductContentModel implements Parcelable
 	private long pushTime;
 	
 	private boolean isCancellable;
+	
+	private String pid;
+	
+	private PopupConfiguration popupConfiguration;
+	
+	private int config;
 
 	private ProductContentModel(JSONObject contentData)
 	{
@@ -44,12 +52,19 @@ public class ProductContentModel implements Parcelable
 
 		starttime = contentData.optLong(START_TIME, 0l);
 		endtime = contentData.optLong(END_TIME, new Long(Integer.MAX_VALUE));
-		triggerpoint = contentData.optInt(TRIGGER_POINT,PopupTriggerPoints.HOME_SCREEN.ordinal());
+		triggerpoint = contentData.optInt(TRIGGER_POINT, PopupTriggerPoints.HOME_SCREEN.ordinal());
 		isFullScreen = contentData.optBoolean(IS_FULL_SCREEN, false);
 		pushTime = contentData.optLong(PUSH_TIME, 0l);
-		isCancellable=contentData.optBoolean(IS_CANCELLABLE,false);
+		isCancellable = contentData.optBoolean(IS_CANCELLABLE, false);
+		pid = mmContentModel.getPid();
+
 	}
 
+	public PopupConfiguration getConfig()
+	{
+		return popupConfiguration;
+	}
+	
 	public static ProductContentModel makeProductContentModel(JSONObject contentData)
 	{
 		return new ProductContentModel(contentData);
@@ -83,6 +98,11 @@ public class ProductContentModel implements Parcelable
 	public String getAppName()
 	{
 		return mmContentModel.cardObj.getAppName();
+	}
+	
+	public String getPid()
+	{
+		return pid;
 	}
 
 	public String getAppVersion()
@@ -185,6 +205,7 @@ public class ProductContentModel implements Parcelable
 		jsonObj.addProperty(IS_FULL_SCREEN, isFullScreen);
 		jsonObj.addProperty(PUSH_TIME,pushTime);
 		jsonObj.addProperty(IS_CANCELLABLE, isCancellable);
+		jsonObj.addProperty(HikeConstants.CONFIGURATION, config);
 		return jsonObj.toString();
 	}
 
@@ -214,7 +235,7 @@ public class ProductContentModel implements Parcelable
 	
 	public boolean isPushReceived()
 	{	
-		if (!TextUtils.isEmpty(getUser()) && !TextUtils.isEmpty(getNotifTitle()))
+		if (!TextUtils.isEmpty(getUser()) && !TextUtils.isEmpty(getNotifTitle()) && endtime>System.currentTimeMillis())
 		{
 			return true;
 		}
