@@ -51,15 +51,23 @@ public class DisplayContactsAdapter extends BaseAdapter
 		
 		totalCount = argMsisdnList.size();
 		
-		for(int j = argMsisdnList.size() -1; j >=0; j--)
+		//Iterate and remove all msisdns which are
+		//1) Not saved in Addressbook
+		//2) Non fav
+		for (int j = argMsisdnList.size() - 1; j >= 0; j--)
 		{
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true,  false);
-			if(!contactInfo.getFavoriteType().equals(ContactInfo.FavoriteType.FRIEND))
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false, true);
+			if (contactInfo == null) // Null implies that this contact is not saved in address book, now going to check if it is fav
 			{
-				argMsisdnList.remove(j);
+				contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
+				if (!contactInfo.getFavoriteType().equals(ContactInfo.FavoriteType.FRIEND))
+				{
+					//As this contact is not fav so removing it
+					argMsisdnList.remove(j);
+				}
 			}
 		}
-		
+
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 
 		layoutInflater = LayoutInflater.from(mContext);
