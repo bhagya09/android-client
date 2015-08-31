@@ -4,6 +4,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 
 import android.app.Activity;
+import android.util.Log;
 
 public class GameUtils {
 	public static final int PUT_IN_CACHE = 2;
@@ -35,9 +36,12 @@ public class GameUtils {
 				{
 				case PUT_IN_CACHE:
 					helper.putInCache((String)data[0],(String)data[1]);
+					Log.d("pushkar","put in cache");
+					
 					
 				case GET_FROM_CACHE:
 					String cache=helper.getFromCache((String)data[0],(String)data[1]);
+					Log.d("pushkar",cache);
 // callBack function to be called here.
 //					runOnGLthread(new Runnable()
 //							{
