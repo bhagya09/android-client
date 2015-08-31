@@ -633,6 +633,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			channelSelector = new OfflineChannel(offlineController);
 			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+			StatusBarColorChanger.setStatusBarColor(activity.getWindow(), R.color.black);
 		}
 		else if(OfflineUtils.isConnectingToSameMsisdn(msisdn))
 		{
@@ -1981,12 +1982,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+			setStatusBarColor(R.color.black);
 		}
 		else
 		{
 			activity.updateActionBarColor(theme.headerBgResId());
+			setStatusBarColor(theme.statusBarColor());
 		}
-		setStatusBarColor(theme.statusBarColor());
+		
 		
 		// background image
 		setBackground(theme);

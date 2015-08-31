@@ -96,6 +96,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -250,6 +251,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 			{
 				activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+				setStatusBarColor(R.color.black);
 				sendUIMessage(UPDATE_LAST_SEEN,getString(R.string.connection_established));
 			}
 			break;
@@ -849,6 +851,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void onOfflineConnection(String message)
 	{
 		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+		setStatusBarColor(R.color.black);
 		setLastSeen(message);
 		activity.invalidateOptionsMenu();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -861,6 +864,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
 		activity.updateActionBarColor(getCurrentlTheme().headerBgResId());
+		setStatusBarColor(getCurrentlTheme().statusBarColor());
 		showCallIcon();
 		activity.invalidateOptionsMenu();
 	}
@@ -1376,6 +1380,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+			setStatusBarColor(R.color.black);
 		}
 	}
 
