@@ -1383,7 +1383,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_reconnecting_call">Reconnecting your call...</string>
     <string name="voip_poor_network_quality">Network quality is poor</string>
     <string name="voip_already_in_call">Already in call. Please try again later.</string>
-    <string name="voip_error_force_mute">You have been put on mute by the host.</string>
+    <string name="voip_error_force_mute">Host has muted everyone</string>
     <string name="voip_conf_mute_all_off">MUTE ALL</string>
     <string name="voip_conf_mute_all_on">CANCEL MUTE ALL</string>
     <string name="voip_speech_force_mute_on">The host has muted everyone</string>

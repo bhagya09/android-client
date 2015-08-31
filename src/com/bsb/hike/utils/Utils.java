@@ -6886,6 +6886,23 @@ public class Utils
 	{
 		return getUserContactInfo(false).getMsisdn().equals(argMsisdn);
 	}
+	
+	public static boolean appInstalledOrNot(Context context, String uri)
+	{
+		PackageManager pm = context.getPackageManager();
+		boolean app_installed = false;
+		try
+		{
+			pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+			app_installed = true;
+		}
+		catch (PackageManager.NameNotFoundException e)
+		{
+			app_installed = false;
+		}
+		
+		return app_installed;
+	}
 
 }
 
