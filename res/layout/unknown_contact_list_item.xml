@@ -1,38 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true"
     android:background="@color/white"
     android:orientation="vertical"
-    android:padding="15dp" >
+    android:padding="15dp"
+    android:paddingLeft="20dp" >
 
-    <LinearLayout
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/other_like_count"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:orientation="vertical"
-        android:paddingLeft="10dp" >
+        android:layout_height="match_parent"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:text="Your contact"
+        android:textColor="@android:color/black"
+        android:textSize="14dp"
+        android:textStyle="normal" />
 
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/other_like_count"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="Your contact"
-            android:textColor="@android:color/black"
-            android:textSize="16dp"
-            android:textStyle="bold|italic" />
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="Liked this post"
-            android:textColor="@color/dark_grey_drop_shadow"
-            android:textSize="14dp"
-            android:textStyle="normal" />
-    </LinearLayout>
-
-</RelativeLayout>
+</LinearLayout>
