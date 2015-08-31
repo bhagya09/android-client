@@ -177,7 +177,6 @@ public class CustomWebView extends WebView
 	public void loadMicroAppData(String data)
 	{
 		this.loadDataWithBaseURL("", data, "text/html", "UTF-8", "");
-		setWebViewClient(new HikeWebClient());
 	}
 
 	@Override
