@@ -620,6 +620,10 @@ public class VoipCallFragment extends Fragment implements CallActions
 				showForceMuteLayout = false;
 		}
 		
+		// Don't show mute status while phone is ringing.
+		if (voipService.getCallStatus() == CallStatus.INCOMING_CALL)
+			showForceMuteLayout = false;
+		
 		if (showForceMuteLayout) {
 			// Remove the margin from the participants listview
 			ListView conferenceList = (ListView) getView().findViewById(R.id.conference_list);
