@@ -27,13 +27,13 @@ public class CustomAlertDialog extends HikeDialog
 
 	TextView message;
 
-	private CheckBox checkBox;
+	CheckBox checkBox;
 
 	View buttonPanel;
 
-	public Button buttonPositive;
+	Button buttonPositive;
 
-	public Button buttonNegative;
+	Button buttonNegative;
 
 	Button buttonNeutral;
 	
@@ -142,7 +142,7 @@ public class CustomAlertDialog extends HikeDialog
 
 	public void setPositiveButton(CharSequence text, HikeDialogListener l)
 	{
-		buttonPositive.setText(text.toString().toUpperCase());
+		buttonPositive.setText(text);
 		buttonPositive.setVisibility(View.VISIBLE);
 		if (l != null)
 			setHikeDialogButtonClick(buttonPositive, l, HikeDialogListener.BUTTON_POSITIVE);
@@ -156,7 +156,7 @@ public class CustomAlertDialog extends HikeDialog
 
 	public void setNegativeButton(CharSequence text, HikeDialogListener l)
 	{
-		buttonNegative.setText(text.toString().toUpperCase());
+		buttonNegative.setText(text);
 		buttonNegative.setVisibility(View.VISIBLE);
 		if (l != null)
 			setHikeDialogButtonClick(buttonNegative, l, HikeDialogListener.BUTTON_NEGATIVE);
@@ -170,7 +170,7 @@ public class CustomAlertDialog extends HikeDialog
 
 	public void setNeutralButton(CharSequence text, HikeDialogListener l)
 	{
-		buttonNeutral.setText(text.toString().toUpperCase());
+		buttonNeutral.setText(text);
 		buttonNeutral.setVisibility(View.VISIBLE);
 		if (l != null)
 			setHikeDialogButtonClick(buttonNeutral, l, HikeDialogListener.BUTTON_NEUTRAL);

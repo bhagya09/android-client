@@ -16,8 +16,9 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:id="@+id/parentView"
     android:background="@color/alp_42447968_pattern_red_background"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
 
     <RelativeLayout

@@ -30,13 +30,9 @@ import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
-import com.bsb.hike.timeline.TimelineActionsManager;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineSummaryActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -186,7 +182,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			if (viewType == TEXT)
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(mContext.getString(R.string.status_update_like_text) +" " +statusMessage.getText()+". "+ Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()), true));
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(mContext.getString(R.string.liked_your_post) +", " +statusMessage.getText()+". "+ Utils.getFormattedTime(true, mContext, feedDataModel.getTimestamp()), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 				viewHolder.largeProfilePic.setVisibility(View.GONE);
@@ -212,6 +208,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			}
 
 			viewHolder.parent.setTag(statusMessage);
+			viewHolder.parent.setTag(R.id.activity_feed_item_key, feedDataModel.getActor());
 			viewHolder.parent.setOnClickListener(onProfileInfoClickListener);
 			break;
 		}
@@ -269,17 +266,8 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 			if (mActivity.get() != null)
 			{
-				TimelineActions actionsData = TimelineActionsManager.getInstance().getActionsData();
-				statusMessage.setActionsData(actionsData.getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE));
-				
 				Intent intent = new Intent(mActivity.get(), TimelineSummaryActivity.class);
 				intent.putExtra(HikeConstants.Extras.MAPPED_ID, statusMessage.getMappedId());
-
-				if (statusMessage.getActionsData() != null)
-				{
-					intent.putStringArrayListExtra(HikeConstants.MSISDNS, statusMessage.getActionsData().getAllMsisdn());
-					intent.putExtra(HikeConstants.Extras.LOVED_BY_SELF, statusMessage.getActionsData().isLikedBySelf());
-				}
 
 				startActivity(intent);
 				
@@ -289,11 +277,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 					String postType = getPostType(statusMessage);
 					metadata.put(AnalyticsConstants.EVENT_SOURCE, postType);
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ACTIVITY_FEED_ITEM_CLICKED);
-					metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
-								
-					String osVersion = Build.VERSION.RELEASE;
-					metadata.put(HikeConstants.LogEvent.OS_VERSION, osVersion);
-					
+					metadata.put(HikeConstants.MSISDN, v.getTag(R.id.activity_feed_item_key));
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
 				}
 				catch (JSONException e)
@@ -318,7 +302,7 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 
 	}
 
-	private String getPostType(StatusMessage statusMessage)
+	public static String getPostType(StatusMessage statusMessage)
 	{
 		switch (statusMessage.getStatusMessageType())
 		{
@@ -326,10 +310,10 @@ public class ActivityFeedCursorAdapter extends RecyclerViewCursorAdapter<Activit
 			return AnalyticsConstants.DISPLAY_PIC;
 
 		case IMAGE:
-			return AnalyticsConstants.POST_UPDATE;
+			return AnalyticsConstants.PICTURE_UPDATE;
 
 		case TEXT_IMAGE:
-			return AnalyticsConstants.POST_UPDATE;
+			return AnalyticsConstants.PICTURE_TEXT;
 
 		case TEXT:
 			return AnalyticsConstants.STATUS_UPDATE;

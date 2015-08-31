@@ -55,12 +55,13 @@
             android:clickable="false"
             android:gravity="center_vertical"
             android:orientation="vertical"
+            android:paddingTop="2dp"
             android:paddingLeft="4dp" >
 
             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/contact_name"
                 style="@style/ActionBarText"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:contentDescription="Contact/group name" />
@@ -78,7 +79,7 @@
                 android:ellipsize="marquee"
                 android:gravity="center"
                 android:marqueeRepeatLimit="1"
-                android:textSize="12dp"
+                android:textSize="12sp"
                 android:textStyle="normal"
                 android:visibility="visible" />
         </LinearLayout>

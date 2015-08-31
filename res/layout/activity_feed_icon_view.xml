@@ -2,7 +2,7 @@
     android:id="@+id/overflowmenu"
     android:layout_width="56dp"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_overflow_menu_selector" >
+    android:background="@drawable/back_container_selector" >
 
     <ImageView
         android:id="@+id/overflow_icon_image"

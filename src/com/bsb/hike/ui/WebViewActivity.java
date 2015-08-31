@@ -24,6 +24,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
@@ -168,7 +169,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initActionBar();
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
-
+		
+		alignAnchorForOverflowMenu();
 	}
 
 	private void closeWebViewActivity()
@@ -595,8 +597,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		overflowMenuClickedAnalytics();
 		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
 		
+		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
 	}
 
 	private void overflowMenuClickedAnalytics()
@@ -1051,6 +1053,37 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			Logger.e(tag, "Seems like you passed the wrong color");
 		}
+	}
+	
+	/**
+	 * If the microapp has overlay action bar then we set the top margin as 4dp, else we set it as -52dp
+	 * This is done in order to show the menu over the action bar based on material guidelines
+	 */
+	private void alignAnchorForOverflowMenu()
+	{
+		View anchor = findViewById(R.id.overflow_anchor);
+
+		ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) anchor.getLayoutParams();
+
+		if (params == null)
+		{
+			params = new ViewGroup.MarginLayoutParams(getResources().getDimensionPixelSize(R.dimen.one_dp), 0);
+		}
+
+		if ((mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE) && botConfig != null)
+		{
+			if (botConfig.shouldOverlayActionBar())
+				params.topMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_overlay);
+			else
+				params.topMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_non_overlay);
+		}
+
+		else
+		{
+			params.topMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_top_margin_non_overlay);
+		}
+
+		anchor.setLayoutParams(params);
 	}
 
 }

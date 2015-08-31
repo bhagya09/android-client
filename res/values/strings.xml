@@ -66,7 +66,6 @@
     <string name="new_message">New Message</string>
     <string name="add_group">Add to Group</string>
     <string name="add_broadcast">Add to Broadcast List</string>
-    <string name="invite_share_message">I\'m using hike, an awesome new free messaging app! Download the app at http://get.hike.in/%1$s to start messaging me for free!</string>
     <string name="max_sms">Max 5 SMS contacts in a group.</string>
     <string name="max_contact">Max 50 contacts in a group.</string>
     <string name="sms_renew">Refills on the 1st of every month</string>
@@ -1017,8 +1016,6 @@
     <string name="hike_to_offline_push_title_multiple">%1$d people are offline</string>
     <string name="hike_to_offline_text">Send messages as free SMS</string>
     <string name="invite_with_watsapp">WhatsApp</string>
-    <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you show your \'Last Seen\' only to select friends, send messages to friends when they\'re offline and send awesome stickers.\n
-Also share all types of files - docs, songs, movies etc, up to 100MB each ;) http://get.hike.in/</string>
     <string name="extra_invite">Extra</string>
     <string name="profile_pic_header">Profile Picture</string>
     <string name="profile_pic_display_info">Show only to your Favorites</string>
@@ -1383,6 +1380,11 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_reconnecting_call">Reconnecting your call...</string>
     <string name="voip_poor_network_quality">Network quality is poor</string>
     <string name="voip_already_in_call">Already in call. Please try again later.</string>
+    <string name="voip_error_force_mute">Host has muted everyone</string>
+    <string name="voip_conf_mute_all_off">MUTE ALL</string>
+    <string name="voip_conf_mute_all_on">CANCEL MUTE ALL</string>
+    <string name="voip_speech_force_mute_on">The host has muted everyone</string>
+    <string name="voip_speech_force_mute_off">You can now unmute</string>
     <string name="nux_expired">This activity has expired</string>
     <string name="nux_completed">You\'ve already completed this activity.</string>
     <string name="holi">Happy Holi</string>
@@ -1568,7 +1570,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="actionbar_activity_feed_title">Activity</string>
 	<string name="photo_like_text">Liked your photo</string>
 	<string name="dp_like_text">Liked your profile photo</string>
-	<string name="status_update_like_text">Liked your post</string>
+	<string name="liked_this_post">Liked this post</string>
+	<string name="liked_your_post">Liked your post</string>
 	<string name="activity_feed_actionbar_title">Activity Feed</string>
 	<string name="posted_photo">Posted a photo</string>
 	<string name="love_failed">No internet. Please try again later.</string>
@@ -1577,12 +1580,12 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="repost_problem">Couldn\'t repost. Please try again.</string>
 	<string name="message_person">Message %1$s</string>
 	<string name="delete_status_confirmation">Are you sure you want to delete this update?</string>
-	<string name="delete_status_timeline_confirmation">Do you want to delete this post from everywhere?</string>
+	<string name="delete_status_timeline_confirmation">This will delete your post from your and your friends\' timeline</string>
 	<string name="clear_timeline">Clear Timeline</string>
 	<string name="favourites">Favorites</string>
 	<string name="clear_timeline_dialog">Are you sure you want to clear your timeline?</string>
 	<string name="like">Like</string>
-	<string name="liked_it">You liked this</string>
+	<string name="liked_it">Liked</string>
 	<string name="status_hint">What are you upto?</string>
 	<string name="status_hint_image">Something about this photo</string>
 	<string name="add_mood">Add Mood</string>
@@ -1599,8 +1602,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="sticker_share_popup_not_activate_toast">You don\'t have any supported apps</string>
     <string name="send_logs">Send logs</string>
     <string name="like_this">Like</string>
-    <string name="num_likes">%1$s likes</string>
-    <string name="num_like">%1$s like</string>
+    <string name="num_likes">%1$s Likes</string>
+    <string name="num_like">%1$s Like</string>
     <string name="dialog_btn_yes">YES</string>
     <string name="dialog_btn_no">NO</string>
     <string name="timeline_ftue_show_me">SHOW ME</string>
@@ -1619,7 +1622,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="your_referral_code">Your <b>referral</b> code</string>
     <string name="share_referral_code">Share your referral code anywhere and earn rewards for every friend who joins through your invite</string>
     <string name="copied_to_clipboard">Copied to clipboard.</string>
-    <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing Stickers, the ability to choose who sees my Last Seen and some really cool Chat Themes. \n\nThe best part? Hike has thing called Hidden Mode that lets you hide your private chats, from the world! Awesome!\n\nDownload it like asap from http://hike.in/%1$s</string>
     <string name="photos_image_greater_than_edit_limit">File too large to edit!</string>
     <string name="multi_edit_undo_warning">Discard all image editing changes?</string>
     <string name="multi_edit_undo_warning_header">Discard Changes?</string>
@@ -1648,4 +1650,13 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="delete_account_description">This will delete all your messages, backup, free SMS and any hike rewards</string>
     <string name="no_places_found">No places found</string>
     <string name="SAVE">SAVE</string>
+    <string name="add_member_menu">Add a member</string>
+    <string name="JUST_ONCE">JUST ONCE</string>
+    <string name="ALWAYS">ALWAYS</string>
+    <string name="UNLINK_ACCOUNT">RESET ACCOUNT</string>
+    <string name="UNLINK">UNLINK</string>
+    <string name="UPDATE_APP">UPDATE</string>
+    <string name="email_body">I just downloaded the new hike messenger. What a big change from WhatsApp!\n\nIt\'s got amazing stickers, the ability to hide my chats and some really cool chat themes. \n\nDownload it now from http://get.hike.in/$invite_token</string>
+    <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you hide your chats, send messages to friends when they\'re offline and send awesome stickers. \n\nAlso share all types of files - docs, songs, movies etc, up to 100MB each - Download: http://get.hike.in/</string>
+    <string name="invite_share_message">Hey, check out hike messenger. It has awesome stickers in our language! Join the only made in India messaging app- Download at http://hike.in/$invite_token</string>
 </resources>

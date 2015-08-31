@@ -1,10 +1,13 @@
 package com.bsb.hike.timeline;
 
+import android.widget.Toast;
+
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.timeline.model.TimelineActions;
 
 public class TimelineActionsManager
 {
-	private static TimelineActionsManager instance;
+	private volatile static TimelineActionsManager instance;
 
 	private TimelineActionsManager()
 	{

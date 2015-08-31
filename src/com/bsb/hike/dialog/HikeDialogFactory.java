@@ -425,7 +425,7 @@ public class HikeDialogFactory
 		hikeDialog.setCancelable(true);
 		hikeDialog.setCanceledOnTouchOutside(true);
 		hikeDialog.setTitle(R.string.image_quality_prefs);
-		hikeDialog.setPositiveButton(R.string.image_quality_send, null);
+		hikeDialog.setPositiveButton(R.string.send_uppercase, null);
 
 		OnClickListener imageQualityDialogOnClickListener = new OnClickListener()
 		{
@@ -512,7 +512,7 @@ public class HikeDialogFactory
 		
 		if (showingNativeInfoDialog)
 		{
-			hikeDialog.setPositiveButton(R.string.continue_txt, listener);
+			hikeDialog.setPositiveButton(R.string.CONTINUE, listener);
 		}
 		else
 		{
@@ -754,21 +754,21 @@ public class HikeDialogFactory
 		case UNLINK_ACCOUNT_CONFIRMATION_DIALOG:
 			confirmDialog.setTitle(R.string.unlink_account);
 			confirmDialog.setMessage(R.string.unlink_confirmation);
-			confirmDialog.setPositiveButton(R.string.unlink_account, listener);
+			confirmDialog.setPositiveButton(R.string.UNLINK_ACCOUNT, listener);
 			confirmDialog.setNegativeButton(R.string.CANCEL,listener);
 			break;
 			
 		case UNLINK_FB_DIALOG:
 			confirmDialog.setTitle(R.string.unlink_facebook);
 			confirmDialog.setMessage(R.string.unlink_facebook_confirmation);
-			confirmDialog.setPositiveButton(R.string.unlink, listener);
+			confirmDialog.setPositiveButton(R.string.UNLINK, listener);
 			confirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case UNLINK_TWITTER_DIALOG:
 			confirmDialog.setTitle(R.string.unlink_twitter);
 			confirmDialog.setMessage(R.string.unlink_twitter_confirmation);
-			confirmDialog.setPositiveButton(R.string.unlink, listener);
+			confirmDialog.setPositiveButton(R.string.UNLINK, listener);
 			confirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 		}
@@ -809,8 +809,8 @@ public class HikeDialogFactory
 		case DELETE_STATUS_TIMELINE_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.delete_status);
 			deleteConfirmDialog.setMessage(R.string.delete_status_timeline_confirmation);
-			deleteConfirmDialog.setPositiveButton(R.string.dialog_btn_yes, listener);
-			deleteConfirmDialog.setNegativeButton(R.string.dialog_btn_no, listener);
+			deleteConfirmDialog.setPositiveButton(R.string.DELETE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case WIPE_TIMELINE_DIALOG:
@@ -926,8 +926,8 @@ public class HikeDialogFactory
 
 		dialog.setCancelable(true);
 		dialog.setTitle(context.getString(R.string.send_sms_as, selectedSMSCount));
-		dialog.setPositiveButton(R.string.always, null);
-		dialog.setNegativeButton(R.string.just_once, null);
+		dialog.setPositiveButton(R.string.ALWAYS, null);
+		dialog.setNegativeButton(R.string.JUST_ONCE, null);
 
 		if (!nativeOnly && mCredits < selectedSMSCount)
 		{

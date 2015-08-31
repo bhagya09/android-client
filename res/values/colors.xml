@@ -269,7 +269,7 @@
     <color name="bubble_beach_2">#b2e5ff</color>
     <color name="bubble_white">#ffffff</color>
 	<color name="green_connected">#87d156</color>
-    <color name="action_bar_btn_disable">#38b1fe</color>
+    <color name="action_bar_btn_disable">#7Affffff</color>
     <color name="compose_view_btn_selected">#1A566167</color>
     <color name="file_size">#787878</color>
     <color name="light_blue_transparent">#3e33ccff</color>

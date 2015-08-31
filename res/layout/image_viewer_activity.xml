@@ -44,14 +44,14 @@
         android:layout_above="@+id/image_info_container"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="24dp"
         android:background="@color/white"
         android:text="Your caption here!Your caption here!Your caption here!Your caption here!Your caption here!"
         android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:textStyle="italic" />
+        android:textSize="16sp"
+        android:textStyle="normal" />
 
     <LinearLayout
         android:id="@+id/image_info_container"
@@ -71,7 +71,7 @@
             android:text="Your caption here!"
             android:textColor="@android:color/white"
             android:textSize="14sp"
-            android:textStyle="italic" />
+            android:textStyle="normal" />
 
         <View
             android:id="@+id/imageInfoDivider"
@@ -95,7 +95,10 @@
                 android:id="@+id/btn_love"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
                 android:button="@drawable/btn_love_selector_dark"
                 android:text=""
                 android:textColor="#CCCCCC" />
@@ -105,10 +108,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
+                android:layout_gravity="center"
                 android:text="0 people(s) like this photo"
                 android:textColor="#7AFFFFFF"
                 android:textSize="14dp"
-                android:textStyle="italic" />
+                android:textStyle="normal" />
         </LinearLayout>
     </LinearLayout>
 

@@ -7955,19 +7955,29 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			throw new IllegalArgumentException(HikeConversationsDatabase.class.getSimpleName() + " getActionsData(): One or more input param is null/empty");
 		}
 
-		//Columns required
+		// Columns required
 		String[] columns = new String[] { BaseColumns._ID, DBConstants.ACTION_ID, DBConstants.ACTION_COUNT, DBConstants.ACTORS, DBConstants.ACTION_OBJECT_ID };
 
-		//Selection for UUIDs
+		// Selection for UUIDs
 		StringBuilder uuidSelection = new StringBuilder("(");
-		for (String uuid : uuidList)
+		
+		try
 		{
-			if (!TextUtils.isEmpty(uuid))
+			for (String uuid : uuidList)
 			{
-				uuidSelection.append(DatabaseUtils.sqlEscapeString(uuid) + ",");
+				if (!TextUtils.isEmpty(uuid))
+				{
+					uuidSelection.append(DatabaseUtils.sqlEscapeString(uuid) + ",");
+				}
 			}
+			uuidSelection.replace(uuidSelection.lastIndexOf(","), uuidSelection.length(), ")");
 		}
-		uuidSelection.replace(uuidSelection.lastIndexOf(","), uuidSelection.length(), ")");
+		catch (Exception ex)
+		{
+			//No actions data populated. User will not see likes count
+			ex.printStackTrace();
+			return;
+		}
 
 		StringBuilder selection = new StringBuilder();
 
@@ -8018,7 +8028,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 							ContactInfo contactInfo;
 							try
 							{
-								contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(myList.getString(i));
+								contactInfo = ContactManager.getInstance().getContact(myList.getString(i), true, true);
 
 								if (contactInfo != null)
 								{
