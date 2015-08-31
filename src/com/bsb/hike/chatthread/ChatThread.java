@@ -2316,12 +2316,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			else
 			{
-				mConversationsView.setSelection(messages.size());
+				mConversationsView.setSelection(messages.size() - 1);
 			}
 		}
 		else
 		{
-			mConversationsView.setSelection(messages.size());
+			mConversationsView.setSelection(messages.size() - 1);
 		}
 		mConversationsView.setOnItemLongClickListener(this);
 		mConversationsView.setOnTouchListener(this);
