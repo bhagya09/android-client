@@ -38,6 +38,7 @@ public class GameUtils {
 					
 				case GET_FROM_CACHE:
 					String cache=helper.getFromCache((String)data[0],(String)data[1]);
+// callBack function to be called here.
 //					runOnGLthread(new Runnable()
 //							{
 //								@Override
