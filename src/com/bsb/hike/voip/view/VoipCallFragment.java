@@ -74,7 +74,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private CallActionsView callActionsView;
 	private Chronometer callDuration;
 
-	private ImageButton holdButton, muteButton, speakerButton, addButton, bluetoothButton;
+	private ImageButton muteButton, speakerButton, addButton, bluetoothButton;
 	private LinearLayout forceMuteContainer = null;
 	private LinearLayout signalContainer = null;
 	private boolean isCallActive;
@@ -83,6 +83,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 	private String partnerName;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity)
 	{
@@ -109,7 +110,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		View view = inflater.inflate(R.layout.voip_call_fragment, null);
 		
 		muteButton = (ImageButton) view.findViewById(R.id.mute_btn);
-		holdButton = (ImageButton) view.findViewById(R.id.hold_btn);
 		speakerButton = (ImageButton) view.findViewById(R.id.speaker_btn);
 		addButton = (ImageButton) view.findViewById(R.id.add_btn);
 		bluetoothButton = (ImageButton) view.findViewById(R.id.bluetooth_btn);
@@ -571,6 +571,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	{
 		TextView textView  = (TextView) getView().findViewById(R.id.hike_call); 
 		SpannableString ss = new SpannableString("  " + getString(R.string.voip_call)); 
+		@SuppressWarnings("deprecation")
 		Drawable logo = getResources().getDrawable(R.drawable.ic_logo_voip); 
 		logo.setBounds(0, 0, logo.getIntrinsicWidth(), logo.getIntrinsicHeight());
 		ImageSpan span = new ImageSpan(logo, ImageSpan.ALIGN_BASELINE); 
@@ -584,7 +585,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 		// Get initial setting from service
 		muteButton.setSelected(voipService.getMute());
-		holdButton.setSelected(voipService.getHold());
 		speakerButton.setSelected(voipService.getSpeaker());
 		addButton.setSelected(false);
 
@@ -659,7 +659,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		hangupButton.setVisibility(View.VISIBLE);
 
 		muteButton.startAnimation(anim);
-		holdButton.startAnimation(anim);
 		speakerButton.startAnimation(anim);
 		addButton.startAnimation(anim);
 		bluetoothButton.startAnimation(anim);
@@ -677,7 +676,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 	private void activateActiveCallButtons()
 	{
 		muteButton.setImageResource(R.drawable.voip_mute_btn_selector);
-		holdButton.setImageResource(R.drawable.voip_hold_btn_selector);
 	}
 
 	private void setupActiveCallButtonActions()
@@ -729,21 +727,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 			}
 		});
 
-		holdButton.setOnClickListener(new OnClickListener() 
-		{
-			@Override
-			public void onClick(View v) 
-			{
-				easterEgg(4);
-				if(isCallActive)
-				{
-					boolean newHold = !voipService.getHold();
-					voipService.setHold(newHold);
-					voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_HOLD, newHold ? 1 : 0);
-				}
-			}
-		});
-		
 		addButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -1106,6 +1089,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		activity.showCallFailedFragment(bundle);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void setAvatar()
 	{
 		VoIPClient clientPartner = voipService.getPartnerClient();
