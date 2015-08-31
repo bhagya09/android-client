@@ -30,7 +30,7 @@ public class DisplayContactsAdapter extends BaseAdapter
 
 	private IconLoader mAvatarLoader;
 	
-	private String msisdn;
+	private String suMsisdn;
 	
 	private int totalCount;
 	
@@ -47,13 +47,13 @@ public class DisplayContactsAdapter extends BaseAdapter
 			throw new IllegalArgumentException("DisplayContactsAdapter(): input cannot be null or empty");
 		}
 
-		this.msisdn = msisdn;
+		this.suMsisdn = msisdn;
 		
 		totalCount = argMsisdnList.size();
 		
-		for(String j : argMsisdnList)
+		for(int j = argMsisdnList.size() -1; j >=0; j--)
 		{
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(j, true,  false);
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true,  false);
 			if(!contactInfo.getFavoriteType().equals(ContactInfo.FavoriteType.FRIEND))
 			{
 				argMsisdnList.remove(j);
@@ -160,7 +160,7 @@ public class DisplayContactsAdapter extends BaseAdapter
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true,  false);
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(suMsisdn, true,  false);
 
 			if (contactInfo == null)
 			{
