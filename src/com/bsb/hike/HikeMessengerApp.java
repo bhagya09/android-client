@@ -33,6 +33,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -944,6 +945,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
+		
+		NetworkAgModule.startLogging();
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
