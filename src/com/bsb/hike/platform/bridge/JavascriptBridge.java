@@ -81,6 +81,8 @@ public abstract class JavascriptBridge
 	private static final int PICK_CONTACT_REQUEST = 1;
 
 	protected static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
+	
+	protected static final int CLOSE_WEB_VIEW = 3;
 
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -119,7 +121,21 @@ public abstract class JavascriptBridge
 	
 	protected void handleUiMessage(Message msg)
 	{
-		
+		switch (msg.what)
+		{
+		case CLOSE_WEB_VIEW :
+			
+			Activity currActivity = weakActivity.get();
+			if (currActivity != null)
+			{
+				currActivity.finish();
+			}
+			
+			break;
+
+		default:
+			break;
+		}
 	}
 	
 	
@@ -1016,6 +1032,18 @@ public abstract class JavascriptBridge
 		public void onRequestProgressUpdate(float progress)
 		{
 
+		}
+	}
+	
+	/**
+	 * Platform Version 5 Call this function to close the current activity. This function closes the current activity and takes the user back to the previous activity.
+	 */
+	@JavascriptInterface
+	public void closeWebView()
+	{
+		if (mHandler != null)
+		{
+			mHandler.sendEmptyMessage(CLOSE_WEB_VIEW);
 		}
 	}
 }
