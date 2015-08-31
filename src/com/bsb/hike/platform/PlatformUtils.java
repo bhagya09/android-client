@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -39,8 +40,12 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -59,6 +64,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -911,6 +917,79 @@ public class PlatformUtils
 			return true;
 		}
 		return false;
+	}
+	
+	public static void multiFwdStickers(Context context, String stickerId, String categoryId, boolean selectAll)
+	{
+		if (context == null)
+		{
+			return;
+		}
+
+		Intent intent = IntentFactory.getForwardStickerIntent(context, stickerId, categoryId);
+		intent.putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, selectAll);
+		context.startActivity(intent);
+	}
+	
+	public static void downloadStkPk(String metaData)
+	{
+		try
+		{
+			JSONObject object = new JSONObject(metaData);
+			String categoryId = object.optString(StickerManager.CATEGORY_ID);
+			String categoryName = object.optString(StickerManager.CATEGORY_NAME);
+			int totalStickers = object.optInt(StickerManager.TOTAL_STICKERS);
+			int categorySize = object.optInt(StickerManager.CATEGORY_SIZE);
+
+			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
+			{
+				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				downloadStkPk(category);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static  void downloadStkPk(StickerCategory category)
+	{
+		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
+		stickerPalleteImageDownloadTask.execute();
+		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
+
+	}
+	
+	public static  void OnChatHeadPopupActivateClick()
+	{
+		Context context = HikeMessengerApp.getInstance();
+		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
+		{
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
+			if (ChatHeadUtils.checkDeviceFunctionality())
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+				JSONArray packagesJSONArray;
+				try
+				{
+					packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+					if (packagesJSONArray != null)
+					{
+						ChatHeadUtils.setAllApps(packagesJSONArray, true);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		else
+		{
+			Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
+		}
 	}
 	
 	public static void sendPlatformCrashAnalytics(String crashType, String msisdn)

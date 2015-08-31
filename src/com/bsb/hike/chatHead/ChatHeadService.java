@@ -698,14 +698,16 @@ public class ChatHeadService extends Service
 		super.onConfigurationChanged(newConfig);
 
 		int[] chatHeadLocations = new int[2];
-		
-		try
+		if (ChatHeadLayout.getOverlayView() != null && ChatHeadLayout.getOverlayView().isShown())
 		{
-			windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
-		}
-		catch(Exception e)
-		{
-			Logger.d(TAG, "removing chathead windowmanager view");
+			try
+			{
+				windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG, "removing chathead windowmanager view");
+			}
 		}
 		chatHead.getLocationOnScreen(chatHeadLocations);
 		if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
@@ -718,13 +720,16 @@ public class ChatHeadService extends Service
 			chatHeadParams.x = getResources().getDisplayMetrics().widthPixels - chatHead.getWidth();
 			chatHeadParams.y = chatHeadLocations[1];
 		}
-		try
+		if (chatHead!= null && chatHead.isShown())
 		{
-			windowManager.updateViewLayout(chatHead, chatHeadParams);
-		}
-		catch (Exception e)
-		{
-			Logger.d(TAG, "configuration changed uodate view");
+			try
+			{
+				windowManager.updateViewLayout(chatHead, chatHeadParams);
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG, "configuration changed uodate view");
+			}
 		}
 		if (closeHead.isShown())
 		{
