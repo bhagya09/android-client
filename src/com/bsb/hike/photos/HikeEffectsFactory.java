@@ -186,7 +186,13 @@ public final class HikeEffectsFactory
 			
 			if(instance.mRS != null)
 			{
-				instance.mRS.destroy();
+				try{
+					instance.mRS.destroy();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
 			
 			instance = null;
