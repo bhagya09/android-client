@@ -765,9 +765,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		int convInt = settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
 		int msgHashGrpReadUpgrade = settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
-		ACRA.init(this);
-		CustomReportSender customReportSender = new CustomReportSender();
-		ErrorReporter.getInstance().setReportSender(customReportSender);
+		//ACRA.init(this);
+//		CustomReportSender customReportSender = new CustomReportSender();
+//		ErrorReporter.getInstance().setReportSender(customReportSender);
 
 		super.onCreate();
 

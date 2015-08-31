@@ -35,13 +35,18 @@ public class GameUtils {
 				switch(functionId)
 				{
 				case PUT_IN_CACHE:
+					Log.d("pushkar", (String)data[0]);
+					Log.d("pushkar", (String)data[1]);
+					if(mBotInfo==null)
+						Log.d("pushkar","mbotinfoisnull");
 					helper.putInCache((String)data[0],(String)data[1]);
 					Log.d("pushkar","put in cache");
+					break;
 					
 					
 				case GET_FROM_CACHE:
-					String cache=helper.getFromCache((String)data[0],(String)data[1]);
-					Log.d("pushkar",cache);
+					String cache=helper.getFromCache(id,(String)data[0]);
+					Log.d("pushkar","data from cache" +cache);
 // callBack function to be called here.
 //					runOnGLthread(new Runnable()
 //							{
@@ -51,12 +56,14 @@ public class GameUtils {
 //									gameCallback(id,cache);
 //								}
 //							});
+					break;
 					
 				case LOG_ANALYTICS:
 					helper.logAnalytics((String)data[0],(String)data[1],(String)data[2]);
-					
+					break;
 				case FORWARD_TO_CHAT:
 					helper.forwardToChat((String)data[0],(String)data[1]);
+					break;
 					
 				}
 			}
