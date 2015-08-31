@@ -53,6 +53,8 @@ public class ProductPopupsConstants
 
 	public static final String REQUEST_TYPE = "requestType";
 	
+	public static final String NATIVE_POPUP = "popup";
+
 	public static enum PopupStateEnum
 	{
 		NOT_DOWNLOADED(0), DOWNLOADED(1), UNKNOWN(3);
@@ -383,6 +385,15 @@ public class ProductPopupsConstants
 			{
 				// TODO Auto-generated method stub
 				return "chathead";
+			}
+		},
+		ACCESS
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "access";
 			}
 		};
 		

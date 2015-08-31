@@ -91,7 +91,6 @@ public class HikeAccessibilityService extends AccessibilityService
 		info.notificationTimeout = 100;
 		info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
 		info.feedbackType = AccessibilityServiceInfo.FEEDBACK_ALL_MASK;
-		info.loadDescription(getPackageManager());
 		setServiceInfo(info);
 		ChatHeadUtils.startOrStopService(false);
 	}

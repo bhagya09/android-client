@@ -10,7 +10,7 @@
         android:id="@+id/access_header"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:background="@color/hidden_mode_ftue" >
+        android:background="#EF574E" >
 
         <TextView
             android:id="@+id/show_accessibility"

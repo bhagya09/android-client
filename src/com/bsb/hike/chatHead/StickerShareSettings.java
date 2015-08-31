@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -108,6 +110,11 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			{
 				stickerSettingsChangedEvent(false);
 			}
+		}
+		
+		if(getIntent().hasExtra(ProductPopupsConstants.NATIVE_POPUP) && getIntent().getExtras().getBoolean(ProductPopupsConstants.NATIVE_POPUP))
+		{
+			stickerSettingsChangedEvent(true);
 		}
 	}
 
@@ -323,4 +330,12 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		ChatHeadUtils.startOrStopService(true);
 		super.onStop();
 	}
+	
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		setIntent(intent);
+		super.onNewIntent(intent);
+	}
+
 }
