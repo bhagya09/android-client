@@ -525,8 +525,8 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 
 	private String getReferralText(String defaultText, String replaceKey)
 	{
-		String newText = HikeSharedPreferenceUtil.getInstance().getData(replaceKey, null);
-		if (newText == null)
+		String newText = HikeSharedPreferenceUtil.getInstance().getData(replaceKey, "");
+		if (newText.isEmpty())
 		{
 			newText = defaultText;
 		}
