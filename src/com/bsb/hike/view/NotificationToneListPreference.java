@@ -114,6 +114,7 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		switch (which)
 		{
 		case DialogInterface.BUTTON_POSITIVE:
+			SoundUtils.stopSound();
 			String selectedRingtoneValue = this.getEntryValues()[mClickedDialogEntryIndex].toString();
 			this.setValue(selectedRingtoneValue);
 			setTitle(mContext.getString(R.string.notificationSoundTitle) + " - " + selectedRingtoneValue);
@@ -125,6 +126,7 @@ public class NotificationToneListPreference extends ListPreference implements Di
 			break;
 
 		case DialogInterface.BUTTON_NEGATIVE:
+			SoundUtils.stopSound();
 			dialog.dismiss();
 			break;
 
