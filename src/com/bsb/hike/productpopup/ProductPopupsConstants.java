@@ -53,6 +53,8 @@ public class ProductPopupsConstants
 
 	public static final String REQUEST_TYPE = "requestType";
 	
+	public static final String NATIVE_POPUP = "popup";
+
 	public static final String PRODUCT_POP_UP = "ppopup";
 	
 	public static final String APP_NAME = "app_name";
@@ -395,7 +397,15 @@ public class ProductPopupsConstants
 				// TODO Auto-generated method stub
 				return "chathead";
 			}
-
+		},
+		ACCESS
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "access";
+			}
 		};
 		
 		

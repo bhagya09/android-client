@@ -2091,9 +2091,19 @@ public class MqttMessagesManager
 			boolean shareStrings = data.getBoolean(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, shareStrings);
 		}
-		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && Utils.isIceCreamOrHigher())
+		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && ChatHeadUtils.checkDeviceFunctionality())
 		{ 
 			JSONObject stickerWidgetJSONObj = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
+				
+			boolean forceAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
+
+			boolean showAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
+
+			boolean dontUseAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
+
 			boolean serviceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
 			{ 
@@ -2111,7 +2121,7 @@ public class MqttMessagesManager
 			{	
 				boolean chatHeadServiceUserControl = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
-				setShareEnableForAllApps(chatHeadServiceUserControl);
+				ChatHeadUtils.setShareEnableForAllApps(chatHeadServiceUserControl);
 				ChatHeadUtils.startOrStopService(false);
 			}
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
@@ -2471,28 +2481,6 @@ public class MqttMessagesManager
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
-	}
-
-	private void setShareEnableForAllApps(boolean enable)
-	{
-		JSONArray jsonArray;
-		try
-		{
-			jsonArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
-		
-		for (int i = 0; i < jsonArray.length(); i++)
-		{
-			JSONObject obj = jsonArray.getJSONObject(i);
-			{
-				obj.put(HikeConstants.ChatHead.APP_ENABLE, enable);
-			}
-		}
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, jsonArray.toString());
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	private void saveRewards(JSONObject jsonObj) throws JSONException

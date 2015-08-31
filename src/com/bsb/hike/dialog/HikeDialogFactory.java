@@ -124,6 +124,8 @@ public class HikeDialogFactory
 	public static final int UNDO_MULTI_EDIT_CHANGES_DIALOG = 42;
 	
 	public static final int ADD_TO_FAV_DIALOG = 43;
+	
+	public static final int ACCESSIBILITY_DIALOG = 44;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -192,6 +194,7 @@ public class HikeDialogFactory
 		case DELETE_BLOCK:
 		case DELETE_NON_MESSAGING_BOT:
 		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
+		case ACCESSIBILITY_DIALOG:	
 			return showDeleteMessagesDialog(dialogId, context, listener, data);
 			
 		case GPS_DIALOG:
@@ -505,7 +508,6 @@ public class HikeDialogFactory
 	{
 		final CustomAlertDialog hikeDialog = new CustomAlertDialog(context, dialogId);
 		hikeDialog.setCancelable(showingNativeInfoDialog);
-
 		hikeDialog.setTitle(showingNativeInfoDialog ? R.string.native_header : R.string.use_hike_for_sms);
 		
 		hikeDialog.setMessage(showingNativeInfoDialog ? R.string.native_info : R.string.use_hike_for_sms_info);
@@ -789,6 +791,13 @@ public class HikeDialogFactory
 		
 		switch (dialogId)
 		{
+		case ACCESSIBILITY_DIALOG:
+			deleteConfirmDialog.setMessage(context.getString(R.string.accessibility_dialog_text));
+			deleteConfirmDialog.setTitle(context.getString(R.string.accessbility));
+			deleteConfirmDialog.setCancelable(false);
+			deleteConfirmDialog.setPositiveButton(R.string.ENABLE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
+			break;
 		case DELETE_FILES_DIALOG:
 			deleteConfirmDialog.setMessage(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));
 			deleteConfirmDialog.setTitle(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg_header) : context.getString(R.string.confirm_delete_msgs_header, (int) data[0]));

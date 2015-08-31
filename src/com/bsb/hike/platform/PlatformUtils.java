@@ -299,12 +299,19 @@ public class PlatformUtils
 			{   
 				if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 				{
-					IntentFactory.openStickerSettings(context);
+					boolean show_popup = mmObject.optBoolean(ProductPopupsConstants.NATIVE_POPUP, false);
+					Intent intent = IntentFactory.getStickerShareSettingsIntent(context);
+					intent.putExtra(ProductPopupsConstants.NATIVE_POPUP, show_popup);
+					context.startActivity(intent);
 				}
 				else
 				{
 					Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 				}
+			}
+			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
+			{
+				IntentFactory.openAccessibilitySettings(context);
 			}
 		}
 		catch (JSONException e)
@@ -960,7 +967,7 @@ public class PlatformUtils
 		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 		{
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
-			if (Utils.isIceCreamOrHigher())
+			if (ChatHeadUtils.checkDeviceFunctionality())
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
