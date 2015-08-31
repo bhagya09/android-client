@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1398"
-    android:versionName="4.0.1.20" >
+    android:versionCode="1402"
+    android:versionName="4.0.1.20.3.core_messaging" >
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -475,6 +475,30 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
             </intent-filter>
         </receiver>
-    </application>
+        
+        <!-- ag starts -->
+        <receiver
+            android:name="jp.co.agoop.networkconnectivity.lib.service.AlarmReceiver"
+            android:exported="false" >
+
+            <!-- Weight setting -->
+            <meta-data
+                android:name="weight"
+                android:value="970" />
+
+            <intent-filter>
+                <action android:name="jp.co.agoop.networkconnectivity.ACT_START_ALARM" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- ContentProvider -->
+        <provider
+            android:name="com.bsb.hike.ag.NetworkAgProvider"
+            android:authorities="com.bsb.hike.agoop.NetworkTestModuleProvider"
+            android:exported="true" />
+        <!-- ag -->
+        
+        
+</application>
 
 </manifest>
