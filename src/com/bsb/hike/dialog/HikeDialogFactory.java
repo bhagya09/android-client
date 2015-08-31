@@ -608,6 +608,11 @@ public class HikeDialogFactory
 			});
 
 			contactName.setText(contact.name);
+			
+			//If the account info is not shown, then remove the padding of 12dp used by it on top.
+			if(!showAccountInfo)
+				contactDetails.setPadding(contactDetails.getPaddingLeft(), 0, contactDetails.getPaddingRight(), contactDetails.getPaddingBottom());
+			
 			contactDetails.setAdapter(new ArrayAdapter<ContactInfoData>(context, R.layout.contact_share_item, R.id.info_value, contact.items)
 			{
 
