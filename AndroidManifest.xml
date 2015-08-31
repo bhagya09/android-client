@@ -417,13 +417,6 @@
             android:value="@integer/google_play_services_version" />
 
         <receiver android:name=".service.SmsMessageStatusReceiver" />
-        <receiver
-            android:name=".service.AppTrackerReceiver"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="com.android.vending.INSTALL_REFERRER" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".service.AlarmBroadcastReceiver" >
             <intent-filter>
                 <action android:name="com.bsb.hike.START_ALARM" />
