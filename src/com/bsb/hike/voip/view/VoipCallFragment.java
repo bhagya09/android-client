@@ -660,9 +660,11 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 		muteButton.startAnimation(anim);
 		speakerButton.startAnimation(anim);
-		addButton.startAnimation(anim);
 		bluetoothButton.startAnimation(anim);
 		hangupButton.startAnimation(anim);
+
+		if (addButton.getVisibility() == View.VISIBLE)
+			addButton.startAnimation(anim);
 	}
 
 	private void hideActiveCallButtons()
