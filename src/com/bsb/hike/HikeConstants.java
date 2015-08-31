@@ -3220,4 +3220,10 @@ public class HikeConstants
 	
 	public static final String STICKER_SETTINGS = "stickerSettings";
 
+	public static final String AG_ENABLED = "agLogs";
+
+	public static final String REFERRAL_EMAIL_TEXT = "ref_mail_txt";
+	
+	public static final String REFERRAL_OTHER_TEXT = "ref_oth_txt";
+
 }

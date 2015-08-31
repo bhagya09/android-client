@@ -289,7 +289,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				{
 					int count = 0;
 					String filePath = cursor.getString(dataIdx);
-					if(TextUtils.isEmpty(filePath) || !isValidFile(filePath))
+					if(!isValidFile(filePath))
 					{
 						continue;
 					}
@@ -365,6 +365,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private boolean isValidFile(String filePath)
 	{
+		if (TextUtils.isEmpty(filePath))
+		{
+			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: empty " + filePath);
+			return false;
+		}
+
 		if(editEnabled && isImageEdited(filePath))
 		{
 			//Skipping this file since this is a temp file created by multi-edit 
