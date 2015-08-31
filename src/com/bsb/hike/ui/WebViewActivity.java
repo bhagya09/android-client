@@ -537,7 +537,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(Intent.EXTRA_EMAIL, new String[] { address });
 		intent.putExtra(Intent.EXTRA_TEXT, body);
 		intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-		intent.putExtra(Intent.EXTRA_CC, cc);
+		intent.putExtra(Intent.EXTRA_CC, new String[] {cc});
 		intent.setType("message/rfc822");
 		return intent;
 	}
