@@ -43,7 +43,7 @@ public class NetworkAgModule
 		mConnectivity.setDownloadUrl("http://ag.hike.in/latency");
 		mConnectivity.setLogIntervalSec(28800);
 		mConnectivity.setHighLocationPrecise(false);
-		mConnectivity.setIsDebugMode(true);
+		mConnectivity.setIsDebugMode(false);
 		mConnectivity.startLogging();
 		
 		Logger.d(TAG, "time taken in ag module starting : "+ (System.currentTimeMillis() - startTime));
