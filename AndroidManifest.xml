@@ -468,6 +468,13 @@
         </receiver>
         
         <receiver
+            android:name=".service.ReferralReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+        <receiver
             android:name="com.bsb.hike.service.DeviceShutDownReceiver"
             android:enabled="true" >
             <intent-filter android:priority="999" >
