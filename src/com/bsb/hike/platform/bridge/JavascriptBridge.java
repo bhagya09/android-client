@@ -6,14 +6,46 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.CocosGamingActivity;
+import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.IFileUploadListener;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -32,40 +64,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.IFileUploadListener;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
-import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
-import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-
 /**
- * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
- * This class caters Platform Bridge versions from:
- *
- * Platform Bridge Version Start = 0
- * Platform Bridge Version End = ~
+ * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView. This class caters
+ * Platform Bridge versions from:
+ * 
+ * Platform Bridge Version Start = 0 Platform Bridge Version End = ~
  */
 
 
@@ -79,12 +82,10 @@ public abstract class JavascriptBridge
 	public static final String tag = "JavascriptBridge";
 
 	protected Handler mHandler;
-	
-	protected static final String REQUEST_CODE = "request_code";
-	
-	private static final int PICK_CONTACT_REQUEST = 1;
 
-	protected static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
+	private static final String REQUEST_CODE = "request_code";
+
+	private static final int PICK_CONTACT_REQUEST = 1;
 
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -92,53 +93,58 @@ public abstract class JavascriptBridge
 		weakActivity = new WeakReference<Activity>(activity);
 		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
 		{
-			public void handleMessage(Message msg) {
+			public void handleMessage(Message msg)
+			{
 				handleUiMessage(msg);
 			};
 		};
 	}
 
 	/**
-	 * Platform Bridge Version 0
-	 * Call this function to log analytics events.
-	 *
-	 * @param isUI    : whether the event is a UI event or not. This is a string. Send "true" or "false".
-	 * @param subType : the subtype of the event to be logged, eg. send "click", to determine whether it is a click event.
-	 * @param json    : any extra info for logging events, including the event key that is pretty crucial for analytics.
+	 * Platform Bridge Version 0 Call this function to log analytics events.
+	 * 
+	 * @param isUI
+	 *            : whether the event is a UI event or not. This is a string. Send "true" or "false".
+	 * @param subType
+	 *            : the subtype of the event to be logged, eg. send "click", to determine whether it is a click event.
+	 * @param json
+	 *            : any extra info for logging events, including the event key that is pretty crucial for analytics.
 	 */
 	@JavascriptInterface
 	protected abstract void logAnalytics(String isUI, String subType, String json);
 
 	/**
-	 * Platform Bridge Version 0
-	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
-	 * This function is also used for analytics purpose.
-	 *
-	 * @param height : The height of the loaded content
+	 * Platform Bridge Version 0 This function is called whenever the onLoadFinished of the html is called. This function calling is MUST. This function is also used for analytics
+	 * purpose.
+	 * 
+	 * @param height
+	 *            : The height of the loaded content
 	 */
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
 	}
-	
+
 	protected void handleUiMessage(Message msg)
 	{
-		
-	}
-	
-	protected void sendMessageToUiThread(int what,Object data)
-	{
-		sendMessageToUiThread(what, 0,0, data);
+
 	}
 
-	protected void sendMessageToUiThread(int what,int arg1, Object data)
+
+	protected void sendMessageToUiThread(int what, Object data)
+
+	{
+		sendMessageToUiThread(what, 0, 0, data);
+	}
+
+	protected void sendMessageToUiThread(int what, int arg1, Object data)
 	{
 		sendMessageToUiThread(what, arg1, 0, data);
 	}
-	
+
 	protected void sendMessageToUiThread(int what, int arg1, int arg2, Object data)
 	{
-		Message msg = Message.obtain(); 
+		Message msg = Message.obtain();
 		msg.what = what;
 		msg.arg1 = arg1;
 		msg.arg2 = arg2;
@@ -147,25 +153,25 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * Platform Bridge Version 0
-	 * call this function to Show toast for the string that is sent by the javascript.
-	 *
-	 * @param toast : the string to show in toast.
+	 * Platform Bridge Version 0 call this function to Show toast for the string that is sent by the javascript.
+	 * 
+	 * @param toast
+	 *            : the string to show in toast.
 	 */
 	@JavascriptInterface
 	public void showToast(String toast)
 	{
-		if(weakActivity.get()!=null)
+		if (weakActivity.get() != null)
 		{
 			Toast.makeText(weakActivity.get(), toast, Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	/**
-	 * Platform Bridge Version 0
-	 * Call this function to vibrate the device.
-	 *
-	 * @param msecs : the number of milliseconds the device will vibrate.
+	 * Platform Bridge Version 0 Call this function to vibrate the device.
+	 * 
+	 * @param msecs
+	 *            : the number of milliseconds the device will vibrate.
 	 */
 	@JavascriptInterface
 	public void vibrate(String msecs)
@@ -174,10 +180,9 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * Platform Bridge Version 0
-	 * call this function with parameter as true to enable the debugging for javascript.
-	 * The debuggable for javascript will get enabled only after KITKAT version.
-	 *
+	 * Platform Bridge Version 0 call this function with parameter as true to enable the debugging for javascript. The debuggable for javascript will get enabled only after KITKAT
+	 * version.
+	 * 
 	 * @param setEnabled
 	 */
 	@JavascriptInterface
@@ -212,10 +217,9 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * Platform Bridge Version 0
-	 * calling this function will generate logs for testing at the android IDE. The first param will be tag used for logging and the second param
-	 * is data that is used for logging. this will create verbose logs for testing purposes.
-	 *
+	 * Platform Bridge Version 0 calling this function will generate logs for testing at the android IDE. The first param will be tag used for logging and the second param is data
+	 * that is used for logging. this will create verbose logs for testing purposes.
+	 * 
 	 * @param tag
 	 * @param data
 	 */
@@ -226,39 +230,41 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * Platform bridge Version 0
-	 * Call this function to open a full page webView within hike.
-	 *
-	 * @param title : the title on the action bar.
-	 * @param url   : the url that will be loaded.
+	 * Platform bridge Version 0 Call this function to open a full page webView within hike.
+	 * 
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
 	 */
 	@JavascriptInterface
 	public void openFullPage(final String title, final String url)
 	{
 		Logger.i(tag, "open full page called with title " + title + " , and url = " + url);
-		
-			if (null == mHandler)
+
+		if (null == mHandler)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
 			{
-				return;
-			}
-			mHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
+				if (weakActivity.get() != null)
 				{
-					if(weakActivity.get()!=null)
-					{
-						Intent intent = IntentFactory.getWebViewActivityIntent(weakActivity.get(), url, title);
-						weakActivity.get().startActivity(intent);
-					}
+					Intent intent = IntentFactory.getWebViewActivityIntent(weakActivity.get(), url, title);
+					weakActivity.get().startActivity(intent);
 				}
-			});
+			}
+		});
 	}
 
 	/**
-	 * Platform Bridge Version 1
-	 * call this function to open a web page in the default browser.
-	 * @param url: : the url that will be loaded.
+	 * Platform Bridge Version 1 call this function to open a web page in the default browser.
+	 * 
+	 * @param url
+	 *            : : the url that will be loaded.
 	 */
 	@JavascriptInterface
 	public void openPageInBrowser(final String url)
@@ -285,12 +291,13 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * Platform Bridge Version 0
-	 * calling this function will share the screenshot of the webView along with the text at the top and a caption text
-	 * to all social network platforms by calling the system's intent.
-	 *
-	 * @param text    : heading of the image with the webView's screenshot.
-	 * @param caption : intent caption
+	 * Platform Bridge Version 0 calling this function will share the screenshot of the webView along with the text at the top and a caption text to all social network platforms by
+	 * calling the system's intent.
+	 * 
+	 * @param text
+	 *            : heading of the image with the webView's screenshot.
+	 * @param caption
+	 *            : intent caption
 	 */
 	@JavascriptInterface
 	public void share(String text, String caption)
@@ -298,7 +305,7 @@ public abstract class JavascriptBridge
 		FileOutputStream fos = null;
 		File cardShareImageFile = null;
 		Activity mContext = weakActivity.get();
-		if(mContext!=null)
+		if (mContext != null)
 		{
 			try
 			{
@@ -360,11 +367,11 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * Platform Bridge Version 0
-	 * Whenever the content's height is changed, the html will call this function to resize the height of the Android Webview.
-	 * Calling this function is MUST, whenever the height of the content changes.
-	 *
-	 * @param height : the new height when the content is reloaded.
+	 * Platform Bridge Version 0 Whenever the content's height is changed, the html will call this function to resize the height of the Android Webview. Calling this function is
+	 * MUST, whenever the height of the content changes.
+	 * 
+	 * @param height
+	 *            : the new height when the content is reloaded.
 	 */
 	@JavascriptInterface
 	public void onResize(String height)
@@ -400,17 +407,17 @@ public abstract class JavascriptBridge
 		{
 			if (height != 0)
 			{
-				height = (int) (Utils.densityMultiplier * height); // javascript returns us in dp
+				height = (int) (Utils.densityMultiplier * height); // javascript
+																	// returns
+																	// us in dp
 				WebView webView = mWebView.get();
 				if (webView != null)
 				{
-					Logger.i(tag, "HeightRunnable called with height=" + height
-							+ " and current height is " + webView.getHeight());
+					Logger.i(tag, "HeightRunnable called with height=" + height + " and current height is " + webView.getHeight());
 
 					int initHeight = webView.getMeasuredHeight();
 
-					Logger.i("HeightAnim", "InitHeight = " + initHeight
-							+ " TargetHeight = " + height);
+					Logger.i("HeightAnim", "InitHeight = " + initHeight + " TargetHeight = " + height);
 
 					if (initHeight == height)
 					{
@@ -489,11 +496,11 @@ public abstract class JavascriptBridge
 		mWebView.removeCallbacks(heightRunnable);
 		mWebView.onActivityDestroyed();
 	}
-	
+
 	@JavascriptInterface
 	public void openActivity(final String data)
 	{
-		
+
 		if (mHandler == null || weakActivity == null || weakActivity.get() == null)
 		{
 			return;
@@ -508,13 +515,12 @@ public abstract class JavascriptBridge
 			}
 		});
 	}
-	
+
 	/**
-	 * Platform Bridge Version 0
-	 * This function can be used to start a hike native contact chooser/picker which will show all hike contacts to user and user can select few contacts (minimum 1). It will call
-	 * JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
-	 * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
-	 * well, a micro app has to take care of this instance and startContactChooser not present
+	 * Platform Bridge Version 0 This function can be used to start a hike native contact chooser/picker which will show all hike contacts to user and user can select few contacts
+	 * (minimum 1). It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject
+	 * reflects one user. As of now each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE
+	 * : JSONArray could be null as well, a micro app has to take care of this instance and startContactChooser not present
 	 */
 	@JavascriptInterface
 	public void startContactChooser()
@@ -530,19 +536,6 @@ public abstract class JavascriptBridge
 		}
 	}
 
-
-	protected void pickContactAndSend(ConvMessage message)
-	{
-		Activity activity = weakActivity.get();
-		if (activity != null)
-		{
-			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
-			intent.putExtra(tag, JavascriptBridge.this.hashCode());
-			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
-			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
-		}
-	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -560,7 +553,6 @@ public abstract class JavascriptBridge
 				switch (requestCode)
 				{
 				case PICK_CONTACT_REQUEST:
-				case PICK_CONTACT_AND_SEND_REQUEST:
 					handlePickContactResult(resultCode, data);
 					break;
 				}
@@ -616,7 +608,7 @@ public abstract class JavascriptBridge
 			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
 		}
 	}
-	
+
 	protected void startComPoseChatActivity(final ConvMessage message)
 	{
 		if (null == mHandler)
@@ -640,10 +632,13 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 *
+	 * 
 	 * this function will call the js back when the javascript demands some value back from the native.
-	 * @param id : the id of the function that native will call to call the js .
-	 * @param value: value that will be given back. it is encoded with URL Encoded Scheme. Decode it before using.
+	 * 
+	 * @param id
+	 *            : the id of the function that native will call to call the js .
+	 * @param value
+	 *            : value that will be given back. it is encoded with URL Encoded Scheme. Decode it before using.
 	 */
 	public void callbackToJS(final String id, final String value)
 	{
@@ -674,18 +669,13 @@ public abstract class JavascriptBridge
 			}
 		});
 	}
-	
+
 	/**
-	 * Platform Bridge Version 1
-	 * This method will be called when you need to get the Connection type on the device. The result returned will be one of the following ordinal values :
-	 *
-	 * <li>-1 in case of no network</li>
-	 * <li>0 in case of unknown network</li>
-	 * <li>1 in case of wifi</li>
-	 * <li>2 in case of 2g</li>
-	 * <li>3 in case of 3g</li>
-	 * <li>4 in case of 4g</li>
-	 *
+	 * Platform Bridge Version 1 This method will be called when you need to get the Connection type on the device. The result returned will be one of the following ordinal values
+	 * :
+	 * 
+	 * <li>-1 in case of no network</li> <li>0 in case of unknown network</li> <li>1 in case of wifi</li> <li>2 in case of 2g</li> <li>3 in case of 3g</li> <li>4 in case of 4g</li>
+	 * 
 	 * @param id
 	 */
 	@JavascriptInterface
@@ -695,11 +685,13 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * Platform Bridge Version 3
-	 * call this function to call the non-messaging bot`
-	 * @param id : : the id of the function that native will call to call the js .
-	 * @param msisdn: the msisdn of the non-messaging bot to be opened.
-	 * returns Success if success and failure if failure.
+
+	 * Platform Bridge Version 3 call this function to call the non-messaging bot
+	 * 
+	 * @param id
+	 *            : : the id of the function that native will call to call the js .
+	 * @param msisdn
+	 *            : the msisdn of the non-messaging bot to be opened. returns Success if success and failure if failure.
 	 */
 	@JavascriptInterface
 	public void openNonMessagingBot(String id, String msisdn)
@@ -842,18 +834,19 @@ public abstract class JavascriptBridge
 			e.printStackTrace();
 		}
 	}
-	
-	protected String getEncodedDataForJS(String data) {
+
+	protected String getEncodedDataForJS(String data)
+	{
 		try
 		{
-			return URLEncoder.encode(data,"utf-8").replaceAll("\\+", "%20");
+			return URLEncoder.encode(data, "utf-8").replaceAll("\\+", "%20");
 		}
 		catch (UnsupportedEncodingException e)
 		{
 			e.printStackTrace();
 		}
 		return "";
-		
+
 	}
 
 	/**
@@ -869,6 +862,7 @@ public abstract class JavascriptBridge
 	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
 	 *          Failure: "{ "status": "failure", "error_message" : error message, "status_code": status code}"
 	 *
+
 	 */
 	@JavascriptInterface
 	public void doPostRequest(final String functionId, String data)
@@ -902,6 +896,7 @@ public abstract class JavascriptBridge
 	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
 	 *          Failure: "{ "status": "failure", "error_message" : error message, "status_code": status code}"
 	 *
+
 	 */
 	@JavascriptInterface
 	public void doGetRequest(final String functionId, String url)
@@ -974,7 +969,6 @@ public abstract class JavascriptBridge
 		{
 			return super.hashCode();
 		}
-
 
 		@Override
 		
@@ -1088,4 +1082,115 @@ public abstract class JavascriptBridge
 		PlatformUtils.downloadStkPk(stickerData);
 	}
 	
+	@JavascriptInterface
+	public void launchGameRequest(String requestId, String gameurl, boolean isPortrait, String version, String appId, String cocosEngineVersion)
+	{
+		Intent gameIntent = new Intent(weakActivity.get(), CocosGamingActivity.class);
+		gameIntent.putExtra("downloadPathUrl", gameurl);
+		gameIntent.putExtra("isPortrait", isPortrait);
+		gameIntent.putExtra("version", version);
+		gameIntent.putExtra("appId", appId);
+		gameIntent.putExtra("cocosEngineVersion", cocosEngineVersion);
+		gameIntent.putExtra("requestId", requestId);
+		weakActivity.get().startActivity(gameIntent);
+	}
+
+	@JavascriptInterface
+	public void launchGameActivity(String gameurl, boolean isPortrait, String version, String appId, String cocosEngineVersion)
+	{
+		Intent gameIntent = new Intent(weakActivity.get(), CocosGamingActivity.class);
+		gameIntent.putExtra("downloadPathUrl", gameurl);
+		gameIntent.putExtra("isPortrait", isPortrait);
+		gameIntent.putExtra("version", version);
+		gameIntent.putExtra("appId", appId);
+		gameIntent.putExtra("cocosEngineVersion", cocosEngineVersion);
+		weakActivity.get().startActivity(gameIntent);
+	}
+
+	@JavascriptInterface
+	public String getSystemArch()
+	{
+		return System.getProperty("os.arch");
+	}
+
+	@JavascriptInterface
+	public String getListOfDownloadedNativeGames()
+	{
+		Gson gson = new Gson();
+		SharedPreferences sharedPref = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_PRIVATE);
+		String listOfAppsString = sharedPref.getString(CocosGamingActivity.LIST_OF_APPS, null);
+		if (listOfAppsString != null)
+		{
+			Map<String, String> listOfAppsMap = new HashMap<String, String>();
+			listOfAppsMap = (Map<String, String>) gson.fromJson(listOfAppsString, listOfAppsMap.getClass());
+			Set<String> appIds = listOfAppsMap.keySet();
+			return gson.toJson(appIds);
+		}
+		return "[]";
+	}
+
+	@JavascriptInterface
+	public boolean deleteNativeGame(String appId)
+	{
+		try
+		{
+			String gameName = null;
+			Gson gson = new Gson();
+			SharedPreferences sharedPref = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_PRIVATE);
+			SharedPreferences.Editor sharedPrefEditor = weakActivity.get().getSharedPreferences(CocosGamingActivity.SHARED_PREF, Context.MODE_PRIVATE).edit();
+			String listOfAppsString = sharedPref.getString(CocosGamingActivity.LIST_OF_APPS, null);
+			if (listOfAppsString != null)
+			{
+				Map<String, String> listOfAppsMap = new HashMap<String, String>();
+				listOfAppsMap = (Map<String, String>) gson.fromJson(listOfAppsString, listOfAppsMap.getClass());
+				JSONObject gameObject = new JSONObject(listOfAppsMap.get(appId));
+				gameName = gameObject.getString("appName");
+			}
+			if (gameName == null)
+			{
+				return false;
+			}
+			File file = new File(CocosGamingActivity.getFileBasePath(weakActivity.get()) + gameName);
+			if (file.exists())
+			{
+				Logger.d("CocosGamingActivity", "Deleting file : " + file.getAbsolutePath());
+				deleteRecursive(file);
+			}
+			else
+			{
+				return false;
+			}
+
+			Map<String, String> listOfAppsMap = new HashMap<String, String>();
+			listOfAppsMap = (Map<String, String>) new Gson().fromJson(listOfAppsString, listOfAppsMap.getClass());
+			if (listOfAppsMap != null)
+			{
+				try
+				{
+					listOfAppsMap.remove(appId);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+			sharedPrefEditor.putString(CocosGamingActivity.LIST_OF_APPS, gson.toJson(listOfAppsMap)).commit();
+			return true;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	private void deleteRecursive(File fileOrDirectory)
+	{
+		if (fileOrDirectory.isDirectory())
+			for (File child : fileOrDirectory.listFiles())
+				deleteRecursive(child);
+
+		fileOrDirectory.delete();
+	}
+
 }
