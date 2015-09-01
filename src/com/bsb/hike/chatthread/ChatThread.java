@@ -4661,7 +4661,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (isRemoved && updateActionBar)
 		{
 			setupActionBar(false);
-			activity.updateActionBarColor(currentTheme.headerBgResId());
+			if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
+			{
+				activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
+			}
+			else
+			{
+				activity.updateActionBarColor(currentTheme.headerBgResId());
+			}
 			activity.getSupportActionBar().show();
 		}
 		return isRemoved;
