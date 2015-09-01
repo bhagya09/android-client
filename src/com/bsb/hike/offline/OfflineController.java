@@ -105,6 +105,7 @@ public class OfflineController
 			shutdownProcess((OfflineException) msg.obj);
 			break;
 		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST:
+			OfflineUtils.sendInlineConnectRequest(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA,"")));
 			removeConnectionRequest();
 			break;
 		default:
