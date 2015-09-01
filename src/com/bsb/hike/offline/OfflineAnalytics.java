@@ -7,6 +7,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.offline.OfflineConstants.AnalyticsConstants;
+import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
 import com.bsb.hike.utils.Logger;
 
 //import com.bsb.hike.offline.OfflineConstants.AnalyticsEvents;
@@ -133,19 +134,24 @@ public class OfflineAnalytics
 
 	// type 0 is popup-1(Connecting case)
 	// type 1 is popup-2(Connected case)
-	public static void disconnectPopupClicked(int type, int itemClicked)
+	public static void disconnectPopupClicked(DisconnectFragmentType type, int itemClicked)
 	{
 		JSONObject object = new JSONObject();
 		try
 		{
 			object.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.EVENT_TYPE_OFFLINE);
-			if (type == 1)
+			switch (type)
 			{
+			case CONNECTING:
 				object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_CONNECTING_POP_UP_CLICK);
-			}
-			else
-			{
+				break;
+			case CONNECTED:
 				object.put(HikeConstants.EVENT_KEY, AnalyticsConstants.EVENT_KEY_CONNECTED_POP_UP_CLICK);
+				break;
+			case REQUESTING:
+				break;
+			default:
+				break;
 			}
 			object.put(HikeConstants.TAG, itemClicked);
 			recordAnalytics(object);

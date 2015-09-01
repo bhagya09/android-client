@@ -87,6 +87,7 @@ import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
@@ -1650,22 +1651,22 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				return;
 			}
-			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn, connectedMsisdn,0);
+			offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn, connectedMsisdn,DisconnectFragmentType.CONNECTED);
 		}
 		else
 		{
 			String connectingMsisdn = OfflineUtils.getConnectingMsisdn();
-			if(TextUtils.isEmpty(connectingMsisdn))
+			if (TextUtils.isEmpty(connectingMsisdn))
 			{
 				return;
 			}
-			if(startNewConnection)
+			if (startNewConnection)
 			{
-				offlineDisconnectFragment = offlineDisconnectFragment.newInstance(msisdn,connectingMsisdn,0);
+				offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn, connectingMsisdn, DisconnectFragmentType.CONNECTED);
 			}
 			else
 			{
-				offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn,null,1);
+				offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(connectingMsisdn, null, DisconnectFragmentType.CONNECTING);
 			}
 			
 		}

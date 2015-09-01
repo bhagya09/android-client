@@ -2,7 +2,6 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
-
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.animation.Animator;
@@ -46,6 +45,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
 import com.bsb.hike.offline.OfflineParameters;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
@@ -496,7 +496,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
 		
 		Logger.d(TAG,msisdn);
-		offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn,null,1);
+		offlineDisconnectFragment = OfflineDisconnectFragment.newInstance(msisdn,null,DisconnectFragmentType.CONNECTING);
 		offlineDisconnectFragment.setConnectionListner(this);
 		fragmentTransaction.replace(R.id.disconnect_layout, offlineDisconnectFragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
 		fragmentTransaction.commit();

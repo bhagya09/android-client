@@ -199,5 +199,10 @@ public class OfflineConstants
 	{
 		SENT, RECEIVED
 	}
+	
+	public static enum DisconnectFragmentType
+	{
+		CONNECTED, CONNECTING, REQUESTING
+	}
 
 }

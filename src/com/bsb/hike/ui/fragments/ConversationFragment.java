@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -96,7 +97,9 @@ import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedListener;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
@@ -927,6 +930,29 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			
 			
 		
+		}
+		else
+		{
+			if (savedInstanceState == null)
+			{
+				final OfflineDisconnectFragment fragment = OfflineDisconnectFragment.newInstance("+919999988888", null, DisconnectFragmentType.REQUESTING);
+
+				ViewStub mmStub = (ViewStub) parent.findViewById(R.id.nux_footer);
+				mmStub.setLayoutResource(R.layout.panel_import);
+
+				mmStub.setOnInflateListener(new OnInflateListener()
+				{
+					@Override
+					public void onInflate(ViewStub stub, View inflated)
+					{
+						FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+						fragmentTransaction.replace(R.id.fragment_disconnect, fragment, OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+						fragmentTransaction.commit();
+					}
+				});
+				mmStub.inflate();
+
+			}
 		}
 		mConversationsComparator = new ConvInfo.ConvInfoComparator();
 		fetchConversations();
@@ -3503,7 +3529,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		if (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED)
 		{
 			ViewStub mmStub = (ViewStub) parent.findViewById(R.id.nux_footer);
-			if (mmStub == null)
+			if (mmStub == null && llNuxFooter!=null && llInviteOptions !=null &&llChatReward!=null )
 			{
 				llNuxFooter.setVisibility(View.GONE);
 				llInviteOptions.setVisibility(View.GONE);
