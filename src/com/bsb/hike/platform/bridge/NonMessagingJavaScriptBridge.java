@@ -308,7 +308,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		mWebView.loadUrl("javascript:platformSdk.events.publish('onBackPressed')");
 	}
-	
+
+	public void onUpPressed()
+	{
+		mWebView.loadUrl("javascript:platformSdk.events.publish('onUpPressed')");
+	}
 	/**
 	 * Platform Bridge Version 1
 	 * Utility method to remove a menu from the list of menu options for a bot
@@ -692,6 +696,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+<<<<<<< HEAD
+	 * Platform Bridge Version 5
+	 * Call this function to allow the up Press. The android up button will be given to the microapp.
+	 * @param allowUp
+	 */
+	@JavascriptInterface
+	public void allowUpPress(String allowUp)
+	{
+		mBotInfo.setIsUpPressAllowed(Boolean.valueOf(allowUp));
+	}
+
+=======
 	 * Platform Version 5
 	 * Call this function to delete an event from the list of events that are shared with the microapp.
 	 *
@@ -942,4 +958,5 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 
 
+>>>>>>> d3bc7ed6459f566574ce6bb79ab3e59850b95456
 }

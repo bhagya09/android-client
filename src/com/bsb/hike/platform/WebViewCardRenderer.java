@@ -490,13 +490,14 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_NANO)
 					{
 						holder.platformJavaScriptBridge.setData();
-						String alarmData = convMessage.webMetadata.getAlarmData();
-						Logger.d(tag, "alarm data to html is " + alarmData);
-						if (!TextUtils.isEmpty(alarmData))
-						{
-							holder.platformJavaScriptBridge.alarmPlayed(alarmData);
-							cardAlarms.remove((int) convMessage.getMsgID()); // to avoid calling from getview
-						}
+					}
+
+					String alarmData = convMessage.webMetadata.getAlarmData();
+					Logger.d(tag, "alarm data to html is " + alarmData);
+					if (!TextUtils.isEmpty(alarmData))
+					{
+						holder.platformJavaScriptBridge.alarmPlayed(alarmData);
+						cardAlarms.remove((int) convMessage.getMsgID()); // to avoid calling from getview
 					}
 					String event;
 					if ((event = events.get((int)convMessage.getMsgID()))!=null)

@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -204,11 +206,9 @@ public class IntentFactory
 	
 	public static void openStickerSettings(Context context)
 	{
-		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
-		if (Utils.isIceCreamOrHigher())
+		if (ChatHeadUtils.checkDeviceFunctionality())
 		{
-			Intent intent = new Intent(context, StickerShareSettings.class);
-			context.startActivity(intent);
+			context.startActivity(getStickerShareSettingsIntent(context));
 		}
 	}
 	
@@ -376,6 +376,7 @@ public class IntentFactory
 
 	public static Intent getStickerShareSettingsIntent(Context context)
 	{
+		HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 		return new Intent(context, StickerShareSettings.class);
 	}
 	
@@ -1043,5 +1044,11 @@ public class IntentFactory
 			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
 		}
 		return intent;
+	}
+
+	public static void openAccessibilitySettings(Activity activity)
+	{
+		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+		activity.startActivityForResult(intent, 0);
 	}
 }
