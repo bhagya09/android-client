@@ -1,6 +1,5 @@
 package com.bsb.hike.offline;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +46,7 @@ import com.hike.transporter.models.SenderConsignment;
  * 
  * @author himanshu
  *
- *	This class acts as a abstraction for Offline Messaging.The User should use this class to interact with the
- *	Offline Manager
+ *         This class acts as a abstraction for Offline Messaging.The User should use this class to interact with the Offline Manager
  */
 
 public class OfflineController
@@ -57,28 +55,28 @@ public class OfflineController
 	private static final String TAG = "OfflineController";
 
 	private OfflineManager offlineManager;
-	
-	private HikeConverter  hikeConverter;
 
-	public static volatile OfflineController _instance=null;
-	
+	private HikeConverter hikeConverter;
+
+	public static volatile OfflineController _instance = null;
+
 	private OfflineFileManager fileManager;
-	
-	private volatile OFFLINE_STATE offlineState=OFFLINE_STATE.NOT_CONNECTED;
-	
-	
+
+	private volatile OFFLINE_STATE offlineState = OFFLINE_STATE.NOT_CONNECTED;
+
 	private Handler mHandler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
-		public void handleMessage(android.os.Message msg) {
-			if(msg==null)
+		public void handleMessage(android.os.Message msg)
+		{
+			if (msg == null)
 			{
 				return;
 			}
 			handleMsgOnBackEndThread(msg);
-			
+
 		}
 	};
-	
+
 	public static OfflineController getInstance()
 	{
 		if (_instance == null)
@@ -94,10 +92,12 @@ public class OfflineController
 		return _instance;
 
 	}
-	
-	private void handleMsgOnBackEndThread(Message msg) {
+
+	private void handleMsgOnBackEndThread(Message msg)
+	{
 		// TODO Auto-generated method stub
-		switch (msg.what) {
+		switch (msg.what)
+		{
 		case OfflineConstants.HandlerConstants.SAVE_MSG_DB:
 			saveToDb((ConvMessage) msg.obj);
 			break;
@@ -112,9 +112,12 @@ public class OfflineController
 		}
 	}
 
-	
-	private void removeConnectionRequest()
+	public void removeConnectionRequest()
 	{
+		mHandler.removeMessages(OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST);
+		NotificationManager notificationManager = (NotificationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(HikeNotification.OFFLINE_REQUEST_ID);
+		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ON_OFFLINE_REQUEST, null);
 	}
 
@@ -129,6 +132,7 @@ public class OfflineController
 	{
 		offlineManager.addListener(listener);
 	}
+
 	public void startScan()
 	{
 		offlineManager.startScan();
@@ -143,12 +147,12 @@ public class OfflineController
 	{
 		offlineManager.startWifi();
 	}
-	
+
 	public void stopWifi()
 	{
 		offlineManager.stopWifi();
 	}
-	
+
 	public String getConnectedDevice()
 	{
 		return offlineManager.getConnectedDevice();
@@ -174,21 +178,22 @@ public class OfflineController
 		SenderConsignment msgConsignment = hikeConverter.getMessageConsignment(convMessage, true);
 		offlineManager.sendConsignment(msgConsignment);
 	}
-	
+
 	public void sendMR(JSONObject object)
 	{
-		SenderConsignment mrConsignement=hikeConverter.getMRConsignement(object);
+		SenderConsignment mrConsignement = hikeConverter.getMRConsignement(object);
 		offlineManager.sendConsignment(mrConsignement);
 	}
+
 	public void sendAudioFile(String filePath, long duration, String msisdn)
 	{
-		SenderConsignment audioConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true, duration,
-				FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
+		SenderConsignment audioConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true,
+				duration, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
 		offlineManager.sendConsignment(audioConsignment);
 	}
-	
+
 	// currently using for sharing files...
-	public void sendFile(ArrayList<FileTransferData> fileTransferList, String msisdn) 
+	public void sendFile(ArrayList<FileTransferData> fileTransferList, String msisdn)
 	{
 		for (FileTransferData fileData : fileTransferList)
 		{
@@ -197,14 +202,14 @@ public class OfflineController
 			{
 				apkLabel = fileData.file.getName();
 			}
-			
-			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType, fileData.isRecording,  
-															fileData.recordingDuration, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, apkLabel);
+
+			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType,
+					fileData.isRecording, fileData.recordingDuration, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, apkLabel);
 			offlineManager.sendConsignment(fileConsignment);
 		}
 	}
 
-	public void sendFile(Intent intent ,JSONObject msgExtrasJson, String msisdn)
+	public void sendFile(Intent intent, JSONObject msgExtrasJson, String msisdn)
 	{
 		String fileKey = null;
 		try
@@ -252,17 +257,17 @@ public class OfflineController
 			Logger.e(TAG, "Incorrect JSON");
 		}
 	}
-	
+
 	public void sendFile(Intent intent, String msisdn)
 	{
-		
-		if(intent.hasExtra(HikeConstants.Extras.FILE_PATHS))
+
+		if (intent.hasExtra(HikeConstants.Extras.FILE_PATHS))
 		{
 			ArrayList<String> filePaths = intent.getStringArrayListExtra(HikeConstants.Extras.FILE_PATHS);
 			String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
 			for (String filePath : filePaths)
 			{
-				HikeFileType hikeFileType = HikeFileType.fromString(fileType,false);
+				HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
 
 				if (filePath == null)
 				{
@@ -270,7 +275,8 @@ public class OfflineController
 				}
 				else
 				{
-					SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, null, hikeFileType, fileType, false, -1,FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, null);
+					SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, null, hikeFileType, fileType, false, -1, FTAnalyticEvents.OTHER_ATTACHEMENT,
+							msisdn, null);
 					offlineManager.sendConsignment(fileConsignment);
 				}
 
@@ -306,18 +312,19 @@ public class OfflineController
 			}
 			else
 			{
-				SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, null);
+				SenderConsignment fileConsignment = hikeConverter.getFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType,
+						msisdn, null);
 				offlineManager.sendConsignment(fileConsignment);
 			}
 
 		}
-		
-		
+
 	}
 
 	public void sendApps(String filePath, String mime, String apkLabel, String msisdn)
 	{
-		SenderConsignment appConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.APK, mime, false, (long) -1, FTAnalyticEvents.APK_ATTACHMENT, msisdn, apkLabel);
+		SenderConsignment appConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.APK, mime, false, (long) -1, FTAnalyticEvents.APK_ATTACHMENT, msisdn,
+				apkLabel);
 		offlineManager.sendConsignment(appConsignment);
 	}
 
@@ -336,42 +343,45 @@ public class OfflineController
 
 	public void sendAudio(String filePath, String msisdn)
 	{
-		SenderConsignment audioConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.AUDIO, null, false, -1, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
+		SenderConsignment audioConsignment = hikeConverter
+				.getFileConsignment(filePath, null, HikeFileType.AUDIO, null, false, -1, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
 		offlineManager.sendConsignment(audioConsignment);
 	}
 
 	public void sendVideo(String filePath, String msisdn)
 	{
-		SenderConsignment videoConsignment = hikeConverter.getFileConsignment(filePath, null, HikeFileType.VIDEO, null, false, -1, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn, null);
+		SenderConsignment videoConsignment = hikeConverter
+				.getFileConsignment(filePath, null, HikeFileType.VIDEO, null, false, -1, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn, null);
 		offlineManager.sendConsignment(videoConsignment);
 	}
 
-	public void sendImage(String imagePath, String msisdn,int attachementType)
+	public void sendImage(String imagePath, String msisdn, int attachementType)
 	{
-		SenderConsignment imageConsignment = hikeConverter.getFileConsignment(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,null);
+		SenderConsignment imageConsignment = hikeConverter.getFileConsignment(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,
+				null);
 		offlineManager.sendConsignment(imageConsignment);
-    }
-	
+	}
+
 	public void createHotspot(String msisdn)
 	{
 		offlineManager.createHotspot(msisdn);
 	}
-	
+
 	public void connectToHotspot(String msisdn)
 	{
-		offlineManager.connectToHotspot(msisdn);	
+		offlineManager.connectToHotspot(msisdn);
 	}
-	
+
 	public void connectAsPerMsisdn(String msisdn)
 	{
 		offlineManager.connectAsPerMsisdn(msisdn);
 	}
-	
+
 	public OFFLINE_STATE getOfflineState()
 	{
 		return this.offlineState;
 	}
-	
+
 	public void setOfflineState(OFFLINE_STATE offlineState)
 	{
 		this.offlineState = offlineState;
@@ -383,8 +393,9 @@ public class OfflineController
 		offlineManager.removeListener(listener);
 	}
 
-	public void sendMultiMessages(ArrayList<ConvMessage> offlineMessageList,String msisdn) {
-		for(ConvMessage convMessage: offlineMessageList)
+	public void sendMultiMessages(ArrayList<ConvMessage> offlineMessageList, String msisdn)
+	{
+		for (ConvMessage convMessage : offlineMessageList)
 		{
 			convMessage.setMsisdn(msisdn);
 			sendMessage(convMessage);
@@ -398,78 +409,80 @@ public class OfflineController
 				apkLabel);
 		offlineManager.sendConsignment(fileConsignment);
 	}
-	
+
 	public void onDisconnect(TException e)
 	{
 		shutdownProcess(e);
 	}
-	
+
 	public void shutdown(TException exception)
 	{
 		Logger.d(TAG, "ShutDown called Due to reason " + exception.getReasonCode());
-		Message msg=Message.obtain();
-		msg.what=OfflineConstants.HandlerConstants.SHUTDOWN;
-		msg.obj=exception;
+		Message msg = Message.obtain();
+		msg.what = OfflineConstants.HandlerConstants.SHUTDOWN;
+		msg.obj = exception;
 		mHandler.sendMessage(msg);
 	}
-	
-	public FileSavedState getFileState(ConvMessage convMessage, File file) 
+
+	public FileSavedState getFileState(ConvMessage convMessage, File file)
 	{
 		return convMessage.isSent() ? fileManager.getUploadFileState(convMessage, file) : fileManager.getDownloadFileState(convMessage, file);
 	}
 
-	public void handleRetryButton(ConvMessage convMessage) 
+	public void handleRetryButton(ConvMessage convMessage)
 	{
-		
+
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		Logger.d(TAG, "Hike File type is: "
-				+ hikeFile.getHikeFileType().ordinal());
-		
+		Logger.d(TAG, "Hike File type is: " + hikeFile.getHikeFileType().ordinal());
+
 		if (hikeFile.getHikeFileType() == HikeFileType.CONTACT)
 		{
 			SenderConsignment senderConsignment = hikeConverter.getMessageConsignment(convMessage, false);
 			offlineManager.sendConsignment(senderConsignment);
 			return;
 		}
-		
+
 		File selected = hikeFile.getFile();
-		File sourceFile=new File (hikeFile.getSourceFilePath());
-		if (selected.exists()) 
+		File sourceFile = new File(hikeFile.getSourceFilePath());
+		if (selected.exists())
 		{
-			//TODO: Check if true is really required here
+			// TODO: Check if true is really required here
 			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage, false);
 			offlineManager.sendConsignment(fileConsignment);
 		}
-		else if(sourceFile.exists())
+		else if (sourceFile.exists())
 		{
-			
-			try {
-				(convMessage.serialize().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES))
-				.getJSONObject(0).putOpt(HikeConstants.FILE_PATH, hikeFile.getSourceFilePath());
-//				File x=HikeMessengerApp.getInstance().getApplicationContext().getExternalFilesDir("hiketmp");
-//				File bin = new File(x,selected.getName() + ".bin." + convMessage.getMsgID());
-//				if(bin!=null&&bin.exists())
-//				{
-//					bin.delete();
-//				}
-				
-			} catch (JSONException e) {
+
+			try
+			{
+				(convMessage.serialize().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
+						HikeConstants.FILE_PATH, hikeFile.getSourceFilePath());
+				// File x=HikeMessengerApp.getInstance().getApplicationContext().getExternalFilesDir("hiketmp");
+				// File bin = new File(x,selected.getName() + ".bin." + convMessage.getMsgID());
+				// if(bin!=null&&bin.exists())
+				// {
+				// bin.delete();
+				// }
+
+			}
+			catch (JSONException e)
+			{
 				e.printStackTrace();
 			}
 			SenderConsignment fileConsignment = hikeConverter.getFileConsignment(convMessage, true);
 			offlineManager.sendConsignment(fileConsignment);
 		}
-		else 
+		else
 		{
 			HikeMessengerApp.getInstance().showToast(R.string.file_expire);
 		}
 	}
-	
+
 	protected boolean isHotspotCreated()
 	{
 		return offlineManager.isHotspotCreated();
 	}
-	
+
 	public long getTransferProgress(long msgId, boolean isSent, long fileSize)
 	{
 		long num = fileManager.getTransferProgress(msgId, isSent);
@@ -479,11 +492,10 @@ public class OfflineController
 			return num;
 		}
 		long progress = (((long) num * OfflineConstants.CHUNK_SIZE * 100) / fileSize);
-		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: "+ fileSize + 
-				" Progress -> " + progress + "  msgId  --->" + msgId);
+		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + fileSize + " Progress -> " + progress + "  msgId  --->" + msgId);
 		return progress;
 	}
-	
+
 	public synchronized void shutdownProcess(TException exception)
 	{
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTING)
@@ -494,12 +506,11 @@ public class OfflineController
 			setOfflineState(OFFLINE_STATE.DISCONNECTING);
 			Transporter.getInstance().shutDown();
 			fileManager.shutDown();
-			
+
 			sendDisconnectToListeners(exception);
 
-			
 			Logger.d(TAG, "going to disconnect");
-			//HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
+			// HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
 
 			hikeConverter.releaseResources();
 
@@ -507,11 +518,11 @@ public class OfflineController
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
-	
+
 			OfflineSessionTracking.getInstance().stopTracking();
 		}
 	}
-	
+
 	private void sendDisconnectToListeners(TException exception)
 	{
 		sendDisconnectInlineMsg(getConnectedDevice());
@@ -536,45 +547,47 @@ public class OfflineController
 		}
 		return errorCode;
 	}
-	public void deleteRemainingFiles(ArrayList<Long> msgId,String msisdn)
+
+	public void deleteRemainingFiles(ArrayList<Long> msgId, String msisdn)
 	{
 		fileManager.deleteFiles(msgId, msisdn);
 	}
-	
+
 	public void sendDisconnectInlineMsg(String msisdn)
 	{
-		if(TextUtils.isEmpty(msisdn))
-			return ;
-		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(msisdn, HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_deestablished),
-				OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
+		if (TextUtils.isEmpty(msisdn))
+			return;
+		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(msisdn,
+				HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_deestablished), OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 	}
 
-	public void onConnect() 
+	public void onConnect()
 	{
 		Logger.d(TAG, "In onConnect");
-		
+
 		offlineManager.setConnectingDeviceAsConnected();
-		
+
 		OfflineSessionTracking.getInstance().setToUser(getConnectedDevice());
 		OfflineSessionTracking.getInstance().setfUser(OfflineUtils.getMyMsisdn());
-		
-		Logger.d(TAG,"Connected Device is "+ offlineManager.getConnectedDevice());
+
+		Logger.d(TAG, "Connected Device is " + offlineManager.getConnectedDevice());
 		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.OFFLINE_MSISDN, offlineManager.getConnectedDevice());
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTED);
-		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(offlineManager.getConnectedDevice(), 
-						HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_established), OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(offlineManager.getConnectedDevice(), HikeMessengerApp.getInstance().getApplicationContext()
+				.getString(R.string.connection_established), OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		offlineManager.sendConnectedCallback();
-		long connectionId=System.currentTimeMillis();
-		OfflineSessionTracking.getInstance().setConnectionId(connectionId);;
+		long connectionId = System.currentTimeMillis();
+		OfflineSessionTracking.getInstance().setConnectionId(connectionId);
+		;
 		offlineManager.sendInfoPacket(connectionId);
-		
+
 	}
 
 	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)
@@ -588,11 +601,11 @@ public class OfflineController
 		{
 			senderConsignment = hikeConverter.getMessageConsignment(convMessage, persistence);
 		}
-			
+
 		return senderConsignment;
 	}
 
-	public String getConnectingDevice() 
+	public String getConnectingDevice()
 	{
 		return offlineManager.getConnectingDevice();
 	}
@@ -610,30 +623,43 @@ public class OfflineController
 	public void handleOfflineRequest(JSONObject packet)
 	{
 		String msisdn = packet.optString(HikeConstants.FROM);
-		if(TextUtils.isEmpty(msisdn))
+		long connectionTimeout = 0l;
+		if (TextUtils.isEmpty(msisdn))
 		{
 			return;
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ON_OFFLINE_REQUEST, msisdn);
-		
+		JSONObject object = new JSONObject();
 		JSONObject data = packet.optJSONObject(HikeConstants.DATA);
-		if(data!=null)
+		if (data != null)
 		{
-			if(data.has(OfflineConstants.TIMEOUT))
+			if (data.has(OfflineConstants.TIMEOUT))
 			{
-				long connectionTimeout  =  data.optLong(OfflineConstants.TIMEOUT);
+				connectionTimeout = data.optLong(OfflineConstants.TIMEOUT);
 				postTimeoutMessage(connectionTimeout);
 			}
-			
 		}
+
+		try
+		{
+			object.put(HikeConstants.MSISDN, msisdn);
+			object.put(OfflineConstants.TIMEOUT, System.currentTimeMillis() + connectionTimeout);
+		}
+		catch (JSONException e)
+		{
+
+		}
+		
+		HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.DIRECT_REQUEST_DATA, object.toString());
+
 	}
 
 	private void postTimeoutMessage(long timeout)
 	{
 		Message msg = Message.obtain();
-		msg.what=OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST;
-		msg.obj=timeout;
-		mHandler.sendMessageDelayed(msg, timeout); 
-	}	
+		msg.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST;
+		msg.obj = timeout;
+		mHandler.sendMessageDelayed(msg, timeout);
+	}
 
 }
