@@ -55,8 +55,8 @@
             android:widgetLayout="@layout/switch_widget" />
 	
 	<com.bsb.hike.view.SeekBarPreference
-	    	android:title="Long press duration"
-	    	android:summary="How long something will last"
+	    	android:title="@string/long_press_duration_title"
+	    	android:summary="@string/long_press_duration_summary"
 	    	android:defaultValue="300"
 	    	android:text="ms"
 	    	android:max="400" />
@@ -69,8 +69,8 @@
             android:widgetLayout="@layout/switch_widget" />
 	
 	<com.bsb.hike.view.SeekBarPreference
-	    	android:title="Keypress Sound Volume"
-	    	android:summary="How long something will last"
+	    	android:title="@string/keypress_sound_vol_title"
+	    	android:summary="@string/long_press_duration_summary"
 	    	android:defaultValue="3"
 	    	android:text="ms"
 	    	android:max="10" />
@@ -83,8 +83,8 @@
             android:widgetLayout="@layout/switch_widget" />
 	
 	<com.bsb.hike.view.SeekBarPreference
-	    	android:title="Keypress Vibration Duration"
-	    	android:summary="How long something will last"
+	    	android:title="@string/keypress_vib_duration_title"
+	    	android:summary="@string/long_press_duration_summary"
 	    	android:defaultValue="3"
 	    	android:text="ms"
 	    	android:max="100" />

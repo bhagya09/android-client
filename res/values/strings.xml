@@ -1686,4 +1686,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="vibrate_on_keypress_title">Vibrate on keypress</string>
     <string name="portrait_is_std_title">Portrait is Standard</string>
     <string name="delete_all">Delete All</string>
+    <string name="long_press_duration_title">Long Press Duration</string>
+    <string name="long_press_duration_summary">How long something will last</string>
+    <string name="keypress_sound_vol_title">Keypress Sound Volume</string>
+    <string name="keypress_vib_duration_title">Keypress Vibration Duration</string>
 </resources>
