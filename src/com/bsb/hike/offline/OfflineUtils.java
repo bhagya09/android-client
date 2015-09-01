@@ -871,4 +871,15 @@ public class OfflineUtils
 		}
 		return null;
 	}
+
+	public static void sendInlineConnectRequest(String msisdn)
+	{
+	if(TextUtils.isEmpty(msisdn))
+	{
+		return;
+	}
+		
+	
+		
+	}
 }
