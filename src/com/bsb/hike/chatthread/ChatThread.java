@@ -6080,14 +6080,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 		});
 		final int color;
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-		{
-			color = activity.getResources().getColor(R.color.kpt_balck_color_text);
-		}
-		else
-		{
-			color = activity.getResources().getColor(R.color.kpt_white_color_text);
-		}
+		color = activity.getResources().getColor(R.color.kpt_white_color_text);
 
 		AlertDialog mOptionsDialog = builderNew.create();
 
