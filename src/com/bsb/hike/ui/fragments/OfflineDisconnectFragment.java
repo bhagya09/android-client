@@ -148,7 +148,8 @@ public class OfflineDisconnectFragment extends Fragment
 			}
 			avatar.setImageDrawable(drawable);
 			connectionRequest.setText(Html.fromHtml(firstMessage));
-			//positiveBtn.setTextColor();
+			positiveBtn.setTextColor(getResources().getColor(R.color.blue_hike));
+			negativeBtn.setTextColor(getResources().getColor(R.color.black));
 			
 			break;
 		case REQUESTING:
