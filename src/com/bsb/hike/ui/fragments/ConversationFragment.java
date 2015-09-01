@@ -916,10 +916,15 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else
 		{
-			if (savedInstanceState == null && OfflineUtils.shouldShowDisconnectFragment(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA,"")) )
+			if (OfflineUtils.shouldShowDisconnectFragment(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, "")))
 			{
-				 bindDisconnectionFragment(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA,"")));
+				if (savedInstanceState != null)
+				{
+					((HomeActivity) getActivity()).removeFragment(OfflineConstants.OFFLINE_DISCONNECT_FRAGMENT);
+				}
+				bindDisconnectionFragment(OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, "")));
 			}
+
 		}
 		mConversationsComparator = new ConvInfo.ConvInfoComparator();
 		fetchConversations();
