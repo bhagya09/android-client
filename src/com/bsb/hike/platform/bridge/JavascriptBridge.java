@@ -7,12 +7,12 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
-import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -49,10 +49,7 @@ import com.bsb.hike.platform.IFileUploadListener;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
-import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -1037,7 +1034,6 @@ public abstract class JavascriptBridge
 
 		}
 	}
-<<<<<<< HEAD
 
 	/**
 	 * Added in Platform Version:5
@@ -1105,7 +1101,6 @@ public abstract class JavascriptBridge
 		PlatformUtils.downloadStkPk(stickerData);
 	}
 	
-=======
 	
 	/**
 	 * Platform Version 5 Call this function to close the current activity. This function closes the current activity and takes the user back to the previous activity.
@@ -1118,5 +1113,4 @@ public abstract class JavascriptBridge
 			mHandler.sendEmptyMessage(CLOSE_WEB_VIEW);
 		}
 	}
->>>>>>> d3bc7ed6459f566574ce6bb79ab3e59850b95456
 }

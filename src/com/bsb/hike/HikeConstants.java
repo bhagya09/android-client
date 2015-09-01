@@ -3240,11 +3240,9 @@ public class HikeConstants
 	
 	public static final String STICKER_SETTINGS = "stickerSettings";
 
-<<<<<<< HEAD
 	public static final String AG_ENABLED = "agLogs";
-=======
+	
 	public static final String PLATFORM_PACKET = "pt";
->>>>>>> d3bc7ed6459f566574ce6bb79ab3e59850b95456
 
 	public static final String REFERRAL_EMAIL_TEXT = "ref_mail_txt";
 	

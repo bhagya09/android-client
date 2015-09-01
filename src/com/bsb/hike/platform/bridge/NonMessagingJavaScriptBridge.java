@@ -1,9 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.utils.IntentFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,12 +10,12 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
@@ -31,6 +27,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -696,7 +693,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Platform Bridge Version 5
 	 * Call this function to allow the up Press. The android up button will be given to the microapp.
 	 * @param allowUp
@@ -707,7 +703,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		mBotInfo.setIsUpPressAllowed(Boolean.valueOf(allowUp));
 	}
 
-=======
+	/**
 	 * Platform Version 5
 	 * Call this function to delete an event from the list of events that are shared with the microapp.
 	 *
@@ -955,8 +951,4 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, mBotInfo.getNamespace());
 	}
 
-
-
-
->>>>>>> d3bc7ed6459f566574ce6bb79ab3e59850b95456
 }
