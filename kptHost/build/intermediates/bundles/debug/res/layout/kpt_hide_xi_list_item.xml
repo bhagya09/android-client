@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="6dip" >
+
+    <ImageView
+        android:id="@+id/theme_select_image"
+        android:layout_width="48dip"
+        android:layout_height="48dip" />
+
+    <CheckedTextView
+        android:id="@+id/radioButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="10dip"
+        android:layout_toRightOf="@id/theme_select_image"
+        android:gravity="center_vertical"
+        android:layout_centerVertical="true"
+        android:checked="true"
+        android:textSize="20sp" />
+
+</RelativeLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_hide_xi_list_item.xml -->

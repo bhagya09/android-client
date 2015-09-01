@@ -2,30 +2,6 @@ package com.bsb.hike.timeline.view;
 
 import java.io.IOException;
 
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -39,7 +15,6 @@ import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
@@ -51,8 +26,42 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.bsb.hike.view.RoundedImageView;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, 
+		View.OnClickListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
 
 	private class ActivityTask
@@ -143,6 +152,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private View addMoodLayout;
 
 	private ViewGroup emojiParent;
+	
+	CustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
 
 	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
 
@@ -160,7 +173,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.status_dialog);
-
+		initVarRef();
+		initCustomKeyboard();
+		
 		addOnClickListeners();
 		Object o = getLastCustomNonConfigurationInstance();
 
@@ -177,7 +192,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask = new ActivityTask();
 		}
 
-		initVarRef();
 
 		RoundedImageView roundAvatar = (RoundedImageView) avatar;
 		roundAvatar.setOval(true);
@@ -269,6 +283,54 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (!shouldShowMoodsButton())
 		{
 			addMoodLayout.setVisibility(View.GONE);
+		}
+	}
+	
+	private void initCustomKeyboard()
+	{
+		systemKeyboard = HikeMessengerApp.currentKeyboard(this);
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new CustomKeyboard(StatusUpdate.this, viewHolder);
+		mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+		mCustomKeyboard.init(statusTxt);
+		mCustomKeyboard.showCustomKeyboard(statusTxt, true);
+		if(systemKeyboard)
+		{
+			changeKeyboard(systemKeyboard);
+		}
+	}
+	
+	private void changeKeyboard(boolean systemKeyboard)
+	{
+		Logger.d("changeKeyboard", "ChageKeyboard called!");
+		AdaptxtEditText editText = (AdaptxtEditText) statusTxt;
+		if (systemKeyboard)
+		{
+			mCustomKeyboard.swtichToDefaultKeyboard(editText);
+			mCustomKeyboard.unregister(editText);
+			mCustomKeyboard.unregister(R.id.msg_compose);
+			statusTxt.setOnClickListener(new OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
+				{
+					if (mEmoticonPicker != null && mEmoticonPicker.isShowing())
+					{
+						mEmoticonPicker.dismiss();
+					}
+					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.showSoftInput(statusTxt, InputMethodManager.SHOW_IMPLICIT);
+
+				}
+			});
+		}
+		else
+		{
+			mCustomKeyboard.swtichToKPTKeyboard(editText, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+			mCustomKeyboard.registerEditText(R.id.status_txt, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
+			mCustomKeyboard.init(statusTxt);
+			mCustomKeyboard.showCustomKeyboard(statusTxt, true);
 		}
 	}
 	
@@ -467,6 +529,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			super.onBackPressed();
 		}
+		
+		if (mCustomKeyboard.isCustomKeyboardVisible())
+		{
+			mCustomKeyboard.hideCustomKeyboard(statusTxt);
+		}
+		mCustomKeyboard.closeAnyDialogIfShowing();
 	}
 	
 	public void actionBarBackPressed()
@@ -666,8 +734,27 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
+	protected void onPause()
+	{
+		mCustomKeyboard.closeAnyDialogIfShowing();
+		mCustomKeyboard.onPause();
+		super.onPause();
+	}
+	
+	private void destroyKeyboardResources()
+	{
+		mCustomKeyboard.unregister(statusTxt);
+
+		mCustomKeyboard.closeAnyDialogIfShowing();
+
+		mCustomKeyboard.destroyCustomKeyboard();
+	}
+	
+	@Override
 	protected void onDestroy()
 	{
+		destroyKeyboardResources();
+		
 		/*
 		 * We need to unregister all pubsublisteners whenever activity gets destroyed. Otherwise reference to this activity gets attached with our HikeMessengerApp which doesn't
 		 * let GC pick up any instance of this activity. So whenever this activity gets destroyed its instance doesn't get cleared from heap.
@@ -679,7 +766,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
-		
 	}
 
 	@Override
@@ -768,6 +854,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	public void onConfigurationChanged(Configuration newConfig) 
 	{
 		super.onConfigurationChanged(newConfig);
+		mCustomKeyboard.onConfigurationChanged(newConfig);
 		if (mEmoticonPicker!=null)
 		{
 			
@@ -809,6 +896,69 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void analyticalData(String arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtFocusChange(View arg0, boolean arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtclick(View arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReturnAction(int arg0)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

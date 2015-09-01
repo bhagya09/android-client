@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:id="@+id/title_parent"
+        android:layout_width="match_parent"
+        android:layout_height="50dip"
+        android:layout_alignParentTop="true" >
+
+        <ImageView
+            android:id="@+id/custom_gesture_create_new"
+            android:layout_width="36dip"
+            android:layout_height="36dip"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dip"
+            android:layout_marginTop="5dip"
+            android:layout_marginRight="15dip"
+            android:background="@drawable/kpt_add" />
+
+        <ImageView
+            android:id="@+id/vert_divider"
+            android:layout_width="1dip"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@id/custom_gesture_create_new"
+            android:background="@drawable/kpt_keyboard_cutomization_options_vertical" >
+        </ImageView>
+
+        <Spinner
+            android:id="@+id/custom_gesture_types_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15dip"
+            android:layout_marginRight="15dip"
+            android:layout_toLeftOf="@id/vert_divider"
+            android:entries="@array/kpt_custom_gestures_options_items" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:layout_below="@id/title_parent"
+        android:background="@drawable/kpt_divider_prior" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/divider"
+        android:layout_marginTop="10dip" >
+
+        <ListView
+            android:id="@+id/list_items"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+        </ListView>
+    </LinearLayout>
+
+</RelativeLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_custom_gesture_below_ics.xml -->

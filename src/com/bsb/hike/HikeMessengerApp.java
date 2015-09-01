@@ -65,6 +65,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.TrackerUtil;
 import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -753,6 +754,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public void onCreate()
 	{
+		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -1160,5 +1162,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	{// server side switch
 		int kc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KEYBOARD_CONFIGURATION, HikeConstants.KEYBOARD_CONFIGURATION_NEW);
 		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
+	}
+	
+	public static boolean currentKeyboard(Context context)
+	{
+		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		Logger.d("keyboard", "Current keyboard : " + currentKbd);
+		return currentKbd;
 	}
 }

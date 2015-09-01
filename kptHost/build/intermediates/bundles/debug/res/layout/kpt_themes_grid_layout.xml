@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/kpt_gridbg"
+    android:padding="8dip" >
+
+
+    <TextView
+        android:id="@+id/grid_themes_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+     	android:gravity="center_horizontal"
+        android:text="Theme Name"
+        android:textColor="@color/kpt_white_color_text"
+        android:paddingBottom="5dip"
+        android:textSize="17sp" />
+
+    <ImageView
+        android:id="@+id/grid_themes_logo"
+        android:layout_width="70dip"
+        android:layout_height="70dip"
+        android:layout_alignLeft="@+id/grid_themes_name"
+        android:layout_below="@+id/grid_themes_name"
+        android:paddingTop="2dip"
+        android:paddingBottom="2dip"
+         />
+
+   <!--  <TextView
+        android:id="@+id/grid_themes_description"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/grid_themes_logo"
+        android:layout_toRightOf="@+id/grid_themes_logo"
+        android:paddingBottom="2dip"
+        android:paddingLeft="10dip"
+        android:text="Theme descirtion"
+        android:visibility="gone"
+        android:textColor="#C0C0C0" /> -->
+
+    <ImageView
+        android:id="@+id/grid_themes_download"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_alignBottom="@+id/grid_themes_logo"
+        android:layout_alignRight="@+id/grid_themes_name"
+        android:src="@drawable/kpt_theme_download" />
+
+</RelativeLayout><!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/layout/kpt_themes_grid_layout.xml -->

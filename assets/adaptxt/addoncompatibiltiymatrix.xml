@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addons>
+	<baseurl>adaptxt.com/adaptxtlive/addon/</baseurl>
+	
+	
+	 <addon id="51" type="addon">
+        <displayname>हिन्दी</displayname>
+        <filename>hinin</filename>
+          <zipfilename>HININ_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Hindi:IN</searchstring>
+         <type>Language</type>  
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+	
+	<addon id="2" type="addon">
+        <displayname>English (US)</displayname>
+        <filename>engus</filename>
+        <zipfilename>ENGUS_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>English (US):US</searchstring>
+         <type>Language</type>  
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+	<addon id="52" type="addon">
+        <displayname>Hinglish</displayname>
+        <filename>engin</filename>
+          <zipfilename>ENGIN_Android_KPT_smartphone.zip</zipfilename>
+		  <searchstring>Hinglish:IN:EN</searchstring>
+         <type>Language</type>  
+         <currentver no="2.0">
+			<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+	 <addon id="49" type="addon">
+        <displayname>ગુજરાતી</displayname>
+  		<filename>gujin</filename>
+  		<zipfilename>GUJIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Gujarati:IN</searchstring>
+         <type>Language</type>  
+          <currentver no="2.0">
+		<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>  
+    
+	 <addon id="56" type="addon">
+        <displayname>मराठी</displayname>
+        <filename>marin</filename>
+          <zipfilename>MARIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Marathi:MR:IN</searchstring>
+         <type>Language</type>  
+        <currentver no="2.0">
+		<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+	 <addon id="58" type="addon">
+        <displayname>தமிழ்</displayname>
+        <filename>tamin</filename>
+        <zipfilename>TAMIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Tamil:IN</searchstring>
+         <type>Language</type>  
+         <currentver no="2.0">
+		<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+	  <addon id="59" type="addon">
+        <displayname>తెలుగు</displayname>
+        <filename>telin</filename>
+        <zipfilename>TELIN_Android_KPT_smartphone.zip</zipfilename>
+        <searchstring>Telugu:IN</searchstring>
+         <type>Language</type>
+         <currentver no="2.0">
+		<compatiblebasever>2.0</compatiblebasever>
+		</currentver>
+    </addon>
+    
+	  <addon id="191" type="addon"> 
+		<displayname>Basketball (US)</displayname>
+		<filename>basketball_us</filename>
+		<zipfilename>BASKETBALL_US_Android_KPT_smartphone.zip</zipfilename>
+		<searchstring>Basketball (US):US</searchstring>
+		<type>Technical</type>
+		 <currentver no="8.0">
+			<compatiblebasever>6.0|7.0</compatiblebasever>
+		</currentver>
+		
+		<previousversions>
+		    <ver no="6.0">
+			<compatiblebasever>6.0|7.0</compatiblebasever>
+		</ver>
+		    <ver no="5.0">
+			<compatiblebasever>6.0|7.0</compatiblebasever>
+		</ver>
+		    <ver no="3.0">
+				<compatiblebasever>4.0|5.0|6.0|7.0</compatiblebasever>
+			</ver> 
+			<ver no="2.0">
+			<compatiblebasever>3.0|4.0</compatiblebasever>
+		</ver>
+		</previousversions>
+	</addon>
+    
+	<!-- <addon type="addon" id="185">
+		<displayname>मारवाड़ी</displayname>
+		<filename>mwrin</filename>
+		<zipfilename>MWRIN_Android_KPT_smartphone.zip</zipfilename>
+		<searchstring>Marwari (New):MW:IN:MWR</searchstring>
+		<type>Language</type>
+		<currentver no="8.0">
+		    <compatiblebasever>7.0</compatiblebasever>
+		</currentver>
+		<previousversions>
+		    <ver no="8.0">
+		        <compatiblebasever>7.0</compatiblebasever>
+		    </ver>
+		</previousversions>
+	</addon> -->
+</addons>

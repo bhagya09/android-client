@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/Users/anubansal/Documents/workspace_kptold/kptHost/res/values-port-mdpi/dimens.xml -->
+    <eat-comment/>
+    <dimen name="kpt_accentuated_bubble_offset">87dip</dimen>
+    <dimen name="kpt_dialog_height">171px</dimen>
+    <dimen name="kpt_keyLabel2TextSizeForSpace">18sp</dimen>
+    <dimen name="kpt_max_textpreview_size">30sp</dimen>
+    <dimen name="kpt_min_textpreview_size">10sp</dimen>
+</resources>
