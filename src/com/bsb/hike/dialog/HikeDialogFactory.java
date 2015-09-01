@@ -861,11 +861,11 @@ public class HikeDialogFactory
 			break;
 			
 		case DELETE_GROUP_DIALOG:
-			deleteConfirmDialog.setBody(context.getString(R.string.confirm_delete_group_msg, (String) data[0]));
-			deleteConfirmDialog.setCheckBox(R.string.delete_conversation, true);
-			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
-			deleteConfirmDialog.setHeader(null);
+			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_group_msg, (String) data[0]));
+			deleteConfirmDialog.setCheckBox(R.string.delete_conversation,null, true);
+			deleteConfirmDialog.setPositiveButton(R.string.yes, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setTitle(null);
 			break;
 			
 		case DELETE_BROADCAST_DIALOG:
@@ -875,10 +875,10 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 		case DELETE_GROUP_CONVERSATION_DIALOG:
-			deleteConfirmDialog.setHeader(R.string.delete);
-			deleteConfirmDialog.setBody(context.getString(R.string.delete_group_confirm, (String) data[0]));
-			deleteConfirmDialog.setOkButton(context.getString(R.string.delete), positiveListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
+			deleteConfirmDialog.setTitle(R.string.delete);
+			deleteConfirmDialog.setMessage(context.getString(R.string.delete_group_confirm, (String) data[0]));
+			deleteConfirmDialog.setPositiveButton(context.getString(R.string.delete), listener);
+			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
 			break;
 			
 		case DELETE_ALL_CONVERSATIONS:

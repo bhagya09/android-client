@@ -1823,7 +1823,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		switch (profileType)
 		{
 		case BROADCAST_INFO:
-		case GROUP_INFO:
 			final boolean isBroadcast = profileType == ProfileType.BROADCAST_INFO;
 			CustomAlertDialog alertDialog = new CustomAlertDialog(this, -1);
 			alertDialog.setMessage(isBroadcast ? R.string.delete_broadcast_confirm : R.string.leave_group_confirm);
