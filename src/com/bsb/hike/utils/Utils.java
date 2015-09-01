@@ -220,6 +220,7 @@ import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -6965,6 +6966,30 @@ public class Utils
 		}
 		
 		return app_installed;
+	}
+	
+	/**
+	* Call this method to post a status update without an image to timeline.
+	* @param status
+	* @param moodId : Pass -1 if no mood
+	*
+	* Both status = null and moodId = -1 should not hold together
+	*
+	* List of moods:
+	* {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
+	*
+	*/
+	public static void postStatusUpdate(String status, int moodId)
+	{
+		try
+		{
+			StatusUpdateTask task = new StatusUpdateTask(status, moodId, null);
+			task.execute();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }
