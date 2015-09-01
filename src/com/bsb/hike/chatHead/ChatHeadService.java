@@ -107,9 +107,7 @@ public class ChatHeadService extends Service
 			Set<String> foregroundPackages = ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS);
 			UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
 			
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
-					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false)
-					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null)
+			if(ChatHeadUtils.shouldRunChatHeadServiceForStickey())
 			{
 			boolean whiteListAppForegrounded = false;
 			for (String packName : whitelistedPackageList)
@@ -700,14 +698,16 @@ public class ChatHeadService extends Service
 		super.onConfigurationChanged(newConfig);
 
 		int[] chatHeadLocations = new int[2];
-		
-		try
+		if (ChatHeadLayout.getOverlayView() != null && ChatHeadLayout.getOverlayView().isShown())
 		{
-			windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
-		}
-		catch(Exception e)
-		{
-			Logger.d(TAG, "removing chathead windowmanager view");
+			try
+			{
+				windowManager.removeView(ChatHeadLayout.detachPicker(getApplicationContext()));
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG, "removing chathead windowmanager view");
+			}
 		}
 		chatHead.getLocationOnScreen(chatHeadLocations);
 		if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
@@ -720,13 +720,16 @@ public class ChatHeadService extends Service
 			chatHeadParams.x = getResources().getDisplayMetrics().widthPixels - chatHead.getWidth();
 			chatHeadParams.y = chatHeadLocations[1];
 		}
-		try
+		if (chatHead!= null && chatHead.isShown())
 		{
-			windowManager.updateViewLayout(chatHead, chatHeadParams);
-		}
-		catch (Exception e)
-		{
-			Logger.d(TAG, "configuration changed uodate view");
+			try
+			{
+				windowManager.updateViewLayout(chatHead, chatHeadParams);
+			}
+			catch (Exception e)
+			{
+				Logger.d(TAG, "configuration changed uodate view");
+			}
 		}
 		if (closeHead.isShown())
 		{

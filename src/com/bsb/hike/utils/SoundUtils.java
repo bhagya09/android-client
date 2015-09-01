@@ -13,6 +13,8 @@ public class SoundUtils
 {
 	private static final String TAG = "SoundUtils";
 	
+	private static Ringtone mRingtone = null;
+
 	/**
 	 * Message sending sound is NOT played under following conditions
 	 * 1) Settings are off
@@ -65,15 +67,26 @@ public class SoundUtils
 	 */
 	public static void playSound(final Context context, Uri soundUri, int streamType)
 	{
-		Ringtone r = RingtoneManager.getRingtone(context, soundUri);
-		if(r != null)
+		mRingtone = RingtoneManager.getRingtone(context, soundUri);
+		if(mRingtone != null)
 		{
-			r.setStreamType(streamType);
-			r.play();
+			mRingtone.setStreamType(streamType);
+			mRingtone.play();
 		}
 		else
 		{
 			Logger.e(TAG, "Failed to open ringtone: " + soundUri);
+		}
+	}
+
+	/**
+	 * Stops previously playing ringtone
+	 */
+	public static void stopSound()
+	{
+		if(mRingtone != null)
+		{
+			mRingtone.stop();
 		}
 	}
 
