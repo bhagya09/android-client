@@ -4012,6 +4012,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		mCustomKeyboard.closeAnyDialogIfShowing();
 		
+		mCustomKeyboard.onPause();
+		
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);

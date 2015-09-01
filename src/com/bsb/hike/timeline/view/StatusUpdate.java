@@ -737,6 +737,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onPause()
 	{
 		mCustomKeyboard.closeAnyDialogIfShowing();
+		mCustomKeyboard.onPause();
 		super.onPause();
 	}
 	
