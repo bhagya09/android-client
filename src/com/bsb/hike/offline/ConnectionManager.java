@@ -660,6 +660,7 @@ public class ConnectionManager implements ChannelListener
 
 		if (list != null)
 		{
+			Logger.d("OfflineManager","List size is "+list.size());
 			for (WifiConfiguration wifiConfiguration : list)
 			{
 				String currentSsid = "";
@@ -683,7 +684,7 @@ public class ConnectionManager implements ChannelListener
 					Logger.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
 					wifiManager.reconnect();
-
+					break;
 				}
 			}
 		}
