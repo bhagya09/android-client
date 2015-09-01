@@ -25,6 +25,7 @@ public class NotificationCancelReceiver extends BroadcastReceiver
 		OfflineUtils.sendOfflineRequestCancelPacket(msisdn);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		OfflineAnalytics.pushNotificationClicked(0);
+		OfflineController.getInstance().removeConnectionRequest();
 
 	}
 }

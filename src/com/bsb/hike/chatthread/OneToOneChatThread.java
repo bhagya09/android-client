@@ -240,6 +240,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			msg.obj = true;
 			msg.what = START_OFFLINE_CONNECTION;
 			uiHandler.sendMessage(msg);
+			OfflineController.getInstance().removeConnectionRequest();
 		}
 		
 	}
