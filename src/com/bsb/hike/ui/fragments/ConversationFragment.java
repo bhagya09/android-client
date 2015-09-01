@@ -434,9 +434,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		
 			if(footerState.getEnum()==footerState.HALFOPEN)
 			{
-				
-			
-			chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+				if (mmSelectFriends.isModuleToggle())
+				{
+					chatProgress.setText(mmReward.getDetailsText());
+				}
+				else
+				{
+					chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+				}
 			}
 			else
 			{
@@ -600,7 +605,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				
 				if(mmNuxManager.getCurrentState() == NUXConstants.NUX_SKIPPED || mmNuxManager.getCurrentState() == NUXConstants.NUX_IS_ACTIVE)
 				{
-					chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+					if(NUXManager.getInstance().getNuxSelectFriendsPojo().isModuleToggle())
+					{
+						chatProgress.setText(mmReward.getDetailsText());
+					}
+					else
+					{
+						chatProgress.setText(String.format(mmReward.getStatusText(), mmNuxManager.getCountUnlockedContacts(), mmDetails.getMin()));
+					}
 					progressNux.setProgress(NUXManager.getInstance().getCountUnlockedContacts() / mmDetails.getMin());
 				}
 				if (Utils.isHoneycombOrHigher())
@@ -713,7 +725,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 			}
 
-			else if (footerState.getEnum() == footerState.OPEN)
+			else if (footerState.getEnum() == footerState.OPEN || (footerState.getEnum() == footerState.HALFOPEN && NUXManager.getInstance().getNuxSelectFriendsPojo().isModuleToggle()))
 			{
 				if ((!TextUtils.isEmpty(mmReward.getDetailsLink())))
 				{
