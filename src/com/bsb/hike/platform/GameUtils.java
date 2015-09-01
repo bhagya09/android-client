@@ -1,5 +1,6 @@
 package com.bsb.hike.platform;
 
+import com.bsb.hike.DummyGameActivity;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 
@@ -48,14 +49,14 @@ public class GameUtils {
 					String cache=helper.getFromCache(id,(String)data[0]);
 					Log.d("pushkar","data from cache" +cache);
 // callBack function to be called here.
-//					runOnGLthread(new Runnable()
-//							{
-//								@Override
-//								public void run()
-//								{
+					DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
+							{
+								@Override
+								public void run()
+								{
 //									gameCallback(id,cache);
-//								}
-//							});
+								}
+							});
 					break;
 					
 				case LOG_ANALYTICS:
