@@ -2,10 +2,13 @@ package com.bsb.hike.productpopup;
 
 import java.lang.ref.WeakReference;
 
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.IInterface;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,6 +20,7 @@ import android.view.Window;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.content.HikeWebClient;
@@ -103,6 +107,15 @@ public class HikeDialogFragment extends DialogFragment
 			Logger.i("HeightAnim", "set height given in card is =" + minHeight);
 			mmWebView.setLayoutParams(lp);
 		}
+		if (mmModel.getData() instanceof ProductContentModel)
+		{
+			ProductContentModel model = (ProductContentModel) mmModel.getData();
+
+			if (model.getConfig().showInPortraitOnly())
+			{
+				getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
+		}
 		loadingCard.setVisibility(View.VISIBLE);
 		return view;
 	}
@@ -143,8 +156,12 @@ public class HikeDialogFragment extends DialogFragment
 		super.onActivityCreated(arg0);
 		Logger.d("ProductPopup", "onActivityCreated");
 		getDialog().setCanceledOnTouchOutside(false);
+		if (mmModel.getData() instanceof ProductContentModel)
+		{
+			ProductContentModel productContentModel = (ProductContentModel) mmModel.getData();
+			ProductInfoManager.recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), ProductPopupsConstants.SEEN);
+		}
 		mmBridge = new ProductJavaScriptBridge(mmWebView, new WeakReference<HikeDialogFragment>(this), mmModel.getData());
-
 		mmWebView.addJavascriptInterface(mmBridge, ProductPopupsConstants.POPUP_BRIDGE_NAME);
 		mmWebView.setWebViewClient(new CustomWebClient());
 		mmWebView.post(new Runnable()
