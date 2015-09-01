@@ -20,7 +20,7 @@ public class DummyGameActivity extends Activity
 		BotInfo bot=BotUtils.getBotInfoForBotMsisdn("+hikenews+");
 		GameUtils utilities=new GameUtils(bot,this);
 		String data="data";
-		String key="keyes";
+		String key="key1";
 		utilities.callNative("id",utilities.PUT_IN_CACHE,key,data);
 		utilities.callNative("id",utilities.GET_FROM_CACHE,key);
 	}
