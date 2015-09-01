@@ -54,6 +54,7 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.view.VoIPActivity;
+import com.google.gson.Gson;
 import com.hike.transporter.TException;
 import com.hike.transporter.utils.TConstants.ERRORCODES;
 
@@ -716,6 +717,8 @@ public class OfflineUtils
 			data.put(HikeConstants.TYPE,HikeConstants.GeneralEventMessagesTypes.OFFLINE);
 		    data.put(HikeConstants.SUB_TYPE, HikeConstants.OFFLINE_MESSAGE_REQUEST);
 			data.put(HikeConstants.TIMESTAMP,System.currentTimeMillis() / 1000);
+			OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
+			data.put(OfflineConstants.TIMEOUT,offlineParameters.getConnectionTimeout());
 			message.put(HikeConstants.TO, targetMsisdn);
 			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_PACKET_ZERO);
 			message.put(HikeConstants.DATA, data);
