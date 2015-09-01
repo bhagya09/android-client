@@ -1387,14 +1387,13 @@ public class VoIPService extends Service {
 			startRecording();
 			startPlayBack();
 			startChrono();
-			
-			// When a conference participant accepts a call, change their UI
-			// to display all the conference participants
-			if (client.isHostingConference)
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
-
 		} else {
 			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
+		}
+		
+		if (hostingConference()) {
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+			sendClientsListToAllClients();
 		}
 	}
 	
