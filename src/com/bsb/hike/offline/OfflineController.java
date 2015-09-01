@@ -378,6 +378,7 @@ public class OfflineController
 
 	public void connectAsPerMsisdn(String msisdn)
 	{
+		removeConnectionRequest();
 		offlineManager.connectAsPerMsisdn(msisdn);
 	}
 
