@@ -25,10 +25,13 @@ import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.UploadFileTask;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
@@ -558,8 +561,14 @@ public class OfflineController
 	{
 		if (TextUtils.isEmpty(msisdn))
 			return;
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
+		String contactInfoName = msisdn;
+		if (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName()))
+		{
+			contactInfoName = contactInfo.getName();
+		}
 		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(msisdn,
-				HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_deestablished), OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
+				HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.connection_deestablished_inline_msg,contactInfoName), OfflineConstants.OFFLINE_INLINE_MESSAGE);
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 	}
@@ -579,8 +588,14 @@ public class OfflineController
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
 		offlineManager.removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
 		OfflineController.getInstance().setOfflineState(OFFLINE_STATE.CONNECTED);
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(getConnectedDevice());
+		String contactName = offlineManager.getConnectedDevice();
+		if (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName()))
+		{
+			contactName = contactInfo.getName();
+		}
 		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(offlineManager.getConnectedDevice(), HikeMessengerApp.getInstance().getApplicationContext()
-				.getString(R.string.connection_established), OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+				.getString(R.string.connection_established_inline_msg,contactName), OfflineConstants.OFFLINE_INLINE_MESSAGE);
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		offlineManager.sendConnectedCallback();

@@ -874,12 +874,20 @@ public class OfflineUtils
 
 	public static void sendInlineConnectRequest(String msisdn)
 	{
-	if(TextUtils.isEmpty(msisdn))
-	{
-		return;
-	}
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return;
+		}
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
+		String contactName = msisdn;
+		if (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName()))
+		{
+			contactName = contactInfo.getName();
+		}
 		
-	
-		
+		ConvMessage  convMessage =  createOfflineInlineConvMessage(msisdn, HikeMessengerApp.getInstance().getApplicationContext()
+				.getString(R.string.connection_request_inline_msg,contactName),OfflineConstants.OFFLINE_INLINE_MESSAGE );
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 	}
 }

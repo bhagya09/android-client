@@ -48,9 +48,7 @@ public class OfflineConstants
 
 	public static final String START_CONNECT_FUNCTION = "startConnectFunction";
 
-	public static final String OFFLINE_MESSAGE_CONNECTED_TYPE = "offmsgconn";
-	
-	public static final String OFFLINE_MESSAGE_DISCONNECTED_TYPE = "offmsgdis";
+	public static final String OFFLINE_INLINE_MESSAGE = "offmsg";
 	
 	public static final String  OFFLINE_FILES_NOT_RECEIVED_TYPE = "offfilenotreceived"; 
 	

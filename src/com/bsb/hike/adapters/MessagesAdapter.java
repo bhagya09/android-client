@@ -2171,23 +2171,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
 			
-			if(infoState == ParticipantInfoState.OFFLINE_CONNECTION_STATUS_CONNECTED)
+			if(infoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE)
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
-				String name="Connection Established with " + ((OneToOneConversation)(conversation)).getLabel();
+				String name = convMessage.getMessage();
 				setTextAndIconForSystemMessages(mainMessage,name, isDefaultTheme ? R.drawable.offline_inline_logo : R.drawable.offline_inline_logo_white);
-
-				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
-				
-			}
-			else if(infoState == ParticipantInfoState.OFFLINE_CONNECTION_STATUS_DISCONNECTED)
-			{
-				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
-				String name="Connection Disconnected with " + ((OneToOneConversation)(conversation)).getLabel();
-				setTextAndIconForSystemMessages(mainMessage,name,isDefaultTheme ? R.drawable.offline_inline_logo : R.drawable.offline_inline_logo_white);
-
-				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
-				
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);		
 			}
 			else if(infoState == ParticipantInfoState.OFFLINE_FILE_NOT_RECEIVED)
 			{

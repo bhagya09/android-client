@@ -1693,4 +1693,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="UNLINK_ACCOUNT">RESET ACCOUNT</string>
     <string name="UNLINK">UNLINK</string>
     <string name="UPDATE_APP">UPDATE</string>
+    <string name ="connection_established_inline_msg">Connection Established with <![CDATA[%1$s]]> </string>
+    <string name ="connection_deestablished_inline_msg">Connection Disconnected with <![CDATA[%1$s]]> </string>
+    <string name = "connection_request_inline_msg">Hike Direct Connection Request</string>
 </resources>
