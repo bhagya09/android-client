@@ -4030,19 +4030,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		isActivityVisible = true;
 
-		if (shouldShowKeyboard())
-		{
-			tryToDismissAnyOpenPanels();
-			if (isSystemKeyborad())
-			{
-				Utils.showSoftKeyboard(activity, mComposeView);
-			}
-			else
-			{
-				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
-			}
-		}
-		
 		/**
 		 * Mark any messages unread as read
 		 */
@@ -4080,8 +4067,26 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeViewWatcher.setBtnEnabled();
 			mComposeView.requestFocus();
 		}
+		
+		showKeyboard();
 	}
 
+	private void showKeyboard()
+	{
+		if (shouldShowKeyboard())
+		{
+			tryToDismissAnyOpenPanels();
+			if (isSystemKeyborad())
+			{
+				Utils.showSoftKeyboard(activity, mComposeView);
+			}
+			else
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			}
+		}
+	}
+	
 	public void onRestart()
 	{
 		isActivityVisible = true;
