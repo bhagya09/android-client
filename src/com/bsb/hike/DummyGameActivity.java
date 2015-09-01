@@ -1,5 +1,7 @@
 package com.bsb.hike;
 
+import org.cocos2dx.lib.Cocos2dxActivity;
+
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.platform.GameUtils;
@@ -9,14 +11,16 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class DummyGameActivity extends Activity
+public class DummyGameActivity extends Cocos2dxActivity
 {
+	public static Cocos2dxActivity gameActivity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_dummy_game);
+		gameActivity = this;
 		BotInfo bot=BotUtils.getBotInfoForBotMsisdn("+hikenews+");
 		GameUtils utilities=new GameUtils(bot,this);
 		String data="data";
