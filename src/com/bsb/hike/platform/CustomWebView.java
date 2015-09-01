@@ -127,8 +127,6 @@ public class CustomWebView extends WebView
 		if (!isDestroyed)
 		{
 			stopLoading();
-			setWebChromeClient(null);
-			setWebViewClient(null);
 			removeAllViews();
 			if (Utils.isHoneycombOrHigher())
 			{
