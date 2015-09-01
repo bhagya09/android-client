@@ -75,6 +75,8 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		{
 			public void onClick(DialogInterface dialog, int which)
 			{
+				// stop the previously playing ringtone first
+				SoundUtils.stopSound();
 				mClickedDialogEntryIndex = which;
 				playSoundAsPerToneClicked();
 			}
@@ -112,6 +114,7 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		switch (which)
 		{
 		case DialogInterface.BUTTON_POSITIVE:
+			SoundUtils.stopSound();
 			String selectedRingtoneValue = this.getEntryValues()[mClickedDialogEntryIndex].toString();
 			this.setValue(selectedRingtoneValue);
 			setTitle(mContext.getString(R.string.notificationSoundTitle) + " - " + selectedRingtoneValue);
@@ -123,6 +126,7 @@ public class NotificationToneListPreference extends ListPreference implements Di
 			break;
 
 		case DialogInterface.BUTTON_NEGATIVE:
+			SoundUtils.stopSound();
 			dialog.dismiss();
 			break;
 
