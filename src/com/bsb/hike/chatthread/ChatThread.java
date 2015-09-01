@@ -3898,17 +3898,22 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected abstract String[] getPubSubListeners();
 
+	private void destroyKeyboardResources()
+	{
+		mCustomKeyboard.unregister(mComposeView);
+
+		mCustomKeyboard.closeAnyDialogIfShowing();
+
+		mCustomKeyboard.destroyCustomKeyboard();
+	}
+	
 	/**
 	 * Mimics the onDestroy method of an Activity. It is used to release resources held by the ChatThread instance.
 	 */
 
 	public void onDestroy()
 	{
-		mCustomKeyboard.unregister(mComposeView);
-		
-		mCustomKeyboard.closeAnyDialogIfShowing();
-
-		mCustomKeyboard.destroyCustomKeyboard();
+		destroyKeyboardResources();
 
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
@@ -3916,10 +3921,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		hideActionMode();
 
-		mCustomKeyboard.closeAnyDialogIfShowing();
-
-		mCustomKeyboard.destroyCustomKeyboard();
-		
 		removePubSubListeners();
 
 		removeBroadcastReceiver();

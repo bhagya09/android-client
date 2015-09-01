@@ -741,14 +741,19 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		super.onPause();
 	}
 	
-	@Override
-	protected void onDestroy()
+	private void destroyKeyboardResources()
 	{
 		mCustomKeyboard.unregister(statusTxt);
-		
+
 		mCustomKeyboard.closeAnyDialogIfShowing();
 
 		mCustomKeyboard.destroyCustomKeyboard();
+	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		destroyKeyboardResources();
 		
 		/*
 		 * We need to unregister all pubsublisteners whenever activity gets destroyed. Otherwise reference to this activity gets attached with our HikeMessengerApp which doesn't
