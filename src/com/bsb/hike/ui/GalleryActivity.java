@@ -249,6 +249,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		recyclerView.setLayoutManager(new GridLayoutManager(this, numColumns));
 		recyclerView.setAdapter(recyclerAdapter);
+		recyclerView.setVisibility(View.VISIBLE);
 
 		if (!multiSelectMode)
 		{

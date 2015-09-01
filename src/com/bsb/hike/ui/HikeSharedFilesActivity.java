@@ -26,12 +26,14 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -45,23 +47,20 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.gallery.GalleryItemClickHandler;
+import com.bsb.hike.gallery.MarginDecoration;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.timeline.EndlessRecyclerScrollListener;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.jess.ui.TwoWayAbsListView;
-import com.jess.ui.TwoWayAbsListView.OnScrollListener;
-import com.jess.ui.TwoWayAdapterView;
-import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
-import com.jess.ui.TwoWayAdapterView.OnItemLongClickListener;
-import com.jess.ui.TwoWayGridView;
 
-public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener
+public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 {
 	static String MULTISELECT_MODE = "multi_mode";
 	static String MULTISELECT_KEYS = "multi_keys";
@@ -69,7 +68,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	
 	private List<HikeSharedFile> sharedFilesList;
 
-	private HikeSharedFileAdapter adapter;
+	private HikeSharedFileAdapter sharedGalleryadapter;
 
 	private String msisdn;
 
@@ -142,7 +141,9 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			nameArray = data.getStringArray(HikeConstants.Extras.PARTICIPANT_NAME_ARRAY);
 		}
 
-		TwoWayGridView gridView = (TwoWayGridView) findViewById(R.id.gallery);
+		RecyclerView sharedGridView = (RecyclerView) findViewById(R.id.gallery_recyclerview);
+		sharedGridView.addItemDecoration(new MarginDecoration(this));
+		sharedGridView.setHasFixedSize(true);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(R.dimen.gallery_album_item_size);
 
@@ -156,13 +157,44 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			sharedFilesList = (List<HikeSharedFile>) HikeConversationsDatabase.getInstance().getSharedMedia(msisdn, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, -1, true);
 		}
 		
-		adapter = new HikeSharedFileAdapter(this, sharedFilesList, actualSize, selectedSharedFileItems, false);
+		sharedGalleryadapter = new HikeSharedFileAdapter(this, sharedFilesList, actualSize, selectedSharedFileItems, false);
 
-		gridView.setNumColumns(numColumns);
-		gridView.setAdapter(adapter);
-		gridView.setOnScrollListener(this);
-		gridView.setOnItemClickListener(this);
-		gridView.setOnItemLongClickListener(this);
+		GalleryItemClickHandler.addTo(sharedGridView).setOnItemClickListener(new GalleryItemClickHandler.OnItemClickListener() {
+			@Override
+			public void onItemClicked(RecyclerView recyclerView, int position, View v)
+			{
+				handleItemClick(position);
+			}
+		});
+		GalleryItemClickHandler.addTo(sharedGridView).setOnItemLongClickListener(new GalleryItemClickHandler.OnItemLongClickListener() {
+				@Override
+			public boolean onItemLongClicked(RecyclerView recyclerView, int position,View v)
+			{
+				if (!multiSelectMode)
+				{
+					setupMultiSelectActionBar();
+				}
+				handleItemClick(position);
+				return true;
+			}
+		});
+
+		GridLayoutManager gridLayoutManager = new GridLayoutManager(this, numColumns);
+		sharedGridView.setLayoutManager(gridLayoutManager);
+		sharedGridView.setAdapter(sharedGalleryadapter);
+
+		sharedGridView.addOnScrollListener(new EndlessRecyclerScrollListener(gridLayoutManager) {
+			@Override
+			public void onLoadMore(int current_page)
+			{
+				if (!reachedEnd && !loadingMoreItems && sharedFilesList != null && !sharedFilesList.isEmpty())
+				{
+					loadMoreItems();
+				}
+			}
+		});
+
+		sharedGridView.setVisibility(View.VISIBLE);
 		
 		setupActionBar();
 		if(data.getBoolean(MULTISELECT_MODE)){
@@ -283,7 +315,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		if (!selectedSharedFileItems.isEmpty())
 		{
 			selectedSharedFileItems.clear();
-			adapter.notifyDataSetChanged();
+			sharedGalleryadapter.notifyDataSetChanged();
 		}
 		
 		setMultiSelectMode(false);
@@ -327,91 +359,50 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			multiSelectTitle.setText(getString(R.string.selected_count, count));
 		}
 	}
-
 	
-	@Override
-	public void onScroll(TwoWayAbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount)
+	private void loadMoreItems()
 	{
+		loadingMoreItems = true;
 
-		if (previousFirstVisibleItem != firstVisibleItem)
+		final long lastItemId = sharedFilesList.get(sharedFilesList.size()-1).getMsgId();
+
+		AsyncTask<Void, Void, List<HikeSharedFile>> asyncTask = new AsyncTask<Void, Void, List<HikeSharedFile>>()
 		{
-			long currTime = System.currentTimeMillis();
-			long timeToScrollOneElement = currTime - previousEventTime;
-			velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
 
-			previousFirstVisibleItem = firstVisibleItem;
-			previousEventTime = currTime;
-		}
-	
-		if (!reachedEnd && !loadingMoreItems && sharedFilesList != null && !sharedFilesList.isEmpty() && (firstVisibleItem + visibleItemCount)  <= totalItemCount - 9)
-		{
-			loadingMoreItems = true;
-
-			final long lastItemId = sharedFilesList.get(sharedFilesList.size()-1).getMsgId();
-
-			AsyncTask<Void, Void, List<HikeSharedFile>> asyncTask = new AsyncTask<Void, Void, List<HikeSharedFile>>()
+			@Override
+			protected List<HikeSharedFile> doInBackground(Void... params)
 			{
-
-				@Override
-				protected List<HikeSharedFile> doInBackground(Void... params)
-				{
-					return  (List<HikeSharedFile>) HikeConversationsDatabase.getInstance().getSharedMedia(msisdn, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, lastItemId, true);
-				}
-
-				@Override
-				protected void onPostExecute(List<HikeSharedFile> result)
-				{
-					if (!result.isEmpty())
-					{
-						sharedFilesList.addAll(result);
-						adapter.notifyDataSetChanged();
-					}
-					else
-					{
-						Logger.d(TAG,"No more items found in Db");
-						reachedEnd = true;
-					}
-					loadingMoreItems = false;
-				}
-			};
-
-			if (Utils.isHoneycombOrHigher())
-			{
-				asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				return  (List<HikeSharedFile>) HikeConversationsDatabase.getInstance().getSharedMedia(msisdn, HikeConstants.MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY, lastItemId, true);
 			}
-			else
+
+			@Override
+			protected void onPostExecute(List<HikeSharedFile> result)
 			{
-				asyncTask.execute();
+				if (!result.isEmpty())
+				{
+					sharedFilesList.addAll(result);
+					sharedGalleryadapter.notifyDataSetChanged();
+				}
+				else
+				{
+					Logger.d(TAG,"No more items found in Db");
+					reachedEnd = true;
+				}
+				loadingMoreItems = false;
 			}
-		}
-	}
+		};
 
-	@Override
-	public void onScrollStateChanged(TwoWayAbsListView view, int scrollState)
-	{
-		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
-	}
-
-	@Override
-	public void onItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
-	{
-		handleItemClick(adapterView, view, position, id);
-	}
-
-	@Override
-	public boolean onItemLongClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
-	{
-		if (!multiSelectMode)
+		if (Utils.isHoneycombOrHigher())
 		{
-			setupMultiSelectActionBar();
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
-
-		handleItemClick(adapterView, view, position, id);
-
-		return true;
+		else
+		{
+			asyncTask.execute();
+		}
 	}
 
-	private void handleItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
+	private void handleItemClick(int position)
 	{
 		HikeSharedFile sharedFileItem = sharedFilesList.get(position);
 
@@ -435,7 +426,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 				setMultiSelectTitle();
 			}
 
-			adapter.getView(position, view, adapterView);
 			invalidateOptionsMenu();
 			//adapter.notifyDataSetChanged();
 		}
@@ -458,6 +448,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			PhotoViewerFragment.openPhoto(R.id.parent_layout, HikeSharedFilesActivity.this, sharedMediaItems, 
 					false, sharedMediaItems.size()-position-1, msisdn, conversationName, isGroup, msisdnArray, nameArray);
 		}
+		sharedGalleryadapter.notifyItemChanged(position);
 	}
 
 	private void setMultiSelectTitle()
@@ -598,15 +589,15 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			{
 				return;
 			}
-			final HikeSharedFile hikeSharedFile = (HikeSharedFile) object;
+			final int sharedFilePos = (int) object;
 			runOnUiThread(new Runnable()
 			{
 
 				@Override
 				public void run()
 				{
-					sharedFilesList.remove(hikeSharedFile);
-					adapter.notifyDataSetChanged();
+					sharedGalleryadapter.removeSharedFile(sharedFilePos);
+					sharedGalleryadapter.notifyItemRemoved(sharedFilePos);
 					// If there are no files to show, finish shared files gallery activity.
 					// This will only happen in an edge-case,
 					// 1. User comes to this gallery containing only 1 item
@@ -629,9 +620,9 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		// TODO Auto-generated method stub
 		super.onPause();
-		if(adapter != null)
+		if(sharedGalleryadapter != null)
 		{
-			adapter.getSharedFileImageLoader().setExitTasksEarly(true);
+			sharedGalleryadapter.getSharedFileImageLoader().setExitTasksEarly(true);
 		}
 	}
 	
@@ -641,9 +632,9 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		// TODO Auto-generated method stub
 		super.onResume();
 		
-		if(adapter != null)
+		if(sharedGalleryadapter != null)
 		{
-			adapter.getSharedFileImageLoader().setExitTasksEarly(false);
+			sharedGalleryadapter.getSharedFileImageLoader().setExitTasksEarly(false);
 		}
 	}
 	
