@@ -953,6 +953,7 @@ public class VoIPService extends Service {
 		.setContentTitle(title)
 		.setContentText(text)
 		.setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
+		.setColor(getResources().getColor(R.color.blue_hike_m))
 		.setContentIntent(pendingIntent)
 		.setOngoing(true)
 		.setAutoCancel(true)
