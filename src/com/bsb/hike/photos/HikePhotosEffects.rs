@@ -45,8 +45,8 @@ float static d(float x)
 		return x * (4 + x*(16*x - 12));
 	}
 	else {
-
 		return sqrt(x);
+		
 	}
 }
 
@@ -85,8 +85,39 @@ float preMatrix[20],postMatrix[20];
 rs_allocation input1;
 rs_allocation input2;
 
+uchar4 static validateColor(uchar4 in)
+{
+	if(in.r <0)
+	{
+		in.r =0;
+	}
+	if(in.r>255)
+	{
+		in.r = 255;
+	}
+	if(in.g <0)
+	{
+		in.g =0;
+	}
+	if(in.g>255)
+	{
+		in.g = 255;
+	}
+	if(in.b <0)
+	{
+		in.b =0;
+	}
+	if(in.b>255)
+	{
+		in.b = 255;
+	}
+	return in;
+}
+
 uchar4 static applyCurves(uchar4 in,int applyComposite,int applyRed,int applyGreen,int applyBlue)
 {
+	in = validateColor(in);
+	
 	if(applyComposite<0)
 	{
 		in.r=compositeSpline[in.r];
@@ -569,4 +600,3 @@ uchar4 __attribute__((kernel)) filter_original(uchar4 in,uint32_t x,uint32_t y) 
 
 	return in;
 }
-

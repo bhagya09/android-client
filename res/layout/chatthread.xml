@@ -8,19 +8,21 @@
     android:id="@+id/ct_parent_rl" 
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
+    <View
+        android:id="@+id/overflow_anchor"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true" />
 
     <View
         android:id="@+id/attachment_anchor"
         android:layout_width="1dp"
-        android:layout_height="@dimen/st__action_bar_default_height"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" />
-
-    <View
-        android:id="@+id/cb_anchor"
-        android:layout_width="1dp"
-        android:layout_height="@dimen/st__action_bar_default_height"
-        android:layout_alignParentTop="true" />
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/st__action_bar_default_height"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true" />
 
     <com.bsb.hike.ui.utils.RecyclingImageView
         android:id="@+id/background"
@@ -37,14 +39,16 @@
         <View
             android:id="@+id/bottom_nav_bar_dropshadow"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@drawable/dropshadow" />
+            android:layout_height="0dp"
+            android:background="@drawable/dropshadow"
+            android:layout_marginTop="@dimen/st__action_bar_default_height"/>
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/chat_thread_margin_top"
-            android:layout_weight="30" >
+            android:layout_marginTop="0dp"
+            android:layout_weight="30" 
+            android:id="@+id/chatContentlayout">
 
             <LinearLayout
                 android:id="@+id/tipContainerTop"
@@ -226,6 +230,15 @@
                 android:layout_marginRight="8dp"
                 android:layout_alignParentBottom="true"
                 android:layout="@layout/sticker_recommend_tip_view" />
+           	
+           	<ViewStub 
+                android:id="@+id/sticker_recommendation_auto_off_tip"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_alignParentBottom="true"
+                android:layout="@layout/sticker_recommend_tip_view" />
             
             <FrameLayout
                     android:id="@+id/sticker_recommendation_parent"
@@ -295,9 +308,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="7dp"
+                        android:layout_marginBottom="13dp"
                         android:layout_marginTop="3dp"
-                        android:background="@drawable/bg_compose_text"
                         android:gravity="bottom" >
 
                         <com.bsb.hike.view.CustomFontEditText
@@ -326,7 +338,7 @@
                             android:layout_width="33dp"
                             android:layout_height="wrap_content"
                             android:background="@null"
-                            android:paddingBottom="3dp"
+                            android:paddingBottom="2dp"
                             android:paddingTop="11dp"
                             android:src="@drawable/smiley_selector" />
                     </LinearLayout>

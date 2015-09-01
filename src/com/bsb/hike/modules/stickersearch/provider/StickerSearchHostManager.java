@@ -84,7 +84,7 @@ public class StickerSearchHostManager
 
 	private volatile ArrayList<Integer> mWordEndIndicesInCurrentText = null;
 
-	private TIME_CODE mMomentCode;
+	private static volatile TIME_CODE mMomentCode = StickerSearchUtility.getMomentCode();
 
 	private ArrayList<String> mPreviousWords;
 
@@ -812,9 +812,9 @@ public class StickerSearchHostManager
 		StickerSearchDataController.getInstance().analyseMessageSent(prevText, sticker, nextText);
 	}
 
-	public Pair<Pair<String, String>, ArrayList<Sticker>> onClickToSendSticker(int where)
+	public Pair<Pair<String, String>, ArrayList<Sticker>> onClickToShowRecommendedStickers(int where)
 	{
-		Logger.d(TAG, "onClickToSendSticker(" + where + ")");
+		Logger.d(TAG, "onClickToShowRecommendedStickers(" + where + ")");
 
 		ArrayList<String> wordList = mCurrentWordsInText;
 		ArrayList<Integer> startIndexList = mWordStartIndicesInCurrentText;
@@ -839,8 +839,8 @@ public class StickerSearchHostManager
 			String word = wordList.get(i).replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY);
 			if ((where >= startIndexList.get(i)) && (where <= endIndexList.get(i)))
 			{
-				Logger.d(TAG, "onClickToSendSticker(), Clicked word index = " + i);
-				Logger.d(TAG, "onClickToSendSticker(), Clicked word = " + word);
+				Logger.d(TAG, "onClickToShowRecommendedStickers(), Clicked word index = " + i);
+				Logger.d(TAG, "onClickToShowRecommendedStickers(), Clicked word = " + word);
 
 				if (word.length() > 0)
 				{
@@ -876,7 +876,7 @@ public class StickerSearchHostManager
 
 					if ((preInvalidCount <= 0) && (postInvalidCount <= 0))
 					{
-						Logger.d(TAG, "onClickToSendSticker(), No valid combination of words is present in current text.");
+						Logger.d(TAG, "onClickToShowRecommendedStickers(), No valid combination of words is present in current text.");
 					}
 					else
 					{
@@ -901,7 +901,7 @@ public class StickerSearchHostManager
 					stickers = results.second;
 				}
 
-				Logger.d(TAG, "onClickToSendSticker(), Fetched stickers (effective clicked word index = " + effectiveClickedWordIndex + "): " + stickers);
+				Logger.d(TAG, "onClickToShowRecommendedStickers(), Fetched stickers (effective clicked word index = " + effectiveClickedWordIndex + "): " + stickers);
 				break;
 			}
 			else if (word.length() > 0)
@@ -1554,7 +1554,6 @@ public class StickerSearchHostManager
 			sCacheForLocalOrderedStickers.clear();
 
 			mCurrentText = null;
-			mMomentCode = null;
 
 			TextMatchManager.clearResources();
 

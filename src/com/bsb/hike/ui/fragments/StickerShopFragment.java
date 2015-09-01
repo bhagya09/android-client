@@ -27,7 +27,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import android.support.v4.app.Fragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -44,7 +44,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-public class StickerShopFragment extends SherlockFragment implements OnScrollListener, Listener
+public class StickerShopFragment extends Fragment implements OnScrollListener, Listener
 {
 	private String[] pubSubListeners = {HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE};
 
@@ -129,9 +129,9 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 			{
 				return null;
 			}
+			Bitmap bmp = HikeBitmapFactory.decodeResource(HikeMessengerApp.getInstance().getResources(), R.drawable.art_banner);
+			Drawable dr = HikeBitmapFactory.getBitmapDrawable(HikeMessengerApp.getInstance().getResources(), bmp);
 			Cursor cursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
-			Bitmap bmp = HikeBitmapFactory.decodeResource(getResources(), R.drawable.art_banner);
-			Drawable dr = HikeBitmapFactory.getBitmapDrawable(getResources(), bmp);
 			return new Pair(cursor, dr);
 		}
 
@@ -204,7 +204,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 		
 		stickerCategoriesMap = new HashMap<String, StickerCategory>();
 		stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
-		mAdapter = new StickerShopAdapter(getSherlockActivity(), cursor, stickerCategoriesMap);
+		mAdapter = new StickerShopAdapter(getActivity(), cursor, stickerCategoriesMap);
 		
 		listview.addHeaderView(headerView);
 		listview.addFooterView(loadingFooterView);
@@ -256,6 +256,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 			listview.addFooterView(loadingFooterView);
 		}
 		
+
 		StickerShopDownloadTask stickerShopDownloadTask = new StickerShopDownloadTask(currentCategoriesCount);
 		stickerShopDownloadTask.execute();
 	}
@@ -301,7 +302,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 			{
 				return;
 			}
-			getSherlockActivity().runOnUiThread(new Runnable()
+			getActivity().runOnUiThread(new Runnable()
 			{
 
 				@Override
@@ -334,7 +335,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 			{
 				return;
 			}
-			getSherlockActivity().runOnUiThread(new Runnable()
+			getActivity().runOnUiThread(new Runnable()
 			{
 
 				@Override
@@ -364,7 +365,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 			{
 				return;
 			}
-			getSherlockActivity().runOnUiThread(new Runnable()
+			getActivity().runOnUiThread(new Runnable()
 			{
 
 				@Override
@@ -437,7 +438,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 				{
 					return;
 				}
-				getSherlockActivity().runOnUiThread(new Runnable()
+				getActivity().runOnUiThread(new Runnable()
 				{
 					@Override
 					public void run()
@@ -482,7 +483,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 				// if this category is already loaded then only proceed else ignore
 				if (intent.getAction().equals(StickerManager.STICKERS_FAILED) && (DownloadType.NEW_CATEGORY.equals(type) || DownloadType.MORE_STICKERS.equals(type)))
 				{
-					getSherlockActivity().runOnUiThread(new Runnable()
+					getActivity().runOnUiThread(new Runnable()
 					{
 						@Override
 						public void run()
@@ -502,7 +503,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 				}
 				else if (intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED) && DownloadType.NEW_CATEGORY.equals(type))
 				{
-					getSherlockActivity().runOnUiThread(new Runnable()
+					getActivity().runOnUiThread(new Runnable()
 					{
 						@Override
 						public void run()
@@ -538,12 +539,13 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 		filter.addAction(StickerManager.STICKERS_PROGRESS);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
 		filter.addAction(StickerManager.STICKER_PREVIEW_DOWNLOADED);
-		LocalBroadcastManager.getInstance(getSherlockActivity()).registerReceiver(mMessageReceiver, filter);
+		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, filter);
+
 	}
 	
 	public void unregisterListeners()
 	{
-		LocalBroadcastManager.getInstance(getSherlockActivity()).unregisterReceiver(mMessageReceiver);
+		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
 	}
 	
 }

@@ -3,9 +3,11 @@ package com.bsb.hike.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -59,11 +62,10 @@ import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
@@ -78,7 +80,9 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -90,6 +94,11 @@ import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
+import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.model.FeedDataModel;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
@@ -213,22 +222,6 @@ public class MqttMessagesManager
 			}
 		}
 	}
-
-	/**
-	 * Used to save user icon to db
-	 * @param iconData 
-	 * @param msisdn of the user
-	 * @throws JSONException
-	 */
-	private void saveUserIcon(JSONObject iconData, String msisdn) throws JSONException
-	{
-		String iconBase64 = iconData.getString(HikeConstants.DATA);
-		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
-
-		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
-	}
-	
 
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
 	{
@@ -873,12 +866,13 @@ public class MqttMessagesManager
 			{
 				boolean vibrate = false;
 				String msisdn = convMessage.getMsisdn();
-				if (ContactManager.getInstance().isConvExists(msisdn))
+				if (ContactManager.getInstance().isConvExists(msisdn) && Utils.isNotificationEnabled(context))
 				{
 					boolean activeStealthChat = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && StealthModeManager.getInstance().isActive();
 					boolean stealthNotifPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true);
-					if(!activeStealthChat || !stealthNotifPref)
+					if(activeStealthChat || stealthNotifPref ||  !StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 					{
+						
 						if (OneToNConversationUtils.isGroupConversation(msisdn))
 						{
 							if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
@@ -891,10 +885,7 @@ public class MqttMessagesManager
 							vibrate  = true;
 						}
 					}
-					else
-					{
-						vibrate = true;
-					}
+					
 				}
 				if (vibrate)
 				{
@@ -1580,10 +1571,10 @@ public class MqttMessagesManager
 		FavoriteType currentType = contactInfo.getFavoriteType();
 		FavoriteType favoriteType = (currentType == FavoriteType.NOT_FRIEND || currentType == FavoriteType.REQUEST_RECEIVED_REJECTED || currentType == FavoriteType.REQUEST_RECEIVED) ? FavoriteType.REQUEST_RECEIVED
 				: FavoriteType.FRIEND;
-
+		
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(contactInfo, favoriteType);
 		this.pubSub.publish(favoriteType == FavoriteType.REQUEST_RECEIVED ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.FRIEND_REQUEST_ACCEPTED, favoriteToggle);
-
+		
 		if(favoriteType == favoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
@@ -1596,6 +1587,8 @@ public class MqttMessagesManager
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
 			}
 		}
+		
+		contactInfo.setFavoriteType(favoriteType);
 
 		if (favoriteType == FavoriteType.FRIEND)
 		{
@@ -1644,24 +1637,10 @@ public class MqttMessagesManager
 			boolean showFtuePopup = data.getBoolean(HikeConstants.VOIP_FTUE_POPUP);
 			editor.putBoolean(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, showFtuePopup);
 		}
-		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW))
+		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ))
 		{
-			int showPopup = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW);
-			if(showPopup == 1)
-			{
-				editor.putBoolean(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, true);
-				editor.putInt(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-				if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ))
-				{
-					int freq = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ);
-					editor.putInt(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, freq);
-				}
-			}
-			else
-			{
-				editor.remove(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP);
-				editor.remove(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY);
-			}
+			int freq = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_FREQ);
+			editor.putInt(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, freq);
 		}
 		if (data.has(HikeConstants.VOIP_RELAY_SERVER_PORT))
 		{
@@ -1687,6 +1666,11 @@ public class MqttMessagesManager
 		{
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED);
 			editor.putBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.VOIP_GROUP_CALL_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED);
+			editor.putBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED, enabled);
 		}
 		if (data.has(HikeConstants.VOIP_NETWORK_TEST_ENABLED))
 		{
@@ -2043,6 +2027,16 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_SEND_LOGS, enableSendLogs);
 			AppConfig.refresh();
 		}
+		if(data.has(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS))
+		{
+			boolean showCount = data.optBoolean(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS);
+			
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, showCount);
+			
+			boolean showLikes = data.optBoolean(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES,false);
+			
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, showLikes);
+		}
 		if(data.has(HikeConstants.URL_WHITELIST))
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
@@ -2097,9 +2091,19 @@ public class MqttMessagesManager
 			boolean shareStrings = data.getBoolean(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, shareStrings);
 		}
-		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && Utils.isIceCreamOrHigher())
+		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && ChatHeadUtils.checkDeviceFunctionality())
 		{ 
 			JSONObject stickerWidgetJSONObj = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
+				
+			boolean forceAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.FORCE_ACCESSIBILITY, forceAccessibility);
+
+			boolean showAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SHOW_ACCESSIBILITY, showAccessibility);
+
+			boolean dontUseAccessibility = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DONT_USE_ACCESSIBILITY, dontUseAccessibility);
+
 			boolean serviceUserControl = stickerWidgetJSONObj.optBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
 			{ 
@@ -2117,7 +2121,7 @@ public class MqttMessagesManager
 			{	
 				boolean chatHeadServiceUserControl = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
-				setShareEnableForAllApps(chatHeadServiceUserControl);
+				ChatHeadUtils.setShareEnableForAllApps(chatHeadServiceUserControl);
 				ChatHeadUtils.startOrStopService(false);
 			}
 			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
@@ -2286,12 +2290,21 @@ public class MqttMessagesManager
 			boolean msgingLogging = data.getBoolean(HikeConstants.MESSAGING_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MESSAGING_PROD_AREA_LOGGING, msgingLogging);
 		}
-		if(data.has(HikeConstants.NOTIFICATIONS_PRIORITY))
+		if (data.has(HikeConstants.SPECIAL_DAY_TRIGGER))
+		{
+			boolean independenceTrigger = data.getBoolean(HikeConstants.SPECIAL_DAY_TRIGGER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPECIAL_DAY_TRIGGER, independenceTrigger);
+		}
+		if (data.has(HikeConstants.ENABLE_TIMELINE_FTUE))
+		{
+			boolean enableTimelineFTUE = data.getBoolean(HikeConstants.ENABLE_TIMELINE_FTUE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, enableTimelineFTUE);
+		}
+		if (data.has(HikeConstants.NOTIFICATIONS_PRIORITY))
 		{
 			int priority = data.getInt(HikeConstants.NOTIFICATIONS_PRIORITY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);			
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATIONS_PRIORITY, priority);
 		}
-		
 		if (data.has(MqttConstants.MQTT_PING_SENDER))
 		{
 			int pingSender = data.getInt(MqttConstants.MQTT_PING_SENDER);
@@ -2328,10 +2341,64 @@ public class MqttMessagesManager
 		
 		if (data.has(HikeConstants.STICKER_RECOMMENDATION_ENABLED))
 		{
-			boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+			if(Utils.isHoneycombOrHigher())
+			{
+				boolean isStickerRecommendationEnabled = data.getBoolean(HikeConstants.STICKER_RECOMMENDATION_ENABLED);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, isStickerRecommendationEnabled);
+			}
 		}
-		
+
+		if (data.has(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED))
+		{
+			boolean autoRecommendationTurningOn = data.getBoolean(HikeConstants.STICKER_AUTO_RECOMMENDATION_ENABLED);
+
+			// Turn on auto-suggestion of stickers
+			if (autoRecommendationTurningOn)
+			{
+				// Remove previous observations for turning off, if any
+				StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
+				{
+					StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, true);
+
+					StickerSearchManager.getInstance().setShowAutoPopupSettingOn(true);
+				}
+			}
+			// Trigger to turn off auto-suggestion of stickers depending upon pattern found in packet
+			else
+			{
+				int autoRecommendationContinuousRejectionCount = data.optInt(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF, 0);
+
+				// Set turning-off pattern auto-suggestion of stickers, if they are getting rejected
+				if (autoRecommendationContinuousRejectionCount > 0)
+				{
+					int autoRecommendationRejectionPatternCount = data.optInt(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+							StickerSearchConstants.MINIMUM_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT);
+
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TO_TURNOFF,
+							autoRecommendationContinuousRejectionCount);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TO_TURNOFF,
+							autoRecommendationRejectionPatternCount);
+
+					StickerSearchManager.getInstance().setShowAutoPopupTurnOffPattern(autoRecommendationContinuousRejectionCount, autoRecommendationRejectionPatternCount);
+				}
+				// Turn off auto-suggestion of stickers, if no pattern is recognized in packet or rejection count is zero (no-tolerance)
+				else
+				{
+					// Remove previous observations for turning off, if any
+					StickerSearchManager.getInstance().saveOrDeleteAutoPopupTrialState(true);
+
+					if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false))
+					{
+						StickerSearchUtility.saveStickerRecommendationSettingsValue(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, false);
+
+						StickerSearchManager.getInstance().setShowAutoPopupSettingOn(false);
+					}
+				}
+			}
+		}
+
 		if (data.has(HikeConstants.STICKER_TAG_REFRESH_TIME))
 		{
 			long tagRefreshTime = data.getLong(HikeConstants.STICKER_TAG_REFRESH_TIME);
@@ -2374,32 +2441,46 @@ public class MqttMessagesManager
 			{
 				editor.putString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE, inviteSection.getString(HikeConstants.InviteSection.INVITE_SECTION_IMAGE));
 			}
+		}		
+		if(data.has(HikeConstants.DOWNLOAD_TAGS))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DEFAULT_TAGS_DOWNLOADED, false);
+			StickerManager.getInstance().downloadDefaultTags(false);
+		}
+		
+		if (data.has(HikeConstants.REWARDS_BOT_MSISDN))
+		{
+			editor.putString(HikeConstants.REWARDS_BOT_MSISDN, data.getString(HikeConstants.REWARDS_BOT_MSISDN));
+		}
+		if (data.has(HikeConstants.EXTRAS_BOT_MSISDN))
+		{
+			editor.putString(HikeConstants.EXTRAS_BOT_MSISDN, data.getString(HikeConstants.EXTRAS_BOT_MSISDN));
+		}
+		if (data.has(HikeConstants.AG_ENABLED))
+		{
+			boolean agoopLogs = data.getBoolean(HikeConstants.AG_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AG_ENABLED, agoopLogs);
+			if(agoopLogs)
+			{
+				NetworkAgModule.startLogging();
+			}
+			else
+			{
+				NetworkAgModule.stopLogging();
+			}
+		}
+		
+		if (data.has(HikeConstants.REFERRAL_EMAIL_TEXT))
+		{
+			editor.putString(HikeConstants.REFERRAL_EMAIL_TEXT, data.getString(HikeConstants.REFERRAL_EMAIL_TEXT));
+		}
+		if (data.has(HikeConstants.REFERRAL_OTHER_TEXT))
+		{
+			editor.putString(HikeConstants.REFERRAL_OTHER_TEXT, data.getString(HikeConstants.REFERRAL_OTHER_TEXT));
 		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
-	}
-
-	private void setShareEnableForAllApps(boolean enable)
-	{
-		JSONArray jsonArray;
-		try
-		{
-			jsonArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
-		
-		for (int i = 0; i < jsonArray.length(); i++)
-		{
-			JSONObject obj = jsonArray.getJSONObject(i);
-			{
-				obj.put(HikeConstants.ChatHead.APP_ENABLE, enable);
-			}
-		}
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, jsonArray.toString());
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	private void saveRewards(JSONObject jsonObj) throws JSONException
@@ -2480,7 +2561,10 @@ public class MqttMessagesManager
 	private void saveStatusUpdate(JSONObject jsonObj) throws JSONException
 	{
 		StatusMessage statusMessage = new StatusMessage(jsonObj);
+		
 		ContactManager conMgr = ContactManager.getInstance();
+		
+		JSONObject jsonData = jsonObj.getJSONObject(HikeConstants.DATA);
 		/*
 		 * This would be true for unsupported status message types. We should not be doing anything if we get one.
 		 * 
@@ -2519,13 +2603,9 @@ public class MqttMessagesManager
 
 		if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
 		{
-			String iconBase64 = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.THUMBNAIL);
+			String iconBase64 = (String) jsonData.remove(HikeConstants.THUMBNAIL);
 			conMgr.setIcon(statusMessage.getMappedId(), Base64.decode(iconBase64, Base64.DEFAULT), false);
-			/*
-			 * Removing the thumbnail string from the JSON, since we've already saved it.
-			 */
-			jsonObj.getJSONObject(HikeConstants.DATA).remove(HikeConstants.THUMBNAIL);
-
+			
 			/**
 			 * Problem: on DP upload, Two MQTT packets come IC + SU
 			 * SO if SU comes first then in notification popped old DP was shown
@@ -2537,14 +2617,31 @@ public class MqttMessagesManager
 			 */
 			conMgr.setIcon(statusMessage.getMsisdn(), Base64.decode(iconBase64, Base64.DEFAULT), false);
 		}
+		//Check if status message has image other than dp updates
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		{
+			final String iconBase64 = jsonData.optString(HikeConstants.THUMBNAIL);
+			final String fileKey = jsonData.optString(HikeConstants.SU_IMAGE_KEY);
 
-		statusMessage.setName(TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName());
+			if (!TextUtils.isEmpty(fileKey) && !TextUtils.isEmpty(iconBase64))
+			{
+				// Add to fileThumbnail table viz. fk - thumb
+				HikeConversationsDatabase.getInstance().addFileThumbnail(fileKey, Base64.decode(iconBase64, Base64.DEFAULT));
+			}
+			else
+			{
+				throw new JSONException("saveStatusUpdate() : Image SU doesnt contain fileKey or Thumbnail");
+			}
+		}
+
+		statusMessage.setName(contactInfo.getNameOrMsisdn());
 
 		if (favoriteType == FavoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
 			pubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE
+					|| statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 			{
 				/*
 				 * Start auto download of the profile image.
@@ -2552,20 +2649,33 @@ public class MqttMessagesManager
 				if (!isBulkMessage) // do not autodownload in case of bulkmessage
 				{
 					Logger.d(DP_DOWNLOAD_TAG, "Received SU Packet, going to download");
-					autoDownloadProfileImage(statusMessage, true);
+					autoDownloadProfileImage(statusMessage,true);
 				}
 			}
 		}
-		pubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-		String msisdn = jsonObj.getString(HikeConstants.FROM);
-		ConvMessage convMessage = saveStatusMsg(jsonObj, msisdn);
-
-		if (convMessage == null)
+		else if(statusMessage.isHistoricalUpdate())
 		{
-			return;
+			Logger.d(getClass().getSimpleName(), "(HSU but NOT FRIEND),... add fav after su, so not sent to pubsub");
 		}
+		
+		pubSub.publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+		
+		/**
+		 * Add to Conv DB only if non historical update
+		 * as they are not to be shown inside CT
+		 */
+		if(!statusMessage.isHistoricalUpdate())
+		{
+			String msisdn = jsonObj.getString(HikeConstants.FROM);
+			ConvMessage convMessage = saveStatusMsg(jsonObj, msisdn);
 
-		convDb.setMessageIdForStatus(statusMessage.getMappedId(), convMessage.getMsgID());
+			if (convMessage == null)
+			{
+				return;
+			}
+
+			convDb.setMessageIdForStatus(statusMessage.getMappedId(), convMessage.getMsgID());
+		}
 	}
 
 	private void saveDeleteStatus(JSONObject jsonObj) throws JSONException
@@ -2739,7 +2849,18 @@ public class MqttMessagesManager
 		// need it anymore.
 		// As per the last request from growth team, we don't need to show
 		// the older pro tips once the latest pro tips come in.
-		long currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1);
+		long currentProtipId = -1l;
+
+		//Defensive check. TODO Remove protip code from application.
+		try
+		{
+			currentProtipId = settings.getLong(HikeMessengerApp.CURRENT_PROTIP, -1l);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
 		boolean isValidProtip = false;
 
 		Protip protip = new Protip(jsonObj);
@@ -3345,7 +3466,6 @@ public class MqttMessagesManager
 
 	public void saveMqttMessage(JSONObject jsonObj) throws JSONException
 	{
-
 		Logger.d("Gcm test", jsonObj.toString());
 		String type = jsonObj.optString(HikeConstants.TYPE);
 		Logger.d(VoIPConstants.TAG, "Received message of type: " + type);  // TODO: Remove me!
@@ -3604,6 +3724,65 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
+		else if (HikeConstants.MqttMessageTypes.ACTIVITY_UPDATE.equals(type))
+		{
+			saveActivityUpdate(jsonObj);
+		}
+		else if (HikeConstants.MqttMessageTypes.TIMELINE_PREFFERED_CONTACTS.equals(type))
+		{
+			saveTimelineFTUEPrefferedContacts(jsonObj);
+		}
+	}
+
+	private void saveActivityUpdate(final JSONObject jsonObj)
+	{
+		Logger.d(HikeConstants.TIMELINE_LOGS, "ac_up packet received " + jsonObj);
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					FeedDataModel feedData = new FeedDataModel(jsonObj);
+
+					if (feedData.getObjType() == ActivityObjectTypes.STATUS_UPDATE)
+					{
+						StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(feedData.getObjID());
+						if(statusMessage == null)
+						{
+							Logger.d(HikeConstants.TIMELINE_LOGS, "Status Msg is null so returning  for MappedOd " + feedData.getObjID());
+							return;
+						}
+					}
+
+					boolean isSuccess = HikeConversationsDatabase.getInstance().addActivityUpdate(feedData);
+					
+					TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
+					
+					//Saving count to file to display the counter at home screen
+					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+					if(count != -1)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
+						
+						//To update Overflow menu on Home Screen
+						HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
+					}
+
+					if (isSuccess)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, feedData);
+
+						HikeMessengerApp.getPubSub().publish(HikePubSub.ACTIVITY_UPDATE_NOTIF, feedData);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}, 0);
 	}
 
 	private void uploadGroupProfileImage(final String groupId)
@@ -4222,4 +4401,85 @@ public class MqttMessagesManager
 		}
 	}
 
+	private void saveTimelineFTUEPrefferedContacts(JSONObject jsonObj)
+	{
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		JSONArray msisdnArray = data.optJSONArray(HikeConstants.CONTACTS);
+		int counter = data.optInt(HikeConstants.COUNT);
+		Logger.d("tl_ftue", "ftue packet received "+ msisdnArray +", count is "+ counter);
+		Set<String> msisdnSet = null;
+		if (msisdnArray != null)
+		{
+			msisdnSet = new LinkedHashSet<String>();
+			for (int i = 0; i < msisdnArray.length(); i++)
+			{
+				String msisdn = msisdnArray.optString(i);
+				if(!TextUtils.isEmpty(msisdn))
+				{
+					msisdnSet.add(msisdn);
+					if(!new File(Utils.getProfileImageFileName(msisdn)).exists())
+					{
+						HikeImageDownloader.newInstance(msisdn, Utils.getProfileImageFileName(msisdn), ContactManager.getInstance().hasIcon(msisdn), false, null, null, null, false,false).startLoadingTask();
+					}
+				}
+				
+			}
+		}
+		
+		//case 1) if init not show or on top
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_SHOWN, true)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INIT_CARD_ON_TOP, false))
+		{
+			//just replace these values
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case  init not show or on top "+ msisdnSet);
+		}
+		//case 2) exit card on top:-
+		else if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.EXIT_CARD_ON_TOP, false))
+		{
+			//just replace these values
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case  exit card on top "+ msisdnSet);
+		}
+		
+		// case 3) fav card is on top or no cards on top
+		else
+		{
+			//fetch previous list
+			Set<String> list = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null);
+			
+			// list will be NON-EMPTY if any fav card is on top
+			if(list != null && !list.isEmpty())
+			{
+				//fetch current item from previous list
+				Iterator<String> iterator = list.iterator();
+				String currentMsisdn = null;
+				if(iterator.hasNext())
+				{
+					currentMsisdn = iterator.next();
+					Logger.d("tl_ftue", "ftue packet, card on top is fav card and from SP "+ currentMsisdn);
+				}
+				
+				//add to new list
+				if(!TextUtils.isEmpty(currentMsisdn))
+				{
+					msisdnSet.add(currentMsisdn);
+					counter = counter + 1;
+					Logger.d("tl_ftue", "ftue packet, card on top is fav card, so inc counter "+ counter);
+				}
+			}
+			else
+			{
+				Logger.d("tl_ftue", "ftue packet, NO CARDS ON TOP ");
+			}
+			
+			//save new list
+			HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+			Logger.d("tl_ftue", "ftue packet, case fav card is on top or no cards on top "+ msisdnSet);
+		}
+		
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TIMELINE_FTUE_CARD_TO_SHOW_COUNTER, counter);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_TIMELINE_FTUE, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_FTUE_LIST_UPDATE, new Pair<Set<String>, Integer>(msisdnSet, counter));
+	}
 }

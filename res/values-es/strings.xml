@@ -639,7 +639,7 @@
     <string name="protip_games">Juegos</string>
     <string name="ftue_grid_string">Start a conversation with one\nof your friends.</string>
     <string name="remind">Recordar</string>
-    <string name="ok">Aceptar</string>
+    <string name="OK">Aceptar</string>
     <string name="not_show_call_alert_msg">No volver a mostrar</string>
     <string name="view_profile">Ver perfil</string>
     <string name="normal_update_head">Actualización importante disponible</string>
@@ -820,7 +820,7 @@
     <string name="chatThreadNudgeTutorialText_group">Toca dos veces en cualquier sitio para darles un toque a tus amigos.</string>
     <string name="addedYouAsFavorite">Added %1$s to Favorites</string>
     <string name="addedYouFrindDescription"><![CDATA[
- You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#0f8fe1">Status Updates</font> with %1$s. Would you like to request him to do the same?
+ You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#1da8e8">Status Updates</font> with %1$s. Would you like to request him to do the same?
 	    
     ]]></string>
     <string name="contacts_upper_case">CONTACTOS</string>
@@ -845,10 +845,9 @@
     <string name="last_seen_proper_casing">Última conexión</string>
     <string name="status_updates_proper_casing">Estados</string>
     <string name="bigger_better_attachments">Adjuntos más grandes y mejores</string>
-    <string name="alp_42447968_cmd_confirm">Confirmar</string>
-    <string name="alp_42447968_cmd_continue">Continuar</string>
+    <string name="CONFIRM">CONFIRMAR</string>
+    <string name="CONTINUE">CONTINUAR</string>
     <string name="alp_42447968_cmd_forgot_pattern">¿Has olvidado el patrón?</string>
-    <string name="alp_42447968_cmd_retry">Reintentar</string>
     <string name="alp_42447968_loading">Cargando...</string>
     <string name="alp_42447968_lockscreen_access_pattern_cell_added">Número de teléfono añadido</string>
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Patrón borrado</string>
@@ -898,7 +897,6 @@
     <string name="vib_default_key">Predeterminado</string>
     <string name="vib_short_key">Corto</string>
     <string name="vib_long_key">Largo</string>
-    <string name="delete_account_heading">SI ELIMINAS TU CUENTA</string>
     <string name="chat_unmarked_stealth_first">Has marcado un chat como visible. Ahora será visible para cualquier usuario que abra hike.</string>
     <string name="tickSoundTitle">Tonos de conversación</string>
     <string name="tickSoundSummary">Emitir sonido al recibir o enviar mensajes</string>
@@ -921,8 +919,6 @@
     <string name="delete_account_msg">Delete your Hike account.</string>
     <string name="unlink_confirmation">Are you sure you want to reset your account?</string>
     <string name="unlinking_account">Resetting...</string>
-    <string name="delete_confirm_msg_1">This will delete all your messages, SMS balance and any hike rewards.</string>
-    <string name="delete_confirm_msg_2">Are you sure want to continue? This action is irreversible.</string>
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Añadir a contactos</string>
     <string name="delete_leave">Eliminar y salir del grupo</string>
@@ -1195,12 +1191,11 @@
     <string name="sticker_shop">Tienda de pegatinas</string>
     <string name="my_stickers">Mis pegatinas</string>
     <string name="update_all">ACTUALIZAR TODO</string>
-    <string name="retry_sticker">REINTENTAR</string>
+    <string name="RETRY">REINTENTAR</string>
     <string name="see_them">LISTO</string>
     <string name="drag_tip_text">Toca y mantén pulsado un paquete para cambiar el orden en el que aparece.</string>
     <string name="drag_tip_subtext">Toca y arrastra para reordenar tus pegatinas</string>
-    <string name="sticker_cancel">CANCELAR</string>
-    <string name="sticker_confirm">CONFIRMAR</string>
+    <string name="CANCEL">CANCELAR</string>
     <string name="n_more">%1$d MÁS</string>
     <string name="n_stickers">%1$d pegatinas</string>
     <string name="last_backup">Última copia de seguridad</string>
@@ -1248,12 +1243,10 @@
     <string name="action_settings">Ajustes</string>
     <string name="creating_backup_message">Creando una copia de seguridad de tu cuenta. Las copias de seguridad diarias se realizan a las 03:00 horas.</string>
     <string name="restore">Restaurar</string>
-    <string name="delete_account_description">elimina todos tus mensajes, copia de seguridad, SMS gratuitos y bonificaciones de hike</string>
     <string name="auth_connected_to_hike">%1$s se ha conectado a hike.</string>
     <string name="auth_state_connecting">Conectando...</string>
     <string name="auth_please_wait_connect">Espera mientras te conectamos...</string>
     <string name="auth_done">LISTO</string>
-    <string name="auth_cancel">Cancelar</string>
     <string name="auth_retry">Reintentar</string>
     <string name="auth_went_wrong">Ha habido un error.</string>
     <string name="install_text">INSTALACIÓN GRATUITA</string>

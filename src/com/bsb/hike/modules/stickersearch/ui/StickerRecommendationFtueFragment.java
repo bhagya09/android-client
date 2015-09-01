@@ -6,6 +6,7 @@ import java.util.List;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,7 +20,6 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -37,7 +37,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
-public class StickerRecommendationFtueFragment extends SherlockFragment implements Listener, SuccessfulImageLoadingListener
+public class StickerRecommendationFtueFragment extends Fragment implements Listener, SuccessfulImageLoadingListener
 {
 	private IStickerRecommendFragmentListener listener;
 	
@@ -135,7 +135,7 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 	private void setStickerLayoutParameters()
 	{
 		int stickerSize = StickerSearchUtils.getStickerSize();
-		int padding = getSherlockActivity().getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
+		int padding = getActivity().getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
 		android.widget.LinearLayout.LayoutParams params = (android.widget.LinearLayout.LayoutParams) stickerImageContainer.getLayoutParams();
 		params.height = stickerSize;
 		params.width = stickerSize;
@@ -171,7 +171,7 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 				slideIn.setDuration(400);
 				tvHeadingFtueView2.startAnimation(slideIn);
 
-				Animation fadein = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.fade_in_animation);
+				Animation fadein = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_animation);
 				fadein.setDuration(400);
 				tvSubHeadingFtueView2.startAnimation(fadein);
 			}
@@ -189,8 +189,8 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 				return ;
 			}
 			HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED_FROM_RECOMMENDATION_FTUE, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
-			Intent i = IntentFactory.getStickerShopIntent(getSherlockActivity());
-			getSherlockActivity().startActivity(i);
+			Intent i = IntentFactory.getStickerShopIntent(getActivity());
+			getActivity().startActivity(i);
 		}
 	};
 	
@@ -250,7 +250,7 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 		{
 			return;
 		}
-		getSherlockActivity().runOnUiThread(new Runnable()
+		getActivity().runOnUiThread(new Runnable()
 		{
 
 			@Override
@@ -310,7 +310,7 @@ public class StickerRecommendationFtueFragment extends SherlockFragment implemen
 		{
 			return ;
 		}
-		getSherlockActivity().runOnUiThread(new Runnable()
+		getActivity().runOnUiThread(new Runnable()
 		{
 			
 			@Override

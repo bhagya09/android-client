@@ -36,8 +36,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -193,7 +193,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 //		Not allowing user to access actionbar items on a blocked user's chatThread
 		if (mConversation.isBlocked())
 		{
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
+			if (item.getItemId() != android.R.id.home)
+				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 			return false;
 		}
 		
@@ -303,7 +304,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP, ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP }, sharedPreference);
 		mTips.showTip();
 	}
 
@@ -565,7 +566,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			if (mConversation.isOnHike())
 			{
 				ConvMessage msg = findMessageById(msgId);
-				if (!msg.isSMS() && (!msg.isBroadcastMessage())) // Since ConvMessage is not sent as SMS, hence add it to undeliveredMap
+				if (msg != null && !msg.isSMS() && !msg.isBroadcastMessage()) // Since ConvMessage is not sent as SMS, hence add it to undeliveredMap
 				{
 					sendUIMessage(ADD_UNDELIVERED_MESSAGE, msg);
 				}
@@ -1376,6 +1377,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		else
 		{
 			resetLastSeenScheduler();
+		}
+		
+		if (isH20TipShowing())
+		{
+			hikeToOfflineTipView.setVisibility(View.GONE);
+			hikeToOfflineTipView = null;
 		}
 	}
 
@@ -2703,5 +2710,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 		scheduleLastSeen();
+	}
+	
+	/**
+	 * It could be possible that we have a stray h20 tip showing.
+	 */
+	public void onPreNewIntent()
+	{
+		if (isH20TipShowing())
+		{
+			hikeToOfflineTipView.setVisibility(View.GONE);
+			hikeToOfflineTipView = null;
+		}
+		
+		super.onPreNewIntent();
 	}
 }

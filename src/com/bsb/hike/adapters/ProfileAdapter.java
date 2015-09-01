@@ -20,7 +20,6 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.models.ContactInfo;
@@ -33,23 +32,21 @@ import com.bsb.hike.models.ProfileItem.ProfileGroupItem;
 import com.bsb.hike.models.ProfileItem.ProfileSharedContent;
 import com.bsb.hike.models.ProfileItem.ProfileSharedMedia;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
-import com.bsb.hike.smartImageLoader.TimelineImageLoader;
+import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.TextDrawable;
 
 public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 {		
@@ -59,7 +56,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private static enum ViewType
 	{
-		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, GROUP_SETTINGS, GROUP_RIGHTS_INFO
+		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, GROUP_SETTINGS, GROUP_RIGHTS_INFO, IMAGE_POST, TEXT_IMAGE_POST
 	}
 
 	private Context context;
@@ -80,7 +77,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private IconLoader iconLoader;
 
-	private TimelineImageLoader bigPicImageLoader;
+	private TimelineUpdatesImageLoader bigPicImageLoader;
 
 	private ProfilePicImageLoader profileImageLoader;
 	
@@ -89,16 +86,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	private int mIconImageSize;
 	
 	private boolean hasCustomPhoto;
-	
-	private static final int SHOW_CONTACTS_STATUS = 0;
-	
-	private static final int NOT_A_FRIEND = 1;
-
-	private static final int UNKNOWN_ON_HIKE = 2;
-
-	private static final int REQUEST_RECEIVED = 3;
-
-	private static final int UNKNOWN_NOT_ON_HIKE = 4;
 	
 	private int sizeOfThumbnail;
 
@@ -129,7 +116,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		this.isContactBlocked = isContactBlocked;
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		int mBigImageSize = context.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-		this.bigPicImageLoader = new TimelineImageLoader(context, mBigImageSize);
+		this.bigPicImageLoader = new TimelineUpdatesImageLoader(context, mBigImageSize);
 		this.profileImageLoader = new ProfilePicImageLoader(context, mBigImageSize);
 		profileImageLoader.setDefaultAvatarIfNoCustomIcon(true);
 		profileImageLoader.setHiResDefaultAvatar(true);
@@ -195,6 +182,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				viewType = ViewType.PROFILE_PIC_UPDATE;
 			}
+			else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE)
+			{
+				viewType = ViewType.IMAGE_POST;
+			}
+			else if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+			{
+				viewType = ViewType.TEXT_IMAGE_POST;
+			}
 			else
 			{
 				viewType = ViewType.STATUS;
@@ -247,10 +242,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 			case HEADER:
 				v = inflater.inflate(R.layout.profile_header, null);
-
 				viewHolder.text = (TextView) v.findViewById(R.id.name);
 				viewHolder.subText = (TextView) v.findViewById(R.id.info);
-
 				viewHolder.image = (ImageView) v.findViewById(R.id.profile);
 				viewHolder.icon = (ImageView) v.findViewById(R.id.change_profile);
 				break;
@@ -330,7 +323,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.icon  = (ImageView) viewHolder.parent.findViewById(R.id.avatar);
 				viewHolder.iconFrame = (ImageView) viewHolder.parent.findViewById(R.id.avatar_frame);
 				viewHolder.infoContainer = viewHolder.parent.findViewById(R.id.owner_indicator);
-				viewHolder.phoneNumView = viewHolder.parent.findViewById(R.id.unsaved_cont_layout);
+				viewHolder.phoneNumViewDivider = viewHolder.parent.findViewById(R.id.divider);
 				viewHolder.extraInfo = (TextView) viewHolder.parent.findViewById(R.id.telephone);
 				
 				break;
@@ -353,8 +346,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.parent = v.findViewById(R.id.main_content);
 				break;
 
+			case IMAGE_POST:
 			case PROFILE_PIC_UPDATE:
-				v = inflater.inflate(R.layout.profile_pic_timeline_item, null);
+			case TEXT_IMAGE_POST:
+				v = inflater.inflate(R.layout.contact_timeline_item, null);
 
 				viewHolder.icon = (ImageView) v.findViewById(R.id.avatar);
 
@@ -373,7 +368,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.extraInfo = (TextView) v.findViewById(R.id.phone_number);
 				viewHolder.subText = (TextView) v.findViewById(R.id.main_info);
 				viewHolder.phoneIcon = (ImageView) v.findViewById(R.id.call);
-				viewHolder.divider = v.findViewById(R.id.divider);
 				break;
 			}
 
@@ -447,12 +441,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			int maxMediaToShow = ((ProfileSharedMedia) profileItem).getMaxMediaToShow();
 			viewHolder.subText.setText(Integer.toString(smSizeDb));
 			viewHolder.mediaLayout.setVisibility(View.VISIBLE);
-			if(groupProfile || HikeMessengerApp.hikeBotInfoMap.containsKey(mContactInfo.getMsisdn()))
-			{
-				LinearLayout.LayoutParams ll = (LayoutParams) viewHolder.sharedFiles.getLayoutParams();
-				ll.topMargin = context.getResources().getDimensionPixelSize(R.dimen.shared_media_top_margin_hike_bot);
-				viewHolder.sharedFiles.setLayoutParams(ll);  
-			}
 			
 			if(sharedMedia!= null && !sharedMedia.isEmpty())
 			{	viewHolder.infoContainer.setVisibility(View.VISIBLE);
@@ -631,12 +619,19 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			viewHolder.extraInfo.setText(mContactInfo.getMsisdn());
 			
 			if (!TextUtils.isEmpty(mContactInfo.getMsisdnType()))
-				viewHolder.subText.setText(" (" + mContactInfo.getMsisdnType().toLowerCase() + ")");
+			{	
+				viewHolder.subText.setText(mContactInfo.getMsisdnType());
+				viewHolder.subText.setVisibility(View.VISIBLE);
+			}
+			
+			else
+			{
+				viewHolder.subText.setVisibility(View.GONE);
+			}
 
 			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context))
 			{
 				viewHolder.phoneIcon.setVisibility(View.GONE);
-				viewHolder.divider.setVisibility(View.GONE);
 			}
 			break;
 
@@ -677,11 +672,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			}
 			if(!contactInfo.isUnknownContact())
 			{	viewHolder.text.setText(groupParticipantName);
-				viewHolder.phoneNumView.setVisibility(View.GONE);
+				viewHolder.phoneNumViewDivider.setVisibility(View.GONE);
+				viewHolder.extraInfo.setVisibility(View.GONE);
 			}
 			else
 			{
-				viewHolder.phoneNumView.setVisibility(View.VISIBLE);
+				viewHolder.phoneNumViewDivider.setVisibility(View.VISIBLE);
+				viewHolder.extraInfo.setVisibility(View.VISIBLE);
 				viewHolder.text.setText(contactInfo.getMsisdn());
 				viewHolder.extraInfo.setText(groupParticipantName);
 			}
@@ -774,11 +771,22 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			}
 			break;
 
+		case IMAGE_POST:
 		case PROFILE_PIC_UPDATE:
+		case TEXT_IMAGE_POST:
 			StatusMessage profilePicStatusUpdate = ((ProfileStatusItem) profileItem).getStatusMessage();
+			
 			viewHolder.text.setText(myProfile ? context.getString(R.string.me) : profilePicStatusUpdate.getNotNullName());
 
-			viewHolder.subText.setText(R.string.status_profile_pic_notification);
+			if (TextUtils.isEmpty(profilePicStatusUpdate.getText()))
+			{
+				viewHolder.subText.setText(R.string.status_profile_pic_notification);
+			}
+			else
+			{
+				viewHolder.subText.setText(profilePicStatusUpdate.getText());
+			}
+			
 			setAvatar(profilePicStatusUpdate.getMsisdn(), viewHolder.icon);
 
 			ImageViewerInfo imageViewerInfo2 = new ImageViewerInfo(profilePicStatusUpdate.getMappedId(), null, true);
@@ -889,15 +897,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 		ImageView phoneIcon;
 
-		View divider;
-
 		TextView timeStamp;
 
 		View infoContainer;
 
 		View parent;
 		
-		View phoneNumView;
+		View phoneNumViewDivider;
 		
 		View sharedFiles;
 		
@@ -938,7 +944,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		return isContactBlocked;
 	}
 
-	public TimelineImageLoader getTimelineImageLoader()
+	public TimelineUpdatesImageLoader getTimelineImageLoader()
 	{
 		return bigPicImageLoader;
 	}

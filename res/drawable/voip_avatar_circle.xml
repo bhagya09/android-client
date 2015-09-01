@@ -3,7 +3,7 @@
         android:shape="oval" >
             
             <solid
-                android:color="@color/blue_avatar" />
+                android:color="@color/avatar_color_bubblegum" />
             <size
                 android:width="127dp"
                 android:height="127dp"/>

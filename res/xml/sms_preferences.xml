@@ -1,21 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/sms" >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/free_sms_txt" >
 
-    <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/preference_free_sms"
-        android:defaultValue="true"
-        android:key="freeSmsPref"
+    <com.bsb.hike.view.IconPreference
+        android:key="hikeOffline"
         android:layout="@layout/icon_preference"
-        android:summary="@string/free_sms_msg"
-        android:title="@string/free_sms"
-        android:widgetLayout="@layout/checkbox_widget" />
-    <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/preference_default_client"
+        android:summary="@string/undelivered_sms_setting_summary"
+        android:title="@string/hike_offline" />
+
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:defaultValue="false"
         android:key="receiveSmsPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/default_client_info"
         android:title="@string/default_client_header"
-        android:widgetLayout="@layout/checkbox_widget" />
+        android:widgetLayout="@layout/switch_widget" />
     
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="freeSmsPref"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/free_sms_msg"
+        android:title="@string/free_hike_to_sms"
+        android:widgetLayout="@layout/switch_widget" />
+    
+    <com.bsb.hike.view.PreferenceWithSubText
+        android:key="hike_hike"
+        android:layout="@layout/preference_with_sub_text"
+        android:summary="@string/free_worldwide"
+        android:title="@string/hike_hike"
+        app:s_text = "@string/unlimited" />
+    
+    <com.bsb.hike.view.PreferenceWithSubText
+        android:key="freeHike2SMSIndia"
+        android:layout="@layout/preference_with_sub_text"
+        android:summary="@string/free_hike_2_sms_india"
+        android:title="@string/free_hike_to_sms" />
+
+    <com.bsb.hike.view.IconPreference
+        android:key="earnFreeSms"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/more_hike_more_earn"
+        android:title="@string/earn_free_sms" />
+    
+     <com.bsb.hike.view.IconPreference
+        android:key="inviteViaSms"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/invite_subtext"
+        android:title="@string/invite_via_sms" />
+
 </PreferenceScreen>

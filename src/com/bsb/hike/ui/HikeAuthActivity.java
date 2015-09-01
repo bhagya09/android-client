@@ -932,7 +932,7 @@ public class HikeAuthActivity extends Activity
 		textViewDropdown.setVisibility(View.GONE);
 		auth_info_layout.setVisibility(View.GONE);
 		auth_button_deny_layout.setVisibility(View.VISIBLE);
-		auth_button_deny.setText(getString(R.string.auth_cancel));
+		auth_button_deny.setText(getString(R.string.CANCEL));
 		auth_button_accept.setText(getString(R.string.auth_retry));
 		auth_button_deny.setOnClickListener(new View.OnClickListener()
 		{

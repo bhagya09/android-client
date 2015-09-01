@@ -13,12 +13,10 @@
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/app_name"
-        android:layout_width="wrap_content"
+        style="@style/SettingsHeaderItemTextView"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:textSize="16sp"
-        android:textStyle="bold|italic" />
+        android:gravity="center_vertical"/>
 
     <CheckBox
         android:id="@+id/checkbox_item"

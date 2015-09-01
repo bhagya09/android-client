@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;

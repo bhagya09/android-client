@@ -50,9 +50,12 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.FeedDataModel;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -670,7 +673,7 @@ public class HikeNotification
 			showInboxStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 					hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
-					avatarDrawable, hikeNotifMsgStack.getBigTextList(), shouldNotPlaySound, retryCount,isSilentNotification(convMessage));
+					avatarDrawable, hikeNotifMsgStack.getBigTextList(), shouldNotPlaySound, retryCount, (convMessage == null) ? true : isSilentNotification(convMessage));
 		}
 
 		// serializeObject();
@@ -866,6 +869,11 @@ public class HikeNotification
 			message = context.getString(R.string.status_profile_pic_notification, key);
 			text = key + " " + message;
 		}
+		else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+		{
+			message = context.getString(R.string.notif_posted_photo);
+			text = key + " " + message;
+		}
 		else
 		{
 			/*
@@ -899,7 +907,23 @@ public class HikeNotification
 
 		final int notificationId = HIKE_SUMMARY_NOTIFICATION_ID;
 		final String key = TextUtils.isEmpty(name) ? msisdn : name;
-		final String message = context.getString(R.string.status_profile_pic_notification);
+
+		String message = null;
+
+		if (notificationType == NotificationType.DPUPDATE)
+		{
+			message = context.getString(R.string.status_profile_pic_notification);
+		}
+		else if (notificationType == NotificationType.IMAGE_POST)
+		{
+			message = context.getString(R.string.posted_photo);
+		}
+		else
+		{
+			// Type not covered
+			return;
+		}
+
 		final String text = key + " " + message;
 
 		final int icon = returnSmallIcon();
@@ -926,7 +950,7 @@ public class HikeNotification
 				}
 			}
 		}
-		
+
 		// if notification message stack is empty, add to it and proceed with single notification display
 		// else add to stack and notify clubbed messages
 		if (hikeNotifMsgStack.isEmpty())
@@ -1016,7 +1040,7 @@ public class HikeNotification
 
 		NotificationCompat.Builder mBuilder;
 		mBuilder = null;
-		mBuilder = getNotificationBuilder(key, subMessage, text.toString(), argAvatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
+		mBuilder = getNotificationBuilder(key, TextUtils.isEmpty(subMessage) ? message : subMessage, text.toString(), argAvatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
 		NotificationCompat.InboxStyle inBoxStyle = new NotificationCompat.InboxStyle();
 		inBoxStyle.setBigContentTitle(key);
 		inBoxStyle.setSummaryText(subMessage);
@@ -1502,6 +1526,96 @@ public class HikeNotification
 		{
 			notifyStringMessage(msisdn, message, forceNotPlaySound, notifType);
 		}
+	}
+
+
+	public void notifyActivityMessage(FeedDataModel activityFeed, int notificationType)
+	{
+
+		/*
+		 * We only proceed if the current status preference value is 0 which denotes that the user wants immediate notifications. Else we simply return
+		 */
+		if (PreferenceManager.getDefaultSharedPreferences(this.context).getInt(HikeConstants.STATUS_PREF, 0) != 0)
+		{
+			return;
+		}
+
+		final int notificationId = HIKE_SUMMARY_NOTIFICATION_ID;
+
+		final long timeStamp = activityFeed.getTimestamp();
+
+		final Intent notificationIntent = Utils.getTimelineActivityIntent(context, true);
+
+		final int icon = returnSmallIcon();
+
+		ContactInfo actorContactInfo = ContactManager.getInstance().getContact(activityFeed.getActor(),true,false);
+		
+		String name = actorContactInfo.getNameOrMsisdn();
+
+		final String key = TextUtils.isEmpty(name) ? activityFeed.getActor() : name;
+
+		String message = null;
+
+		if (activityFeed.getActionType() == ActionTypes.LIKE)
+		{
+			if (activityFeed.getObjType() == ActivityObjectTypes.STATUS_UPDATE)
+			{
+				StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(activityFeed.getObjID());
+
+				if(statusMessage == null)
+				{
+					return;
+				}
+					
+				ContactInfo info = ContactManager.getInstance().getContact(activityFeed.getActor(), true, true);
+				
+				if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+				{
+					message =  info.getNameOrMsisdn()+ " " +context.getString(R.string.dp_like_text);
+				}
+				else if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
+				{
+					message = info.getNameOrMsisdn() + " " +context.getString(R.string.photo_like_text);
+				}
+				else if (statusMessage.getStatusMessageType() == StatusMessageType.TEXT)
+				{
+					message = info.getNameOrMsisdn() + " " +context.getString(R.string.liked_your_post);
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			/*
+			 * Jellybean has added support for emojis so we don't need to add a '*' to replace them
+			 */
+			if (Build.VERSION.SDK_INT < 16)
+			{
+				// Replace emojis with a '*'
+				message = SmileyParser.getInstance().replaceEmojiWithCharacter(message, "*");
+			}
+		}
+		else
+		{
+			return;
+		}
+
+		// if notification message stack is empty, add to it and proceed with single notification display
+		// else add to stack and notify clubbed messages
+		if (hikeNotifMsgStack.isEmpty())
+		{
+			hikeNotifMsgStack.addMessage(activityFeed.getActor(), message, notificationType);
+		}
+		else
+		{
+			notifyStringMessage(activityFeed.getActor(), message, false, notificationType);
+			return;
+		}
+
+		showNotification(notificationIntent, icon, timeStamp, notificationId, message, key, message, activityFeed.getActor(), null, false, false);
+		
+		addNotificationId(notificationId);
 	}
 
 }

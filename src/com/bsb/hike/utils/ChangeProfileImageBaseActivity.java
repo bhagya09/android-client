@@ -18,7 +18,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -32,7 +31,9 @@ import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
@@ -40,8 +41,6 @@ import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -49,6 +48,8 @@ import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
@@ -160,6 +161,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE;
 			if (!isPersonal)
 			{
+				galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
 				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath(useTimestamp));
 				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 			}
@@ -172,6 +174,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
+			galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
 			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath(useTimestamp));
 			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
@@ -383,28 +386,26 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
 
-		final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this, HikeDialogFactory.REMOVE_DP_CONFIRM_DIALOG);
-		deleteConfirmDialog.setHeader(R.string.remove_photo);
-		deleteConfirmDialog.setBody(R.string.confirm_remove_photo);
-		deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, false);
+		CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this, HikeDialogFactory.REMOVE_DP_CONFIRM_DIALOG);
+		deleteConfirmDialog.setTitle(R.string.remove_photo);
+		deleteConfirmDialog.setMessage(R.string.confirm_remove_photo);
 
 		// if checkbox is selected, delete the profile status update from own and favorites timeline
 		String dpStatusId = prefs.getPref().getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "");
 
-		if (dpStatusId.isEmpty())
+		if (!dpStatusId.isEmpty())
 		{
-			deleteConfirmDialog.setCheckboxVisibility(View.GONE);
+			deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, null, false);
 		}
 
-		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
+		HikeDialogListener dialogListener = new HikeDialogListener()
 		{
-			JSONObject md = new JSONObject();
-
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				// if checkbox is selected, delete the profile status update from own and favorites timelines
-				if (deleteConfirmDialog.isChecked())
+				JSONObject md = new JSONObject();
+				CustomAlertDialog deleteDialog = (CustomAlertDialog) hikeDialog;
+				if (deleteDialog.isChecked())
 				{
 					ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 					StatusMessageType[] smType = { StatusMessageType.PROFILE_PIC };
@@ -445,11 +446,23 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json error");
 					}
 				}
-				deleteConfirmDialog.dismiss();
+				deleteDialog.dismiss();
+			}
+			
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+				
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
 			}
 		};
-		deleteConfirmDialog.setOkButton(R.string.yes, dialogOkClickListener);
-		deleteConfirmDialog.setCancelButton(R.string.no);
+		deleteConfirmDialog.setPositiveButton(R.string.YES, dialogListener);
+		deleteConfirmDialog.setNegativeButton(R.string.NO,dialogListener);
 		deleteConfirmDialog.show();
 	}
 
@@ -529,7 +542,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		mRemoveImagePath = removeImagePath;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-		builder.setTitle(R.string.profile_photo);
 
 		// We have a single element array so that if new options are added to the dialog we just have to add strings to this array.
 		final CharSequence[] items = ctx.getResources().getStringArray(R.array.profile_pic_dialog);

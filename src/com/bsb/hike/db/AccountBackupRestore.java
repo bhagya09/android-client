@@ -35,13 +35,13 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
+/**
+ * AccountBackupRestore is a singleton class that performs are the backup/restore related
+ * operations
+ * @author gauravmittal
+ */
 public class AccountBackupRestore
 {
-	/**
-	 * @author gauravmittal
-	 * 	AccountBackupRestore is a singleton class that performs are the backup/restore related
-	 * 	operations
-	 */
 	
 	private class PreferenceBackup
 	{

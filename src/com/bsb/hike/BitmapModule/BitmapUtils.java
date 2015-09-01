@@ -61,22 +61,22 @@ public class BitmapUtils
 		switch (iconHash(msisdn) % count)
 		{
 		case 0:
-			id = rounded ? R.drawable.avatar_01_rounded : R.drawable.avatar_01;
+			id = rounded ? R.drawable.avatar_bubblegum_rounded : R.drawable.avatar_bubblegum;
 			break;
 		case 1:
-			id = rounded ? R.drawable.avatar_02_rounded : R.drawable.avatar_02;
+			id = rounded ? R.drawable.avatar_apricot_rounded : R.drawable.avatar_apricot;
 			break;
 		case 2:
-			id = rounded ? R.drawable.avatar_03_rounded : R.drawable.avatar_03;
+			id = rounded ? R.drawable.avatar_carnation_rounded : R.drawable.avatar_carnation;
 			break;
 		case 3:
-			id = rounded ? R.drawable.avatar_04_rounded : R.drawable.avatar_04;
+			id = rounded ? R.drawable.avatar_light_gold_rounded : R.drawable.avatar_light_gold;
 			break;
 		case 4:
-			id = rounded ? R.drawable.avatar_05_rounded : R.drawable.avatar_05;
+			id = rounded ? R.drawable.avatar_sky_blue_rounded : R.drawable.avatar_sky_blue;
 			break;
 		default:
-			id = rounded ? R.drawable.avatar_01_rounded : R.drawable.avatar_01;
+			id = rounded ? R.drawable.avatar_bubblegum_rounded : R.drawable.avatar_bubblegum;
 			break;
 		}
 

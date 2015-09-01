@@ -22,6 +22,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -46,6 +48,8 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPDataPacket.PacketType;
+import com.bsb.hike.voip.protobuf.VoIPSerializer;
 import com.bsb.hike.voip.view.VoIPActivity;
 
 public class VoIPUtils {
@@ -291,29 +295,12 @@ public class VoIPUtils {
 	
 	public static boolean shouldShowCallRatePopupNow()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-	}
-	
-	public static void setupCallRatePopupNextTime()
-	{
 		HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance();
-		int callsCount = sharedPref.getData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-		sharedPref.saveData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, ++callsCount);
-
 		int frequency = sharedPref.getData(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, -1);
-		boolean shownAlready = sharedPref.getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-
-		if(callsCount == frequency)
-		{
-			// Show popup next time
-			sharedPref.saveData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, true);
-			sharedPref.saveData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-		}
-		else if(shownAlready)
-		{
-			// Shown for the first time, dont show later
-			sharedPref.saveData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
-		}
+		if (frequency > 0)
+			return ((new Random().nextInt(frequency) + 1) == frequency);
+		else 
+			return false;
 	}
 	
 	/**
@@ -384,13 +371,19 @@ public class VoIPUtils {
 	
 	public static boolean isConferencingEnabled(Context context) 
 	{
-		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, true);
 		return conferenceEnabled;
+	}
+	
+	public static boolean isGroupCallEnabled(Context context) 
+	{
+		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_GROUP_CALL_ENABLED, false);
+		return enabled;
 	}
 	
 	public static boolean isBluetoothEnabled(Context context) 
 	{
-		boolean bluetoothEnabled = false;
+		boolean bluetoothEnabled = true;
 		return bluetoothEnabled;
 	}
 	
@@ -513,20 +506,6 @@ public class VoIPUtils {
 					return;		
 				}
 
-				// Check for currently active call
-				if ((metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
-						VoIPUtils.isUserInCall(context)) {
-					Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
-							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
-
-					if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO)) 
-						VoIPUtils.sendVoIPMessageUsingHike(jsonObj.getString(HikeConstants.FROM), 
-								HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
-								metadataJSON.getInt(VoIPConstants.Extras.CALL_ID), 
-								false);
-					return;
-				}
-				
 				/*
 				 * Call Initiation Messages
 				 * Added: 24 Mar, 2015 (AJ)
@@ -648,11 +627,10 @@ public class VoIPUtils {
 			
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) 
 			{
-				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_IN_CALL);
+				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
+				i.putExtra(VoIPConstants.Extras.ACTION, subType);
 				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(i);
+				context.startService(i);
 			}
 			
 		}
@@ -793,6 +771,84 @@ public class VoIPUtils {
 		long totalMemory = mi.totalMem / 1048576L;
 		
 		Logger.d(tag, "Memory total: " + totalMemory + " MB, available: " + availableMegs + " MB");
+	}
+
+	public static byte[] getUDPDataFromPacket(VoIPDataPacket dp) {
+		
+		// Serialize everything except for P2P voice data packets
+		byte[] packetData = null;
+		byte prefix;
+		
+		// Force everything to PB
+		packetData = VoIPSerializer.serialize(dp);
+		prefix = VoIPConstants.PP_PROTOCOL_BUFFER;
+
+		if (packetData == null)
+			return null;
+		
+		byte[] finalData = new byte[packetData.length + 1];	
+		finalData[0] = prefix;
+		System.arraycopy(packetData, 0, finalData, 1, packetData.length);
+		packetData = finalData;
+
+		return packetData;
+	}
+
+	public static VoIPDataPacket getPacketFromUDPData(byte[] data) {
+		VoIPDataPacket dp = null;
+		byte prefix = data[0];
+		byte[] packetData = new byte[data.length - 1];
+		System.arraycopy(data, 1, packetData, 0, packetData.length);
+
+		if (prefix == VoIPConstants.PP_PROTOCOL_BUFFER) {
+			dp = (VoIPDataPacket) VoIPSerializer.deserialize(packetData);
+		} else {
+			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+			dp.setData(packetData);
+			if (prefix == VoIPConstants.PP_ENCRYPTED_VOICE_PACKET)
+				dp.setEncrypted(true);
+			else
+				dp.setEncrypted(false);
+		}
+		
+		return dp;
+	}
+	
+	public static String getAppVersionName(Context context) {
+		String appVersionName = "Unknown";
+		PackageInfo pInfo;
+		try {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			appVersionName = pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			// Should never happen
+			Logger.e(tag, "Unable to retrieve app version name.");
+		}
+		return appVersionName;
+	}
+
+	/**
+	 * Returns true if we are already in an active call, 
+	 * and notifies the caller.
+	 * @param context
+	 * @param fromMsisdn
+	 * @param callId
+	 * @return
+	 */
+	public static boolean checkForActiveCall(Context context, String fromMsisdn, int callId) {
+		// Check for currently active call
+		if ((callId != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
+				VoIPUtils.isUserInCall(context)) {
+			Logger.w(tag, "We are already in a call. local: " + VoIPService.getCallId() +
+					", remote: " + callId);
+
+			VoIPUtils.sendVoIPMessageUsingHike(fromMsisdn, 
+					HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
+					callId, 
+					false);
+			return true;
+		}
+		return false;
 	}
 	
 }

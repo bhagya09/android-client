@@ -1,19 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/standerd_background"
-    android:orientation="vertical" >
+    android:background="@null" >
 
-    <ListView
-        android:id="@id/android:list"
-        style="@style/HomeList"
-        android:divider="@null" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/updatesRecycleView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@null"
+        android:layout_gravity="center"
+        android:scrollbars="none" />
+
+    <LinearLayout
+        android:id="@+id/new_update_tab"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/white"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:id="@+id/new_photo_tab"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/timeline_tab_selector"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_camera"
+                    android:drawablePadding="15dp"
+                    android:gravity="center"
+                    android:text="@string/timeline_tab_photo" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="2px"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="13dp"
+                android:layout_marginTop="13dp"
+                android:background="#11000000" />
+
+            <LinearLayout
+                android:id="@+id/new_status_tab"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/timeline_tab_selector"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_newstatus"
+                    android:drawablePadding="15dp"
+                    android:gravity="center"
+                    android:text="@string/timeline_tab_status" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1.5dp"
+            android:background="@drawable/shadow_bot" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@android:id/empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/timeline_no_item"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" >
+
+        <ImageView
+            android:id="@+id/timeline_empty_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/emptystate_timeline" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/timeline_empty_desc1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/timeline_empty_image"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:text="@string/timeline_empty_desc1"
+            android:textColor="#AAAAAA"
+            android:textSize="16sp"
+            android:textStyle="bold|italic" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/timeline_empty_desc1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="6dp"
+            android:text="@string/timeline_empty_desc2"
+            android:gravity="center"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp"
+            android:textStyle="normal" />
+    </RelativeLayout>
 
 </RelativeLayout>

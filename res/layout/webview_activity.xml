@@ -3,11 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/thatch_repeat"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:id="@+id/webview_layout" >
 	<View
         android:id="@+id/overflow_anchor"
         android:layout_width="1dp"
-        android:layout_height="@dimen/st__action_bar_default_height"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true" />
 	

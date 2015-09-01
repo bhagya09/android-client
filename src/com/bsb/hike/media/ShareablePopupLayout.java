@@ -65,12 +65,13 @@ public class ShareablePopupLayout
 		{
 			if (HikeMessengerApp.keyboardApproach(context))
 			{
-				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener,onSoftKeyboardListener) : new KeyboardPopupLayout21(mainView, firstTimeHeight,
-						context, eatOuterTouchIds, listener,onSoftKeyboardListener);
-			}else{
-				
-				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
-					context, eatOuterTouchIds, listener);
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener, onSoftKeyboardListener)
+						: new KeyboardPopupLayout21(mainView, firstTimeHeight, context, eatOuterTouchIds, listener, onSoftKeyboardListener);
+			}
+			else
+			{
+				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView,
+						firstTimeHeight, context, eatOuterTouchIds, listener);
 			}
 		}
 	}
@@ -233,13 +234,6 @@ public class ShareablePopupLayout
 		mKeyboardPopupLayout.releaseResources();
 	}
 
-	public void onCloseKeyBoard()
-	{
-		if (isKeyboardOpen())
-		{
-			mKeyboardPopupLayout.onCloseKeyBoard();
-		}
-	}
 	public boolean onEditTextTouch(View v, MotionEvent event){
 		return mKeyboardPopupLayout.onEditTextTouch(v, event);
 	}
@@ -251,6 +245,22 @@ public class ShareablePopupLayout
 	public void onBackPressed()
 	{
 		mKeyboardPopupLayout.onBackPressed();
+	}
+
+	public void setWindowSystemBarBgFlag(boolean windowFlagEnabled)
+	{
+		if (mKeyboardPopupLayout != null)
+		{
+			mKeyboardPopupLayout.setDrawSystemBarBgFlagEnabled(windowFlagEnabled);
+		}
+	}
+
+	public void onConfigurationChanged()
+	{
+		if (mKeyboardPopupLayout != null)
+		{
+			mKeyboardPopupLayout.onConfigChanged();
+		}
 	}
 
 

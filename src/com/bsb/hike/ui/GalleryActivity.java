@@ -14,18 +14,22 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -59,6 +63,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String ENABLE_CAMERA_PICK = "cam_pk";
 
 	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
+	
+	public static final int GALLERY_CROP_IMAGE = 64;
 	
 	public static final int GALLERY_ALLOW_MULTISELECT = 32;
 	
@@ -127,11 +133,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private ArrayList<String> editedImages;
 	
+	public static final String GALLERY_RESULT_ACTION = "gal_res_act";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.gallery);
 
 		selectedGalleryItems = new ArrayList<GalleryItem>();
@@ -362,20 +370,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: empty " + filePath);
 			return false;
 		}
-		
-		File mediafile = new File(filePath);
-		if (!mediafile.exists())
-		{
-			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: does not exist " + filePath);
-			return false;
-		}
-		
-		String dirPath = mediafile.getParent();
-		if(dirPath == null)
-		{
-			return false;
-		}
-		
+
 		if(editEnabled && isImageEdited(filePath))
 		{
 			//Skipping this file since this is a temp file created by multi-edit 
@@ -545,15 +540,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 		actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 		actionBarView.setBackgroundResource(android.R.color.transparent);
-		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				onBackPressed();
-			}
-		});
-
+	
 		TextView titleView = (TextView) actionBarView.findViewById(R.id.title);
 
 		titleView.setText(getString(R.string.photo_gallery_choose_pic));
@@ -562,11 +549,16 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
+		
 	}
 
 	private void setupMultiSelectActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(false);
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.chat_theme_action_bar, null);
@@ -608,7 +600,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				{
 					//since sendResult is active when we need to send result to selection viewer
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else
@@ -630,6 +622,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -672,7 +666,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			previousEventTime = currTime;
 		}
 	}
-
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -682,7 +676,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			switch(requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
-				setResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
+				setGalleryResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
 				finish();
 				break;
 			case HikeConstants.CAMERA_RESULT:
@@ -715,7 +709,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				else if(isStartedForResult())
 				{
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else
@@ -734,6 +728,16 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
+	public void setGalleryResult(int resultCode,Intent data)
+	{
+		//setting gallery result action if action is not already set for the data
+		if(data.getAction() == null)
+		{
+			data.setAction(GALLERY_RESULT_ACTION);
+		}
+		setResult(resultCode,data);
+	}
+	
 	@Override
 	public void onItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
@@ -852,7 +856,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				else if (isStartedForResult())
 				{
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					setResult(RESULT_OK, intent);
+					setGalleryResult(RESULT_OK, intent);
 					finish();
 				}
 				else
@@ -911,6 +915,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			e.printStackTrace();
 		}
+	}
+	@Override
+	protected void setStatusBarColor(Window window, String color) {
+		// TODO Auto-generated method stub
+		return;
+	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// TODO Auto-generated method stub
+		return true ;
 	}
 	
 	private void deleteJunkTempFiles()

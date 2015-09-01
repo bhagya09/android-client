@@ -2,11 +2,8 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:left="8dp"
-        android:right="8dp">
-        <shape android:shape="rectangle" >
-            <solid android:color="#1273716d" />
-        </shape>
-    </item>
+        android:drawable="@color/home_screen_list_divider"
+        android:left="72dp"
+        android:right="@dimen/settings_screen_divider_right_padding"/>
 
 </layer-list>

@@ -49,6 +49,10 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	public static final byte READ_SLIDE_OUT = 10;
 	
+	public static final byte DISABLE_ACTION_BAR_SHADOW = 11;
+	
+	public static final byte STATUS_BAR_OVERLAY = 12;
+	
 	/**
 	 * Bit positions end here.
 	 */
@@ -91,6 +95,16 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public boolean isDeleteAndBlockEnabled()
 	{
 		return isBitSet(DELETE_BLOCK);
+	}
+	
+	public boolean disableActionBarShadow()
+	{
+		return isBitSet(DISABLE_ACTION_BAR_SHADOW);
+	}
+	
+	public boolean shouldOverlayStatusBar()
+	{
+		return isBitSet(STATUS_BAR_OVERLAY);
 	}
 	
 	public JSONObject getConfigData()
@@ -175,7 +189,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			if (jsonObject.has(HikePlatformConstants.IS_CHECKED))
 			{
 				boolean isChecked = jsonObject.optBoolean(HikePlatformConstants.IS_CHECKED, true);
-				return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.tick : com.bsb.hike.R.drawable.untick, id, enabled);
+				return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.control_check_on : com.bsb.hike.R.drawable.control_check_off, id, enabled);
 			}
 			
 			else
@@ -455,6 +469,69 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public boolean isReadSlideOutEnabled()
 	{
 		return isBitSet(READ_SLIDE_OUT);
+	}
+	
+	/**
+	 * Utility method to get status bar color from config data
+	 * 
+	 * @return
+	 */
+	public int getStatusBarColor()
+	{
+		if (configData != null)
+		{
+			String color = configData.optString(HikePlatformConstants.STATUS_BAR_COLOR, null);
+			try
+			{
+				return color != null ? Color.parseColor(color) : -1;
+			}
+
+			catch (IllegalArgumentException e)
+			{
+				Logger.e(TAG, "Seems like you sent a wrong color");
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Utility method to get action bar color from fullScreenJson. The JSON will look like :
+	 * 
+	 * { "cd": { "full_screen_config": { "color": "#0f8fe1", "secondary_title": "Hike News 2.0", "sb_color": "0f8fe1" }}}
+	 * 
+	 * @return
+	 */
+	public int getSecondaryStatusBarColor()
+	{
+		if (configData != null)
+		{
+			JSONObject fullScreenJSON = configData.optJSONObject(HikePlatformConstants.FULL_SCREEN_CONFIG);
+
+			if (fullScreenJSON != null)
+			{
+				String color = fullScreenJSON.optString(HikePlatformConstants.STATUS_BAR_COLOR, null);
+				try
+				{
+					return color != null ? Color.parseColor(color) : -1;
+				}
+
+				catch (IllegalArgumentException e)
+				{
+					Logger.e(TAG, "Seems like you sent a wrong color");
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * The action bar might be transparent if we have status bar overlay or actionbar overlay. No point in having a solid color in such case
+	 * 
+	 * @return
+	 */
+	public boolean shouldShowTransparentActionBar()
+	{
+		return shouldOverlayStatusBar() || shouldOverlayActionBar();
 	}
 	
 }

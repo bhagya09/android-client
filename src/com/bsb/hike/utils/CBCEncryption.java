@@ -20,14 +20,14 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * CBCEncryption is a utility that provides the encryption and decryption of files.
+ * The user can use its own key for doing this.
+ * If no key is provided the default key is used.
+ * @author gauravmittal
+ */
 public class CBCEncryption
 {
-	/**
-	 * @author gauravmittal
-	 * 		CBCEncryption is a utility that provides the encryption and decryption of files.
-	 * 		The user can use its own key for doing this.
-	 * 		If no key is provided the default key is used.
-	 */
 	private static final String defaultPassword = "HikeHikeHikeHike";
 
 	private static final String salt = "03xy9z52twq8r4s1uv67";

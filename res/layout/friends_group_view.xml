@@ -2,54 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:orientation="vertical" >
+    android:background="@color/white" >
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/section_view"
-        android:layout_width="fill_parent"
-        android:layout_height="36dp"
-        android:orientation="vertical"
-        android:gravity="bottom" >
+        style="@style/ListSectionHeaderMargins"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:paddingLeft="@dimen/contact_list_header_padding"
-            android:paddingRight="@dimen/contact_list_header_padding" >
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/name"
+            style="@style/ListSectionTextView"
+            android:text="Friends" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
-
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="Friends"
-                    android:textColor="#0f8fe1"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:textColor="#0f8fe1"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </RelativeLayout>
-        </RelativeLayout>
-
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:layout_marginLeft="@dimen/contact_list_divider_padding"
-            android:layout_marginRight="@dimen/contact_list_divider_padding"
-            android:background="#0f8fe1" />
-    </LinearLayout>
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/count"
+            style="@style/ListSectionTextView"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
 
 </LinearLayout>

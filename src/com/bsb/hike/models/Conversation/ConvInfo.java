@@ -37,6 +37,10 @@ public class ConvInfo implements Comparable<ConvInfo>
 	private boolean isOnHike;
 	
 	private TypingNotification typingNotif;
+	
+	private static final int THRESHOLD_UNREAD_COUNT = 999;
+	
+	private static final String UNREAD_COUNTER_999 = "999+";
 	/**
 	 * Keeps track of the last message for a given conversation
 	 */
@@ -236,7 +240,15 @@ public class ConvInfo implements Comparable<ConvInfo>
 	 */
 	public String getUnreadCountString()
 	{
-		return Integer.toString(unreadCount);
+		if (unreadCount <= THRESHOLD_UNREAD_COUNT)
+		{
+			return Integer.toString(unreadCount);
+		}
+
+		else
+		{
+			return UNREAD_COUNTER_999;
+		}
 	}
 
 	@Override

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:layout_marginTop="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="1dp"
+        android:layout_marginBottom="7dp"
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="1dp"
+        card_view:cardUseCompatPadding="true" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:layout_below="@id/content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" >
+
+            <com.bsb.hike.ui.utils.RecyclingImageView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="36dp"
+                android:src="@drawable/sticker_018_whistling" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center"
+                android:text="@string/timeline_welldone"
+                android:textColor="#018fe1"
+                android:textSize="24dp" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="20dp"
+                android:paddingRight="32dp"
+                android:paddingLeft="32dp"
+                android:paddingTop="12dp"
+                android:text="@string/timeline_ftueexit_desc"
+                android:textColor="@color/black_60"
+                android:textSize="14dp"
+                android:textStyle="normal" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginTop="4dp"
+                android:background="@color/black_10" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/ftue_show"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/timeline_tab_selector"
+                android:gravity="center"
+                android:paddingBottom="16dp"
+                android:paddingTop="16dp"
+                android:text="@string/timeline_ftueexit_btn"
+                android:textColor="@color/black_80"
+                android:textSize="14dp"
+                android:textStyle="bold|italic" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

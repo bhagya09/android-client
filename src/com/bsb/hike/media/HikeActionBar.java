@@ -3,23 +3,22 @@ package com.bsb.hike.media;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.media.OverFlowMenuLayout;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
-import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 
@@ -63,7 +62,7 @@ public class HikeActionBar implements OverflowItemClickListener
 
 	public void onCreateOptionsMenu(Menu menu, int menuLayout)
 	{
-		MenuInflater menuInflater = mActivity.getSupportMenuInflater();
+		MenuInflater menuInflater = mActivity.getMenuInflater();
 		menuInflater.inflate(menuLayout, menu);
 		this.mMenu = menu;
 	}
@@ -140,6 +139,13 @@ public class HikeActionBar implements OverflowItemClickListener
 		View actionBarView = LayoutInflater.from(mActivity.getApplicationContext()).inflate(layoutResId, null);
 		
 		sherlockActionBar.setCustomView(actionBarView);
+		sherlockActionBar.setDisplayHomeAsUpEnabled(true);
+		sherlockActionBar.show(); //The action bar could be hidden due to other fragments using it. Hence calling a show here
+		//http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
+		//removing space on the left of action bar
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
+		
 		
 		return actionBarView;
 	}
@@ -193,8 +199,10 @@ public class HikeActionBar implements OverflowItemClickListener
 		 */
 		if (overFlowMenuLayoutPrimary != null)
 		{	
+			overFlowMenuLayoutPrimary.initView();
 			overFlowMenuLayoutPrimary.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
+		
 		layoutWidth = width;
 		layoutHeight = height;
 		layoutXOffset = xOffset;
@@ -214,6 +222,7 @@ public class HikeActionBar implements OverflowItemClickListener
 		 */
 		if (overFlowMenuLayoutSecondary != null)
 		{	
+			overFlowMenuLayoutSecondary.initView();
 			overFlowMenuLayoutSecondary.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
 		}
 	}
@@ -323,10 +332,10 @@ public class HikeActionBar implements OverflowItemClickListener
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
-		if (menuItem != null && menuItem.getActionView() != null)
+		if (menuItem != null && MenuItemCompat.getActionView(menuItem) != null)
 		{
-			ImageView topBarIndiImage = (ImageView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_img);
-			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+			ImageView topBarIndiImage = (ImageView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_img);
+			TextView topBarCounter = (TextView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_text);
 
 			if (imadeResId != 0 && topBarCounter.getVisibility() != View.VISIBLE)
 			{
@@ -363,9 +372,9 @@ public class HikeActionBar implements OverflowItemClickListener
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
-		if (menuItem != null && menuItem.getActionView() != null)
+		if (menuItem != null && MenuItemCompat.getActionView(menuItem) != null)
 		{
-			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+			TextView topBarCounter = (TextView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_text);
 
 			if (newCount < 1)
 			{
