@@ -52,8 +52,8 @@
         android:id="@+id/xmldivider"
         android:layout_width="wrap_content"
         android:layout_height="match_parent" 
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"/>
 
     <TextView
         android:id="@+id/candidate_expand_suggestions"
