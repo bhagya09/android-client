@@ -864,6 +864,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		final TextView mLastSeenView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 		mLastSeenView.setText("");
+		prevLastSeen=null;
 		hideLastSeenText();
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
