@@ -49,6 +49,10 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	public static final byte READ_SLIDE_OUT = 10;
 	
+	public static final byte DISABLE_ACTION_BAR_SHADOW = 11;
+	
+	public static final byte STATUS_BAR_OVERLAY = 12;
+	
 	/**
 	 * Bit positions end here.
 	 */
@@ -91,6 +95,16 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public boolean isDeleteAndBlockEnabled()
 	{
 		return isBitSet(DELETE_BLOCK);
+	}
+	
+	public boolean disableActionBarShadow()
+	{
+		return isBitSet(DISABLE_ACTION_BAR_SHADOW);
+	}
+	
+	public boolean shouldOverlayStatusBar()
+	{
+		return isBitSet(STATUS_BAR_OVERLAY);
 	}
 	
 	public JSONObject getConfigData()
@@ -508,6 +522,16 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			}
 		}
 		return -1;
+	}
+
+	/**
+	 * The action bar might be transparent if we have status bar overlay or actionbar overlay. No point in having a solid color in such case
+	 * 
+	 * @return
+	 */
+	public boolean shouldShowTransparentActionBar()
+	{
+		return shouldOverlayStatusBar() || shouldOverlayActionBar();
 	}
 	
 }

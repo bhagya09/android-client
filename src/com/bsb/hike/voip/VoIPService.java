@@ -954,6 +954,7 @@ public class VoIPService extends Service {
 		.setContentTitle(title)
 		.setContentText(text)
 		.setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
+		.setColor(getResources().getColor(R.color.blue_hike_m))
 		.setContentIntent(pendingIntent)
 		.setOngoing(true)
 		.setAutoCancel(true)
@@ -1387,14 +1388,13 @@ public class VoIPService extends Service {
 			startRecording();
 			startPlayBack();
 			startChrono();
-			
-			// When a conference participant accepts a call, change their UI
-			// to display all the conference participants
-			if (client.isHostingConference)
-				sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
-
 		} else {
 			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
+		}
+		
+		if (hostingConference()) {
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_SPEAKING);
+			sendClientsListToAllClients();
 		}
 	}
 	
