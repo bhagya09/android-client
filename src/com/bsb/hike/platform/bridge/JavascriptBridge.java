@@ -7,21 +7,18 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
-import org.apache.http.impl.execchain.MinimalClientExec;
+import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -57,8 +54,6 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
 import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -85,12 +80,12 @@ public abstract class JavascriptBridge
 
 	protected Handler mHandler;
 	
-	private static final String REQUEST_CODE = "request_code";
+	protected static final String REQUEST_CODE = "request_code";
 	
 	private static final int PICK_CONTACT_REQUEST = 1;
 
-	public String id;
-	
+	protected static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
+
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
@@ -534,28 +529,43 @@ public abstract class JavascriptBridge
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
-	
-	public void onActivityResult(int requestCode,int resultCode, Intent data)
-	{	
-			Logger.d("FileUpload","onactivity result of javascript");
-			if (requestCode != -1)
-			{
-			if(requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
+
+
+	protected void pickContactAndSend(ConvMessage message)
+	{
+		Activity activity = weakActivity.get();
+		if (activity != null)
+		{
+			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
+			intent.putExtra(tag, JavascriptBridge.this.hashCode());
+			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
+			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
+		}
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		Logger.d(tag, "onactivity result of javascript");
+		if (requestCode != -1)
+		{
+			if (requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
+
 				handlePickFileResult(resultCode, data);
 			else
 			{
-			
-			requestCode = data.getIntExtra(REQUEST_CODE, -1);
-			
-			
+
+				requestCode = data.getIntExtra(REQUEST_CODE, -1);
+
 				switch (requestCode)
 				{
 				case PICK_CONTACT_REQUEST:
+				case PICK_CONTACT_AND_SEND_REQUEST:
 					handlePickContactResult(resultCode, data);
 					break;
 				}
-				}
 			}
+		}
 	}
 	
 	private void handlePickFileResult(int resultCode, Intent data)
@@ -643,7 +653,8 @@ public abstract class JavascriptBridge
 			return;
 		}
 		if (mHandler == null)
-		{	Logger.e(tag,"callbacck to JS is empty nHandler");
+		{
+			Logger.e(tag,"callbacck to JS is empty nHandler");
 			return;
 		}
 		mHandler.post(new Runnable()
@@ -652,7 +663,8 @@ public abstract class JavascriptBridge
 			public void run()
 			{
 				if(!mWebView.isWebViewDestroyed())
-				{	Logger.d(tag,"Inside call back to js with id "+ id );
+				{
+					Logger.d(tag,"Inside call back to js with id "+ id );
 					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
 				}
 				else
@@ -724,22 +736,12 @@ public abstract class JavascriptBridge
 		}
 
 	}
-	
-	/**
-	 * Platform Bridge Version 3
-	 * call this function to open file chooser and select the file
-	 * @param id	:	The function id
-	 * returns the absolute path of the selected file in onActivityResult() of WebViewActivity
-	 */
-	
-	
 
 	/**
 	 * Platform Bridge Version 3
 	 * call this function to upload multiple files to the server
 	 * @param id			:	the function id
-	 * @param filePathArray	:	the comma separated string containing the list of file paths
-	 * @param url			:	the URL of the server where the files have to be uploaded
+	 * @param data          :   stringified json. Consists of filePath, uploadUrl, doCompress fields.
 	 * returns the response on each file upload success
 	 */
 	@JavascriptInterface
@@ -891,7 +893,7 @@ public abstract class JavascriptBridge
 
 	/**
 	 * Platform Bridge Version 3
-	 * call this function for any post call.
+	 * call this function for any get call.
 	 * @param functionId : function id to call back to the js.
 	 * @param url : "url": the url that will be called.
 	 * Response to the js will be sent as follows:

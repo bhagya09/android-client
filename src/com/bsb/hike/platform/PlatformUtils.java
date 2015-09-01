@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -1016,6 +1019,104 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.APP_CRASH_EVENT);
 			json.put(AnalyticsConstants.DATA, crashType);
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void sharedDataHandlingForMessages(ConvMessage conv)
+	{
+		try
+		{
+			if(conv.getPlatformData() != null)
+			{
+				JSONObject sharedData = conv.getPlatformData();
+				String namespaces = sharedData.getString(HikePlatformConstants.RECIPIENT_NAMESPACES);
+				if (TextUtils.isEmpty(namespaces))
+				{
+					Logger.e(HikePlatformConstants.TAG, "no namespaces defined.");
+					return;
+				}
+				String [] namespaceList = namespaces.split(",");
+				for (String namespace : namespaceList)
+				{
+					String eventType = sharedData.optString(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
+					long mappedEventId = -1;
+					if (!conv.isSent())
+					{
+						mappedEventId = sharedData.getLong(HikePlatformConstants.MAPPED_EVENT_ID);
+					}
+					String metadata = sharedData.getString(HikePlatformConstants.EVENT_CARDDATA);
+					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
+					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(), mappedEventId);
+					long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+					if (eventId < 0)
+					{
+						Logger.e(HikePlatformConstants.TAG, "Duplicate Message Event");
+					}
+					else
+					{
+						sharedData.put(HikePlatformConstants.MAPPED_EVENT_ID, eventId);
+						conv.setPlatformData(sharedData);
+					}
+				}
+
+			}
+		}
+		catch (JSONException e)
+		{
+			//TODO catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Call this method to send platform message event. This method sends an event to the msisdn that it determines when it queries the messages table based on the message hash.
+	 * @param eventMetadata
+	 * @param messageHash
+	 * @param nameSpace
+	 */
+	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace)
+	{
+		String msisdn = HikeConversationsDatabase.getInstance().getMsisdnFromMessageHash(messageHash);
+		if (null == msisdn)
+		{
+			Logger.e(HikePlatformConstants.TAG, "Message Hash is incorrect");
+			return;
+		}
+		JSONObject object = new JSONObject();
+
+		try
+		{
+			JSONObject data = new JSONObject(eventMetadata);
+			long timestamp = System.currentTimeMillis();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE);
+			object.put(HikeConstants.SEND_TIMESTAMP, timestamp);
+			object.put(HikeConstants.TIMESTAMP, timestamp);
+			object.put(HikeConstants.TO, msisdn);
+
+			data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT);
+			data.put(HikePlatformConstants.MESSAGE_HASH, messageHash);
+			data.put(HikePlatformConstants.NAMESPACE, nameSpace);
+
+			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, eventMetadata, messageHash,
+					HikePlatformConstants.EventStatus.EVENT_SENT, timestamp);
+			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
+			messageEvent.setEventId(eventId);
+			if (eventId < 0)
+			{
+				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
+			}
+			else
+			{
+				data.put(HikeConstants.EVENT_ID, eventId);
+				object.put(HikeConstants.DATA, data);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+			}
+
 		}
 		catch (JSONException e)
 		{

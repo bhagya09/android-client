@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -764,9 +765,9 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		int convInt = settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
 		int msgHashGrpReadUpgrade = settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
-		ACRA.init(this);
-		CustomReportSender customReportSender = new CustomReportSender();
-		ErrorReporter.getInstance().setReportSender(customReportSender);
+		//ACRA.init(this);
+//		CustomReportSender customReportSender = new CustomReportSender();
+//		ErrorReporter.getInstance().setReportSender(customReportSender);
 
 		super.onCreate();
 
@@ -1091,6 +1092,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 		folder = new File(root + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
+
+		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		Utils.makeNoMediaFile(folder, true);
+
 	}
 
 	public static HikePubSub getPubSub()
