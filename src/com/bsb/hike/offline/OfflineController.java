@@ -8,6 +8,8 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -28,6 +30,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
@@ -95,15 +98,24 @@ public class OfflineController
 	private void handleMsgOnBackEndThread(Message msg) {
 		// TODO Auto-generated method stub
 		switch (msg.what) {
-		case HandlerConstants.SAVE_MSG_DB:
+		case OfflineConstants.HandlerConstants.SAVE_MSG_DB:
 			saveToDb((ConvMessage) msg.obj);
 			break;
 		case OfflineConstants.HandlerConstants.SHUTDOWN:
 			shutdownProcess((OfflineException) msg.obj);
 			break;
+		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST:
+			removeConnectionRequest();
+			break;
 		default:
 			break;
 		}
+	}
+
+	
+	private void removeConnectionRequest()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ON_OFFLINE_REQUEST, null);
 	}
 
 	private OfflineController()
@@ -396,7 +408,7 @@ public class OfflineController
 	{
 		Logger.d(TAG, "ShutDown called Due to reason " + exception.getReasonCode());
 		Message msg=Message.obtain();
-		msg.what=HandlerConstants.SHUTDOWN;
+		msg.what=OfflineConstants.HandlerConstants.SHUTDOWN;
 		msg.obj=exception;
 		mHandler.sendMessage(msg);
 	}
@@ -593,6 +605,35 @@ public class OfflineController
 			return ftm.getConvMessage();
 		}
 		return null;
+	}
+
+	public void handleOfflineRequest(JSONObject packet)
+	{
+		String msisdn = packet.optString(HikeConstants.FROM);
+		if(TextUtils.isEmpty(msisdn))
+		{
+			return;
+		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ON_OFFLINE_REQUEST, msisdn);
+		
+		JSONObject data = packet.optJSONObject(HikeConstants.DATA);
+		if(data!=null)
+		{
+			if(data.has(OfflineConstants.TIMEOUT))
+			{
+				long connectionTimeout  =  data.optLong(OfflineConstants.TIMEOUT);
+				postTimeoutMessage(connectionTimeout);
+			}
+			
+		}
+	}
+
+	private void postTimeoutMessage(long timeout)
+	{
+		Message msg = Message.obtain();
+		msg.what=OfflineConstants.HandlerConstants.REMOVE_CONNECT_REQUEST;
+		msg.obj=timeout;
+		mHandler.sendMessageDelayed(msg, timeout); 
 	}	
 
 }

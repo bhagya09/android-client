@@ -769,6 +769,8 @@ public class OfflineUtils
 			}
 			HikeNotification.getInstance().showBigTextStyleNotification(chatThreadIntent, hikeNotifMsgStack.getNotificationIcon(),
 					System.currentTimeMillis()/1000,HikeNotification.OFFLINE_REQUEST_ID, contactFirstName + " Sent you offline request",contactFirstName,"wants to Connect Offline", msisdn,null,avatarDrawable, true,0, actions);
+			OfflineController.getInstance().handleOfflineRequest(packet);
+			
 		}
 		catch (JSONException e)
 		{
