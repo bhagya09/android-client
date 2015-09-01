@@ -97,6 +97,8 @@ public class OfflineConstants
 		public static final int DISCONNECT_BY_USER = -113;
 
 		public static final int MOVE_MESSAGES_TO_MQTT = -114;
+
+		public static final int REMOVE_CONNECT_REQUEST = -115;
 	}
 	
 	public static enum ERRORCODE
@@ -194,6 +196,8 @@ public class OfflineConstants
 	}
 	
 	public static final String CONNECTION_ID = "conn_id";
+
+	public static final String TIMEOUT = "tm";
 
 	public static enum MessageType
 	{
