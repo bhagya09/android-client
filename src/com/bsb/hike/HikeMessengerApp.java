@@ -1166,7 +1166,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 	public static boolean currentKeyboard(Context context)
 	{
-		Logger.d("keyboard", "Current keyboard : " + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false));
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		boolean currentKbd = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		Logger.d("keyboard", "Current keyboard : " + currentKbd);
+		return currentKbd;
 	}
 }

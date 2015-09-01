@@ -593,12 +593,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		this.savedState = savedState;
 		init();
+		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		mShareablePopupLayout.setCustomKeyBoardHeight(mCustomKeyboard.getKeyBoardAndCVHeight());
-		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
 		mShareablePopupLayout.setCustomKeyBoard(!systemKeyboard);
 		Logger.d("kbdht", "height : " + mCustomKeyboard.getKeyBoardAndCVHeight());
 		if (systemKeyboard)
@@ -5931,7 +5931,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public boolean isSystemKeyborad()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		return systemKeyboard;
 	}
 	
 	private void updatePadding(int bottomPadding)
