@@ -148,9 +148,6 @@ public class OfflineDisconnectFragment extends Fragment
 			}
 			avatar.setImageDrawable(drawable);
 			connectionRequest.setText(Html.fromHtml(firstMessage));
-			positiveBtn.setTextColor(getResources().getColor(R.color.blue_hike));
-			negativeBtn.setTextColor(getResources().getColor(R.color.black));
-			
 			break;
 		case REQUESTING:
 			connectionRequest = (TextView) fragmentView.findViewById(R.id.connecting_request);
@@ -168,6 +165,8 @@ public class OfflineDisconnectFragment extends Fragment
 			}
 			avatar.setImageDrawable(drawable);
 			connectionRequest.setText(Html.fromHtml(firstMessage));
+			positiveBtn.setTextColor(getResources().getColor(R.color.blue_hike));
+			negativeBtn.setTextColor(getResources().getColor(R.color.black));
 			break;
 		default:
 			break;
