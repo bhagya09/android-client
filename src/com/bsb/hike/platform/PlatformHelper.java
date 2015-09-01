@@ -27,41 +27,24 @@ import android.text.TextUtils;
 
 public class PlatformHelper
 {
-	public BotInfo mBotInfo;
+	// public BotInfo mBotInfo;
 
-	protected Handler mHandler;
-
-	protected WeakReference<Activity> weakActivity;
+	protected static Handler mHandler;
 
 	public static final String tag = "PlatformHelper";
 
-	protected static final String REQUEST_CODE = "request_code";
-
-	private static final int PICK_CONTACT_REQUEST = 1;
-
-	protected static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
-
-	Activity activity;
-
-	public PlatformHelper(BotInfo mBotInfo, Activity activty)
-	{
-		this.mBotInfo = mBotInfo;
-		this.activity = activity;
-		weakActivity = new WeakReference<Activity>(activity);
-	}
-
-	public void putInCache(String key, String value)
+	public static void putInCache(String key, String value, BotInfo mBotInfo)
 	{
 		HikeContentDatabase.getInstance().putInContentCache(key, mBotInfo.getNamespace(), value);
 	}
 
-	public String getFromCache(String id, String key)
+	public static String getFromCache(String key, BotInfo mBotInfo)
 	{
 		return HikeContentDatabase.getInstance().getFromContentCache(key, mBotInfo.getNamespace());
 
 	}
 
-	public void logAnalytics(String isUI, String subType, String json)
+	public static void logAnalytics(String isUI, String subType, String json, BotInfo mBotInfo)
 	{
 
 		try
@@ -88,7 +71,7 @@ public class PlatformHelper
 		}
 	}
 
-	public void forwardToChat(String json, String hikeMessage)
+	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, final WeakReference<Activity> weakActivity)
 	{
 		Logger.i(tag, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
 
@@ -116,7 +99,7 @@ public class PlatformHelper
 			message.setNameSpace(mBotInfo.getNamespace());
 			if (message != null)
 			{
-				startComPoseChatActivity(message);
+				startComPoseChatActivity(message, weakActivity);
 			}
 		}
 		catch (JSONException e)
@@ -126,34 +109,12 @@ public class PlatformHelper
 		}
 	}
 
-	protected void startComPoseChatActivity(final ConvMessage message)
-	{
-		if (null == mHandler)
-		{
-			return;
-		}
-
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Activity mContext = weakActivity.get();
-				if (mContext != null)
-				{
-					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-					mContext.startActivity(intent);
-				}
-			}
-		});
-	}
-
-	public void sendNormalEvent(String messageHash, String eventData)
+	public static void sendNormalEvent(String messageHash, String eventData, BotInfo mBotInfo)
 	{
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, mBotInfo.getNamespace());
 	}
 
-	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData)
+	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final WeakReference<Activity> weakActivity)
 	{
 		if (TextUtils.isEmpty(cardObject) || TextUtils.isEmpty(hikeMessage))
 		{
@@ -182,7 +143,7 @@ public class PlatformHelper
 			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
-			pickContactAndSend(message);
+			pickContactAndSend(message, weakActivity);
 
 		}
 		catch (JSONException e)
@@ -191,8 +152,8 @@ public class PlatformHelper
 			e.printStackTrace();
 		}
 	}
-	
-	public String getAllEventsForMessageHash(String functionId, String messageHash)
+
+	public static String getAllEventsForMessageHash(String messageHash, BotInfo mBotInfo)
 	{
 		if (TextUtils.isEmpty(messageHash))
 		{
@@ -203,8 +164,25 @@ public class PlatformHelper
 		return eventData;
 	}
 
-	protected void pickContactAndSend(ConvMessage message)
+	public static String getAllEventsData(BotInfo mBotInfo)
 	{
+		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), true);
+		return messageData;
+	}
+
+	public static String getSharedEventsData(BotInfo mBotInfo)
+	{
+		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), false);
+		return messageData;
+	}
+
+	protected static void pickContactAndSend(ConvMessage message, final WeakReference<Activity> weakActivity)
+	{
+		final String REQUEST_CODE = "request_code";
+
+		final int PICK_CONTACT_REQUEST = 1;
+
+		final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 		Activity activity = weakActivity.get();
 		if (activity != null)
 		{
@@ -215,16 +193,27 @@ public class PlatformHelper
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
-	public String getAllEventsData(String functionId)
+
+	protected static void startComPoseChatActivity(final ConvMessage message, final WeakReference<Activity> weakActivity)
 	{
-		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), true);
-		return messageData;
-	}
-	
-	public String getSharedEventsData(String functionId)
-	{
-		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), false);
-		return messageData;
+		if (null == mHandler)
+		{
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Activity mContext = weakActivity.get();
+				if (mContext != null)
+				{
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+					mContext.startActivity(intent);
+				}
+			}
+		});
 	}
 
 }
