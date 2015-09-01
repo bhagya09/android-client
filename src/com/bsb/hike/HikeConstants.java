@@ -609,6 +609,8 @@ public class HikeConstants
 	
 	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
 	
+	public static final String AUTO_CORRECT_PREF = "autoCorrectPref";
+	
 	public static final String AUTO_CAPITALIZATION_PREF = "autoCapsPref";
 	
 	public static final String AUTO_SPACING_PREF = "autoSpacingPref";

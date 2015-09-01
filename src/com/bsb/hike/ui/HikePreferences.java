@@ -201,6 +201,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceChangeListeners(HikeConstants.H2O_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.GLIDE_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.AUTO_CORRECT_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.AUTO_CAPITALIZATION_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.AUTO_SPACING_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.DISPLAY_SUGGESTIONS_PREF);
@@ -1245,6 +1246,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.GLIDE_PREF.equals(preference.getKey()))
 		{
 			kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
+		}
+		else if (HikeConstants.AUTO_CORRECT_PREF.equals(preference.getKey()))
+		{
+			kptSettings.setAutoCorrectionState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
 		}
 		else if (HikeConstants.AUTO_CAPITALIZATION_PREF.equals(preference.getKey()))
 		{

@@ -3,6 +3,13 @@
     android:title="@string/advanced_keyboard_settings"
     android:key="kptAdvancedPrefScreen" >
     
+    <com.bsb.hike.view.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="autoCorrectPref"
+            android:layout="@layout/icon_preference"
+            android:title="@string/auto_correct_title"
+            android:widgetLayout="@layout/switch_widget" />
+    
 	<com.bsb.hike.view.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="autoCapsPref"
