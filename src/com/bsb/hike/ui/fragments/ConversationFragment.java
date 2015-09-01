@@ -397,7 +397,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		if (mmSelectFriends.isModuleToggle())
 		{
 			llChatReward.setOnClickListener(null);
-		
+			chatProgress.setText(NUXManager.getInstance().getNuxChatRewardPojo().getDetailsText());
 			setFooterHalfOpen();
 		}
 
