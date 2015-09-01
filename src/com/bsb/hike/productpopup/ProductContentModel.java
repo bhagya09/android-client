@@ -57,6 +57,8 @@ public class ProductContentModel implements Parcelable
 		pushTime = contentData.optLong(PUSH_TIME, 0l);
 		isCancellable = contentData.optBoolean(IS_CANCELLABLE, false);
 		pid = mmContentModel.getPid();
+		config = contentData.optInt(HikeConstants.CONFIGURATION, 0);
+		popupConfiguration = new PopupConfiguration(config);
 
 	}
 
