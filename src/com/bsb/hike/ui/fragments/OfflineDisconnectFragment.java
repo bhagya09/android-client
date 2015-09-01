@@ -14,6 +14,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
@@ -101,7 +102,8 @@ public class OfflineDisconnectFragment extends Fragment
 		TextView connectionRequest,connectionWarning;
 		ContactInfo connectingContactInfo;
 		Drawable drawable=null;
-
+		Button positiveBtn = (Button)fragmentView.findViewById(R.id.accept_disconnect);
+		Button negativeBtn =  (Button)fragmentView.findViewById(R.id.reject_disconnect);
 		switch (type)
 		{
 		case CONNECTED:
@@ -131,7 +133,6 @@ public class OfflineDisconnectFragment extends Fragment
 			connectionWarning.setText(Html.fromHtml(secondMessage));
 			break;
 		case CONNECTING:
-		case REQUESTING:
 			connectionRequest = (TextView) fragmentView.findViewById(R.id.connecting_request);
 			connectingContactInfo = ContactManager.getInstance().getContact(connectingMsisdn);
 			connectingContactFirstName = connectingMsisdn;
@@ -147,13 +148,32 @@ public class OfflineDisconnectFragment extends Fragment
 			}
 			avatar.setImageDrawable(drawable);
 			connectionRequest.setText(Html.fromHtml(firstMessage));
+			//positiveBtn.setTextColor();
+			
+			break;
+		case REQUESTING:
+			connectionRequest = (TextView) fragmentView.findViewById(R.id.connecting_request);
+			connectingContactInfo = ContactManager.getInstance().getContact(connectingMsisdn);
+			connectingContactFirstName = connectingMsisdn;
+			if (connectingContactInfo != null && !TextUtils.isEmpty(connectingContactInfo.getFirstName()))
+			{
+				connectingContactFirstName = connectingContactInfo.getFirstName();
+			}
+			firstMessage = getResources().getString(R.string.disconnect_warning, connectingContactFirstName);
+			drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
+			if (drawable == null)
+			{
+				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+			}
+			avatar.setImageDrawable(drawable);
+			connectionRequest.setText(Html.fromHtml(firstMessage));
 			break;
 		default:
 			break;
 
 		}
 
-		fragmentView.findViewById(R.id.reject_disconnect).setOnClickListener(new OnClickListener()
+		negativeBtn.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
@@ -187,7 +207,7 @@ public class OfflineDisconnectFragment extends Fragment
 			}
 		});
 
-		fragmentView.findViewById(R.id.accept_disconnect).setOnClickListener(new OnClickListener()
+		positiveBtn.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
@@ -204,10 +224,11 @@ public class OfflineDisconnectFragment extends Fragment
 						listener.onDisconnectionRequest();
 
 						// If connected user wants to disconnect and start another connection
-						if (type == DisconnectFragmentType.CONNECTED)
+						if (type == DisconnectFragmentType.CONNECTED || type == DisconnectFragmentType.REQUESTING)
 						{
 							listener.onConnectionRequest(true);
 						}
+						
 
 					}
 
