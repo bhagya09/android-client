@@ -6,10 +6,34 @@
     android:background="#ffffff" >
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:id="@+id/access_header"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#EF574E" >
+
+        <TextView
+            android:id="@+id/show_accessibility"
+            style="@style/SettingsHeaderSubItemTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:clickable="true"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:text="@string/show_accessibility_tip_text"
+            android:textColor="#ffffff"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
+    <LinearLayout
         android:id="@+id/main_select_layout"
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
+        android:layout_below="@id/access_header"
         android:background="@drawable/list_item"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:orientation="horizontal" >

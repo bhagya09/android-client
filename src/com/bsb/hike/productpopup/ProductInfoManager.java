@@ -6,6 +6,7 @@ import java.util.Collections;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.usage.UsageEvents.Event;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -15,6 +16,9 @@ import android.util.SparseArray;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -177,6 +181,25 @@ public class ProductInfoManager
 		});
 
 	}
+	
+	public static void recordPopupEvent(String appName, String pid, boolean isFullScreen, String type)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(ProductPopupsConstants.APP_NAME, appName);
+			metadata.put(ProductPopupsConstants.PID, pid);
+			metadata.put(ProductPopupsConstants.IS_FULL_SCREEN, isFullScreen);
+			metadata.put(HikeConstants.STATUS, type);
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, ProductPopupsConstants.PRODUCT_POP_UP, metadata);
+
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * 
@@ -197,8 +220,7 @@ public class ProductInfoManager
 			public void onEventOccured(int uniqueId,EventCode event)
 			{
 				productContentModel = getProductContentModel();
-
-				switch (event)
+			    switch (event)
 				{
 				case LOW_CONNECTIVITY:
 					HikeContentDatabase.getInstance().updatePopupStatus(productContentModel.hashCode(), PopupStateEnum.NOT_DOWNLOADED.ordinal());
@@ -257,6 +279,7 @@ public class ProductInfoManager
 						mmSparseArray.put(productContentModel.getTriggerpoint(), mmArrayList);
 					}
 					HikeContentDatabase.getInstance().updatePopupStatus(productContentModel.hashCode(), PopupStateEnum.DOWNLOADED.ordinal());
+                    recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), HikeConstants.DOWNLOAD);
 				}
 			}
 
@@ -300,10 +323,12 @@ public class ProductInfoManager
 	{
 
 		Logger.d("ProductPopup", "Popup received Going to inserti in DB");
-
+		
 		// saving the Popup in DataBase:
 		ProductContentModel productContentModel = ProductContentModel.makeProductContentModel(metaData);
 
+		recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), ProductPopupsConstants.RECEIVED);
+		
 		HikeContentDatabase.getInstance().savePopup(productContentModel, PopupStateEnum.NOT_DOWNLOADED.ordinal());
 
 		parseAndShowPopup(productContentModel, null);
@@ -431,35 +456,4 @@ public class ProductInfoManager
 	{
 		mmSparseArray.clear();
 	}
-
-	public void downloadStkPk(String metaData)
-	{
-		try
-		{
-			JSONObject object=new JSONObject(metaData);
-			String categoryId=object.optString(StickerManager.CATEGORY_ID);
-			String categoryName=object.optString(StickerManager.CATEGORY_NAME);
-			int totalStickers = object.optInt(StickerManager.TOTAL_STICKERS);
-			int categorySize = object.optInt(StickerManager.CATEGORY_SIZE);
-
-			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
-			{
-				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
-				downloadStkPk(category);
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	private void downloadStkPk(StickerCategory category)
-	{
-		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
-		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, context);
-		
-	}
-
 }
