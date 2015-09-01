@@ -432,7 +432,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			progressBead.setVisibility(View.VISIBLE);
 			rotateAnimation = ObjectAnimator.ofFloat(progressBead,View.ROTATION,0, 359.9f);   
 			//,Animation.RELATIVE_TO_SELF,0.38f,Animation.RELATIVE_TO_SELF,2.9f);
-			progressBead.setPivotX(11);
+			progressBead.setPivotX((float)frame.getWidth()/21);
 			progressBead.setPivotY(frame.getHeight()/2);
 			rotateAnimation.setDuration(1000);
 			rotateAnimation.setRepeatCount(Animation.INFINITE);
