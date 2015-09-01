@@ -831,4 +831,44 @@ public class OfflineUtils
 		}
 		
 	}
+
+	public static boolean shouldShowDisconnectFragment(String data)
+	{
+		if (TextUtils.isEmpty(data))
+		{
+			return false;
+		}
+
+		JSONObject obj;
+		try
+		{
+			obj = new JSONObject(data);
+			long timeout = obj.optLong(OfflineConstants.TIMEOUT);
+			if (timeout > System.currentTimeMillis())
+			{
+				return true;
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+	
+	public static String fetchMsisdnFromRequestPkt(String data)
+	{
+		JSONObject obj;
+		try
+		{
+			obj = new JSONObject(data);
+			return obj.optString(HikeConstants.MSISDN);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

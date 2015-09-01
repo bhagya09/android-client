@@ -208,5 +208,7 @@ public class OfflineConstants
 	{
 		CONNECTED, CONNECTING, REQUESTING
 	}
+	
+	public static final String DIRECT_REQUEST_DATA = "dir_req";
 
 }
