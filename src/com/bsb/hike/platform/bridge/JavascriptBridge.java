@@ -82,10 +82,12 @@ public abstract class JavascriptBridge
 	public static final String tag = "JavascriptBridge";
 
 	protected Handler mHandler;
-
-	private static final String REQUEST_CODE = "request_code";
-
+	
+	protected static final String REQUEST_CODE = "request_code";
+	
 	private static final int PICK_CONTACT_REQUEST = 1;
+
+	protected static final int PICK_CONTACT_AND_SEND_REQUEST = 2;
 
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -130,9 +132,7 @@ public abstract class JavascriptBridge
 
 	}
 
-
 	protected void sendMessageToUiThread(int what, Object data)
-
 	{
 		sendMessageToUiThread(what, 0, 0, data);
 	}
@@ -537,6 +537,19 @@ public abstract class JavascriptBridge
 	}
 
 
+	protected void pickContactAndSend(ConvMessage message)
+	{
+		Activity activity = weakActivity.get();
+		if (activity != null)
+		{
+			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
+			intent.putExtra(tag, JavascriptBridge.this.hashCode());
+			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
+			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
+		}
+	}
+
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logger.d(tag, "onactivity result of javascript");
@@ -553,6 +566,7 @@ public abstract class JavascriptBridge
 				switch (requestCode)
 				{
 				case PICK_CONTACT_REQUEST:
+				case PICK_CONTACT_AND_SEND_REQUEST:
 					handlePickContactResult(resultCode, data);
 					break;
 				}
@@ -685,13 +699,11 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-
-	 * Platform Bridge Version 3 call this function to call the non-messaging bot
-	 * 
-	 * @param id
-	 *            : : the id of the function that native will call to call the js .
-	 * @param msisdn
-	 *            : the msisdn of the non-messaging bot to be opened. returns Success if success and failure if failure.
+	 * Platform Bridge Version 3
+	 * call this function to call the non-messaging bot`
+	 * @param id : : the id of the function that native will call to call the js .
+	 * @param msisdn: the msisdn of the non-messaging bot to be opened.
+	 * returns Success if success and failure if failure.
 	 */
 	@JavascriptInterface
 	public void openNonMessagingBot(String id, String msisdn)
@@ -862,7 +874,6 @@ public abstract class JavascriptBridge
 	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
 	 *          Failure: "{ "status": "failure", "error_message" : error message, "status_code": status code}"
 	 *
-
 	 */
 	@JavascriptInterface
 	public void doPostRequest(final String functionId, String data)
@@ -896,7 +907,6 @@ public abstract class JavascriptBridge
 	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
 	 *          Failure: "{ "status": "failure", "error_message" : error message, "status_code": status code}"
 	 *
-
 	 */
 	@JavascriptInterface
 	public void doGetRequest(final String functionId, String url)
@@ -1192,5 +1202,4 @@ public abstract class JavascriptBridge
 
 		fileOrDirectory.delete();
 	}
-
 }
