@@ -68,6 +68,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
+import com.bsb.hike.timeline.LoveCheckBoxToggleListener;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -1388,28 +1389,12 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		}
 	};
-
-	private OnCheckedChangeListener onLoveToggleListener = new OnCheckedChangeListener()
+	
+	private OnCheckedChangeListener onLoveToggleListener = new LoveCheckBoxToggleListener()
 	{
 		@Override
 		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)
 		{
-			buttonView.setEnabled(false);
-			buttonView.setClickable(false);
-
-			final StatusMessage statusMessage = (StatusMessage) buttonView.getTag();
-
-			JSONObject json = new JSONObject();
-
-			try
-			{
-				json.put(HikeConstants.SU_ID, statusMessage.getMappedId());
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
 			if (mShowUserProfile)
 			{
 				// First check if user is friends with msisdn
@@ -1449,138 +1434,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					return;
 				}
 			}
-
-			if (isChecked)
+			
+			super.onCheckedChanged(buttonView, isChecked);
+		}
+		
+		@Override
+		public void notifyUI()
+		{
+			if (!isDestroyed)
 			{
-				RequestToken token = HttpRequests.createLoveLink(json, new IRequestListener()
-				{
-					@Override
-					public void onRequestSuccess(Response result)
-					{
-						try
-						{
-							JSONObject response = (JSONObject) result.getBody().getContent();
-							if (response.optString("stat").equals("ok"))
-							{
-								// Increment like count in actions table
-								String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-
-								ArrayList<String> actorList = new ArrayList<String>();
-								actorList.add(selfMsisdn);
-
-								HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
-										ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
-
-								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.LIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
-										statusMessage.getMappedId());
-
-								TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(newFeed);
-
-								// UI actions
-								if (!isDestroyed)
-								{
-									notifyDataSetChanged();
-								}
-							}
-						}
-						finally
-						{
-							// UI actions
-							if (!isDestroyed)
-							{
-								buttonView.setEnabled(true);
-								buttonView.setClickable(true);
-							}
-						}
-					}
-
-					@Override
-					public void onRequestProgressUpdate(float progress)
-					{
-						// Do nothing
-					}
-
-					@Override
-					public void onRequestFailure(HttpException httpException)
-					{
-						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
-
-						// UI actions
-						if (!isDestroyed)
-						{
-							buttonView.setEnabled(true);
-							buttonView.setClickable(true);
-							toggleCompButtonState(buttonView, onLoveToggleListener);
-						}
-					}
-				},statusMessage.getMappedId());
-				token.execute();
-			}
-			else
-			{
-				RequestToken token = HttpRequests.removeLoveLink(json, new IRequestListener()
-				{
-					@Override
-					public void onRequestSuccess(Response result)
-					{
-						try
-						{
-							JSONObject response = (JSONObject) result.getBody().getContent();
-							if (response.optString("stat").equals("ok"))
-							{
-								// Decrement like count in actions table
-								String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-
-								ArrayList<String> actorList = new ArrayList<String>();
-								actorList.add(selfMsisdn);
-
-								HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
-										ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, false);
-
-								FeedDataModel newFeed = new FeedDataModel(System.currentTimeMillis(), ActionTypes.UNLIKE, selfMsisdn, ActivityObjectTypes.STATUS_UPDATE,
-										statusMessage.getMappedId());
-
-								TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(newFeed);
-
-								// UI actions
-								if (!isDestroyed)
-								{
-									notifyDataSetChanged();
-								}
-							}
-						}
-						finally
-						{
-							// UI actions
-							if (!isDestroyed)
-							{
-								buttonView.setEnabled(true);
-								buttonView.setClickable(true);
-							}
-						}
-					}
-
-					@Override
-					public void onRequestProgressUpdate(float progress)
-					{
-						// Do nothing
-					}
-
-					@Override
-					public void onRequestFailure(HttpException httpException)
-					{
-						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
-
-						// UI actions
-						if (!isDestroyed)
-						{
-							buttonView.setEnabled(true);
-							buttonView.setClickable(true);
-							toggleCompButtonState(buttonView, onLoveToggleListener);
-						}
-					}
-				},statusMessage.getMappedId());
-				token.execute();
+				notifyDataSetChanged();
 			}
 		}
 	};
