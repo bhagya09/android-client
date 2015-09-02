@@ -97,7 +97,21 @@ public class DisplayContactsAdapter extends BaseAdapter
 	@Override
 	public String getItem(int position)
 	{
-		return msisdnList.get(position);
+		String msisdn = null;
+		switch (getItemViewType(position))
+		{
+		case KNOWN_CONTACT_VIEW_TYPE:
+			msisdn = msisdnList.get(position);
+			break;
+
+		case UNKNOWN_CONTACT_VIEW_TYPE:
+			msisdn = suMsisdn;
+			break;
+
+		default:
+			break;
+		}
+		return msisdn;
 	}
 
 	@Override
