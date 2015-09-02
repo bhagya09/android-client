@@ -181,7 +181,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private View hikeToOfflineTipView;
 	
-	private View hikeOfflineDisconnectView;
+	private View noNetworkCardView = null;
 
 	private OfflineAnimationFragment offlineAnimationFragment = null;
 	
@@ -1764,19 +1764,24 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void showNetworkError(boolean isNetworkError) 
 	{
+		if(noNetworkCardView==null)
+		{
+			noNetworkCardView = activity.findViewById(R.id.network_error_card);
+		}
 		if(isNetworkError && ( !OfflineUtils.isConnectedToSameMsisdn(msisdn) && !OfflineUtils.isConnectingToSameMsisdn(msisdn)))
 		{
 			animateNetworkCard();
 		}
 		else
 		{
-			activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
+			noNetworkCardView.setVisibility(View.GONE);
 		}
 	};
 
 	private void animateNetworkCard()
 	{
 		TextView textView = (TextView)activity.findViewById(R.id.scan_free_hike_message);
+		ImageView cancelButton  = (ImageView)activity.findViewById(R.id.free_hike_no_netwrok_btn);
 		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
 		String contactFirstName = msisdn;
 		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
@@ -1785,7 +1790,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		textView.setText(Html.fromHtml(getResources().getString(R.string.scan_free_hike_connection,contactFirstName)));
 		Animation slideIn  = AnimationUtils.loadAnimation(activity,R.anim.slide_in_left);
-		activity.findViewById(R.id.network_error_card).setVisibility(View.VISIBLE);
+		
+		noNetworkCardView.setVisibility(View.VISIBLE);
 		slideIn.setDuration(600);
 		slideIn.setAnimationListener(new AnimationListener()
 		{
@@ -1808,8 +1814,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				
 			}
 		});
-		activity.findViewById(R.id.network_error_card).startAnimation(slideIn);
-		activity.findViewById(R.id.network_error_card).setOnClickListener(this);
+		noNetworkCardView.startAnimation(slideIn);
+		noNetworkCardView.setOnClickListener(this);
+		cancelButton.setOnClickListener(this);
 	}
 
 	/**
@@ -2569,14 +2576,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			updateChatMetadata();
 			break;
 		case R.id.network_error_card:
-			handleNetworkCardClick();
+			handleNetworkCardClick(true);
+			break;
+		case R.id.free_hike_no_netwrok_btn:
+			handleNetworkCardClick(false);
 			break;
 		default:
 			super.onClick(v);
 		}
 	}
 	
-	private void handleNetworkCardClick()
+	private void handleNetworkCardClick(final boolean startConnection)
 	{
 		Animation slideOut  = AnimationUtils.loadAnimation(activity,R.anim.slide_out_right);
 		slideOut.setDuration(400);
@@ -2600,13 +2610,19 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			@Override
 			public void onAnimationEnd(Animation animation)
 			{
-				activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
-				startFreeHikeConversation(true);
+				noNetworkCardView.setVisibility(View.GONE);
+				if(startConnection)
+				{
+					startFreeHikeConversation(true);
+				}
 				
 			}
 		});
-		activity.findViewById(R.id.network_error_card).startAnimation(slideOut);
-		OfflineAnalytics.noInternetTipClicked();
+		noNetworkCardView.startAnimation(slideOut);
+		
+		if(startConnection)
+			OfflineAnalytics.noInternetTipClicked();
+		
 	}
 
 	public void startAnotherFreeHikeConnection(Boolean startAnimation)

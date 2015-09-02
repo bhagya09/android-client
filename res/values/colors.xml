@@ -421,7 +421,6 @@
     <color name="photos_actions_selected">#f4f4f4</color>
     <color name="photos_camera_selector">#05e7e8e9</color>
     <color name="gallery_camera_tile_bg">#263238</color>
-    <color name="no_internet_connection_card_background">#F2fd402d</color>
     <color name="no_internet_card_text">#000000</color>
     <color name="sticker_recommend_highlight_text">#3B79D1</color>
     <color name="external_pallete_text_highlight_color">#00D5FF</color>

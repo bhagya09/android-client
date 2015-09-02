@@ -1,45 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id = "@+id/network_error_chat_card"
+    android:id="@+id/network_error_chat_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="5dp"
     android:layout_marginRight="5dp"
     android:layout_marginTop="5dp"
-    android:background="@drawable/no_internet_card_background"
-    android:orientation="vertical" >
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="15dp"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:paddingRight="15dp"
-        android:gravity="left" >
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-light"
-            android:paddingBottom="3dp"
-            android:text="@string/no_internet_connection"
-            android:textColor="@color/actionbar_text"
-            android:textSize="12sp"
-          />
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id = "@+id/scan_free_hike_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:text="@string/scan_free_hike_connection"
-            android:textColor="@color/actionbar_text"
-            android:textSize="13sp"
-         />
-        
-    </LinearLayout>
+    android:background="@drawable/no_internet_card_background" >
 
     <ImageView
         android:id="@+id/free_hike_no_netwrok_btn"
@@ -47,13 +14,39 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:src="@drawable/back_icon"
+        android:minHeight="40dp"
         android:minWidth="40dp"
-  		android:minHeight="40dp"
-  		android:scaleType="center" 
-  	>
-
-
+        android:scaleType="center"
+        android:src="@drawable/connectionscreencross" >
     </ImageView>
-    
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/free_hike_no_netwrok_btn"
+        android:gravity="left"
+        android:orientation="vertical"
+        android:paddingBottom="15dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="15dp" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="3dp"
+            android:text="@string/no_internet_connection"
+            android:textColor="@color/actionbar_text"
+            android:textSize="15sp" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/scan_free_hike_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_free_hike_connection"
+            android:textColor="@color/actionbar_text"
+            android:textSize="13sp"
+            android:textStyle="italic" />
+    </LinearLayout>
+
 </RelativeLayout>
