@@ -752,7 +752,7 @@ public class OfflineUtils
 			msisdn = packet.getString(HikeConstants.FROM);
 			OfflineParameters offlineParameters = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}"), OfflineParameters.class);
 			
-			if(TextUtils.isEmpty(msisdn)||isConnectedToSameMsisdn(msisdn)|| isConnectingToSameMsisdn(msisdn) || offlineParameters.isOfflineEnabled())
+			if(TextUtils.isEmpty(msisdn)||isConnectedToSameMsisdn(msisdn)|| isConnectingToSameMsisdn(msisdn) || !offlineParameters.isOfflineEnabled())
 			{
 				return;
 			}
