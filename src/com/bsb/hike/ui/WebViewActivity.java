@@ -3,7 +3,6 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.net.ParseException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.MailTo;
+import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -700,6 +700,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setMicroAppStatusBarColor();
 		
 		setAvatar();
+		
 	}
 	
 	private void setupWebURLWithBridgeActionBar(String title, int color, int statusBarColor)
@@ -946,7 +947,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onResume();
 		//Logging MicroApp Screen opening for bot case
-		if (mode == MICRO_APP_MODE)
+		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			HAManager.getInstance().startChatSession(msisdn);
 		}
@@ -1198,6 +1199,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException", msisdn);
 				this.finish();
 			}
+		}
+	}
+
+	@Override
+	public void changeActionBarColor(String color)
+	{
+		try
+		{
+			int abColor = Color.parseColor(color);
+			updateActionBarColor(new ColorDrawable(abColor));
+		}
+
+		catch (IllegalArgumentException e)
+		{
+			Logger.e(tag, "Seems like you passed the wrong color");
 		}
 	}
 
