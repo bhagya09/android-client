@@ -36,6 +36,12 @@ public class ActivityFeedFragment extends Fragment implements Listener
 
 	private LinearLayoutManager mLayoutManager;
 
+	//Default Constructor as per android guidelines
+	public ActivityFeedFragment()
+	{
+		
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{

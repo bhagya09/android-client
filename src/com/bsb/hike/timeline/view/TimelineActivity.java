@@ -156,6 +156,28 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		ActivityFeedFragment activityFeedFragment = (ActivityFeedFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY_FEED_TAG);
+		if (intent.getBooleanExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, false))
+		{
+			if(activityFeedFragment != null && (!activityFeedFragment.isAdded() || !activityFeedFragment.isVisible()))
+			{
+				getSupportFragmentManager().beginTransaction().remove(activityFeedFragment).commit();
+				loadActivityFeedFragment();
+			}
+		}
+		else
+		{
+			if(activityFeedFragment != null && (activityFeedFragment.isAdded() || activityFeedFragment.isVisible()))
+			{
+				getSupportFragmentManager().popBackStack();
+			}
+		}
+	}
+	
 	private void initialiseTimelineScreen(Bundle savedInstanceState)
 	{
 		setContentView(R.layout.timeline);
@@ -672,5 +694,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
+	}
+	
+	public boolean isTimelineScreenOnTop()
+	{
+		int count = getSupportFragmentManager().getBackStackEntryCount();
+		return count <= 1 ? true : false;
 	}
 }
