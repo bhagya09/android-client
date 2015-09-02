@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1404"
-    android:versionName="4.0.1.21.1.custom_keyboard" >
+    android:versionCode="1405"
+    android:versionName="4.0.1.21.2.custom_keyboard" >
     
     <uses-sdk
         android:minSdkVersion="14"
