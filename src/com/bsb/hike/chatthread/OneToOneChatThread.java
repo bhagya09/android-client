@@ -1617,7 +1617,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 			break;
 		case DISCONNECTING:
-			showToast(R.string.disconnecting_offline);
+			showToast(R.string.something_went_wrong);
 			break;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
