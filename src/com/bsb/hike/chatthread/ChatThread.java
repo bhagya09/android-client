@@ -4079,7 +4079,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void showKeyboard()
+	protected void showKeyboard()
 	{
 		if (shouldShowKeyboard())
 		{
