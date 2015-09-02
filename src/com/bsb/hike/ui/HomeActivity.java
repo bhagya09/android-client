@@ -1572,11 +1572,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void checkNShowNetworkError()
 	{
-		if (networkErrorPopUp == null || OfflineController.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
+		if (networkErrorPopUp == null)
 			return;
 		Logger.d(getClass().getSimpleName(), "visiblity for: " + HikeMessengerApp.networkError);
 		// networkErrorPopUp.clearAnimation();
-		if (HikeMessengerApp.networkError)
+		if (HikeMessengerApp.networkError && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED)
 		{
 			networkErrorPopUp.setText(R.string.no_internet_connection);
 			networkErrorPopUp.setBackgroundColor(getResources().getColor(R.color.red_no_network));
@@ -1590,10 +1590,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void animateNShowNetworkError()
 	{
-		if (networkErrorPopUp == null || OfflineController.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
+		if (networkErrorPopUp == null)
 			return;
 		Logger.d(getClass().getSimpleName(), "animation for: " + HikeMessengerApp.networkError);
-		if (HikeMessengerApp.networkError)
+		if (HikeMessengerApp.networkError && OfflineController.getInstance().getOfflineState() != OFFLINE_STATE.CONNECTED)
 		{
 			Animation alphaIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up_noalpha);
 			alphaIn.setDuration(400);
