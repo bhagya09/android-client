@@ -126,7 +126,7 @@
     
 	 <View
 	     android:id= "@+id/divider"
-         android:layout_width="fill_parent"
+         android:layout_width="match_parent"
          android:layout_height="1dp"
          android:layout_marginLeft="47dp"
          android:layout_marginRight="47dp"
@@ -137,24 +137,49 @@
         
         />
 	 
-	<Button
-	    android:id="@+id/retry_button"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_below="@+id/divider"
-	    android:layout_alignLeft="@+id/divider"
-	    android:layout_alignRight="@+id/divider"
-	    android:layout_centerHorizontal="true"
-	    style="@android:style/Widget.Holo.Light.Button.Borderless.Small"
-	    android:text="RETRY" 
-	    android:layout_marginTop="5dp"
-	    android:background="@drawable/offline_retry_button_selector"
-	    android:textColor="@color/white"
-	    android:visibility="gone"
-	    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/divider"
+        android:layout_alignRight="@+id/divider"
+        android:layout_below="@+id/divider"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/retry_button"
+            style="@android:style/Widget.Holo.Light.Button.Borderless.Small"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="0.4"
+            android:background="@drawable/offline_retry_button_selector"
+            android:text="RETRY"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/v_divider"
+            android:layout_width="0.3dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:background="@color/white_40"
+            android:visibility="gone" >
+        </View>
 	    />
-	
-	 <FrameLayout
+
+        <Button
+            android:id="@+id/help_button"
+            style="@android:style/Widget.Holo.Light.Button.Borderless.Small"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="0.4"
+            android:background="@drawable/offline_retry_button_selector"
+            android:text="HELP"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+    </LinearLayout>
+<FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/disconnect_layout" >

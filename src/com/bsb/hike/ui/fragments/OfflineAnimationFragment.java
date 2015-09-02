@@ -97,6 +97,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private Button retryButton;
 	
+	private Button helpButton;
+	
 	private OfflineConnectionRequestListener listener;
 	
 	private CountDownTimer  timer = null;
@@ -108,6 +110,8 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	private OfflineDisconnectFragment offlineDisconnectFragment;
 	
 	private View divider;
+	
+	private View verticalDivider;
 	
 	private OfflineParameters offlineParameters=null;
 	
@@ -452,6 +456,19 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		retryButton = (Button)fragmentView.findViewById(R.id.retry_button);
 		frame = (FrameLayout)fragmentView.findViewById(R.id.animation_circular_progress_holder);
 		circularProgress = (HoloCircularProgress)fragmentView.findViewById(R.id.animation_circular_progress);
+		helpButton = (Button)fragmentView.findViewById(R.id.help_button);
+		helpButton.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				context = HikeMessengerApp.getInstance().getApplicationContext();
+				Intent intent = IntentFactory.getHikeDirectHelpPageActivityIntent(context);
+				startActivity(intent);
+			}
+		});
+	    verticalDivider = (View)fragmentView.findViewById(R.id.v_divider);
 		ContactInfo contactInfo  = ContactManager.getInstance().getContact(msisdn);
 		contactFirstName = msisdn;
 		if(contactInfo!=null && !TextUtils.isEmpty(contactInfo.getFirstName()))
@@ -660,7 +677,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		frame.setVisibility(View.INVISIBLE);
 		secondMessage.setVisibility(View.INVISIBLE);	
 		cancelRotationAnimation();		
-		showRetryButton();
+		showConnectionFailurePanel();
 		retryButton.setOnClickListener(new OnClickListener()
 		{
 			
@@ -668,7 +685,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 			public void onClick(View v)
 			{
 				sendUiMessages();
-				hideRetryButton();
+				hideConnectionFailurePanel();
 				showRetryIcon(R.drawable.iconconnection);
 				frame.setVisibility(View.VISIBLE);
 				startRotateAnimation();		
@@ -793,10 +810,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		this.listener =listener;
 	}
 	
-	public void showRetryButton()
+	public void showConnectionFailurePanel()
 	{
 		retryButton.setVisibility(View.VISIBLE);
 		divider.setVisibility(View.VISIBLE);
+		helpButton.setVisibility(View.VISIBLE);
+		verticalDivider.setVisibility(View.VISIBLE);
 	}
 	
 	public void showRetryIcon(final int drawrable)
@@ -903,10 +922,12 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 		}
 	}
 	
-	public void hideRetryButton()
+	public void hideConnectionFailurePanel()
 	{
 		retryButton.setVisibility(View.GONE);
 		divider.setVisibility(View.GONE);
+		helpButton.setVisibility(View.GONE);
+		verticalDivider.setVisibility(View.GONE);
 	}
 
 	@Override
