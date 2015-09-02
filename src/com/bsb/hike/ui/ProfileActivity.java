@@ -13,56 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.ContentValues;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.WindowCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Pair;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -115,6 +65,7 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -124,13 +75,71 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
-		View.OnClickListener
+		View.OnClickListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner
 {
+	private CustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
+	
 	private TextView mName;
 	
-	private EditText mNameEdit;
+	private CustomFontEditText mNameEdit;
 
 	private View currentSelection;
 
@@ -144,7 +153,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private boolean isBackPressed = false;
 
-	private EditText mEmailEdit;
+	private CustomFontEditText mEmailEdit;
 
 	private String emailTxt;
 
@@ -265,6 +274,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				profileAdapter.getSharedFileImageLoader().setExitTasksEarly(true);
 			}
 		}
+		
+		mCustomKeyboard.closeAnyDialogIfShowing();
+		
+		mCustomKeyboard.onPause();
 	}
 	
 	@Override
@@ -309,8 +322,21 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			HikeMessengerApp.getPubSub().removeListeners(this, profilEditPubSubListeners);
 		}
+		
+		destroyKeyboardResources();
 	}
 
+	private void destroyKeyboardResources()
+	{
+		mCustomKeyboard.unregister(mNameEdit);
+
+		mCustomKeyboard.unregister(mEmailEdit);
+		
+		mCustomKeyboard.closeAnyDialogIfShowing();
+
+		mCustomKeyboard.destroyCustomKeyboard();
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -352,6 +378,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 		{
 			setContentView(R.layout.profile);
+
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+			
 			this.profileType = getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) ? ProfileType.GROUP_INFO : ProfileType.BROADCAST_INFO;
 			setupGroupAndBroadcastProfileScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, groupInfoPubSubListeners);
@@ -359,6 +389,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else if (getIntent().hasExtra(HikeConstants.Extras.CONTACT_INFO))
 		{
 			setContentView(R.layout.profile);
+
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+			
 			this.profileType = ProfileType.CONTACT_INFO;
 			setupContactProfileScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
@@ -366,6 +400,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else if(getIntent().hasExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE))
 		{
 			setContentView(R.layout.profile);
+
+			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+			mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+			
 			View parent = findViewById(R.id.parent_layout);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			parent.setBackgroundColor(getResources().getColor(R.color.standerd_background));
@@ -389,6 +427,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				// set pubsub listeners
 				setContentView(R.layout.profile_edit);
+
+				LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+				mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+				
 				this.profileType = ProfileType.USER_PROFILE_EDIT;
 				setupEditScreen();
 				HikeMessengerApp.getPubSub().addListeners(this, profilEditPubSubListeners);
@@ -397,6 +439,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			else
 			{
 				setContentView(R.layout.profile);
+
+				LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+				mCustomKeyboard= new CustomKeyboard(this, viewHolder);
+				
 				View parent = findViewById(R.id.parent_layout);
 				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 				parent.setBackgroundColor(getResources().getColor(R.color.standerd_background)); //Changing background color form white for self profile
@@ -409,6 +455,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 			}
 		}
+		
+		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		
 		if (mActivityState.groupEditDialogShowing)
 		{
 			onEditGroupNameClick(null);
@@ -428,6 +477,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 	}
 
+	private void initCustomKeyboard(View parent)
+	{
+		ViewGroup parentView = (ViewGroup) parent.getParent();
+		mNameEdit = (CustomFontEditText) parentView.findViewById(R.id.name_edit);
+		mCustomKeyboard.registerEditText(R.id.name_edit,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
+		mCustomKeyboard.init(mNameEdit);
+	}
+	
 	private void setGroupNameFields(View parent)
 	{
 		showingGroupEdit = true;
@@ -439,10 +496,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mNameEdit.requestFocus();
 		mNameEdit.setText(oneToNConversation.getLabel());
 		mNameEdit.setSelection(mNameEdit.getText().toString().length());
-		Utils.showSoftKeyboard(getApplicationContext(), mNameEdit);
+		showKeyboard();
 		setupGroupNameEditActionBar();
 	}
 
+	private void showKeyboard()
+	{
+		if (systemKeyboard)
+		{
+			Utils.showSoftKeyboard(getApplicationContext(), mNameEdit);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
+		}
+	}
+	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -518,7 +587,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					return;
 				}
 				saveChanges();
-				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
+				hideKeyboard();
 				showingGroupEdit = false;
 				mName.setText(groupName);
 				mName.setVisibility(View.VISIBLE);
@@ -542,13 +611,25 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		invalidateOptionsMenu();
 	}
 
+	private void hideKeyboard()
+	{
+		if (systemKeyboard)
+		{
+			Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
+		}
+		else
+		{
+			mCustomKeyboard.hideCustomKeyboard(mNameEdit);
+		}
+	}
+	
 	public void closeGroupNameEdit()
 	{
 		if(showingGroupEdit)
 		{
 			showingGroupEdit = false;
 			mActivityState.edittedGroupName = null;
-			Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
+			hideKeyboard();
 			mName.setText(oneToNConversation.getLabel());
 			mName.setVisibility(View.VISIBLE);
 			mNameEdit.setVisibility(View.GONE);
@@ -1275,9 +1356,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		ViewGroup gender = (ViewGroup) findViewById(R.id.gender);
 		ViewGroup picture = (ViewGroup) findViewById(R.id.photo);
 
-		mNameEdit = (EditText) name.findViewById(R.id.name_input);
-		mEmailEdit = (EditText) email.findViewById(R.id.email_input);
+		mNameEdit = (CustomFontEditText) name.findViewById(R.id.name_input);
+		mEmailEdit = (CustomFontEditText) email.findViewById(R.id.email_input);
 
+		mCustomKeyboard.registerEditText(R.id.name_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
+		mCustomKeyboard.registerEditText(R.id.email_input,KPTConstants.MULTILINE_LINE_EDITOR,ProfileActivity.this,ProfileActivity.this);
+		mCustomKeyboard.init(mNameEdit);
+		
+		showKeyboard();
+		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
 		((TextView) phone.findViewById(R.id.phone_edit_field)).setText(R.string.phone_num);
 		((TextView) email.findViewById(R.id.email_edit_field)).setText(R.string.email);
@@ -1949,7 +2036,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			header.setText(R.string.edit_group_name);
 		}
-		mNameEdit = (EditText) groupEditDialog.findViewById(R.id.group_name_edit);
+		mNameEdit = (CustomFontEditText) groupEditDialog.findViewById(R.id.group_name_edit);
 		mNameEdit.setText(TextUtils.isEmpty(mActivityState.edittedGroupName) ? oneToNConversation.getLabel() : mActivityState.edittedGroupName);
 		mNameEdit.setSelection(mNameEdit.length());
 
@@ -2006,6 +2093,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public void onGroupNameEditClick(View v)
 	{
 		View parent = (View) v.getParent();
+		initCustomKeyboard(parent);
 		setGroupNameFields(parent);
 	}
 	
@@ -3463,5 +3551,68 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		this.mLocalMSISDN = msisdn;
 		super.setLocalMsisdn(mLocalMSISDN);
+	}
+
+	@Override
+	public void analyticalData(String arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtFocusChange(View arg0, boolean arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtclick(View arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReturnAction(int arg0)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
