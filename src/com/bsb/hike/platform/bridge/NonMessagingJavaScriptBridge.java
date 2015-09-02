@@ -995,8 +995,26 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	*
 	*/
 	@JavascriptInterface
-	public void postStatusUpdate(String status, int moodId)
+	public void postStatusUpdate(String status, String moodId)
 	{
-		Utils.postStatusUpdate(status, moodId);
+		int mood;
+		
+		if (TextUtils.isEmpty(status) && TextUtils.isEmpty(moodId))
+		{
+			Logger.e(tag, "In postStatusUpdate both status & moodId are null. Returning.");
+			return;
+		}
+		
+		try
+		{
+			mood = Integer.parseInt(moodId);
+		}
+		catch(NumberFormatException e)
+		{
+			Logger.e(tag, "moodId to postStatusUpdate should be a number.");
+			mood = -1;
+		}
+		
+		Utils.postStatusUpdate(status, mood);
 	}
 }

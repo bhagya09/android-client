@@ -6981,6 +6981,11 @@ public class Utils
 	*/
 	public static void postStatusUpdate(String status, int moodId)
 	{
+		if(TextUtils.isEmpty(status) && moodId < 0)
+		{
+			Logger.e("Utils", "postStatusUpdate : both status == null/empty and moodId < 0 conditions hold together. Returning.");
+			return;
+		}
 		try
 		{
 			StatusUpdateTask task = new StatusUpdateTask(status, moodId, null);
@@ -6988,7 +6993,8 @@ public class Utils
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Logger.e("Utils", "IOException thrown in postStatusUpdate");
+			return;
 		}
 	}
 
