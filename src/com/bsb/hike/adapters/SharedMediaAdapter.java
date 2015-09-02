@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,7 +44,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		this.layoutInflater = LayoutInflater.from(this.context);
 		this.sharedMediaLoader = new SharedFileImageLoader(context, size_image,false);
 		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
-		sharedMediaLoader.setCachingEnabled(true);
+		sharedMediaLoader.setCachingEnabled(false);
 		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
@@ -74,6 +75,43 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	@Override
 	public int getItemPosition(Object object)
 	{
+		View page = ((View)object);
+		
+		if(page == null || sharedMediaItems == null)
+		{
+			return POSITION_NONE;
+		}
+		
+		Pair<Long,Integer> pageTag = (Pair<Long,Integer>)page.getTag();
+		
+		if(pageTag == null)
+		{
+			return POSITION_NONE;
+		}
+		
+		long msgTag = pageTag.first;
+		int position  = pageTag.second;
+		
+		if(position >= sharedMediaItems.size())
+		{
+			return POSITION_NONE;
+		}
+		
+		if(msgTag == sharedMediaItems.get(position).getMsgId())
+		{
+			return POSITION_UNCHANGED;
+		}
+	
+		for(int i = 0;i<sharedMediaItems.size();i++)
+		{
+			HikeSharedFile sharedMediaItem = sharedMediaItems.get(i);
+			if(sharedMediaItem.getMsgId() == msgTag)
+			{
+				page.setTag(new Pair<Long, Integer>(sharedMediaItem.getMsgId(), i));
+				return i;
+			}
+		}
+		
 		return POSITION_NONE;
 	}
 
@@ -125,6 +163,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 
 		galleryImageView.setTag(sharedMediaItem);
 		galleryImageView.setOnClickListener(SharedMediaAdapter.this);
+		argView.setTag(new Pair<Long, Integer>(sharedMediaItems.get(position).getMsgId(), position));
 		return argView;
 	}
 	
