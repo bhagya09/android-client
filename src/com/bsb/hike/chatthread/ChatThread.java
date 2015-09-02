@@ -2240,7 +2240,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		if (shouldShowKeyboard())
 		{
-			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			if (!systemKeyboard)
+			{
+				mCustomKeyboard.showCustomKeyboard(mComposeView, true);
+			}
+			else
+			{
+				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			}
 		}
 	}
 	
@@ -4029,6 +4036,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onResume()
 	{
+		showKeyboard();
+
 		isActivityVisible = true;
 
 		/**
@@ -4068,11 +4077,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeViewWatcher.setBtnEnabled();
 			mComposeView.requestFocus();
 		}
-		
-		showKeyboard();
 	}
 
-	private void showKeyboard()
+	protected void showKeyboard()
 	{
 		if (shouldShowKeyboard())
 		{

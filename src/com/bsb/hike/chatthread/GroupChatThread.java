@@ -654,6 +654,7 @@ public class GroupChatThread extends OneToNChatThread
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
 		mCustomKeyboard.registerEditText(R.id.messageedittext, KPTConstants.MULTILINE_LINE_EDITOR, this, this);
 		mComposeView.requestFocus();
+		showKeyboard();
 		if (mEmoticonPicker != null)
 		{
 			mEmoticonPicker.updateET(mComposeView);
