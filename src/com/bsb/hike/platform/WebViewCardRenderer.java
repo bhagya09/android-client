@@ -2,6 +2,9 @@ package com.bsb.hike.platform;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -569,18 +572,35 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		}
 		else if (HikePubSub.MESSAGE_EVENT_RECEIVED.equals(type))
 		{
-			if (object instanceof Message)
+			if (object instanceof MessageEvent)
 			{
-				Message m = (Message) object;
-				events.put(m.arg1, (String) m.obj);
-				uiHandler.post(new Runnable()
+				MessageEvent messageEvent = (MessageEvent) object;
+				ContactInfo info = ContactManager.getInstance().getContact(messageEvent.getMsisdn());
+
+				try
 				{
-					@Override
-					public void run()
+					JSONObject jsonObject = null != info ? info.getPlatformInfo() : new JSONObject();
+					jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
+					jsonObject.put(HikePlatformConstants.EVENT_ID , messageEvent.getEventId());
+					jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
+
+					jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
+					events.put((int) messageEvent.getMessageId(),jsonObject.toString());
+					uiHandler.post(new Runnable()
 					{
-						adapter.notifyDataSetChanged(); // it will make sure eventReceived is called if required
-					}
-				});
+						@Override
+						public void run()
+						{
+							adapter.notifyDataSetChanged(); // it will make sure eventReceived is called if required
+						}
+					});
+				}
+				catch (JSONException e)
+				{
+					Logger.e(tag, "JSON Exception in message event received");
+				}
+
+
 			}
 			else
 			{

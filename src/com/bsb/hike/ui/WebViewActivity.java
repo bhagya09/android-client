@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.net.ParseException;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -787,7 +790,36 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 			}
 		}
+
+		if (type.equals(HikePubSub.MESSAGE_EVENT_RECEIVED))
+		{
+
+			if (object instanceof MessageEvent)
 			{
+				MessageEvent messageEvent = (MessageEvent) object;
+				if (msisdn.equals(messageEvent.getMsisdn()))
+				{
+					ContactInfo info = ContactManager.getInstance().getContact(messageEvent.getMsisdn());
+
+					try
+					{
+						JSONObject jsonObject = null != info ? info.getPlatformInfo() : new JSONObject();
+						jsonObject.put(HikePlatformConstants.EVENT_DATA, messageEvent.getEventMetadata());
+						jsonObject.put(HikePlatformConstants.EVENT_ID, messageEvent.getEventId());
+						jsonObject.put(HikePlatformConstants.EVENT_STATUS, messageEvent.getEventStatus());
+
+						jsonObject.put(HikePlatformConstants.EVENT_TYPE, messageEvent.getEventType());
+						if (null != mmBridge)
+						{
+							mmBridge.notifDataReceived(jsonObject.toString());
+						}
+
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "JSON Exception in message event received");
+					}
+				}
 			}
 		}
 

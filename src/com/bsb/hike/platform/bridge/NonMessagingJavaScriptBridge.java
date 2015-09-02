@@ -451,6 +451,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		});
 	}
 
+	public void eventReceived(final String event)
+	{
+		if (mHandler == null || TextUtils.isEmpty(event))
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:eventReceived" + "('" + getEncodedDataForJS(event) + "')");
+			}
+		});
+	}
+
 	/**
 	 * Platform Bridge Version 1
 	 * Utility method to indicate change in orientation of the device.<br>
