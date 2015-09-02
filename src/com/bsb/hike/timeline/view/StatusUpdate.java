@@ -39,7 +39,6 @@ import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
