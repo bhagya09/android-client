@@ -110,11 +110,16 @@ public class HikePhotosUtils
 
 	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight, boolean centerIN,Config configType)
 	{
+		if(bitmap == null)
+		{
+			return null;
+		}
+		
 		Bitmap temp = bitmap;
 		int width = 0, height = 0;
 		float aspectRatio = bitmap.getWidth() * 1.0f / bitmap.getHeight();
 
-		if (bitmap != null && centerIN)
+		if (centerIN)
 		{
 			if (bitmap.getWidth() >= bitmap.getHeight())
 			{
@@ -128,8 +133,7 @@ public class HikePhotosUtils
 				width = (int) (maxHeight * aspectRatio);
 			}
 		}
-
-		if (bitmap != null && !centerIN)
+		else
 		{
 			if (bitmap.getWidth() < bitmap.getHeight())
 			{

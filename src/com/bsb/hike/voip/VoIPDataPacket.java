@@ -39,27 +39,27 @@ public class VoIPDataPacket implements Cloneable {
 	int length = 0;		// Used to indicate length of actual data in "data"
 
 	public enum PacketType {
-		UPDATE (0),
-		CALL (1),
+		UPDATE (0),									// Unused
+		CALL (1),									// Unused
 		CALL_DECLINED (2),
 		AUDIO_PACKET (3),
 		END_CALL (4),
 		HEARTBEAT (5), 
 		START_VOICE (6),
-		NO_ANSWER (7),
+		NO_ANSWER (7),								// Unused
 		ENCRYPTION_PUBLIC_KEY (8),
 		ENCRYPTION_SESSION_KEY (9),
 		ENCRYPTION_RECEIVED_SESSION_KEY (10),
-		ENCRYPTION_SET_ON(13),
-		ENCRYPTION_SET_OFF(14),
+		ENCRYPTION_SET_ON(13),						// Unused
+		ENCRYPTION_SET_OFF(14),						// Unused
 		ACK (11),
-		RECORDING_SAMPLE_RATE (12),
-		RELAY_INIT (15),	// This is hard coded in server code 
-		RELAY (16),
+		RECORDING_SAMPLE_RATE (12),					// Unused
+		RELAY_INIT (15),							// Hard coded in server code 
+		RELAY (16),									// Unused
 		CURRENT_BITRATE (17),
-		REQUEST_BITRATE (18),
-		PACKET_LOSS_BIT_ARRAY (19),	// Used in the iOS app
-		CELLULAR_INCOMING_CALL (20),
+		REQUEST_BITRATE (18),						// Unused
+		PACKET_LOSS_BIT_ARRAY (19),					// Unused
+		CELLULAR_INCOMING_CALL (20),				// Unused
 		COMM_UDP_SYN_PRIVATE (21),
 		COMM_UDP_SYN_PUBLIC (22),
 		COMM_UDP_SYN_RELAY (23),
@@ -69,15 +69,18 @@ public class VoIPDataPacket implements Cloneable {
 		COMM_UDP_ACK_PRIVATE (27),
 		COMM_UDP_ACK_PUBLIC (28),
 		COMM_UDP_ACK_RELAY (29),
-		NETWORK_QUALITY (30),
+		NETWORK_QUALITY (30),						// Unused
 		HOLD_ON (31), 
 		HOLD_OFF (32),
-		CLIENTS_LIST (33),
+		CLIENTS_LIST (33),							// Unused
 		RESET_PACKET_LOSS (34),
 		MULTIPLE_AUDIO_PACKETS (35),
 		MUTE_ON (36),
 		MUTE_OFF (37),
-		CLIENTS_LIST_JSON (38)
+		CLIENTS_LIST_JSON (38),
+		REQUEST_RECONNECT (39), 
+		FORCE_MUTE_ON (40), 
+		FORCE_MUTE_OFF (41)
 		;
 		
 		private final int value;
@@ -170,6 +173,12 @@ public class VoIPDataPacket implements Cloneable {
 				return MUTE_OFF;
 			case 38:
 				return CLIENTS_LIST_JSON;
+			case 39:
+				return REQUEST_RECONNECT;
+			case 40:
+				return FORCE_MUTE_ON;
+			case 41:
+				return FORCE_MUTE_OFF;
 			default:
 				return UPDATE;
 			}

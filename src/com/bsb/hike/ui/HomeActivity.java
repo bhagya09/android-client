@@ -36,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager.BadTokenException;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -411,18 +412,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			showAppropriateDialog();
 		}
 
-		if (dialogShowing == null)
-		{
-			if (!accountPrefs.getBoolean(HikeMessengerApp.SHOWN_SMS_CLIENT_POPUP, true))
-			{
-				showSMSClientDialog();
-			}
-			else if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_FREE_INVITE_POPUP, false))
-			{
-				showFreeInviteDialog();
-			}
-		}
-
 		HikeMessengerApp.getPubSub().addListeners(this, homePubSubListeners);
 
 		GetFTUEContactsTask getFTUEContactsTask = new GetFTUEContactsTask();
@@ -547,7 +536,23 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			MenuItemCompat.getActionView(searchMenuItem).clearFocus();
 			MenuItemCompat.collapseActionView(searchMenuItem);
 		}
+			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+	}
+
+	private void showSmsOrFreeInvitePopup()
+	{
+		if (dialogShowing == null)
+		{
+			if (!accountPrefs.getBoolean(HikeMessengerApp.SHOWN_SMS_CLIENT_POPUP, true))
+			{
+				showSMSClientDialog();
+			}
+			else if (accountPrefs.getBoolean(HikeMessengerApp.SHOW_FREE_INVITE_POPUP, false))
+			{
+				showFreeInviteDialog();
+			}
+		}
 	}
 
 	@Override
@@ -972,6 +977,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
 		checkNShowNetworkError();
+		
+		showSmsOrFreeInvitePopup();
+	
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 	}
 
@@ -1499,7 +1507,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		if (accountPrefs.getBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false) || count < 1 || (null != overFlowWindow && overFlowWindow.isShowing()))
 		{
-			topBarIndicator.setVisibility(View.GONE);
+			if(topBarIndicator!=null)
+				topBarIndicator.setVisibility(View.GONE);
 		}
 		else
 		{
@@ -1850,7 +1859,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			@Override
 			public void run()
 			{
-				overFlowWindow.showAsDropDown(anchor, -rightMargin, 0);
+				try
+				{
+					overFlowWindow.showAsDropDown(anchor, -rightMargin, 0);
+				}
+
+				catch (BadTokenException e)
+				{
+					Logger.wtf(TAG, " Getting badToken exception in showAsDropDown method");
+				}
 			}
 
 		});
