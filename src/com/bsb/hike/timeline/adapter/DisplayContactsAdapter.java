@@ -51,17 +51,16 @@ public class DisplayContactsAdapter extends BaseAdapter
 		
 		totalCount = argMsisdnList.size();
 		
-		//Iterate and remove all msisdns which are
-		//1) Not saved in Addressbook
-		//2) Non fav
+		// Iterate and remove all msisdns which are
+		// 1) Not saved in Addressbook
+		// 2) Non fav
 		for (int j = argMsisdnList.size() - 1; j >= 0; j--)
 		{
 			ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
-			if (contactInfo != null) 
+			if (contactInfo != null)
 			{
-				//Contact is unsaved.............. OR .... Contact is non fav
-				if (contactInfo.isUnknownContact() && 
-						!ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()))
+				// Contact is unsaved.............. OR .... Contact is non fav
+				if (contactInfo.isUnknownContact() && !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()))
 				{
 					argMsisdnList.remove(j);
 				}
@@ -114,27 +113,42 @@ public class DisplayContactsAdapter extends BaseAdapter
 		ViewHolder holder = null;
 
 		int viewType = getItemViewType(position);
-		
-		if (viewType == KNOWN_CONTACT_VIEW_TYPE)
+
+		if (convertView == null)
 		{
-			if (convertView == null)
+			switch (viewType)
 			{
+			case KNOWN_CONTACT_VIEW_TYPE:
 				convertView = layoutInflater.inflate(R.layout.contacts_display_list_item, parent, false);
 				holder = new ViewHolder(convertView, KNOWN_CONTACT_VIEW_TYPE);
 				convertView.setTag(holder);
-			}
-			else
-			{
-				holder = (ViewHolder) convertView.getTag();
-			}
+				break;
 
-			ContactInfo contactInfo = ContactManager.getInstance().getContact((getItem(position)), true,  false);
+			case UNKNOWN_CONTACT_VIEW_TYPE:
+				convertView = layoutInflater.inflate(R.layout.unknown_contact_list_item, parent, false);
+				holder = new ViewHolder(convertView, UNKNOWN_CONTACT_VIEW_TYPE);
+				convertView.setTag(holder);
+				break;
 
-			if (contactInfo == null)
-			{
-				throw new IllegalStateException("DisplayContactsAdapter getView(): msisdn which doesn't have contact info");
+			default:
+				break;
 			}
+		}
+		else
+		{
+			holder = (ViewHolder) convertView.getTag();
+		}
 
+		ContactInfo contactInfo = ContactManager.getInstance().getContact((getItem(position)), true, false);
+
+		if (contactInfo == null)
+		{
+			throw new IllegalStateException("DisplayContactsAdapter getView(): msisdn which doesn't have contact info");
+		}
+
+		switch (viewType)
+		{
+		case KNOWN_CONTACT_VIEW_TYPE:
 			if (TextUtils.isEmpty(contactInfo.getName()))
 			{
 				ContactInfo myContactInfo = Utils.getUserContactInfo(false);
@@ -157,31 +171,17 @@ public class DisplayContactsAdapter extends BaseAdapter
 
 			holder.avatar.setOval(true);
 			mAvatarLoader.loadImage(contactInfo.getMsisdn(), holder.avatar);
+			break;
 
-		}
-		else if (viewType == UNKNOWN_CONTACT_VIEW_TYPE)
-		{
-			if (convertView == null)
-			{
-				convertView = layoutInflater.inflate(R.layout.unknown_contact_list_item, parent, false);
-				holder = new ViewHolder(convertView, UNKNOWN_CONTACT_VIEW_TYPE);
-				convertView.setTag(holder);
-			}
-			else
-			{
-				holder = (ViewHolder) convertView.getTag();
-			}
-
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(suMsisdn, true,  false);
-
-			if (contactInfo == null)
-			{
-				throw new IllegalStateException("DisplayContactsAdapter getView(): msisdn which doesn't have contact info");
-			}
-			
-			String text = String.format(mContext.getString(R.string.like_count_by_unknow_contacts), totalCount- msisdnList.size(), contactInfo.getNameOrMsisdn());
+		case UNKNOWN_CONTACT_VIEW_TYPE:
+			String text = String.format(mContext.getString(R.string.like_count_by_unknow_contacts), totalCount - msisdnList.size(), contactInfo.getNameOrMsisdn());
 			holder.otherLikesCount.setText(text);
+			break;
+
+		default:
+			break;
 		}
+
 		return convertView;
 	}
 
