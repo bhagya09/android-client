@@ -1656,6 +1656,7 @@
     <string name="UNLINK_ACCOUNT">RESET ACCOUNT</string>
     <string name="UNLINK">UNLINK</string>
     <string name="UPDATE_APP">UPDATE</string>
+    <string name="like_count_by_unknow_contacts">+%1$d Friends of %2$s</string>
     <string name="ENABLE">ENABLE</string>
     <string name="accessibility_settings_system_text">Hike Stickey offers multiple features like sharing stickers on messaging apps etc. Please enable and turn it ON.</string>
 	<string name="show_accessibility_tip_text">Hike needs Accessibility Services to be enabled for this feature. Please tap here and select Hike</string>

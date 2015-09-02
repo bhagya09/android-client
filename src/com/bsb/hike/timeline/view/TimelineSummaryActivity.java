@@ -660,7 +660,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			dialog.setCanceledOnTouchOutside(true);
 
 			ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
-			contactsAdapter = new DisplayContactsAdapter(msisdns);
+			contactsAdapter = new DisplayContactsAdapter(msisdns, mStatusMessage.getMsisdn());
 			listContacts.setAdapter(contactsAdapter);
 			listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
 			{
