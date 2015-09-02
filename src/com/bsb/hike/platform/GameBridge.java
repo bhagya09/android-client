@@ -12,20 +12,17 @@ public class GameBridge
 {
 	public BotInfo mBotInfo;
 
-	Activity activity;
-
 	HikeHandlerUtil mThread;
 
 	PlatformHelper helper;
 
-	public static final String tag = "GameUtils";
+	public static final String TAG = "GameUtils";
 
 	protected WeakReference<Activity> weakActivity;
 
-	public GameBridge(BotInfo mBotInfo, Activity activty)
+	public GameBridge(BotInfo mBotInfo, Activity activity)
 	{
 		this.mBotInfo = mBotInfo;
-		this.activity = activity;
 		weakActivity = new WeakReference<Activity>(activity);
 		mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
@@ -53,7 +50,7 @@ public class GameBridge
 			{
 				if (mBotInfo != null)
 				{
-					helper.putInCache(key, value, mBotInfo);
+					helper.putInCache(key, value, mBotInfo.getNamespace());
 				}
 			}
 		});
@@ -78,7 +75,7 @@ public class GameBridge
 			{
 				if (mBotInfo != null)
 				{
-					String cache = helper.getFromCache(key, mBotInfo);
+					String cache = helper.getFromCache(key, mBotInfo.getNamespace());
 				}
 				DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
 				{
@@ -142,7 +139,7 @@ public class GameBridge
 			{
 				if (mBotInfo != null && weakActivity.get() != null)
 				{
-					helper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity);
+					helper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity.get());
 				}
 			}
 		});
@@ -169,7 +166,7 @@ public class GameBridge
 			{
 				if (mBotInfo != null)
 				{
-					helper.sendNormalEvent(messageHash, eventData, mBotInfo);
+					helper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
 				}
 			}
 		});
@@ -200,7 +197,7 @@ public class GameBridge
 			{
 				if (mBotInfo != null && weakActivity.get() != null)
 				{
-					helper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity);
+					helper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get());
 				}
 			}
 		});
@@ -228,7 +225,7 @@ public class GameBridge
 			{
 				if (mBotInfo != null)
 				{
-					String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo);
+					String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
 					DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
 					{
 						@Override
@@ -265,7 +262,7 @@ public class GameBridge
 			{
 				if (mBotInfo != null)
 				{
-					String returnedData = helper.getAllEventsData(mBotInfo);
+					String returnedData = helper.getAllEventsData(mBotInfo.getNamespace());
 					DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
 					{
 						@Override
@@ -301,7 +298,7 @@ public class GameBridge
 			{
 				if (mBotInfo != null)
 				{
-					String returnedData = helper.getSharedEventsData(mBotInfo);
+					String returnedData = helper.getSharedEventsData(mBotInfo.getNamespace());
 					DummyGameActivity.gameActivity.runOnGLThread(new Runnable()
 					{
 						@Override

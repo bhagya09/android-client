@@ -147,7 +147,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void forwardToChat(String json, String hikeMessage)
 	{
-		PlatformHelper.forwardToChat(json, hikeMessage,mBotInfo,weakActivity);
+		PlatformHelper.forwardToChat(json, hikeMessage,mBotInfo,weakActivity.get());
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void putInCache(String key, String value)
 	{
-		PlatformHelper.putInCache(key, value,mBotInfo);
+		PlatformHelper.putInCache(key, value,mBotInfo.getNamespace());
 	}
 
 	/**
@@ -349,7 +349,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getFromCache(String id, String key)
 	{
-	 	String value = PlatformHelper.getFromCache(key,mBotInfo);
+	 	String value = PlatformHelper.getFromCache(key,mBotInfo.getNamespace());
 		callbackToJS(id, value);
 	}
 
@@ -722,7 +722,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getSharedEventsData(String functionId)
 	{
-		String messageData = PlatformHelper.getSharedEventsData(mBotInfo);
+		String messageData = PlatformHelper.getSharedEventsData(mBotInfo.getNamespace());
 		callbackToJS(functionId, messageData);
 	}
 
@@ -796,7 +796,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getAllEventsData(String functionId)
 	{
-		String messageData = PlatformHelper.getAllEventsData(mBotInfo);
+		String messageData = PlatformHelper.getAllEventsData(mBotInfo.getNamespace());
 		callbackToJS(functionId, messageData);
 	}
 
@@ -817,7 +817,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void getAllEventsForMessageHash(String functionId, String messageHash)
 	{
 		
-		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash,mBotInfo);
+		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash,mBotInfo.getNamespace());
 		callbackToJS(functionId, eventData);
 	}
 
@@ -837,7 +837,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void sendSharedMessage(String cardObject, String hikeMessage, String sharedData)
 	{
-		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity);
+		PlatformHelper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity.get());
 	}
 
 	/**
@@ -851,7 +851,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String eventData)
 	{
-		PlatformHelper.sendNormalEvent(messageHash, eventData, mBotInfo);
+		PlatformHelper.sendNormalEvent(messageHash, eventData, mBotInfo.getNamespace());
 	}
 
 	/*

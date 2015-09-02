@@ -30,7 +30,7 @@ public class PlatformHelper
 
 	protected static Handler mHandler;
 
-	public static final String tag = "PlatformHelper";
+	public static final String TAG = "PlatformHelper";
 
 	public PlatformHelper()
 	{
@@ -49,15 +49,15 @@ public class PlatformHelper
 	}
 
 	// Call this method to put data in cache. This will be a key-value pair.
-	public static void putInCache(String key, String value, BotInfo mBotInfo)
+	public static void putInCache(String key, String value, String namespace)
 	{
-		HikeContentDatabase.getInstance().putInContentCache(key, mBotInfo.getNamespace(), value);
+		HikeContentDatabase.getInstance().putInContentCache(key, namespace, value);
 	}
 
 	// Call this function to get data from cache corresponding to a key
-	public static String getFromCache(String key, BotInfo mBotInfo)
+	public static String getFromCache(String key, String namespace)
 	{
-		return HikeContentDatabase.getInstance().getFromContentCache(key, mBotInfo.getNamespace());
+		return HikeContentDatabase.getInstance().getFromContentCache(key, namespace);
 
 	}
 
@@ -90,13 +90,13 @@ public class PlatformHelper
 	}
 
 	// Function to forward to chat
-	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, final WeakReference<Activity> weakActivity)
+	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, Activity activity)
 	{
-		Logger.i(tag, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
+		Logger.i(TAG, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
 
 		if (TextUtils.isEmpty(json) || TextUtils.isEmpty(hikeMessage))
 		{
-			Logger.e(tag, "Received a null or empty json/hikeMessage in forward to chat");
+			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
 			return;
 		}
 
@@ -118,7 +118,7 @@ public class PlatformHelper
 			message.setNameSpace(mBotInfo.getNamespace());
 			if (message != null)
 			{
-				startComPoseChatActivity(message, weakActivity);
+				startComPoseChatActivity(message, activity);
 			}
 		}
 		catch (JSONException e)
@@ -128,16 +128,16 @@ public class PlatformHelper
 		}
 	}
 
-	public static void sendNormalEvent(String messageHash, String eventData, BotInfo mBotInfo)
+	public static void sendNormalEvent(String messageHash, String eventData,String namespace)
 	{
-		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, mBotInfo.getNamespace());
+		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
 	}
 
-	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final WeakReference<Activity> weakActivity)
+	public static void sendSharedMessage(String cardObject, String hikeMessage, String sharedData, BotInfo mBotInfo, final Activity activity)
 	{
 		if (TextUtils.isEmpty(cardObject) || TextUtils.isEmpty(hikeMessage))
 		{
-			Logger.e(tag, "Received a null or empty json/hikeMessage in forward to chat");
+			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
 			return;
 		}
 
@@ -162,7 +162,7 @@ public class PlatformHelper
 			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
-			pickContactAndSend(message, weakActivity);
+			pickContactAndSend(message, activity);
 
 		}
 		catch (JSONException e)
@@ -172,48 +172,47 @@ public class PlatformHelper
 		}
 	}
 
-	public static String getAllEventsForMessageHash(String messageHash, BotInfo mBotInfo)
+	public static String getAllEventsForMessageHash(String messageHash,String namespace)
 	{
 		if (TextUtils.isEmpty(messageHash))
 		{
-			Logger.e(tag, "can't return all events as the message hash is " + messageHash);
+			Logger.e(TAG, "can't return all events as the message hash is " + messageHash);
 			return null;
 		}
-		String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHash(messageHash, mBotInfo.getNamespace());
+		String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHash(messageHash, namespace);
 		return eventData;
 	}
 
-	public static String getAllEventsData(BotInfo mBotInfo)
+	public static String getAllEventsData(String namespace)
 	{
-		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), true);
+		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, true);
 		return messageData;
 	}
 
-	public static String getSharedEventsData(BotInfo mBotInfo)
+	public static String getSharedEventsData(String namespace)
 	{
-		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(mBotInfo.getNamespace(), false);
+		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, false);
 		return messageData;
 	}
 
-	protected static void pickContactAndSend(ConvMessage message, final WeakReference<Activity> weakActivity)
+	protected static void pickContactAndSend(ConvMessage message, final Activity activity)
 	{
 		final String REQUEST_CODE = "request_code";
 
 		final int PICK_CONTACT_REQUEST = 1;
 
 		final int PICK_CONTACT_AND_SEND_REQUEST = 2;
-		Activity activity = weakActivity.get();
 		if (activity != null)
 		{
 			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
-			intent.putExtra(tag, activity.hashCode());
+			intent.putExtra(TAG, activity.hashCode());
 			intent.putExtra(REQUEST_CODE, PICK_CONTACT_AND_SEND_REQUEST);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 		}
 	}
 
-	protected static void startComPoseChatActivity(final ConvMessage message, final WeakReference<Activity> weakActivity)
+	protected static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
 	{
 		if (null == mHandler)
 		{
@@ -225,7 +224,6 @@ public class PlatformHelper
 			@Override
 			public void run()
 			{
-				Activity mContext = weakActivity.get();
 				if (mContext != null)
 				{
 					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
