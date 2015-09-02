@@ -27,6 +27,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadConstants;
+import com.bsb.hike.chatHead.ChatHeadLayout;
 import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.TabClickListener;
@@ -466,12 +467,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 	@Override
 	public void stickerSelected(Sticker sticker, String source)
-	{
-		if (listener != null)
-		{
+	{   if (listener != null)
+		{ 
 			listener.stickerSelected(sticker, source);
-			String filePathBmp = sticker.getStickerPath();
-			ChatHeadViewManager.getInstance(mContext).resetPosition(ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
 		}
 	}
 	
@@ -696,6 +694,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		StickerEmoticonIconPageIndicator.unRegisterChatHeadTabClickListener();
 		releaseResources();
+	}
+
+	public void resetPostionAfterSharing(String filePathBmp)
+	{
+		ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance()).resetPosition(ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
 	}
 
 }

@@ -9,6 +9,7 @@ import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,8 +65,10 @@ public class ChatHeadLayout implements StickerPickerListener
 					sticker.getStickerId(), source);
 			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0)+1);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT,0)+1));
-			
-		   ChatHeadViewManager.dismissed = 0;
+		    ChatHeadViewManager.dismissed = 0;
+			String filePathBmp = sticker.getStickerPath();
+		    picker.resetPostionAfterSharing(filePathBmp);
+		
 		}
 		else
 		{
