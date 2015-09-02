@@ -123,14 +123,17 @@ public class SwitchPreferenceCompat extends com.bsb.hike.view.TwoStatePreference
 		
 		TextView subText = (TextView) view.findViewById(android.R.id.summary);
 		
-		if (isEnabled())
+		if (subText != null)
 		{
-			subText.setText(getSummary());
-		}
-		
-		else
-		{
-			subText.setText(TextUtils.isEmpty(getDisabledSummaryText()) ? getSummary() : getDisabledSummaryText());
+			if (isEnabled())
+			{
+				subText.setText(getSummary());
+			}
+
+			else
+			{
+				subText.setText(TextUtils.isEmpty(getDisabledSummaryText()) ? getSummary() : getDisabledSummaryText());
+			}
 		}
 		
 

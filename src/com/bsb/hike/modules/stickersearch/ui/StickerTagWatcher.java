@@ -84,7 +84,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.color = color;
 		this.chatthread = chathread;
 		this.stickerPickerListener = (IStickerPickerRecommendationListener) chathread;
-		this.colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
+		getColorSpanPool(); // initialise colorSpanPool;
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		this.shownStickerRecommendFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, false);
 		this.shownStickerRecommendFtueTip = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
@@ -103,7 +103,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		Logger.i(TAG, "onTextChanged(), " + "CharSequence: " + s + ", [start: " + start + ", before : " + before + ", count : " + count + "]");
 
 		StickerSearchManager.getInstance().onTextChanged(s, start, before, count);
-		colorSpanPool.unMarkAll();
+		getColorSpanPool().unMarkAll();
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			try
 			{
 				removeAttachedSpans(start, end);
-				editable.setSpan(colorSpanPool.getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				editable.setSpan(getColorSpanPool().getHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 			catch (Exception e)
 			{
@@ -166,7 +166,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			try
 			{
 				removeAttachedSpans(start, end);
-				editable.setSpan(colorSpanPool.getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				editable.setSpan(getColorSpanPool().getUnHighlightSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 			catch (Exception e)
 			{
@@ -590,5 +590,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				StickerSearchManager.getInstance().checkToTakeActionOnAutoPopupTurnOff();
 			}
 		}
+	}
+	
+	private ColorSpanPool getColorSpanPool()
+	{
+		if (this.colorSpanPool == null)
+		{
+			this.colorSpanPool = new ColorSpanPool(this.color, Color.BLACK);
+		}
+		
+		return colorSpanPool;
 	}
 }

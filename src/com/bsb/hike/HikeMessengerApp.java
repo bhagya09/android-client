@@ -33,6 +33,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
+import com.bsb.hike.ag.NetworkAgModule;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -464,11 +465,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String SHOW_VOIP_FTUE_POPUP = "showVoipFtuePopup";
 
-	public static final String SHOW_VOIP_CALL_RATE_POPUP = "showVoipCallRatePopup";
-
 	public static final String VOIP_CALL_RATE_POPUP_FREQUENCY = "voipCallRatePopupFrequency";
-
-	public static final String VOIP_ACTIVE_CALLS_COUNT = "voipCallsCount";
 
 	public static final String DETAILED_HTTP_LOGGING_ENABLED = "detailedHttpLoggingEnabled";
 
@@ -940,6 +937,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 		
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
+		
+		NetworkAgModule.startLogging();
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
