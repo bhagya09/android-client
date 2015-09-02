@@ -12,9 +12,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -33,6 +31,7 @@ public class PlatformHelper
 	protected static Handler mHandler;
 
 	public static final String tag = "PlatformHelper";
+
 	public PlatformHelper()
 	{
 		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
@@ -43,22 +42,26 @@ public class PlatformHelper
 			};
 		};
 	}
+
 	protected void handleUiMessage(Message msg)
 	{
 
 	}
 
+	// Call this method to put data in cache. This will be a key-value pair.
 	public static void putInCache(String key, String value, BotInfo mBotInfo)
 	{
 		HikeContentDatabase.getInstance().putInContentCache(key, mBotInfo.getNamespace(), value);
 	}
 
+	// Call this function to get data from cache corresponding to a key
 	public static String getFromCache(String key, BotInfo mBotInfo)
 	{
 		return HikeContentDatabase.getInstance().getFromContentCache(key, mBotInfo.getNamespace());
 
 	}
 
+	// Function to log Analytics
 	public static void logAnalytics(String isUI, String subType, String json, BotInfo mBotInfo)
 	{
 
@@ -86,6 +89,7 @@ public class PlatformHelper
 		}
 	}
 
+	// Function to forward to chat
 	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, final WeakReference<Activity> weakActivity)
 	{
 		Logger.i(tag, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);

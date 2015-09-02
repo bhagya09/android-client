@@ -7,7 +7,6 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 
 import android.app.Activity;
-import android.util.Log;
 
 public class GameBridge
 {
@@ -141,7 +140,7 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null && weakActivity != null)
+				if (mBotInfo != null && weakActivity.get() != null)
 				{
 					helper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity);
 				}
@@ -199,7 +198,7 @@ public class GameBridge
 			@Override
 			public void run()
 			{
-				if (mBotInfo != null && weakActivity != null)
+				if (mBotInfo != null && weakActivity.get() != null)
 				{
 					helper.sendSharedMessage(cardObject, hikeMessage, sharedData, mBotInfo, weakActivity);
 				}
