@@ -158,24 +158,35 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	 */
 	protected void handleUIMessage(Message msg)
 	{
-		switch(msg.what)
+		switch (msg.what)
 		{
-			case UPDATE_ANIMATION_MESSAGE:
-				if(!isOfflineConnected())
+		case UPDATE_ANIMATION_MESSAGE:
+			if (!isOfflineConnected())
+			{
+				updateAnimationText(connectionInfo, (String) (msg.obj), false);
+			}
+			break;
+		case UPDATE_ANIMATION_SECOND_MESSAGE:
+			if (timerDuration > 0)
+			{
+				if (!isOfflineConnected())
+					updateAnimationText(secondMessage, (String) msg.obj, false);
+			}
+			break;
+		case START_TIMER:
+			if (!isOfflineConnected())
+			{
+				if (timerDuration > 0)
 				{
-					updateAnimationText(connectionInfo,(String)(msg.obj),false);
+					updateAnimationText(connectionInfo, "" + timerDuration / 1000, true);
 				}
-				break;
-			case UPDATE_ANIMATION_SECOND_MESSAGE:
-				if(!isOfflineConnected())
-					updateAnimationText(secondMessage,(String)msg.obj,false);
-				break;
-			case START_TIMER:
-				if(!isOfflineConnected())
+				else
 				{
-					updateAnimationText(connectionInfo,"" +timerDuration/1000,true);
+					updateAnimationText(connectionInfo, getString(R.string.disconnecting_offline), false);
 				}
-				break;	
+
+			}
+			break;
 		}
 		
 	}
