@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
@@ -23,15 +24,29 @@ import com.bsb.hike.utils.Logger;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 
 public class PlatformHelper
 {
-	// public BotInfo mBotInfo;
 
 	protected static Handler mHandler;
 
 	public static final String tag = "PlatformHelper";
+	public PlatformHelper()
+	{
+		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
+		{
+			public void handleMessage(Message msg)
+			{
+				handleUiMessage(msg);
+			};
+		};
+	}
+	protected void handleUiMessage(Message msg)
+	{
+
+	}
 
 	public static void putInCache(String key, String value, BotInfo mBotInfo)
 	{
