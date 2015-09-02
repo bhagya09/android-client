@@ -54,9 +54,8 @@ import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -502,16 +501,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void run()
 				{
-					if (object != null && object instanceof FeedDataModel)
-					{
-						FeedDataModel feedData = (FeedDataModel) object;
-						Logger.d(HikeConstants.TIMELINE_LOGS, "on pubsub ACTIVITY_UPDATE adding Feed " + feedData);
-						TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
-						notifyVisibleItems();
-					}
+					notifyVisibleItems();
 				}
 			});
-			
+
 		}
 		else if (HikePubSub.TIMELINE_WIPE.equals(type))
 		{
