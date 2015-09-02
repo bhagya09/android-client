@@ -2592,7 +2592,7 @@ public class HikeConstants
 	// TODO need to finalize this with AM
 	public static final int FRIENDS_LIMIT_MAGIC_NUMBER = 8;
 
-	public static final StatusMessageType[] STATUS_TYPE_LIST_TO_FETCH = { StatusMessageType.TEXT, StatusMessageType.TEXT_IMAGE };
+	public static final StatusMessageType[] STATUS_TYPE_LIST_TO_FETCH = { StatusMessageType.TEXT};
 
 	public static enum WelcomeTutorial
 	{

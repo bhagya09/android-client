@@ -3765,6 +3765,9 @@ public class MqttMessagesManager
 					if(count != -1)
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
+						
+						//To update Overflow menu on Home Screen
+						HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
 					}
 
 					if (isSuccess)

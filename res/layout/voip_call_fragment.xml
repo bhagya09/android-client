@@ -188,18 +188,6 @@
 			        android:src="@drawable/ic_mute_disabled">
 			    </ImageButton>
 
-			     <ImageButton
-			        android:id="@+id/hold_btn"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:scaleType="centerInside"
-			        android:padding="7dp"
-			        android:background="@null"
-			        android:layout_weight="1"
-			        android:visibility="gone"
-			        android:src="@drawable/ic_hold_disabled">
-			    </ImageButton>
-			    
 			    <ImageButton
 			        android:id="@+id/speaker_btn"
 			        android:layout_width="wrap_content"
