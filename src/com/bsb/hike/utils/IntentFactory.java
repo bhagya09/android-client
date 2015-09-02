@@ -53,6 +53,7 @@ import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
+import com.bsb.hike.ui.HikeDirectHelpPageActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
@@ -977,10 +978,18 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getApkSelectionActivityIntent(Context context) {
+	public static Intent getApkSelectionActivityIntent(Context context) 
+	{
 		Intent intent = new Intent(context, ApkSelectionActivity.class);
 		return intent;
 	}
+	
+	public static Intent getHikeDirectHelpPageActivityIntent(Context context)
+	{
+		Intent intent = new Intent(context, HikeDirectHelpPageActivity.class);
+		return intent;
+	}
+	
 	public static Intent getInviteViaSMSIntent(Context context)
 	{
 		Intent intent = new Intent(context, HikeListActivity.class);

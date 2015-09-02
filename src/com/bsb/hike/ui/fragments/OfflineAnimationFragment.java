@@ -8,7 +8,9 @@ import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.DialogInterface.OnKeyListener;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -38,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
@@ -55,6 +58,7 @@ import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
@@ -121,7 +125,9 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	
 	private HoloCircularProgress circularProgress;
 	
-	Boolean connectionCancelled =false;
+	private Boolean connectionCancelled =false;
+	
+	private Context context;
 	
 	private  Handler uiHandler = new Handler()
 	{

@@ -354,6 +354,12 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
 
+         <activity
+            android:name=".ui.HikeDirectHelpPageActivity"
+            android:label="@string/app_label"
+         >
+        </activity>
+         
         <receiver
             android:name=".service.BootService"
             android:enabled="true" >

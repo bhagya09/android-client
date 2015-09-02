@@ -1696,4 +1696,11 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name ="connection_established_inline_msg">Connection Established</string>
     <string name ="connection_deestablished_inline_msg">Connection Disconnected</string>
     <string name = "connection_request_inline_msg">Hike Direct Request Missed</string>
+    <string name = "hike_direct_info">Hike Direct is the new way to stay connected to your friends even when you’re out of data. It allows you to send messages and share files with your nearby friends absolutely free. There is no file size limit and you can send movies, videos, music, apps and whatever you want absolutely free of cost.</string>
+    <string name ="how_hike_direct_works">How does Hike Direct work?</string>
+    <string name ="condition_one">Condition 1:Your friend is within 100 meters of you.Of course the closer you are , the better the connection!</string>
+    <string name ="condition_two">Condition 2:To start a connection , also ask your friend to tap on Hike Direct option from your chat.</string>
+    <string name ="offline_group_query">Does Hike Direct work for group chats as well ?</string>
+    <string name ="offline_group_answer">As of now, Hike Direct only works for 1:1 chats.  It doesn’t work for group chats. Stay tuned in for updates on this space.</string>
+    <string name ="hike_direct_help">Hike Direct Help</string>
 </resources>
