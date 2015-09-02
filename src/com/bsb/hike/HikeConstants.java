@@ -1181,6 +1181,12 @@ public class HikeConstants
 		public static final String CHAT_HEAD_SERVICE = "enable";
 
 		public static final String CHAT_HEAD_USR_CONTROL = "usr_ctrl";
+		
+		public static final String FORCE_ACCESSIBILITY="frc_acsb";
+		
+		public static final String SHOW_ACCESSIBILITY="shw_acsb";
+
+		public static final String DONT_USE_ACCESSIBILITY="acsb_not";
 
 		public static final String STICKERS_PER_DAY = "stkr_per_day";
 
@@ -2586,7 +2592,7 @@ public class HikeConstants
 	// TODO need to finalize this with AM
 	public static final int FRIENDS_LIMIT_MAGIC_NUMBER = 8;
 
-	public static final StatusMessageType[] STATUS_TYPE_LIST_TO_FETCH = { StatusMessageType.TEXT, StatusMessageType.TEXT_IMAGE };
+	public static final StatusMessageType[] STATUS_TYPE_LIST_TO_FETCH = { StatusMessageType.TEXT};
 
 	public static enum WelcomeTutorial
 	{
