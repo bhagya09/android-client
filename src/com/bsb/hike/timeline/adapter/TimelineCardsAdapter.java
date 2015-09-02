@@ -471,7 +471,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			viewHolder.name.setText(mUserMsisdn.equals(statusMessage.getMsisdn()) ? HikeMessengerApp.getInstance().getString(R.string.me) : statusMessage.getNotNullName());
 
-			viewHolder.mainInfo.setText(statusMessage.getText());
+			viewHolder.mainInfo.setText(statusMessage.getText().trim());
 
 			viewHolder.timeStamp.setVisibility(View.VISIBLE);
 			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, mContext));
@@ -518,7 +518,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				viewHolder.noBtn.setVisibility(View.GONE);
 
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText().trim(), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 				viewHolder.parent.setTag(statusMessage);
@@ -698,7 +698,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			else
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
+				viewHolder.mainInfo.setText(smileyParser.addSmileySpans(statusMessage.getText().trim(), true));
 				Linkify.addLinks(viewHolder.mainInfo, Linkify.ALL);
 				viewHolder.mainInfo.setMovementMethod(null);
 			}
@@ -1060,23 +1060,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 	};
 
-	public void removeStatusUpdate(String statusId)
+	public void removeStatusUpdate(final String statusId)
 	{
-		if (mStatusMessages == null || mStatusMessages.isEmpty())
-		{
-			return;
-		}
-
-		for (StatusMessage statusMessage : mStatusMessages)
-		{
-			if (statusId.equals(statusMessage.getMappedId()))
-			{
-				mStatusMessages.remove(statusMessage);
-				Logger.d(HikeConstants.TIMELINE_LOGS, "SU list after deleting post "+ mStatusMessages);
-				break;
-			}
-		}
-
 		if (mActivity.get() != null)
 		{
 			mActivity.get().runOnUiThread(new Runnable()
@@ -1084,6 +1069,26 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				@Override
 				public void run()
 				{
+					if(mActivity.get() == null || mActivity.get().isFinishing())
+					{
+						return;
+					}
+					
+					if (mStatusMessages == null || mStatusMessages.isEmpty())
+					{
+						return;
+					}
+
+					for (StatusMessage statusMessage : mStatusMessages)
+					{
+						if (statusId.equals(statusMessage.getMappedId()))
+						{
+							mStatusMessages.remove(statusMessage);
+							Logger.d(HikeConstants.TIMELINE_LOGS, "SU list after deleting post "+ mStatusMessages);
+							break;
+						}
+					}
+
 					notifyDataSetChanged();
 				}
 			});
@@ -1641,7 +1646,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		if (!mStatusMessages.isEmpty() && mFtueFriendList != null && !mFtueFriendList.isEmpty())
 		{
 			ContactInfo contact = mFtueFriendList.get(0);
-			if (addFav && (contact.getFavoriteType() != FavoriteType.FRIEND))
+			if (addFav && (contact.getFavoriteType()!=null && contact.getFavoriteType() != FavoriteType.FRIEND))
 			{
 				Logger.d("tl_ftue", "Adding " + contact.getMsisdn() +" as friend");
 				Utils.toggleFavorite(mContext, contact, true);
