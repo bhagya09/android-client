@@ -56,13 +56,12 @@ public class DisplayContactsAdapter extends BaseAdapter
 		//2) Non fav
 		for (int j = argMsisdnList.size() - 1; j >= 0; j--)
 		{
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false, true);
-			if (contactInfo == null) // Null implies that this contact is not saved in address book, now going to check if it is fav
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
+			if (contactInfo != null) 
 			{
-				contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
-				if (!contactInfo.getFavoriteType().equals(ContactInfo.FavoriteType.FRIEND))
+				//Contact is unsaved.............. OR .... Contact is non fav
+				if (contactInfo.isUnknownContact() || !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()))
 				{
-					//As this contact is not fav so removing it
 					argMsisdnList.remove(j);
 				}
 			}
