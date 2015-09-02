@@ -40,14 +40,14 @@ public class DisplayContactsAdapter extends BaseAdapter
 	//Contact neither saved in Address book nor fav
 	private final int UNKNOWN_CONTACT_VIEW_TYPE = -16;
 
-	public DisplayContactsAdapter(List<String> argMsisdnList, String msisdn)
+	public DisplayContactsAdapter(List<String> argMsisdnList, String suMsisdn)
 	{
 		if (argMsisdnList == null || argMsisdnList.isEmpty())
 		{
 			throw new IllegalArgumentException("DisplayContactsAdapter(): input cannot be null or empty");
 		}
 
-		this.suMsisdn = msisdn;
+		this.suMsisdn = suMsisdn;
 		
 		totalCount = argMsisdnList.size();
 		
@@ -60,10 +60,15 @@ public class DisplayContactsAdapter extends BaseAdapter
 			if (contactInfo != null) 
 			{
 				//Contact is unsaved.............. OR .... Contact is non fav
-				if (contactInfo.isUnknownContact() || !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()))
+				if (contactInfo.isUnknownContact() && 
+						!ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()))
 				{
 					argMsisdnList.remove(j);
 				}
+			}
+			else
+			{
+				argMsisdnList.remove(j);
 			}
 		}
 
