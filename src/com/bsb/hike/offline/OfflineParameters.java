@@ -10,7 +10,7 @@ import com.google.gson.annotations.Expose;
 public class OfflineParameters
 {
 	@Expose
-	boolean feature = true;
+	boolean feature = false;
 
 	@Expose
 	int gtto = 20000;  // 20 sec
