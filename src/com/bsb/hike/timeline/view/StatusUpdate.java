@@ -723,6 +723,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
 		mEmoticonPicker.setOnDismissListener(this);
 		mEmoticonPicker.setDisableExtraPadding(true);
+		mEmoticonPicker.useStatusUpdateEmojisList(true);
 	}
 	
 	private void setEmoticonButtonSelected(boolean selected)

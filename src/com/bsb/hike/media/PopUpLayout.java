@@ -72,7 +72,7 @@ public class PopUpLayout implements OnTouchListener
 		// action_outside event, so we can return true to eat that event
 		// BUT Point to note here is : even though the pop up is not dismissed,
 		// view behind it will still get onclick event
-		FrameLayout viewParent = (FrameLayout) view.getParent();
+		FrameLayout viewParent = (FrameLayout) view.getRootView();
 		WindowManager.LayoutParams lp = (WindowManager.LayoutParams) viewParent.getLayoutParams();
 		lp.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
 
