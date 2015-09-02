@@ -1181,6 +1181,12 @@ public class HikeConstants
 		public static final String CHAT_HEAD_SERVICE = "enable";
 
 		public static final String CHAT_HEAD_USR_CONTROL = "usr_ctrl";
+		
+		public static final String FORCE_ACCESSIBILITY="frc_acsb";
+		
+		public static final String SHOW_ACCESSIBILITY="shw_acsb";
+
+		public static final String DONT_USE_ACCESSIBILITY="acsb_not";
 
 		public static final String STICKERS_PER_DAY = "stkr_per_day";
 
@@ -3219,5 +3225,11 @@ public class HikeConstants
 	public static final String TIMELINE_COUNT_LOGS = "tlc_logs";
 	
 	public static final String STICKER_SETTINGS = "stickerSettings";
+
+	public static final String AG_ENABLED = "agLogs";
+
+	public static final String REFERRAL_EMAIL_TEXT = "ref_mail_txt";
+	
+	public static final String REFERRAL_OTHER_TEXT = "ref_oth_txt";
 
 }

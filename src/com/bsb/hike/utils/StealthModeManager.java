@@ -40,7 +40,7 @@ public class StealthModeManager
 
 	private HikeHandlerUtil handler;
 
-	private static Set<String> stealthMsisdn;
+	private static Set<String> stealthMsisdn = new HashSet<String>();
 	
 	private volatile int currentState;
 
@@ -57,7 +57,6 @@ public class StealthModeManager
 	
 	public void initiate()
 	{
-		stealthMsisdn = new HashSet<String>();
 		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
 		setTipVisibility(false, ConversationTip.STEALTH_FTUE_TIP);
 		ftuePending(false);
@@ -96,7 +95,14 @@ public class StealthModeManager
 
 	public boolean isStealthMsisdn(String msisdn)
 	{
-		return stealthMsisdn.contains(msisdn);
+		if(msisdn!=null)
+		{
+			return stealthMsisdn.contains(msisdn);
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	private void resetStealthToggleTimer()

@@ -1309,9 +1309,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 
 		initAttachmentPicker(mConversation.isOnHike());
-		int width = (int) (Utils.scaledDensityMultiplier * 270);
-		int xOffset = -(int) (276 * Utils.scaledDensityMultiplier);
-		int yOffset = -(int) (0.5 * Utils.scaledDensityMultiplier);
+		int xOffset = -(int) (276 * Utils.densityMultiplier);
+		int yOffset = -(int) (0.5 * Utils.densityMultiplier);
 		attachmentPicker.show(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
 	}
 
@@ -2317,12 +2316,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			else
 			{
-				mConversationsView.setSelection(messages.size());
+				mConversationsView.setSelection(messages.size() - 1);
 			}
 		}
 		else
 		{
-			mConversationsView.setSelection(messages.size());
+			mConversationsView.setSelection(messages.size() - 1);
 		}
 		mConversationsView.setOnItemLongClickListener(this);
 		mConversationsView.setOnTouchListener(this);
@@ -2914,6 +2913,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				ArrayList<ConvMessage> msgList;
 				if (loaderId == SEARCH_PREVIOUS || loaderId == SEARCH_LOOP)
 				{
+					msgSize = chatThread.get().messages.size();
 					long maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
 					long minId = -1;
 					ArrayList<Long> ids = new ArrayList<Long>();
@@ -2961,6 +2961,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				}
 				if (loaderId == SEARCH_NEXT)
 				{
+					msgSize = chatThread.get().messages.size();
 					int count = firstVisisbleItem;
 					long minId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
 					int maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);

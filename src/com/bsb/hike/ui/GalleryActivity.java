@@ -370,20 +370,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: empty " + filePath);
 			return false;
 		}
-		
-		File mediafile = new File(filePath);
-		if (!mediafile.exists())
-		{
-			Logger.d(GalleryActivity.class.getSimpleName(), "onCreate() filePath: does not exist " + filePath);
-			return false;
-		}
-		
-		String dirPath = mediafile.getParent();
-		if(dirPath == null)
-		{
-			return false;
-		}
-		
+
 		if(editEnabled && isImageEdited(filePath))
 		{
 			//Skipping this file since this is a temp file created by multi-edit 

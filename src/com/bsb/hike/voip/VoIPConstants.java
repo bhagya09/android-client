@@ -154,7 +154,7 @@ public class VoIPConstants {
 	public static final int MSG_BLUETOOTH_SHOW = 28;
 	public static final int MSG_DOES_NOT_SUPPORT_CONFERENCE = 29;
 	public static final int MSG_PARTNER_BUSY = 30;
-	public static final int MSG_FORCE_MUTE_UPDATED = 31;
+	public static final int MSG_UPDATE_FORCE_MUTE_LAYOUT = 31;
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 
 	public static final class Analytics
