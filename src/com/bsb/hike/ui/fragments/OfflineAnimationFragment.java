@@ -819,6 +819,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 	private void closeFragment()
 	{
 		Utils.unblockOrientationChange((ChatThreadActivity)getActivity());
+		removePostedMessages();
 		dismissAllowingStateLoss();
 	}
 	
