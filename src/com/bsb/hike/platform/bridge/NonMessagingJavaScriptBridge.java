@@ -437,7 +437,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	public void notifDataReceived(final String notifData)
 	{
-		if (mHandler == null)
+		if (mHandler == null || TextUtils.isEmpty(notifData))
 		{
 			return;
 		}

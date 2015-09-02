@@ -771,12 +771,23 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		final String notifData = (String ) object;
+
 		if (type.equals(HikePubSub.NOTIF_DATA_RECEIVED))
 		{
-			if (null != mmBridge && !TextUtils.isEmpty(notifData))
+			if (object instanceof BotInfo)
 			{
-				mmBridge.notifDataReceived(notifData);
+				BotInfo botInfo = (BotInfo) object;
+				if (msisdn.equals(botInfo.getMsisdn()))
+				{
+					String notifData = botInfo.getNotifData();
+					if (null != mmBridge && !TextUtils.isEmpty(botInfo.getNotifData()))
+					{
+						mmBridge.notifDataReceived(notifData);
+					}
+				}
+			}
+		}
+			{
 			}
 		}
 
