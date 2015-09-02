@@ -419,7 +419,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			else
 			{
 				SmileyParser smileyParser = SmileyParser.getInstance();
-				textViewCaption.setText(smileyParser.addSmileySpans(mStatusMessage.getText(), true));
+				textViewCaption.setText(smileyParser.addSmileySpans(mStatusMessage.getText().trim(), true));
 				Linkify.addLinks(textViewCaption, Linkify.ALL);
 			}
 		}
