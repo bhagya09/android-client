@@ -2994,7 +2994,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				optionsList.add(context.getString(R.string.add_to_contacts));
 			}
 			optionsList.add(context.getString(R.string.send_message));
-			optionsList.add(context.getString(R.string.call));
+			if (Utils.isVoipActivated(context))
+				optionsList.add(context.getString(R.string.call));
+			
 			final String[] options = new String[optionsList.size()];
 			optionsList.toArray(options);
 

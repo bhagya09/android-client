@@ -985,6 +985,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			if (Utils.isResponseValid(response))
 			{
 				TimelineActions actionsData = gson.fromJson(response.toString(), TimelineActions.class);
+				
+				if(actionsData == null)
+				{
+					return;
+				}
 
 				notifyVisibleItems();
 
