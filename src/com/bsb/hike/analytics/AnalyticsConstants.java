@@ -467,4 +467,6 @@ public class AnalyticsConstants
 	public static final String TIMELINE_U_ID = "tid";
 	
 	public static final String TIMELINE_OPTION_TYPE = "ot";
+	
+	public static final String APP_CRASH_EVENT = "appCrash";
 }
