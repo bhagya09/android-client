@@ -173,8 +173,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			}
 		}
 		
-		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), getActivity().getSupportFragmentManager(),
-				mShowProfileHeader, mMsisdnArray)
+		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), mShowProfileHeader, mMsisdnArray)
 		{
 			@Override
 			public void handleUIMessage(Message msg)
@@ -187,7 +186,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 				else if (msg.arg1 == UpdatesFragment.MSG_DELETE)
 				{
-					if (actionsView != null && getActivity()!=null)
+					if (actionsView != null && getActivity() != null)
 					{
 						getActivity().runOnUiThread(new Runnable()
 						{
