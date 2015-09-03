@@ -1,5 +1,6 @@
 package com.bsb.hike.timeline.adapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -40,8 +41,10 @@ public class DisplayContactsAdapter extends BaseAdapter
 	//Contact neither saved in Address book nor fav
 	private final int UNKNOWN_CONTACT_VIEW_TYPE = -16;
 
-	public DisplayContactsAdapter(List<String> argMsisdnList, String suMsisdn)
+	public DisplayContactsAdapter(List<String> argList, String suMsisdn)
 	{
+		List<String> argMsisdnList = new ArrayList<String>(argList);
+		
 		if (argMsisdnList == null || argMsisdnList.isEmpty())
 		{
 			throw new IllegalArgumentException("DisplayContactsAdapter(): input cannot be null or empty");
