@@ -8118,4 +8118,59 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return result;
 	}
+	
+	
+	public void updateSortingIdForAMessage(int msgId)
+	{
+		int maxMsgId = getMaxMsgIdFromMessagesTable();
+
+		if (maxMsgId < 0)
+		{
+			Logger.e("HikeConversationsDatabase", "Got maxMsgId as < 0 : " + maxMsgId + " Returning from update method");
+			return;
+		}
+
+		try
+		{
+			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = " + (maxMsgId + 1) + " WHERE " + DBConstants.MESSAGE_ID
+					+ " = " + "'" + msgId + "'";
+			mDb.execSQL(updateStatement);
+		}
+
+		catch (Exception e)
+		{
+			Logger.e("HikeConversationsDatabase", "Got an exception while updating sortingId for a Message");
+		}
+	}
+
+	public int getMaxMsgIdFromMessagesTable()
+	{
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { "MAX(" + DBConstants.MESSAGE_ID + ")" + "AS " + DBConstants.MESSAGE_ID }, null, null, null, null, null, null);
+
+			if (c != null && c.moveToFirst())
+			{
+				return c.getInt(c.getColumnIndex(DBConstants.MESSAGE_ID));
+			}
+			else
+			{
+				return -1;
+			}
+		}
+
+		catch (Exception e)
+		{
+			return -1;
+		}
+
+		finally
+		{
+			if (c != null)
+				c.close();
+		}
+	}
+	
 }

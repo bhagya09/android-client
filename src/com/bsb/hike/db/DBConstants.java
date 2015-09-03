@@ -385,4 +385,5 @@ public interface DBConstants
 	 * Introduced in ConvDb v44, this column will be used henceforth for sorting the messages pertaining to a single conversation
 	 */
 	public static final String SORTING_ID = "sortingId";
+	
 }
