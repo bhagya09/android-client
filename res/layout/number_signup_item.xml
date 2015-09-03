@@ -157,7 +157,7 @@
                 android:ems="10"
                 android:hint="@string/phone_num"
                 android:imeOptions="actionDone"
-                android:inputType="number"
+                android:inputType="phone"
                 android:maxLength="15"
                 android:singleLine="true"
                 android:textColor="@color/selected_country"

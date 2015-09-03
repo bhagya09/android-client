@@ -8,64 +8,7 @@ import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.telephony.TelephonyManager;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
-import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationSet;
-import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
-import android.widget.ViewFlipper;
-
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
@@ -90,10 +33,74 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontEditText;
+import com.kpt.adaptxt.beta.CustomKeyboard;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
-		OnCancelListener, Listener
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
+import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
+import android.widget.ViewFlipper;
+
+public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener,
+				OnClickListener, AdaptxtEditTextEventListner, AdaptxtKeyboordVisibilityStatusListner, OnCancelListener, Listener
 {
+	private CustomKeyboard mCustomKeyboard;
+	
+	private boolean systemKeyboard;
 
 	private SignupTask mTask;
 
@@ -121,7 +128,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ViewGroup loadingLayout;
 
-	private EditText enterEditText;
+	private CustomFontEditText enterEditText;
 
 	private TextView invalidNum;
 
@@ -133,7 +140,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ImageView mIconView;
 
-	private TextView birthdayText;
+	private CustomFontEditText birthdayText;
 
 	private TextView maleText;
 
@@ -260,6 +267,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		mHandler = new Handler();
 
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
+		systemKeyboard = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CURRENT_KEYBOARD, false);
+		setupCustomKeyboard();
 
 		viewFlipper = (ViewFlipper) findViewById(R.id.signup_viewflipper);
 		numLayout = (ViewGroup) findViewById(R.id.num_layout);
@@ -578,9 +587,32 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		return mActivityState;
 	}
 
+	private void destroyKeyboardResources()
+	{
+		mCustomKeyboard.unregister(enterEditText);
+		mCustomKeyboard.unregister(birthdayText);
+
+		mCustomKeyboard.closeAnyDialogIfShowing();
+
+		mCustomKeyboard.destroyCustomKeyboard();
+	}
+	
+	@Override
+	protected void onPause()
+	{
+		mCustomKeyboard.closeAnyDialogIfShowing();
+		
+		mCustomKeyboard.onPause();
+		
+		super.onPause();
+	}
+	
 	protected void onDestroy()
 	{
 		super.onDestroy();
+		
+		destroyKeyboardResources();
+		
 		HikeMessengerApp.getPubSub().removeListener(HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, this);
 		if (dialog != null)
 		{
@@ -654,6 +686,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void submitClicked()
 	{
+		if (!systemKeyboard)
+		{
+			mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+		}
+		
 		if (viewFlipper.getDisplayedChild() == BACKUP_FOUND || viewFlipper.getDisplayedChild() == RESTORING_BACKUP)
 		{
 			try
@@ -833,8 +870,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		switch (layout.getId())
 		{
 		case R.id.name_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_name);
-			birthdayText = (TextView) layout.findViewById(R.id.birthday);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_name);
+			birthdayText = (CustomFontEditText) layout.findViewById(R.id.birthday);
 			profilePicCamIcon = (ImageView) layout.findViewById(R.id.profile_cam);
 			
 			if(profilePicCamIcon != null)
@@ -850,13 +887,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			break;
 		case R.id.num_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_num);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_num);
 			infoTxt = (TextView) layout.findViewById(R.id.txt_img1);
 			infoTxt.setVisibility(View.VISIBLE);
 			verifiedPin = layout.findViewById(R.id.verified_pin);
 			break;
 		case R.id.pin_layout:
-			enterEditText = (EditText) layout.findViewById(R.id.et_enter_pin);
+			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_pin);
 			infoTxt = (TextView) layout.findViewById(R.id.txt_img1);
 			invalidPin = (TextView) layout.findViewById(R.id.invalid_pin);
 			verifiedPin = layout.findViewById(R.id.verified_pin);
@@ -896,10 +933,50 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		setupActionBarTitle();
 	}
 
+	private void setupCustomKeyboard()
+	{
+		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
+		mCustomKeyboard = new CustomKeyboard(this, viewHolder);
+		mCustomKeyboard.registerEditText(R.id.et_enter_num, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.et_enter_pin, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.et_enter_name, KPTConstants.MULTILINE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+		mCustomKeyboard.registerEditText(R.id.birthday, KPTConstants.SINGLE_LINE_EDITOR, SignupActivity.this, SignupActivity.this);
+	}
+	
+	private void showKeyboard(CustomFontEditText editText)
+	{
+		mCustomKeyboard.init(editText);
+		if (systemKeyboard)
+		{
+			Utils.showSoftKeyboard(this, editText);
+		}
+		else
+		{
+			mCustomKeyboard.showCustomKeyboard(editText, true);
+		}
+	}
+	
 	private void prepareLayoutForFetchingNumber()
 	{
 		initializeViews(numLayout);
 
+		showKeyboard(enterEditText);
+		
+		enterEditText.setOnClickListener(
+				new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(View v)
+					{
+						if (mCustomKeyboard.isCustomKeyboardVisible())
+						{
+							mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+						}
+						showKeyboard(enterEditText);
+					}
+				});
+		
 		countryPicker.setOnFocusChangeListener(new OnFocusChangeListener()
 		{
 			@Override
@@ -958,6 +1035,17 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		initializeViews(pinLayout);
 
+		enterEditText.setOnClickListener(
+				new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(View v)
+					{
+						showKeyboard(enterEditText);
+					}
+				});
+		
 		callmeBtn.setVisibility(View.VISIBLE);
 		nextBtnContainer.setVisibility(View.VISIBLE);
 
@@ -1036,6 +1124,23 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 		}
 
+		showKeyboard(enterEditText);
+		
+		enterEditText.setOnClickListener(
+				new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(View v)
+					{
+						if (mCustomKeyboard.isCustomKeyboardVisible())
+						{
+							mCustomKeyboard.showCustomKeyboard(enterEditText, false);
+						}
+						showKeyboard(enterEditText);
+					}
+				});
+		
 		if (!addressBookScanningDone)
 		{
 			Utils.hideSoftKeyboard(this, enterEditText);
@@ -2326,4 +2431,68 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		// TODO Auto-generated method stub
 		return true;
 	}
+
+	@Override
+	public void analyticalData(String arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputViewCreated()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInputviewVisbility(boolean arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showGlobeKeyView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showQuickSettingView()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtFocusChange(View arg0, boolean arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtTouch(View arg0, MotionEvent arg1)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdaptxtclick(View arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReturnAction(int arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
 }
